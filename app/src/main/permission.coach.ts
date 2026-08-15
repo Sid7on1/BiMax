@@ -2,6 +2,7 @@ import { BrowserWindow, screen, shell, nativeImage, app, systemPreferences } fro
 import * as path from 'path';
 import * as fs from 'fs';
 import { REQUIRED_WEB_PREFERENCES } from './security';
+import { hostGrants, invalidateHostGrants, type Disposition } from './host.grants';
 
 /**
  * The permission drag coach.
@@ -99,7 +100,8 @@ async function openPermissionPane(url: string): Promise<void> {
 
 export type CoachPane = keyof typeof PANES;
 
-export type Disposition = 'granted' | 'denied' | 'not-determined' | 'unavailable';
+/** Re-exported so existing importers keep their import path; the type is owned by host.grants. */
+export type { Disposition };
 
 /**
  * Whether the drop that just happened still has an unfinished macOS approval behind it.
@@ -138,8 +140,11 @@ function toDisposition(raw: unknown): Disposition {
  */
 function grantReading(pane: string, identityOwner: 'host' | 'service'): Disposition {
   if (process.platform !== 'darwin' || identityOwner === 'service') return 'unavailable';
-  if (pane === 'accessibility') return toDisposition(systemPreferences.isTrustedAccessibilityClient(false));
-  if (pane === 'screenRecording') return toDisposition(systemPreferences.getMediaAccessStatus('screen'));
+  // Through `hostGrants()`, never `systemPreferences` directly: this is polled once a second by a
+  // watch whose entire job is to notice a change, and the in-process API is the one thing here that
+  // provably cannot report one. See host.grants.ts for the measurement.
+  if (pane === 'accessibility') return hostGrants().accessibility;
+  if (pane === 'screenRecording') return hostGrants().screenRecording;
   if (pane === 'fullDisk') return probeFullDisk();
   return 'unavailable';
 }
@@ -192,6 +197,8 @@ function beginGrantWatch(
 ): void {
   endGrantWatch('restarted');
   const startedAt = Date.now();
+  // The drop just happened, so any reading taken before it is answering a stale question.
+  invalidateHostGrants();
 
   const settle = (reason: string): void => endGrantWatch(reason, 'restore');
 
@@ -252,12 +259,13 @@ export function probePermissions(): PermissionProbe {
     // Anything whose bundle name is not Bimax is a host we are borrowing — the grant belongs to it.
     isDevHost: darwin && !/^bimax$/i.test(name),
     readings: {
-      accessibility: darwin
-        ? toDisposition(systemPreferences.isTrustedAccessibilityClient(false))
-        : 'unavailable',
-      screenRecording: darwin
-        ? toDisposition(systemPreferences.getMediaAccessStatus('screen'))
-        : 'unavailable',
+      // Fresh-child readings. This probe is what the Trust Center renders, so a stale positive here
+      // is what made the app insist a granted permission was off no matter how many times the user
+      // granted it.
+      accessibility: darwin ? hostGrants().accessibility : 'unavailable',
+      screenRecording: darwin ? hostGrants().screenRecording : 'unavailable',
+      // Microphone stays in-process: it is prompt-driven, and the prompt's own callback updates
+      // this process, so there is no staleness to correct.
       microphone: darwin
         ? toDisposition(systemPreferences.getMediaAccessStatus('microphone'))
         : 'unavailable',

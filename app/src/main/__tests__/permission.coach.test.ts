@@ -93,6 +93,14 @@ import {
   startCoach,
   stopCoach,
 } from '../permission.coach';
+import { setFreshGrantProbe } from '../host.grants';
+
+/**
+ * What a fresh child process would report, independently of `accessibilityReading` (which is this
+ * process's own, cache-prone answer). Tests that care only about the watch's mechanics leave this
+ * null so the reading falls back to `accessibilityReading` and they keep their original meaning.
+ */
+let freshReading: { accessibility: boolean; screenRecording: boolean } | null = null;
 
 type ElectronProcessWithSystemVersion = NodeJS.Process & { getSystemVersion(): string };
 const electronProcess = process as ElectronProcessWithSystemVersion;
@@ -106,11 +114,16 @@ describe('permission drag coach', () => {
     jest.useRealTimers();
     BrowserWindowMock.instances = [];
     accessibilityReading = 'denied';
+    // Never the real bundled helper: it would answer for the machine running the suite, so these
+    // tests would pass or fail according to the tester's own Accessibility settings.
+    freshReading = null;
+    setFreshGrantProbe(() => freshReading);
     electronProcess.getSystemVersion = jest.fn(() => '26.5.2');
   });
 
   afterAll(() => {
     electronProcess.getSystemVersion = originalGetSystemVersion;
+    setFreshGrantProbe(null);
     jest.useRealTimers();
   });
 
@@ -195,6 +208,39 @@ describe('permission drag coach', () => {
     expect(quit).not.toHaveBeenCalled();
     expect(restore).not.toHaveBeenCalled();
     expect(isAwaitingHostGrant()).toBe(true);
+  });
+
+  /**
+   * The reported defect, as a test.
+   *
+   * macOS decides a process's Accessibility trust once. The main process starts before the user
+   * grants anything, so `isTrustedAccessibilityClient()` returns false for the rest of its life no
+   * matter what the user approves — measured on macOS 26.5.2, where the bundled helper reported
+   * `accessibility: true` while the running process still said no.
+   *
+   * So the grant here lands ONLY in the fresh reading, and `accessibilityReading` stays denied for
+   * the whole test. Against the old code — which polled this process — the watch could never
+   * settle: it sat out its full five-minute timeout instead of restoring the window, and the Trust
+   * Center went on showing Off however many times the permission was granted.
+   */
+  test('settles on a grant only a fresh process can see, while this one still reports denied', async () => {
+    const restore = jest.fn();
+    await startCoach('accessibility', jest.fn(), restore, '/Applications/Bimax.app', 'host');
+    jest.useFakeTimers();
+    startBundleDrag({ sender: { startDrag: jest.fn() } } as any);
+    BrowserWindowMock.instances[0].destroy();
+
+    freshReading = { accessibility: false, screenRecording: false };
+    jest.advanceTimersByTime(10_000);
+    expect(restore).not.toHaveBeenCalled();
+
+    // The user authenticates. This process is not told, and never will be.
+    freshReading = { accessibility: true, screenRecording: false };
+    jest.advanceTimersByTime(1_000);
+
+    expect(accessibilityReading).toBe('denied');
+    expect(restore).toHaveBeenCalledTimes(1);
+    expect(isAwaitingHostGrant()).toBe(false);
   });
 
   test('comes back by itself once the grant actually lands', async () => {

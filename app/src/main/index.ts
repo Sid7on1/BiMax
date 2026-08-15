@@ -29,6 +29,7 @@ import {
   probePermissions, coachWebContentsId, coachBundlePath, isAwaitingHostGrant,
   type PermissionProbe,
 } from './permission.coach';
+import { hostGrants } from './host.grants';
 import {
   approveManualAlphaService,
   inspectManualAlphaService,
@@ -443,12 +444,11 @@ async function currentTrustReport(): Promise<TrustReport> {
       minimumMacOS: MINIMUM_MACOS,
     },
     permissions: {
-      accessibility: darwin
-        ? toDisposition(systemPreferences.isTrustedAccessibilityClient(false))
-        : 'unavailable',
-      screenRecording: darwin
-        ? toDisposition(systemPreferences.getMediaAccessStatus('screen'))
-        : 'unavailable',
+      // Fresh-child readings — see host.grants.ts. This is the gate the native Computer Use path
+      // checks before it will route, so a stale negative here does not merely mislabel a row: it
+      // keeps Bimax CU switched off after the user has already granted everything it asked for.
+      accessibility: darwin ? hostGrants().accessibility : 'unavailable',
+      screenRecording: darwin ? hostGrants().screenRecording : 'unavailable',
     },
     components,
     integrity: {

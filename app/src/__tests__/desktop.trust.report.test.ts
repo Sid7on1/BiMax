@@ -268,10 +268,16 @@ describe('reporting is read-only and cannot prompt', () => {
     // mutually exclusive. What must never prompt is *reporting*: opening the Trust Center cannot
     // be the thing that raises a macOS dialog.
     const builder = stripComments(topLevelFunction(main, 'async function currentTrustReport()'));
-    // Self-checking scope: these are the report's only two permission probes, so if the slice ever
-    // stops covering the real builder these fail rather than the bans passing over a stale cut.
-    expect(builder).toContain('isTrustedAccessibilityClient(false)');
-    expect(builder).toContain("getMediaAccessStatus('screen')");
+    // Self-checking scope: this is the report's only permission probe, so if the slice ever stops
+    // covering the real builder this fails rather than the bans passing over a stale cut.
+    //
+    // It used to name the two Electron APIs directly. They now sit behind `hostGrants()`, which
+    // asks a fresh child process instead — because macOS decides Accessibility trust once per
+    // process, so the long-lived main process can never observe a grant the user makes after
+    // launch. The non-prompting invariant is unchanged and still enforced below: the helper's
+    // `status` verb preflights (`AXIsProcessTrusted`, `CGPreflightScreenCaptureAccess`) and the
+    // in-process fallback is still the `false` variant.
+    expect(builder).toContain('hostGrants()');
     // …and the channel must still reach that builder, so the scope cannot drift off the live path.
     expect(main).toMatch(/'trust:report'[^;]*currentTrustReport\(\)/);
 
@@ -279,12 +285,18 @@ describe('reporting is read-only and cannot prompt', () => {
     // Electron; the rest are pure, and the ban keeps it that way.
     const reportingPath = [
       builder,
-      ...['trust', 'engine', 'manual-alpha.trust', 'release.integrity']
+      // host.grants.ts joins the list because the probes moved into it — without this the ban
+      // would have been relocated out of its own scope rather than upheld.
+      ...['trust', 'engine', 'manual-alpha.trust', 'release.integrity', 'host.grants']
         .map((m) => stripComments(read(`app/src/main/${m}.ts`))),
     ].join('\n');
     // The prompting variants of the two APIs above.
     expect(reportingPath).not.toContain('askForMediaAccess');
     expect(reportingPath).not.toContain('isTrustedAccessibilityClient(true)');
+    // The helper has a prompting verb too (`request-access`, which calls
+    // AXIsProcessTrustedWithOptions + CGRequestScreenCaptureAccess). Reporting may only ever spawn
+    // the preflight one, so the argv the reporting path passes is pinned here as well.
+    expect(reportingPath).not.toContain("'request-access'");
   });
 
   test('the channel is registered through the guarded helper like every other', () => {
