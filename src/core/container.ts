@@ -54,6 +54,7 @@ import { createMemoryQueryTool } from '../tools/implementations/memory.tool';
 import { createRememberTool } from '../tools/implementations/remember.tool';
 import { globalProjectMemory } from '../memory/project.memory';
 import { VectorStore } from '../memory';
+import { RemoteEmbeddingBackend } from '../memory/embeddings';
 import { createSpawnSubagentTool } from '../tools/implementations/spawn.tool';
 import { createTasksTool } from '../tools/implementations/tasks.tool';
 import { createNotebookEditTool } from '../tools/implementations/notebook.tool';
@@ -199,7 +200,21 @@ export async function createContainer(config?: Partial<CliConfig>): Promise<{
   toolRegistry.register(createCdTool(governor));
   toolRegistry.register(createGraphQueryTool(governor, graphStore));
   toolRegistry.register(createGraphContextTool(governor, graphStore));
-  const vectorStore = new VectorStore();
+  /**
+   * Memory retrieval is hybrid: BM25 for exact tokens, dense embeddings for paraphrase, fused by
+   * rank. The embedding backend rides the SAME provider and key pool as every chat call, so this
+   * costs no new dependency and no new configuration — and when there is no key it returns null,
+   * the store falls back to BM25 alone, and `lastSearchMode()` says which happened. It is never
+   * given hashed pseudo-vectors to rank on.
+   */
+  const embeddings = new RemoteEmbeddingBackend({
+    resolve: async () => {
+      const key = await apiKeyManager.getNextKey();
+      if (!key.keyStr) return null;
+      return { apiKey: key.keyStr, baseURL: key.baseURL || 'https://integrate.api.nvidia.com/v1' };
+    },
+  });
+  const vectorStore = new VectorStore(embeddings);
   toolRegistry.register(createMemoryQueryTool(governor, vectorStore));
   toolRegistry.register(createRememberTool(governor, globalProjectMemory));
   toolRegistry.register(createSpawnSubagentTool(governor, toolRegistry, llmAdapter));
