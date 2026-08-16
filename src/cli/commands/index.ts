@@ -26,6 +26,7 @@ import './evolve';
 import './plugins';
 import './security';
 import './diagnostics';
+import './retrieval';
 import './output';
 import './a11y';
 import './orchestrate';
