@@ -2,6 +2,7 @@ import { globalCommandRegistry } from './registry';
 import { buildKeyPool, getCurrentProvider } from '../provider';
 import { ApiKeyManager } from '../../credits/api.key.manager';
 import { RemoteEmbeddingBackend, dot } from '../../memory/embeddings';
+import { RemoteReranker } from '../../memory/rerank';
 
 /**
  * `/retrieval` — is semantic search actually on, or silently degraded?
@@ -122,9 +123,43 @@ globalCommandRegistry.register({
       healthy ? 'ok' : 'fail',
       'Margin',
       healthy
-        ? `${margin.toFixed(4)} — hybrid search is live and the space is separating meaning`
+        ? `${margin.toFixed(4)} — the space is separating meaning`
         : `${margin.toFixed(4)} — below ${MIN_MARGIN}; the model is responding but not discriminating`,
     ));
+
+    // The fourth stage degrades exactly as silently as the third, and for the same reasons: a
+    // reranker that cannot answer leaves the fused order in place, which is correct and invisible.
+    out.push('');
+    const reranker = new RemoteReranker({
+      resolve: async () => {
+        const key = await manager.getNextKey();
+        if (!key.keyStr) return null;
+        return { apiKey: key.keyStr, baseURL: key.baseURL || 'https://integrate.api.nvidia.com/v1' };
+      },
+    });
+    const ranked = await reranker.rerank(QUERY, [
+      { id: 'paraphrase', text: PARAPHRASE },
+      { id: 'unrelated', text: UNRELATED },
+    ]);
+    if (!ranked) {
+      out.push(line('fail', 'Rerank', reranker.unavailableReason() ?? 'transient failure'));
+      out.push('  Results keep the fused order. Recall is unaffected; the best match may not be first.');
+    } else {
+      // The cross-encoder must agree with the retriever about which passage answers the query. If
+      // it does not, it is reordering results on a signal that disagrees with the one that found
+      // them, which is worse than not reranking at all.
+      const first = ranked[0]?.id;
+      out.push(line(
+        first === 'paraphrase' ? 'ok' : 'fail',
+        'Rerank',
+        first === 'paraphrase'
+          ? `${reranker.model} ranked the paraphrase first`
+          : `${reranker.model} ranked "${first}" first — it disagrees with retrieval`,
+      ));
+    }
+
+    out.push('');
+    out.push(`Pipeline: chunk → BM25 ∥ dense → rank fusion${ranked ? ' → rerank' : ''}`);
 
     return {
       type: 'message',

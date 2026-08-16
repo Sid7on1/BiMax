@@ -65,7 +65,7 @@ describe('hybrid retrieval', () => {
 
     const hits = await store.semanticSearch(BUILD_FAILING, 3, 0.25);
     expect(hits.map((h) => h.id)).toContain('ci');
-    expect(store.lastSearchMode()).toBe('hybrid');
+    expect(store.lastSearchMode().dense).toBe(true);
   });
 
   test('the same query finds nothing under lexical-only retrieval', async () => {
@@ -77,7 +77,7 @@ describe('hybrid retrieval', () => {
 
     const hits = await store.semanticSearch(BUILD_FAILING, 3, 0.25);
     expect(hits.map((h) => h.id)).not.toContain('ci');
-    expect(store.lastSearchMode()).toBe('lexical');
+    expect(store.lastSearchMode().dense).toBe(false);
   });
 
   test('exact identifiers still win, which is what BM25 is carrying', async () => {
@@ -103,7 +103,7 @@ describe('hybrid retrieval', () => {
 
     const hits = await store.semanticSearch('permission drag', 3, 0);
     expect(hits.map((h) => h.id)).toEqual(['a']);
-    expect(store.lastSearchMode()).toBe('lexical');
+    expect(store.lastSearchMode().dense).toBe(false);
   });
 
   test('vectors from another model are discarded, never compared', async () => {
@@ -112,19 +112,19 @@ describe('hybrid retrieval', () => {
     await first.storeDocument('ci', CI_RED, []);
 
     const raw = JSON.parse(fs.readFileSync(path.join(tmp, '.breakglass/memory/vectors.json'), 'utf8'));
-    expect(raw[0].space).toBe('model-a@2');
+    expect(raw[0].chunks[0].space).toBe('model-a@2');
 
     // Reopen under a different model: the stale vector must not be used.
     const second = new VectorStore(fakeBackend(ANGLES, 'model-b@2'));
     await second.semanticSearch('anything', 3, 0);
     const reread = JSON.parse(fs.readFileSync(path.join(tmp, '.breakglass/memory/vectors.json'), 'utf8'));
-    expect(reread[0].space === 'model-a@2' && reread[0].embedding).toBeTruthy();
+    expect(reread[0].chunks[0].space === 'model-a@2' && reread[0].chunks[0].embedding).toBeTruthy();
 
     // …and a backfill under the new model re-embeds it into the new space.
     const result = await second.backfillEmbeddings();
     expect(result.embedded).toBe(1);
     const after = JSON.parse(fs.readFileSync(path.join(tmp, '.breakglass/memory/vectors.json'), 'utf8'));
-    expect(after[0].space).toBe('model-b@2');
+    expect(after[0].chunks[0].space).toBe('model-b@2');
   });
 
   test('a document stored while embeddings are down is still stored, and backfills later', async () => {
@@ -142,13 +142,13 @@ describe('hybrid retrieval', () => {
     await store.storeDocument('a', 'something worth remembering', []);
 
     let raw = JSON.parse(fs.readFileSync(path.join(tmp, '.breakglass/memory/vectors.json'), 'utf8'));
-    expect(raw[0].embedding).toBeUndefined();
+    expect(raw[0].chunks[0].embedding).toBeUndefined();
     expect(raw[0].metadata.content).toBe('something worth remembering');
 
     online = true;
     expect((await store.backfillEmbeddings()).embedded).toBe(1);
     raw = JSON.parse(fs.readFileSync(path.join(tmp, '.breakglass/memory/vectors.json'), 'utf8'));
-    expect(raw[0].space).toBe('flaky@2');
+    expect(raw[0].chunks[0].space).toBe('flaky@2');
   });
 
   test('backfill is idempotent', async () => {

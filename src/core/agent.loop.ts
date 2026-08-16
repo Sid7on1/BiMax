@@ -5,6 +5,8 @@ import { ToolRegistry } from '../tools/tool.registry';
 import { IGovernor } from './interfaces';
 import { Logger } from '../utils';
 import { ContextManager } from '../memory/context.manager';
+import type { VectorStore } from '../memory/vector.store';
+import { recallForTurn, recallKey, recallQuery } from '../memory/recall';
 import { cliEvents, ToolCallEntry } from '../cli/events';
 import { getActiveTodos, todosTouchedThisTurn } from '../tools/implementations/todo.tool';
 import { LoopDetector, LoopSignal } from './loop-detector';
@@ -80,7 +82,10 @@ export class AgentLoop {
     // Session-scoped context manager owned by the caller (the persona). When provided, token
     // calibration, warning latches, and compaction epochs survive across turns instead of being
     // silently reset by each fresh AgentLoop. Omitted → a private per-loop instance (workers/tests).
-    contextManager?: ContextManager
+    contextManager?: ContextManager,
+    // Memory store for AUTOMATIC recall. Optional: workers and tests run without one, and a loop
+    // without a store behaves exactly as before. See ../memory/recall.
+    private memoryStore?: VectorStore
   ) {
     this.contextManager = contextManager ?? new ContextManager(llm, maxContextTokens);
   }
@@ -143,6 +148,34 @@ export class AgentLoop {
    * non-system turns. If the slice starts inside a tool exchange, discard leading orphaned tool
    * results until the first user/assistant message so the provider contract remains valid.
    */
+  /** Queries already recalled against this session — re-injecting one is pure token cost. */
+  private recalled = new Set<string>();
+
+  /**
+   * Retrieve against the latest user message and inject what comes back.
+   *
+   * Guarded by `recallQuery`, which is pure and tested separately. Failure is silent by design:
+   * recall is an enhancement, and a memory lookup must never be able to fail a user's turn.
+   */
+  private async injectRecall(): Promise<void> {
+    if (!this.memoryStore) return;
+    const last = [...this.messages].reverse().find((m) => m.role === 'user');
+    if (!last) return;
+
+    const query = recallQuery(last.role, last.content, this.recalled);
+    if (!query) return;
+    this.recalled.add(recallKey(query));
+
+    const recalled = await recallForTurn(this.memoryStore, query).catch(() => null);
+    if (!recalled) return;
+
+    // Placed before the user's message, so the model reads the evidence and then the question —
+    // and so the block is attributable to the system rather than appearing to be something the
+    // user said.
+    const at = this.messages.lastIndexOf(last);
+    this.messages.splice(at, 0, { role: 'system', content: recalled.text } as typeof last);
+  }
+
   private truncateContext(messages: Message[], keepRecentTurns = 4): Message[] {
     const systemMessages = messages.filter(message => message.role === 'system');
     const nonSystemMessages = messages.filter(message => message.role !== 'system');
@@ -248,6 +281,10 @@ export class AgentLoop {
       // stall the user's active interactive turn.
       // 1. Layered context management (smart mode runs the cheap passes + summarize-on-pressure;
       //    full mode is a no-op here and relies on reactive compaction if the API rejects the size).
+      // 0. Automatic recall, BEFORE compaction so the injected block is subject to the same
+      //    passes as everything else — a recall that could not be compacted would be the one thing
+      //    in the window that grows without limit.
+      await this.injectRecall();
       this.messages = await this.contextManager.checkAndCompact(this.messages, contextMode);
       if (options?.skipRepoMap) {
         // ContextManager refreshes the code RepoMap on every round. It is valuable for coding, but

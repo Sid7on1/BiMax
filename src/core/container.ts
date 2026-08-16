@@ -55,6 +55,7 @@ import { createRememberTool } from '../tools/implementations/remember.tool';
 import { globalProjectMemory } from '../memory/project.memory';
 import { VectorStore } from '../memory';
 import { RemoteEmbeddingBackend } from '../memory/embeddings';
+import { RemoteReranker } from '../memory/rerank';
 import { createSpawnSubagentTool } from '../tools/implementations/spawn.tool';
 import { createTasksTool } from '../tools/implementations/tasks.tool';
 import { createNotebookEditTool } from '../tools/implementations/notebook.tool';
@@ -214,7 +215,20 @@ export async function createContainer(config?: Partial<CliConfig>): Promise<{
       return { apiKey: key.keyStr, baseURL: key.baseURL || 'https://integrate.api.nvidia.com/v1' };
     },
   });
-  const vectorStore = new VectorStore(embeddings);
+  /**
+   * The fourth stage. Both retrievers score a document without ever seeing it beside the query,
+   * which is what makes them fast enough to run over everything and is also their ceiling: fusion
+   * is good at putting the right document somewhere in the top twenty and mediocre at putting it in
+   * the top three — and the top three is all that fits in a prompt.
+   */
+  const reranker = new RemoteReranker({
+    resolve: async () => {
+      const key = await apiKeyManager.getNextKey();
+      if (!key.keyStr) return null;
+      return { apiKey: key.keyStr, baseURL: key.baseURL || 'https://integrate.api.nvidia.com/v1' };
+    },
+  });
+  const vectorStore = new VectorStore(embeddings, reranker);
   toolRegistry.register(createMemoryQueryTool(governor, vectorStore));
   toolRegistry.register(createRememberTool(governor, globalProjectMemory));
   toolRegistry.register(createSpawnSubagentTool(governor, toolRegistry, llmAdapter));
