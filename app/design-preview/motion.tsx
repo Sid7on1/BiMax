@@ -59,7 +59,10 @@ function Seeded({ width, height, label }: { width: number; height: number; label
         </button>
 
         <Dialog open={open} onOpenChange={(v) => { if (!v) setOpen(false); }}>
-          <DialogContent className="w-[min(420px,calc(100vw-min(56px,40vw)))] p-0">
+          {/* Explicitly `seeded`, because the default is no longer this: most dialogs in the app
+              keep standard system behaviour (Prompt 2 §42) and only the model picker morphs. This
+              stage is the drill for the seeded path, so it has to ask for it. */}
+          <DialogContent motion="seeded" className="w-[min(420px,calc(100vw-min(56px,40vw)))] p-0">
             <DialogTitle className="sr-only">Seeded panel</DialogTitle>
             <header className="flex items-center justify-between border-b border-line/60 px-4 py-3">
               <span className="text-[13px] font-semibold text-ink">It grew out of the button</span>
@@ -100,6 +103,72 @@ function Seeded({ width, height, label }: { width: number; height: number; label
       {/* What the pure placement computes for this window, so geometry and render can be compared. */}
       <div style={{ font: '10px/1.5 ui-monospace, monospace', color: '#8a8a85' }}>
         destinationFor → {Math.round(box.width)}×{Math.round(box.height)} at ({Math.round(box.x)}, {Math.round(box.y)})
+      </div>
+    </figure>
+  );
+}
+
+/**
+ * The other five dialogs: standard system behaviour (Prompt 2 §42).
+ *
+ * Here because "the animation is absent" and "the animation is standard" look identical in a
+ * screenshot, and the two ways this path breaks are both invisible in a still:
+ *
+ *   - the exit never plays, because Radix's `Presence` keeps a closing element mounted only while a
+ *     CSS *animation* is running on it, and a `data-[state=closed]:` variant that the stylesheet
+ *     never generated leaves nothing for it to wait on. The sheet then vanishes on the frame the
+ *     user clicks away, which reads as the app dropping it;
+ *   - the entrance fires but the centring is fought over, because the keyframes and Tailwind's
+ *     `-translate-x-1/2` would be two writers of one property if the keyframes touched `transform`
+ *     rather than only `scale`.
+ *
+ * Both are checkable by pressing this and pressing Escape, which is why it is a stage and not a
+ * paragraph in a document.
+ */
+function Standard(): React.ReactElement {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <figure style={{ margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <figcaption style={{ font: '600 11px/1 ui-monospace, monospace', letterSpacing: '.08em', textTransform: 'uppercase', color: '#8a8a85' }}>
+        standard · settings, trust centre, alerts, sheets
+      </figcaption>
+      <div
+        style={{
+          position: 'relative', width: 320, height: 220, overflow: 'hidden', borderRadius: 14,
+          background: DESKTOP, boxShadow: '0 24px 60px rgba(0,0,0,.35)',
+          display: 'grid', placeItems: 'center',
+        }}
+      >
+        <button
+          onClick={() => setOpen(true)}
+          className="glass-pill pressable flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-[12px] text-ink"
+        >
+          <Settings size={14} /> Open settings
+        </button>
+
+        <Dialog open={open} onOpenChange={(v) => { if (!v) setOpen(false); }}>
+          <DialogContent className="w-[min(380px,calc(100vw-min(56px,40vw)))] p-0">
+            <DialogTitle className="sr-only">Standard sheet</DialogTitle>
+            <header className="flex items-center justify-between border-b border-line/60 px-4 py-3">
+              <span className="text-[13px] font-semibold text-ink">It did not come from the button</span>
+              <button onClick={() => setOpen(false)} aria-label="Close" className="cursor-pointer rounded-md p-1 text-dim hover:text-ink">
+                <X size={14} />
+              </button>
+            </header>
+            <div className="space-y-2.5 p-4 text-[12px] leading-relaxed text-dim">
+              <p>
+                A settings window is not the control that opened it, so it does not claim to be.
+                It arrives centred, on the house spring, and Radix owns its mounting — there is
+                nothing driven per frame here at all.
+              </p>
+              <p className="text-faint">
+                Which is also why it holds up while the transcript is streaming: the whole entrance
+                is one compositor animation, so a stalled main thread cannot stutter it.
+              </p>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </figure>
   );
@@ -155,6 +224,7 @@ export function MotionPreview(): React.ReactElement {
         {FRAMES.map((frame) => (
           <Seeded key={frame.label} {...frame} />
         ))}
+        <Standard />
       </div>
       <div style={{ display: 'flex', gap: 14, alignItems: 'center', font: '11px/1.6 system-ui', color: '#8a8a85' }}>
         <Settings size={13} /> Press a button, then press Escape — the collapse is the flight in reverse.

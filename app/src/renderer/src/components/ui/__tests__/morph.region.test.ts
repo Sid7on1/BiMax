@@ -1,5 +1,5 @@
 import { MorphController } from '../morph/controller';
-import type { MorphGeometry } from '../morph/geometry';
+import { edgeOf, type MorphGeometry } from '../morph/geometry';
 import { paintRegionClip, releaseRegion } from '../morph/paint';
 
 /**
@@ -67,6 +67,7 @@ function exposed(clip: string, region: MorphGeometry): { x: number; y: number; w
 function makeRegionController(overrides: {
   seed?: MorphGeometry | null;
   region?: MorphGeometry;
+  kind?: 'sidebar' | 'inspector';
   onSettled?: () => void;
   onClosed?: () => void;
 } = {}): { controller: MorphController; element: { style: FakeStyle }; clips: string[] } {
@@ -76,7 +77,7 @@ function makeRegionController(overrides: {
   const clips: string[] = [];
 
   const controller = new MorphController({
-    kind: () => 'inspector',
+    kind: () => overrides.kind ?? 'inspector',
     reducedMotion: () => false,
     onSettled: overrides.onSettled,
     onClosed: overrides.onClosed,
@@ -198,6 +199,129 @@ describe('revealing a region through the flight', () => {
 
     runToRest(controller);
     expect(parseInset(element.style.clipPath).radius).toBeCloseTo(REGION.radius, 1);
+    controller.dispose();
+  });
+});
+
+/**
+ * The shipped configuration. Everything above drives the region from an arbitrary control, which is
+ * what `MorphRegion` still supports and what no caller passes: both bars now grow from their own
+ * window edge (Prompt 2 §75 — hiding and unhiding a persistent sidebar is a *structural width
+ * transition*, not a Seed Morph out of whichever of five controls was pressed).
+ *
+ * The property that makes it read as "the panel came from the right" is not a tunable: with `x` and
+ * `width` as independent springs seeded from the far edge, the outer edge is stationary for the
+ * whole flight and only the inner one sweeps. These tests assert exactly that, on every frame,
+ * because a flight that anchors correctly at 0% and 100% and drifts in between is the failure that
+ * looks like a plausible animation.
+ */
+describe('a bar growing from its own edge', () => {
+  test('the inspector opens with its right edge pinned to the window, on every frame', () => {
+    const { controller, element } = makeRegionController({ seed: edgeOf(REGION, 'right') });
+    const rightEdges: number[] = [];
+    controller.subscribe(() => {
+      const shown = exposed(element.style.clipPath, REGION);
+      if (shown.width > 0.5) rightEdges.push(shown.x + shown.width);
+    });
+    controller.open();
+    runToRest(controller);
+
+    expect(rightEdges.length).toBeGreaterThan(10);
+    for (const edge of rightEdges) expect(edge).toBeCloseTo(REGION.x + REGION.width, 1);
+    controller.dispose();
+  });
+
+  test('the sidebar is its mirror: the left edge is the one that stays put', () => {
+    const bar: MorphGeometry = { x: 0, y: 0, width: 260, height: 900, radius: 0 };
+    const { controller, element } = makeRegionController({
+      region: bar, kind: 'sidebar', seed: edgeOf(bar, 'left'),
+    });
+    const lefts: number[] = [];
+    controller.subscribe(() => {
+      const shown = exposed(element.style.clipPath, bar);
+      if (shown.width > 0.5) lefts.push(shown.x);
+    });
+    controller.open();
+    runToRest(controller);
+
+    expect(lefts.length).toBeGreaterThan(10);
+    for (const left of lefts) expect(left).toBeCloseTo(bar.x, 1);
+    controller.dispose();
+  });
+
+  test('nothing moves vertically — this is a width transition, not a panel arriving', () => {
+    // Prompt 2 §77: when the bars animate, the code and text beside them stay visually stable. A
+    // bar that also travelled in y would drag the transcript's eye line with it.
+    const { controller, element } = makeRegionController({ seed: edgeOf(REGION, 'right') });
+    const verticals: { y: number; height: number }[] = [];
+    controller.subscribe(() => {
+      const shown = exposed(element.style.clipPath, REGION);
+      if (shown.width > 0.5) verticals.push({ y: shown.y, height: shown.height });
+    });
+    controller.open();
+    runToRest(controller);
+
+    expect(verticals.length).toBeGreaterThan(10);
+    for (const v of verticals) {
+      expect(v.y).toBeCloseTo(REGION.y, 1);
+      expect(v.height).toBeCloseTo(REGION.height, 1);
+    }
+    controller.dispose();
+  });
+
+  test('the edge origin is still an honest seed, so the bar folds back into it', () => {
+    // `seeded` is what tells the painter it may unmount without a fade. A bar ends its collapse as
+    // a zero-width strip flush with the window edge, which is genuinely invisible — so the fade is
+    // not merely unnecessary here, it would be a frame of glass appearing at the edge on close.
+    const { controller, clips } = makeRegionController({ seed: edgeOf(REGION, 'right') });
+    const frames: { seeded: boolean; width: number }[] = [];
+    controller.subscribe((frame) => frames.push({ seeded: frame.seeded, width: frame.geometry.width }));
+    controller.open();
+    runToRest(controller);
+    controller.close();
+    runToRest(controller);
+
+    expect(frames[frames.length - 1].seeded).toBe(true);
+    expect(frames[frames.length - 1].width).toBeCloseTo(0, 1);
+    expect(clips.length).toBeGreaterThan(20);
+    controller.dispose();
+  });
+
+  test('the content is uncovered by the edge, not faded in after it', () => {
+    // What `structuralPane`'s reveal window buys, and the reason these kinds no longer use a seeded
+    // token. A flight across the window should hold its content back until it has nearly arrived,
+    // or the text appears to travel; a bar is not travelling, so the same delay renders a widening
+    // pane of EMPTY glass for the first 40% of the transition and then fades the panel up inside
+    // its own final box — two animations where the design asks for one (Prompt 1 §12).
+    //
+    // Stated as the property rather than the number: by the time a third of the width is on screen,
+    // a third of the content is too.
+    const { controller, element } = makeRegionController({ seed: edgeOf(REGION, 'right') });
+    const seen: { progress: number; opacity: number }[] = [];
+    controller.subscribe((frame) => {
+      if (frame.state === 'opening') seen.push({ progress: frame.progress, opacity: Number(element.style.opacity) });
+    });
+    controller.open();
+    runToRest(controller);
+
+    const third = seen.filter((f) => f.progress >= 0.33);
+    expect(third.length).toBeGreaterThan(5);
+    for (const f of third) expect(f.opacity).toBeGreaterThan(0.33);
+    controller.dispose();
+  });
+
+  test('no overshoot: a layout edge that springs past its resting place looks broken', () => {
+    // ζ = 1, so the column never becomes briefly wider than it ends up — everything beside it would
+    // reflow twice to say so. Honest note: at this size the seeded token it replaced overshot by
+    // about 0.2px, so this passes either way and is a guard against a future token change rather
+    // than evidence for this one. What that change actually bought is the test above.
+    const { controller } = makeRegionController({ seed: edgeOf(REGION, 'right') });
+    let widest = 0;
+    controller.subscribe((frame) => { widest = Math.max(widest, frame.geometry.width); });
+    controller.open();
+    runToRest(controller);
+
+    expect(widest).toBeLessThanOrEqual(REGION.width + 0.5);
     controller.dispose();
   });
 });

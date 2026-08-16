@@ -46,6 +46,13 @@ export function paintFrame(elements: MorphElements, frame: MorphFrame): void {
   surface.style.height = `${round(g.height)}px`;
   surface.style.borderRadius = `${round(Math.max(0, g.radius))}px`;
   surface.style.scale = `${frame.deform.x.toFixed(4)} ${frame.deform.y.toFixed(4)}`;
+  // A seeded collapse needs no fade: it ends with the shell sitting exactly on its own trigger, at
+  // that control's size and corner, so the unmount is invisible. An unseeded one ends over empty
+  // background — a menu that appeared in place, ⌘K, anything under Reduce Motion — and would pop
+  // out of existence at whatever size it had reached. `dismiss`'s reveal ramp is reused rather than
+  // adding a second curve: the content is already fading on it, so the glass leaves with its
+  // contents instead of outliving them by a hundred milliseconds.
+  surface.style.opacity = !frame.seeded && frame.state === 'closing' ? frame.reveal.toFixed(3) : '';
 
   // Material (Prompt 1 §11). `--glass-thickness` is the existing lens-band dial, so the morphing
   // surface uses the same knob the static glass classes already use rather than a parallel one.
@@ -156,6 +163,7 @@ export function disarmSurface(elements: MorphElements): void {
   const { surface, content } = elements;
   surface.style.willChange = '';
   surface.style.scale = '';
+  surface.style.opacity = '';
   if (content) {
     content.style.willChange = '';
     content.style.filter = '';

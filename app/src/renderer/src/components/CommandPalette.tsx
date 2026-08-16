@@ -81,9 +81,18 @@ export function CommandPalette({
         semantics — it sits high the way Spotlight does, and when it is opened from ⌘K there is no
         spatial seed to grow from and none may be invented. Naming the kind gets both; the previous
         `top-[18%]` positioned the box while the flight knew nothing about it.
+
+        `materialize` rather than `seeded`, and that is the part §45 is actually about. The palette
+        can also be opened by clicking a control, and the intent tracker would happily hand it that
+        control as an origin — so the same surface would fly from the toolbar or appear in place
+        depending on how it was summoned, which is a motion that reports the input device. It is
+        kept on the driver (rather than made `standard`) for the two things only the driver gives
+        it: `destinationFor`'s placement, and a live height target, so the sheet shrinks as the
+        query filters the list instead of leaving a growing block of empty glass under the results.
       */}
       <DialogContent
         aria-describedby={undefined}
+        motion="materialize"
         kind="palette"
         className="max-h-[64vh] w-[min(560px,calc(100vw-min(64px,40vw)))] p-0"
       >

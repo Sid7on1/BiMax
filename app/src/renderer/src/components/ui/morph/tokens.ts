@@ -52,9 +52,19 @@ export const MOTION = {
   seedPopover: { spring: { stiffness: 520, ratio: 0.82 }, reveal: { start: 0.42, end: 0.80 } },
   /** A sheet or floating panel. */
   seedPanel: { spring: { stiffness: 420, ratio: 0.84 }, reveal: { start: 0.45, end: 0.85 } },
-  /** The inspector and sidebar. Structural, so calmer still. */
-  seedInspector: { spring: { stiffness: 380, ratio: 0.88 }, reveal: { start: 0.40, end: 0.80 } },
-  /** Pane resize and collapse. No overshoot: a layout edge that springs looks broken, not alive. */
+  /**
+   * The sidebar and the inspector. Pane resize and collapse.
+   *
+   * No overshoot at all, and that is not the usual "large surface, so damp it" grading — it is a
+   * different claim about what is moving. A popover is an object that arrives; a bar is the window's
+   * own layout edge changing where it is. An edge that springs past its resting place and comes back
+   * looks broken rather than alive, because the content on both sides of it visibly reflows twice
+   * (Prompt 2 §76, §77).
+   *
+   * The reveal is early for the same reason. A surface that flies across the window should hold its
+   * content back until it is nearly there, or the text appears to travel; a bar's content is being
+   * *uncovered* by an edge moving off it, so it should be there to be uncovered.
+   */
   structuralPane: { spring: { stiffness: 400, ratio: 1.0 }, reveal: { start: 0, end: 0.5 } },
 
   /** A surface with no honest seed (⌘K). It does not fly; it arrives. */
@@ -81,9 +91,12 @@ export function tokenForKind(kind: DestinationKind): MotionToken {
     case 'popover':
     case 'toolbarExpansion':
       return MOTION.seedPopover;
+    // Both bars grow from their own window edge rather than from whatever control asked for them —
+    // see `MorphRegion`. So there is no journey to grade, and the token that describes a layout
+    // edge moving is the right one for every case they have.
     case 'sidebar':
     case 'inspector':
-      return MOTION.seedInspector;
+      return MOTION.structuralPane;
     case 'palette':
     case 'floatingPanel':
     case 'workspaceSurface':

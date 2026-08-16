@@ -111,7 +111,11 @@ export function ModelDialog({
 
   return (
     <Dialog open={open} onOpenChange={(value) => { if (!value) onClose(); }}>
+      {/* The one dialog that morphs. Prompt 2 §42 names `model button→picker` as the case the
+          signature exists for: the model control and the picker are the same subject at two sizes,
+          and the surface is always opened from a visible control that states the current model. */}
       <DialogContent
+        motion="seeded"
         className="flex h-[min(720px,calc(100vh-40px))] w-[min(760px,calc(100vw-min(40px,40vw)))] flex-col p-0"
         style={{ maxHeight: 'calc(100vh - 40px)', overflow: 'hidden' }}
       >

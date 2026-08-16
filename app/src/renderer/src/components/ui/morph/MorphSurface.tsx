@@ -50,6 +50,20 @@ export interface MorphSurfaceProps {
    */
   fitHeight?: boolean;
   /**
+   * Whether the surface *flies* from its seed or merely appears at the place the seed puts it.
+   *
+   * These are two different claims and only one of them is a Seed Morph. Prompt 2 §42 keeps standard
+   * system behaviour for menus, alerts, permissions and sheets — a Mac menu appears anchored to its
+   * control, it does not travel out of it — while §44 wants the flight for the choosers where the
+   * source→destination relationship is the point (model, branch, quick tools).
+   *
+   * `inPlace` keeps the seed for *placement* and withholds it from the *launch*: the surface still
+   * hugs the right corner of the right control and still folds back toward it, but it starts from a
+   * box at its own destination, which the controller then plays on `MOTION.materialize`. One prop,
+   * no second code path, and the anchoring logic in `destinationFor` cannot drift between them.
+   */
+  launch?: 'seed' | 'inPlace';
+  /**
    * The box the surface is placed inside. Defaults to the window.
    *
    * Exists so the Motion Lab can put a real morph inside a 320×480 frame and watch it negotiate,
@@ -73,7 +87,7 @@ export interface MorphSurfaceProps {
 }
 
 export function MorphSurface({
-  open, seed, kind, width, height, fitHeight, bounds, onClosed, onSettled, onFrame,
+  open, seed, kind, width, height, fitHeight, launch = 'seed', bounds, onClosed, onSettled, onFrame,
   className, contentClassName, children, style, ...aria
 }: MorphSurfaceProps): React.ReactElement | null {
   const [mounted, setMounted] = useState(open);
@@ -137,10 +151,13 @@ export function MorphSurface({
     }
 
     return {
-      seed: rawSeed,
+      // Withheld from the launch, never from the placement — see `launch`. A null seed is exactly
+      // how the controller is already told "there is no honest origin" (Prompt 2 §45), so this
+      // needs no new concept: it reuses the one the palette taught the system.
+      seed: launch === 'inPlace' ? null : rawSeed,
       destination: { ...local, x: local.x + box.originX, y: local.y + box.originY },
     };
-  }, [seed, kind, width, height, fitHeight, bounds]);
+  }, [seed, kind, width, height, fitHeight, launch, bounds]);
 
   // Keep `resolve` and `kind` reachable from the controller without making either a dependency of
   // it. The controller must outlive every prop change: it *is* the animation's state, and rebuilding

@@ -37,12 +37,27 @@ export interface SeedMenuProps {
   label: string;
   /** Preferred menu width. The window still gets the final say. */
   width?: number;
+  /**
+   * Whether this menu is one of the surfaces the morph is *for*.
+   *
+   * Prompt 2 §42 and §44 draw a line that is easy to lose: a **chooser** — model, quality, branch,
+   * task lane, appearance — has a real source→destination relationship, because the control states
+   * the current value and the surface is that value at full size. A **menu of commands** does not;
+   * it is a list of things you could do next, and §42 keeps standard system behaviour for those.
+   * The toolbar's overflow menu is the second kind, and it is also the case where a flight is most
+   * out of place: it only exists when the window is too narrow, so it fires exactly when the user
+   * is short of room and looking for a control they can no longer see.
+   *
+   * `standard` keeps everything else — the anchoring, the fold home, the keyboard contract — and
+   * only declines the journey. See `MorphSurface`'s `launch`.
+   */
+  motion?: 'seeded' | 'standard';
   className?: string;
   triggerClassName?: string;
 }
 
 export function SeedMenu({
-  trigger, children, label, width = 268, className, triggerClassName,
+  trigger, children, label, width = 268, motion = 'seeded', className, triggerClassName,
 }: SeedMenuProps): React.ReactElement {
   const [open, setOpen] = useState(false);
   const seed = useSeedRef();
@@ -100,6 +115,7 @@ export function SeedMenu({
         seed={seed}
         label={label}
         width={width}
+        launch={motion === 'seeded' ? 'seed' : 'inPlace'}
         // A menu is exactly as tall as its rows. See `fitHeight`.
         fitHeight
         onSettled={onSettled}

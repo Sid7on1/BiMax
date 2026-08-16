@@ -7,7 +7,6 @@ import { useTakeover } from './useTakeover';
 import { useTrust } from './useTrust';
 import { useWindowChrome } from './useWindowChrome';
 import { MorphRegion } from './components/ui/morph/MorphRegion';
-import { useIntentSeed } from './components/ui/morph/use-seed';
 import { TitleBar } from './components/TitleBar';
 import { TaskSidebar } from './components/TaskSidebar';
 import { Inspector } from './components/Inspector';
@@ -77,30 +76,15 @@ export function App(): React.ReactElement {
   const sidebarOpen = sidebarPinned || sidebarPeek;
   const [inspectorOpen, setInspectorOpen] = useState(false);
   /**
-   * Both bars collapse into the control that closed them, and a panel torn out of the layout on the
-   * click cannot animate anything. So each bar has a second flag that LAGS its intent: the panel
-   * stays in the layout for as long as the collapse takes, and `MorphRegion` reports back when the
-   * flight is done. `…Pinned/Open` is what the user asked for; `…Mounted` is what is on screen.
+   * Both bars collapse back into their own edge, and a panel torn out of the layout on the click
+   * cannot animate anything. So each bar has a second flag that LAGS its intent: the panel stays in
+   * the layout for as long as the collapse takes, and `MorphRegion` reports back when the flight is
+   * done. `…Pinned/Open` is what the user asked for; `…Mounted` is what is on screen.
    */
   const [sidebarMounted, setSidebarMounted] = useState(true);
   const [inspectorMounted, setInspectorMounted] = useState(false);
   useEffect(() => { if (sidebarPinned) setSidebarMounted(true); }, [sidebarPinned]);
   useEffect(() => { if (inspectorOpen) setInspectorMounted(true); }, [inspectorOpen]);
-  /**
-   * The bars' origins.
-   *
-   * Neither can hold a ref to its trigger: the sidebar is opened from the title bar, the inspector
-   * from the composer, a lane chip, the dock, ⌘J and — this is the case that decides the design —
-   * by the engine itself, when a task first produces evidence. Threading a rect down from five
-   * unrelated components would mean the title bar owning a piece of the sidebar's animation, and
-   * the sixth caller silently losing it.
-   *
-   * So both read the intent tracker, which answers the same question by observation and returns
-   * *nothing* when no press can explain the surface (Prompt 2 §45). An inspector that opens by
-   * itself materialises where it is; one the user opened grows out of what they pressed.
-   */
-  const sidebarSeed = useIntentSeed();
-  const inspectorSeed = useIntentSeed();
   const [requestedTab, setRequestedTab] = useState<InspectorTabId | null>(null);
   const [terminalOpen, setTerminalOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -402,9 +386,11 @@ export function App(): React.ReactElement {
           {hasProject && sidebarMounted && (
             <>
               <Panel id="sidebar" defaultSize="18%" minSize="190px" maxSize="30%">
+                {/* No `seed`: a persistent bar is a structural width transition and grows from its
+                    own edge (Prompt 2 §75). See `MorphRegion`'s header for why the intent tracker
+                    was the wrong origin here even though it answers the question correctly. */}
                 <MorphRegion
                   open={sidebarPinned}
-                  seed={sidebarSeed}
                   kind="sidebar"
                   onCollapsed={() => setSidebarMounted(false)}
                 >
@@ -512,7 +498,6 @@ export function App(): React.ReactElement {
                 <Panel id="inspector" className="app-surface" defaultSize="34%" minSize="300px" maxSize="56%">
                   <MorphRegion
                     open={inspectorOpen}
-                    seed={inspectorSeed}
                     kind="inspector"
                     onCollapsed={() => setInspectorMounted(false)}
                   >

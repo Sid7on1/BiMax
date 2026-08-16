@@ -53,6 +53,16 @@ export type MorphState = 'closed' | 'opening' | 'open' | 'closing';
 /** What the driver publishes each frame. Read-only; the driver owns the storage. */
 export interface MorphFrame {
   state: MorphState;
+  /**
+   * Whether this flight has an honest origin to travel to and from.
+   *
+   * False for ⌘K, for a menu launched in place, and under Reduce Motion. Published rather than
+   * inferred because the *painter* needs it and cannot work it out: a seeded surface ends its
+   * collapse sitting exactly on top of its own trigger, at its size and its corner, so unmounting
+   * it there is invisible — while an unseeded one ends over empty background and has to fade
+   * instead. Reading "did it have a seed?" off the geometry is guesswork; the driver knows.
+   */
+  seeded: boolean;
   geometry: MorphGeometry;
   /** 0..1, derived from geometry so it survives retargeting. */
   progress: number;
@@ -168,6 +178,8 @@ export class MorphController {
 
   /** Where this flight began. Kept so `progressOf` has a baseline that survives retargeting. */
   private origin: MorphGeometry | null = null;
+  /** Whether the current flight has an honest origin. Published on every frame — see `MorphFrame`. */
+  private seeded = false;
   private target: MorphGeometry | null = null;
   private token: MotionToken = MOTION.seedPanel;
   // Unqualified `setTimeout`, not `window.setTimeout`: the physics and the state machine are graded
@@ -210,7 +222,17 @@ export class MorphController {
       this.origin = this.origin ?? this.currentGeometry();
     }
 
-    this.token = this.reduced() ? MOTION.reducedMotion : tokenForKind(this.options.kind());
+    // A surface with no honest seed does not get a flight token. `tokenForKind` describes a journey
+    // — its reveal window holds the content back until the box is most of the way there, which is
+    // right for something arriving from a control and wrong for something arriving in place, where
+    // the delay reads as the surface being slow rather than as it travelling. Prompt 2 §45 asks for
+    // *soft materialisation* in that case, and `MOTION.materialize` is it. This is also what makes
+    // ⌘K and a click on the palette's toolbar button look identical, which is the point of §45: the
+    // motion may not claim a cause the interaction did not have.
+    this.seeded = seed !== null && !this.reduced();
+    this.token = this.reduced()
+      ? MOTION.reducedMotion
+      : seed ? tokenForKind(this.options.kind()) : MOTION.materialize;
     this.target = destination;
     this.state = 'opening';
     this.start();
@@ -220,11 +242,15 @@ export class MorphController {
   close(): void {
     if (this.state === 'closed') return;
     const { seed, destination } = this.options.resolve();
-    // The origin for the trip home is the seed as it is *now*. If the control has gone away
-    // entirely (its pane was collapsed while the panel was open), fold into the destination's own
-    // centre rather than into a rect that no longer means anything.
+    // The trip home is the launch, run backwards — the *same* function, so the two can never
+    // disagree. That matters in three cases that used to be handled separately or not at all:
+    // the seed as it is NOW (it may have moved since the open); a control that has gone away
+    // entirely, where the surface leaves from where it is rather than shrinking into a dot at its
+    // own centre; and Reduce Motion, which used to open in place and then fly the whole way back
+    // across the window on close — the exact travel Prompt 2 §32 asks to remove.
     this.origin = this.currentGeometry();
-    this.target = seed ?? this.collapsedInto(destination);
+    this.seeded = seed !== null && !this.reduced();
+    this.target = this.launchGeometry(seed, destination);
     this.token = this.reduced() ? MOTION.reducedMotion : MOTION.dismiss;
     this.state = 'closing';
     this.start();
@@ -241,7 +267,7 @@ export class MorphController {
     if (this.state === 'closed') return;
     const { seed, destination } = this.options.resolve();
     this.target = this.state === 'closing'
-      ? (seed ?? this.collapsedInto(destination))
+      ? this.launchGeometry(seed, destination)
       : destination;
     this.start();
   }
@@ -376,12 +402,6 @@ export class MorphController {
     };
   }
 
-  /** A zero-ish box at the destination's centre, for folding into when the seed has vanished. */
-  private collapsedInto(destination: MorphGeometry): MorphGeometry {
-    const c = centreOf(destination);
-    return { x: c.x - 12, y: c.y - 12, width: 24, height: 24, radius: 12 };
-  }
-
   private currentGeometry(): MorphGeometry {
     return {
       x: this.x.value,
@@ -429,6 +449,7 @@ export class MorphController {
 
     return {
       state: this.state,
+      seeded: this.seeded,
       geometry,
       progress,
       reveal,

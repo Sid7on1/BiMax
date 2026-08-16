@@ -3,7 +3,7 @@ import { MorphSurface } from '../src/renderer/src/components/ui/morph/MorphSurfa
 import { MorphDebug } from '../src/renderer/src/components/ui/morph/debug';
 import { setTimeScale, type MorphFrame } from '../src/renderer/src/components/ui/morph/controller';
 import { destinationFor, type DestinationKind, type MorphGeometry } from '../src/renderer/src/components/ui/morph/geometry';
-import { useIntentSeed, useSeedRef } from '../src/renderer/src/components/ui/morph/use-seed';
+import { useSeedRef } from '../src/renderer/src/components/ui/morph/use-seed';
 import { MorphRegion } from '../src/renderer/src/components/ui/morph/MorphRegion';
 import { SeedMenu, SeedMenuItem, SeedMenuLabel, SeedMenuReadout, SeedMenuSeparator } from '../src/renderer/src/components/ui/morph/SeedMenu';
 import { ComposerPill } from '../src/renderer/src/components/Composer';
@@ -342,12 +342,12 @@ function GoldenFlow(): React.ReactElement {
 /* -------------------------------------------------------- golden flow two */
 
 /**
- * Golden flow 2 — a tool control becoming the right inspector (Prompt 2 §16, §47, §73; Phase G).
+ * Golden flow 2 — the right inspector opening as a structural region (Prompt 2 §16, §47, §73, §75).
  *
- * The thing under test is not the flight, it is the **handoff**. A structural region has to grow out
- * of its control, and then stop being an animation: after it settles it is a column in the layout,
- * resizable by its splitter, with nothing left driving it and nothing left on the overlay. The two
- * failure modes are only visible here, in a layout that has a neighbour and a divider —
+ * The thing under test is not the flight, it is the **handoff**. A structural region has to grow
+ * from its own window edge, and then stop being an animation: after it settles it is a column in the
+ * layout, resizable by its splitter, with nothing left driving it and nothing left on the overlay.
+ * The two failure modes are only visible here, in a layout that has a neighbour and a divider —
  *
  *   - the region never leaves the overlay, so it floats over the workspace and the splitter does
  *     nothing (a card that happens to be docked, which is §47's complaint exactly), or
@@ -368,7 +368,6 @@ function GoldenFlowTwo(): React.ReactElement {
     the screen, in the one place built to tell you what the screen is doing.
   */
   const [phase, setPhase] = useState<'closed' | 'flying' | 'settled'>('closed');
-  const seed = useIntentSeed();
 
   React.useEffect(() => { if (open) setMounted(true); }, [open]);
 
@@ -380,7 +379,7 @@ function GoldenFlowTwo(): React.ReactElement {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       <span style={{ font: '600 10px/1 ui-monospace, monospace', letterSpacing: '.08em', textTransform: 'uppercase', color: '#8a8a85' }}>
-        golden flow 2 · context seed → right inspector · overlay hands off to layout
+        golden flow 2 · right inspector grows from its own edge · overlay hands off to layout
       </span>
 
       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -433,9 +432,12 @@ function GoldenFlowTwo(): React.ReactElement {
           <>
             <div style={{ width: 1, background: 'rgba(255,255,255,.14)' }} />
             <div style={{ width, flexShrink: 0 }}>
+              {/* No `seed`, exactly as `App.tsx` mounts it: the drill has to exercise the shipped
+                  configuration or it is a harness verifying a code path nobody reaches. The button
+                  on the left is still a real one, so the intent tracker still sees the press — and
+                  the point of the drill is that it now makes no difference to the flight. */}
               <MorphRegion
                 open={open}
-                seed={seed}
                 kind="inspector"
                 onSettled={() => setPhase('settled')}
                 onCollapsed={() => { setMounted(false); setPhase('closed'); }}

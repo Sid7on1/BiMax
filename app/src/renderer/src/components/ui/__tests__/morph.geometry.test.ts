@@ -2,6 +2,7 @@ import {
   WINDOW_RADIUS,
   concentricRadius,
   destinationFor,
+  edgeOf,
   fromRect,
   progressOf,
   projectInto,
@@ -191,6 +192,38 @@ describe('travel', () => {
     const t = travelBetween(seed(0, 0), { x: 0, y: 0, width: 600, height: 200, radius: 8 });
     expect(t.aspectDelta).toBeGreaterThan(1);
     expect(t.sizeDelta).toBeGreaterThan(10);
+  });
+});
+
+describe('edges', () => {
+  const bar: MorphGeometry = { x: 1100, y: 0, width: 340, height: 900, radius: 0 };
+
+  test('the right edge is a zero-width strip at the box’s far side', () => {
+    expect(edgeOf(bar, 'right')).toEqual({ x: 1440, y: 0, width: 0, height: 900, radius: 0 });
+  });
+
+  test('the left edge is its mirror', () => {
+    expect(edgeOf(bar, 'left')).toEqual({ x: 1100, y: 0, width: 0, height: 900, radius: 0 });
+  });
+
+  test('an edge shares three of the destination’s four spans, so only the width can travel', () => {
+    // The property the structural transition rests on, stated where it is decided rather than left
+    // to be inferred from a flight: y and height are the destination's already, and x differs only
+    // by the width. Nothing about this can produce a diagonal.
+    for (const side of ['left', 'right'] as const) {
+      const edge = edgeOf(bar, side);
+      expect(edge.y).toBe(bar.y);
+      expect(edge.height).toBe(bar.height);
+      expect(Math.abs(edge.x - bar.x)).toBe(side === 'left' ? 0 : bar.width);
+    }
+  });
+
+  test('travel from an edge is reported as growth, not as distance across the window', () => {
+    // `gradeSpring` reads both. A bar whose origin claimed a 700px journey would be graded as a
+    // long flight and slowed for it — 12% more time to do something that never leaves the column.
+    const t = travelBetween(edgeOf(bar, 'right'), bar);
+    expect(t.distance).toBeCloseTo(bar.width / 2, 0);
+    expect(t.sizeDelta).toBeGreaterThan(1);
   });
 });
 

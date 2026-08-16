@@ -265,20 +265,63 @@ describe('the world moving underneath', () => {
     controller.dispose();
   });
 
-  test('a control that vanished folds into the surface centre, not into the origin', () => {
-    // Its pane was collapsed while the panel was open. Folding to (0,0) would fling the surface
-    // into the corner of the window on the way out.
+  test('a control that vanished leaves the surface in place, not flying anywhere', () => {
+    // Its pane was collapsed while the panel was open. Two wrong answers here: folding to (0,0)
+    // flings the surface into the corner of the window, and folding into a small box at its own
+    // centre — which this used to do — reads as the window swallowing it. With no origin there is
+    // no honest destination for the collapse, so it leaves from where it is and fades, which is
+    // what `seeded: false` tells the painter to do.
     const { controller, frames, setSeed } = makeController();
     controller.open();
     runToRest(controller);
+    const open = frames[frames.length - 1].geometry;
+
     setSeed(null);
     controller.close();
     runToRest(controller);
 
     const landed = frames[frames.length - 1].geometry;
-    expect(landed.x).toBeGreaterThan(600);
-    expect(landed.y).toBeGreaterThan(300);
-    expect(landed.width).toBeLessThan(40);
+    // Barely moved and barely shrank: this is a fade, not a journey.
+    expect(Math.hypot(landed.x - open.x, landed.y - open.y)).toBeLessThan(20);
+    expect(landed.width).toBeGreaterThan(open.width * 0.85);
+    expect(frames[frames.length - 1].seeded).toBe(false);
+    controller.dispose();
+  });
+
+  test('an unseeded flight is reported as unseeded, so the painter can fade it out', () => {
+    // The distinction is not derivable from the geometry — a seeded collapse ends sitting exactly
+    // on its trigger, at that control's size, and unmounting there is invisible; an unseeded one
+    // ends over empty background. Only the driver knows which happened.
+    const seeded = makeController();
+    seeded.controller.open();
+    runToRest(seeded.controller);
+    seeded.controller.close();
+    runToRest(seeded.controller);
+    expect(seeded.frames[seeded.frames.length - 1].seeded).toBe(true);
+    seeded.controller.dispose();
+
+    const bare = makeController({ seed: null, kind: 'palette' });
+    bare.controller.open();
+    expect(bare.frames[0].seeded).toBe(false);
+    bare.controller.dispose();
+  });
+
+  test('Reduce Motion does not fly home either', () => {
+    // Prompt 2 §32 asks for the travel to be removed, and it used to be removed in one direction
+    // only: the launch box was pinned near the destination while `close()` targeted the seed
+    // outright, so a panel that appeared in place then crossed the whole window on the way out.
+    const { controller, frames } = makeController({ reduced: true });
+    controller.open();
+    runToRest(controller);
+    const open = frames[frames.length - 1].geometry;
+
+    controller.close();
+    runToRest(controller);
+    const landed = frames[frames.length - 1].geometry;
+
+    // SEED sits at (40, 700); the destination is centred. Anything that travelled home would be
+    // hundreds of pixels away from where it was sitting.
+    expect(Math.hypot(landed.x - open.x, landed.y - open.y)).toBeLessThan(20);
     controller.dispose();
   });
 });

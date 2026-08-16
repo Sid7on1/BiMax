@@ -147,6 +147,9 @@ export function Toolbar({
       {overflowed.length > 0 && (
         <SeedMenu
           label={overflowLabel}
+          // A list of commands, not a chooser — Prompt 2 §42 keeps standard behaviour for menus.
+          // See `SeedMenu`'s `motion`.
+          motion="standard"
           triggerClassName="no-drag shrink-0"
           trigger={() => (
             <span className="flex size-7 items-center justify-center rounded-lg text-faint hover:bg-hover hover:text-ink">
