@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "taskId": "PHASE2-PACKAGED-LOCAL",
+  "startedAt": "2026-08-17T15:41:49.418Z",
+  "bundle": "/Applications/Bimax.app",
+  "packageIdentity": {
+    "source": "bundle",
+    "appExecutableSha256": "9b66e160b9dd8a29d3451a4083f717130303acc9d7022fc41c9a7a39ad278965",
+    "engineSha256": "d85aa89f2cc6450ed4eca28777476daf30194be42db78ef45a1b1b528cb27c8a",
+    "serviceSha256": "48de4b68f7f3b73d6ef7f3fd92a05438247d5eb34b1a39558ee934b8c5d0c949",
+    "bridgeSha256": "bfe29f0f736a18e351d6af17c922a18f9b6763c4c6f42e19de2257b78ef8f4a0",
+    "providerSha256": "d1626acc373a6a4d5520280eb0de9fe400d3ec3487d524c5add7abe550539788",
+    "appAsarSha256": "54a0fb882942a8991918713582ef81c08d955c4e7a6f0b359f8f14efd7fb3e62",
+    "executableDescription": "/Applications/Bimax.app/Contents/MacOS/Bimax: Mach-O 64-bit executable arm64",
+    "engineDescription": "/Applications/Bimax.app/Contents/Resources/engine/bimax-engine: Mach-O 64-bit executable arm64",
+    "serviceDescription": "/Applications/Bimax.app/Contents/XPCServices/BimaxCuService.xpc/Contents/MacOS/bimax-cu-service: Mach-O 64-bit executable arm64",
+    "providerDescription": "/Applications/Bimax.app/Contents/MacOS/bimax-mac-capability: Mach-O 64-bit executable arm64"
+  },
+  "machineProfile": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "osRelease": "25.5.0",
+    "osVersion": "Darwin Kernel Version 25.5.0: Tue Jun  9 22:19:21 PDT 2026; root:xnu-12377.121.10~1/RELEASE_ARM64_T8122",
+    "cpuModel": "Apple M3",
+    "logicalCpuCount": 8,
+    "totalMemoryBytes": 8589934592
+  },
+  "networkProfile": {
+    "pathStatus": "unknown",
+    "expensive": "unknown",
+    "constrained": "unknown",
+    "endpointRTT": "unknown",
+    "interfaces": [
+      {
+        "name": "lo0",
+        "family": "IPv4",
+        "internal": true
+      },
+      {
+        "name": "lo0",
+        "family": "IPv6",
+        "internal": true
+      },
+      {
+        "name": "lo0",
+        "family": "IPv6",
+        "internal": true
+      },
+      {
+        "name": "en0",
+        "family": "IPv4",
+        "internal": false
+      },
+      {
+        "name": "en0",
+        "family": "IPv6",
+        "internal": false
+      },
+      {
+        "name": "awdl0",
+        "family": "IPv6",
+        "internal": false
+      },
+      {
+        "name": "utun0",
+        "family": "IPv6",
+        "internal": false
+      },
+      {
+        "name": "utun1",
+        "family": "IPv6",
+        "internal": false
+      },
+      {
+        "name": "llw0",
+        "family": "IPv6",
+        "internal": false
+      },
+      {
+        "name": "utun2",
+        "family": "IPv6",
+        "internal": false
+      },
+      {
+        "name": "utun3",
+        "family": "IPv6",
+        "internal": false
+      },
+      {
+        "name": "utun4",
+        "family": "IPv6",
+        "internal": false
+      },
+      {
+        "name": "utun5",
+        "family": "IPv6",
+        "internal": false
+      }
+    ]
+  },
+  "rows": {
+    "structure": {
+      "command": [
+        "/Users/vishsiddharth/.hermes/node/bin/node",
+        "/Users/vishsiddharth/Desktop/Bimax/scripts/verify-desktop-package.mjs",
+        "/Applications/Bimax.app",
+        "arm64"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "desktop package gate: PASS /Applications/Bimax.app\ndesktop package gate: PASS arm64 app, engine, provider, XPC service, bridge, helper\ndesktop package gate: PASS packaged engine receives one generic local capability-provider contract\ndesktop package gate: PASS packaged macOS capability provider is native-only and fail-closed\ndesktop package gate: PASS packaged run resolves engine and native components from the bundle only\n",
+      "stderr": ""
+    },
+    "fixtureBuild": {
+      "command": [
+        "/Users/vishsiddharth/Desktop/Bimax/app/scripts/computer-use/build-bimax-cu-fixture.sh",
+        "/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-phase2-package-349Pqp/BimaxCuFixture.app"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "stdout": "",
+      "stderr": "cp: native/BimaxComputerUseKit/Resources/FixtureInfo.plist: No such file or directory\n"
+    }
+  },
+  "assertions": {},
+  "passed": false,
+  "failure": "target fixture build failed",
+  "finishedAt": "2026-08-17T15:41:53.101Z"
+}

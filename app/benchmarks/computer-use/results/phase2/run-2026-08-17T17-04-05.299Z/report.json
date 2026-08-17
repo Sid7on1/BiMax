@@ -1,0 +1,456 @@
+{
+  "schemaVersion": 1,
+  "taskId": "PHASE2-PACKAGED-LOCAL",
+  "startedAt": "2026-08-17T17:04:05.308Z",
+  "bundle": "/private/tmp/claude-501/-Users-vishsiddharth-Desktop-Bimax/6ce908a3-ff0f-4579-b5f8-dc69d24cbba0/scratchpad/release/mac-arm64/Bimax.app",
+  "packageIdentity": {
+    "source": "bundle",
+    "appExecutableSha256": "9c3013a83ffb35d43142a3c27dc2d1c4e50281938e2a0f54a32bddb2ffa7c7ed",
+    "engineSha256": "d2b07570566ccd0333a4b8e064191dd75d72ccfc030c5f920cebbb05a181480b",
+    "serviceSha256": "d12500770bb9fa2f3842fdeb280d7e561d7caa2d7d450172c9b484473fe98ebc",
+    "bridgeSha256": "3b4c8281578fe3f98bf69a7d7a7d903391d8b382487a2f8f37382271032916f8",
+    "providerSha256": "202d356c2fa5071ef1c7f1164319243b8d537a5650ebd818f08577c615d63125",
+    "appAsarSha256": "54a0fb882942a8991918713582ef81c08d955c4e7a6f0b359f8f14efd7fb3e62",
+    "executableDescription": "/private/tmp/claude-501/-Users-vishsiddharth-Desktop-Bimax/6ce908a3-ff0f-4579-b5f8-dc69d24cbba0/scratchpad/release/mac-arm64/Bimax.app/Contents/MacOS/Bimax: Mach-O 64-bit executable arm64",
+    "engineDescription": "/private/tmp/claude-501/-Users-vishsiddharth-Desktop-Bimax/6ce908a3-ff0f-4579-b5f8-dc69d24cbba0/scratchpad/release/mac-arm64/Bimax.app/Contents/Resources/engine/bimax-engine: Mach-O 64-bit executable arm64",
+    "serviceDescription": "/private/tmp/claude-501/-Users-vishsiddharth-Desktop-Bimax/6ce908a3-ff0f-4579-b5f8-dc69d24cbba0/scratchpad/release/mac-arm64/Bimax.app/Contents/XPCServices/BimaxCuService.xpc/Contents/MacOS/bimax-cu-service: Mach-O 64-bit executable arm64",
+    "providerDescription": "/private/tmp/claude-501/-Users-vishsiddharth-Desktop-Bimax/6ce908a3-ff0f-4579-b5f8-dc69d24cbba0/scratchpad/release/mac-arm64/Bimax.app/Contents/MacOS/bimax-mac-capability: Mach-O 64-bit executable arm64"
+  },
+  "machineProfile": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "osRelease": "25.5.0",
+    "osVersion": "Darwin Kernel Version 25.5.0: Tue Jun  9 22:19:21 PDT 2026; root:xnu-12377.121.10~1/RELEASE_ARM64_T8122",
+    "cpuModel": "Apple M3",
+    "logicalCpuCount": 8,
+    "totalMemoryBytes": 8589934592
+  },
+  "networkProfile": {
+    "pathStatus": "unknown",
+    "expensive": "unknown",
+    "constrained": "unknown",
+    "endpointRTT": "unknown",
+    "interfaces": [
+      {
+        "name": "lo0",
+        "family": "IPv4",
+        "internal": true
+      },
+      {
+        "name": "lo0",
+        "family": "IPv6",
+        "internal": true
+      },
+      {
+        "name": "lo0",
+        "family": "IPv6",
+        "internal": true
+      },
+      {
+        "name": "en0",
+        "family": "IPv4",
+        "internal": false
+      },
+      {
+        "name": "en0",
+        "family": "IPv6",
+        "internal": false
+      },
+      {
+        "name": "awdl0",
+        "family": "IPv6",
+        "internal": false
+      },
+      {
+        "name": "utun0",
+        "family": "IPv6",
+        "internal": false
+      },
+      {
+        "name": "utun1",
+        "family": "IPv6",
+        "internal": false
+      },
+      {
+        "name": "llw0",
+        "family": "IPv6",
+        "internal": false
+      },
+      {
+        "name": "utun2",
+        "family": "IPv6",
+        "internal": false
+      },
+      {
+        "name": "utun3",
+        "family": "IPv6",
+        "internal": false
+      },
+      {
+        "name": "utun4",
+        "family": "IPv6",
+        "internal": false
+      },
+      {
+        "name": "utun5",
+        "family": "IPv6",
+        "internal": false
+      }
+    ]
+  },
+  "rows": {
+    "structure": {
+      "command": [
+        "/Users/vishsiddharth/.hermes/node/bin/node",
+        "/Users/vishsiddharth/Desktop/Bimax/scripts/verify-desktop-package.mjs",
+        "/private/tmp/claude-501/-Users-vishsiddharth-Desktop-Bimax/6ce908a3-ff0f-4579-b5f8-dc69d24cbba0/scratchpad/release/mac-arm64/Bimax.app",
+        "arm64"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "desktop package gate: PASS /private/tmp/claude-501/-Users-vishsiddharth-Desktop-Bimax/6ce908a3-ff0f-4579-b5f8-dc69d24cbba0/scratchpad/release/mac-arm64/Bimax.app\ndesktop package gate: PASS arm64 app, engine, provider, XPC service, bridge, helper\ndesktop package gate: PASS packaged engine receives one generic local capability-provider contract\ndesktop package gate: PASS packaged macOS capability provider is native-only and fail-closed\ndesktop package gate: PASS packaged run resolves engine and native components from the bundle only\n",
+      "stderr": ""
+    },
+    "fixtureBuild": {
+      "command": [
+        "/Users/vishsiddharth/Desktop/Bimax/app/scripts/computer-use/build-bimax-cu-fixture.sh",
+        "/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-phase2-package-Ree14h/BimaxCuFixture.app"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-phase2-package-Ree14h/BimaxCuFixture.app\n",
+      "stderr": ""
+    },
+    "fixtureLaunch": {
+      "command": [
+        "open",
+        "/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-phase2-package-Ree14h/BimaxCuFixture.app",
+        "--args",
+        "--title-ui-element-fixture"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "",
+      "stderr": ""
+    },
+    "handshake": {
+      "command": [
+        "/private/tmp/claude-501/-Users-vishsiddharth-Desktop-Bimax/6ce908a3-ff0f-4579-b5f8-dc69d24cbba0/scratchpad/release/mac-arm64/Bimax.app/Contents/XPCServices/BimaxCuService.xpc/Contents/MacOS/bimax-cu-service",
+        "--self-test-handshake"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "{\n  \"capabilities\" : {\n    \"browser\" : {\n      \"dialogs\" : false,\n      \"downloads\" : false,\n      \"fileInput\" : false,\n      \"typedRoute\" : false\n    },\n    \"delivery\" : {\n      \"focusLease\" : true,\n      \"physicalInput\" : true,\n      \"policies\" : [\n        \"background_native\",\n        \"background_only\",\n        \"background_preferred\",\n        \"foreground_once\",\n        \"foreground_persistent\"\n      ],\n      \"semanticActions\" : [\n        \"invoke\",\n        \"show_menu\",\n        \"set_value\",\n        \"increment\",\n        \"decrement\",\n        \"toggle\",\n        \"expand\",\n        \"collapse\",\n        \"select\",\n        \"select_text_range\",\n        \"select_text\",\n        \"set_caret\",\n        \"scroll_page\",\n        \"set_selected\",\n        \"scroll_to_visible\",\n        \"scroll_to_fraction\",\n        \"type_text\"\n      ],\n      \"semanticTransactions\" : true,\n      \"targetedEvents\" : false,\n      \"verifiedDeliveryPolicies\" : [\n        \"background_native\",\n        \"background_only\",\n        \"background_preferred\",\n        \"foreground_once\",\n        \"foreground_persistent\"\n      ],\n      \"verifiedSemanticActions\" : [\n        \"invoke\",\n        \"show_menu\",\n        \"set_value\",\n        \"increment\",\n        \"decrement\",\n        \"toggle\",\n        \"expand\",\n        \"collapse\",\n        \"select\",\n        \"select_text_range\",\n        \"select_text\",\n        \"set_caret\",\n        \"set_selected\",\n        \"scroll_to_fraction\",\n        \"type_text\"\n      ]\n    },\n    \"observe\" : {\n      \"axDiff\" : true,\n      \"capabilityDiscovery\" : true,\n      \"eventRevisions\" : true,\n      \"profiles\" : [\n        \"flash\",\n        \"balanced\"\n      ],\n      \"query\" : true,\n      \"regionCapture\" : true,\n      \"scopes\" : [\n        \"application\",\n        \"window\",\n        \"system_ui\"\n      ],\n      \"som\" : true,\n      \"streams\" : false,\n      \"zoom\" : true\n    },\n    \"overlay\" : {\n      \"cursor\" : false\n    },\n    \"recording\" : {\n      \"replayModes\" : [\n\n      ],\n      \"trajectory\" : false,\n      \"video\" : false\n    },\n    \"workspace\" : {\n      \"apps\" : true,\n      \"displays\" : true,\n      \"files\" : [\n\n      ],\n      \"operations\" : [\n        \"resolve_app\",\n        \"launch_app\",\n        \"inspect_file\",\n        \"open_file\",\n        \"reveal_file\",\n        \"trash_file\",\n        \"duplicate_file\",\n        \"open_url\",\n        \"move_window\",\n        \"resize_window\",\n        \"set_window_frame\",\n        \"minimize_window\",\n        \"unminimize_window\",\n        \"close_window\",\n        \"set_window_fullscreen\"\n      ],\n      \"spaces\" : false,\n      \"verifiedOperations\" : [\n        \"resolve_app\",\n        \"launch_app\",\n        \"inspect_file\",\n        \"open_file\",\n        \"duplicate_file\",\n        \"trash_file\",\n        \"move_window\",\n        \"resize_window\",\n        \"set_window_frame\"\n      ],\n      \"windows\" : true\n    }\n  },\n  \"limits\" : {\n    \"maxCaptureStreams\" : 2,\n    \"maxConcurrentReadSessions\" : 4,\n    \"maxDiffOperations\" : 5000,\n    \"maxElements\" : 2000,\n    \"maxImageDimension\" : 4096,\n    \"maxTransactionSteps\" : 5\n  },\n  \"permissions\" : {\n    \"accessibility\" : \"granted\",\n    \"adHocSigned\" : false,\n    \"codeDirectoryHash\" : \"93c52b02d97b87d56ccd535dbb4b0fa09205ee1e\",\n    \"inputMonitoring\" : \"not_required\",\n    \"screenCapturable\" : true,\n    \"screenRecording\" : \"granted\",\n    \"serviceSigned\" : true,\n    \"signatureIntact\" : true,\n    \"signingIdentifier\" : \"ai.bimax.cu.service\"\n  },\n  \"platform\" : {\n    \"architecture\" : \"arm64\",\n    \"os\" : \"macos\",\n    \"version\" : \"Version 26.5.2 (Build 25F84)\"\n  },\n  \"selectedProtocol\" : \"bimax.cu.v1\",\n  \"serviceVersion\" : \"0.7.0\"\n}\n",
+      "stderr": "",
+      "parsed": {
+        "capabilities": {
+          "browser": {
+            "dialogs": false,
+            "downloads": false,
+            "fileInput": false,
+            "typedRoute": false
+          },
+          "delivery": {
+            "focusLease": true,
+            "physicalInput": true,
+            "policies": [
+              "background_native",
+              "background_only",
+              "background_preferred",
+              "foreground_once",
+              "foreground_persistent"
+            ],
+            "semanticActions": [
+              "invoke",
+              "show_menu",
+              "set_value",
+              "increment",
+              "decrement",
+              "toggle",
+              "expand",
+              "collapse",
+              "select",
+              "select_text_range",
+              "select_text",
+              "set_caret",
+              "scroll_page",
+              "set_selected",
+              "scroll_to_visible",
+              "scroll_to_fraction",
+              "type_text"
+            ],
+            "semanticTransactions": true,
+            "targetedEvents": false,
+            "verifiedDeliveryPolicies": [
+              "background_native",
+              "background_only",
+              "background_preferred",
+              "foreground_once",
+              "foreground_persistent"
+            ],
+            "verifiedSemanticActions": [
+              "invoke",
+              "show_menu",
+              "set_value",
+              "increment",
+              "decrement",
+              "toggle",
+              "expand",
+              "collapse",
+              "select",
+              "select_text_range",
+              "select_text",
+              "set_caret",
+              "set_selected",
+              "scroll_to_fraction",
+              "type_text"
+            ]
+          },
+          "observe": {
+            "axDiff": true,
+            "capabilityDiscovery": true,
+            "eventRevisions": true,
+            "profiles": [
+              "flash",
+              "balanced"
+            ],
+            "query": true,
+            "regionCapture": true,
+            "scopes": [
+              "application",
+              "window",
+              "system_ui"
+            ],
+            "som": true,
+            "streams": false,
+            "zoom": true
+          },
+          "overlay": {
+            "cursor": false
+          },
+          "recording": {
+            "replayModes": [],
+            "trajectory": false,
+            "video": false
+          },
+          "workspace": {
+            "apps": true,
+            "displays": true,
+            "files": [],
+            "operations": [
+              "resolve_app",
+              "launch_app",
+              "inspect_file",
+              "open_file",
+              "reveal_file",
+              "trash_file",
+              "duplicate_file",
+              "open_url",
+              "move_window",
+              "resize_window",
+              "set_window_frame",
+              "minimize_window",
+              "unminimize_window",
+              "close_window",
+              "set_window_fullscreen"
+            ],
+            "spaces": false,
+            "verifiedOperations": [
+              "resolve_app",
+              "launch_app",
+              "inspect_file",
+              "open_file",
+              "duplicate_file",
+              "trash_file",
+              "move_window",
+              "resize_window",
+              "set_window_frame"
+            ],
+            "windows": true
+          }
+        },
+        "limits": {
+          "maxCaptureStreams": 2,
+          "maxConcurrentReadSessions": 4,
+          "maxDiffOperations": 5000,
+          "maxElements": 2000,
+          "maxImageDimension": 4096,
+          "maxTransactionSteps": 5
+        },
+        "permissions": {
+          "accessibility": "granted",
+          "adHocSigned": false,
+          "codeDirectoryHash": "93c52b02d97b87d56ccd535dbb4b0fa09205ee1e",
+          "inputMonitoring": "not_required",
+          "screenCapturable": true,
+          "screenRecording": "granted",
+          "serviceSigned": true,
+          "signatureIntact": true,
+          "signingIdentifier": "ai.bimax.cu.service"
+        },
+        "platform": {
+          "architecture": "arm64",
+          "os": "macos",
+          "version": "Version 26.5.2 (Build 25F84)"
+        },
+        "selectedProtocol": "bimax.cu.v1",
+        "serviceVersion": "0.7.0"
+      }
+    },
+    "semanticAndPhysical": {
+      "command": [
+        "/private/tmp/claude-501/-Users-vishsiddharth-Desktop-Bimax/6ce908a3-ff0f-4579-b5f8-dc69d24cbba0/scratchpad/release/mac-arm64/Bimax.app/Contents/XPCServices/BimaxCuService.xpc/Contents/MacOS/bimax-cu-service",
+        "--self-test-catalog",
+        "ai.bimax.cu.fixture"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "stdout": "{\n  \"bundleId\" : \"ai.bimax.cu.fixture\",\n  \"declaredVerified\" : [\n\n  ],\n  \"overclaimed\" : [\n\n  ],\n  \"reason\" : \"no_target_window\",\n  \"results\" : [\n\n  ],\n  \"status\" : \"skipped\",\n  \"transactionResults\" : [\n\n  ],\n  \"transactionsOverclaimed\" : false,\n  \"unverified\" : [\n\n  ],\n  \"verified\" : [\n\n  ]\n}\n",
+      "stderr": "",
+      "parsed": {
+        "bundleId": "ai.bimax.cu.fixture",
+        "declaredVerified": [],
+        "overclaimed": [],
+        "reason": "no_target_window",
+        "results": [],
+        "status": "skipped",
+        "transactionResults": [],
+        "transactionsOverclaimed": false,
+        "unverified": [],
+        "verified": []
+      }
+    },
+    "stop": {
+      "command": [
+        "/private/tmp/claude-501/-Users-vishsiddharth-Desktop-Bimax/6ce908a3-ff0f-4579-b5f8-dc69d24cbba0/scratchpad/release/mac-arm64/Bimax.app/Contents/XPCServices/BimaxCuService.xpc/Contents/MacOS/bimax-cu-service",
+        "--self-test-stop",
+        "ai.bimax.cu.fixture"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "stdout": "{\n  \"bundleId\" : \"ai.bimax.cu.fixture\",\n  \"foregroundPreserved\" : false,\n  \"reason\" : \"target_not_observable\",\n  \"status\" : \"skipped\",\n  \"targetUnchanged\" : false\n}\n",
+      "stderr": "",
+      "parsed": {
+        "bundleId": "ai.bimax.cu.fixture",
+        "foregroundPreserved": false,
+        "reason": "target_not_observable",
+        "status": "skipped",
+        "targetUnchanged": false
+      }
+    },
+    "visual": {
+      "command": [
+        "/private/tmp/claude-501/-Users-vishsiddharth-Desktop-Bimax/6ce908a3-ff0f-4579-b5f8-dc69d24cbba0/scratchpad/release/mac-arm64/Bimax.app/Contents/XPCServices/BimaxCuService.xpc/Contents/MacOS/bimax-cu-service",
+        "--self-test-capture",
+        "ai.bimax.cu.fixture"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "{\n  \"bundleId\" : \"ai.bimax.cu.fixture\",\n  \"completeFrames\" : 0,\n  \"height\" : 1000,\n  \"idleFrames\" : 0,\n  \"imageBytes\" : 20784,\n  \"lastFrameStatusRaw\" : 0,\n  \"oneShotFallback\" : true,\n  \"pid\" : 25844,\n  \"receivedFrames\" : 0,\n  \"status\" : \"ran\",\n  \"width\" : 1000,\n  \"windowId\" : 36534\n}\n",
+      "stderr": "",
+      "parsed": {
+        "bundleId": "ai.bimax.cu.fixture",
+        "completeFrames": 0,
+        "height": 1000,
+        "idleFrames": 0,
+        "imageBytes": 20784,
+        "lastFrameStatusRaw": 0,
+        "oneShotFallback": true,
+        "pid": 25844,
+        "receivedFrames": 0,
+        "status": "ran",
+        "width": 1000,
+        "windowId": 36534
+      }
+    },
+    "targetM02Build": {
+      "command": [
+        "/Users/vishsiddharth/Desktop/Bimax/app/scripts/computer-use/build-bimax-cu-fixture.sh",
+        "/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-phase2-package-Ree14h/BimaxCuFixture.app",
+        "target"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-phase2-package-Ree14h/BimaxCuFixture.app\n",
+      "stderr": ""
+    },
+    "bystanderBuild": {
+      "command": [
+        "/Users/vishsiddharth/Desktop/Bimax/app/scripts/computer-use/build-bimax-cu-fixture.sh",
+        "/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-phase2-package-Ree14h/BimaxCuBystander.app",
+        "bystander"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-phase2-package-Ree14h/BimaxCuBystander.app\n",
+      "stderr": ""
+    },
+    "targetM02Launch": {
+      "command": [
+        "open",
+        "-g",
+        "/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-phase2-package-Ree14h/BimaxCuFixture.app",
+        "--args",
+        "--m02-fixture",
+        "--m02-state",
+        "/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-phase2-package-Ree14h/reminders.json"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bystanderLaunch": {
+      "command": [
+        "open",
+        "/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-phase2-package-Ree14h/BimaxCuBystander.app",
+        "--args",
+        "--bystander-fixture",
+        "--typing-state",
+        "/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-phase2-package-Ree14h/typing.txt"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "",
+      "stderr": ""
+    },
+    "m02": {
+      "command": [
+        "/private/tmp/claude-501/-Users-vishsiddharth-Desktop-Bimax/6ce908a3-ff0f-4579-b5f8-dc69d24cbba0/scratchpad/release/mac-arm64/Bimax.app/Contents/XPCServices/BimaxCuService.xpc/Contents/MacOS/bimax-cu-service",
+        "--self-test-m02",
+        "ai.bimax.cu.fixture",
+        "ai.bimax.cu.bystander",
+        "/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-phase2-package-Ree14h/reminders.json",
+        "/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-phase2-package-Ree14h/typing.txt"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "stdout": "{\n  \"bystanderBundleId\" : \"ai.bimax.cu.bystander\",\n  \"checks\" : [\n\n  ],\n  \"failed\" : 0,\n  \"passed\" : 0,\n  \"reason\" : \"bystander_not_frontmost\",\n  \"status\" : \"skipped\",\n  \"targetBundleId\" : \"ai.bimax.cu.fixture\"\n}\n",
+      "stderr": "",
+      "parsed": {
+        "bystanderBundleId": "ai.bimax.cu.bystander",
+        "checks": [],
+        "failed": 0,
+        "passed": 0,
+        "reason": "bystander_not_frontmost",
+        "status": "skipped",
+        "targetBundleId": "ai.bimax.cu.fixture"
+      }
+    }
+  },
+  "assertions": {
+    "packageStructure": true,
+    "bundleOnlyComponent": true,
+    "protocolSelected": true,
+    "architectureMatchesHost": true,
+    "capacityAdvertised": true,
+    "packagedTakeoverInterlock": true,
+    "semanticPerformed": false,
+    "physicalPerformed": false,
+    "visualPerformed": true,
+    "stopBeforeEffect": false,
+    "m02ExactState": false
+  },
+  "passed": false,
+  "finishedAt": "2026-08-17T17:04:32.768Z"
+}
