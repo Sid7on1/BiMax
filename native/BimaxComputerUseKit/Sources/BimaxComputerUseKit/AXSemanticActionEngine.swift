@@ -18,6 +18,13 @@ public enum AXSemanticActionError: Error, Equatable {
     case valueNotSettable
     /// Carries the raw AXError so a refusal names the native cause instead of being opaque.
     case executionFailed(AXError)
+    /// The application did not answer the action within the messaging timeout. `AXUIElement.h` is
+    /// explicit that this is NOT a failure: applications "often need to perform some sort of modal
+    /// processing inside their action callbacks and they may not return within the timeout value",
+    /// and "this does not necessarily mean that the function has failed". The action may well have
+    /// landed, so the only honest report is that the outcome is unknown — and no other rung may be
+    /// tried, because a second delivery would perform an action that already happened.
+    case executionIndeterminate(AXError)
     case selectionNotSettable
     case textUnavailable
     case textTooLarge
@@ -105,6 +112,19 @@ public struct AXDeliveryLadder {
                 execution.attemptedPaths = attempts
                 return execution
             } catch let error as AXSemanticActionError {
+                // An indeterminate rung ends the walk. The application may already have performed
+                // the action, so continuing to the next rung would deliver it a second time — the
+                // failure mode is a message sent twice or a toggle returned to where it started.
+                // Stop, and report the uncertainty rather than manufacturing a refusal.
+                if case .executionIndeterminate(let ax) = error {
+                    attempts.append(.init(
+                        path: rung.path,
+                        primitive: rung.primitive,
+                        outcome: .indeterminate,
+                        axError: ax.rawValue
+                    ))
+                    throw error
+                }
                 attempts.append(.init(
                     path: rung.path,
                     primitive: rung.primitive,
@@ -320,10 +340,43 @@ public final class AXSemanticActionEngine: AXSemanticActionExecuting, @unchecked
             if satisfied?() == true {
                 return AXActionExecution(primitive: "\(action):satisfied", outcome: .alreadySatisfied)
             }
-            let result = AXUIElementPerformAction(element, action as CFString)
-            guard result == .success else { throw AXSemanticActionError.executionFailed(result) }
+            let result = Self.performAction(element, action)
+            guard result == .success else { throw Self.actionError(result) }
             return AXActionExecution(primitive: action)
         }
+    }
+
+    /// How long to wait for an application to answer an *action*.
+    ///
+    /// Deliberately larger than the 0.5s used for reads. That budget is sized for a bounded tree
+    /// walk, where a slow element should be abandoned; an action is different, because
+    /// `AXUIElement.h` says applications "often need to perform some sort of modal processing
+    /// inside their action callbacks". Waiting longer here is what converts an unknowable outcome
+    /// into a known one, so the number is a floor on certainty, not a latency tax: the common case
+    /// returns immediately and never observes it. Kept well inside the service's request deadline
+    /// (`deadlineMs`, minimum 1ms and validated to 120s) so a slow application cannot outlive the
+    /// transport that is waiting on it.
+    static let actionMessagingTimeoutSeconds: Float = 2.0
+
+    /// Performs an AX action under the action timeout rather than whatever the element inherited.
+    ///
+    /// Apple's documented remedy for `kAXErrorCannotComplete` is exactly this — "you may be able to
+    /// increase the timeout value (see AXUIElementSetMessagingTimeout)". The timeout is set on the
+    /// element itself, which per the header scopes it to that object alone and leaves the read
+    /// budget on the application element untouched.
+    private static func performAction(_ element: AXUIElement, _ action: String) -> AXError {
+        AXUIElementSetMessagingTimeout(element, actionMessagingTimeoutSeconds)
+        return AXUIElementPerformAction(element, action as CFString)
+    }
+
+    /// Maps a failed action to an error that distinguishes "refused" from "did not answer".
+    ///
+    /// `kAXErrorCannotComplete` is the one code the header explicitly tells callers not to read as
+    /// failure. Everything else is a genuine refusal.
+    private static func actionError(_ result: AXError) -> AXSemanticActionError {
+        result == .cannotComplete
+            ? .executionIndeterminate(result)
+            : .executionFailed(result)
     }
 
     /// Labels a single-rung delivery so every receipt reports a path, not just the ladder-driven ones.
@@ -581,9 +634,11 @@ public final class AXSemanticActionEngine: AXSemanticActionExecuting, @unchecked
         let horizontalBefore = AXScrollPattern.horizontalPercent(element)
         let verticalBefore = AXScrollPattern.verticalPercent(element)
         try validate()
-        guard AXUIElementPerformAction(element, action as CFString) == .success else {
-            throw AXSemanticActionError.executionFailed(.failure)
-        }
+        // Was `executionFailed(.failure)`, which threw away the code the application actually
+        // returned and reported a generic failure for every cause, including the timeout that is
+        // not a failure at all.
+        let scrolled = Self.performAction(element, action)
+        guard scrolled == .success else { throw Self.actionError(scrolled) }
         let horizontalAfter = AXScrollPattern.horizontalPercent(element)
         let verticalAfter = AXScrollPattern.verticalPercent(element)
         return AXActionExecution(

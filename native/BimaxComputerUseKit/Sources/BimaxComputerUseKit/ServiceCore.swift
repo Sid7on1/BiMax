@@ -1087,6 +1087,8 @@ public final class BimaxCuServiceCore: @unchecked Sendable {
             return [.init(path: .axAttribute, primitive: "AXSetAttribute:AXSelectedTextRange", outcome: .unavailable)]
         case .executionFailed(let axError):
             return [.init(path: .axAction, primitive: "AXPerformAction", outcome: .refused, axError: axError.rawValue)]
+        case .executionIndeterminate(let axError):
+            return [.init(path: .axAction, primitive: "AXPerformAction", outcome: .indeterminate, axError: axError.rawValue)]
         default:
             return []
         }
@@ -1432,6 +1434,14 @@ public final class BimaxCuServiceCore: @unchecked Sendable {
 
     /// Names the native cause without echoing any element content.
     private static func semanticActionErrorMessage(_ error: AXSemanticActionError) -> String {
+        if case .executionIndeterminate(let axError) = error {
+            // Never call this a refusal. Saying "refused" would tell the caller the action did not
+            // happen, which is the one thing this code does not establish — and would invite a
+            // retry that performs the action a second time.
+            return "the application did not answer the native AX call within the timeout "
+                + "(AXError \(axError.rawValue)); it may or may not have been performed, so verify "
+                + "against a fresh observation instead of retrying"
+        }
         guard case .executionFailed(let axError) = error else { return String(describing: error) }
         return "the native AX call was refused by the application (AXError \(axError.rawValue))"
     }
@@ -1447,6 +1457,7 @@ public final class BimaxCuServiceCore: @unchecked Sendable {
         case .actionUnsupported: return "semantic_action_unsupported"
         case .valueNotSettable: return "ax_value_not_settable"
         case .executionFailed: return "semantic_action_failed"
+        case .executionIndeterminate: return "semantic_action_indeterminate"
         case .selectionNotSettable: return "ax_selection_not_settable"
         case .textUnavailable: return "text_state_unavailable"
         case .textTooLarge: return "text_context_too_large"

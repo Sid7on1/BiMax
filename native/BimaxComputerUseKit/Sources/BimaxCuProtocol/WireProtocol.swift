@@ -2041,6 +2041,13 @@ public enum DeliveryAttemptOutcome: String, Codable, Equatable, Sendable {
     case unavailable
     /// The rung was offered and the application refused it.
     case refused
+    /// The rung was offered and the application neither confirmed nor refused it within the
+    /// messaging timeout. Per `AXUIElement.h`, `kAXErrorCannotComplete` from
+    /// `AXUIElementPerformAction` "does not necessarily mean that the function has failed" — an
+    /// application doing modal processing inside its action callback may already have performed it.
+    /// The action's real outcome is only knowable by re-reading state, so it is never a refusal and
+    /// never licenses a second delivery attempt.
+    case indeterminate
 }
 
 /// One rung, tried. The ladder records what it walked, so a receipt says *how* delivery happened
