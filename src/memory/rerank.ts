@@ -31,8 +31,12 @@
  */
 
 import { Logger } from '../utils';
+import { DEFAULT_RERANK_MODEL } from './settings';
 
+/** `rerankURL` overrides the endpoint when the reranker lives elsewhere than <base>/ranking —
+ * on NVIDIA it does: the retrieval host, not the chat host (see settings.rerankURLFor). */
 export interface RerankCredentials {
+  rerankURL?: string;
   apiKey: string;
   baseURL: string;
 }
@@ -68,7 +72,6 @@ export interface RerankedHit {
   logit: number;
 }
 
-const DEFAULT_MODEL = 'nvidia/llama-3.2-nv-rerankqa-1b-v2';
 const DEFAULT_MAX_CANDIDATES = 24;
 const DEFAULT_TIMEOUT_MS = 20_000;
 
@@ -82,7 +85,7 @@ export class RemoteReranker {
 
   constructor(options: RerankOptions) {
     this.resolve = options.resolve;
-    this.model = options.model ?? DEFAULT_MODEL;
+    this.model = options.model ?? DEFAULT_RERANK_MODEL;
     this.maxCandidates = Math.max(1, options.maxCandidates ?? DEFAULT_MAX_CANDIDATES);
     this.timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
     this.transport = options.transport ?? defaultTransport;
@@ -111,7 +114,8 @@ export class RemoteReranker {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), this.timeoutMs);
     try {
-      const response = await this.transport(`${trimSlash(credentials.baseURL)}/ranking`, {
+      const url = credentials.rerankURL ?? `${trimSlash(credentials.baseURL)}/ranking`;
+      const response = await this.transport(url, {
         headers: {
           'content-type': 'application/json',
           authorization: `Bearer ${credentials.apiKey}`,

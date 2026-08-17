@@ -9,10 +9,6 @@ import { createBrowserTool } from '../tools/implementations/browser.tool';
 import { BrowserRuntimePort } from '../browser/browser.runtime';
 import { getTaintTracker } from '../mind/taint';
 import { IGovernor } from '../core/interfaces';
-import { __resetConfigForTests, loadConfig } from '../cli/config';
-import * as fs from 'fs';
-import * as os from 'os';
-import * as path from 'path';
 
 jest.mock('../cli/prompter', () => ({
   GlobalPrompter: {
@@ -38,9 +34,7 @@ describe('computer-use safety ladder', () => {
     it('recognizes credential managers, system security surfaces, and wallets', () => {
       expect(isSensitiveComputerTarget('1Password')).toBe(true);
       expect(isSensitiveComputerTarget('Keychain Access')).toBe(true);
-      expect(isSensitiveComputerTarget('System Settings')).toBe(false);
-      expect(isSensitiveComputerTarget('System Settings Privacy & Security')).toBe(true);
-      expect(isSensitiveComputerTarget('System Settings Storage')).toBe(false);
+      expect(isSensitiveComputerTarget('System Settings')).toBe(true);
       expect(isSensitiveComputerTarget('Ledger Live')).toBe(true);
       expect(isSensitiveComputerTarget('my.wallet.example')).toBe(true);
       expect(isSensitiveComputerTarget('Safari')).toBe(false);
@@ -148,22 +142,9 @@ describe('computer-use safety ladder', () => {
   });
 
   describe('tool factory routing for the desktop companion', () => {
-    it('classifies mcp__open-computer-use__* as COMPUTER_CONTROL with the app surfaced', async () => {
-      const approvals: Array<{ taskType: string; payload: any }> = [];
-      const governor = {
-        approveTaskExecution: jest.fn(async (taskType: string, payload: any) => { approvals.push({ taskType, payload }); }),
-      } as unknown as IGovernor;
-      const tool = buildTool({
-        name: 'mcp__open-computer-use__click_element',
-        description: 'test double', schema: { type: 'object', properties: {} },
-        isDestructive: true,
-        execute: async () => 'clicked',
-      }, governor);
-      await tool.execute({ app: 'Notes', index: 3 }, { cwd: process.cwd() });
-      expect(approvals[0].taskType).toBe('COMPUTER_CONTROL');
-      expect(approvals[0].payload.app).toBe('Notes');
-      expect(approvals[0].payload.action).toBe('click_element');
-    });
+    // The mcp__open-computer-use__* routing test was removed with the Phase 4 extraction (the
+    // legacy CU MCP server no longer exists); the routing it pinned lives in the Desktop's
+    // bimax-mac provider now. Generic MCP routing is still pinned below.
 
     it('leaves other MCP tools as generic TOOL_EXECUTION', async () => {
       const seen: string[] = [];
@@ -191,7 +172,7 @@ describe('computer-use safety ladder', () => {
       })),
     });
 
-    it('scopes approvals to the live page host and marks uploads high-impact', async () => {
+    it('marks uploads high-impact in the approval payload (browser approvals ride TOOL_EXECUTION since the CU extraction)', async () => {
       const approvals: any[] = [];
       const governor = {
         approveTaskExecution: jest.fn(async (t: string, p: any) => { approvals.push({ t, p }); }),
@@ -199,12 +180,13 @@ describe('computer-use safety ladder', () => {
       const tool = createBrowserTool(governor, runtime('https://Example.COM/settings'));
       await tool.execute({ action: 'click', elementIndex: 1 }, { cwd: process.cwd() });
       await tool.execute({ action: 'upload', selector: 'input', path: 'a.txt' }, { cwd: process.cwd() });
-      // buildTool fires a generic TOOL_EXECUTION approval first; the computer-control gate is ours.
-      const control = approvals.filter(a => a.t === 'COMPUTER_CONTROL');
-      expect(control).toHaveLength(2);
-      expect(control[0].p.host).toBe('example.com');
-      expect(control[0].p.highImpact).toBeUndefined();
-      expect(control[1].p.highImpact).toBe(true);
+      // Since the Phase 4 extraction the browser gate is TOOL_EXECUTION with impact metadata
+      // (host scoping lives in the Desktop's bimax-mac provider for mac_control). The
+      // safety-meaningful invariant survives: an upload is marked high-impact, a click is not.
+      const gate = approvals.filter(a => a.t === 'TOOL_EXECUTION');
+      expect(gate.length).toBeGreaterThanOrEqual(2);
+      expect(gate[0].p.highImpact).toBeUndefined();
+      expect(gate[gate.length - 1].p.highImpact).toBe(true);
     });
 
     it('marks the session tainted after page observations, naming the page', async () => {
@@ -232,21 +214,6 @@ describe('computer-use safety ladder', () => {
 
   describe('/computer status hub', () => {
     const command = () => (globalCommandRegistry as any).commands.get('/computer');
-    let configDir: string;
-
-    beforeEach(() => {
-      configDir = fs.mkdtempSync(path.join(os.tmpdir(), 'bimax-computer-command-'));
-      process.env.BIMAX_BREAKGLASS_DIR = configDir;
-      delete process.env.BIMAX_COMPUTER_VISIBLE;
-      __resetConfigForTests();
-    });
-
-    afterEach(() => {
-      delete process.env.BIMAX_BREAKGLASS_DIR;
-      delete process.env.BIMAX_COMPUTER_VISIBLE;
-      __resetConfigForTests();
-      fs.rmSync(configDir, { recursive: true, force: true });
-    });
 
     function ctx(governor?: any) {
       return {
@@ -268,7 +235,6 @@ describe('computer-use safety ladder', () => {
       expect(res.type).toBe('menu');
       const labels = res.options.map((o: any) => o.label).join('\n');
       expect(labels).toContain('Browser automation');
-      expect(labels).toContain('Vision');
       expect(labels).toContain('Desktop control');
       expect(labels).toContain('Session grants (none)');
       expect(labels).toContain('Context taint: clean');
@@ -289,33 +255,6 @@ describe('computer-use safety ladder', () => {
       expect(res.type).toBe('none');
       expect(c.addSystemMessage).toHaveBeenCalledWith('success', expect.stringContaining('Revoked 1'));
       expect(governor.computerGrants()).toEqual([]);
-    });
-
-    it('/computer visible is idempotent and never toggles the physical cursor off', async () => {
-      const c = ctx();
-      await command().execute(['visible'], c);
-      await command().execute(['visible'], c);
-
-      expect((await loadConfig()).computerVisible).toBe(true);
-      expect(c.addSystemMessage).toHaveBeenLastCalledWith(
-        'success', expect.stringContaining('physical mouse/keyboard'),
-      );
-    });
-
-    it('uses an explicit background command and exposes the inverse action in the status row', async () => {
-      await command().execute(['background'], ctx());
-      expect((await loadConfig()).computerVisible).toBe(false);
-
-      const res = await command().execute([], ctx());
-      const input = res.options.find((o: any) => o.label.includes('Input:'));
-      expect(input.label).toContain('background-first');
-      expect(input.value).toBe('/computer visible');
-
-      await command().execute(['visible'], ctx());
-      const visibleRes = await command().execute([], ctx());
-      const visibleInput = visibleRes.options.find((o: any) => o.label.includes('Input:'));
-      expect(visibleInput.label).toContain('visible native cursor');
-      expect(visibleInput.value).toBe('/computer background');
     });
   });
 });

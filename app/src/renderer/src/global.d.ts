@@ -203,6 +203,7 @@ declare global {
         bundlePath: () => Promise<string>;
         probe: () => Promise<{
           readings: Record<string, 'granted' | 'denied' | 'not-determined' | 'unavailable'>;
+          readingSource: 'helper' | 'in-process';
           responsibleBundle: string;
           responsibleName: string;
           isDevHost: boolean;

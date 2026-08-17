@@ -24,6 +24,8 @@ export function PermissionsDialog({
   onClose: () => void;
 }): React.ReactElement {
   const [readings, setReadings] = useState<Record<string, Disposition>>({});
+  const [probeState, setProbeState] = useState<'checking' | 'ready' | 'unavailable'>('checking');
+  const [readingSource, setReadingSource] = useState<'helper' | 'in-process'>();
   const [host, setHost] = useState<{ name: string; bundle: string; isDevHost: boolean } | null>(null);
   const [checkedAt, setCheckedAt] = useState<number>();
   const [manualAlpha, setManualAlpha] = useState<ManualAlphaServiceStatus | null>(null);
@@ -39,12 +41,21 @@ export function PermissionsDialog({
   const refreshPermissions = useCallback(async () => {
     try {
       const probe = await window.bimax.permissionCoach.probe();
-      if (!probe) { setReadings({}); return; }
+      if (!probe) {
+        setReadings({});
+        setReadingSource(undefined);
+        setProbeState('unavailable');
+        return;
+      }
       setReadings(probe.readings as Record<string, Disposition>);
+      setReadingSource(probe.readingSource);
       setHost({ name: probe.responsibleName, bundle: probe.responsibleBundle, isDevHost: probe.isDevHost });
       setCheckedAt(Date.now());
+      setProbeState('ready');
     } catch {
       setReadings({});
+      setReadingSource(undefined);
+      setProbeState('unavailable');
     }
   }, []);
 
@@ -61,17 +72,25 @@ export function PermissionsDialog({
     && manualAlpha.permissions.accessibility === 'granted'
     && manualAlpha.permissions.screenRecording === 'granted';
   const computerUseReady = hostReady && manualAlpha?.ready === true && servicePermissionsReady;
-  const computerUseDetail = !hostReady
-    ? 'macOS keeps the host controls. Bimax can only guide you to the right switch.'
-    : !manualAlpha
-      ? 'Checking the native Computer Use service…'
-      : !manualAlpha.ready
-        ? manualAlpha.detail
-        : !servicePermissionsReady
-          ? 'The host is ready, but the native Computer Use service still needs its own macOS grants.'
-          : 'Bimax can observe and operate the Mac when a task asks for it.';
+  const computerUseDetail = probeState === 'checking'
+    ? 'Checking Bimax’s current macOS grants…'
+    : probeState === 'unavailable'
+      ? 'Bimax could not read the current macOS grants. Refresh or restart the app.'
+      : !hostReady
+        ? 'macOS keeps the host controls. Bimax can only guide you to the right switch.'
+        : !manualAlpha
+          ? 'Checking the native Computer Use service…'
+          : !manualAlpha.ready
+            ? manualAlpha.detail
+            : !servicePermissionsReady
+              ? 'The host is ready, but the native Computer Use service still needs its own macOS grants.'
+              : 'Bimax can observe and operate the Mac when a task asks for it.';
 
-  useEffect(() => { if (open) void refresh(); }, [open, refresh]);
+  useEffect(() => {
+    if (!open) return;
+    setProbeState('checking');
+    void refresh();
+  }, [open, refresh]);
 
   // Permissions change outside this window, so re-read whenever the user comes back to it. Without
   // this, revoking a grant in System Settings leaves a stale green tick until the app restarts.
@@ -142,6 +161,8 @@ export function PermissionsDialog({
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
           <PermissionsPane
             readings={readings}
+            probeState={probeState}
+            readingSource={readingSource}
             onOpenPane={openPane}
             onRefresh={refresh}
             host={host}

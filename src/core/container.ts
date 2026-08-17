@@ -56,6 +56,8 @@ import { globalProjectMemory } from '../memory/project.memory';
 import { VectorStore } from '../memory';
 import { RemoteEmbeddingBackend } from '../memory/embeddings';
 import { RemoteReranker } from '../memory/rerank';
+import { resolveMemorySettings, rerankURLFor } from '../memory/settings';
+import { createCodeSearchTool } from '../tools/implementations/code.search.tool';
 import { createSpawnSubagentTool } from '../tools/implementations/spawn.tool';
 import { createTasksTool } from '../tools/implementations/tasks.tool';
 import { createNotebookEditTool } from '../tools/implementations/notebook.tool';
@@ -204,16 +206,21 @@ export async function createContainer(config?: Partial<CliConfig>): Promise<{
   /**
    * Memory retrieval is hybrid: BM25 for exact tokens, dense embeddings for paraphrase, fused by
    * rank. The embedding backend rides the SAME provider and key pool as every chat call, so this
-   * costs no new dependency and no new configuration — and when there is no key it returns null,
-   * the store falls back to BM25 alone, and `lastSearchMode()` says which happened. It is never
-   * given hashed pseudo-vectors to rank on.
+   * costs no new dependency — and when there is no key it returns null, the store falls back to
+   * BM25 alone, and `lastSearchMode()` says which happened. It is never given hashed pseudo-vectors
+   * to rank on. Model ids come from memory settings (env → config → default).
    */
+  const memorySettings = resolveMemorySettings(cfg);
   const embeddings = new RemoteEmbeddingBackend({
     resolve: async () => {
       const key = await apiKeyManager.getNextKey();
       if (!key.keyStr) return null;
       return { apiKey: key.keyStr, baseURL: key.baseURL || 'https://integrate.api.nvidia.com/v1' };
     },
+    // User-configurable (config key or env) so a provider deprecation is a setting change, not a
+    // source edit. Resolution: env → config → default (src/memory/settings.ts).
+    model: memorySettings.embeddingModel,
+    dimensions: memorySettings.embeddingDimensions,
   });
   /**
    * The fourth stage. Both retrievers score a document without ever seeing it beside the query,
@@ -225,11 +232,94 @@ export async function createContainer(config?: Partial<CliConfig>): Promise<{
     resolve: async () => {
       const key = await apiKeyManager.getNextKey();
       if (!key.keyStr) return null;
-      return { apiKey: key.keyStr, baseURL: key.baseURL || 'https://integrate.api.nvidia.com/v1' };
+      return { apiKey: key.keyStr, baseURL: key.baseURL || 'https://integrate.api.nvidia.com/v1', rerankURL: rerankURLFor(key.baseURL || 'https://integrate.api.nvidia.com/v1') };
     },
+    model: memorySettings.rerankModel,
   });
   const vectorStore = new VectorStore(embeddings, reranker);
+  // One store process-wide. Without this, globalProjectMemory searches with a bare BM25-only
+  // VectorStore (no embeddings backend) even when keys exist, and its whole-file writes race
+  // this instance's — last writer wins, memories silently lost. After this call the remember
+  // tool, persona-level recallBlock, and AgentLoop auto-recall all share the hybrid store.
+  globalProjectMemory.useStore(vectorStore);
   toolRegistry.register(createMemoryQueryTool(governor, vectorStore));
+  // The semantic code index: the same four-stage pipeline pointed at the repo's own source.
+  // Separate store file (a codebase is ~10x the memory cap), dedup off (two similar files are
+  // two files), incremental sync bounded per run so a first index trickles in over several
+  // minutes instead of blocking boot. Source never leaves the machine unless the user explicitly
+  // enables remote code embeddings; lexical FTS remains available without that consent.
+  const codeIndexEnabled = process.env.BIMAX_CODE_INDEX === '0'
+    ? false
+    : (cfg.codeIndexEnabled ?? true);
+  const remoteCodeEnv = process.env.BIMAX_CODE_INDEX_REMOTE;
+  const remoteCodeEmbeddings = remoteCodeEnv === undefined
+    ? (cfg.codeIndexRemoteEmbeddings ?? false)
+    : remoteCodeEnv === '1';
+  if (codeIndexEnabled) {
+    const { CodeIndex, setActiveCodeIndex } = await import('../memory/code.index');
+    // Graph↔vector fusion: the index finds WHERE by meaning; the graph answers WHO CARES by
+    // structure (callers/callees in other files). Attached to the top hits only, silent when the
+    // graph is empty or the symbol isn't in it — the vector hit stands on its own.
+    const expandHit = async (hit: { path: string; symbol: string }): Promise<string[]> => {
+      try {
+        const graph = graphStore.getGraph();
+        const nodes = [...graph.nodes.values()].filter(
+          (n) => n.filePath?.endsWith(hit.path) && n.name === hit.symbol,
+        );
+        if (!nodes.length) return [];
+        const out = new Set<string>();
+        const describe = (id: string, via: string): void => {
+          const n = graph.nodes.get(id);
+          if (!n?.filePath) return;
+          const rel = path.relative(process.cwd(), n.filePath).replace(/\\/g, '/');
+          if (!rel.startsWith('..')) out.add(`${rel} · ${n.name} (${via})`);
+        };
+        for (const node of nodes) {
+          for (const e of graphStore.getEdgesTo(node.id)) {
+            if (e.type === 'CALLS' || e.type === 'USES_VARIABLE') describe(e.sourceId, 'calls this');
+          }
+          for (const e of graphStore.getEdgesFrom(node.id)) {
+            if (e.type === 'CALLS') describe(e.targetId, 'called by this');
+          }
+        }
+        return [...out].slice(0, 4);
+      } catch {
+        return [];
+      }
+    };
+    const budget = parseInt(process.env.BIMAX_CODE_INDEX_BUDGET || '', 10) || 200;
+    const codeIndexes = new Map<string, InstanceType<typeof CodeIndex>>();
+    const indexFor = async (cwd: string): Promise<InstanceType<typeof CodeIndex>> => {
+      const root = path.resolve(cwd);
+      let index = codeIndexes.get(root);
+      if (!index) {
+        index = new CodeIndex(
+          remoteCodeEmbeddings ? embeddings : null,
+          remoteCodeEmbeddings ? reranker : null,
+          { root, expandHit: root === projectRoot ? expandHit : undefined },
+        );
+        codeIndexes.set(root, index);
+      }
+      setActiveCodeIndex(index);
+      // This is bounded and idempotent. It makes ChangeDirectoryTool switch retrieval ownership
+      // instead of continuing to search the repository that happened to launch the process.
+      await index.sync(budget);
+      return index;
+    };
+    const codeIndex = new CodeIndex(
+      remoteCodeEmbeddings ? embeddings : null,
+      remoteCodeEmbeddings ? reranker : null,
+      { root: projectRoot, expandHit },
+    );
+    codeIndexes.set(projectRoot, codeIndex);
+    setActiveCodeIndex(codeIndex);
+    toolRegistry.register(createCodeSearchTool(governor, codeIndex, indexFor));
+    // Fire-and-forget: the tool is useful BM25-only from the first seconds, and gains vectors
+    // as batches land. Subsequent syncs (cd, /retrieval, future watchers) drain the backlog.
+    void codeIndex.sync(budget).catch((e) => {
+      Logger.warn(`[CodeIndex] initial sync failed (tool stays available, BM25-only): ${e?.message ?? e}`);
+    });
+  }
   toolRegistry.register(createRememberTool(governor, globalProjectMemory));
   toolRegistry.register(createSpawnSubagentTool(governor, toolRegistry, llmAdapter));
   toolRegistry.register(createTasksTool(governor));

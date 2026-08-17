@@ -2,12 +2,27 @@ import { VectorStore } from './vector.store';
 
 /**
  * Self-writing project memory. A thin, file-backed layer over the VectorStore that
- * stores durable project knowledge — conventions, decisions, gotchas — and recalls
- * the most relevant entries for a given prompt so they can be injected into context
- * each turn. Embeddings are local (no API cost), so recall is cheap to run per turn.
+ * stores durable project knowledge — conventions, decisions, gotchas — and recalls the
+ * most relevant entries for a given prompt so they can be injected into context
+ * each turn. Retrieval runs the full hybrid pipeline (BM25 + dense + rerank) when the
+ * store has an embedding backend, and BM25 alone otherwise — see VectorStore.
  */
 export class ProjectMemory {
-  constructor(private store = new VectorStore()) {}
+  constructor(private store: VectorStore = new VectorStore()) {}
+
+  /**
+   * Adopt the container-configured store (embeddings + reranker riding the chat key pool).
+   * Must happen once at boot, before the first turn. Without it this instance searches
+   * lexically only — two stores over the same file also race each other's whole-file writes.
+   */
+  useStore(store: VectorStore): void {
+    this.store = store;
+  }
+
+  /** The backing store, so callers that need raw hybrid search (AgentLoop auto-recall) share this index. */
+  get backingStore(): VectorStore {
+    return this.store;
+  }
 
   async remember(content: string, kind: 'convention' | 'decision' | 'gotcha' | 'note' = 'note', tags: string[] = []): Promise<string> {
     const trimmed = content.trim();
@@ -21,14 +36,12 @@ export class ProjectMemory {
   }
 
   async recall(query: string, limit = 3): Promise<string[]> {
-    // Lower confidence threshold than the default store search: project memories are
-    // short and the local bag-of-words embedding produces modest cosine scores, so a
-    // strict cutoff would suppress genuinely relevant conventions.
-    const docs = await this.store.semanticSearch(query, limit * 2, 0.08);
-    return docs
-      .filter(d => d.metadata.tags.includes('project-memory'))
-      .map(d => d.metadata.content)
-      .slice(0, limit);
+    // Low lexical floor: project memories are short notes, and a strict word-overlap cutoff
+    // would suppress genuinely relevant conventions that the dense/rerank stages surfaced.
+    // Tag-scoped IN the store (not post-filtered) so `limit` project-memories means the `limit`
+    // BEST project-memories, not "whatever survived after untagged documents took the slots".
+    const docs = await this.store.semanticSearch(query, limit, 0.08, { tags: ['project-memory'] });
+    return docs.map((d) => d.metadata.content);
   }
 
   /** A compact context block for injection into the system prompt, or '' if nothing relevant. */

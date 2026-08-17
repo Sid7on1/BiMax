@@ -91,11 +91,11 @@ public struct CaptureImageTransform: Equatable, Sendable {
     public var outputHeight: Int
 
     public init(sourcePixelRect: CuRect, outputWidth: Int, outputHeight: Int) throws {
-        guard sourcePixelRect.width > 0, sourcePixelRect.height > 0 else {
-            throw CaptureImageEncoderError.invalidCrop
-        }
-        guard outputWidth > 0, outputHeight > 0 else {
-            throw CaptureImageEncoderError.emptyRegion
+        guard sourcePixelRect.x.isFinite, sourcePixelRect.y.isFinite,
+              sourcePixelRect.width.isFinite, sourcePixelRect.height.isFinite,
+              sourcePixelRect.width > 0, sourcePixelRect.height > 0,
+              outputWidth > 0, outputHeight > 0 else {
+            throw ImageHandleStoreError.invalidTransform
         }
         self.sourcePixelRect = sourcePixelRect
         self.outputWidth = outputWidth
@@ -254,7 +254,7 @@ public struct CaptureStreamOptions: Equatable, Sendable {
     /// distracting artefact in evidence, and the agent's own pointer position is already recorded.
     public var showsCursor: Bool
 
-    public init(maxWidth: Int = 4_096, maxHeight: Int = 4_096, showsCursor: Bool = false) {
+    public init(maxWidth: Int = 2_560, maxHeight: Int = 2_560, showsCursor: Bool = false) {
         self.maxWidth = maxWidth
         self.maxHeight = maxHeight
         self.showsCursor = showsCursor
@@ -340,6 +340,7 @@ public actor CaptureStreamPool {
     private struct Stream {
         var handle: String
         var leases: Int
+        var lastUsed: UInt64
     }
 
     private let maxStreams: Int
@@ -347,6 +348,7 @@ public actor CaptureStreamPool {
     /// Keyed by target: this is what makes a warm stream reusable.
     private var streams: [CaptureStreamTarget: Stream] = [:]
     private var leaseTargets: [UUID: CaptureStreamTarget] = [:]
+    private var usageClock: UInt64 = 0
 
     public init(maxStreams: Int, driver: (any CaptureStreamDriving)? = nil) throws {
         guard maxStreams >= 1 else { throw CaptureStreamPoolError.invalidCapacity }
@@ -358,14 +360,25 @@ public actor CaptureStreamPool {
         guard let driver else { throw CaptureStreamPoolError.driverUnavailable }
         if var existing = streams[target] {
             existing.leases += 1
+            usageClock &+= 1
+            existing.lastUsed = usageClock
             streams[target] = existing
             let lease = CaptureStreamLease(target: target)
             leaseTargets[lease.id] = target
             return lease
         }
-        guard streams.count < maxStreams else { throw CaptureStreamPoolError.capacityExhausted }
+        if streams.count >= maxStreams {
+            guard let eviction = streams
+                .filter({ $0.value.leases == 0 })
+                .min(by: { $0.value.lastUsed < $1.value.lastUsed }) else {
+                throw CaptureStreamPoolError.capacityExhausted
+            }
+            streams.removeValue(forKey: eviction.key)
+            await driver.stop(handle: eviction.value.handle)
+        }
         let handle = try await driver.start(target: target, options: CaptureStreamOptions())
-        streams[target] = Stream(handle: handle, leases: 1)
+        usageClock &+= 1
+        streams[target] = Stream(handle: handle, leases: 1, lastUsed: usageClock)
         let lease = CaptureStreamLease(target: target)
         leaseTargets[lease.id] = target
         return lease
@@ -379,14 +392,11 @@ public actor CaptureStreamPool {
             throw CaptureStreamPoolError.invalidLease
         }
         stream.leases -= 1
-        // The stream outlives a single lease but not all of them: keeping it warm with zero holders
-        // is a leak that shows up as a permanently green capture indicator.
-        if stream.leases <= 0 {
-            streams.removeValue(forKey: target)
-            await driver?.stop(handle: stream.handle)
-        } else {
-            streams[target] = stream
-        }
+        // Zero-holder streams stay warm only inside the bounded pool. They are the first candidates
+        // for LRU eviction and reset always stops them, so reuse does not grow without limit.
+        usageClock &+= 1
+        stream.lastUsed = usageClock
+        streams[target] = stream
     }
 
     public func stats(for lease: CaptureStreamLease) async -> CaptureStreamStats? {
@@ -408,14 +418,13 @@ public actor CaptureStreamPool {
         CaptureStreamPoolSnapshot(
             activeStreams: streams.count,
             activeLeases: leaseTargets.count,
-            // Nothing is kept warm without a holder, so this is structurally zero. It is reported
-            // anyway so a future warm-pool change is visible rather than silent.
-            idleStreams: 0
+            idleStreams: streams.values.filter { $0.leases == 0 }.count
         )
     }
 
     public func reset() async {
-        let handles = streams.values.map(\.handle)
+        // Deterministic least-recently-used order makes shutdown receipts and tests stable.
+        let handles = streams.values.sorted { $0.lastUsed < $1.lastUsed }.map(\.handle)
         streams.removeAll()
         leaseTargets.removeAll()
         for handle in handles { await driver?.stop(handle: handle) }
@@ -594,6 +603,7 @@ public struct StoredCaptureImage: Equatable, Sendable {
 public final class ImageHandleStore: @unchecked Sendable {
     private let lock = NSLock()
     private var images: [String: StoredCaptureImage] = [:]
+    private var insertionOrder: [String] = []
     private let capacity: Int
     private let maxBytesPerSession: Int
 
@@ -659,10 +669,25 @@ public final class ImageHandleStore: @unchecked Sendable {
               image.transform.outputHeight == image.pixelHeight else {
             throw ImageHandleStoreError.invalidTransform
         }
+        guard image.data.count <= maxBytesPerSession else {
+            throw ImageHandleStoreError.storeLimitExceeded
+        }
         lock.lock()
         defer { lock.unlock() }
-        if images.count >= capacity {
-            throw ImageHandleStoreError.storeLimitExceeded
+        func sessionUsage() -> (count: Int, bytes: Int) {
+            let retained = images.values.filter { $0.handle.sessionId == sessionId }
+            return (retained.count, retained.reduce(0) { $0 + $1.handle.byteCount })
+        }
+        var usage = sessionUsage()
+        while usage.count >= capacity || usage.bytes + image.data.count > maxBytesPerSession {
+            guard let oldest = insertionOrder.first(where: {
+                images[$0]?.handle.sessionId == sessionId
+            }) else {
+                throw ImageHandleStoreError.storeLimitExceeded
+            }
+            images.removeValue(forKey: oldest)
+            insertionOrder.removeAll { $0 == oldest }
+            usage = sessionUsage()
         }
         let token = UUID().uuidString
         let handle = CaptureImageHandle(
@@ -673,9 +698,10 @@ public final class ImageHandleStore: @unchecked Sendable {
             pixelHeight: image.pixelHeight,
             byteCount: image.data.count,
             sha256: Self.sha256Hex(image.data),
-            createdAtMs: Int64(Date().timeIntervalSince1970 * 1000)
+            createdAtMs: now()
         )
         images[token] = StoredCaptureImage(handle: handle, transform: image.transform, bytes: image.data)
+        insertionOrder.append(token)
         return handle
     }
 
@@ -684,9 +710,10 @@ public final class ImageHandleStore: @unchecked Sendable {
         defer { lock.unlock() }
         guard let stored = images[handle.token] else { throw ImageHandleStoreError.invalidHandle }
         guard stored.handle.sessionId == sessionId, handle.sessionId == sessionId else {
-            throw ImageHandleStoreError.sessionMismatch
+            // Do not reveal whether a token exists in another session.
+            throw ImageHandleStoreError.invalidHandle
         }
-        guard stored.handle == handle || stored.handle.token == handle.token else {
+        guard stored.handle == handle else {
             throw ImageHandleStoreError.invalidHandle
         }
         return stored
@@ -696,14 +723,19 @@ public final class ImageHandleStore: @unchecked Sendable {
         lock.lock()
         defer { lock.unlock() }
         guard let stored = images[handle.token] else { throw ImageHandleStoreError.invalidHandle }
-        guard stored.handle.sessionId == sessionId else { throw ImageHandleStoreError.sessionMismatch }
+        guard stored.handle.sessionId == sessionId, stored.handle == handle else {
+            throw ImageHandleStoreError.invalidHandle
+        }
         images.removeValue(forKey: handle.token)
+        insertionOrder.removeAll { $0 == handle.token }
     }
 
     public func reset(sessionId: String) {
         lock.lock()
         defer { lock.unlock() }
+        let removed = Set(images.values.filter { $0.handle.sessionId == sessionId }.map(\.handle.token))
         images = images.filter { $0.value.handle.sessionId != sessionId }
+        insertionOrder.removeAll { removed.contains($0) }
     }
 
     private static func sha256Hex(_ data: Data) -> String {

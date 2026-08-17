@@ -420,6 +420,19 @@ public final class AccessibilityEngine: AXObserving, @unchecked Sendable {
             return (window, bounds, attributeString(window, kAXTitleAttribute))
         }
 
+        // WindowServer already exposes the exact identity bridge for AX windows. Use it before
+        // any geometry/title heuristic so a scaled, shadowed, or temporarily relocated window
+        // cannot be mistaken for a sibling — and so observation resolves the same native object
+        // as `AXWindowElementAccess`. Some third-party toolkits do not support this SPI, which is
+        // why the bounded fallbacks below remain necessary.
+        if let exact = windows.first(where: { candidate in
+            var identifier = CGWindowID(0)
+            return _AXUIElementGetWindow(candidate, &identifier) == .success
+                && identifier == requestedWindowId
+        }) {
+            return exact
+        }
+
         // Primary: near-exact geometry. Applications that report AX frames matching WindowServer.
         let ranked = measured.compactMap { candidate -> (AXUIElement, Double)? in
             let delta = abs(candidate.bounds.x - targetBounds.x) + abs(candidate.bounds.y - targetBounds.y)

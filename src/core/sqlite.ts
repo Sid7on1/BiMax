@@ -8,7 +8,7 @@
  * therefore left the packaged app with no persistence: an empty graph + ledger on every launch.
  *
  * openSqlite() resolves whichever backend the current runtime provides and adapts both to the tiny
- * surface the graph store and event ledger actually use: `exec(sql)` and `prepare(sql).{get,all,run}`.
+ * surface the stores actually use: `exec(sql)` and `prepare(sql).{get,all,run,iterate}`.
  * Returns null only when NEITHER is available, in which case callers degrade to best-effort/in-memory
  * exactly as before — nothing regresses, persistence simply turns on where it used to be dark.
  */
@@ -17,6 +17,7 @@ export interface SqliteStatement {
   get(...params: any[]): any;
   all(...params: any[]): any[];
   run(...params: any[]): any;
+  iterate(...params: any[]): IterableIterator<any>;
 }
 
 export interface SqliteDB {
@@ -60,6 +61,9 @@ export function openSqlite(dbPath: string): SqliteDB | null {
           get: (...p: any[]) => st.get(...p),
           all: (...p: any[]) => st.all(...p),
           run: (...p: any[]) => st.run(...p),
+          // Bun exposes iterate() today, but using all() here keeps the adapter stable across Bun
+          // versions and preserves the node:sqlite contract callers depend on.
+          iterate: (...p: any[]) => st.all(...p)[Symbol.iterator](),
         };
       },
       close: () => { try { db.close(); } catch { /* already closing */ } },

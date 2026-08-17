@@ -232,6 +232,8 @@ function beginGrantWatch(
 
 export interface PermissionProbe {
   readings: Record<string, Disposition>;
+  /** Whether Accessibility/Screen Recording came from the live helper or the stale fallback. */
+  readingSource: 'helper' | 'in-process';
   /** The bundle macOS actually attributes these grants to, and its display name. */
   responsibleBundle: string;
   responsibleName: string;
@@ -252,18 +254,22 @@ export function probePermissions(): PermissionProbe {
   const darwin = process.platform === 'darwin';
   const bundle = draggableBundlePath() ?? process.execPath;
   const name = path.basename(bundle, '.app');
+  // Read the pair once. Besides avoiding duplicate work, this keeps their values and provenance an
+  // atomic snapshot for the renderer: the UI must never explain a fresh value as a cached one.
+  const host = hostGrants();
 
   const probe: PermissionProbe = {
     responsibleBundle: bundle,
     responsibleName: name,
+    readingSource: host.source,
     // Anything whose bundle name is not Bimax is a host we are borrowing — the grant belongs to it.
     isDevHost: darwin && !/^bimax$/i.test(name),
     readings: {
       // Fresh-child readings. This probe is what the Trust Center renders, so a stale positive here
       // is what made the app insist a granted permission was off no matter how many times the user
       // granted it.
-      accessibility: darwin ? hostGrants().accessibility : 'unavailable',
-      screenRecording: darwin ? hostGrants().screenRecording : 'unavailable',
+      accessibility: darwin ? host.accessibility : 'unavailable',
+      screenRecording: darwin ? host.screenRecording : 'unavailable',
       // Microphone stays in-process: it is prompt-driven, and the prompt's own callback updates
       // this process, so there is no staleness to correct.
       microphone: darwin
@@ -278,7 +284,12 @@ export function probePermissions(): PermissionProbe {
   // the OS actually told THIS process, and which bundle it answered for. Log both: it is the
   // difference between a stale TCC row, a grant on the wrong bundle, and a bug in our own layer.
   // Contains no user data — four enum values and our own bundle path.
-  logCoach('probe', { ...probe.readings, responsible: bundle, isDevHost: probe.isDevHost });
+  logCoach('probe', {
+    ...probe.readings,
+    readingSource: probe.readingSource,
+    responsible: bundle,
+    isDevHost: probe.isDevHost,
+  });
   return probe;
 }
 

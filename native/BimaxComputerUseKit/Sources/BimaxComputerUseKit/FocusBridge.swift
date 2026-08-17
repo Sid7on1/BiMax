@@ -351,35 +351,40 @@ public enum SemanticEvidencePolicy {
         snapshot: AXSnapshot?,
         stablePathHash: String?
     ) -> Bool {
-        // The stable-path hash binds the judgement to the SAME element the caller authorized;
-        // a same-shaped different element must not satisfy the postcondition.
-        if let expected = stablePathHash, let actual = node?.stablePathHash, !actual.isEmpty {
+        // `node` is the before-state. When a fresh snapshot is supplied, every assertion is judged
+        // against the same stable element in that snapshot; otherwise this is the pre-delivery
+        // check and the before-state is also the current state.
+        let observed: AXNode?
+        if let snapshot, let stablePathHash {
+            observed = snapshot.nodes.first { $0.stablePathHash == stablePathHash }
+        } else {
+            observed = node
+        }
+        if let expected = stablePathHash, let actual = observed?.stablePathHash, !actual.isEmpty {
             guard expected == actual else { return false }
         }
         var matched = true
         if let exists = postcondition.elementExists {
-            matched = matched && ((node != nil) == exists)
+            matched = matched && ((observed != nil) == exists)
         }
-        guard let node else { return matched }
+        guard let observed else { return matched }
         if let text = postcondition.text {
-            let contains = [node.value, node.label].compactMap { $0 }.contains {
+            let contains = [observed.value, observed.label].compactMap { $0 }.contains {
                 $0.range(of: text, options: .caseInsensitive) != nil
             }
             matched = matched && (postcondition.textPresence == .present ? contains : !contains)
         }
         if let expectedValue = postcondition.expectedValue {
-            matched = matched && (node.value == expectedValue)
+            matched = matched && (observed.value == expectedValue)
         }
         if postcondition.valueMustChange {
-            // "Must change" can only be judged against the before-state the caller supplies; on
-            // the before-node itself it is trivially not-yet-changed.
-            matched = matched && false
+            matched = matched && (node != nil && observed.value != node?.value)
         }
         if let expectedFocused = postcondition.expectedFocused {
-            matched = matched && (node.focused == expectedFocused)
+            matched = matched && (observed.focused == expectedFocused)
         }
         if let expectedSelected = postcondition.expectedSelected {
-            matched = matched && (node.selected == expectedSelected)
+            matched = matched && (observed.selected == expectedSelected)
         }
         return matched
     }
@@ -419,13 +424,14 @@ public final class AXSnapshotStore: @unchecked Sendable {
 
     private let lock = NSLock()
     private var snapshots: [String: AXSnapshot] = [:]
+    private var snapshotOrder: [String] = []
     private var authorities: [String: ElementRef] = [:] // token → authorizing ref
     private var nodesByToken: [String: AXNode] = [:]
     private var snapshotByToken: [String: String] = [:]
 
     public init(maxSnapshotsPerSession: Int = 8, maxDiffOperations: Int = 512) {
         self.maxSnapshotsPerSession = max(1, maxSnapshotsPerSession)
-        self.maxDiffOperations = max(1, maxDiffOperations)
+        self.maxDiffOperations = max(0, maxDiffOperations)
     }
 
     /// Applies a diff to a base node set, producing what the full snapshot would have been.
@@ -450,7 +456,15 @@ public final class AXSnapshotStore: @unchecked Sendable {
         }
         for operation in operations {
             switch operation {
-            case .insert(let node), .update(let node):
+            case .insert(let node):
+                guard byHash[node.stablePathHash] == nil else {
+                    throw AXSnapshotStoreError.malformedDiff
+                }
+                byHash[node.stablePathHash] = node
+            case .update(let node):
+                guard byHash[node.stablePathHash] != nil else {
+                    throw AXSnapshotStoreError.malformedDiff
+                }
                 byHash[node.stablePathHash] = node
             case .remove(let stablePathHash, let token):
                 guard let existing = byHash[stablePathHash], existing.token == token else {
@@ -495,34 +509,39 @@ public final class AXSnapshotStore: @unchecked Sendable {
             guard base.query == full.query else {
                 throw AXSnapshotStoreError.baseSnapshotTargetMismatch
             }
-            response = AXSnapshot(
-                snapshotId: full.snapshotId,
-                sessionId: full.sessionId,
-                pid: full.pid,
-                windowId: full.windowId,
-                windowGeneration: full.windowGeneration,
-                revision: full.revision,
-                capturedAtMs: full.capturedAtMs,
-                profile: full.profile,
-                scope: full.scope,
-                nodes: [],
-                visitedCount: full.visitedCount,
-                truncated: full.truncated,
-                partial: full.partial,
-                issues: full.issues,
-                clippedNodeCount: full.clippedNodeCount,
-                baseSnapshotId: since,
-                diff: Self.diffOperations(from: base.nodes, to: full.nodes),
-                fullNodeCount: full.nodes.count,
-                eventTracking: full.eventTracking,
-                eventRevision: full.eventRevision,
-                changedDuringCapture: full.changedDuringCapture,
-                query: full.query
-            )
+            let operations = Self.diffOperations(from: base.nodes, to: full.nodes)
+            if operations.count <= maxDiffOperations {
+                response = AXSnapshot(
+                    snapshotId: full.snapshotId,
+                    sessionId: full.sessionId,
+                    pid: full.pid,
+                    windowId: full.windowId,
+                    windowGeneration: full.windowGeneration,
+                    revision: full.revision,
+                    capturedAtMs: full.capturedAtMs,
+                    profile: full.profile,
+                    scope: full.scope,
+                    nodes: [],
+                    visitedCount: full.visitedCount,
+                    truncated: full.truncated,
+                    partial: full.partial,
+                    issues: full.issues,
+                    clippedNodeCount: full.clippedNodeCount,
+                    baseSnapshotId: since,
+                    diff: operations,
+                    fullNodeCount: full.nodes.count,
+                    eventTracking: full.eventTracking,
+                    eventRevision: full.eventRevision,
+                    changedDuringCapture: full.changedDuringCapture,
+                    query: full.query
+                )
+            }
         }
         lock.lock()
         defer { lock.unlock() }
         snapshots[full.snapshotId] = full
+        snapshotOrder.removeAll { $0 == full.snapshotId }
+        snapshotOrder.append(full.snapshotId)
         for node in full.nodes {
             guard let ref = node.elementRef else { continue }
             nodesByToken[ref.token] = node
@@ -570,13 +589,13 @@ public final class AXSnapshotStore: @unchecked Sendable {
     }
 
     private func trim(sessionId: String) {
-        let sessionSnapshotIds = snapshots
-            .filter { $0.value.sessionId == sessionId }
-            .sorted { $0.value.capturedAtMs > $1.value.capturedAtMs }
-        guard sessionSnapshotIds.count > 4 else { return }
-        for stale in sessionSnapshotIds.dropFirst(4) {
-            snapshots.removeValue(forKey: stale.key)
-            let staleTokens = snapshotByToken.filter { $0.value == stale.key }.map(\.key)
+        var sessionSnapshotIds = snapshotOrder.filter { snapshots[$0]?.sessionId == sessionId }
+        guard sessionSnapshotIds.count > maxSnapshotsPerSession else { return }
+        while sessionSnapshotIds.count > maxSnapshotsPerSession {
+            let stale = sessionSnapshotIds.removeFirst()
+            snapshots.removeValue(forKey: stale)
+            snapshotOrder.removeAll { $0 == stale }
+            let staleTokens = snapshotByToken.filter { $0.value == stale }.map(\.key)
             for token in staleTokens {
                 snapshotByToken.removeValue(forKey: token)
                 nodesByToken.removeValue(forKey: token)
@@ -647,6 +666,7 @@ public final class AXSnapshotStore: @unchecked Sendable {
         defer { lock.unlock() }
         let sessionSnapshotIds = Set(snapshots.filter { $0.value.sessionId == sessionId }.map(\.key))
         for id in sessionSnapshotIds { snapshots.removeValue(forKey: id) }
+        snapshotOrder.removeAll { sessionSnapshotIds.contains($0) }
         let deadTokens = snapshotByToken.filter { sessionSnapshotIds.contains($0.value) }.map(\.key)
         for token in deadTokens {
             snapshotByToken.removeValue(forKey: token)

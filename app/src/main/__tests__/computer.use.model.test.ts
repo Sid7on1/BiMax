@@ -47,6 +47,55 @@ describe('Control Mac model preflight', () => {
     expect(result.reasons).toContain('Choose a Work model confirmed by this provider.');
   });
 
+  test('rejects a served Vision model in the Work slot because serving images is not tool-use proof', () => {
+    const visionAsWork = { ...vision, id: 'vision-work' };
+    const result = computerUseModelReadiness(
+      { model: 'vision-work' },
+      catalog([visionAsWork]),
+    );
+    expect(result.ready).toBe(false);
+    expect(result.reasons).toContain('Choose a Work model verified for agent tool use.');
+  });
+
+  test('rejects an uncurated provider model for Control Mac until tool use is verified', () => {
+    const unknown = { ...work, id: 'provider/model', curated: false };
+    const result = computerUseModelReadiness(
+      { model: 'provider/model', visionModel: 'vision' },
+      catalog([unknown, vision]),
+    );
+    expect(result.ready).toBe(false);
+    expect(result.reasons).toContain('Choose a Work model verified for agent tool use.');
+  });
+
+  test('accepts an explicitly selected multimodal Work model even when duplicate slot rows end in Quick', () => {
+    const stepWork: CatalogModelEntry = {
+      ...work,
+      id: 'stepfun-ai/step-3.7-flash',
+      avoidAutoSelect: true,
+      capabilities: { ...work.capabilities!, visionInput: true },
+    };
+    const stepVision: CatalogModelEntry = {
+      ...stepWork,
+      tier: 'vision',
+    };
+    const stepQuick: CatalogModelEntry = {
+      ...stepWork,
+      tier: 'lite',
+    };
+
+    const result = computerUseModelReadiness(
+      {
+        model: 'stepfun-ai/step-3.7-flash',
+        visionModel: 'stepfun-ai/step-3.7-flash',
+      },
+      catalog([stepWork, stepVision, stepQuick]),
+    );
+
+    expect(result.ready).toBe(true);
+    expect(result.work?.tier).toBe('coding');
+    expect(result.vision?.capabilities?.visionInput).toBe(true);
+  });
+
   test('allows one served multimodal work model to fill both roles', () => {
     const multimodal = { ...work, capabilities: { ...work.capabilities!, visionInput: true } };
     expect(computerUseModelReadiness({ model: 'work' }, catalog([multimodal])).ready).toBe(true);

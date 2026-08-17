@@ -87,9 +87,12 @@ const PERMISSIONS: PermissionSpec[] = [
 ];
 
 export function PermissionsPane({
-  readings, onOpenPane, onRefresh, host, checkedAt, computerUseReady, computerUseDetail, serviceCard,
+  readings, probeState, readingSource, onOpenPane, onRefresh, host, checkedAt,
+  computerUseReady, computerUseDetail, serviceCard,
 }: {
   readings: Record<string, Disposition>;
+  probeState: 'checking' | 'ready' | 'unavailable';
+  readingSource?: 'helper' | 'in-process';
   onOpenPane: (pane: 'accessibility' | 'screenRecording' | 'fullDisk' | 'microphone') => Promise<boolean>;
   /** The bundle macOS attributes these grants to, and whether it is a dev host rather than Bimax. */
   host?: { name: string; bundle: string; isDevHost: boolean } | null;
@@ -164,6 +167,7 @@ export function PermissionsPane({
         onRefresh={onRefresh}
         computerUseReady={computerUseReady === true}
         detail={computerUseDetail}
+        checking={probeState === 'checking'}
       />
       {host?.isDevHost && <DevHostNotice host={host} />}
 
@@ -175,9 +179,17 @@ export function PermissionsPane({
           </div>
           <span className={cn(
             'rounded-full px-2 py-1 text-[10.5px] font-medium',
-            requiredGranted === required.length ? 'bg-moss/10 text-moss' : 'bg-amber/10 text-amber',
+            probeState === 'ready' && requiredGranted === required.length
+              ? 'bg-moss/10 text-moss'
+              : 'bg-amber/10 text-amber',
           )}>
-            {requiredGranted === required.length ? 'Host ready' : `${required.length - requiredGranted} needed`}
+            {probeState === 'checking'
+              ? 'Checking…'
+              : probeState === 'unavailable'
+                ? 'Can’t read'
+                : requiredGranted === required.length
+                  ? 'Host ready'
+                  : `${required.length - requiredGranted} needed`}
           </span>
         </div>
         <div className="overflow-hidden rounded-[14px] border border-line bg-well/25">
@@ -186,6 +198,7 @@ export function PermissionsPane({
               key={spec.id}
               spec={spec}
               disposition={readings[spec.id] ?? 'not-determined'}
+              probeState={probeState}
               first={index === 0}
               onEnable={() => void start(spec)}
             />
@@ -201,7 +214,13 @@ export function PermissionsPane({
             <h3 className="text-[10px] font-semibold tracking-[0.1em] text-faint uppercase">Optional</h3>
             <p className="mt-0.5 text-[11px] text-faint">Ask only when you use a feature that needs it.</p>
           </div>
-          <span className="text-[10.5px] text-faint">{optionalGranted}/2 allowed</span>
+          <span className="text-[10.5px] text-faint">
+            {probeState === 'checking'
+              ? 'Checking…'
+              : probeState === 'unavailable'
+                ? 'Can’t read'
+                : `${optionalGranted}/2 allowed`}
+          </span>
         </div>
         <div className="overflow-hidden rounded-[14px] border border-line bg-well/25">
           {PERMISSIONS.filter((spec) => !spec.required).map((spec, index) => (
@@ -209,6 +228,7 @@ export function PermissionsPane({
               key={spec.id}
               spec={spec}
               disposition={readings[spec.id] ?? 'not-determined'}
+              probeState={probeState}
               first={index === 0}
               onEnable={() => void start(spec)}
             />
@@ -218,15 +238,9 @@ export function PermissionsPane({
 
       {coach && <DragCoach spec={coach} onDone={() => setCoach(null)} />}
 
-      {/*
-        BOTH transitions are invisible to a running process, not just revocation. macOS pins a
-        process's TCC answers at launch, so a permission the user just GRANTED keeps reading
-        "Not added" for the lifetime of this process — the same cache that keeps a revoked one
-        reading "Enabled". This used to be offered only in the granted case, which left the far
-        more common situation ("I turned it on and Bimax still says off") with no way forward and
-        no explanation. Offer the restart whenever a reading can be stale in either direction.
-      */}
-      {(requiredGranted < required.length || readings.accessibility === 'granted') && <StaleReadingNotice />}
+      {/* The bundled helper bypasses the main process's launch-time TCC cache. Relaunch is only an
+          honest recommendation when that helper was unavailable and main had to use its fallback. */}
+      {readingSource === 'in-process' && <StaleReadingNotice />}
     </div>
   );
 }
@@ -234,20 +248,16 @@ export function PermissionsPane({
 /**
  * The honest explanation for "I changed it in System Settings and Bimax still shows the old value".
  *
- * macOS answers a process's TCC questions from a cache fixed at launch, and that cuts BOTH ways:
- * `AXIsProcessTrusted` keeps returning `true` for the lifetime of this process after you revoke
- * Accessibility, and it keeps returning `false` after you grant it. There is no query that
- * bypasses the cache. Polling cannot help — the value is not stale in our layer, it is pinned in
- * theirs. So the UI says so and offers the one thing that does work: relaunch.
+ * This is a degraded fallback only. Normal packaged builds use `bimax-desktop-helper`, whose fresh
+ * process bypasses the main process's launch-time TCC cache and therefore never show this notice.
  */
 function StaleReadingNotice(): React.ReactElement {
   const [restarting, setRestarting] = useState(false);
   return (
     <section className="flex items-start justify-between gap-3 rounded-xl border border-line px-4 py-3">
       <p className="min-w-0 text-[11px] leading-relaxed text-faint">
-        macOS answers these from a cache fixed when Bimax started, so a permission you just
-        <b className="text-dim"> switched on or off </b> can still read the old value here — a grant
-        you just made will keep showing as “Not added”. Restarting is the only way to re-read it.
+        The live permission helper is unavailable, so this reading came from Bimax’s launch-time
+        cache and may be stale. Restart Bimax to force a new macOS reading.
       </p>
       <button
         disabled={restarting}
@@ -298,7 +308,7 @@ function DevHostNotice({ host }: { host: { name: string; bundle: string } }): Re
 /* ------------------------------------------------------------------------ progress ------------ */
 
 function ProgressCard({
-  granted, total, checkedAt, onRefresh, computerUseReady, detail,
+  granted, total, checkedAt, onRefresh, computerUseReady, detail, checking,
 }: {
   granted: number;
   total: number;
@@ -306,6 +316,7 @@ function ProgressCard({
   onRefresh: () => Promise<void>;
   computerUseReady: boolean;
   detail?: string;
+  checking: boolean;
 }): React.ReactElement {
   const fraction = total === 0 ? 0 : granted / total;
   const radius = 26;
@@ -321,7 +332,7 @@ function ProgressCard({
         <div className="flex items-center gap-2">
           <span className={cn('size-2 rounded-full', computerUseReady ? 'bg-moss' : 'bg-amber')} />
           <h2 className="text-[15px] font-semibold text-ink">
-            {computerUseReady ? 'Control Mac is ready' : 'Finish Computer Use setup'}
+            {checking ? 'Checking Computer Use setup' : computerUseReady ? 'Control Mac is ready' : 'Finish Computer Use setup'}
           </h2>
         </div>
         <p className="mt-1 text-[12px] leading-relaxed text-dim">
@@ -346,7 +357,7 @@ function ProgressCard({
           />
         </svg>
         <span className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-[14px] font-semibold text-ink">{granted}/{total}</span>
+          <span className="text-[14px] font-semibold text-ink">{checking ? '–' : granted}/{total}</span>
           <span className="text-[8.5px] tracking-wide text-faint uppercase">Host</span>
         </span>
       </div>
@@ -358,16 +369,21 @@ function ProgressCard({
 /* ---------------------------------------------------------------------------- row ------------- */
 
 function PermissionRow({
-  spec, disposition, first, onEnable,
+  spec, disposition, probeState, first, onEnable,
 }: {
   spec: PermissionSpec;
   disposition: Disposition;
+  probeState: 'checking' | 'ready' | 'unavailable';
   first: boolean;
   onEnable: () => void;
 }): React.ReactElement {
   const Icon = spec.icon;
   const isGranted = disposition === 'granted';
-  const statusLabel = disposition === 'denied'
+  const statusLabel = probeState === 'checking'
+    ? 'Checking…'
+    : probeState === 'unavailable'
+      ? 'Can’t read'
+      : disposition === 'denied'
     ? 'Off'
     : disposition === 'not-determined'
       ? 'Not added'
@@ -388,7 +404,7 @@ function PermissionRow({
         <span className="flex shrink-0 items-center gap-1.5 text-[11.5px] font-medium text-moss">
           <Check size={13} /> {statusLabel}
         </span>
-      ) : spec.pane ? (
+      ) : spec.pane && probeState === 'ready' ? (
         <span className="flex shrink-0 flex-col items-end gap-1.5">
           <span className={cn(
             'rounded-full px-2 py-0.5 text-[9.5px] font-medium',

@@ -2979,6 +2979,21 @@ private func testFocusLeaseRestoreSemantics() throws {
         }
     }
 
+    // A lease over the current foreground app must not generate another activation. Besides being
+    // unnecessary, that transition can reset the OS input-idle clock and make the subsequent
+    // physical-input safety decision refuse activity Bimax generated itself.
+    let currentFocus = FakeFocusController(frontmost: 42)
+    let currentManager = makeLeaseManager(currentFocus)
+    let currentLease = try currentManager.acquire(
+        sessionId: "current", policy: .foregroundOnce, targetPid: 42, targetWindowId: 7,
+        options: FocusLeaseOptions()
+    )
+    try expect(currentFocus.activations.isEmpty && !currentLease.targetBecameFrontmost,
+               "an already-frontmost target was activated again")
+    let currentReceipt = try currentManager.release(leaseId: currentLease.leaseId)
+    try expect(currentReceipt.restoreOutcome == .nothingToRestore,
+               "an already-frontmost lease invented a displaced application")
+
     // foreground_once: take the front, then hand it back.
     let onceFocus = FakeFocusController(frontmost: 100)
     let onceManager = makeLeaseManager(onceFocus)

@@ -102,7 +102,14 @@ export async function recallForTurn(
   try {
     // A floor of 0: the whole point is finding things phrased differently, and a lexical-overlap
     // threshold would filter out exactly those.
-    documents = await store.semanticSearch(query, limit, 0);
+    //
+    // project-memory is EXCLUDED: the persona already injects those as a prompt block every turn
+    // (conventions are deliberately re-shown), and one memory arriving twice — from two paths
+    // that cannot see each other — is the exact token cost this module's guards exist to prevent.
+    // code is EXCLUDED for the same reason from the other side: source chunks belong to
+    // CodeSearchTool, and auto-recall injecting a wall of code into a user turn is displacement,
+    // not help. Recall is for durable knowledge; code has its own door.
+    documents = await store.semanticSearch(query, limit, 0, { excludeTags: ['project-memory', 'code'] });
   } catch {
     // Recall is an enhancement. A retrieval failure must never fail the user's turn.
     return null;

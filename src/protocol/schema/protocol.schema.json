@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://bimax.dev/protocol/3.1.0/ndjson-message.schema.json",
-  "title": "Bimax client NDJSON protocol 3.1.0",
+  "$id": "https://bimax.dev/protocol/3.2.0/ndjson-message.schema.json",
+  "title": "Bimax client NDJSON protocol 3.2.0",
   "description": "One decoded NDJSON frame. Unknown additive properties remain allowed within a compatible major.",
   "anyOf": [
     {
@@ -395,6 +395,106 @@
       "properties": {
         "t": {
           "type": "string",
+          "const": "catalogResult"
+        },
+        "id": {
+          "type": "number"
+        },
+        "providers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "baseURL": {
+                "type": "string"
+              },
+              "apiKeyEnv": {
+                "type": "string"
+              },
+              "hasKey": {
+                "type": "boolean"
+              },
+              "keyHint": {
+                "type": "string"
+              },
+              "keyCount": {
+                "type": "number"
+              },
+              "active": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "models": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "desc": {
+                "type": "string"
+              },
+              "tier": {
+                "type": "string"
+              },
+              "served": {
+                "type": "boolean"
+              },
+              "curated": {
+                "type": "boolean"
+              },
+              "capabilities": {
+                "type": "object",
+                "properties": {
+                  "visionInput": {
+                    "type": "boolean"
+                  },
+                  "reasoningEffortKnob": {
+                    "type": "boolean"
+                  },
+                  "thinking": {
+                    "type": "boolean"
+                  },
+                  "structuredOutputs": {
+                    "type": "boolean"
+                  },
+                  "parallelToolCalls": {
+                    "type": "boolean"
+                  },
+                  "contextWindow": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": true
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "t"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "t": {
+          "type": "string",
           "const": "reply"
         },
         "id": {
@@ -578,6 +678,50 @@
           "type": "string"
         },
         "autonomy": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "t"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "t": {
+          "type": "string",
+          "const": "catalogGet"
+        },
+        "id": {
+          "type": "number"
+        },
+        "refresh": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "t"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "t": {
+          "type": "string",
+          "const": "providerSet"
+        },
+        "id": {
+          "type": "number"
+        },
+        "name": {
+          "type": "string"
+        },
+        "baseURL": {
+          "type": "string"
+        },
+        "apiKey": {
           "type": "string"
         }
       },

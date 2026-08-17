@@ -164,6 +164,26 @@ async function runSubAgentCore(
     // Shared project memory is a persistence channel out of the episode — floored workers'
     // lessons re-enter only via the dream grader, never directly.
     if (!episodeFloor) toolRegistry.register(createRememberTool(governor, globalProjectMemory));
+    // Same hybrid store as the parent process (see container.ts): without this the worker persona's
+    // auto-recall and remember tool run BM25-only on a second store racing the parent's writes over
+    // the same vectors.json. Floored episodes get no store at all — retrieval is a read of shared
+    // state, and floored lessons must re-enter only through the grader.
+    if (!episodeFloor && apiKeyManager) {
+      const { RemoteEmbeddingBackend } = await import('../memory/embeddings');
+      const { RemoteReranker } = await import('../memory/rerank');
+      const { resolveMemorySettings, rerankURLFor } = await import('../memory/settings');
+      const { VectorStore } = await import('../memory/vector.store');
+      const memorySettings = resolveMemorySettings();
+      const resolveKey = async () => {
+        const key = await apiKeyManager.getNextKey();
+        if (!key.keyStr) return null;
+        return { apiKey: key.keyStr, baseURL: key.baseURL || 'https://integrate.api.nvidia.com/v1', rerankURL: rerankURLFor(key.baseURL || 'https://integrate.api.nvidia.com/v1') };
+      };
+      globalProjectMemory.useStore(new VectorStore(
+        new RemoteEmbeddingBackend({ resolve: resolveKey, model: memorySettings.embeddingModel, dimensions: memorySettings.embeddingDimensions }),
+        new RemoteReranker({ resolve: resolveKey, model: memorySettings.rerankModel }),
+      ));
+    }
     globalSkillService.load(config.cwd || process.cwd());
     toolRegistry.register(createSkillTool(governor, globalSkillService));
     // Skill installs fetch from the network AND persist outside the episode — both off-limits

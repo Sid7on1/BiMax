@@ -121,9 +121,12 @@ describe('config scopes — the contamination class', () => {
 describe('config scopes — file integrity', () => {
   it('MALFORMED EXISTING CONFIG is preserved (not silently destroyed) and defaults apply', async () => {
     await fs.writeFile(cfgPath, '{"model": "user/persisted-mo…TRUNCATED');
-    const { loadConfig } = freshConfigModule();
+    const { loadConfig, DEFAULTS } = freshConfigModule();
     const cfg = await loadConfig();
-    expect(cfg.model).toBe('mistralai/mistral-nemotron'); // default — corrupt scope is empty
+    // Against DEFAULTS, not a hardcoded id: the default model is a measured choice that changes
+    // (see the rationale in config.ts), and this test's subject is "corrupt scope → defaults",
+    // not which model happens to be the default today.
+    expect(cfg.model).toBe(DEFAULTS.model);
     const entries = await fs.readdir(dir);
     expect(entries.some(f => f.startsWith('config.json.corrupt-'))).toBe(true); // evidence kept
   });

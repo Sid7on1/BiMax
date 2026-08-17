@@ -14,12 +14,14 @@
  *   - **recall@k** — was the right document in the top k at all? This is the ceiling: nothing later
  *     in the pipeline can recover a document that was never retrieved.
  *   - **MRR** (mean reciprocal rank) — *where* in the list was it? Recall treats "first" and "tenth"
- *     as equally good; MRR does not, and the difference is the whole point of reranking, which never
- *     changes recall by construction (it reorders a fixed candidate set) and exists solely to move
- *     the right answer up.
+ *     as equally good; MRR does not, and the difference is the whole point of reranking.
  *
  * Reporting only recall would make reranking look like it does nothing. Reporting only MRR would
- * hide a retriever that dropped the answer entirely. They are both required.
+ * hide a retriever that dropped the answer entirely. They are both required — and note that
+ * reranking reorders a fixed candidate SET, but only the top k of it is returned, so reranking CAN
+ * cost a place at the tail of the top k while it moves everything else up. The eval allows at most
+ * one such demotion; more means the reranker's signal disagrees with retrieval often enough to be
+ * a net negative, which is the failure the margin in /retrieval exists to catch on the live side.
  */
 
 import type { VectorStore } from './vector.store';
@@ -99,8 +101,12 @@ export async function evaluateRetrieval(
  *
  *   - **lexical** — an identifier or code that appears verbatim. BM25 must carry these, and a
  *     regression here means the dense stage has started drowning exact matches.
- *   - **semantic** — no content word in common with its target. Impossible before embeddings; these
- *     are the cases that measure whether the upgrade is real.
+ *   - **semantic** — phrased so that BM25 cannot rank the target first: mostly paraphrase, sharing
+ *     at most a word or two of vocabulary with a note written in different terms. Impossible to
+ *     answer before embeddings; these are the cases that measure whether the upgrade is real. (The
+ *     earlier blanket claim of "no content word in common" was measured false — real questions
+ *     incidentally reuse words — so the property asserted is the one that matters: lexical search
+ *     alone does not find them.)
  */
 export const EVAL_CORPUS: EvalCorpusEntry[] = [
   {
@@ -135,16 +141,46 @@ export const EVAL_CORPUS: EvalCorpusEntry[] = [
     id: 'glass-contrast',
     text: 'Primary text over a bright backdrop measured 2.0 to 1 against a floor of 4.5, less than half the accessibility minimum, and secondary text was effectively invisible at 1.1. The veil had been reasoned about as a tint over the desktop rather than over the application own bright surfaces.',
   },
+  {
+    id: 'xpc-location',
+    text: 'An XPC service registers from its bundle placement, not from the binary that spawns it. Hosted anywhere but Bimax.app/Contents/XPCServices/ the service never becomes reachable, and the error surfaces as a launch timeout rather than a placement complaint.',
+  },
+  {
+    id: 'engine-pin',
+    text: 'The Mac app bundles one pinned engine artifact and its protocol schema, verified by hash. The terminal publishes versioned artifacts instead, so updating one product can never silently change the behaviour of the other — an unpinned reference drifts and the first symptom is a protocol mismatch weeks later.',
+  },
+  {
+    id: 'recall-wiring',
+    text: 'A feature can pass every unit test and yet be dead in production: the tests constructed the dependency the production callsite never passed. Automatic recall ran zero times outside tests for exactly this reason — the loop was built without the store, and each test built it with one.',
+  },
+  {
+    id: 'vector-space-stamp',
+    text: 'A stored vector is only comparable to vectors from the same model at the same size. Every record carries a space stamp; a mismatch means re-embed, never compare — mixing spaces produces plausible-looking similarity scores that mean nothing, which is worse than an error.',
+  },
+  {
+    id: 'backfill-pending',
+    text: 'Memories written while no embedding key existed carry no vectors and stay invisible to semantic search after a key is added, because nothing re-embeds old records on its own. A bounded backfill pass closes the hole; without it, the dense stage quietly sees only what was stored after the key arrived.',
+  },
+  {
+    id: 'safe-storage-keys',
+    text: 'API keys are sealed with Electron safeStorage, so only a process the app itself spawned can decrypt them. Unit tests therefore stop at the HTTP boundary by necessity, and the one link no test can close — the live call — must be probed from inside the running process instead.',
+  },
+  {
+    id: 'nv-embed-model',
+    text: 'The retrieval space is nvidia/llama-3.2-nv-embedqa-1b-v2 at 768 Matryoshka dimensions, served on the same OpenAI-compatible base URL and key rotation as chat, with truncate END because the provider default NONE rejects long documents rather than truncating them.',
+  },
 ];
 
 export const EVAL_CASES: EvalCase[] = [
   // --- lexical: the exact token appears verbatim ------------------------------------------------
   { query: 'AXError -25208', relevant: ['ax-refusal'] },
   { query: 'maxWorkers 50%', relevant: ['jest-workers'] },
+  { query: 'llama-3.2-nv-embedqa-1b-v2', relevant: ['nv-embed-model'] },
+  { query: 'safeStorage decrypt', relevant: ['safe-storage-keys'] },
 
   // --- semantic: no content word shared with the target ----------------------------------------
   // "why does it still say off after I turned it on" ↔ a note about stale trust evaluation.
-  { query: 'I enabled the permission but the app still shows it disabled', relevant: ['tcc-stale'] },
+  { query: 'I enabled the permission but it still shows as disabled', relevant: ['tcc-stale'] },
   // "the panel appears instantly with no animation" ↔ a note about an effect that never runs.
   { query: 'the dialog just appears instead of animating in', relevant: ['radix-portal'] },
   // "the layout jumps at the end" ↔ a note about clip-path not reflowing neighbours.
@@ -155,4 +191,14 @@ export const EVAL_CASES: EvalCase[] = [
   { query: 'why do I need to grant access again after every update', relevant: ['signing-identity'] },
   // "the writing is hard to read on the frosted background" ↔ a note about contrast ratios.
   { query: 'text is difficult to read over the translucent material', relevant: ['glass-contrast'] },
+  // "the helper never starts when I run it from the shell" ↔ a note about XPC bundle placement.
+  { query: 'the native helper does not become reachable when launched from the shell', relevant: ['xpc-location'] },
+  // "the two products drifted apart after an update" ↔ a note about the pinned engine artifact.
+  { query: 'the desktop app broke because the terminal changed underneath it', relevant: ['engine-pin'] },
+  // "all green in CI, nothing in the real app" ↔ a note about tests constructing what production omits.
+  { query: 'every test passes but the feature does nothing when I actually use it', relevant: ['recall-wiring'] },
+  // "similarity scores look fine but are nonsense after resizing" ↔ a note about space stamps.
+  { query: 'search behaved oddly after I changed the embedding size, the similarity scores look wrong', relevant: ['vector-space-stamp'] },
+  // "old notes still only match keywords after adding the key" ↔ a note about unbackfilled records.
+  { query: 'older entries only match by keyword even though the key now works', relevant: ['backfill-pending'] },
 ];

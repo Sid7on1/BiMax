@@ -39,9 +39,15 @@ model changes are invalid runs, not product failures or passes.
 ## Bimax Desktop computer-use gate
 
 - packaged app, not a dev shell, owns the permission and focus experience;
-- a Control Mac task cannot reach the engine until the active provider credential and a currently
-  served Work + screenshot-capable Vision route are confirmed; provider timeout/error is a visible
-  blocked state, never an implicit fallback;
+- a Control Mac task cannot reach the engine until the active provider credential, a currently
+  served curated Work row for the configured model id, and a currently served screenshot-capable
+  route are confirmed; duplicate catalogue rows are resolved by requested slot rather than by row
+  order, and `avoidAutoSelect` never vetoes a model the user intentionally selected; a served
+  Vision/unknown model with no Work row and provider timeout/error are visible blocked states,
+  never implicit fallbacks;
+- once admitted, an explicit Control Mac turn is narrowed to the app-owned `mac_control` capability
+  and cannot terminate on model narration alone; if the route fails to invoke the tool after the
+  bounded activation retries, the task ends with a concrete model-route blocker and an idle UI;
 - provider secrets are stored through macOS Keychain-backed main-process storage and never appear
   in renderer persistence, NDJSON, diagnostics or logs;
 - app bundle/XPC/bridge/helper signatures and locations pass structural verification;

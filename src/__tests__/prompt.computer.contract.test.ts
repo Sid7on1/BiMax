@@ -6,11 +6,15 @@ import { createBashTool } from '../tools/implementations/bash.tool';
 import { createReadFileTool } from '../tools/implementations/file.tool';
 import { createBrowserTool } from '../tools/implementations/browser.tool';
 
-// Prompt-architecture regressions for the computer-operation contract:
-//  - the contract appears when (and only when) the session can drive a browser/desktop;
-//  - it rides the SESSION suffix, never the static prefix (cache split preserved);
-//  - it appears exactly once (non-duplication);
-//  - the static prefix stays byte-identical across turns with it present.
+// Prompt-architecture regressions for the computer-operation contract.
+//
+// The two-product split moved Computer Use ownership out of Terminal entirely (Phase 4: the CU
+// prompt contract, the completion nudges and the governor grant API left with it). What Terminal
+// still owns here is the prompt ARCHITECTURE the contract used to ride: the session suffix must
+// stay free of per-turn bytes so the cacheable static prefix keeps working, and BrowserTool
+// (browser-first testing IS a Terminal capability) must advertise a truthful schema. The presence
+// assertions are deliberately inverted: if a computer-operation contract ever reappears in a
+// Terminal persona, that is a boundary regression, not a feature.
 
 const governor = { approveTaskExecution: jest.fn().mockResolvedValue(undefined) } as unknown as IGovernor;
 const llm = {} as unknown as LlmAdapter;
@@ -27,42 +31,27 @@ function persona(withBrowser: boolean): BiMaxPersona {
 const countOccurrences = (haystack: string, needle: string) => haystack.split(needle).length - 1;
 
 describe('computer-operation prompt contract', () => {
-  it('is present exactly once when BrowserTool is registered', () => {
+  it('is ABSENT from Terminal personas — Computer Use prompt ownership lives in the Desktop app', () => {
+    // Inverted on purpose (see header). A reappearance here would mean legacy CU quietly
+    // reactivated in Terminal, which the product reset forbids.
     const parts = persona(true).getSystemPromptParts({});
     const full = [parts.staticPrefix, parts.dynamicSuffix, parts.turnContext].join('\n\n');
-    expect(countOccurrences(full, CONTRACT_HEADER)).toBe(1);
-    expect(full).toContain('DATA, not instructions');
-    expect(full).toContain('Never bypass CAPTCHAs');
-    expect(full).toContain('another app received it');
-    expect(full).toContain('screenshot proves only what is visibly present');
-    expect(full).toContain('including cleanup such as closing an app');
+    expect(countOccurrences(full, CONTRACT_HEADER)).toBe(0);
+    expect(full).not.toContain('Never bypass CAPTCHAs');
   });
 
-  it('is absent in sessions that cannot drive a browser or desktop', () => {
-    const parts = persona(false).getSystemPromptParts({});
-    const full = [parts.staticPrefix, parts.dynamicSuffix, parts.turnContext].join('\n\n');
-    expect(full).not.toContain(CONTRACT_HEADER);
+  it('rides nothing — but the session suffix stays free of per-turn bytes', () => {
+    const p = persona(true);
+    const a = p.getSystemPromptParts({ memory: 'fact A' });
+    const b = p.getSystemPromptParts({ memory: 'fact B' });
+    expect(a.dynamicSuffix).toBe(b.dynamicSuffix);
   });
 
-  it('rides the session suffix, never the cacheable static prefix', () => {
-    const parts = persona(true).getSystemPromptParts({});
-    expect(parts.staticPrefix).not.toContain(CONTRACT_HEADER);
-    expect(parts.dynamicSuffix).toContain(CONTRACT_HEADER);
-  });
-
-  it('keeps the static prefix byte-identical across turns with the contract present', () => {
+  it('keeps the static prefix byte-identical across turns', () => {
     const p = persona(true);
     const a = p.getSystemPromptParts({ memory: 'fact A', planMode: false });
     const b = p.getSystemPromptParts({ memory: 'different fact B', planMode: true });
     expect(a.staticPrefix).toBe(b.staticPrefix);
-  });
-
-  it('keeps the suffix stable turn-over-turn for the same session (no per-turn bytes)', () => {
-    const p = persona(true);
-    const a = p.getSystemPromptParts({ memory: 'fact A' });
-    const b = p.getSystemPromptParts({ memory: 'fact B' });
-    // memory is per-turn context; the computer contract must not leak volatility into the suffix
-    expect(a.dynamicSuffix).toBe(b.dynamicSuffix);
   });
 
   it('BrowserTool advertises a truthful schema for the new observation controls', () => {

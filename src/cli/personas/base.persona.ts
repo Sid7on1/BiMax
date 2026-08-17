@@ -41,7 +41,7 @@ export function explicitlyRequiresComputerUse(prompt: string): boolean {
   if (/\b(?:computer[ -]?use|control (?:my |the )?mac|use (?:my |the )?(?:mac|computer)|mac[_ -]?control)\b/i.test(text)) {
     return true;
   }
-  const guiAction = /\b(?:open|launch|focus|switch to|click|double[- ]click|press|type|enter|select|choose|drag|drop|scroll|close|quit|arrange|maximi[sz]e|minimi[sz]e|read|check|inspect|look at|take (?:a )?screenshot)\b/i;
+  const guiAction = /\b(?:open|launch|focus|switch to|click|double[- ]click|press|type|enter|select|choose|drag|drop|scroll|close|quit|arrange|maximi[sz]e|minimi[sz]e|read|check|inspect|look at|send|compose|reply|take (?:a )?screenshot)\b/i;
   const macSurface = /\b(?:system settings|calculator|finder|safari|messages|mail|notes|calendar|preview|textedit|activity monitor|keychain access|menu bar|dock|desktop|window|dialog|popover|checkbox|button)\b/i;
   return guiAction.test(text) && macSurface.test(text);
 }
@@ -49,6 +49,26 @@ export function explicitlyRequiresComputerUse(prompt: string): boolean {
 /** Return the one Desktop-owned compatibility tool name, never a generic third-party CU tool. */
 export function appOwnedComputerUseToolName(toolNames: readonly string[]): string | undefined {
   return toolNames.find(name => name === 'mcp__bimax-mac__mac_control' || name === 'mac_control');
+}
+
+/**
+ * Narrow an explicitly requested Desktop Computer Use turn to the app-owned native capability.
+ *
+ * The prompt alone is only advice. AgentLoop's `requireTool` option is the actual activation gate:
+ * it withholds pre-tool narration, forces the named function after a missed first sample, and
+ * terminates honestly when the active model cannot call it. Keep this pure so the Desktop wiring
+ * cannot silently regress back to a generic coding pass.
+ */
+export function appOwnedComputerUseLoopOptions(
+  prompt: string,
+  toolNames: readonly string[],
+): { requireTool?: string; toolNames?: readonly string[]; skipRepoMap?: boolean } {
+  const toolName = explicitlyRequiresComputerUse(prompt)
+    ? appOwnedComputerUseToolName(toolNames)
+    : undefined;
+  return toolName
+    ? { requireTool: toolName, toolNames: [toolName], skipRepoMap: true }
+    : {};
 }
 
 type PersonaPromptOptions = {
@@ -75,6 +95,12 @@ export abstract class AgentPersona {
    * configured context window changes. */
   private sessionContextManager: import('../../memory/context.manager').ContextManager | null = null;
   private sessionContextWindow: number | undefined;
+  /**
+   * Queries already recalled against this session. Owned HERE, not on the AgentLoop: the persona
+   * builds a fresh loop per turn, so a loop-owned set reset every turn and the same question got
+   * its recall block injected twice — pure token cost and a duplicated "fact" in the window.
+   */
+  private sessionRecalled = new Set<string>();
 
   /** Get (or lazily create) the session's ContextManager for the given window size. */
   protected sessionContext(contextWindow: number | undefined): import('../../memory/context.manager').ContextManager {
@@ -90,6 +116,9 @@ export abstract class AgentPersona {
   public resetContextSession(): void {
     this.sessionContextManager = null;
     this.sessionContextWindow = undefined;
+    // A loaded session has not recalled anything in THIS process, even if its history contains
+    // old recall blocks; /clear means the context genuinely starts over.
+    this.sessionRecalled = new Set();
   }
 
   constructor(
@@ -438,7 +467,11 @@ export abstract class AgentPersona {
     // The helper used to exist without a production caller; Desktop therefore exposed the native
     // tool but sent a generic coding prompt, which let small controllers narrate prospective tool
     // JSON instead of completing the observe -> one action -> verify loop.
-    const computerToolName = appOwnedComputerUseToolName(this.toolRegistry.getToolNames());
+    const computerUseLoopOptions = appOwnedComputerUseLoopOptions(
+      prompt,
+      this.toolRegistry.getToolNames(),
+    );
+    const computerToolName = computerUseLoopOptions.requireTool;
     const activeModel = String((this.llmAdapter as any).userModel || (this.llmAdapter as any).defaultModel || '');
     const modelPrompt = computerToolName && explicitlyRequiresComputerUse(prompt)
       ? buildComputerUseModelPrompt(prompt, { model: activeModel, toolName: computerToolName })
@@ -494,7 +527,20 @@ export abstract class AgentPersona {
     // governor is undefined here: tools already carry their own injected governor, and the loop
     // doesn't enforce policy itself (see AgentLoop constructor). The context manager is
     // SESSION-scoped (owned by the persona) so calibration/warnings/epochs survive across turns.
-    const loop = new AgentLoop(this.llmAdapter, this.toolRegistry, undefined, contextWindow, this.sessionContext(contextWindow));
+    // The memory store is the container-upgraded hybrid store: without it, automatic per-turn
+    // recall (injectRecall) is dead code and only the explicit memory_query tool searches memory.
+    // The dedup set is session-scoped for the same reason the context manager is — the loop is
+    // per-turn. `memoryAutoRecall: false` turns injection off without touching the tool.
+    const autoRecall = cfg.memoryAutoRecall !== false;
+    const loop = new AgentLoop(
+      this.llmAdapter,
+      this.toolRegistry,
+      undefined,
+      contextWindow,
+      this.sessionContext(contextWindow),
+      autoRecall ? globalProjectMemory.backingStore : undefined,
+      autoRecall ? this.sessionRecalled : undefined,
+    );
     // BIMAX_MAX_ITERATIONS: benchmark/headless runs raise this (the container's wall clock is
     // the real budget there). Must be applied HERE too — this callsite always passes
     // maxIterations down, so the loop-level env fallback never sees an undefined value.
@@ -519,13 +565,14 @@ export abstract class AgentPersona {
       useLite: options?.useLite,
       signal: options?.signal,
       sessionId: options?.sessionId,
+      ...computerUseLoopOptions,
     };
     executionLog += await this.runPass(loop, systemPrompt, passOpts, onToken);
 
     // Self-critic loop: review the work and, if defects are found, take one more pass.
     // Skipped in plan mode (nothing was changed), for trivial replies, and when the turn was
     // interrupted (don't spend a model call reviewing work the user just cancelled).
-    if (!options?.signal?.aborted && isSelfCriticEnabled() && !options?.planMode && executionLog.trim().length > 40) {
+    if (!computerToolName && !options?.signal?.aborted && isSelfCriticEnabled() && !options?.planMode && executionLog.trim().length > 40) {
       try {
         let review = await this.critique(prompt, executionLog);
         // Assertion extraction rides the critic pass (v2 §3.5.2 — the lite model is

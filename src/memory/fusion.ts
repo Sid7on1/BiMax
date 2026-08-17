@@ -74,8 +74,21 @@ export function reciprocalRankFusion(
     });
   }
 
-  // Ties broken by id so a fused ordering is deterministic across runs. Two documents genuinely
-  // tied is common on a small corpus, and a ranking that reshuffles between identical queries is
-  // indistinguishable from a bug when someone is trying to reproduce one.
-  return [...fused.values()].sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
+  // Tie-breaking, in order of evidential strength:
+  //   1. fused score (the actual RRF result);
+  //   2. AGREEMENT — the doc ranked by more retrievers beats the single-list enthusiast. A
+  //      lexical-only rank-1 and a dense-only rank-1 fuse to the same score (1/(k+1) each), and
+  //      that exact tie is common whenever one retriever is weak or absent for a query. Breaking
+  //      it by id (the old rule) let alphabetically-early noise outrank a real exact-token hit;
+  //   3. the LEXICAL rank — with membership still tied, exact tokens are the stronger signal
+  //      (that is grep's home ground, and the one place lexical never hallucinates);
+  //   4. id — determinism only, never preference.
+  const lexicalRank = (hit: FusedHit): number => hit.ranks.lexical ?? Number.MAX_SAFE_INTEGER;
+  return [...fused.values()].sort(
+    (a, b) =>
+      b.score - a.score
+      || Object.keys(b.ranks).length - Object.keys(a.ranks).length
+      || lexicalRank(a) - lexicalRank(b)
+      || a.id.localeCompare(b.id),
+  );
 }

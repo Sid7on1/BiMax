@@ -215,6 +215,18 @@ public struct FileWorkspace: FileWorkspaceOperating {
         return path
     }
 
+    private func refusesTrash(_ path: String) -> Bool {
+        // This is the last policy floor below project/workspace scoping. Never allow the service
+        // to trash the filesystem root, the user's home (or one of its ancestors), or an item from
+        // a macOS-managed system/application root.
+        if path == "/" || path == homePath || homePath.hasPrefix(path + "/") { return true }
+        let protectedRoots = [
+            "/Applications", "/System", "/Library", "/usr", "/bin", "/sbin",
+            "/private", "/etc", "/var",
+        ]
+        return protectedRoots.contains { path == $0 || path.hasPrefix($0 + "/") }
+    }
+
     public func inspect(_ request: FileInspectRequest) throws -> FileInfoReceipt {
         let path = try validated(request.path)
         // A missing file is a fact to report, not a fault: `exists: false` is a complete answer and
@@ -243,6 +255,14 @@ public struct FileWorkspace: FileWorkspaceOperating {
     ) throws -> FileOperationReceipt {
         let started = Date()
         let path = try validated(request.path)
+        guard request.operation == .open || request.application == nil else {
+            throw FileWorkspaceError.invalidPath("an application is only valid for open")
+        }
+        if request.operation == .trash, refusesTrash(path) {
+            throw FileWorkspaceError.refused("the path is protected from deletion")
+        }
+        // Refusal is evaluated before existence so protected-path policy cannot be used as an
+        // oracle for the local filesystem and stays stable when a protected item is unavailable.
         guard services.attributes(path) != nil else { throw FileWorkspaceError.notFound }
         let frontmostBefore = services.frontmostPid()
         let bundle = try request.application.map(resolving)
@@ -250,9 +270,10 @@ public struct FileWorkspace: FileWorkspaceOperating {
         var resultingPath: String?
         var app: AppRef?
         var performed = false
-        // `open` and `reveal` bring an application forward; `trash` and `duplicate` do not. The
-        // receipt records the request, and the frontmost pids around it record what happened.
-        let requestedActivation = request.operation == .open || request.operation == .reveal
+        // Opening a file uses Launch Services without requesting activation. Finder reveal is the
+        // only operation here whose contract intentionally asks for foreground UI. The measured
+        // pids still expose an application that steals focus despite a background open.
+        let requestedActivation = request.operation == .reveal
 
         switch request.operation {
         case .open:
@@ -289,12 +310,16 @@ public struct FileWorkspace: FileWorkspaceOperating {
         resolving: (AppLookup) throws -> URL
     ) throws -> OpenURLReceipt {
         let started = Date()
-        guard let url = URL(string: request.url), let scheme = url.scheme else {
+        guard let url = URL(string: request.url), let rawScheme = url.scheme else {
             throw FileWorkspaceError.invalidPath("the url could not be parsed")
         }
+        let scheme = rawScheme.lowercased()
         // A file: URL routed through the URL verb would bypass the path checks above.
-        guard scheme != "file" else {
-            throw FileWorkspaceError.refused("file urls must use the file operation verb")
+        guard scheme == "http" || scheme == "https" else {
+            throw FileWorkspaceError.refused("only http and https urls may be opened")
+        }
+        guard let host = url.host, !host.isEmpty else {
+            throw FileWorkspaceError.invalidPath("the url must include a host")
         }
         let frontmostBefore = services.frontmostPid()
         let bundle = try request.application.map(resolving)
@@ -303,11 +328,13 @@ public struct FileWorkspace: FileWorkspaceOperating {
         return OpenURLReceipt(
             url: request.url,
             scheme: scheme,
-            host: url.host,
+            host: host,
             opened: true,
             applicationBundlePath: bundle?.path,
             app: app,
-            requestedActivation: true,
+            // URL opening is requested through Launch Services without an activation option. A
+            // browser may still move to the foreground; that is measured independently below.
+            requestedActivation: false,
             frontmostPidBefore: frontmostBefore,
             frontmostPidAfter: services.frontmostPid(),
             durationMs: Int(Date().timeIntervalSince(started) * 1_000)
@@ -358,10 +385,16 @@ public struct WindowOperations: WindowOperating {
     /// caller can reject a malformed manifest without touching a window — a transaction that
     /// half-applies before noticing step three is invalid is the failure this prevents.
     public static func validate(_ request: WindowOperationRequest) throws {
+        guard request.window.pid > 0, request.window.windowId > 0, request.window.generation > 0 else {
+            throw WindowOperationError.invalidRequest("the window authority is invalid")
+        }
         switch request.operation {
         case .move, .resize, .setFrame:
             guard let frame = request.frame else {
                 throw WindowOperationError.invalidRequest("a frame is required")
+            }
+            guard request.fullScreen == nil else {
+                throw WindowOperationError.invalidRequest("geometry operations do not take fullScreen")
             }
             guard frame.width.isFinite, frame.height.isFinite,
                   frame.x.isFinite, frame.y.isFinite else {
@@ -371,9 +404,12 @@ public struct WindowOperations: WindowOperating {
                 guard frame.width > 0, frame.height > 0 else {
                     throw WindowOperationError.invalidRequest("the size must be positive")
                 }
+                guard frame.width <= 32_768, frame.height <= 32_768 else {
+                    throw WindowOperationError.invalidRequest("the size exceeds the supported bounds")
+                }
             }
         case .setFullScreen:
-            guard request.fullScreen != nil else {
+            guard request.fullScreen != nil, request.frame == nil else {
                 throw WindowOperationError.invalidRequest("fullScreen is required")
             }
         case .minimize, .unminimize, .close:
@@ -411,7 +447,19 @@ public struct WindowOperations: WindowOperating {
                 resizeOnly: request.operation == .resize
             )
         case .minimize:
-            try access.setFlag(pid: pid, windowId: windowId, attribute: kAXMinimizedAttribute as String, value: true)
+            do {
+                try access.setFlag(
+                    pid: pid, windowId: windowId,
+                    attribute: kAXMinimizedAttribute as String, value: true
+                )
+            } catch WindowOperationError.attributeUnavailable {
+                // AppKit commonly exposes AXMinimized as read-only while still exposing a native
+                // minimize button. That button is the single, bounded second rung.
+                try access.pressWindowButton(
+                    pid: pid, windowId: windowId,
+                    attribute: kAXMinimizeButtonAttribute as String
+                )
+            }
         case .unminimize:
             try access.setFlag(pid: pid, windowId: windowId, attribute: kAXMinimizedAttribute as String, value: false)
         case .setFullScreen:
@@ -435,11 +483,24 @@ public struct WindowOperations: WindowOperating {
         let windowGone = boundsAfter == nil && minimizedAfter == nil
 
         let honored: Bool
+        func closeEnough(_ lhs: Double, _ rhs: Double) -> Bool { abs(lhs - rhs) <= 0.5 }
         switch request.operation {
         case .move:
-            honored = boundsAfter.map { $0.x == request.frame?.x && $0.y == request.frame?.y } ?? false
-        case .resize, .setFrame:
-            honored = boundsAfter != nil && boundsAfter != boundsBefore
+            honored = boundsAfter.map { after in
+                guard let wanted = request.frame else { return false }
+                return closeEnough(after.x, wanted.x) && closeEnough(after.y, wanted.y)
+            } ?? false
+        case .resize:
+            honored = boundsAfter.map { after in
+                guard let wanted = request.frame else { return false }
+                return closeEnough(after.width, wanted.width) && closeEnough(after.height, wanted.height)
+            } ?? false
+        case .setFrame:
+            honored = boundsAfter.map { after in
+                guard let wanted = request.frame else { return false }
+                return closeEnough(after.x, wanted.x) && closeEnough(after.y, wanted.y)
+                    && closeEnough(after.width, wanted.width) && closeEnough(after.height, wanted.height)
+            } ?? false
         case .minimize: honored = minimizedAfter == true
         case .unminimize: honored = minimizedAfter == false
         case .setFullScreen: honored = fullScreenAfter == request.fullScreen
@@ -667,24 +728,30 @@ public final class FocusLeaseManager: FocusLeasing, @unchecked Sendable {
             guard leases.isEmpty else { throw FocusLeaseError.leaseAlreadyHeld }
         }
         guard policy.requiresApproval else { throw FocusLeaseError.policyForbidsLease(policy) }
-        guard (1...600_000).contains(options.ttlMs),
-              (1...60_000).contains(options.activationTimeoutMs) else {
+        guard (1...60_000).contains(options.ttlMs),
+              (0...10_000).contains(options.activationTimeoutMs) else {
             throw FocusLeaseError.invalidLeaseWindow
         }
         let previous = focus.observeFrontmost()
         let acquiredAt = clock()
-        guard focus.requestActivation(pid: targetPid) else {
-            throw FocusLeaseError.invalidLeaseWindow
-        }
+        // If the exact target is already frontmost, the lease is valid without mutating focus.
+        // Re-activating it is not harmless: macOS can count that transition as fresh session input,
+        // causing the physical-input quiet gate immediately below this layer to refuse its own
+        // just-created activity. It can also steal key-window status inside a multi-window app.
+        let alreadyFrontmost = previous.pid == targetPid
+        let activationAccepted = alreadyFrontmost || focus.requestActivation(pid: targetPid)
 
         // Poll for the activation actually landing rather than assuming it: accepting the request
         // is not the same as coming forward, and the receipt must say which happened.
         let deadline = acquiredAt + Int64(options.activationTimeoutMs)
         var becameFrontmost = false
-        repeat {
-            if focus.observeFrontmost().pid == targetPid { becameFrontmost = true; break }
-            sleep(0.02)
-        } while clock() < deadline
+        if activationAccepted && !alreadyFrontmost {
+            repeat {
+                if focus.observeFrontmost().pid == targetPid { becameFrontmost = true; break }
+                guard clock() < deadline else { break }
+                sleep(0.02)
+            } while true
+        }
 
         let receipt = FocusLeaseReceipt(
             leaseId: UUID().uuidString,
@@ -703,10 +770,6 @@ public final class FocusLeaseManager: FocusLeasing, @unchecked Sendable {
             expired: false
         )
         lock.withLock { leases[receipt.leaseId] = Held(sessionId: sessionId, receipt: receipt) }
-        guard becameFrontmost else {
-            _ = try? release(leaseId: receipt.leaseId)
-            throw FocusLeaseError.invalidLeaseWindow
-        }
         return receipt
     }
 
@@ -717,7 +780,8 @@ public final class FocusLeaseManager: FocusLeasing, @unchecked Sendable {
         let frontmostAtRelease = focus.observeFrontmost().pid
         var outcome: FocusRestoreOutcome = .nothingToRestore
 
-        if let previousPid = held.receipt.previousFrontmostPid,
+        if held.receipt.targetBecameFrontmost,
+           let previousPid = held.receipt.previousFrontmostPid,
            previousPid != held.receipt.targetPid {
             switch held.receipt.restorePolicy {
             case .never:
@@ -811,6 +875,18 @@ public final class ImageAnalysisService: @unchecked Sendable {
         ocrQuery: String?
     ) throws -> ImageAnalysisOutcome {
         let started = Date()
+        guard fingerprintRegions.count <= 160 else {
+            throw ImageAnalysisError.tooManyRegions
+        }
+        let regionIds = fingerprintRegions.map(\.id)
+        guard Set(regionIds).count == regionIds.count else {
+            throw ImageAnalysisError.duplicateRegionId
+        }
+        guard regionIds.allSatisfy({
+            !$0.isEmpty && $0.count <= 128 && !$0.unicodeScalars.contains(where: { $0.value == 0 })
+        }) else {
+            throw ImageAnalysisError.invalidRequest
+        }
         guard let source = CGImageSourceCreateWithData(bytes as CFData, nil),
               let image = CGImageSourceCreateImageAtIndex(source, 0, nil) else {
             throw ImageAnalysisError.invalidImage
@@ -852,14 +928,18 @@ public final class ImageAnalysisService: @unchecked Sendable {
               let cropped = image.cropping(to: bounded) else {
             throw ImageAnalysisError.invalidRegion
         }
-        let width = cropped.width, height = cropped.height
+        // Fingerprints are evidence summaries, not crops to retain. A fixed 7×7 grid bounds work
+        // and makes the sample count independent of region size while still covering its area.
+        let width = 7, height = 7
         var buffer = [UInt8](repeating: 0, count: width * height * 4)
         guard let context = CGContext(
             data: &buffer, width: width, height: height,
             bitsPerComponent: 8, bytesPerRow: width * 4,
             space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
-            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+            bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
+                .union(.byteOrder32Big).rawValue
         ) else { throw ImageAnalysisError.invalidImage }
+        context.interpolationQuality = .medium
         context.draw(cropped, in: CGRect(x: 0, y: 0, width: width, height: height))
         return (buffer, width, height)
     }
@@ -972,13 +1052,13 @@ public final class ImageAnalysisService: @unchecked Sendable {
         var degrees = atan2(oklab.b, oklab.a) * 180 / .pi
         if degrees < 0 { degrees += 360 }
         switch degrees {
-        case ..<20, 345...: return oklab.lightness < 0.45 ? "brown" : "red"
-        case ..<70: return oklab.lightness < 0.5 ? "brown" : "orange"
-        case ..<105: return "yellow"
-        case ..<165: return "green"
-        case ..<200: return "teal"
-        case ..<260: return "blue"
-        case ..<300: return "purple"
+        case ..<45, 345...: return oklab.lightness < 0.45 ? "brown" : "red"
+        case ..<90: return oklab.lightness < 0.5 ? "brown" : "orange"
+        case ..<125: return "yellow"
+        case ..<180: return "green"
+        case ..<225: return "teal"
+        case ..<290: return "blue"
+        case ..<330: return "purple"
         default: return "pink"
         }
     }
@@ -992,15 +1072,33 @@ public final class ImageAnalysisService: @unchecked Sendable {
               let cropped = image.cropping(to: rect) else {
             throw ImageAnalysisError.invalidRegion
         }
+        // ImageIO may leave a crop backed by a lazy decoder owned by the source image. Vision and
+        // CoreImage copy that provider asynchronously enough that the backing bytes can disappear,
+        // producing an EXC_BAD_ACCESS instead of a typed OCR failure. Render once into an owned
+        // bitmap so the request handler receives stable storage for its entire lifetime.
+        let ownedWidth = cropped.width, ownedHeight = cropped.height
+        guard let ownedContext = CGContext(
+            data: nil, width: ownedWidth, height: ownedHeight,
+            bitsPerComponent: 8, bytesPerRow: ownedWidth * 4,
+            space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
+                .union(.byteOrder32Big).rawValue
+        ) else {
+            throw ImageAnalysisError.invalidImage
+        }
+        ownedContext.draw(cropped, in: CGRect(x: 0, y: 0, width: ownedWidth, height: ownedHeight))
+        guard let ownedCrop = ownedContext.makeImage() else {
+            throw ImageAnalysisError.invalidImage
+        }
         let request = VNRecognizeTextRequest()
         request.recognitionLevel = .accurate
         request.usesLanguageCorrection = true
         do {
-            try VNImageRequestHandler(cgImage: cropped, options: [:]).perform([request])
+            try VNImageRequestHandler(cgImage: ownedCrop, options: [:]).perform([request])
         } catch {
             throw ImageAnalysisError.invalidRegion
         }
-        let width = Double(cropped.width), height = Double(cropped.height)
+        let width = Double(ownedCrop.width), height = Double(ownedCrop.height)
         return (request.results ?? []).compactMap { observation -> OCRTextRef? in
             guard let candidate = observation.topCandidates(1).first else { return nil }
             if let query, !query.isEmpty,
@@ -1064,7 +1162,9 @@ public final class AdaptiveEvidenceSettler: @unchecked Sendable {
             if eventRevision() != eventRevisionBefore { eventChanged = true }
             if let snapshot = try? observe(),
                let node = snapshot.nodes.first(where: { $0.stablePathHash == before.stablePathHash }) {
-                if node != before { observedChange = true }
+                // Snapshot/token/ref metadata changes on every observation. Only user-visible AX
+                // state can prove that the action changed the target.
+                if Self.observableStateChanged(from: before, to: node) { observedChange = true }
                 if let postcondition = requirement.postcondition {
                     postconditionMatched = Self.matches(postcondition, node: node)
                 }
@@ -1093,6 +1193,21 @@ public final class AdaptiveEvidenceSettler: @unchecked Sendable {
             attempts: attempts,
             settledAtMs: now()
         )
+    }
+
+    private static func observableStateChanged(from before: AXNode, to after: AXNode) -> Bool {
+        before.role != after.role
+            || before.subrole != after.subrole
+            || before.label != after.label
+            || before.value != after.value
+            || before.identifier != after.identifier
+            || before.bounds != after.bounds
+            || before.enabled != after.enabled
+            || before.focused != after.focused
+            || before.actions != after.actions
+            || before.childCount != after.childCount
+            || before.selected != after.selected
+            || before.settableAttributes != after.settableAttributes
     }
 
     /// Every stated clause must hold. An unstated clause is not evidence and is skipped rather

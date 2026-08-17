@@ -7,7 +7,11 @@ import {
   SCENARIO_SECTION_TITLES,
   shouldUseFlashComputerPlaybook,
 } from '../cli/personas/computer.playbook';
-import { appOwnedComputerUseToolName, explicitlyRequiresComputerUse } from '../cli/personas/base.persona';
+import {
+  appOwnedComputerUseLoopOptions,
+  appOwnedComputerUseToolName,
+  explicitlyRequiresComputerUse,
+} from '../cli/personas/base.persona';
 import { IGovernor } from '../core/interfaces';
 
 const governor = { approveTaskExecution: jest.fn().mockResolvedValue(undefined) } as unknown as IGovernor;
@@ -111,6 +115,28 @@ describe('ComputerTool schema carries selection, the playbook carries operation'
       .toBe('mcp__bimax-mac__mac_control');
     expect(appOwnedComputerUseToolName(['BashTool', 'mcp__third-party__computer']))
       .toBeUndefined();
+  });
+
+  it('hands an explicit Desktop operation to AgentLoop as a required, isolated native tool', () => {
+    expect(appOwnedComputerUseLoopOptions(
+      'send hi using Messages',
+      ['BashTool', 'mcp__bimax-mac__mac_control', 'ReadFileTool'],
+    )).toEqual({
+      requireTool: 'mcp__bimax-mac__mac_control',
+      toolNames: ['mcp__bimax-mac__mac_control'],
+      skipRepoMap: true,
+    });
+  });
+
+  it('does not narrow ordinary coding work or accept a third-party lookalike', () => {
+    expect(appOwnedComputerUseLoopOptions(
+      'fix the Messages permission tests',
+      ['BashTool', 'mcp__bimax-mac__mac_control'],
+    )).toEqual({});
+    expect(appOwnedComputerUseLoopOptions(
+      'open Messages',
+      ['mcp__third-party__mac_control'],
+    )).toEqual({});
   });
 
   describe('compact controller prompt', () => {

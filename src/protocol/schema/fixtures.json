@@ -57,13 +57,14 @@
         "version": "1.1.0",
         "buildCommit": "01234567"
       },
-      "protocolVersion": "3.1.0",
+      "protocolVersion": "3.2.0",
       "protocolMajor": 3,
       "minCompatibleMajor": 2,
       "maxCompatibleMajor": 3,
       "features": [
         "approvals",
         "boot",
+        "catalog",
         "config",
         "controls",
         "health",
@@ -127,6 +128,49 @@
       "eventLoopDelayMs": 4,
       "activeTurn": true,
       "phase": "ready"
+    },
+    {
+      "t": "catalogResult",
+      "id": 8,
+      "providers": [
+        {
+          "name": "openai-compatible",
+          "label": "OpenAI-compatible",
+          "baseURL": "https://api.example.invalid/v1",
+          "apiKeyEnv": "BGW_API_KEY",
+          "hasKey": true,
+          "keyHint": "…4242",
+          "keyCount": 2,
+          "active": true
+        }
+      ],
+      "models": [
+        {
+          "id": "stepfun-ai/step-3.7-flash",
+          "label": "Step 3.7 Flash",
+          "desc": "fast coding model",
+          "tier": "coding",
+          "served": true,
+          "curated": true,
+          "capabilities": {
+            "visionInput": false,
+            "reasoningEffortKnob": true,
+            "thinking": false,
+            "structuredOutputs": true,
+            "parallelToolCalls": true,
+            "contextWindow": 131072
+          }
+        },
+        {
+          "id": "curated/unverified-vision",
+          "label": "Unverified Vision",
+          "desc": "curated but not served by this endpoint",
+          "tier": "vision",
+          "served": false,
+          "curated": true,
+          "avoidAutoSelect": true
+        }
+      ]
     }
   ],
   "inbound": [
@@ -177,6 +221,18 @@
       "mode": "code",
       "tier": "heavy",
       "autonomy": "ask"
+    },
+    {
+      "t": "catalogGet",
+      "id": 8,
+      "refresh": true
+    },
+    {
+      "t": "providerSet",
+      "id": 9,
+      "name": "openai-compatible",
+      "baseURL": "https://api.example.invalid/v1",
+      "apiKey": "fixture-not-a-real-key"
     }
   ],
   "uiSnapshot": {

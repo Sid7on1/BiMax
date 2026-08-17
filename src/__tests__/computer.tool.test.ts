@@ -161,20 +161,40 @@ describe('ComputerTool', () => {
     expect(appNamesMatch('‎', 'WhatsApp')).toBe(false); // marks-only never matches anything
   });
 
-  it('keeps routine acting verbs governor-visible without prompting by default, and leaves observation free', async () => {
+  it('keeps routine acting verbs governor-visible; prompting follows the user-owned approvals mode', async () => {
+    // Both halves are pinned explicitly because the default is 'always' (every action faces the
+    // human) and the routine auto-approve path only exists under 'high-impact-only'. A earlier
+    // version of this test asserted the routine metadata while running under the 'always'
+    // default — it only passed when the DEVELOPER's real config said 'high-impact-only'.
+    const { loadConfig, saveConfig } = require('../cli/config');
+
+    // Default mode: the click is governor-approved and destructive-flagged (it will prompt).
+    __resetConfigForTests();
+    fs.rmSync(path.join(testBreakglass, 'config.json'), { force: true });
+    (governor.approveTaskExecution as jest.Mock).mockClear();
     const runtime = fakeRuntime();
     const tool = createComputerTool(governor, runtime);
-
-    const controlCalls = () => (governor.approveTaskExecution as jest.Mock).mock.calls.filter(call => call[0] === 'COMPUTER_CONTROL');
     await tool.execute({ action: 'screenshot' }, { cwd: process.cwd() });
     await tool.execute({ action: 'cursor' }, { cwd: process.cwd() });
     await tool.execute({ action: 'status' }, { cwd: process.cwd() });
-    expect(controlCalls()).toHaveLength(0);
+    // Observation verbs never reach the CU-specific classification at all.
+    expect((governor.approveTaskExecution as jest.Mock).mock.calls.filter(c => c[0] === 'COMPUTER_CONTROL')).toHaveLength(0);
 
-    await tool.execute({ action: 'click', x: 10, y: 20, frameId: 'fresh' }, { cwd: process.cwd() });
+    await tool.execute({ action: 'click', x: 10, y: 20, frameId: 'fresh', app: 'Notes' }, { cwd: process.cwd() });
+    expect(governor.approveTaskExecution).toHaveBeenCalledWith('COMPUTER_CONTROL', expect.objectContaining({
+      tool: 'ComputerTool', action: 'click', app: 'Notes', isDestructive: true,
+    }));
+
+    // User-owned routine mode: the same click is still governor-VISIBLE (the call happens, with
+    // full metadata) but classified non-destructive, so it flows without a prompt.
+    await loadConfig();
+    await saveConfig({ computerApprovals: 'high-impact-only' });
+    (governor.approveTaskExecution as jest.Mock).mockClear();
+    await tool.execute({ action: 'click', x: 10, y: 20, frameId: 'fresh', app: 'Notes' }, { cwd: process.cwd() });
     expect(governor.approveTaskExecution).toHaveBeenCalledWith('COMPUTER_CONTROL', expect.objectContaining({
       tool: 'ComputerTool', action: 'click', app: 'Notes', isDestructive: false,
     }));
+    __resetConfigForTests();
   });
 
   it('does not let pointer movement, scrolling, or permission requests bypass the governor', async () => {
@@ -356,7 +376,11 @@ describe('ComputerTool', () => {
     const tool = createComputerTool(governor, runtime);
     const output = await tool.execute({ action: 'screenshot' }, { cwd: process.cwd() });
     expect(screenshotFromToolResult('ComputerTool', output)).toBe('/tmp/shot.png');
-    expect(screenshotFromToolResult('ReadTool', output)).toBeNull();
+    // The extractor is SHAPE-keyed, not tool-name-keyed: any structured {ok, screenshot} result
+    // is evidence, and attribution cannot be spoofed by a tool NAME — only by emitting the shape.
+    // A ReadTool-shaped result (no screenshot field) therefore yields nothing.
+    expect(screenshotFromToolResult('ReadTool', JSON.stringify({ ok: true, path: '/tmp/x.ts' }))).toBeNull();
+    expect(screenshotFromToolResult('ComputerTool', 'plain non-JSON output')).toBeNull();
   });
 
   it('keeps delivery mode user-owned and forwards modifier-click selection', async () => {

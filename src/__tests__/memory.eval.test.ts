@@ -35,6 +35,12 @@ const CONCEPTS: Record<string, string[]> = {
   contrast: ['contrast', 'text', 'read', 'readable', 'difficult', 'hard', 'legibility', 'translucent', 'veil', 'backdrop', 'material', 'invisible'],
   concurrency: ['workers', 'worker', 'heap', 'memory', 'gigabyte', 'timeouts', 'parallel', 'maxworkers'],
   error: ['axerror', '25208', 'press', 'row', 'rows', 'notes', 'whatsapp', 'background', 'delivery'],
+  placement: ['helper', 'native', 'shell', 'register', 'registers', 'bundle', 'placement', 'binary', 'spawns', 'reachable', 'service', 'hosted', 'launched', 'become', 'becomes', 'surfaces'],
+  pinning: ['desktop', 'terminal', 'underneath', 'broke', 'engine', 'artifact', 'artifacts', 'versioned', 'publishes', 'updating', 'product', 'products', 'pinned', 'protocol', 'drifts', 'mismatch', 'bundles'],
+  wiring: ['test', 'tests', 'passes', 'feature', 'nothing', 'actually', 'production', 'unit', 'dependency', 'callsite', 'dead', 'loop', 'store', 'constructed', 'built'],
+  vectorspace: ['search', 'behaved', 'oddly', 'strangely', 'embedding', 'size', 'vector', 'vectors', 'comparable', 'model', 'stamp', 'mismatching', 're-embed', 'compare', 'mixing', 'spaces', 'similarity', 'scores', 'dimensions', 'resizing', 'changed'],
+  backfill: ['older', 'entries', 'match', 'keyword', 'works', 'memories', 'written', 'invisible', 'semantic', 're-embeds', 'backfill', 'dense', 'stage', 'stored', 'arrived', 'carry'],
+  sealing: ['keys', 'sealed', 'decrypt', 'electron', 'safestorage', 'spawned', 'probe', 'probed', 'http'],
 };
 const CONCEPT_NAMES = Object.keys(CONCEPTS);
 
@@ -50,7 +56,7 @@ function conceptVector(text: string): number[] {
 }
 
 const conceptBackend: EmbeddingBackend = {
-  id: 'concept-sim@9',
+  id: 'concept-sim@15',
   dimensions: CONCEPT_NAMES.length,
   async embed(texts) {
     return texts.map(conceptVector);
@@ -103,10 +109,10 @@ async function populate(store: VectorStore): Promise<void> {
 /**
  * k is 3, not 5, and that is a property of the fixture rather than a preference.
  *
- * The corpus is eight documents. Recall@5 covers 62% of it, so a retriever that returned five
- * documents at random would score 0.62 — the metric stops measuring retrieval and starts measuring
- * corpus size. At k=3 a random baseline is 0.37 and the number means something again. The honest
- * fix for a bigger k is a bigger corpus, not a bigger k.
+ * The corpus is fifteen documents. Recall@5 would cover a third of it, so a retriever returning
+ * five documents at random scores 0.33 and the metric stops measuring retrieval. At k=3 the random
+ * baseline is 0.2 and the number means something. The honest fix for a bigger k is a bigger
+ * corpus, not a bigger k.
  */
 const K = 3;
 
@@ -138,9 +144,12 @@ describe('retrieval quality, measured', () => {
     // The dense stage must raise RECALL: it exists to find documents lexical search cannot reach.
     expect(hybrid.recallAtK).toBeGreaterThan(lexical.recallAtK);
 
-    // Reranking cannot raise recall — it reorders a fixed candidate set — so it is judged on MRR,
-    // which is the whole reason both metrics are reported.
-    expect(reranked.mrr).toBeGreaterThanOrEqual(hybrid.mrr);
+    // Reranking is judged on MRR — that is the whole reason both metrics are reported. Recall can
+    // legitimately drop by ONE place at the tail (the reranker reorders the candidate window and
+    // only the top k is returned), but more than one demotion means the cross-encoder's signal
+    // disagrees with retrieval often enough to be a net negative.
+    expect(reranked.mrr).toBeGreaterThan(hybrid.mrr);
+    expect(reranked.recallAtK).toBeGreaterThanOrEqual(hybrid.recallAtK - 1 / EVAL_CASES.length);
 
     // An absolute floor, so this cannot pass by both sides being terrible.
     expect(reranked.recallAtK).toBeGreaterThanOrEqual(0.75);
@@ -163,7 +172,7 @@ describe('retrieval quality, measured', () => {
     const hybridStore = new VectorStore(conceptBackend);
     await populate(hybridStore);
 
-    const semanticOnly = EVAL_CASES.filter((c) => !/AXError|maxWorkers/.test(c.query));
+    const semanticOnly = EVAL_CASES.filter((c) => !/AXError|maxWorkers|nv-embedqa|safeStorage/.test(c.query));
     const lexical = await evaluateRetrieval(lexicalStore, semanticOnly, K);
     const hybrid = await evaluateRetrieval(hybridStore, semanticOnly, K);
 

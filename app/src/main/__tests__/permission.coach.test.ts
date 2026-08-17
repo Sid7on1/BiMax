@@ -89,6 +89,7 @@ import {
   endGrantWatch,
   isAwaitingHostGrant,
   permissionDragNeedsGrantWatch,
+  probePermissions,
   startBundleDrag,
   startCoach,
   stopCoach,
@@ -241,6 +242,17 @@ describe('permission drag coach', () => {
     expect(accessibilityReading).toBe('denied');
     expect(restore).toHaveBeenCalledTimes(1);
     expect(isAwaitingHostGrant()).toBe(false);
+  });
+
+  test('labels fresh and fallback readings so the UI never recommends restart for a live probe', () => {
+    freshReading = { accessibility: true, screenRecording: true };
+    const fresh = probePermissions();
+    expect(fresh.readingSource).toBe('helper');
+    expect(fresh.readings).toMatchObject({ accessibility: 'granted', screenRecording: 'granted' });
+
+    setFreshGrantProbe(() => null);
+    const fallback = probePermissions();
+    expect(fallback.readingSource).toBe('in-process');
   });
 
   test('comes back by itself once the grant actually lands', async () => {

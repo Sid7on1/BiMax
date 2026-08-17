@@ -3,6 +3,9 @@ import { buildKeyPool, getCurrentProvider } from '../provider';
 import { ApiKeyManager } from '../../credits/api.key.manager';
 import { RemoteEmbeddingBackend, dot } from '../../memory/embeddings';
 import { RemoteReranker } from '../../memory/rerank';
+import { resolveMemorySettings, rerankURLFor } from '../../memory/settings';
+import { globalProjectMemory } from '../../memory/project.memory';
+import { getActiveCodeIndex } from '../../memory/code.index';
 
 /**
  * `/retrieval` — is semantic search actually on, or silently degraded?
@@ -66,15 +69,20 @@ globalCommandRegistry.register({
     }
 
     const manager = new ApiKeyManager(keys);
+    // Same resolution path as the container (env → config → default), so what this probe tests is
+    // what the session actually runs — not a second divergent configuration.
+    const settings = resolveMemorySettings();
     const backend = new RemoteEmbeddingBackend({
       resolve: async () => {
         const key = await manager.getNextKey();
         if (!key.keyStr) return null;
         return { apiKey: key.keyStr, baseURL: key.baseURL || 'https://integrate.api.nvidia.com/v1' };
       },
+      model: settings.embeddingModel,
+      dimensions: settings.embeddingDimensions,
     });
 
-    out.push(line('ok', 'Provider', `${getCurrentProvider()} · ${keys.length} key(s)`));
+    out.push(line('ok', 'Provider', `${(getCurrentProvider() as { name?: string }).name ?? 'unknown'} · ${keys.length} key(s)`));
     out.push(line('ok', 'Space', backend.id));
     out.push('');
 
@@ -134,8 +142,9 @@ globalCommandRegistry.register({
       resolve: async () => {
         const key = await manager.getNextKey();
         if (!key.keyStr) return null;
-        return { apiKey: key.keyStr, baseURL: key.baseURL || 'https://integrate.api.nvidia.com/v1' };
+        return { apiKey: key.keyStr, baseURL: key.baseURL || 'https://integrate.api.nvidia.com/v1', rerankURL: rerankURLFor(key.baseURL || 'https://integrate.api.nvidia.com/v1') };
       },
+      model: settings.rerankModel,
     });
     const ranked = await reranker.rerank(QUERY, [
       { id: 'paraphrase', text: PARAPHRASE },
@@ -160,6 +169,73 @@ globalCommandRegistry.register({
 
     out.push('');
     out.push(`Pipeline: chunk → BM25 ∥ dense → rank fusion${ranked ? ' → rerank' : ''}`);
+
+    // The store itself: how much of it the dense stage can actually see, and — when embeddings
+    // just proved live — one bounded backfill. Memories stored while no key existed (or in a
+    // different vector space) have no vectors; they are invisible to semantic search until
+    // re-embedded, which is a silent hole this readout exists to close rather than hide.
+    try {
+      const store = globalProjectMemory.backingStore;
+      const before = store.stats();
+      out.push('');
+      out.push('**Store**');
+      out.push(line(
+        'ok',
+        'Contents',
+        `${before.documents} document(s) · ${before.chunks} chunk(s) · cap ${before.maxVectors}`,
+      ));
+      if (!passages) {
+        // The probe already reported why embeddings are off; just name the consequence.
+        if (before.pending > 0) {
+          out.push(line('warn', 'Dense coverage', `${before.pending} chunk(s) have no vector and are BM25-only until a key exists`));
+        }
+      } else if (before.pending > 0) {
+        const backfill = await store.backfillEmbeddings(64);
+        const after = store.stats();
+        out.push(line(
+          backfill.embedded > 0 ? 'ok' : 'warn',
+          'Backfill',
+          `embedded ${backfill.embedded} chunk(s), ${after.pending} still pending${after.pending > 0 ? ' — run /retrieval again to continue' : ''}`,
+        ));
+      } else {
+        out.push(line('ok', 'Dense coverage', `all ${before.chunks} chunk(s) embedded in the active space`));
+      }
+    } catch {
+      // The store readout is a bonus, never the failure mode of the command.
+    }
+
+    // The code index rides the same credentials; report its shape and drain one bounded batch,
+    // exactly like the memory backfill above. With embeddings just proven live, this is where a
+    // cold codebase gains its vectors.
+    try {
+      const codeIndex = getActiveCodeIndex();
+      if (codeIndex) {
+        const before = codeIndex.stats();
+        out.push('');
+        out.push('**Code index**');
+        out.push(line('ok', 'Chunks', `${before.chunks} indexed locally`));
+        if (!before.denseConfigured) {
+          out.push(line('warn', 'Dense code search', 'off by privacy default; set BIMAX_CODE_INDEX_REMOTE=1 to allow source embeddings'));
+        } else if (before.pending > 0) {
+          out.push(line('warn', 'Dense coverage', `${before.embedded}/${before.chunks} chunks in the active embedding space`));
+        } else {
+          out.push(line('ok', 'Dense coverage', `all ${before.chunks} chunks embedded in the active space`));
+        }
+        if (before.denseConfigured && before.pending > 0) {
+          const drain = await codeIndex.sync(parseInt(process.env.BIMAX_CODE_INDEX_BUDGET || '', 10) || 64);
+          const after = codeIndex.stats();
+          out.push(line(
+            drain.indexed > 0 || after.pending < before.pending ? 'ok' : 'warn',
+            'Sync',
+            `+${drain.indexed} file(s), ${after.pending} chunk(s) still pending vectors — run /retrieval again to continue`,
+          ));
+        } else if (before.denseConfigured) {
+          out.push(line('ok', 'Sync', 'fully embedded'));
+        }
+      }
+    } catch {
+      // Same rule: the readout must never be the failure mode.
+    }
 
     return {
       type: 'message',

@@ -11,12 +11,9 @@
  *
  * ## Why remote first, and why that is not a cop-out
  *
- * The obvious alternative is a local ONNX model (all-MiniLM and friends, ~90MB). It was rejected
- * for this codebase specifically: the engine ships as a single compiled binary, the user's machine
- * is RAM-constrained, and a 90MB model file plus an ONNX runtime is a large permanent cost for a
- * capability the app can already reach over a connection it already has. The configured provider
- * (NVIDIA NIM) serves `nvidia/llama-3.2-nv-embedqa-1b-v2` on the same OpenAI-compatible base URL
- * and the same key rotation as every chat call — so this adds **zero dependencies**.
+ * The current implementation uses the configured remote retrieval provider so it adds no local
+ * model runtime to the packaged binary. That is an implementation choice, not proof that any
+ * particular provider model is currently healthy; the live evidence journey owns that claim.
  *
  * The cost of that choice is that embeddings can be unavailable (offline, no key, provider down).
  * That is handled by being honest about it: `embed()` returns `null`, never a fabricated vector.
@@ -38,6 +35,7 @@
  */
 
 import { Logger } from '../utils';
+import { DEFAULT_EMBEDDING_DIMENSIONS, DEFAULT_EMBEDDING_MODEL } from './settings';
 
 /** Identifies the vector space. Change the model or the dimensions and this must change with it. */
 export type EmbeddingSpaceId = string;
@@ -80,8 +78,6 @@ export interface RemoteEmbeddingOptions {
   transport?: EmbeddingTransport;
 }
 
-const DEFAULT_MODEL = 'nvidia/llama-3.2-nv-embedqa-1b-v2';
-const DEFAULT_DIMENSIONS = 768;
 const DEFAULT_BATCH = 64;
 const DEFAULT_TIMEOUT_MS = 20_000;
 
@@ -125,8 +121,8 @@ export class RemoteEmbeddingBackend implements EmbeddingBackend {
 
   constructor(options: RemoteEmbeddingOptions) {
     this.resolve = options.resolve;
-    this.model = options.model ?? DEFAULT_MODEL;
-    this.dimensions = options.dimensions ?? DEFAULT_DIMENSIONS;
+    this.model = options.model ?? DEFAULT_EMBEDDING_MODEL;
+    this.dimensions = options.dimensions ?? DEFAULT_EMBEDDING_DIMENSIONS;
     this.batchSize = Math.max(1, options.batchSize ?? DEFAULT_BATCH);
     this.timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
     this.transport = options.transport ?? defaultTransport;
@@ -187,10 +183,13 @@ export class RemoteEmbeddingBackend implements EmbeddingBackend {
       });
 
       if (!response.ok) {
-        // 404 = this provider serves no embeddings; 401/403 = the key cannot. Neither improves by
-        // being asked again. Everything else (429, 5xx, network) is transient: stay available so
-        // the next search tries again.
-        if ([400, 401, 403, 404].includes(response.status)) {
+        // 404 = this provider serves no embeddings; 401/403 = the key cannot; 410 = the model is
+        // END-OF-LIFE (a live run caught exactly this: the previous default model began answering
+        // 410 Gone and, absent from this list, masqueraded as a transient failure forever).
+        // 400 is a permanent request/model mismatch. None improve by being asked again.
+        // Everything else (429, 5xx, network) is transient: stay available so the next search
+        // tries again.
+        if ([400, 401, 403, 404, 410].includes(response.status)) {
           this.unavailable = `provider returned ${response.status} for ${this.model}`;
           Logger.warn(`[embeddings] disabled: ${this.unavailable}`);
         }

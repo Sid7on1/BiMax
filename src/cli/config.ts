@@ -137,6 +137,21 @@ export interface CliConfig {
   computerRecord: boolean;
   /** When the user is asked to approve an action: every action, or only high-impact ones. */
   computerApprovals: 'always' | 'high-impact-only';
+
+  // ── Memory / retrieval ────────────────────────────────────────────────────────────────────────
+  // Model ids for the four-stage memory pipeline (see src/memory). '' or 0 = the built-in default;
+  // resolution and env overrides live in src/memory/settings.ts. Changing the embedding model or
+  // dimensions changes the vector space id, which re-embeds stored memories rather than comparing
+  // vectors across spaces.
+  memoryEmbeddingModel: string;
+  memoryEmbeddingDimensions: number;
+  memoryRerankModel: string;
+  /** Off = no automatic per-turn recall; the memory_query tool keeps working. */
+  memoryAutoRecall: boolean;
+  /** Build the repository-local lexical code index. */
+  codeIndexEnabled: boolean;
+  /** Explicit consent for sending source chunks to a remote embedding/reranking provider. */
+  codeIndexRemoteEmbeddings: boolean;
 }
 
 export const DEFAULTS: CliConfig = {
@@ -205,6 +220,12 @@ export const DEFAULTS: CliConfig = {
   computerVisible: true,
   computerRecord: false,
   computerApprovals: 'always',
+  memoryEmbeddingModel: '',
+  memoryEmbeddingDimensions: 0,
+  memoryRerankModel: '',
+  memoryAutoRecall: true,
+  codeIndexEnabled: true,
+  codeIndexRemoteEmbeddings: false,
 };
 
 let cached: CliConfig | null = null;

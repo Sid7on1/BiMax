@@ -85,9 +85,17 @@ export class AgentLoop {
     contextManager?: ContextManager,
     // Memory store for AUTOMATIC recall. Optional: workers and tests run without one, and a loop
     // without a store behaves exactly as before. See ../memory/recall.
-    private memoryStore?: VectorStore
+    private memoryStore?: VectorStore,
+    /**
+     * Queries already recalled against this SESSION. The persona owns the set because it owns the
+     * session: it builds a fresh AgentLoop per turn, so a loop-owned set reset with every turn and
+     * the "never recall the same question twice" guard never actually applied across turns.
+     * Omitted (workers, tests) → per-loop, same as before.
+     */
+    sessionRecall?: Set<string>
   ) {
     this.contextManager = contextManager ?? new ContextManager(llm, maxContextTokens);
+    this.recalled = sessionRecall ?? new Set();
   }
 
   /**
@@ -149,7 +157,7 @@ export class AgentLoop {
    * results until the first user/assistant message so the provider contract remains valid.
    */
   /** Queries already recalled against this session — re-injecting one is pure token cost. */
-  private recalled = new Set<string>();
+  private recalled: Set<string>;
 
   /**
    * Retrieve against the latest user message and inject what comes back.

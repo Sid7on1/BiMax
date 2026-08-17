@@ -399,8 +399,21 @@ enum CatalogConformance {
 
         let approval: ForegroundApproval?
         if probe.deliveryPolicy.requiresApproval {
-            // Let the human-input quiet gate settle before taking the explicit foreground lease.
-            Thread.sleep(forTimeInterval: 1.1)
+            // Establish the approved foreground target before starting the quiet interval. If the
+            // service has to activate after this wait, macOS may count that transition as fresh
+            // session activity and the human-input gate will correctly refuse it. The service's
+            // lease then observes the fixture already in front and performs no redundant mutation.
+            if let target = NSRunningApplication(processIdentifier: pid) {
+                if #available(macOS 14.0, *) { target.activate() }
+                else { target.activate(options: [.activateIgnoringOtherApps]) }
+            }
+            let focusDeadline = Date().addingTimeInterval(3)
+            while WorkspaceInventory.frontmostPid() != pid, Date() < focusDeadline {
+                Thread.sleep(forTimeInterval: 0.02)
+            }
+            // Do not bypass the real quiet gate: this only makes the fixture's explicit foreground
+            // transition precede the period that gate measures.
+            Thread.sleep(forTimeInterval: 1.25)
             let now = Int64(Date().timeIntervalSince1970 * 1_000)
             approval = ForegroundApproval(
                 approvalId: UUID().uuidString.lowercased(), policy: probe.deliveryPolicy,

@@ -28,17 +28,37 @@ export function computerUseModelReadiness(
   if (catalog && !provider) reasons.push('Choose an active provider.');
   if (provider && !provider.hasKey) reasons.push(`Add an API key for ${provider.label}.`);
 
-  const rows = new Map((catalog?.models ?? []).map((entry) => [entry.id, entry]));
+  // A model can intentionally appear once per slot in the catalogue. Never collapse those rows
+  // with Map(id): the last row then wins, so a valid Work + Vision model whose final row is Quick
+  // is falsely rejected as the wrong tier. Resolve the configured id against the slot we are
+  // validating and prefer a live row inside that slot.
+  const rowsFor = (id: string): CatalogModelEntry[] =>
+    (catalog?.models ?? []).filter((entry) => entry.id === id);
   const workId = String(config?.model || '').trim();
-  const work = rows.get(workId);
+  const workRows = rowsFor(workId);
+  const work = workRows.find((entry) => entry.tier === 'coding' && entry.served)
+    ?? workRows.find((entry) => entry.tier === 'coding')
+    ?? workRows.find((entry) => entry.served)
+    ?? workRows[0];
   if (!workId) reasons.push('Choose a Work model.');
   else if (!work || !work.served) reasons.push('Choose a Work model confirmed by this provider.');
-  else if (work.avoidAutoSelect) reasons.push('Choose a Work model verified for agent tool use.');
+  else if (!work.curated || work.tier !== 'coding') {
+    reasons.push('Choose a Work model verified for agent tool use.');
+  }
+
+  // avoidAutoSelect is deliberately not an execution ban. It means Bimax must not silently move a
+  // user onto that model; the catalogue contract explicitly permits an intentional selection.
+  // Runtime `requireTool` enforcement remains the bounded truth test if a selected route cannot
+  // emit the native function call.
 
   const visionId = work?.capabilities?.visionInput
     ? work.id
     : String(config?.visionModel || '').trim();
-  const vision = rows.get(visionId);
+  const visionRows = rowsFor(visionId);
+  const vision = visionRows.find((entry) => entry.served && entry.capabilities?.visionInput)
+    ?? visionRows.find((entry) => entry.capabilities?.visionInput)
+    ?? visionRows.find((entry) => entry.served)
+    ?? visionRows[0];
   if (!visionId) reasons.push('Choose a Vision model for screenshot grounding.');
   else if (!vision || !vision.served || !vision.capabilities?.visionInput) {
     reasons.push('Choose a served model that supports image input for Vision.');
