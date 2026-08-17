@@ -90,7 +90,10 @@ jest.mock('../core/agent.loop', () => ({
   AgentLoop: class {
     public messages: any[] = [];
     constructor(...args: any[]) { (globalThis as any).__bimaxLoopArgs = args; }
-    async *execute(): AsyncGenerator<string> { yield 'ok'; }
+    async *execute(...args: any[]): AsyncGenerator<string> {
+      (globalThis as any).__bimaxLoopExecuteArgs = args;
+      yield 'ok';
+    }
   },
 }));
 
@@ -130,6 +133,48 @@ describe('Persona → AgentLoop memory wiring', () => {
     const secondArgs = (globalThis as any).__bimaxLoopArgs as any[];
     expect(secondArgs[6]).toBeInstanceOf(Set);
     expect(secondArgs[6]).toBe(args[6]);
+  });
+
+  it('bridges read-only RAG tools into CU while keeping acting authority on mac_control', async () => {
+    const registry = new ToolRegistry();
+    const register = (name: string, description: string): void => registry.register({
+      name,
+      description,
+      schema: { type: 'object', properties: {} },
+      isDestructive: name === 'BashTool',
+      isConcurrencySafe: true,
+      execute: async () => 'ok',
+    });
+    register('mcp__bimax-mac__mac_control', 'NATIVE_ACTOR_SENTINEL');
+    register('MemoryQueryTool', 'MEMORY_RAG_SENTINEL');
+    register('CodeSearchTool', 'CODE_RAG_SENTINEL');
+    register('BashTool', 'MUTATOR_SENTINEL');
+
+    const llm = {
+      chat: async function* (): AsyncGenerator<ChatEvent> {},
+      chatCompletion: async () => 'DONE',
+    } as unknown as LlmAdapter;
+    const persona = new WiringPersona({
+      name: 'wiring',
+      roleDescription: 'test',
+      allowedTools: registry.getToolNames(),
+    }, registry, llm);
+
+    await persona.execute('open Messages and use the remembered project context');
+
+    const executeArgs = (globalThis as any).__bimaxLoopExecuteArgs as any[];
+    const systemPrompt = String(executeArgs[1]);
+    const options = executeArgs[2];
+    expect(options.requireTool).toBe('mcp__bimax-mac__mac_control');
+    expect(options.toolNames).toEqual([
+      'mcp__bimax-mac__mac_control',
+      'MemoryQueryTool',
+      'CodeSearchTool',
+    ]);
+    expect(systemPrompt).toContain('NATIVE_ACTOR_SENTINEL');
+    expect(systemPrompt).toContain('MEMORY_RAG_SENTINEL');
+    expect(systemPrompt).toContain('CODE_RAG_SENTINEL');
+    expect(systemPrompt).not.toContain('MUTATOR_SENTINEL');
   });
 });
 

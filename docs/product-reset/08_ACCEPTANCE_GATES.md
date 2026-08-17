@@ -46,7 +46,9 @@ model changes are invalid runs, not product failures or passes.
   Vision/unknown model with no Work row and provider timeout/error are visible blocked states,
   never implicit fallbacks;
 - once admitted, an explicit Control Mac turn is narrowed to the app-owned `mac_control` capability
-  and cannot terminate on model narration alone; if the route fails to invoke the tool after the
+  as its only acting authority; the engine may expose only its bounded read-only memory/code RAG
+  tools beside it, never shell, file mutation or a third-party Computer Use provider, and the turn
+  cannot terminate on model narration alone; if the route fails to invoke the tool after the
   bounded activation retries, the task ends with a concrete model-route blocker and an idle UI;
 - provider secrets are stored through macOS Keychain-backed main-process storage and never appear
   in renderer persistence, NDJSON, diagnostics or logs;

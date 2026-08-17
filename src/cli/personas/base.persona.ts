@@ -66,9 +66,19 @@ export function appOwnedComputerUseLoopOptions(
   const toolName = explicitlyRequiresComputerUse(prompt)
     ? appOwnedComputerUseToolName(toolNames)
     : undefined;
-  return toolName
-    ? { requireTool: toolName, toolNames: [toolName], skipRepoMap: true }
-    : {};
+  if (!toolName) return {};
+
+  // CU keeps one acting authority, but it may consult the engine's two bounded read-only RAG
+  // surfaces first. This is the context bridge: long-term memory and repository intent search can
+  // inform the native planner without reopening shell/file/edit/MCP authority on a Mac-control
+  // turn. AgentLoop still requires mac_control before the turn may finish.
+  const contextTools = ['MemoryQueryTool', 'CodeSearchTool']
+    .filter((name) => toolNames.includes(name));
+  return {
+    requireTool: toolName,
+    toolNames: [toolName, ...contextTools],
+    skipRepoMap: true,
+  };
 }
 
 type PersonaPromptOptions = {
@@ -555,6 +565,9 @@ export abstract class AgentPersona {
       memory,
       exemplars,
       contextMode,
+      // A specialized CU turn exposes only the native actor plus bounded read-only retrieval.
+      // Keep the textual tool map identical to the schemas AgentLoop puts on the wire.
+      toolNames: computerUseLoopOptions.toolNames,
     });
     const systemPrompt = [parts.staticPrefix, parts.dynamicSuffix].filter(Boolean).join('\n\n');
     AgentPersona.injectTurnContext(this.messages, parts.turnContext);

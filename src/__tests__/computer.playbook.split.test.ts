@@ -117,15 +117,44 @@ describe('ComputerTool schema carries selection, the playbook carries operation'
       .toBeUndefined();
   });
 
-  it('hands an explicit Desktop operation to AgentLoop as a required, isolated native tool', () => {
+  it('hands an explicit Desktop operation to AgentLoop with one required actor and bounded RAG', () => {
     expect(appOwnedComputerUseLoopOptions(
       'send hi using Messages',
-      ['BashTool', 'mcp__bimax-mac__mac_control', 'ReadFileTool'],
+      [
+        'BashTool',
+        'mcp__bimax-mac__mac_control',
+        'ReadFileTool',
+        'MemoryQueryTool',
+        'CodeSearchTool',
+      ],
     )).toEqual({
       requireTool: 'mcp__bimax-mac__mac_control',
-      toolNames: ['mcp__bimax-mac__mac_control'],
+      toolNames: [
+        'mcp__bimax-mac__mac_control',
+        'MemoryQueryTool',
+        'CodeSearchTool',
+      ],
       skipRepoMap: true,
     });
+  });
+
+  it('never widens a CU turn to mutating engine tools or third-party providers', () => {
+    const options = appOwnedComputerUseLoopOptions(
+      'open Notes and inspect the current project decision',
+      [
+        'mcp__bimax-mac__mac_control',
+        'MemoryQueryTool',
+        'CodeSearchTool',
+        'ReadFileTool',
+        'BashTool',
+        'mcp__third-party__computer',
+      ],
+    );
+    expect(options.toolNames).toEqual([
+      'mcp__bimax-mac__mac_control',
+      'MemoryQueryTool',
+      'CodeSearchTool',
+    ]);
   });
 
   it('does not narrow ordinary coding work or accept a third-party lookalike', () => {
