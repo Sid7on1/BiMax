@@ -192,5 +192,11 @@ private final class PooledCapture: NSObject, SCStreamDelegate, @unchecked Sendab
 }
 
 public enum ScreenCaptureKitStreamError: Error, Equatable, Sendable {
+    /// The window or display named by the request is not in the shareable content list — it closed,
+    /// moved to another process, or was never capturable.
     case targetUnavailable
+    /// The target existed but the stream could not be attached or started. Distinct from
+    /// `targetUnavailable` because the remedy differs: this one is usually a permission or
+    /// compositor state, not a stale target, so retrying with a different window will not help.
+    case startFailed
 }

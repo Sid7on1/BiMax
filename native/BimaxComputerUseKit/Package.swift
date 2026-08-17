@@ -41,7 +41,10 @@ let package = Package(
         ),
         .executableTarget(
             name: "BimaxCuService",
-            dependencies: ["BimaxCuProtocol", "BimaxComputerUseKit"]
+            // BimaxFocusBridge supplies ForegroundActivationHelper, which `--request-front-process`
+            // invokes directly. It was reachable before only because the module's sources sat in
+            // the kit; with them restored to their own target the dependency has to be declared.
+            dependencies: ["BimaxCuProtocol", "BimaxComputerUseKit", "BimaxFocusBridge"]
         ),
         .executableTarget(
             name: "BimaxCuBridge",

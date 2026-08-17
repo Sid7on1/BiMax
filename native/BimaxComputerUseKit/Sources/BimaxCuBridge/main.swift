@@ -85,7 +85,9 @@ guard CommandLine.arguments.contains("--stdio") else {
 }
 
 let core = BimaxCuServiceCore()
-let reader = LineReader(FileHandle.standardInput)
+// `private` because LineReader is a private type; a non-private constant of a private type cannot
+// be declared at file scope.
+private let reader = LineReader(FileHandle.standardInput)
 let encoder = JSONEncoder()
 encoder.outputFormatting = [.sortedKeys]
 
@@ -111,17 +113,12 @@ while let line = reader.next() {
     // Hand the raw envelope to the engine as bytes: the engine owns the schema, so the bridge
     // never decodes ops it has no need to understand. Errors here are engine-typed and ride the
     // response envelope, not the transport error path.
-    let responseData: Data
-    do {
-        let requestData = try JSONEncoder().encode(parsed)
-        responseData = core.handle(data: requestData)
-    } catch {
-        stdoutLine([
-            "requestId": requestId,
-            "error": ["code": "bridge_encode_failed", "message": "request could not be encoded: \(error.localizedDescription)"],
-        ])
-        continue
-    }
+    //
+    // The original line's bytes are what get handed over. Re-encoding the parsed dictionary was
+    // both impossible (`[String: Any]` is not Encodable) and wrong in principle: a re-serialisation
+    // round-trip can reorder keys and renormalise numbers, so the engine would validate a document
+    // the host never sent. `parsed` is used only to read `requestId` and to reject a non-object.
+    let responseData = core.handle(data: Data(trimmed.utf8))
 
     // Wrap the engine's ResponseEnvelope in the transport frame: the host correlates on the
     // outer requestId first, then validates identity fields inside `response`.

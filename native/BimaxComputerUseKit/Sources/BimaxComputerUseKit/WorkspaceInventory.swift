@@ -20,8 +20,16 @@ public protocol WorkspaceInventoryProviding: Sendable {
 public struct WorkspaceInventory: WorkspaceInventoryProviding {
     public init() {}
 
-    public func frontmostPid() -> Int32? {
+    /// Call sites that need the frontmost pid as a plain fact — `PhysicalInputArbiter`'s default
+    /// `frontmost` closure and `AppWorkspace.frontmostPid()` — reach for this type-level form rather
+    /// than constructing an inventory. The instance method exists to satisfy the protocol seam and
+    /// delegates here, so there is exactly one implementation of "who has focus".
+    public static func frontmostPid() -> Int32? {
         NSWorkspace.shared.frontmostApplication?.processIdentifier
+    }
+
+    public func frontmostPid() -> Int32? {
+        Self.frontmostPid()
     }
 
     public func frontmostBundleIdentifier() -> String? {

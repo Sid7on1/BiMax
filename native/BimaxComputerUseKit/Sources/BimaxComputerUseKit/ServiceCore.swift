@@ -1381,6 +1381,11 @@ public final class BimaxCuServiceCore: @unchecked Sendable {
         case .imageTooLarge: return "image_too_large"
         case .invalidTransform: return "invalid_image_transform"
         case .invalidHandle: return "invalid_image_handle"
+        // The store's own guards. A handle issued to another session and a store at capacity are
+        // both refusals to serve a handle, but they are different faults to a caller: one is a
+        // scoping error it can fix, the other is pressure it must back off from.
+        case .sessionMismatch: return "image_handle_session_mismatch"
+        case .storeLimitExceeded: return "image_store_limit_exceeded"
         }
     }
 

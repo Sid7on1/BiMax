@@ -1,6 +1,9 @@
 import Foundation
 import BimaxCuProtocol
 import BimaxComputerUseKit
+// ForegroundActivationHelper lives in its own module again, so `--request-front-process` needs the
+// import that was implicit while its sources sat inside the kit.
+import BimaxFocusBridge
 
 if let index = CommandLine.arguments.firstIndex(of: "--request-front-process") {
     guard CommandLine.arguments.count > index + 2,

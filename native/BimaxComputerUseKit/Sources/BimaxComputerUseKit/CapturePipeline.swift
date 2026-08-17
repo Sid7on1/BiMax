@@ -4,6 +4,10 @@ import CryptoKit
 import Foundation
 import ImageIO
 import ScreenCaptureKit
+// `CuRect` and `CaptureWireFormat` are wire types, not local ones — they are declared in
+// WireProtocol.swift and travel in snapshots and receipts. Without this import the reconstruction
+// reads as "cannot find type" for symbols that were never actually missing.
+import BimaxCuProtocol
 import UniformTypeIdentifiers
 
 /// RECONSTRUCTED 2026-08-18 — the capture pipeline types the evicted files took with them.
@@ -90,6 +94,11 @@ public struct EncodedCaptureImage: Equatable, Sendable {
         self.pixelHeight = pixelHeight
         self.transform = transform
     }
+
+    /// The encoded bytes. `SOMCaptureComposer` re-decodes a still to draw marks over it and reads
+    /// this name; `ServiceCore`'s binary read path uses the same word for the same thing. Kept as an
+    /// alias rather than renaming `data`, so both vocabularies resolve to one stored property.
+    public var bytes: Data { data }
 }
 
 public struct CaptureImageEncoder: Sendable {
@@ -137,7 +146,7 @@ public struct CaptureImageEncoder: Sendable {
         let uti: UTType = request.format == .png ? .png : .jpeg
         let output = NSMutableData()
         guard let destination = CGImageDestinationCreateWithData(
-            output as CFMutableMutableData, uti.identifier as CFString, 1, nil
+            output as CFMutableData, uti.identifier as CFString, 1, nil
         ) else { throw CaptureImageEncoderError.encodeFailed }
         let options: [CFString: Any] = request.format == .png
             ? [:]
@@ -154,7 +163,7 @@ public struct CaptureImageEncoder: Sendable {
             pixelHeight: outHeight,
             transform: CaptureImageTransform(
                 sourcePixelRect: request.sourcePixelRect ?? CuRect(
-                    x: 0, y: 0, width: cgImage.width, height: cgImage.height
+                    x: 0, y: 0, width: Double(cgImage.width), height: Double(cgImage.height)
                 ),
                 outputWidth: outWidth,
                 outputHeight: outHeight
@@ -187,25 +196,77 @@ public enum CaptureStreamTarget: Equatable, Sendable {
     case display(displayId: UInt32)
 }
 
+/// Stream configuration a caller may ask for. Bounds, not guarantees: the driver clamps these
+/// against the real source size, so asking for more than the surface has cannot inflate the capture.
+public struct CaptureStreamOptions: Equatable, Sendable {
+    public var maxWidth: Int
+    public var maxHeight: Int
+    /// Whether the pointer is composited into the frame. Off by default: a captured cursor is a
+    /// distracting artefact in evidence, and the agent's own pointer position is already recorded.
+    public var showsCursor: Bool
+
+    public init(maxWidth: Int = 4_096, maxHeight: Int = 4_096, showsCursor: Bool = false) {
+        self.maxWidth = maxWidth
+        self.maxHeight = maxHeight
+        self.showsCursor = showsCursor
+    }
+}
+
+/// The capture surface `ScreenCaptureKitStreamDriver` implements.
+///
+/// `@MainActor` because ScreenCaptureKit's stream objects are main-actor bound, and the pool that
+/// owns a driver is an actor that must hop to reach it.
+///
+/// `stillImage` is deliberately NOT a requirement here: it is macOS 14+, the driver's floor is 12.3,
+/// and both call sites hold the concrete driver inside an `#available` check. Putting it in the
+/// protocol would force every conformer to carry an availability it may not have.
+@available(macOS 12.3, *)
+@MainActor public protocol CaptureStreamDriving: AnyObject {
+    /// Starts a stream and returns the handle every later call is addressed to.
+    func start(target: CaptureStreamTarget, options: CaptureStreamOptions) async throws -> String
+    func stop(handle: String) async
+    /// Nil when the handle is unknown — distinct from a live stream that has produced no frames,
+    /// which reports zeroed counters instead.
+    func stats(handle: String) async -> CaptureStreamStats?
+    /// Nil when no complete frame has arrived yet. Never a stale or synthesised frame.
+    func image(handle: String, request: CaptureEncodingRequest) async throws -> EncodedCaptureImage?
+}
+
 public struct CaptureStreamStats: Equatable, Sendable {
-    public var completeFrames: Int
+    /// Every valid sample buffer the stream handed us, complete or not. Kept separate from
+    /// `completeFrames` because the difference is the diagnosis: frames arriving but never
+    /// completing is a stalled compositor, whereas no frames at all is a dead stream, and a single
+    /// counter cannot tell those apart.
+    public var receivedFrames: UInt64
+    public var completeFrames: UInt64
+    /// Frames SCFrameStatus reported as `.idle` — the surface had nothing new to show. Normal for a
+    /// static window, so this is what stops "no complete frames" being read as a failure.
+    public var idleFrames: UInt64
     public var width: Int?
     public var height: Int?
     public var latestLatencyMs: Double?
     public var lastFrameStatusRaw: Int
+    /// Set once when the stream stops, naming why. Nil while running.
+    public var stoppedReason: String?
 
     public init(
-        completeFrames: Int = 0,
+        receivedFrames: UInt64 = 0,
+        completeFrames: UInt64 = 0,
+        idleFrames: UInt64 = 0,
         width: Int? = nil,
         height: Int? = nil,
         latestLatencyMs: Double? = nil,
-        lastFrameStatusRaw: Int = 0
+        lastFrameStatusRaw: Int = 0,
+        stoppedReason: String? = nil
     ) {
+        self.receivedFrames = receivedFrames
         self.completeFrames = completeFrames
+        self.idleFrames = idleFrames
         self.width = width
         self.height = height
         self.latestLatencyMs = latestLatencyMs
         self.lastFrameStatusRaw = lastFrameStatusRaw
+        self.stoppedReason = stoppedReason
     }
 }
 
@@ -243,11 +304,7 @@ public actor CaptureStreamPool {
             guard let display = content.displays.first(where: { $0.displayID == displayId }) else {
                 throw ScreenCaptureKitStreamError.targetUnavailable
             }
-            filter = SCContentFilter(
-                display: display,
-                excludingWindows: [],
-                exceptingWindows: []
-            )
+            filter = SCContentFilter(display: display, excludingWindows: [])
         }
 
         let configuration = SCStreamConfiguration()
@@ -299,7 +356,7 @@ public actor CaptureStreamPool {
 
 /// Frame sink for the pool's single stream: keeps only the latest complete frame, encodes on
 /// demand — the same contract the driver's pooled output implements for named captures.
-private final class PoolFrameOutput: NSObject, SCStreamDelegate, @unchecked Sendable {
+private final class PoolFrameOutput: NSObject, SCStreamDelegate, SCStreamOutput, @unchecked Sendable {
     private let lock = NSLock()
     private var latestBuffer: CVPixelBuffer?
     private var statsValue = CaptureStreamStats()
@@ -318,22 +375,39 @@ private final class PoolFrameOutput: NSObject, SCStreamDelegate, @unchecked Send
         lock.unlock()
     }
 
-    func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of type: SCStreamFrameType) {
-        guard sampleBuffer.isValid, let buffer = sampleBuffer.imageBuffer else { return }
+    func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of type: SCStreamOutputType) {
+        guard type == .screen, sampleBuffer.isValid, let buffer = sampleBuffer.imageBuffer else { return }
+        // Frame status is an attachment on the sample buffer, not a property of it. Reading it is
+        // what separates a real frame from an idle or blank one; without it every delivered buffer
+        // counted as a complete frame and the pool reported success on a stream showing nothing.
+        let statusRaw = (CMSampleBufferGetSampleAttachmentsArray(sampleBuffer, createIfNecessary: false)
+            as? [[SCStreamFrameInfo: Any]])?.first?[.status] as? Int
+        let status = statusRaw.flatMap(SCFrameStatus.init(rawValue:))
+        guard status == nil || status == .complete else {
+            lock.withLock {
+                statsValue.receivedFrames &+= 1
+                if status == .idle { statsValue.idleFrames &+= 1 }
+                if let statusRaw { statsValue.lastFrameStatusRaw = statusRaw }
+            }
+            return
+        }
         let dimensions: (Int, Int)? = {
             let width = CVPixelBufferGetWidth(buffer)
             let height = CVPixelBufferGetHeight(buffer)
             return width > 0 && height > 0 ? (width, height) : nil
         }()
-        let latency = sampleBuffer.presentationTimeStamp.seconds.distance(to: Date().timeIntervalSinceReferenceDate)
-        lock.lock()
-        latestBuffer = buffer
-        statsValue.completeFrames += 1
-        statsValue.width = dimensions?.0
-        statsValue.height = dimensions?.1
-        statsValue.latestLatencyMs = latency.isFinite && latency >= 0 && latency < 5 ? abs(latency) * 1_000 : nil
-        statsValue.lastFrameStatusRaw = sampleBuffer.status.rawValue
-        lock.unlock()
+        let now = CMClockGetTime(CMClockGetHostTimeClock())
+        let latency = now.seconds - sampleBuffer.presentationTimeStamp.seconds
+        lock.withLock {
+            latestBuffer = buffer
+            statsValue.receivedFrames &+= 1
+            statsValue.completeFrames &+= 1
+            statsValue.width = dimensions?.0
+            statsValue.height = dimensions?.1
+            statsValue.latestLatencyMs = latency.isFinite && latency >= 0 && latency < 5
+                ? latency * 1_000 : nil
+            statsValue.lastFrameStatusRaw = statusRaw ?? SCFrameStatus.complete.rawValue
+        }
     }
 
     func stats() -> CaptureStreamStats {
@@ -356,10 +430,11 @@ private final class PoolFrameOutput: NSObject, SCStreamDelegate, @unchecked Send
     }
 
     func stop() async {
-        lock.lock()
-        let stream = self.stream
-        self.stream = nil
-        lock.unlock()
+        let stream = lock.withLock { () -> SCStream? in
+            let held = self.stream
+            self.stream = nil
+            return held
+        }
         try? await stream?.stopCapture()
     }
 }
@@ -370,6 +445,14 @@ public enum ImageHandleStoreError: Error, Equatable, Sendable {
     case invalidHandle
     case sessionMismatch
     case storeLimitExceeded
+    /// Empty bytes or a non-positive dimension. `ServiceCore` maps this to `invalid_image`, so the
+    /// check that produces it has to exist here — a store that accepted a zero-sized image would
+    /// hand out a handle that every later read fails on, naming the reader instead of the writer.
+    case invalidImage
+    case imageTooLarge
+    /// The recorded transform disagrees with the image it describes. The transform is what a caller
+    /// maps coordinates through, so a mismatch silently returns points in the wrong space.
+    case invalidTransform
 }
 
 /// Internal handle: identity and integrity metadata only — the envelope-facing mirror is
@@ -429,7 +512,24 @@ public final class ImageHandleStore: @unchecked Sendable {
         self.capacity = max(1, capacity)
     }
 
+    /// Bytes above this are refused rather than retained. A single still that large is a symptom
+    /// (an unclamped display capture, a runaway scale factor), and holding it would evict the
+    /// handles a live operation is mid-way through using.
+    public static let maxImageBytes = 64 * 1024 * 1024
+
     public func retain(sessionId: String, image: EncodedCaptureImage) throws -> CaptureImageHandle {
+        // Validate before taking the lock: a rejected image never becomes a handle, so it must not
+        // be able to occupy capacity or race a concurrent retain.
+        guard !image.data.isEmpty, image.pixelWidth > 0, image.pixelHeight > 0 else {
+            throw ImageHandleStoreError.invalidImage
+        }
+        guard image.data.count <= Self.maxImageBytes else {
+            throw ImageHandleStoreError.imageTooLarge
+        }
+        guard image.transform.outputWidth == image.pixelWidth,
+              image.transform.outputHeight == image.pixelHeight else {
+            throw ImageHandleStoreError.invalidTransform
+        }
         lock.lock()
         defer { lock.unlock() }
         if images.count >= capacity {
