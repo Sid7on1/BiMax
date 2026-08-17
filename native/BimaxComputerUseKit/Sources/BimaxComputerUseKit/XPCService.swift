@@ -307,6 +307,10 @@ public final class BimaxCuXPCClient: @unchecked Sendable {
 
     deinit { connection.invalidate() }
 
+    /// Tears the connection down explicitly. Relying on `deinit` leaves the peer's connection alive
+    /// for however long the client object survives, which shows up as a leaked `active` count.
+    public func close() { connection.invalidate() }
+
     public func request(_ envelope: RequestEnvelope) throws -> ResponseEnvelope {
         let payload = try JSONEncoder().encode(envelope)
         let semaphore = DispatchSemaphore(value: 0)

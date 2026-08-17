@@ -73,7 +73,14 @@ public enum AXTextPattern {
     /// Clamps + bounds-checks a caller-supplied location/length against the live document length.
     /// A negative length or a range running past the end is a caller bug, not a clamp: throws.
     public static func validatedRange(location: Int, length: Int, characterCount: Int) throws -> TextRangeSelection {
-        guard length >= 0, location >= 0, location + length <= characterCount else {
+        guard length >= 0, location >= 0 else {
+            throw AXSemanticActionError.textRangeOutOfBounds
+        }
+        // `location + length` TRAPS on overflow, and both come off the wire — Int.max + 1 crashed
+        // the whole service rather than refusing the request. Report the overflow as the
+        // out-of-bounds it is.
+        let (end, overflowed) = location.addingReportingOverflow(length)
+        guard !overflowed, end <= characterCount else {
             throw AXSemanticActionError.textRangeOutOfBounds
         }
         return TextRangeSelection(location: location, length: length)
@@ -102,50 +109,82 @@ public enum AXTextPattern {
         }
     }
 
-    /// Finds a needle (with optional prefix/suffix disambiguation) inside the element's text.
+    /// Finds a needle inside the element's text, refusing ambiguity rather than guessing.
+    ///
+    /// Collects EVERY occurrence, filters by the prefix/suffix context when given, and requires
+    /// exactly one survivor. Taking the first match would silently act on a different occurrence
+    /// than the caller meant — and in a document the caller cannot see, that mistake is invisible
+    /// until after the edit lands.
     public static func resolveMatch(in text: String, match: TextMatchSelection) throws -> TextRangeSelection {
         let needle = match.text
-        guard !needle.isEmpty else { throw AXSemanticBridgeError.emptyNeedle }
+        guard !needle.isEmpty else { throw AXSemanticActionError.invalidPayload }
+        // An EMPTY prefix/suffix is a malformed request, not "no context given" — nil means that.
+        // Treating "" as absent would silently drop the disambiguation the caller asked for and
+        // then refuse the result as ambiguous, blaming the document for the caller's mistake.
+        if let prefix = match.prefix, prefix.isEmpty { throw AXSemanticActionError.invalidPayload }
+        if let suffix = match.suffix, suffix.isEmpty { throw AXSemanticActionError.invalidPayload }
+        // A NUL cannot appear in text a user selected, so a needle carrying one is a malformed or
+        // smuggled payload rather than a search that will simply not match.
+        guard !needle.unicodeScalars.contains(where: { $0.value == 0 }) else {
+            throw AXSemanticActionError.invalidPayload
+        }
+        let nsText = text as NSString
         guard (needle as NSString).length <= AXTextLimits.maxNeedleCharacters else {
-            throw AXSemanticBridgeError.needleTooLarge
+            throw AXSemanticActionError.textTooLarge
         }
-        guard let base = text.range(of: needle) else {
-            throw AXSemanticBridgeError.needleNotFound(needle)
+        guard nsText.length <= AXTextLimits.maxSearchableCharacters else {
+            throw AXSemanticActionError.textTooLarge
         }
-        _ = base
-        // AX ranges are UTF-16 offsets, so every offset here is measured with NSString rather than
-        // String.Index — mixing the two is how a range lands mid-grapheme.
-        let location = (text as NSString).range(of: needle).location
-        let length = (needle as NSString).length
-        // Disambiguate forward: prefer the first occurrence whose right context starts with the
-        // suffix (when one is given) and whose left context ends with the prefix (when one is given).
-        if match.prefix != nil || match.suffix != nil {
-            let nsText = text as NSString
-            let total = nsText.length
-            var searchFrom = 0
-            while true {
-                let hit = nsText.range(of: needle, range: NSRange(location: searchFrom, length: total - searchFrom))
-                guard hit.location != NSNotFound else { break }
-                if let prefix = match.prefix {
-                    let prefixLen = (prefix as NSString).length
-                    let start = hit.location - prefixLen
-                    guard start >= 0, nsText.substring(with: NSRange(location: start, length: prefixLen)) == prefix else {
-                        searchFrom = hit.location + 1
-                        continue
-                    }
-                }
-                if let suffix = match.suffix {
-                    let suffixLen = (suffix as NSString).length
-                    let start = hit.location + hit.length
-                    guard start + suffixLen <= total, nsText.substring(with: NSRange(location: start, length: suffixLen)) == suffix else {
-                        searchFrom = hit.location + 1
-                        continue
-                    }
-                }
-                return TextRangeSelection(location: hit.location, length: hit.length)
+
+        // UTF-16 offsets throughout: AX ranges are UTF-16, and mixing in String.Index is how a
+        // range lands mid-grapheme.
+        var hits: [NSRange] = []
+        var searchFrom = 0
+        while searchFrom < nsText.length {
+            let hit = nsText.range(
+                of: needle,
+                range: NSRange(location: searchFrom, length: nsText.length - searchFrom)
+            )
+            guard hit.location != NSNotFound else { break }
+            hits.append(hit)
+            searchFrom = hit.location + max(hit.length, 1)
+        }
+        guard !hits.isEmpty else { throw AXSemanticActionError.textNotFound }
+
+        let filtered = hits.filter { hit in
+            if let prefix = match.prefix {
+                let length = (prefix as NSString).length
+                let start = hit.location - length
+                guard start >= 0,
+                      nsText.substring(with: NSRange(location: start, length: length)) == prefix
+                else { return false }
             }
+            if let suffix = match.suffix {
+                let length = (suffix as NSString).length
+                let start = hit.location + hit.length
+                guard start + length <= nsText.length,
+                      nsText.substring(with: NSRange(location: start, length: length)) == suffix
+                else { return false }
+            }
+            return true
         }
-        return TextRangeSelection(location: location, length: length)
+        guard let only = filtered.first else { throw AXSemanticActionError.textNotFound }
+        guard filtered.count == 1 else { throw AXSemanticActionError.ambiguousTextMatch }
+        return Self.place(match.placement, location: only.location, length: only.length)
+    }
+
+    /// Turns a matched range into what the caller actually asked for: the selection itself, or a
+    /// zero-length caret on either side of it.
+    private static func place(
+        _ placement: TextMatchPlacement,
+        location: Int,
+        length: Int
+    ) -> TextRangeSelection {
+        switch placement {
+        case .select: return TextRangeSelection(location: location, length: length)
+        case .before: return TextRangeSelection(location: location, length: 0)
+        case .after: return TextRangeSelection(location: location + length, length: 0)
+        }
     }
 
     /// Wire codec for AX range attributes: CFTypeRef in, TextRangeSelection out. Anything that is not an
@@ -192,12 +231,15 @@ public enum AXScrollPattern {
     }
 
     /// The AX action name a page scroll maps onto for one direction.
+    /// AppKit's page-scroll actions. NOT AXIncrement/AXDecrement — those step a *value* (a slider,
+    /// a stepper) and on a scroll area they either do nothing or move by one line, so a page scroll
+    /// built on them silently under-scrolls and the agent concludes the content ended.
     public static func action(for direction: ScrollPageDirection) -> String {
         switch direction {
-        case .up: return "AXDecrement"
-        case .down: return "AXIncrement"
-        case .left: return "AXDecrement"
-        case .right: return "AXIncrement"
+        case .up: return "AXScrollUpByPage"
+        case .down: return "AXScrollDownByPage"
+        case .left: return "AXScrollLeftByPage"
+        case .right: return "AXScrollRightByPage"
         }
     }
 
@@ -232,9 +274,18 @@ public enum AXScrollPattern {
         AXUIElementSetAttributeValue(bar, kAXValueAttribute as CFString, fraction as CFNumber) == .success
     }
 
-    /// Fraction re-expressed as a percent string for receipts (evidence is human-read).
-    public static func percentValue(_ fraction: Double) -> String {
-        "\(Int((fraction * 100).rounded()))%"
+    /// A scrollbar's AXValue as a whole percent, or nil when it is not a usable position.
+    ///
+    /// Takes `Any?` because that is exactly what AX hands back, and the nil cases are the point:
+    /// a missing value, a non-numeric value, and NaN/infinity must NOT become 0. A scrollbar
+    /// reported at 0% reads as "at the top", so coercing an unreadable one would make the agent
+    /// believe it had already scrolled home.
+    public static func percentValue(_ value: Any?) -> Int? {
+        guard let number = value as? NSNumber else { return nil }
+        // NSNumber wraps booleans and strings-as-numbers too; require a finite double.
+        let fraction = number.doubleValue
+        guard fraction.isFinite else { return nil }
+        return Int((fraction * 100).rounded())
     }
 
     /// Observation helpers reading both axes off the element's bars, for before/after receipts.
@@ -357,6 +408,10 @@ public enum AXSnapshotStoreError: Error, Equatable {
 ///   - a diff base for a different pid/window/scope is snapshot_target_mismatch;
 ///   - an action ref whose session/target/identity cannot be resolved is stale_element_ref.
 public final class AXSnapshotStore: @unchecked Sendable {
+    /// Retention bounds. A store that grows without limit turns a long session into a memory leak,
+    /// and an unbounded diff is larger than the snapshot it was meant to replace.
+    private let maxSnapshotsPerSession: Int
+    private let maxDiffOperations: Int
     public struct Authority {
         public let node: AXNode
         public let snapshot: AXSnapshot
@@ -368,7 +423,48 @@ public final class AXSnapshotStore: @unchecked Sendable {
     private var nodesByToken: [String: AXNode] = [:]
     private var snapshotByToken: [String: String] = [:]
 
-    public init() {}
+    public init(maxSnapshotsPerSession: Int = 8, maxDiffOperations: Int = 512) {
+        self.maxSnapshotsPerSession = max(1, maxSnapshotsPerSession)
+        self.maxDiffOperations = max(1, maxDiffOperations)
+    }
+
+    /// Applies a diff to a base node set, producing what the full snapshot would have been.
+    ///
+    /// Static and side-effect free: it is the reference implementation a client uses to reconstruct
+    /// a snapshot it only received a diff for, and the same code the suite grades diffs against.
+    ///
+    /// It validates rather than trusts. A base with duplicate stable paths has no well-defined
+    /// result — two different nodes claim the same identity — and a remove naming a path that is
+    /// not present, or naming it with the wrong token, is a forged or mismatched operation. Both
+    /// are `malformedDiff`: replaying either would silently produce a tree that never existed, and
+    /// every coordinate read from it afterwards would be wrong in a way nothing downstream checks.
+    public static func replay(
+        base: [AXNode],
+        operations: [AXDiffOperation]
+    ) throws -> [AXNode] {
+        var byHash: [String: AXNode] = [:]
+        for node in base {
+            guard byHash.updateValue(node, forKey: node.stablePathHash) == nil else {
+                throw AXSnapshotStoreError.malformedDiff
+            }
+        }
+        for operation in operations {
+            switch operation {
+            case .insert(let node), .update(let node):
+                byHash[node.stablePathHash] = node
+            case .remove(let stablePathHash, let token):
+                guard let existing = byHash[stablePathHash], existing.token == token else {
+                    throw AXSnapshotStoreError.malformedDiff
+                }
+                byHash.removeValue(forKey: stablePathHash)
+            }
+        }
+        // Ordered by the node's own `order`, then hash, so replay is deterministic and two clients
+        // reconstructing the same diff agree.
+        return byHash.values.sorted {
+            $0.order == $1.order ? $0.stablePathHash < $1.stablePathHash : $0.order < $1.order
+        }
+    }
 
     // MARK: Retention (observe path)
 
@@ -379,6 +475,12 @@ public final class AXSnapshotStore: @unchecked Sendable {
         guard !full.snapshotId.isEmpty, !full.sessionId.isEmpty, full.pid != 0 else {
             throw AXSnapshotStoreError.malformedSnapshot
         }
+        // Truncated or partial evidence must never become an ACTION AUTHORITY. A tree that was cut
+        // short can be missing the very element a later ref claims to name, so retaining it would
+        // hand out authorities the capture never actually saw. It is fine to look at, not to act on.
+        guard !full.truncated, !full.partial else {
+            throw AXSnapshotStoreError.nonAuthoritativeSnapshot
+        }
         var response = full
         if let since = snapshotId, !since.isEmpty {
             guard let base = snapshots[since], base.sessionId == full.sessionId else {
@@ -387,8 +489,10 @@ public final class AXSnapshotStore: @unchecked Sendable {
             guard base.pid == full.pid, base.windowId == full.windowId, base.scope == full.scope else {
                 throw AXSnapshotStoreError.baseSnapshotTargetMismatch
             }
-            guard let baseQuery = base.query, let fullQuery = full.query, baseQuery == fullQuery else {
-                // A filtered view may only diff against the same filter.
+            // A filtered view may only diff against the same filter — but the ordinary case is
+            // BOTH nil, and requiring them to be non-nil made every unfiltered diff a target
+            // mismatch. Compare the optionals, do not unwrap them.
+            guard base.query == full.query else {
                 throw AXSnapshotStoreError.baseSnapshotTargetMismatch
             }
             response = AXSnapshot(
@@ -482,6 +586,14 @@ public final class AXSnapshotStore: @unchecked Sendable {
     }
 
     // MARK: Resolution (action path)
+
+    /// Resolves a retained element ref back to the node it authorized.
+    ///
+    /// Separate from `resolveAuthority`: this is a read, and it must NOT consume the single-use
+    /// authority — inspecting an element is not acting on it.
+    public func resolveElement(sessionId: String, ref: ElementRef) throws -> AXNode {
+        try resolveAuthority(sessionId: sessionId, ref: ref).node
+    }
 
     public func resolveSnapshot(sessionId: String, snapshotId: String) throws -> AXSnapshot {
         lock.lock()

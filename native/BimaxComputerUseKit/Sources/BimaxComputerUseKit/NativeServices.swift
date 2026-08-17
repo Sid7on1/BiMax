@@ -52,17 +52,6 @@ private extension CuRect {
 
 // MARK: - Workspace inventory
 
-public extension WorkspaceInventoryProviding {
-    /// Default so a test double only overrides what it cares about. The concrete inventory below
-    /// replaces this with the real CoreGraphics pass.
-    func snapshot(_ request: WorkspaceSnapshotRequest) throws -> WorkspaceSnapshot {
-        WorkspaceSnapshot(
-            capturedAtMs: nowMs(), frontmostPid: frontmostPid(),
-            apps: [], windows: [], displays: []
-        )
-    }
-}
-
 extension WorkspaceInventory {
     /// The one fact-gathering pass behind `workspace.snapshot`.
     ///
@@ -192,34 +181,59 @@ public protocol FileWorkspaceOperating: Sendable {
     ) throws -> OpenURLReceipt
 }
 
+/// Policy over an injected `FileServicesProviding`.
+///
+/// The refusals are the point of this type; the effects are delegated. It accepts only absolute,
+/// already-normalized paths — normalizing here would validate one path and act on another, which is
+/// how a containment check gets bypassed.
 public struct FileWorkspace: FileWorkspaceOperating {
-    public init() {}
+    private let services: any FileServicesProviding
+    private let homePath: String
+
+    public init(
+        services: any FileServicesProviding = SystemFileServices(),
+        homePath: String = NSHomeDirectory()
+    ) {
+        self.services = services
+        self.homePath = homePath
+    }
+
+    private func validated(_ path: String) throws -> String {
+        guard path.hasPrefix("/") else {
+            throw FileWorkspaceError.invalidPath("the path must be absolute")
+        }
+        guard !path.contains("/../"), !path.hasSuffix("/.."), !path.contains("//"),
+              !path.hasPrefix("~") else {
+            throw FileWorkspaceError.invalidPath("the path must already be normalized")
+        }
+        // A NUL truncates the path at every C boundary below this, so the string that gets checked
+        // and the bytes that reach the filesystem are different — the classic way a containment
+        // check is bypassed.
+        guard !path.unicodeScalars.contains(where: { $0.value == 0 }) else {
+            throw FileWorkspaceError.invalidPath("the path contains a NUL")
+        }
+        return path
+    }
 
     public func inspect(_ request: FileInspectRequest) throws -> FileInfoReceipt {
-        let url = URL(fileURLWithPath: request.path)
-        let values = try? url.resourceValues(forKeys: [
-            .isDirectoryKey, .isPackageKey, .isSymbolicLinkKey, .fileSizeKey,
-            .contentTypeKey, .contentModificationDateKey,
-        ])
-        // A missing file is a fact to report, not a fault to throw: `exists: false` is a complete,
-        // useful answer and the caller decides whether it is an error.
-        guard FileManager.default.fileExists(atPath: request.path) else {
-            return FileInfoReceipt(path: request.path, exists: false)
+        let path = try validated(request.path)
+        // A missing file is a fact to report, not a fault: `exists: false` is a complete answer and
+        // the caller decides whether that is an error.
+        guard let attributes = services.attributes(path) else {
+            return FileInfoReceipt(path: path, exists: false)
         }
-        let type = values?.contentType
+        let type = services.contentType(path)
         return FileInfoReceipt(
-            path: request.path,
+            path: path,
             exists: true,
-            isDirectory: values?.isDirectory ?? false,
-            isPackage: values?.isPackage ?? false,
-            isSymbolicLink: values?.isSymbolicLink ?? false,
-            byteSize: values?.fileSize.map(Int64.init),
-            contentType: type?.identifier,
-            contentTypeDescription: type?.localizedDescription,
-            defaultApplicationPath: NSWorkspace.shared
-                .urlForApplication(toOpen: url)?.path,
-            modifiedAtMs: values?.contentModificationDate
-                .map { Int64($0.timeIntervalSince1970 * 1_000) }
+            isDirectory: attributes.isDirectory,
+            isPackage: services.isPackage(path),
+            isSymbolicLink: attributes.isSymbolicLink,
+            byteSize: attributes.byteSize,
+            contentType: type.identifier,
+            contentTypeDescription: type.description,
+            defaultApplicationPath: services.defaultApplicationPath(for: path),
+            modifiedAtMs: attributes.modifiedAtMs
         )
     }
 
@@ -228,14 +242,13 @@ public struct FileWorkspace: FileWorkspaceOperating {
         resolving: (AppLookup) throws -> URL
     ) throws -> FileOperationReceipt {
         let started = Date()
-        let url = URL(fileURLWithPath: request.path)
-        guard FileManager.default.fileExists(atPath: request.path) else {
-            throw FileWorkspaceError.notFound
-        }
-        let frontmostBefore = WorkspaceInventory.frontmostPid()
-        var bundle: URL?
-        if let lookup = request.application { bundle = try resolving(lookup) }
+        let path = try validated(request.path)
+        guard services.attributes(path) != nil else { throw FileWorkspaceError.notFound }
+        let frontmostBefore = services.frontmostPid()
+        let bundle = try request.application.map(resolving)
+
         var resultingPath: String?
+        var app: AppRef?
         var performed = false
         // `open` and `reveal` bring an application forward; `trash` and `duplicate` do not. The
         // receipt records the request, and the frontmost pids around it record what happened.
@@ -243,56 +256,30 @@ public struct FileWorkspace: FileWorkspaceOperating {
 
         switch request.operation {
         case .open:
-            if let bundle {
-                let semaphore = DispatchSemaphore(value: 0)
-                let failure = ResultBox<Error>()
-                NSWorkspace.shared.open(
-                    [url], withApplicationAt: bundle,
-                    configuration: NSWorkspace.OpenConfiguration()
-                ) { _, error in failure.set(error); semaphore.signal() }
-                _ = semaphore.wait(timeout: .now() + 10)
-                if let error = failure.current {
-                    throw FileWorkspaceError.operationFailed(error.localizedDescription)
-                }
-                performed = true
-            } else {
-                performed = NSWorkspace.shared.open(url)
-            }
-            resultingPath = request.path
+            app = try services.open(path: path, withApplicationAt: bundle, timeoutMs: 10_000)
+            resultingPath = path
+            performed = true
         case .reveal:
-            NSWorkspace.shared.activateFileViewerSelecting([url])
-            performed = true
-            resultingPath = request.path
+            performed = services.reveal(path: path)
+            resultingPath = path
         case .trash:
-            var trashed: NSURL?
-            do {
-                try FileManager.default.trashItem(at: url, resultingItemURL: &trashed)
-            } catch {
-                throw FileWorkspaceError.operationFailed(error.localizedDescription)
-            }
+            resultingPath = try services.trash(path: path)
             performed = true
-            resultingPath = (trashed as URL?)?.path
         case .duplicate:
-            let destination = Self.duplicateDestination(for: url)
-            do {
-                try FileManager.default.copyItem(at: url, to: destination)
-            } catch {
-                throw FileWorkspaceError.operationFailed(error.localizedDescription)
-            }
+            resultingPath = try services.duplicate(path: path)
             performed = true
-            resultingPath = destination.path
         }
 
         return FileOperationReceipt(
             operation: request.operation,
-            path: request.path,
+            path: path,
             performed: performed,
             resultingPath: resultingPath,
             applicationBundlePath: bundle?.path,
-            app: nil,
+            app: app,
             requestedActivation: requestedActivation,
             frontmostPidBefore: frontmostBefore,
-            frontmostPidAfter: WorkspaceInventory.frontmostPid(),
+            frontmostPidAfter: services.frontmostPid(),
             durationMs: Int(Date().timeIntervalSince(started) * 1_000)
         )
     }
@@ -305,56 +292,26 @@ public struct FileWorkspace: FileWorkspaceOperating {
         guard let url = URL(string: request.url), let scheme = url.scheme else {
             throw FileWorkspaceError.invalidPath("the url could not be parsed")
         }
-        // A file: URL routed through the URL verb would bypass the file operation's own checks.
-        guard scheme != "file" else { throw FileWorkspaceError.refused("file urls must use the file operation verb") }
-        let frontmostBefore = WorkspaceInventory.frontmostPid()
-        var bundle: URL?
-        if let lookup = request.application { bundle = try resolving(lookup) }
-
-        var opened = false
-        if let bundle {
-            let semaphore = DispatchSemaphore(value: 0)
-            let failure = ResultBox<Error>()
-            NSWorkspace.shared.open(
-                [url], withApplicationAt: bundle,
-                configuration: NSWorkspace.OpenConfiguration()
-            ) { _, error in failure.set(error); semaphore.signal() }
-            _ = semaphore.wait(timeout: .now() + 10)
-            if let error = failure.current {
-                throw FileWorkspaceError.operationFailed(error.localizedDescription)
-            }
-            opened = true
-        } else {
-            opened = NSWorkspace.shared.open(url)
+        // A file: URL routed through the URL verb would bypass the path checks above.
+        guard scheme != "file" else {
+            throw FileWorkspaceError.refused("file urls must use the file operation verb")
         }
+        let frontmostBefore = services.frontmostPid()
+        let bundle = try request.application.map(resolving)
+        let app = try services.openURL(url, withApplicationAt: bundle, timeoutMs: 10_000)
 
         return OpenURLReceipt(
             url: request.url,
             scheme: scheme,
             host: url.host,
-            opened: opened,
+            opened: true,
             applicationBundlePath: bundle?.path,
-            app: nil,
+            app: app,
             requestedActivation: true,
             frontmostPidBefore: frontmostBefore,
-            frontmostPidAfter: WorkspaceInventory.frontmostPid(),
+            frontmostPidAfter: services.frontmostPid(),
             durationMs: Int(Date().timeIntervalSince(started) * 1_000)
         )
-    }
-
-    /// Never overwrite: pick the first free " copy"/" copy N" name, the way Finder does.
-    private static func duplicateDestination(for url: URL) -> URL {
-        let directory = url.deletingLastPathComponent()
-        let base = url.deletingPathExtension().lastPathComponent
-        let ext = url.pathExtension
-        for suffix in 0...999 {
-            let name = suffix == 0 ? "\(base) copy" : "\(base) copy \(suffix + 1)"
-            let candidate = ext.isEmpty
-                ? directory.appendingPathComponent(name)
-                : directory.appendingPathComponent(name).appendingPathExtension(ext)
-            if !FileManager.default.fileExists(atPath: candidate.path) { return candidate }
-        }
-        return directory.appendingPathComponent("\(base) copy \(UUID().uuidString)")
     }
 }
 
@@ -380,62 +337,108 @@ public protocol WindowOperating: Sendable {
 }
 
 public struct WindowOperations: WindowOperating {
-    public init() {}
+    private let access: any WindowElementAccessing
+    private let settle: @Sendable () -> Void
+
+    /// `settle` runs between the write and the verifying re-read. Injected because a window
+    /// manager applies geometry asynchronously — reading back immediately reports the OLD frame and
+    /// would mark every honored move as unhonored — and because a test must be able to make that
+    /// wait free rather than sleeping.
+    public init(
+        access: any WindowElementAccessing = AXWindowElementAccess(),
+        settle: @escaping @Sendable () -> Void = { Thread.sleep(forTimeInterval: 0.08) }
+    ) {
+        self.access = access
+        self.settle = settle
+    }
+
+    /// Shape-checks a request before any AX read or write happens.
+    ///
+    /// Static because it is a property of the request alone, and separate from `perform` so a
+    /// caller can reject a malformed manifest without touching a window — a transaction that
+    /// half-applies before noticing step three is invalid is the failure this prevents.
+    public static func validate(_ request: WindowOperationRequest) throws {
+        switch request.operation {
+        case .move, .resize, .setFrame:
+            guard let frame = request.frame else {
+                throw WindowOperationError.invalidRequest("a frame is required")
+            }
+            guard frame.width.isFinite, frame.height.isFinite,
+                  frame.x.isFinite, frame.y.isFinite else {
+                throw WindowOperationError.invalidRequest("the frame must be finite")
+            }
+            if request.operation != .move {
+                guard frame.width > 0, frame.height > 0 else {
+                    throw WindowOperationError.invalidRequest("the size must be positive")
+                }
+            }
+        case .setFullScreen:
+            guard request.fullScreen != nil else {
+                throw WindowOperationError.invalidRequest("fullScreen is required")
+            }
+        case .minimize, .unminimize, .close:
+            guard request.frame == nil, request.fullScreen == nil else {
+                throw WindowOperationError.invalidRequest("this operation takes no geometry")
+            }
+        }
+    }
 
     public func perform(
         _ request: WindowOperationRequest,
         frontmostPid: () -> Int32?
     ) throws -> WindowOperationReceipt {
         let startedAt = Date()
-        guard AXIsProcessTrusted() else { throw WindowOperationError.attributeUnavailable("accessibility is not trusted") }
+        try Self.validate(request)
         let frontmostBefore = frontmostPid()
-        let app = AXUIElementCreateApplication(request.window.pid)
-        AXUIElementSetMessagingTimeout(app, 2.0)
-        guard let element = Self.window(in: app, windowId: request.window.windowId) else {
-            throw WindowOperationError.windowNotFound
-        }
+        let pid = request.window.pid
+        let windowId = request.window.windowId
 
-        let boundsBefore = Self.bounds(element)
-        let minimizedBefore = Self.flag(element, kAXMinimizedAttribute)
-        let fullScreenBefore = Self.flag(element, "AXFullScreen")
-        var attempted = true
+        let boundsBefore = try? access.bounds(pid: pid, windowId: windowId)
+        let minimizedBefore = try? access.flag(pid: pid, windowId: windowId, attribute: kAXMinimizedAttribute as String)
+        let fullScreenBefore = try? access.flag(pid: pid, windowId: windowId, attribute: "AXFullScreen")
+        // A window that cannot be read at all is not present. Continuing would write into whatever
+        // now owns that id.
+        if boundsBefore == nil && minimizedBefore == nil { throw WindowOperationError.windowNotFound }
 
         switch request.operation {
         case .move, .resize, .setFrame:
-            guard let frame = request.frame else { throw WindowOperationError.invalidRequest("a frame is required") }
-            if request.operation != .resize { Self.setPoint(element, frame.cgRect.origin) }
-            if request.operation != .move { Self.setSize(element, frame.cgRect.size) }
-        case .minimize:
-            Self.setFlag(element, kAXMinimizedAttribute, true)
-        case .unminimize:
-            Self.setFlag(element, kAXMinimizedAttribute, false)
-        case .setFullScreen:
-            guard let wanted = request.fullScreen else { throw WindowOperationError.invalidRequest("fullScreen is required") }
-            Self.setFlag(element, "AXFullScreen", wanted)
-        case .close:
-            var button: CFTypeRef?
-            guard AXUIElementCopyAttributeValue(
-                element, kAXCloseButtonAttribute as CFString, &button
-            ) == .success, let button else {
-                attempted = false
-                break
+            guard let frame = request.frame else {
+                throw WindowOperationError.invalidRequest("a frame is required")
             }
-            // Unsafe-bit-cast-free downcast: AX returns the button as a CFTypeRef of AXUIElement.
-            let closeButton = button as! AXUIElement
-            _ = AXUIElementPerformAction(closeButton, kAXPressAction as CFString)
+            try access.setFrame(
+                pid: pid, windowId: windowId, frame: frame,
+                moveOnly: request.operation == .move,
+                resizeOnly: request.operation == .resize
+            )
+        case .minimize:
+            try access.setFlag(pid: pid, windowId: windowId, attribute: kAXMinimizedAttribute as String, value: true)
+        case .unminimize:
+            try access.setFlag(pid: pid, windowId: windowId, attribute: kAXMinimizedAttribute as String, value: false)
+        case .setFullScreen:
+            guard let wanted = request.fullScreen else {
+                throw WindowOperationError.invalidRequest("fullScreen is required")
+            }
+            try access.setFlag(pid: pid, windowId: windowId, attribute: "AXFullScreen", value: wanted)
+        case .close:
+            try access.pressWindowButton(
+                pid: pid, windowId: windowId, attribute: kAXCloseButtonAttribute as String
+            )
         }
 
+        settle()
         // Re-read rather than trusting the write. AX writes can report success and be ignored
-        // outright (measured on Electron windows), so `honored` is decided by observation.
-        let stillPresent = Self.window(in: app, windowId: request.window.windowId)
-        let boundsAfter = stillPresent.flatMap(Self.bounds)
-        let minimizedAfter = stillPresent.flatMap { Self.flag($0, kAXMinimizedAttribute) }
-        let fullScreenAfter = stillPresent.flatMap { Self.flag($0, "AXFullScreen") }
-        let windowGone = stillPresent == nil
+        // outright, and an application may clamp a size it accepted — `honored` is decided by
+        // observation, never by the call's return.
+        let boundsAfter = try? access.bounds(pid: pid, windowId: windowId)
+        let minimizedAfter = try? access.flag(pid: pid, windowId: windowId, attribute: kAXMinimizedAttribute as String)
+        let fullScreenAfter = try? access.flag(pid: pid, windowId: windowId, attribute: "AXFullScreen")
+        let windowGone = boundsAfter == nil && minimizedAfter == nil
 
         let honored: Bool
         switch request.operation {
-        case .move, .resize, .setFrame:
+        case .move:
+            honored = boundsAfter.map { $0.x == request.frame?.x && $0.y == request.frame?.y } ?? false
+        case .resize, .setFrame:
             honored = boundsAfter != nil && boundsAfter != boundsBefore
         case .minimize: honored = minimizedAfter == true
         case .unminimize: honored = minimizedAfter == false
@@ -446,8 +449,8 @@ public struct WindowOperations: WindowOperating {
         return WindowOperationReceipt(
             operation: request.operation,
             window: request.window,
-            attempted: attempted,
-            honored: attempted && honored,
+            attempted: true,
+            honored: honored,
             boundsBefore: boundsBefore,
             boundsAfter: boundsAfter,
             minimizedBefore: minimizedBefore,
@@ -459,53 +462,6 @@ public struct WindowOperations: WindowOperating {
             frontmostPidAfter: frontmostPid(),
             durationMs: Int(Date().timeIntervalSince(startedAt) * 1_000)
         )
-    }
-
-    private static func window(in app: AXUIElement, windowId: UInt32) -> AXUIElement? {
-        var value: CFTypeRef?
-        guard AXUIElementCopyAttributeValue(
-            app, kAXWindowsAttribute as CFString, &value
-        ) == .success, let windows = value as? [AXUIElement] else { return nil }
-        return windows.first { element in
-            var identifier = CGWindowID(0)
-            return _AXUIElementGetWindow(element, &identifier) == .success && identifier == windowId
-        }
-    }
-
-    private static func bounds(_ element: AXUIElement) -> CuRect? {
-        var positionValue: CFTypeRef?
-        var sizeValue: CFTypeRef?
-        guard AXUIElementCopyAttributeValue(element, kAXPositionAttribute as CFString, &positionValue) == .success,
-              AXUIElementCopyAttributeValue(element, kAXSizeAttribute as CFString, &sizeValue) == .success,
-              let positionValue, let sizeValue else { return nil }
-        var origin = CGPoint.zero
-        var size = CGSize.zero
-        guard AXValueGetValue(positionValue as! AXValue, .cgPoint, &origin),
-              AXValueGetValue(sizeValue as! AXValue, .cgSize, &size) else { return nil }
-        return CuRect(finite: CGRect(origin: origin, size: size))
-    }
-
-    private static func flag(_ element: AXUIElement, _ attribute: String) -> Bool? {
-        var value: CFTypeRef?
-        guard AXUIElementCopyAttributeValue(element, attribute as CFString, &value) == .success,
-              let number = value as? NSNumber else { return nil }
-        return number.boolValue
-    }
-
-    private static func setFlag(_ element: AXUIElement, _ attribute: String, _ value: Bool) {
-        _ = AXUIElementSetAttributeValue(element, attribute as CFString, value as CFBoolean)
-    }
-
-    private static func setPoint(_ element: AXUIElement, _ point: CGPoint) {
-        var mutable = point
-        guard let value = AXValueCreate(.cgPoint, &mutable) else { return }
-        _ = AXUIElementSetAttributeValue(element, kAXPositionAttribute as CFString, value)
-    }
-
-    private static func setSize(_ element: AXUIElement, _ size: CGSize) {
-        var mutable = size
-        guard let value = AXValueCreate(.cgSize, &mutable) else { return }
-        _ = AXUIElementSetAttributeValue(element, kAXSizeAttribute as CFString, value)
     }
 }
 
@@ -525,10 +481,15 @@ func _AXUIElementGetWindow(_ element: AXUIElement, _ identifier: UnsafeMutablePo
 public struct AXEventCheckpoint: Equatable, Sendable {
     public var tracking: Bool
     public var revision: UInt64
+    /// The notification that last moved the revision. Diagnostic only: it says WHY the target is
+    /// considered changed, which is the difference between "the app repainted" and "the element we
+    /// were about to act on was destroyed".
+    public var lastNotification: String?
 
-    public init(tracking: Bool, revision: UInt64) {
+    public init(tracking: Bool, revision: UInt64, lastNotification: String? = nil) {
         self.tracking = tracking
         self.revision = revision
+        self.lastNotification = lastNotification
     }
 }
 
@@ -550,6 +511,7 @@ public final class AXEventTracker: AXEventTracking, @unchecked Sendable {
     private final class Watch {
         let observer: AXObserver
         var revision: UInt64 = 0
+        var lastNotification: String?
         init(observer: AXObserver) { self.observer = observer }
     }
 
@@ -575,10 +537,11 @@ public final class AXEventTracker: AXEventTracking, @unchecked Sendable {
             }
             guard AXIsProcessTrusted() else { return AXEventCheckpoint(tracking: false, revision: 0) }
             var observer: AXObserver?
-            let callback: AXObserverCallback = { _, _, _, refcon in
+            let callback: AXObserverCallback = { _, _, notification, refcon in
                 guard let refcon else { return }
                 let watch = Unmanaged<Watch>.fromOpaque(refcon).takeUnretainedValue()
                 watch.revision &+= 1
+                watch.lastNotification = notification as String
             }
             guard AXObserverCreate(pid, callback, &observer) == .success,
                   let observer else {
@@ -610,7 +573,10 @@ public final class AXEventTracker: AXEventTracking, @unchecked Sendable {
         let key = Key(sessionId: sessionId, pid: pid)
         let existing = lock.withLock { watches[key] }
         guard let existing else { return begin(sessionId: sessionId, pid: pid) }
-        return AXEventCheckpoint(tracking: true, revision: existing.revision)
+        return AXEventCheckpoint(
+            tracking: true, revision: existing.revision,
+            lastNotification: existing.lastNotification
+        )
     }
 
     public func reset(sessionId: String) {
@@ -633,7 +599,7 @@ public final class AXEventTracker: AXEventTracking, @unchecked Sendable {
 
 /// Pinned by `ServiceCore.focusLeaseErrorCode`.
 public enum FocusLeaseError: Error, Equatable, Sendable {
-    case policyForbidsLease
+    case policyForbidsLease(SemanticDeliveryPolicy)
     case invalidLeaseWindow
     case leaseNotFound
     case leaseAlreadyHeld
@@ -653,7 +619,10 @@ public protocol FocusLeasing: Sendable {
         options: FocusLeaseOptions
     ) throws -> FocusLeaseReceipt
     func release(leaseId: String) throws -> FocusLeaseReceipt
-    func releaseAll(sessionId: String)
+    /// Returns the receipts produced, so a caller can see WHAT was swept. A sweep that reports
+    /// nothing is indistinguishable from a sweep that found nothing.
+    @discardableResult
+    func releaseAll(sessionId: String) -> [FocusLeaseReceipt]
 }
 
 public final class FocusLeaseManager: FocusLeasing, @unchecked Sendable {
@@ -664,8 +633,26 @@ public final class FocusLeaseManager: FocusLeasing, @unchecked Sendable {
 
     private let lock = NSLock()
     private var leases: [String: Held] = [:]
+    private let focus: any FocusControlling
+    private let clock: @Sendable () -> Int64
+    private let sleep: @Sendable (TimeInterval) -> Void
 
-    public init() {}
+    /// The clock and the sleep are injected so lease expiry is testable without waiting in real
+    /// time — an expiry rule verified by a sleeping test is a rule nobody re-runs.
+    public init(
+        focus: any FocusControlling = AppKitFocusController(),
+        clock: @escaping @Sendable () -> Int64 = { Int64(Date().timeIntervalSince1970 * 1_000) },
+        sleep: @escaping @Sendable (TimeInterval) -> Void = { Thread.sleep(forTimeInterval: $0) }
+    ) {
+        self.focus = focus
+        self.clock = clock
+        self.sleep = sleep
+    }
+
+    /// The lease a session currently holds, if any.
+    public func heldLease(sessionId: String) -> FocusLeaseReceipt? {
+        lock.withLock { leases.values.first { $0.sessionId == sessionId }?.receipt }
+    }
 
     public func acquire(
         sessionId: String,
@@ -679,35 +666,38 @@ public final class FocusLeaseManager: FocusLeasing, @unchecked Sendable {
         try lock.withLock {
             guard leases.isEmpty else { throw FocusLeaseError.leaseAlreadyHeld }
         }
-        let previous = NSWorkspace.shared.frontmostApplication
-        guard policy.requiresApproval else { throw FocusLeaseError.policyForbidsLease }
-        guard let target = NSRunningApplication(processIdentifier: targetPid) else {
+        guard policy.requiresApproval else { throw FocusLeaseError.policyForbidsLease(policy) }
+        guard (1...600_000).contains(options.ttlMs),
+              (1...60_000).contains(options.activationTimeoutMs) else {
             throw FocusLeaseError.invalidLeaseWindow
         }
-        let acquiredAt = nowMs()
-        target.activate(options: [])
+        let previous = focus.observeFrontmost()
+        let acquiredAt = clock()
+        guard focus.requestActivation(pid: targetPid) else {
+            throw FocusLeaseError.invalidLeaseWindow
+        }
 
-        // Poll for the activation actually landing rather than assuming it: `activate` returning
-        // true only means the request was posted.
-        let deadline = Date().addingTimeInterval(Double(options.activationTimeoutMs) / 1_000)
+        // Poll for the activation actually landing rather than assuming it: accepting the request
+        // is not the same as coming forward, and the receipt must say which happened.
+        let deadline = acquiredAt + Int64(options.activationTimeoutMs)
         var becameFrontmost = false
         repeat {
-            if WorkspaceInventory.frontmostPid() == targetPid { becameFrontmost = true; break }
-            Thread.sleep(forTimeInterval: 0.02)
-        } while Date() < deadline
+            if focus.observeFrontmost().pid == targetPid { becameFrontmost = true; break }
+            sleep(0.02)
+        } while clock() < deadline
 
         let receipt = FocusLeaseReceipt(
             leaseId: UUID().uuidString,
             targetPid: targetPid,
             targetWindowId: targetWindowId,
-            previousFrontmostPid: previous?.processIdentifier,
-            previousFrontmostBundleId: previous?.bundleIdentifier,
+            previousFrontmostPid: previous.pid,
+            previousFrontmostBundleId: previous.bundleId,
             restorePolicy: options.restorePolicy ?? policy.restorePolicy,
             acquiredAtMs: acquiredAt,
             releasedAtMs: 0,
             expiresAtMs: acquiredAt + Int64(options.ttlMs),
             targetBecameFrontmost: becameFrontmost,
-            frontmostPidAfterAcquire: WorkspaceInventory.frontmostPid(),
+            frontmostPidAfterAcquire: focus.observeFrontmost().pid,
             frontmostPidAtRelease: nil,
             restoreOutcome: .nothingToRestore,
             expired: false
@@ -724,7 +714,7 @@ public final class FocusLeaseManager: FocusLeasing, @unchecked Sendable {
         guard var held = lock.withLock({ leases.removeValue(forKey: leaseId) }) else {
             throw FocusLeaseError.leaseNotFound
         }
-        let frontmostAtRelease = WorkspaceInventory.frontmostPid()
+        let frontmostAtRelease = focus.observeFrontmost().pid
         var outcome: FocusRestoreOutcome = .nothingToRestore
 
         if let previousPid = held.receipt.previousFrontmostPid,
@@ -739,27 +729,29 @@ public final class FocusLeaseManager: FocusLeasing, @unchecked Sendable {
                 if held.receipt.restorePolicy == .ifUnchanged,
                    frontmostAtRelease != held.receipt.targetPid {
                     outcome = .humanOverride
-                } else if let previous = NSRunningApplication(processIdentifier: previousPid) {
-                    previous.activate(options: [])
-                    outcome = WorkspaceInventory.frontmostPid() == previousPid
-                        ? .restored : .restoreFailed
+                } else if focus.requestActivation(pid: previousPid) {
+                    outcome = focus.observeFrontmost().pid == previousPid ? .restored : .restoreFailed
                 } else {
                     outcome = .restoreFailed
                 }
             }
         }
 
-        held.receipt.releasedAtMs = nowMs()
+        held.receipt.releasedAtMs = clock()
+        // Expiry is recorded, never used as an excuse to keep focus — an expired lease still
+        // restores, it just says it expired.
+        held.receipt.expired = clock() >= held.receipt.expiresAtMs
         held.receipt.frontmostPidAtRelease = frontmostAtRelease
         held.receipt.restoreOutcome = outcome
         return held.receipt
     }
 
-    public func releaseAll(sessionId: String) {
+    @discardableResult
+    public func releaseAll(sessionId: String) -> [FocusLeaseReceipt] {
         let ids = lock.withLock {
             leases.filter { $0.value.sessionId == sessionId }.map(\.key)
         }
-        for id in ids { _ = try? release(leaseId: id) }
+        return ids.compactMap { try? release(leaseId: $0) }
     }
 }
 
@@ -1039,7 +1031,18 @@ public final class ImageAnalysisService: @unchecked Sendable {
 /// the requirement's budget it reports `timedOut` with the tier the caller already had. Reporting a
 /// tier the evidence does not support would make every downstream "verified" claim unfalsifiable.
 public final class AdaptiveEvidenceSettler: @unchecked Sendable {
-    public init() {}
+    private let now: @Sendable () -> Int64
+    private let sleep: @Sendable (Int64) -> Void
+
+    /// Clock and sleep are injected in MICROSECONDS so a test can advance settling without waiting
+    /// — a settle budget verified by a sleeping test is one nobody re-runs.
+    public init(
+        now: @escaping @Sendable () -> Int64 = { Int64(Date().timeIntervalSince1970 * 1_000) },
+        sleep: @escaping @Sendable (Int64) -> Void = { Thread.sleep(forTimeInterval: Double($0) / 1_000_000) }
+    ) {
+        self.now = now
+        self.sleep = sleep
+    }
 
     public func settle(
         requirement: EvidenceRequirement,
@@ -1049,8 +1052,8 @@ public final class AdaptiveEvidenceSettler: @unchecked Sendable {
         observe: () throws -> AXSnapshot,
         eventRevision: () -> UInt64
     ) -> EvidenceReceipt {
-        let started = Date()
-        let budget = Double(max(requirement.settleTimeoutMs, 0)) / 1_000
+        let started = now()
+        let budget = Int64(max(requirement.settleTimeoutMs, 0))
         var attempts = 0
         var eventChanged = false
         var postconditionMatched: Bool?
@@ -1069,8 +1072,8 @@ public final class AdaptiveEvidenceSettler: @unchecked Sendable {
             if eventChanged || observedChange || postconditionMatched == true { break }
             // A poll interval, not a settle time: the loop exits on the first observed change, so
             // this only bounds how finely the budget is subdivided.
-            Thread.sleep(forTimeInterval: 0.025)
-        } while Date().timeIntervalSince(started) < budget
+            sleep(25_000)
+        } while now() - started < budget
 
         let outcome: EvidenceOutcome
         if let postconditionMatched {
@@ -1088,7 +1091,7 @@ public final class AdaptiveEvidenceSettler: @unchecked Sendable {
             eventChanged: eventChanged,
             postconditionMatched: postconditionMatched,
             attempts: attempts,
-            settledAtMs: nowMs()
+            settledAtMs: now()
         )
     }
 
