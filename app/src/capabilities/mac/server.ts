@@ -1,4 +1,9 @@
 import { normalizeDesktopAction, PUBLIC_DESKTOP_ACTIONS, type DesktopCommand } from './desktop.runtime';
+import {
+  renderComputerActionReference,
+  unwrapActionEnvelope,
+  validateModelComputerCommand,
+} from './action.contract';
 import { globalComputerSessionManager } from './session.manager';
 import { createEligibleNativeComputerTools } from './native.tools';
 import { assertProviderHostArchitecture, DesktopCapabilityGovernor } from './provider.policy';
@@ -54,7 +59,9 @@ export class UserTakeoverError extends Error {
   }
 }
 
-function compatibilityTool(cwd: string, governor: DesktopCapabilityGovernor): CapabilityTool {
+/** Exported as a seam: the argument contract below is only meaningful if it is exercised through
+ * the same entry point `mac_control` actually uses. */
+export function compatibilityTool(cwd: string, governor: DesktopCapabilityGovernor): CapabilityTool {
   const runtime = globalComputerSessionManager.forSession(`mac-provider-${process.pid}`);
   return {
     name: 'mac_control',
@@ -62,19 +69,55 @@ function compatibilityTool(cwd: string, governor: DesktopCapabilityGovernor): Ca
     schema: MAC_CONTROL_SCHEMA,
     isDestructive: true,
     execute: async (args): Promise<string> => {
+      // Accept the `{type:{...}}` envelope some models emit before sanitizing, or the payload is
+      // filtered away as unknown keys and a well-formed call is refused as "Unknown macOS action".
+      const unwrapped = unwrapActionEnvelope(args as Record<string, unknown>);
       const allowed = new Set(Object.keys(MAC_CONTROL_SCHEMA.properties));
-      const sanitized = Object.fromEntries(Object.entries(args).filter(([key]) => allowed.has(key)));
+      const sanitized = Object.fromEntries(Object.entries(unwrapped).filter(([key]) => allowed.has(key)));
       const action = normalizeDesktopAction(String(sanitized.action || ''));
       if (!(PUBLIC_DESKTOP_ACTIONS as readonly string[]).includes(action)) {
         return JSON.stringify({ ok: false, action, code: 'invalid_action', error: 'Unknown macOS action.' });
+      }
+      // Models trained on browser-computer APIs emit {action:"press", key:"return"}; this runtime
+      // calls that field `combo`. normalizeDesktopAction folds the verb, so fold the payload too —
+      // otherwise an explicit Return is refused with the absurd "key needs combo".
+      const command = {
+        ...sanitized,
+        action,
+        ...(action === 'key' && !sanitized.combo && (unwrapped as any).key
+          ? { combo: (unwrapped as any).key }
+          : {}),
+      } as DesktopCommand;
+
+      // The model-facing contract, applied HERE rather than only in the CLI's ComputerTool.
+      //
+      // This validation existed, was unit-tested, and had no production caller on the Desktop path:
+      // `mac_control` went straight to the runtime. So an ambiguous command — measured live, a
+      // `type` carrying BOTH elementToken and elementIndex — was never refused on its merits. It
+      // reached element resolution, where elementToken silently wins, missed, and came back as
+      // "element handle is stale or missing; observe again". That sentence describes a fix for a
+      // different problem, so the model re-sent the same malformed call and burned the turn.
+      //
+      // Refuse before the governor is asked to approve: a malformed command should never occupy an
+      // approval slot, and the model needs to hear which selectors collided, not a staleness story.
+      const invalid = validateModelComputerCommand(command);
+      if (invalid) {
+        return JSON.stringify({
+          ok: false,
+          action,
+          code: 'invalid_arguments',
+          summary: `${action} refused: invalid action arguments`,
+          error: invalid,
+          expected: renderComputerActionReference().split('\n').find(line => line.startsWith(`${action}:`)),
+        }, null, 2);
       }
       // Before approval, and before anything that could reach the bridge: the human's own hands
       // outrank an approval the agent already holds.
       await assertUserHasNotTakenControl(!READ_ONLY.has(action));
       if (!READ_ONLY.has(action)) {
-        await governor.approveTaskExecution('MAC_ACTION', { ...sanitized, action, isDestructive: true });
+        await governor.approveTaskExecution('MAC_ACTION', { ...command, isDestructive: true });
       }
-      const result = await runtime.run({ ...sanitized, action } as DesktopCommand, { cwd });
+      const result = await runtime.run(command, { cwd });
       // Status is what the Live Target inspector and the model both read to learn the current
       // control state, so it carries the latch rather than making them infer it from a refusal.
       const takeover = globalNativeInputInterlock.state();
