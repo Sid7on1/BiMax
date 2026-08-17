@@ -22,6 +22,18 @@ import BimaxCuProtocol
 /// A typealias rather than a second struct, so there is exactly one authority shape in the build.
 public typealias AXElementAuthority = AXSnapshotStore.Authority
 
+/// Carries a completion's result back to the waiting thread.
+///
+/// The semaphore does order the write before the read, but Swift 6 cannot prove that and neither
+/// can a future reader — "it happens to be ordered" is the reasoning that rots into a real race the
+/// first time someone moves the wait. The lock makes the ordering explicit instead of implied.
+private final class ResultBox<Value>: @unchecked Sendable {
+    private let lock = NSLock()
+    private var value: Value?
+    func set(_ newValue: Value?) { lock.withLock { value = newValue } }
+    var current: Value? { lock.withLock { value } }
+}
+
 private func nowMs() -> Int64 { Int64(Date().timeIntervalSince1970 * 1_000) }
 
 private extension CuRect {
@@ -233,13 +245,15 @@ public struct FileWorkspace: FileWorkspaceOperating {
         case .open:
             if let bundle {
                 let semaphore = DispatchSemaphore(value: 0)
-                var failure: Error?
+                let failure = ResultBox<Error>()
                 NSWorkspace.shared.open(
                     [url], withApplicationAt: bundle,
                     configuration: NSWorkspace.OpenConfiguration()
-                ) { _, error in failure = error; semaphore.signal() }
+                ) { _, error in failure.set(error); semaphore.signal() }
                 _ = semaphore.wait(timeout: .now() + 10)
-                if let failure { throw FileWorkspaceError.operationFailed(failure.localizedDescription) }
+                if let error = failure.current {
+                    throw FileWorkspaceError.operationFailed(error.localizedDescription)
+                }
                 performed = true
             } else {
                 performed = NSWorkspace.shared.open(url)
@@ -300,13 +314,15 @@ public struct FileWorkspace: FileWorkspaceOperating {
         var opened = false
         if let bundle {
             let semaphore = DispatchSemaphore(value: 0)
-            var failure: Error?
+            let failure = ResultBox<Error>()
             NSWorkspace.shared.open(
                 [url], withApplicationAt: bundle,
                 configuration: NSWorkspace.OpenConfiguration()
-            ) { _, error in failure = error; semaphore.signal() }
+            ) { _, error in failure.set(error); semaphore.signal() }
             _ = semaphore.wait(timeout: .now() + 10)
-            if let failure { throw FileWorkspaceError.operationFailed(failure.localizedDescription) }
+            if let error = failure.current {
+                throw FileWorkspaceError.operationFailed(error.localizedDescription)
+            }
             opened = true
         } else {
             opened = NSWorkspace.shared.open(url)
