@@ -25,7 +25,8 @@
     "release:manual-alpha:verify": "node scripts/verify-manual-alpha-release.mjs",
     "release:stable:mac": "bash scripts/release-stable-macos.sh",
     "dist:mac": "electron-vite build && BIMAX_RELEASE_BUILD=1 bash scripts/prepare-engine.sh darwin-arm64 && bash scripts/prepare-native.sh darwin-arm64 && electron-builder --mac --arm64",
-    "dist:mac:x64": "electron-vite build && BIMAX_RELEASE_BUILD=1 bash scripts/prepare-engine.sh darwin-x64 && bash scripts/prepare-native.sh darwin-x64 && electron-builder --mac --x64"
+    "dist:mac:x64": "electron-vite build && BIMAX_RELEASE_BUILD=1 bash scripts/prepare-engine.sh darwin-x64 && bash scripts/prepare-native.sh darwin-x64 && electron-builder --mac --x64",
+    "dist:mac:local": "electron-vite build && bash scripts/prepare-engine.sh darwin-arm64 && bash scripts/prepare-native.sh darwin-arm64 && electron-builder --mac --arm64 -c.directories.output=${BIMAX_RELEASE_DIR:-/tmp/bimax-release}"
   },
   "dependencies": {
     "@ai-sdk/react": "^4.0.61",

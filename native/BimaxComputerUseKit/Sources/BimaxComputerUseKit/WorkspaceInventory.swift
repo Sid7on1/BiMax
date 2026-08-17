@@ -1,5 +1,6 @@
 import AppKit
 import Foundation
+import BimaxCuProtocol
 
 /// RECONSTRUCTED 2026-08-18 — the workspace inventory the evicted files took with them.
 ///
@@ -15,6 +16,14 @@ public protocol WorkspaceInventoryProviding: Sendable {
     func frontmostBundleIdentifier() -> String?
     /// Whether a pid currently maps to a running application.
     func isRunning(pid: Int32) -> Bool
+    /// The windows, apps and displays as they are right now.
+    ///
+    /// MUST be declared here rather than only in an extension. `ServiceCore` holds this as
+    /// `any WorkspaceInventoryProviding`, and a method that exists only in a protocol extension is
+    /// dispatched STATICALLY — the existential would call the extension's default and never reach
+    /// `WorkspaceInventory`'s real implementation. That produced an empty window list, which every
+    /// caller reported as `no_target_window` against a window that was plainly on screen.
+    func snapshot(_ request: WorkspaceSnapshotRequest) throws -> WorkspaceSnapshot
 }
 
 public struct WorkspaceInventory: WorkspaceInventoryProviding {
