@@ -522,7 +522,7 @@ func _AXUIElementGetWindow(_ element: AXUIElement, _ identifier: UnsafeMutablePo
 /// because no observer could be installed are the same number and completely different facts, so
 /// every caller checks `tracking` before comparing revisions — a preflight that skipped it would
 /// read "we cannot see changes" as "nothing changed".
-public struct AXEventEpoch: Equatable, Sendable {
+public struct AXEventCheckpoint: Equatable, Sendable {
     public var tracking: Bool
     public var revision: UInt64
 
@@ -535,8 +535,8 @@ public struct AXEventEpoch: Equatable, Sendable {
 /// Monotonic per-(session, pid) change counter, used to detect that a target moved underneath an
 /// action between planning and delivery.
 public protocol AXEventTracking: Sendable {
-    func begin(sessionId: String, pid: Int32) -> AXEventEpoch
-    func checkpoint(sessionId: String, pid: Int32) -> AXEventEpoch
+    func begin(sessionId: String, pid: Int32) -> AXEventCheckpoint
+    func checkpoint(sessionId: String, pid: Int32) -> AXEventCheckpoint
     func reset(sessionId: String)
 }
 
@@ -567,13 +567,13 @@ public final class AXEventTracker: AXEventTracking, @unchecked Sendable {
         kAXRowCountChangedNotification,
     ]
 
-    public func begin(sessionId: String, pid: Int32) -> AXEventEpoch {
+    public func begin(sessionId: String, pid: Int32) -> AXEventCheckpoint {
         let key = Key(sessionId: sessionId, pid: pid)
         return lock.withLock {
             if let existing = watches[key] {
-                return AXEventEpoch(tracking: true, revision: existing.revision)
+                return AXEventCheckpoint(tracking: true, revision: existing.revision)
             }
-            guard AXIsProcessTrusted() else { return AXEventEpoch(tracking: false, revision: 0) }
+            guard AXIsProcessTrusted() else { return AXEventCheckpoint(tracking: false, revision: 0) }
             var observer: AXObserver?
             let callback: AXObserverCallback = { _, _, _, refcon in
                 guard let refcon else { return }
@@ -582,7 +582,7 @@ public final class AXEventTracker: AXEventTracking, @unchecked Sendable {
             }
             guard AXObserverCreate(pid, callback, &observer) == .success,
                   let observer else {
-                return AXEventEpoch(tracking: false, revision: 0)
+                return AXEventCheckpoint(tracking: false, revision: 0)
             }
             let watch = Watch(observer: observer)
             let element = AXUIElementCreateApplication(pid)
@@ -595,22 +595,22 @@ public final class AXEventTracker: AXEventTracking, @unchecked Sendable {
             }
             // A watch subscribed to nothing can never increment, and reporting it as tracking would
             // make every later comparison a false "nothing changed".
-            guard subscribed else { return AXEventEpoch(tracking: false, revision: 0) }
+            guard subscribed else { return AXEventCheckpoint(tracking: false, revision: 0) }
             CFRunLoopAddSource(
                 CFRunLoopGetMain(),
                 AXObserverGetRunLoopSource(observer),
                 .defaultMode
             )
             watches[key] = watch
-            return AXEventEpoch(tracking: true, revision: 0)
+            return AXEventCheckpoint(tracking: true, revision: 0)
         }
     }
 
-    public func checkpoint(sessionId: String, pid: Int32) -> AXEventEpoch {
+    public func checkpoint(sessionId: String, pid: Int32) -> AXEventCheckpoint {
         let key = Key(sessionId: sessionId, pid: pid)
         let existing = lock.withLock { watches[key] }
         guard let existing else { return begin(sessionId: sessionId, pid: pid) }
-        return AXEventEpoch(tracking: true, revision: existing.revision)
+        return AXEventCheckpoint(tracking: true, revision: existing.revision)
     }
 
     public func reset(sessionId: String) {
