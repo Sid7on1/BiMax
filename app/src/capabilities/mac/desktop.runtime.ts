@@ -387,6 +387,35 @@ function isEditableElement(element: { role?: string; editable?: boolean } | unde
   return element.editable === true || EDITABLE_AX_ROLES.has(String(element.role || ''));
 }
 
+/**
+ * Should an UNNAMED `type` be refused as ambiguous? Returns the refusal text, or null to allow.
+ *
+ * Focus already answers "which field?". Counting editable fields alone called a perfectly
+ * determined frame ambiguous: measured 2026-08-18 in Spotify/Music, where the search field was
+ * visibly focused but its label matched no semantic query, so the model fell back to an unqualified
+ * type, was refused for an ambiguity it had no way to resolve, clicked the field, typed, and was
+ * refused again — a loop it could not exit.
+ *
+ * Exactly one FOCUSED editable field is unambiguous. Absent focus information the original refusal
+ * stands rather than guessing. This is only a pre-filter: keyboardPreflight re-checks the LIVE
+ * focused element and still refuses when it is not editable, so a stale `focused` flag cannot
+ * direct keystrokes at the wrong control.
+ */
+export function unnamedTypingRefusal(
+  elements: readonly {
+    role?: string; editable?: boolean; focused?: boolean;
+    label?: string; value?: string; description?: string;
+  }[],
+): string | null {
+  const editables = elements.filter(isEditableElement);
+  if (editables.filter(element => element.focused === true).length === 1) return null;
+  const labels = Array.from(new Set(editables
+    .map(element => String(element.label || element.value || element.description || element.role || '').trim())
+    .filter(Boolean)));
+  if (labels.length <= 1) return null;
+  return `literal typing is ambiguous because this frame has multiple editable fields (${labels.slice(0, 6).join(', ')}) and none of them holds keyboard focus; name the intended field with query, elementToken/elementIndex, or x+y — or click it first so focus decides`;
+}
+
 type ObservedElement = {
   label?: string;
   originalLabel?: string;
@@ -6532,13 +6561,8 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
             || cmd.elementIndex != null
             || (cmd.x != null && cmd.y != null);
           if (!hasExplicitTypingTarget) {
-            const editableLabels = Array.from(new Set(this.observedElements
-              .filter(isEditableElement)
-              .map(element => String(element.label || element.value || element.description || element.role || '').trim())
-              .filter(Boolean)));
-            if (editableLabels.length > 1) {
-              throw new Error(`literal typing is ambiguous because this frame has multiple editable fields (${editableLabels.slice(0, 6).join(', ')}); name the intended field with query, elementToken/elementIndex, or x+y`);
-            }
+            const refusal = unnamedTypingRefusal(this.observedElements);
+            if (refusal) throw new Error(refusal);
           }
           if (delivery === 'foreground') {
             await this.ensurePhysicalTargetFrontmost(target);
