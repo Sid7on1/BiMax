@@ -4720,10 +4720,21 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
     try {
       const data = await this.call('list_windows', { pid: target.pid });
       const windows = Array.isArray(data?.windows) ? data.windows : [];
-      return windows.some((w: any) => Number(w?.window_id) === target.windowId
-        && w?.is_on_screen !== false
+      const usable = (w: any) => w?.is_on_screen !== false
         && Number(w?.bounds?.width || 0) > 100
-        && Number(w?.bounds?.height || 0) > 100);
+        && Number(w?.bounds?.height || 0) > 100;
+      // `windowId` is OPTIONAL on a target, and the id match silently answered "no window" for
+      // every target that lacked one — `Number(w.window_id) === undefined` is false for all of
+      // them. The windowless recovery below is Cmd+N, which in a document app creates user data,
+      // so an app that was plainly on screen got a new document instead of being observed.
+      // Measured 2026-08-18: a target reported as "process 46395, window not reported" left a
+      // filled-in New Playlist sheet sitting in the user's Music library.
+      //
+      // A target pinned to a specific window still asks about THAT window. A target with no id is
+      // asking the question the recovery actually cares about — does this process have any usable
+      // window at all — and any usable window disproves "windowless".
+      if (!target.windowId) return windows.some(usable);
+      return windows.some((w: any) => Number(w?.window_id) === target.windowId && usable(w));
     } catch {
       return false;
     }
