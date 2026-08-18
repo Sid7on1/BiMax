@@ -9,6 +9,8 @@ import { cliEvents } from '../cli/events';
 import { loadConfig } from '../cli/config';
 import { normalizedToPixel, screenshotToGlobal, elementCenterToScreenshot, globalFrameToScreenshot, frameCenter, pixelInImage, Frame } from './coordinates';
 import { SurfaceRegistry, ExecutionSurface, InputOwner, chooseMechanism, AutomationMechanism } from './surface';
+import { MenuSurface, MenuCommand, MenuSurfaceError } from './menu.surface';
+import { chooseTier, refineTierWithMenus, describeLadder, LadderDecision, MenuSignals } from './menu.ladder';
 import { DragMachine } from './drag';
 import { pointInFrame } from './coordinates';
 import { classifyVerification, VerificationResult, evaluateExpectation } from './verification';
@@ -56,6 +58,7 @@ export const PUBLIC_DESKTOP_ACTIONS = [
   'click', 'type', 'key', 'set_value', 'drag', 'scroll', 'hover', 'hold', 'mouse_down',
   'mouse_up', 'cursor', 'frontmost', 'move', 'copy', 'paste', 'clipboard', 'arrange',
   'desktop', 'close', 'quit_app', 'wait', 'record_start', 'record_status', 'record_stop',
+  'menu_activate',
 ] as const;
 
 export type PublicDesktopAction = typeof PUBLIC_DESKTOP_ACTIONS[number];
@@ -71,6 +74,8 @@ export type DesktopAction = PublicDesktopAction
 
 export interface DesktopCommand {
   action: DesktopAction;
+  /** `menu_activate`: the dotted index path from an observation's `menu` list, e.g. "5.19". */
+  menuPath?: string;
   x?: number; y?: number;
   toX?: number; toY?: number;
   dx?: number; dy?: number;
@@ -294,6 +299,14 @@ export interface DesktopResult {
   pid?: number;
   windowId?: number;
   elements?: unknown[];
+  /**
+   * Menu commands offered when the AX window tree could not serve the observation.
+   *
+   * Present only on the menu rung of the perception ladder. `indexPath` is the address activation
+   * uses — menu NAMES are ambiguous (Finder's Go menu has three items called "Enclosing Folder"),
+   * invisibly bidi-marked in some apps, and locale-dependent.
+   */
+  menu?: Array<{ path: string; indexPath: string }>;
   /** How many elements the capture resolved when the payload deliberately does not list them
    * (`screenshot`). The map itself is cached on the runtime, so semantic targeting is unaffected. */
   elementCount?: number;
@@ -2105,6 +2118,16 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
   /** Newest desktop enumeration, so a move can be judged against where items were beforehand. */
   private desktopIcons: Array<{ name: string; frame: ScreenRect }> = [];
   private observedTarget: { pid: number; windowId?: number; degraded: boolean; width?: number; height?: number } | null = null;
+  /**
+   * The menu bar as a second perception rung, between the AX window tree and vision.
+   *
+   * Answered by osascript deliberately: like the Launch Services lookups above it, this works at
+   * EVERY driver tier and needs no sidecar capability, so the rung is available even on a machine
+   * where the native helper is not.
+   */
+  private readonly menuSurface = new MenuSurface(
+    async (script: string, signal?: AbortSignal) => (await exec('osascript', ['-e', script], 30_000, signal)).stdout,
+  );
   /** Exact PNG that produced observedTarget. A raw click can use a local patch from this image to
    * distinguish a moved/relabelled target from harmless animation elsewhere in the window. */
   private observedScreenshotFile: string | null = null;
@@ -4010,7 +4033,69 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
     // An app that publishes nothing is exactly the case vision exists for. Any AX-opaque surface —
     // a web-view app, a canvas, a game, a remote desktop, a video player — lands here.
     const emptyTree = windowElements.length === 0;
-    if (canSampleVisuals && (nativeQueryMissing || thinUnnamedTree || outputInvisible || emptyTree)) {
+
+    // ── PERCEPTION LADDER: AX tree, then the MENU BAR, then vision. ──────────────────────────────
+    //
+    // The middle rung used to be missing entirely. An AX-opaque window went straight from "no
+    // elements" to vision, and vision then synthesised no targets at all — the model was told the
+    // window was unusable while every COMMAND it wanted sat named and addressable one AX query
+    // away. Measured 2026-08-18: Spotify's window publishes 1 element and 0 actionable controls,
+    // its menu bar publishes 101 items with 75 named.
+    //
+    // The walk is only paid when the tree genuinely could not answer, because it costs ~700ms-3s
+    // against ~1s for the whole observe. A healthy tree never pays it.
+    // Targetable = NOT structural. AXRow/AXCell are a Finder window's actual content and sit in
+    // neither the actionable nor the structural role set, so judging the tree by ACTIONABLE_AX_ROLES
+    // called a window with 28 named file rows blind (it has 4 unlabeled buttons) and handed it to
+    // the menu bar. A lone AXWindow is structural and still scores zero, which is the case the
+    // ladder exists for.
+    const isPlaceholderLabel = (element: any) => {
+      const label = String(element?.label || '').trim();
+      return !label || /^unlabeled\b/i.test(label);
+    };
+    const targetableElements = windowElements.filter((element: any) =>
+      !STRUCTURAL_AX_ROLES.has(String(element?.role || '')));
+    const targetableCount = targetableElements.length;
+    const namedTargetableCount = targetableElements.filter((element: any) => !isPlaceholderLabel(element)).length;
+    const axSignals = {
+      targetableCount, namedTargetableCount, emptyTree, queryMissing: nativeQueryMissing,
+    };
+    let ladder: LadderDecision = chooseTier(axSignals);
+    let menuCommands: MenuCommand[] = [];
+    let menuSignals: MenuSignals | null = null;
+    if (ladder.consultMenus && target.app) {
+      try {
+        const snapshot = await phaseTrace.time('menu:walk', () => this.menuSurface.snapshot(target.app!));
+        // Only enabled, non-destructive leaf commands are offerable: a submenu parent opens a menu
+        // rather than doing anything, and a disabled command is a silent no-op if pressed.
+        menuCommands = snapshot.commands
+          // `Services` is injected by macOS into every app's application menu and is mostly
+          // developer tooling (Activity Monitor, System Trace). Measured on Spotify it filled the
+          // first 5 offers and buried Playback > Next, so it is dropped like the Apple menu: it is
+          // the system's surface, not the app's.
+          .filter((c: MenuCommand) => c.enabled && !c.hasSubmenu && !c.destructive
+            && !c.path.some(part => part === 'Services'))
+          // Shallower commands first: a top-level command is what the app actually offers, while a
+          // submenu leaf is usually a variant or a history entry.
+          .sort((a: MenuCommand, b: MenuCommand) => a.indexPath.length - b.indexPath.length);
+        const query = cmd.query?.trim().toLowerCase();
+        const matches = query
+          ? menuCommands.filter((c: MenuCommand) => c.title.toLowerCase().includes(query)
+            || c.path.join(' ').toLowerCase().includes(query))
+          : [];
+        menuSignals = { enabledCommandCount: menuCommands.length, queryMatchCount: matches.length };
+        if (query && matches.length > 0) {
+          menuCommands = [...matches, ...menuCommands.filter((c: MenuCommand) => !matches.includes(c))];
+        }
+      } catch (error) {
+        // A menu failure is a rung that did not answer, never a failed observation. Vision is next.
+        menuSignals = null;
+        cliEvents.emit('debug', `menu rung unavailable for ${target.app}: ${(error as MenuSurfaceError)?.kind ?? 'error'}`);
+      }
+    }
+    ladder = refineTierWithMenus(axSignals, menuSignals, { hasQuery: !!cmd.query?.trim() });
+
+    if (canSampleVisuals && ladder.consultVision && (nativeQueryMissing || thinUnnamedTree || outputInvisible || emptyTree)) {
       foveatedTriggered = true;
       const shapeRegions = unnamedActionables.map((element: any, index: number) => {
         const global = elementFrame(element);
@@ -4195,10 +4280,26 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
             shapeRegions: foveatedShapeCount,
             latencyMs: foveatedLatencyMs,
           },
+          // Which rung answered, and why. Reported rather than implied: the model needs to know
+          // that a command list is COARSE (menu commands, not window content) before it decides
+          // whether the surface can serve its actual intent.
+          ladder: {
+            tier: ladder.tier, reason: ladder.reason, menuCommands: menuCommands.length,
+            targetable: targetableCount, namedTargetable: namedTargetableCount,
+          },
         },
       },
+      // Menu commands are offered only when the window tree could not serve the request. They are
+      // exact names with an index path that activation addresses directly, so there is no
+      // coordinate guessing and no name ambiguity — see menu.surface.ts for why the index, not the
+      // name, is the address.
+      menu: menuCommands.length > 0 ? menuCommands.slice(0, 60).map((c: MenuCommand) => ({
+        path: c.path.join(' > '),
+        indexPath: c.indexPath.join('.'),
+      })) : undefined,
       completionGuidance: [
         COMPUTER_COMPLETION_GUIDANCE,
+        describeLadder(ladder, menuSignals) || '',
         backgroundEscalation || '',
         this.transientDialogFrame ? 'A foreground dialog is currently detected; dismiss it before attempting any background control.' : '',
         foregroundSurfaceNotice(elements) || '',
@@ -6097,6 +6198,29 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
             ok: true, action: cmd.action, driver, app: switched.target.app, pid: switched.target.pid,
             windowId: switched.target.windowId, ...switched.evidence, frontmostWarning: switched.frontmostWarning,
             summary: `focused ${switched.target.app} as pid ${switched.target.pid}${switched.target.windowId ? ` window ${switched.target.windowId}` : ''}${switched.frontmostWarning ? `; WARNING: ${switched.frontmostWarning}` : '; fresh screen attached'}`,
+          };
+        }
+        case 'menu_activate': {
+          // The action half of the menu rung. Addressed by INDEX PATH, taken verbatim from the
+          // `menu` list an observation offered, because a menu NAME is ambiguous (Finder's Go menu
+          // has three "Enclosing Folder" items), invisibly bidi-marked in some apps, and
+          // locale-dependent.
+          const app = target?.app ?? (await this.reacquireLastTarget())?.app;
+          if (!app) throw new Error('menu_activate needs an observed app; call open or observe first');
+          const indexPath = String(cmd.menuPath ?? '').split('.').map(Number);
+          if (indexPath.length === 0 || indexPath.some(n => !Number.isInteger(n) || n < 1)) {
+            throw new Error(`menu_activate needs menuPath as a dotted index path from an observation's menu list (got ${JSON.stringify(cmd.menuPath)})`);
+          }
+          // Confirm by end state, not by receipt: a toggle renames its own item, which makes the
+          // item its own postcondition. `confirmed: null` means the command ran and simply is not a
+          // toggle — that is NOT a failure and must not be reported as one.
+          const outcome = await this.menuSurface.activateAndConfirm(app, indexPath);
+          return {
+            ok: true, action: 'menu_activate', driver: BIMAX_DRIVER_LABEL, app,
+            summary: `activated menu command "${outcome.title}" in ${app}`
+              + (outcome.confirmed === true
+                ? ` — CONFIRMED: the item renamed itself within ${outcome.elapsedMs}ms, so the command took effect`
+                : ' — ran without error; this command does not rename itself, so observe to verify its effect'),
           };
         }
         case 'observe':

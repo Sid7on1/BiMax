@@ -87,6 +87,9 @@ describe('ComputerTool', () => {
       if (action === 'click') Object.assign(command, { x: 10, y: 20, frameId: 'frame-fixture' });
       if (action === 'type') command.text = 'fixture';
       if (action === 'key') command.combo = 'return';
+      // A dotted index path, never a name: menu names repeat within one menu, carry invisible
+      // direction marks in some apps, and change with locale.
+      if (action === 'menu_activate') command.menuPath = '5.19';
       if (action === 'set_value') Object.assign(command, { elementIndex: 1, value: 'fixture' });
       if (action === 'drag') Object.assign(command, { x: 10, y: 20, toX: 30, toY: 40, frameId: 'frame-fixture' });
       if (action === 'scroll') command.dy = 50;

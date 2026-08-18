@@ -48,6 +48,7 @@ export const COMPUTER_ACTION_CONTRACTS: Record<PublicDesktopAction, ComputerActi
   record_start: { purpose: 'Start explicit computer-use recording.', input: 'captureScope window (default) or display; display records the human-visible screen and requires approval.', returns: 'Truthful recording scope and output directory.', coordinateFrame: 'none' },
   record_status: { purpose: 'Read current recording state.', input: 'No target.', returns: 'Enabled state, scope, paths, and error.', coordinateFrame: 'none' },
   record_stop: { purpose: 'Stop the active recording.', input: 'No target.', returns: 'Final recording and video paths.', coordinateFrame: 'none' },
+  menu_activate: { purpose: "Run a command from the app's menu bar — the exact, verifiable path when the window's accessibility tree cannot serve the request.", input: "menuPath: the dotted index path from an observation's menu list (e.g. \"5.19\"). Never a menu NAME — names repeat, carry invisible marks, and change with locale.", returns: 'The activated command, and whether its effect was confirmed by the item renaming itself.', coordinateFrame: 'none' },
 };
 
 export function renderComputerActionReference(): string {
@@ -143,6 +144,17 @@ export function validateModelComputerCommand(cmd: DesktopCommand): string | null
       if (cmd.x != null && !cmd.frameId) return 'raw type coordinates require frameId from the exact screenshot';
       return null;
     case 'key': return cmd.combo?.trim() ? null : 'key needs combo';
+    case 'menu_activate': {
+      const raw = cmd.menuPath?.trim();
+      if (!raw) return "menu_activate needs menuPath — the dotted index path from an observation's menu list (e.g. \"5.19\")";
+      // A NAME is the one thing this must never accept: names repeat within a single menu, carry
+      // invisible direction marks in some apps, and change with locale. Refusing here gives the
+      // model the correction, instead of letting a plausible-looking name reach AppleScript.
+      if (!/^\d+(\.\d+)*$/.test(raw)) {
+        return `menu_activate needs a dotted index path such as "5.19", not a menu name (received ${JSON.stringify(cmd.menuPath)})`;
+      }
+      return null;
+    }
     case 'set_value':
       if (cmd.value == null) return 'set_value needs value';
       if (selectorCount(cmd) !== 1 || cmd.x != null) return `set_value needs exactly one semantic selector (query, elementToken, or elementIndex)${suppliedSelectors(cmd) ? `, but received ${suppliedSelectors(cmd)}` : ''}`;

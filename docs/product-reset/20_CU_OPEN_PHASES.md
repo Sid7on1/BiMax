@@ -174,6 +174,106 @@ structured surface the web does not have. Use it.
 4. Prefer menus for commands (play, pause, new, save, find, close) and keep element clicking for
    content selection (a specific row, a specific message).
 
+## STATUS 2026-08-19 — built, wired into the runtime, live-verified
+
+`src/computer/menu.surface.ts` (the surface) + `src/computer/menu.ladder.ts` (the rung decision) +
+`src/__tests__/computer.menu.surface.test.ts` / `computer.menu.ladder.test.ts` (48 tests). Wired into
+`observeTarget` and exposed as the `menu_activate` verb. All four scope items above are done.
+
+### The pre-build confirmation the handoff asked for — menus ARE uniformly rich
+
+| app | top menus | items | named | with shortcut | window elements (for contrast) |
+|---|---|---|---|---|---|
+| **Spotify** | 8 | 101 | 75 | 45 | **1 element, 0 targetable** |
+| WhatsApp | 9 | 109 | 87 | 53 | 31 (healthy — NOT a blind app) |
+| Notion | 8 | 95 | 71 | 41 | 60 |
+| Finder | 8 | 176 | 139 | 92 | 60 |
+
+### Reading the tree: three access patterns, and the fast one is a trap
+
+| pattern | Finder | Safari | correct? |
+|---|---|---|---|
+| per-item attribute reads | 11,981ms | 17,279ms | yes |
+| bulk PLURAL attribute reads | 627ms | — | **NO — silently misaligned** |
+| `properties of every menu item` | **365ms** | **438ms** | yes ← what ships |
+
+`name of every menu item` DROPS nameless separators while `enabled of every menu item` keeps them, so
+the lists have different lengths (Finder's Apple menu: names=15, enabled=21) and index `i` means a
+DIFFERENT item in each. It mis-assigns enabled state and shortcuts while looking healthy.
+`value of attribute … of every menu item` is worse: it returns only items that HAVE the attribute
+(5 of 21) and throws outright on some menus. `properties of every menu item` returns one aligned
+record per item — 176 for Finder's 176 entries. **33x faster than per-item, and correct.**
+
+Parallelising across menus was measured SLOWER (529ms vs 237ms): System Events serialises AX access,
+so extra processes only add spawn cost. Key equivalents are NOT in `properties`, so they stay lazy
+(~170ms for the one command being used).
+
+### Encodings that silently corrupt a naive implementation (all measured)
+
+1. **Invisible bidi marks.** WhatsApp titles are U+200E + name (`e2808e 4368617473`).
+   `menu item "Chats"` fails -1728; 11 of 12 items in its View menu are affected.
+2. **`missing value` becomes a literal string.** AppleScript's `as text` coerces an unset attribute
+   into `"missing value"`. This passed 24 green unit tests and was caught only by a live run:
+   separators survived as commands named "missing value", and Notion's `Print…` rendered `⌘MISSING VALUE`.
+3. **Modifier bit 3 is inverted** — set means Command is ABSENT, so mods=0 is ⌘.
+4. **Modifiers alone never imply a shortcut** (`Print…` is mods=0 with no character).
+5. **Arrow/function keys are private-use CHARACTERS, not glyphs** — Finder's Enclosing Folder is
+   U+F700, Spotify's Next is U+F703. **No glyph attribute was set on a single item across five apps**,
+   so a Carbon glyph table would have shipped as dead code.
+6. **Names are not unique, atomic, or stable.** Finder's Go menu has THREE "Enclosing Folder" items;
+   Safari's History contains "Monday, August 17, 2026" (commas inside a name). **Everything is
+   addressed by INDEX PATH**, never by name — which also makes it locale-proof.
+
+### Safety, learned from what the surface actually offered
+
+- **The Apple menu is dropped whole.** It is the system's, not the app's, and it puts Shut Down /
+  Restart / Log Out one fuzzy match from any intent containing "close" or "quit".
+- **`Services` is dropped.** macOS injects it into every app; on Spotify it filled the first five
+  offers and buried `Playback > Next`.
+- **Destructive commands are excluded from fuzzy matching.** Anchored patterns were not enough:
+  Spotify offered "Reset App Data and Restart" and "Disable Hardware Acceleration and Restart",
+  neither of which starts with a dangerous verb.
+- **Disabled commands are refused before dispatch**, and the refusal says whether activation state
+  explains it — measured, Finder has 47/156 commands enabled in the background against 75/155
+  frontmost, while TextEdit barely moves (33 → 36). The surface never fronts an app silently; that
+  was tried twice on this codebase and was wrong both times.
+
+### The perception ladder (`menu.ladder.ts`), wired into `observeTarget`
+
+AX tree → menu bar → vision. Measured end-to-end through the runtime:
+
+- **Finder**: 57 targetable / 28 named rows → `ax_tree`; the menu walk is never paid.
+- **Spotify**: 0 targetable → `menu_bar`, 27 enabled commands offered.
+
+The rung test is **TARGETABLE (non-structural)**, not `ACTIONABLE_AX_ROLES`. That distinction broke
+the ladder once: Finder's content is `AXRow`/`AXCell`, which are in neither the actionable nor the
+structural set, so an "actionable" test called a window of 28 named files blind and handed it to the
+menu bar. A lone AXWindow is structural and still scores zero, which is the Spotify case.
+
+This also sidesteps the reverted `degraded` bug below without touching it: the ladder reads
+targetable count, not entry count, so Spotify routes correctly while `degraded:false` stays as-is and
+the two tests that blocked that change still pass.
+
+### Verified live
+
+- `View > Zoom In` activated on **Spotify** end-to-end through the runtime, chosen from the
+  observation's own `menu` list, addressed by index path.
+- Finder's path bar toggled with the effect **confirmed by end state** — the item renames itself
+  (`Show → Hide`), settling after 748/1157/1134ms. A caller that re-reads immediately sees the OLD
+  title and wrongly concludes the click missed.
+- `confirmed: null` is reported for non-toggle commands: the command ran, its title is simply not a
+  postcondition. That is NOT a failure and is never reported as one.
+
+### The limit, stated plainly
+
+**Menus are COMMANDS, not CONTENT.** Spotify's menu can play, pause, skip and change volume; it
+cannot click a specific song. WhatsApp's menu can open Chats; it cannot pick one conversation. The
+blind-app *command* problem is solved; the blind-app *content* problem is not, and that is what
+P7.5 (type-to-search + focus navigation) and P8 (vision) exist for.
+
+**Second honest caveat:** because the menu rung almost always returns something, vision still never
+runs. The untested floor was not fixed — it was moved one rung further away.
+
 ---
 
 # P8 — a vision floor, only for what P7 and AX cannot reach
@@ -262,8 +362,13 @@ Lumping these together is why past fixes became the next app's headache.
 
 # Suggested order for the next session
 
-1. **P7 menu/keyboard surface** — largest win, no model, no license, no download.
+1. **P7 wiring** — the surface itself is built and live-verified (`src/computer/menu.surface.ts`,
+   26 tests), but nothing in the runtime calls it. Finish it: expose menus in observation, add the
+   semantic action, then scope item 4 — prefer menus for commands, keep clicking for content. Until
+   that lands P7 is a capability, not a behaviour, and the model still cannot reach Spotify.
 2. **P0 session death** across the packaged provider boundary (in-process is exonerated).
 3. **P6 conformance flakiness** — until it is trustworthy it cannot prove P2 or P3 worked.
-4. **P8 vision floor** — detector-first; measure before adding the captioner.
-5. P2 background, P3 verification, P4 learning.
+4. **P8 vision floor** — detector-first; measure before adding the captioner. Note P7 shrinks what
+   this has to cover: it is now a floor for content, not for commands.
+5. P2 background, P3 verification, P4 learning. P2 gains a measured data point — a menu command
+   activates in the background without stealing focus, where a Notes row refuses with -25206.
