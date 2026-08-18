@@ -416,6 +416,37 @@ export function unnamedTypingRefusal(
   return `literal typing is ambiguous because this frame has multiple editable fields (${labels.slice(0, 6).join(', ')}) and none of them holds keyboard focus; name the intended field with query, elementToken/elementIndex, or x+y — or click it first so focus decides`;
 }
 
+/**
+ * Should a scan that hit its cap be repeated deeper?
+ *
+ * The element walk escalated in only two situations: a NAMED query that was not found, and a walk
+ * that yielded zero window elements. A plain `observe` that filled its cap did neither, so it
+ * returned a PARTIAL window and said so — "AX tree truncated at N nodes … use pixel clicks for
+ * elements not visible in this partial tree". The model then guesses coordinates for everything it
+ * cannot see, which is precisely how a click lands off target.
+ *
+ * Measured 2026-08-18 in Music: cap 120 returned 33 elements, every one of them a sidebar row. The
+ * songs the request was about were never scanned. This file's own ladder records that coverage grows
+ * monotonically with the cap (named rows in Notes: 9 at 80, 16 at 120, 25 at 180, 35 at 260, 52 at
+ * 400, 77 at 600, 127 at 1000), so a deeper pass is not a gamble — it is strictly more evidence.
+ *
+ * Returns the next cap, or null to accept the observation as complete. Doubling from the current cap
+ * with a 600 floor keeps the common small window at one round trip while giving a large tree a real
+ * increase rather than a token one.
+ */
+export function nextScanCapForTruncatedWalk(
+  args: { hasQuery: boolean; scanned: number; returned: number; ceiling: number },
+): number | null {
+  const { hasQuery, scanned, returned, ceiling } = args;
+  // A named query has its own progressive search above; do not spend a second ladder on it.
+  if (hasQuery) return null;
+  // `returned >= scanned` is how the driver reports "I stopped at the cap", so anything less is a
+  // complete walk and needs nothing.
+  if (returned < scanned) return null;
+  if (scanned >= ceiling) return null;
+  return Math.min(ceiling, Math.max(600, scanned * 2));
+}
+
 type ObservedElement = {
   label?: string;
   originalLabel?: string;
@@ -3873,6 +3904,20 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
         windowElements = windowElementsOf(rawElements, String(data?.tree_markdown || ''));
         if (rawContainsQuery(windowElements) || rawElements.length < scanElements) break;
       }
+    }
+    // A plain observe that filled its cap returned a PARTIAL window. Escalate once so the model
+    // plans from the whole window instead of guessing coordinates for the part it cannot see.
+    const deeperCap = nextScanCapForTruncatedWalk({
+      hasQuery: !!cmd.query,
+      scanned: scanElements,
+      returned: rawElements.length,
+      ceiling: DRIVER_MAX_SCAN,
+    });
+    if (deeperCap) {
+      scanElements = deeperCap;
+      data = await requestMeasured(scanElements);
+      rawElements = withoutWindowChrome(sanitizeDriverElements(Array.isArray(data?.elements) ? data.elements : []));
+      windowElements = windowElementsOf(rawElements, String(data?.tree_markdown || ''));
     }
     // An unusually large menu tree can still swallow the whole budget. When the walk hit the cap
     // without yielding a single window element, rescan once at the driver's ceiling before
