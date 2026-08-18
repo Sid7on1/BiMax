@@ -26,6 +26,19 @@ import { applyImplicitWriteConstraints } from '../tools/write.constraints';
 import { screenshotFromToolResult, buildScreenshotObservation, appendScreenshotObservation, pruneScreenshotObservations, contentToText, isScreenshotObservationMessage } from './multimodal';
 import { canonicalToolArgs } from './tool.args';
 
+/**
+ * Capability verbs that only acquire or inspect a target.
+ *
+ * None of them can change anything the user asked to change, so a turn whose every capability call
+ * came from this set has prepared to act and then stopped. Kept as a deny-list of the preparatory
+ * verbs rather than an allow-list of acting ones: a new acting verb must count as progress the day
+ * it ships, whereas a new preparatory verb merely delays a nudge by one round.
+ */
+export const PREPARATORY_CAPABILITY_ACTIONS = new Set([
+  'open', 'focus', 'status', 'observe', 'screenshot', 'apps', 'windows',
+  'cursor', 'frontmost', 'desktop', 'record_status',
+]);
+
 /** Mutating tools whose success is an implicit "this change is correct" claim. */
 export const CLAIMING_TOOLS = new Set(['EditFileTool', 'WriteFileTool', 'MultiEditTool', 'SymbolEditTool']);
 
@@ -257,6 +270,15 @@ export class AgentLoop {
     let requiredToolUsed = false;
     let requiredToolNudges = 0;
     const MAX_REQUIRED_TOOL_NUDGES = 2;
+    // The activation gate above proves the model CAN call the capability. It does not prove the
+    // operation was attempted: `requiredToolUsed` flips on the first call of any kind, so a single
+    // target-acquisition verb satisfies it and the model is free to stop and narrate. Measured
+    // 2026-08-18: "send hi to my mom using Messages" called open once, then answered with text
+    // lifted off the observed screen. Track whether anything ADVANCED the operation.
+    let sawAdvancingAction = false;
+    let lastCapabilitySucceeded = false;
+    let completionNudges = 0;
+    const MAX_COMPLETION_NUDGES = 2;
     // Armed only after an unresolved operation round returned prose/emptiness instead of acting.
     // The next provider request then names the required function explicitly. Successful action
     // rounds return to auto selection so AskUserTool remains reachable for real ambiguities.
@@ -676,6 +698,37 @@ export class AgentLoop {
         }
       }
 
+      // [OPERATION COMPLETION GATE] The activation gate proves the capability was reached; this one
+      // asks whether the operation was actually attempted. A turn that only opened, focused or
+      // observed has acquired a target and nothing more, so ending it here would present setup as
+      // completion — and, with a small controller, the "answer" is often text read off the very
+      // screenshot it just captured.
+      //
+      // Bounded exactly like the activation gate, and for the same reason: a model that genuinely
+      // cannot proceed must still terminate honestly rather than loop. A request that truly only
+      // asked to open an app costs one extra round here and then finishes, which is the right
+      // trade against silently reporting an unperformed operation as done.
+      if (options?.requireTool && requiredToolUsed && !sawAdvancingAction
+        && lastCapabilitySucceeded && toolCalls.length === 0) {
+        if (completionNudges < MAX_COMPLETION_NUDGES) {
+          completionNudges++;
+          currentContent = '';
+          this.messages.push({
+            role: 'user',
+            content:
+              `[OPERATION COMPLETION GATE] So far this turn has only acquired or inspected a target ` +
+              `with ${options.requireTool}; nothing the user asked for has been changed yet. Do not ` +
+              `answer with what you saw, and never repeat text read off the screen as your reply. ` +
+              `Either call ${options.requireTool} now with the next action that actually advances ` +
+              `the user's request, or state the one concrete blocker the newest result proves. If ` +
+              `the request was only to open or inspect something, say so plainly in one sentence.`,
+          });
+          cliEvents.emit('status', 'Completing the requested operation…');
+          continue;
+        }
+        Logger.warn('[AgentLoop] Operation ended after preparatory capability calls only.');
+      }
+
       if (currentContent) {
         this.messages.push({ role: 'assistant', content: currentContent });
       }
@@ -753,7 +806,16 @@ export class AgentLoop {
         const sequential = executableCalls.filter(tc => !this.tools.getTool(tc.name)?.isConcurrencySafe);
 
         const executeTool = async (tc: { id: string, name: string, args: string, truncated?: boolean }) => {
-          if (options?.requireTool && tc.name === options.requireTool) requiredToolUsed = true;
+          if (options?.requireTool && tc.name === options.requireTool) {
+            requiredToolUsed = true;
+            // Preparatory verbs acquire or inspect a target; they never change anything the user
+            // asked to change. Parsed defensively: an unreadable argument blob must not be counted
+            // as progress, but must not block the turn either — the bounded nudge below decides.
+            try {
+              const action = String(JSON.parse(tc.args || '{}')?.action || '').toLowerCase();
+              if (action && !PREPARATORY_CAPABILITY_ACTIONS.has(action)) sawAdvancingAction = true;
+            } catch { /* unparseable args are judged by the runtime, not here */ }
+          }
           const toolSpan = tracer.startSpan(`execute_tool ${tc.name}`, {
             'gen_ai.operation.name': 'execute_tool',
             'gen_ai.tool.name': tc.name,
@@ -770,6 +832,16 @@ export class AgentLoop {
           cliEvents.emit('tool_call', entry);
 
           const finish = (result: string, isError: boolean, typed?: TypedOutcome) => {
+            // A preparatory call that FAILED is a legitimate place to stop: the honest answer is the
+            // blocker it proves. Only a preparatory call that SUCCEEDED leaves the operation merely
+            // set up, which is the state the completion gate exists to interrupt.
+            if (options?.requireTool && tc.name === options.requireTool) {
+              lastCapabilitySucceeded = !isError;
+              if (!isError) {
+                try { if (JSON.parse(result)?.ok === false) lastCapabilitySucceeded = false; }
+                catch { /* non-JSON capability output counts as delivered */ }
+              }
+            }
             const endTime = new Date();
             const durationMs = endTime.getTime() - entry.startTime.getTime();
             globalTelemetry.recordToolCall(tc.name, durationMs);
