@@ -192,7 +192,7 @@ export async function createContainer(config?: Partial<CliConfig>): Promise<{
   toolRegistry.register(createRelatedTestsTool(governor));
   toolRegistry.register(createDeleteTool(governor));
   toolRegistry.register(createMakeDirTool(governor));
-  toolRegistry.register(createBashTool(governor));
+  toolRegistry.register(createBashTool(governor, () => toolRegistry.getToolNames()));
   toolRegistry.register(createGrepTool(governor));
   toolRegistry.register(createGlobTool(governor));
   toolRegistry.register(createTodoWriteTool(governor));

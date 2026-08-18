@@ -41,8 +41,31 @@ export function explicitlyRequiresComputerUse(prompt: string): boolean {
   if (/\b(?:computer[ -]?use|control (?:my |the )?mac|use (?:my |the )?(?:mac|computer)|mac[_ -]?control)\b/i.test(text)) {
     return true;
   }
+  // Transport verbs are desktop control on their own. Nothing in a coding task asks to play, pause
+  // or mute something, so these need no surface noun — which matters because the surface list below
+  // cannot name every app. Measured 2026-08-18: "play Heaven's Eyes on Spotify" matched neither
+  // half, stayed in the coding lane with BashTool on the wire, and the model drove the Mac with
+  // `osascript -e 'tell application "Spotify" ...'`, passing none of the Computer Use gates.
+  // (\bplay\b does not match "playbook" or "player", so the repo's own vocabulary is unaffected.)
+  // Two exclusions, both measured against real phrasings rather than guessed:
+  //   • a transport word directly modifying a UI/code noun is a NAME, not a command
+  //     ("add a pause button" asked for a component, not for playback to stop);
+  //   • any authoring verb in the sentence means the user is building software that happens to be
+  //     about media ("implement shuffle", "write a track parser").
+  // Being conservative here is cheap now: the shell-side GUI-automation guard turns a missed
+  // request into a loud refusal naming the capability, never a silent osascript.
+  const transportAsUiNoun = /\b(?:play|pause|resume|skip|unmute|mute|shuffle|volume)\s+(?:button|toggle|control|icon|state|handler|method|component|prop|event|label|class|function|api|endpoint|flag|feature|support)\b/i;
+  const authoringVerb = /\b(?:add|create|implement|build|write|refactor|fix|test|debug|rename|delete|remove|design|document)\b/i;
+  const transportAction = /\b(?:play|pause|resume|skip|unmute|mute|shuffle)\b|\b(?:next|previous|last) (?:track|song|episode)\b|\bvolume\b/i;
+  if (transportAction.test(text) && !transportAsUiNoun.test(text) && !authoringVerb.test(text)) {
+    return true;
+  }
+
   const guiAction = /\b(?:open|launch|focus|switch to|click|double[- ]click|press|type|enter|select|choose|drag|drop|scroll|close|quit|arrange|maximi[sz]e|minimi[sz]e|read|check|inspect|look at|send|compose|reply|take (?:a )?screenshot)\b/i;
-  const macSurface = /\b(?:system settings|calculator|finder|safari|messages|mail|notes|calendar|preview|textedit|activity monitor|keychain access|menu bar|dock|desktop|window|dialog|popover|checkbox|button)\b/i;
+  // Surfaces, deliberately NOT an app allowlist: named apps are examples that happen to be common,
+  // and the generic half (app, window, dialog, song, playlist) is what keeps this app-agnostic when
+  // the user names something that was never listed.
+  const macSurface = /\b(?:system settings|calculator|finder|safari|messages|mail|notes|calendar|preview|textedit|activity monitor|keychain access|menu bar|dock|desktop|window|dialog|popover|checkbox|button|app|application|song|track|playlist|album|music)\b/i;
   return guiAction.test(text) && macSurface.test(text);
 }
 

@@ -5,12 +5,34 @@ import { IGovernor } from '../../core/interfaces';
 import { buildTool } from '../tool.factory';
 import { sandboxArgv, sandboxBin, floorRoot, floorArgv, floorChildEnv, floorBlockedReason } from '../../sandbox/exec.sandbox';
 import { outcomeOk, classifiedError } from '../outcome';
+import { guiAutomationRefusal } from '../gui.automation.guard';
 
 const execAsync = promisify(exec);
 const execFileAsync = promisify(execFile);
 const MAX_OUTPUT_CHARS = 50_000;
 
-export const createBashTool = (governor: IGovernor) => buildTool({
+/**
+ * Names this build's desktop-control capability, if it has one.
+ *
+ * Resolved per call, never captured at construction: the Mac provider's tools are registered
+ * asynchronously after eligibility is decided, so a value snapshotted when BashTool is built would
+ * be undefined for the entire session and the guard would never engage.
+ */
+function desktopCapabilityToolName(resolveToolNames?: () => readonly string[]): string | undefined {
+  try {
+    const names = resolveToolNames?.() ?? [];
+    return names.find(name => name === 'mcp__bimax-mac__mac_control'
+      || name === 'mac_control' || name === 'ComputerTool');
+  } catch {
+    return undefined;
+  }
+}
+
+export const createBashTool = (
+  governor: IGovernor,
+  /** Live view of the registered tools. Omitted (workers, tests) → the guard stays inert. */
+  resolveToolNames?: () => readonly string[],
+) => buildTool({
   name: 'BashTool',
   description: `Executes a bash command and returns stdout/stderr.
 
@@ -45,6 +67,12 @@ Reserve BashTool for actual shell operations (installs, builds, git, processes, 
     // a float, or an out-of-range value, which makes Node's exec throw
     // ERR_OUT_OF_RANGE ("timeout ... must be an unsigned integer") and derails
     // the whole task. Clamp to a finite integer in [0, 600000]ms.
+    // Shell is not a Computer Use channel. Refused BEFORE the sandbox, the governor, or any
+    // execution, so a GUI-automation command never reaches the window server by this path.
+    const guiRefusal = guiAutomationRefusal(args.command, desktopCapabilityToolName(resolveToolNames));
+    if (guiRefusal.refused) {
+      throw classifiedError(`Command blocked: ${guiRefusal.reason}`, 'permission', 'blocked');
+    }
     const rawTimeout = Number(args.timeout);
     const timeoutMs = Number.isFinite(rawTimeout)
       ? Math.min(Math.max(0, Math.floor(rawTimeout)), 600_000)
