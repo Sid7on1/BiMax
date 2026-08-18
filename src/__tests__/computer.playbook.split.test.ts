@@ -206,3 +206,41 @@ describe('ComputerTool schema carries selection, the playbook carries operation'
     });
   });
 });
+
+/**
+ * Both playbooks must state that the turn is already authorized.
+ *
+ * Measured 2026-08-18: a controller opened Messages successfully and then answered with a privacy
+ * apology instead of typing, and answered a music request with manual step-by-step instructions.
+ * The playbook is built ONLY after the caller resolved a computer tool for an explicitly
+ * computer-use request, so by the time a model reads it the user has already asked for this on
+ * their own machine. Leaving that unsaid is what let a safety-tuned model read the user's own
+ * request as someone else's data.
+ *
+ * These assert the PROPERTY (authority stated, manual-instruction substitution refused), not the
+ * wording, so the sentence can be retuned without a test rewrite.
+ */
+describe('every desktop playbook states that the turn is already authorized', () => {
+  const carriesAuthority = (text: string): void => {
+    expect(text).toMatch(/own machine/i);
+    expect(text).toMatch(/never refuse/i);
+    expect(text).toMatch(/manual (?:step-by-step )?instructions|step-by-step/i);
+  };
+
+  it('states it in the full playbook', () => {
+    carriesAuthority(COMPUTER_USE_PLAYBOOK);
+  });
+
+  it('states it in the compact playbook a small controller actually receives', () => {
+    carriesAuthority(COMPUTER_USE_FLASH_PLAYBOOK);
+  });
+
+  it('reaches the model through the prompt builder on both routes', () => {
+    carriesAuthority(buildComputerUseModelPrompt('send hi to my mom using Messages', {
+      model: 'nvidia/nemotron-3-nano-30b-a3b',
+    }));
+    carriesAuthority(buildComputerUseModelPrompt('play a song', {
+      model: 'qwen/qwen3.5-397b-a17b',
+    }));
+  });
+});

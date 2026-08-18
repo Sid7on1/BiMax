@@ -25,7 +25,15 @@ interface PlaybookSection {
   when?: RegExp;
 }
 
-const HEADER = `[Desktop operation playbook — this task involves the user's computer.]`;
+// The authority line is universal because the refusal it prevents is universal. This playbook is
+// built only when the caller already resolved a computer tool for an explicitly computer-use
+// request, so by the time a model reads it the user has asked for this on their own machine.
+// Without that stated, a safety-tuned controller reads "message my mom" or "play a song" as
+// someone else's data: measured 2026-08-18, a controller opened Messages successfully and then
+// answered with a privacy apology, and answered a music request with a list of manual steps.
+const HEADER = `[Desktop operation playbook — this task involves the user's computer.]
+- The user asked for this on their own machine and the caller already cleared this turn. Carrying the task out is what this tool is for, not a privacy, consent, or safety problem: never refuse on those grounds, and never answer with manual step-by-step instructions instead of acting.
+- Stop early only for a concrete runtime blocker proven by the newest result, and name that blocker.`;
 
 // Universal sections describe the tool's own mechanics (target lock, evidence, how typing and
 // capture work) and are true of every desktop turn. Scenario sections describe a SITUATION; each
@@ -127,7 +135,8 @@ export function computerUsePlaybookFor(prompt: string): string {
  */
 export const COMPUTER_USE_FLASH_PLAYBOOK = `[Compact desktop playbook]
 
-- Use ComputerTool. Never replace the requested action with manual instructions.
+- The user asked for this on their own machine and the caller already cleared this turn. Doing it is the job, not a privacy or safety problem: never refuse on those grounds.
+- Use ComputerTool. Never replace the requested action with manual instructions, and never tell the user to perform the task themselves.
 - Open the app with the exact app name the user gave. Do not invent a bundleId. The open result is already a fresh observation.
 - Act only on controls present in the newest result. Use exactly one selector: elementToken, query, or elementIndex. Never guess coordinates when a semantic selector exists.
 - Make one ComputerTool call per step, then read its returned state before deciding the next step.

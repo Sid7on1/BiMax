@@ -330,6 +330,9 @@ function componentResolutions() {
 function bimaxCuServiceBinary() {
   return nativeComponent("cuService").path;
 }
+function bimaxDesktopHelperBinary() {
+  return nativeComponent("desktopHelper").path;
+}
 function resolveCommand(projectDir2) {
   const layout = runtimeLayout();
   const resolved = resolveEngineCommand(layout, projectDir2);
@@ -654,23 +657,6 @@ function buildTrustReport(input) {
     computerUse: { available: blockers.length === 0, blockers },
     unknowns
   };
-}
-function toDisposition(raw) {
-  switch (raw) {
-    case "granted":
-      return "granted";
-    case "denied":
-    case "restricted":
-      return "denied";
-    case "not-determined":
-      return "not-determined";
-    case true:
-      return "granted";
-    case false:
-      return "denied";
-    default:
-      return "unavailable";
-  }
 }
 function field(text, name) {
   return text.match(new RegExp(`^${name}=(.+)$`, "m"))?.[1]?.trim();
@@ -2494,16 +2480,84 @@ function recordProject(dir) {
 function recentProjects() {
   return (loadSettings().recentProjects ?? []).filter(isRealProject);
 }
+const FRESH_MS = 750;
+const HELPER_TIMEOUT_MS = 2e3;
+let cached = null;
+let probe = () => helperGrants();
+function toDisposition$1(value) {
+  if (value === true || value === "granted") return "granted";
+  if (value === false) return "denied";
+  if (value === "denied" || value === "restricted") return "denied";
+  if (value === "not-determined" || value === "unknown") return "not-determined";
+  return "unavailable";
+}
+function inProcessGrants() {
+  if (process.platform !== "darwin") {
+    return { accessibility: "unavailable", screenRecording: "unavailable" };
+  }
+  return {
+    accessibility: toDisposition$1(electron.systemPreferences.isTrustedAccessibilityClient(false)),
+    screenRecording: toDisposition$1(electron.systemPreferences.getMediaAccessStatus("screen"))
+  };
+}
+function helperGrants() {
+  if (process.platform !== "darwin") return null;
+  const helper = bimaxDesktopHelperBinary();
+  if (!helper) return null;
+  try {
+    const stdout = node_child_process.execFileSync(helper, ["status"], {
+      encoding: "utf8",
+      timeout: HELPER_TIMEOUT_MS,
+      // The helper writes one JSON line. Nothing here should reach a terminal.
+      stdio: ["ignore", "pipe", "ignore"]
+    });
+    const parsed = JSON.parse(stdout.trim().split("\n").pop() || "{}");
+    if (parsed?.ok !== true) return null;
+    return {
+      accessibility: parsed.accessibility === true,
+      screenRecording: parsed.screenRecording === true
+    };
+  } catch {
+    return null;
+  }
+}
+function hostGrants(force = false) {
+  const now = Date.now();
+  if (!force && cached && now - cached.readAt < FRESH_MS) return cached;
+  const inProcess = inProcessGrants();
+  const fresh = probe();
+  const resolve = (live, fallback) => {
+    if (live === void 0) return fallback;
+    if (live) return "granted";
+    return fallback === "granted" ? "denied" : fallback;
+  };
+  cached = {
+    accessibility: resolve(fresh?.accessibility, inProcess.accessibility),
+    screenRecording: resolve(fresh?.screenRecording, inProcess.screenRecording),
+    source: fresh ? "helper" : "in-process",
+    readAt: now
+  };
+  return cached;
+}
+function invalidateHostGrants() {
+  cached = null;
+}
 let coach = null;
 let preparedDragIcon = null;
 let preparedDragBundle = null;
 let restoreMainWindow = null;
 let nativeDragActive = false;
 let completedNativeDrag = false;
-let relaunchAfterCompletedDrag = false;
+let watchGrantAfterCompletedDrag = false;
+let droppedPane = null;
+let droppedIdentityOwner = "host";
 let deferredStopReason = null;
 let destroyTimer = null;
+let grantWatch = null;
 const DRAG_SETTLE_MS = 1200;
+const GRANT_WATCH_MS = 5 * 6e4;
+const GRANT_POLL_MS = 1e3;
+const ACTIVATION_IS_OURS_MS = 4e3;
 function logCoach(event, detail = {}) {
   console.info(`[permission-coach] ${JSON.stringify({ event, ...detail })}`);
 }
@@ -2521,60 +2575,103 @@ async function openPermissionPane(url) {
     await electron.shell.openExternal(url);
   }
 }
-const ACCESSIBILITY_PROBE_ARG = "--bimax-probe-accessibility";
-function cachedAccessibilityTrust() {
-  return electron.systemPreferences.isTrustedAccessibilityClient(false);
+function permissionDragNeedsGrantWatch(pane, _identityOwner = "host") {
+  return pane === "accessibility" || pane === "screenRecording" || pane === "fullDisk";
 }
-async function freshAccessibilityTrust() {
-  if (process.platform !== "darwin" || !electron.app.isPackaged || process.argv.includes(ACCESSIBILITY_PROBE_ARG)) {
-    return cachedAccessibilityTrust();
-  }
-  return new Promise((resolve) => {
-    node_child_process.execFile(process.execPath, [ACCESSIBILITY_PROBE_ARG], {
-      timeout: 3e3,
-      maxBuffer: 16 * 1024
-    }, (error, stdout) => {
-      if (error) {
-        resolve(cachedAccessibilityTrust());
+function toDisposition(raw) {
+  if (raw === true || raw === "granted") return "granted";
+  if (raw === false || raw === "denied" || raw === "restricted") return "denied";
+  if (raw === "not-determined" || raw === "unknown") return "not-determined";
+  return "unavailable";
+}
+function grantReading(pane, identityOwner) {
+  if (process.platform !== "darwin" || identityOwner === "service") return "unavailable";
+  if (pane === "accessibility") return hostGrants().accessibility;
+  if (pane === "screenRecording") return hostGrants().screenRecording;
+  if (pane === "fullDisk") return probeFullDisk();
+  return "unavailable";
+}
+function endGrantWatch(reason = "superseded", restore = "leave-hidden") {
+  if (!grantWatch) return;
+  const watch = grantWatch;
+  grantWatch = null;
+  clearInterval(watch.timer);
+  electron.app.removeListener("did-become-active", watch.onActive);
+  electron.app.removeListener("activate", watch.onActive);
+  logCoach("grant-watch-end", {
+    pane: watch.pane,
+    reason,
+    waitedMs: Date.now() - watch.startedAt,
+    reading: grantReading(watch.pane, watch.identityOwner),
+    restored: restore === "restore"
+  });
+  if (restore === "restore") watch.restore?.();
+}
+function isAwaitingHostGrant() {
+  return grantWatch !== null;
+}
+function beginGrantWatch(pane, identityOwner, restore) {
+  endGrantWatch("restarted");
+  const startedAt = Date.now();
+  invalidateHostGrants();
+  const settle = (reason) => endGrantWatch(reason, "restore");
+  const onActive = () => {
+    if (Date.now() - startedAt < ACTIVATION_IS_OURS_MS) {
+      logCoach("grant-watch-ignored-activation", { pane, sinceMs: Date.now() - startedAt });
+      return;
+    }
+    settle("user-returned");
+  };
+  grantWatch = {
+    pane,
+    identityOwner,
+    startedAt,
+    onActive,
+    restore,
+    timer: setInterval(() => {
+      if (grantReading(pane, identityOwner) === "granted") {
+        settle("granted");
         return;
       }
-      try {
-        const result = JSON.parse(stdout.trim());
-        resolve(result.accessibility === true);
-      } catch {
-        resolve(cachedAccessibilityTrust());
-      }
-    });
-  });
+      if (Date.now() - startedAt >= GRANT_WATCH_MS) settle("timed-out");
+    }, GRANT_POLL_MS)
+  };
+  electron.app.on("did-become-active", onActive);
+  electron.app.on("activate", onActive);
+  logCoach("grant-watch-start", { pane, identityOwner, reading: grantReading(pane, identityOwner) });
 }
-function permissionDragNeedsHostRelaunch(pane, identityOwner = "host") {
-  return identityOwner === "host" && (pane === "accessibility" || pane === "screenRecording");
-}
-async function probePermissions() {
+function probePermissions() {
   const darwin = process.platform === "darwin";
   const bundle = draggableBundlePath() ?? process.execPath;
   const name = path__namespace.basename(bundle, ".app");
-  const accessibilityTrusted = darwin ? await freshAccessibilityTrust() : false;
-  const toDisposition2 = (raw) => {
-    if (raw === true || raw === "granted") return "granted";
-    if (raw === false || raw === "denied" || raw === "restricted") return "denied";
-    if (raw === "not-determined" || raw === "unknown") return "not-determined";
-    return "unavailable";
-  };
-  return {
+  const host = hostGrants();
+  const probe2 = {
     responsibleBundle: bundle,
     responsibleName: name,
+    readingSource: host.source,
     // Anything whose bundle name is not Bimax is a host we are borrowing — the grant belongs to it.
     isDevHost: darwin && !/^bimax$/i.test(name),
     readings: {
-      accessibility: darwin ? toDisposition2(accessibilityTrusted) : "unavailable",
-      screenRecording: darwin ? toDisposition2(electron.systemPreferences.getMediaAccessStatus("screen")) : "unavailable",
-      microphone: darwin ? toDisposition2(electron.systemPreferences.getMediaAccessStatus("microphone")) : "unavailable",
+      // Fresh-child readings. This probe is what the Trust Center renders, so a stale positive here
+      // is what made the app insist a granted permission was off no matter how many times the user
+      // granted it.
+      accessibility: darwin ? host.accessibility : "unavailable",
+      screenRecording: darwin ? host.screenRecording : "unavailable",
+      // Microphone stays in-process: it is prompt-driven, and the prompt's own callback updates
+      // this process, so there is no staleness to correct.
+      microphone: darwin ? toDisposition(electron.systemPreferences.getMediaAccessStatus("microphone")) : "unavailable",
       // There is no query API for Full Disk Access, so probe it the only honest way: attempt a read
       // that ONLY succeeds with the grant. TCC.db is the canonical marker and the read is harmless.
       fullDisk: darwin ? probeFullDisk() : "unavailable"
     }
   };
+  logCoach("probe", {
+    ...probe2.readings,
+    readingSource: probe2.readingSource,
+    responsible: bundle,
+    isDevHost: probe2.isDevHost
+  });
+  return probe2;
 }
 function probeFullDisk() {
   const tcc = path__namespace.join(electron.app.getPath("home"), "Library", "Application Support", "com.apple.TCC", "TCC.db");
@@ -2630,6 +2727,7 @@ async function startCoach(pane, stepAside, restore, dragBundleOverride, identity
     clearTimeout(destroyTimer);
     destroyTimer = null;
   }
+  endGrantWatch("new-coach");
   deferredStopReason = null;
   preparedDragIcon = dragToAdd && bundle ? bundleIcon() : null;
   preparedDragBundle = dragToAdd && bundle ? bundle : null;
@@ -2652,7 +2750,9 @@ async function startCoach(pane, stepAside, restore, dragBundleOverride, identity
   const size = { width: 260, height: 220 };
   if (coach && !coach.isDestroyed()) coach.destroy();
   completedNativeDrag = false;
-  relaunchAfterCompletedDrag = permissionDragNeedsHostRelaunch(pane, identityOwner);
+  droppedPane = pane;
+  droppedIdentityOwner = identityOwner;
+  watchGrantAfterCompletedDrag = permissionDragNeedsGrantWatch(pane, identityOwner);
   coach = new electron.BrowserWindow({
     ...size,
     // Over the System Settings window, not the desktop below it. Settings opens centred at roughly
@@ -2694,15 +2794,15 @@ async function startCoach(pane, stepAside, restore, dragBundleOverride, identity
     coach = null;
     preparedDragBundle = null;
     preparedDragIcon = null;
-    const shouldRelaunch = completedNativeDrag && relaunchAfterCompletedDrag;
+    const pendingPane = completedNativeDrag && watchGrantAfterCompletedDrag ? droppedPane : null;
+    const pendingOwner = droppedIdentityOwner;
     completedNativeDrag = false;
-    relaunchAfterCompletedDrag = false;
+    watchGrantAfterCompletedDrag = false;
+    droppedPane = null;
     const restoreWindow = restoreMainWindow;
     restoreMainWindow = null;
-    if (shouldRelaunch) {
-      logCoach("relaunch-after-host-permission-drag");
-      electron.app.relaunch();
-      electron.app.quit();
+    if (pendingPane) {
+      beginGrantWatch(pendingPane, pendingOwner, restoreWindow);
       return;
     }
     restoreWindow?.();
@@ -2760,10 +2860,17 @@ function clearCoachState() {
   coach = null;
   preparedDragBundle = null;
   preparedDragIcon = null;
+  const pendingPane = completedNativeDrag && watchGrantAfterCompletedDrag ? droppedPane : null;
+  const pendingOwner = droppedIdentityOwner;
   completedNativeDrag = false;
-  relaunchAfterCompletedDrag = false;
+  watchGrantAfterCompletedDrag = false;
+  droppedPane = null;
   const restoreWindow = restoreMainWindow;
   restoreMainWindow = null;
+  if (pendingPane) {
+    beginGrantWatch(pendingPane, pendingOwner, restoreWindow);
+    return;
+  }
   restoreWindow?.();
 }
 function scheduleCoachDestruction(reason) {
@@ -2781,7 +2888,20 @@ function scheduleCoachDestruction(reason) {
   }, DRAG_SETTLE_MS);
 }
 function stopCoach(reason = "requested") {
-  logCoach("stop", { reason, hasWindow: !!coach && !coach.isDestroyed(), nativeDragActive });
+  logCoach("stop", {
+    reason,
+    hasWindow: !!coach && !coach.isDestroyed(),
+    nativeDragActive,
+    awaitingGrant: !!grantWatch
+  });
+  if (reason === "before-quit") {
+    endGrantWatch("before-quit");
+    completedNativeDrag = false;
+    watchGrantAfterCompletedDrag = false;
+    droppedPane = null;
+  } else if (grantWatch) {
+    endGrantWatch(reason, "restore");
+  }
   if (coach && !coach.isDestroyed()) {
     coach.hide();
     if (reason === "before-quit") {
@@ -3323,13 +3443,13 @@ async function executablePath(command) {
     return null;
   }
 }
-async function probeTool(probe) {
-  const executable = await executablePath(probe.command);
+async function probeTool(probe2) {
+  const executable = await executablePath(probe2.command);
   if (!executable) {
     return {
-      id: probe.id,
-      label: probe.label,
-      category: probe.category,
+      id: probe2.id,
+      label: probe2.label,
+      category: probe2.category,
       state: "missing",
       version: null,
       executable: null,
@@ -3337,7 +3457,7 @@ async function probeTool(probe) {
     };
   }
   try {
-    const { stdout, stderr } = await execFileAsync(executable, probe.args, {
+    const { stdout, stderr } = await execFileAsync(executable, probe2.args, {
       timeout: 3e3,
       maxBuffer: 64 * 1024,
       encoding: "utf8",
@@ -3346,9 +3466,9 @@ async function probeTool(probe) {
     const output = `${stdout}
 ${stderr}`.trim();
     return {
-      id: probe.id,
-      label: probe.label,
-      category: probe.category,
+      id: probe2.id,
+      label: probe2.label,
+      category: probe2.category,
       state: "ready",
       version: firstVersion(output),
       executable,
@@ -3356,9 +3476,9 @@ ${stderr}`.trim();
     };
   } catch (error) {
     return {
-      id: probe.id,
-      label: probe.label,
-      category: probe.category,
+      id: probe2.id,
+      label: probe2.label,
+      category: probe2.category,
       state: "unverified",
       version: null,
       executable,
@@ -3592,19 +3712,11 @@ async function workspaceCapabilities() {
   capabilityCache = { project, at: Date.now(), environment, alchemist };
   return { environment, alchemist };
 }
-const accessibilityProbeProcess = process.argv.includes(ACCESSIBILITY_PROBE_ARG);
-if (accessibilityProbeProcess) {
-  void electron.app.whenReady().then(() => {
-    process.stdout.write(JSON.stringify({
-      accessibility: electron.systemPreferences.isTrustedAccessibilityClient(false)
-    }));
-    electron.app.exit(0);
-  }).catch(() => electron.app.exit(1));
-}
-const ownsSingleInstance = accessibilityProbeProcess || electron.app.requestSingleInstanceLock();
+const ownsSingleInstance = electron.app.requestSingleInstanceLock();
 if (!ownsSingleInstance) electron.app.quit();
 function revealMainWindow() {
   if (coachWebContentsId() !== null) return;
+  if (isAwaitingHostGrant()) return;
   if (win && !win.isDestroyed()) {
     win.show();
     win.focus();
@@ -3643,9 +3755,49 @@ function adaptiveSnapshot() {
 function broadcast(channel, ...args) {
   if (win && !win.isDestroyed()) win.webContents.send(channel, ...args);
 }
+function accentColour() {
+  try {
+    const raw = electron.systemPreferences.getAccentColor?.();
+    if (!raw || raw.length < 6) return null;
+    return `#${raw.slice(0, 6).toLowerCase()}`;
+  } catch {
+    return null;
+  }
+}
 function windowChrome() {
-  if (!win || win.isDestroyed()) return { fullScreen: false, maximized: false };
-  return { fullScreen: win.isFullScreen(), maximized: win.isMaximized() };
+  if (!win || win.isDestroyed()) {
+    return { fullScreen: false, maximized: false, active: true, accent: null };
+  }
+  return {
+    fullScreen: win.isFullScreen(),
+    maximized: win.isMaximized(),
+    // AppKit's `appearsActive` (Prompt 2 §15). A Mac app that looks identical whether or not it is
+    // the key window is the tell that its chrome is drawn rather than native — but the correction
+    // is a subtle one, and lives in CSS, because "not focused" must never mean "hard to read".
+    active: win.isFocused(),
+    accent: accentColour()
+  };
+}
+function permissionJourneyWindowMoves() {
+  let wasHidden = false;
+  return {
+    stepAside: () => {
+      if (!win || win.isDestroyed()) return;
+      if (win.isFullScreen()) {
+        wasHidden = false;
+        return;
+      }
+      wasHidden = true;
+      win.hide();
+    },
+    restore: () => {
+      if (!win || win.isDestroyed()) return;
+      if (win.isMinimized()) win.restore();
+      if (wasHidden) win.show();
+      win.focus();
+      electron.app.focus({ steal: true });
+    }
+  };
 }
 function trustedRenderer() {
   const coachId = coachWebContentsId();
@@ -3798,7 +3950,6 @@ function projectDir() {
 async function currentTrustReport() {
   const darwin = process.platform === "darwin";
   const components = componentResolutions();
-  const permissionProbe = await probePermissions();
   const nativeServiceTrust = await inspectManualAlphaService(bimaxCuServiceBinary());
   const nativePermissionsReady = nativeServiceTrust.permissions?.accessibility === "granted" && nativeServiceTrust.permissions?.screenRecording === "granted";
   return buildTrustReport({
@@ -3814,8 +3965,11 @@ async function currentTrustReport() {
       minimumMacOS: MINIMUM_MACOS
     },
     permissions: {
-      accessibility: darwin ? permissionProbe.readings.accessibility : "unavailable",
-      screenRecording: darwin ? toDisposition(electron.systemPreferences.getMediaAccessStatus("screen")) : "unavailable"
+      // Fresh-child readings — see host.grants.ts. This is the gate the native Computer Use path
+      // checks before it will route, so a stale negative here does not merely mislabel a row: it
+      // keeps Bimax CU switched off after the user has already granted everything it asked for.
+      accessibility: darwin ? hostGrants().accessibility : "unavailable",
+      screenRecording: darwin ? hostGrants().screenRecording : "unavailable"
     },
     components,
     integrity: {
@@ -3866,6 +4020,8 @@ function createWindow() {
   win.on("maximize", sendChrome);
   win.on("unmaximize", sendChrome);
   win.on("restore", sendChrome);
+  win.on("focus", sendChrome);
+  win.on("blur", sendChrome);
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (/^https?:/i.test(url)) void electron.shell.openExternal(url);
     return { action: "deny" };
@@ -3907,7 +4063,7 @@ function hardenSession() {
   });
   ses.setPermissionCheckHandler(() => isAllowedPermission());
 }
-if (!accessibilityProbeProcess) electron.app.whenReady().then(async () => {
+electron.app.whenReady().then(async () => {
   hardenSession();
   loadProviderCredentials();
   if (process.platform === "darwin") {
@@ -4094,20 +4250,8 @@ if (!accessibilityProbeProcess) electron.app.whenReady().then(async () => {
   });
   secureHandle("permissions:start-coach", false, async (_e, which) => {
     if (typeof which !== "string") throw new InvalidPayloadError("coach pane must be a string");
-    return startCoach(
-      which,
-      () => {
-        if (win && !win.isDestroyed()) win.hide();
-      },
-      () => {
-        if (win && !win.isDestroyed()) {
-          if (win.isMinimized()) win.restore();
-          win.show();
-          win.focus();
-          electron.app.focus({ steal: true });
-        }
-      }
-    );
+    const moves = permissionJourneyWindowMoves();
+    return startCoach(which, moves.stepAside, moves.restore);
   });
   secureHandle("permissions:request-microphone", false, async () => {
     if (process.platform !== "darwin") return false;
@@ -4128,21 +4272,8 @@ if (!accessibilityProbeProcess) electron.app.whenReady().then(async () => {
     const marker = ".xpc/Contents/MacOS/";
     const at = binary.indexOf(marker);
     const bundle = at >= 0 ? binary.slice(0, at + ".xpc".length) : binary;
-    return startCoach(
-      which,
-      () => {
-        if (win && !win.isDestroyed()) win.hide();
-      },
-      () => {
-        if (win && !win.isDestroyed()) {
-          if (win.isMinimized()) win.restore();
-          win.show();
-          win.focus();
-          electron.app.focus({ steal: true });
-        }
-      },
-      bundle
-    );
+    const moves = permissionJourneyWindowMoves();
+    return startCoach(which, moves.stepAside, moves.restore, bundle);
   });
   secureHandle("permissions:stop-coach", false, () => {
     stopCoach("renderer-request");
@@ -4211,7 +4342,7 @@ if (!accessibilityProbeProcess) electron.app.whenReady().then(async () => {
     asBoundedInt(rows, 2, 1e3, "rows")
   ));
   secureOn("pty:kill", (_e, id) => killPty(asBoundedInt(id, 1, Number.MAX_SAFE_INTEGER, "pty id")));
-  secureHandle("window:chrome", { fullScreen: false, maximized: false }, () => windowChrome());
+  secureHandle("window:chrome", { fullScreen: false, maximized: false, active: true, accent: null }, () => windowChrome());
   secureOn("app:appearance", (_e, appearance) => {
     electron.nativeTheme.themeSource = appearance === "moonlight" ? "dark" : appearance === "starlight" ? "light" : "system";
   });
