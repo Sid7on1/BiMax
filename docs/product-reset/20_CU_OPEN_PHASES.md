@@ -127,3 +127,143 @@ screenshot into targetable regions.
 Exercising the tools directly found in one run what several failed-run autopsies missed, including a
 fix of mine that shipped as dead code with 5 green unit tests. Truncation is counted in NODES; the
 driver returns ELEMENTS. Prefer direct tool exercise over reverse-engineering transcripts.
+
+---
+
+# P7 — the menu/keyboard action surface (DO THIS FIRST)
+
+Added 2026-08-18 after research + live measurement. This outranks everything above it.
+
+## The measurement that motivates it
+
+Spotify's WINDOW exposes 1 element, 0 actionable. Spotify's MENU BAR, same app, same moment:
+
+```
+$ osascript -e 'tell application "System Events" to tell process "Spotify" \
+    to get name of every menu bar item of menu bar 1'
+Apple, Spotify, File, Edit, View, Playback, Window, Help
+
+$ ... every menu item of menu 1 of menu bar item "Playback" ...
+Play, Next, Previous, Seek Forward, Seek Backward, Shuffle, Repeat, Volume Up, Volume Down
+```
+
+Every command the failing runs were trying to reach by guessing pixels is a NAMED, semantic,
+AX-addressable menu item. No vision model required.
+
+**The runtime has no menu support at all.** `grep -rn "menu_bar\|menuBar" desktop.runtime.ts` returns
+nothing outside comments. This is an unwired surface, not a fallback used badly. The codebase has
+separately measured the menu bar at ~380 nodes, so its richness was known and never acted on.
+
+## Why menus beat vision for a large class of tasks
+
+- Fast: one cheap AX query, no model inference.
+- Accurate: exact command names — no coordinate guessing, no OCR error.
+- Verifiable: AXPress on a menu item succeeded or it did not.
+- Background-friendly: a menu command does not require fronting the window.
+- Near-universal on macOS: apps are expected to populate a menu bar, unlike window AX.
+
+Competitors lean on vision largely because BROWSERS have no menu bar. On macOS there is a
+structured surface the web does not have. Use it.
+
+## Scope for the build
+
+1. Enumerate the target app's menu bar as a first-class observation surface.
+2. Expose a semantic action: activate a menu command by name/path (e.g. `Playback > Next`).
+3. Harvest each item's keyboard equivalent — pressing the shortcut is often faster and does not
+   open menus visually. This is exactly how keyboard-only Mac users operate.
+4. Prefer menus for commands (play, pause, new, save, find, close) and keep element clicking for
+   content selection (a specific row, a specific message).
+
+---
+
+# P8 — a vision floor, only for what P7 and AX cannot reach
+
+## Why a floor is needed at all
+
+Our architecture has a single point of failure competitors do not have: AX is the ONLY source of a
+target list, and when it is empty we stop. Measured: forcing Spotify to `degraded:true` produced the
+honest message "NO element indexes or tokens" and then `foveated:{triggered:false, ocrTextRegions:0}`
+— we label the window unusable and give up. OpenAI's CUA treats screenshots as primary and
+DOM/accessibility as enrichment, which is why it works anywhere.
+
+The universal property to build:
+
+> Every observation must yield a targetable element list. AX (and now menus) are the cheap, precise
+> paths when available; a vision detector is the guaranteed path when they are not. Neither is
+> optional.
+
+## OmniParser — what it actually is, and the shipping constraints
+
+CORRECTION to a natural assumption: OmniParser is NOT just YOLO. It is two models —
+`icon_detect` (YOLOv8) for boxes, plus `icon_caption` (a fine-tuned **Florence-2**, a transformer)
+to describe what each box does. The transformer cost lives in the labelling half, not the detection
+half.
+
+| concern | measured/reported |
+|---|---|
+| Availability | Open-source download (HuggingFace `microsoft/OmniParser-v2.0`), not API-key-only. Also hosted on Replicate if an API is preferred. |
+| **License** | `icon_detect` (v2) is **AGPL** — a real hazard for a shipped commercial app. `icon_caption` is MIT. v3's detector moved to MIT-licensed YOLOv9. **Get legal review before shipping.** |
+| Speed | 0.6s/frame on A100, 0.8s on a 4090. **CPU is multi-second per frame — explicitly too slow for an interactive agent loop.** Target machine here is an 8GB MacBook Air. |
+| Size | Detector is tiny (**6.1 MB** as OpenVINO). The Florence-2 captioner is the bulk (~1 GB) — this is what would bloat the DMG. |
+
+Practical read: detector-only is small, fast and license-checkable, but yields UNLABELLED boxes —
+which is the same anonymity problem Finder (32% unnamed) and System Settings (40% unnamed) already
+have. Captioning is what makes boxes nameable, and captioning is the expensive, heavy, AGPL-adjacent
+part. Decide that trade deliberately.
+
+Also consider Apple's own on-device vision (Vision framework text recognition) before importing a
+Python/PyTorch stack: it ships with macOS, costs nothing in DMG size, and the runtime already has
+OCR plumbing (`ocrTextRegions`) that currently reports 0.
+
+---
+
+# Correcting one premise: AX is NOT being removed
+
+Measured on this machine, macOS 26.5:
+
+```
+Spotify: manualCode -25205 (attributeUnsupported), enhancedCode -25208 (illegalArgument)
+Music:   manualCode -25205,                        enhancedCode -25208
+```
+
+What is refused is `AXEnhancedUserInterface` — an UNDOCUMENTED opt-in for forcing apps to publish
+richer trees. Accessibility itself powers VoiceOver and is legally load-bearing; Apple is not
+removing it. Spotify's menu bar answered fully over AX moments later.
+
+So do not plan for AX's death. Plan for AX being **incomplete**, which is a different and far more
+tractable problem — and which P7 largely solves.
+
+---
+
+# The three diseases (do not conflate them)
+
+| failure | measured | cure |
+|---|---|---|
+| Structural blindness | Spotify: 1 element, 0 actionable | P7 menus, then P8 vision |
+| Truncation | Music 33 / Notion 55, cut at 120 nodes | FIXED 2026-08-18 (read the driver's `truncated at N nodes` marker) |
+| Anonymity | System Settings 40% unnamed, Finder 32% | P7 menus for commands; captioning or OCR for content |
+
+Lumping these together is why past fixes became the next app's headache.
+
+---
+
+# Sources
+
+- Computer use — OpenAI API: https://developers.openai.com/api/docs/guides/tools-computer-use
+- Introducing Operator — OpenAI: https://openai.com/index/introducing-operator/
+- OmniParser — Microsoft: https://microsoft.github.io/OmniParser/
+- OmniParser paper: https://arxiv.org/pdf/2408.00203
+- OmniParser v2 weights: https://huggingface.co/microsoft/OmniParser-v2.0
+- Icon detection/captioning models: https://deepwiki.com/microsoft/OmniParser/2.2-icon-detection-and-captioning-models
+- OmniParser + OpenVINO: https://docs.openvino.ai/2024/notebooks/omniparser-with-output.html
+- DOM vs screenshots: https://fazm.ai/blog/how-ai-agents-see-your-screen-dom-vs-screenshots
+
+---
+
+# Suggested order for the next session
+
+1. **P7 menu/keyboard surface** — largest win, no model, no license, no download.
+2. **P0 session death** across the packaged provider boundary (in-process is exonerated).
+3. **P6 conformance flakiness** — until it is trustworthy it cannot prove P2 or P3 worked.
+4. **P8 vision floor** — detector-first; measure before adding the captioner.
+5. P2 background, P3 verification, P4 learning.
