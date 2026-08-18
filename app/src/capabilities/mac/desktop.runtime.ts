@@ -2933,14 +2933,34 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
     // structural container is refused by assertClickableSemanticTarget anyway.
     const actionableHandles = [...this.indexedElements.values()]
       .filter(element => !STRUCTURAL_AX_ROLES.has(String(element.role || '')));
-    const visibleLabels = this.observedElements
-      .map(element => element.label || element.value).filter(Boolean).slice(0, 8).join(', ');
+    // A truncated list must never read as a complete one. Measured 2026-08-18 in Music: the frame
+    // carried 33 elements at indexes 0-32, and this refusal announced "addressable indexes in the
+    // current frame: 0 ... 11" and eight labels — all of them sidebar chrome, none of the user's
+    // playlists. A model that believes the refusal then confines itself to the handles it was
+    // shown, so the truncation actively steers it away from the content it is looking for.
+    const summarize = (values: readonly string[], limit: number): string => {
+      if (values.length <= limit) return values.join(', ');
+      return `${values.slice(0, limit).join(', ')}, … and ${values.length - limit} more (${values.length} total)`;
+    };
+    const allLabels = this.observedElements
+      .map(element => element.label || element.value)
+      .filter(Boolean)
+      .map(String);
+    const visibleLabels = summarize(allLabels, 8);
     if (actionableHandles.length === 0) {
       throw new Error('this window exposes no actionable accessibility handles — its tree is only structural or was rebuilt from on-device Vision, so element indexes and tokens do not exist for it and observing again will not create any. Target it by query="<visible label>" or by x/y read from the screenshot instead'
         + (visibleLabels ? `; visible labels include: ${visibleLabels}` : ''));
     }
-    const validIndexes = [...this.indexedElements.keys()]
-      .filter(entry => entry.startsWith('index:')).map(entry => entry.slice(6)).slice(0, 12).join(', ');
+    // Indexes are numeric and dense, so a range says more in less space than a truncated list —
+    // and, unlike the old slice, it never implies the tail does not exist.
+    const indexValues = [...this.indexedElements.keys()]
+      .filter(entry => entry.startsWith('index:'))
+      .map(entry => Number(entry.slice(6)))
+      .filter(value => Number.isFinite(value))
+      .sort((a, b) => a - b);
+    const validIndexes = indexValues.length > 12
+      ? `${indexValues[0]}-${indexValues[indexValues.length - 1]} (${indexValues.length} total)`
+      : indexValues.join(', ');
     throw new Error(`element handle is stale or missing; observe again and use a handle from the newest result${validIndexes ? ` (addressable indexes in the current frame: ${validIndexes})` : ''}`
       + (visibleLabels ? `. Visible labels, targetable with query=: ${visibleLabels}` : ''));
   }
