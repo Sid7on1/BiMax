@@ -1,0 +1,686 @@
+{
+  "schemaVersion": 1,
+  "taskId": "PHASE2-PACKAGED-LOCAL",
+  "startedAt": "2026-08-18T08:37:13.962Z",
+  "bundle": "/Applications/Bimax.app",
+  "packageIdentity": {
+    "source": "bundle",
+    "appExecutableSha256": "ca6fbf6ed04892685065b3919859e11bba211ce6a8e98b16332cff4a00d43837",
+    "engineSha256": "1893d308a31b7b77dff88368ceaa7d24a597b6cb2fa0a0d79630453cd50c4bba",
+    "serviceSha256": "8db1a2a6bdb58f451fc7ba74d7d951a6e760d9275cfd9e2d03a559c1f89c2d7a",
+    "bridgeSha256": "0cb6bc299869f2af46d5aa56d47ee95e13e09c12314715013070058ca270e72a",
+    "providerSha256": "9b2bddb2a0c91c356157c325a04c5d921eb80b7653a71932a7265fd923b6dd94",
+    "appAsarSha256": "ac31d583a3d478a9da65f0b0e5f4812fc207836c8c84fa20d65fb023a9ca3a67",
+    "executableDescription": "/Applications/Bimax.app/Contents/MacOS/Bimax: Mach-O 64-bit executable arm64",
+    "engineDescription": "/Applications/Bimax.app/Contents/Resources/engine/bimax-engine: Mach-O 64-bit executable arm64",
+    "serviceDescription": "/Applications/Bimax.app/Contents/XPCServices/BimaxCuService.xpc/Contents/MacOS/bimax-cu-service: Mach-O 64-bit executable arm64",
+    "providerDescription": "/Applications/Bimax.app/Contents/MacOS/bimax-mac-capability: Mach-O 64-bit executable arm64"
+  },
+  "machineProfile": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "osRelease": "25.5.0",
+    "osVersion": "Darwin Kernel Version 25.5.0: Tue Jun  9 22:19:21 PDT 2026; root:xnu-12377.121.10~1/RELEASE_ARM64_T8122",
+    "cpuModel": "Apple M3",
+    "logicalCpuCount": 8,
+    "totalMemoryBytes": 8589934592
+  },
+  "networkProfile": {
+    "pathStatus": "unknown",
+    "expensive": "unknown",
+    "constrained": "unknown",
+    "endpointRTT": "unknown",
+    "interfaces": [
+      {
+        "name": "lo0",
+        "family": "IPv4",
+        "internal": true
+      },
+      {
+        "name": "lo0",
+        "family": "IPv6",
+        "internal": true
+      },
+      {
+        "name": "lo0",
+        "family": "IPv6",
+        "internal": true
+      },
+      {
+        "name": "utun0",
+        "family": "IPv6",
+        "internal": false
+      },
+      {
+        "name": "en0",
+        "family": "IPv6",
+        "internal": false
+      },
+      {
+        "name": "en0",
+        "family": "IPv4",
+        "internal": false
+      },
+      {
+        "name": "awdl0",
+        "family": "IPv6",
+        "internal": false
+      },
+      {
+        "name": "utun1",
+        "family": "IPv6",
+        "internal": false
+      },
+      {
+        "name": "llw0",
+        "family": "IPv6",
+        "internal": false
+      },
+      {
+        "name": "utun2",
+        "family": "IPv6",
+        "internal": false
+      },
+      {
+        "name": "utun3",
+        "family": "IPv6",
+        "internal": false
+      },
+      {
+        "name": "utun4",
+        "family": "IPv6",
+        "internal": false
+      },
+      {
+        "name": "utun5",
+        "family": "IPv6",
+        "internal": false
+      }
+    ]
+  },
+  "rows": {
+    "structure": {
+      "command": [
+        "/Users/vishsiddharth/.hermes/node/bin/node",
+        "/Users/vishsiddharth/Desktop/Bimax/scripts/verify-desktop-package.mjs",
+        "/Applications/Bimax.app",
+        "arm64"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "desktop package gate: PASS /Applications/Bimax.app\ndesktop package gate: PASS arm64 app, engine, provider, XPC service, bridge, helper\ndesktop package gate: PASS packaged engine receives one generic local capability-provider contract\ndesktop package gate: PASS packaged macOS capability provider is native-only and fail-closed\ndesktop package gate: PASS packaged run resolves engine and native components from the bundle only\n",
+      "stderr": ""
+    },
+    "fixtureBuild": {
+      "command": [
+        "/Users/vishsiddharth/Desktop/Bimax/app/scripts/computer-use/build-bimax-cu-fixture.sh",
+        "/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-phase2-package-HG2L3L/BimaxCuFixture.app"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-phase2-package-HG2L3L/BimaxCuFixture.app\n",
+      "stderr": ""
+    },
+    "fixtureLaunch": {
+      "command": [
+        "open",
+        "/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-phase2-package-HG2L3L/BimaxCuFixture.app",
+        "--args",
+        "--title-ui-element-fixture"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "",
+      "stderr": ""
+    },
+    "handshake": {
+      "command": [
+        "/Applications/Bimax.app/Contents/XPCServices/BimaxCuService.xpc/Contents/MacOS/bimax-cu-service",
+        "--self-test-handshake"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "{\n  \"capabilities\" : {\n    \"browser\" : {\n      \"dialogs\" : false,\n      \"downloads\" : false,\n      \"fileInput\" : false,\n      \"typedRoute\" : false\n    },\n    \"delivery\" : {\n      \"focusLease\" : true,\n      \"physicalInput\" : true,\n      \"policies\" : [\n        \"background_native\",\n        \"background_only\",\n        \"background_preferred\",\n        \"foreground_once\",\n        \"foreground_persistent\"\n      ],\n      \"semanticActions\" : [\n        \"invoke\",\n        \"show_menu\",\n        \"set_value\",\n        \"increment\",\n        \"decrement\",\n        \"toggle\",\n        \"expand\",\n        \"collapse\",\n        \"select\",\n        \"select_text_range\",\n        \"select_text\",\n        \"set_caret\",\n        \"scroll_page\",\n        \"set_selected\",\n        \"scroll_to_visible\",\n        \"scroll_to_fraction\",\n        \"type_text\"\n      ],\n      \"semanticTransactions\" : true,\n      \"targetedEvents\" : false,\n      \"verifiedDeliveryPolicies\" : [\n        \"background_native\",\n        \"background_only\",\n        \"background_preferred\",\n        \"foreground_once\",\n        \"foreground_persistent\"\n      ],\n      \"verifiedSemanticActions\" : [\n        \"invoke\",\n        \"show_menu\",\n        \"set_value\",\n        \"increment\",\n        \"decrement\",\n        \"toggle\",\n        \"expand\",\n        \"collapse\",\n        \"select\",\n        \"select_text_range\",\n        \"select_text\",\n        \"set_caret\",\n        \"set_selected\",\n        \"scroll_to_fraction\",\n        \"type_text\"\n      ]\n    },\n    \"observe\" : {\n      \"axDiff\" : true,\n      \"capabilityDiscovery\" : true,\n      \"eventRevisions\" : true,\n      \"profiles\" : [\n        \"flash\",\n        \"balanced\"\n      ],\n      \"query\" : true,\n      \"regionCapture\" : true,\n      \"scopes\" : [\n        \"application\",\n        \"window\",\n        \"system_ui\"\n      ],\n      \"som\" : true,\n      \"streams\" : false,\n      \"zoom\" : true\n    },\n    \"overlay\" : {\n      \"cursor\" : false\n    },\n    \"recording\" : {\n      \"replayModes\" : [\n\n      ],\n      \"trajectory\" : false,\n      \"video\" : false\n    },\n    \"workspace\" : {\n      \"apps\" : true,\n      \"displays\" : true,\n      \"files\" : [\n\n      ],\n      \"operations\" : [\n        \"resolve_app\",\n        \"launch_app\",\n        \"inspect_file\",\n        \"open_file\",\n        \"reveal_file\",\n        \"trash_file\",\n        \"duplicate_file\",\n        \"open_url\",\n        \"move_window\",\n        \"resize_window\",\n        \"set_window_frame\",\n        \"minimize_window\",\n        \"unminimize_window\",\n        \"close_window\",\n        \"set_window_fullscreen\"\n      ],\n      \"spaces\" : false,\n      \"verifiedOperations\" : [\n        \"resolve_app\",\n        \"launch_app\",\n        \"inspect_file\",\n        \"open_file\",\n        \"duplicate_file\",\n        \"trash_file\",\n        \"move_window\",\n        \"resize_window\",\n        \"set_window_frame\"\n      ],\n      \"windows\" : true\n    }\n  },\n  \"limits\" : {\n    \"maxCaptureStreams\" : 2,\n    \"maxConcurrentReadSessions\" : 4,\n    \"maxDiffOperations\" : 5000,\n    \"maxElements\" : 2000,\n    \"maxImageDimension\" : 4096,\n    \"maxTransactionSteps\" : 5\n  },\n  \"permissions\" : {\n    \"accessibility\" : \"granted\",\n    \"adHocSigned\" : false,\n    \"codeDirectoryHash\" : \"efb0dc5c1d76f20b08d4d54129be9a3607f4d215\",\n    \"inputMonitoring\" : \"not_required\",\n    \"screenCapturable\" : true,\n    \"screenRecording\" : \"granted\",\n    \"serviceSigned\" : true,\n    \"signatureIntact\" : true,\n    \"signingIdentifier\" : \"ai.bimax.cu.service\"\n  },\n  \"platform\" : {\n    \"architecture\" : \"arm64\",\n    \"os\" : \"macos\",\n    \"version\" : \"Version 26.5.2 (Build 25F84)\"\n  },\n  \"selectedProtocol\" : \"bimax.cu.v1\",\n  \"serviceVersion\" : \"0.7.0\"\n}\n",
+      "stderr": "",
+      "parsed": {
+        "capabilities": {
+          "browser": {
+            "dialogs": false,
+            "downloads": false,
+            "fileInput": false,
+            "typedRoute": false
+          },
+          "delivery": {
+            "focusLease": true,
+            "physicalInput": true,
+            "policies": [
+              "background_native",
+              "background_only",
+              "background_preferred",
+              "foreground_once",
+              "foreground_persistent"
+            ],
+            "semanticActions": [
+              "invoke",
+              "show_menu",
+              "set_value",
+              "increment",
+              "decrement",
+              "toggle",
+              "expand",
+              "collapse",
+              "select",
+              "select_text_range",
+              "select_text",
+              "set_caret",
+              "scroll_page",
+              "set_selected",
+              "scroll_to_visible",
+              "scroll_to_fraction",
+              "type_text"
+            ],
+            "semanticTransactions": true,
+            "targetedEvents": false,
+            "verifiedDeliveryPolicies": [
+              "background_native",
+              "background_only",
+              "background_preferred",
+              "foreground_once",
+              "foreground_persistent"
+            ],
+            "verifiedSemanticActions": [
+              "invoke",
+              "show_menu",
+              "set_value",
+              "increment",
+              "decrement",
+              "toggle",
+              "expand",
+              "collapse",
+              "select",
+              "select_text_range",
+              "select_text",
+              "set_caret",
+              "set_selected",
+              "scroll_to_fraction",
+              "type_text"
+            ]
+          },
+          "observe": {
+            "axDiff": true,
+            "capabilityDiscovery": true,
+            "eventRevisions": true,
+            "profiles": [
+              "flash",
+              "balanced"
+            ],
+            "query": true,
+            "regionCapture": true,
+            "scopes": [
+              "application",
+              "window",
+              "system_ui"
+            ],
+            "som": true,
+            "streams": false,
+            "zoom": true
+          },
+          "overlay": {
+            "cursor": false
+          },
+          "recording": {
+            "replayModes": [],
+            "trajectory": false,
+            "video": false
+          },
+          "workspace": {
+            "apps": true,
+            "displays": true,
+            "files": [],
+            "operations": [
+              "resolve_app",
+              "launch_app",
+              "inspect_file",
+              "open_file",
+              "reveal_file",
+              "trash_file",
+              "duplicate_file",
+              "open_url",
+              "move_window",
+              "resize_window",
+              "set_window_frame",
+              "minimize_window",
+              "unminimize_window",
+              "close_window",
+              "set_window_fullscreen"
+            ],
+            "spaces": false,
+            "verifiedOperations": [
+              "resolve_app",
+              "launch_app",
+              "inspect_file",
+              "open_file",
+              "duplicate_file",
+              "trash_file",
+              "move_window",
+              "resize_window",
+              "set_window_frame"
+            ],
+            "windows": true
+          }
+        },
+        "limits": {
+          "maxCaptureStreams": 2,
+          "maxConcurrentReadSessions": 4,
+          "maxDiffOperations": 5000,
+          "maxElements": 2000,
+          "maxImageDimension": 4096,
+          "maxTransactionSteps": 5
+        },
+        "permissions": {
+          "accessibility": "granted",
+          "adHocSigned": false,
+          "codeDirectoryHash": "efb0dc5c1d76f20b08d4d54129be9a3607f4d215",
+          "inputMonitoring": "not_required",
+          "screenCapturable": true,
+          "screenRecording": "granted",
+          "serviceSigned": true,
+          "signatureIntact": true,
+          "signingIdentifier": "ai.bimax.cu.service"
+        },
+        "platform": {
+          "architecture": "arm64",
+          "os": "macos",
+          "version": "Version 26.5.2 (Build 25F84)"
+        },
+        "selectedProtocol": "bimax.cu.v1",
+        "serviceVersion": "0.7.0"
+      }
+    },
+    "semanticAndPhysical": {
+      "command": [
+        "/Applications/Bimax.app/Contents/XPCServices/BimaxCuService.xpc/Contents/MacOS/bimax-cu-service",
+        "--self-test-catalog",
+        "ai.bimax.cu.fixture"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "stdout": "{\n  \"bundleId\" : \"ai.bimax.cu.fixture\",\n  \"declaredVerified\" : [\n    \"invoke\",\n    \"show_menu\",\n    \"set_value\",\n    \"increment\",\n    \"decrement\",\n    \"toggle\",\n    \"expand\",\n    \"collapse\",\n    \"select\",\n    \"select_text_range\",\n    \"select_text\",\n    \"set_caret\",\n    \"set_selected\",\n    \"scroll_to_fraction\",\n    \"type_text\"\n  ],\n  \"overclaimed\" : [\n    \"invoke\",\n    \"show_menu\",\n    \"set_value\",\n    \"increment\",\n    \"decrement\",\n    \"toggle\",\n    \"expand\",\n    \"collapse\",\n    \"select\",\n    \"select_text_range\",\n    \"select_text\",\n    \"set_caret\",\n    \"set_selected\",\n    \"scroll_to_fraction\",\n    \"type_text\"\n  ],\n  \"results\" : [\n    {\n      \"action\" : \"invoke\",\n      \"errorCode\" : \"window_not_found\",\n      \"errorMessage\" : \"the fixture window could not be observed\",\n      \"status\" : \"skipped\"\n    },\n    {\n      \"action\" : \"show_menu\",\n      \"errorCode\" : \"window_not_found\",\n      \"errorMessage\" : \"the fixture window could not be observed\",\n      \"status\" : \"skipped\"\n    },\n    {\n      \"action\" : \"toggle\",\n      \"errorCode\" : \"window_not_found\",\n      \"errorMessage\" : \"the fixture window could not be observed\",\n      \"status\" : \"skipped\"\n    },\n    {\n      \"action\" : \"set_value\",\n      \"errorCode\" : \"window_not_found\",\n      \"errorMessage\" : \"the fixture window could not be observed\",\n      \"status\" : \"skipped\"\n    },\n    {\n      \"action\" : \"set_value\",\n      \"errorCode\" : \"window_not_found\",\n      \"errorMessage\" : \"the fixture window could not be observed\",\n      \"status\" : \"skipped\"\n    },\n    {\n      \"action\" : \"increment\",\n      \"errorCode\" : \"window_not_found\",\n      \"errorMessage\" : \"the fixture window could not be observed\",\n      \"status\" : \"skipped\"\n    },\n    {\n      \"action\" : \"decrement\",\n      \"errorCode\" : \"window_not_found\",\n      \"errorMessage\" : \"the fixture window could not be observed\",\n      \"status\" : \"skipped\"\n    },\n    {\n      \"action\" : \"set_caret\",\n      \"errorCode\" : \"window_not_found\",\n      \"errorMessage\" : \"the fixture window could not be observed\",\n      \"status\" : \"skipped\"\n    },\n    {\n      \"action\" : \"select_text_range\",\n      \"errorCode\" : \"window_not_found\",\n      \"errorMessage\" : \"the fixture window could not be observed\",\n      \"status\" : \"skipped\"\n    },\n    {\n      \"action\" : \"select_text\",\n      \"errorCode\" : \"window_not_found\",\n      \"errorMessage\" : \"the fixture window could not be observed\",\n      \"status\" : \"skipped\"\n    },\n    {\n      \"action\" : \"set_selected\",\n      \"errorCode\" : \"window_not_found\",\n      \"errorMessage\" : \"the fixture window could not be observed\",\n      \"status\" : \"skipped\"\n    },\n    {\n      \"action\" : \"scroll_to_visible\",\n      \"errorCode\" : \"window_not_found\",\n      \"errorMessage\" : \"the fixture window could not be observed\",\n      \"status\" : \"skipped\"\n    },\n    {\n      \"action\" : \"scroll_to_fraction\",\n      \"errorCode\" : \"window_not_found\",\n      \"errorMessage\" : \"the fixture window could not be observed\",\n      \"status\" : \"skipped\"\n    },\n    {\n      \"action\" : \"scroll_page\",\n      \"errorCode\" : \"window_not_found\",\n      \"errorMessage\" : \"the fixture window could not be observed\",\n      \"status\" : \"skipped\"\n    },\n    {\n      \"action\" : \"expand\",\n      \"errorCode\" : \"window_not_found\",\n      \"errorMessage\" : \"the fixture window could not be observed\",\n      \"status\" : \"skipped\"\n    },\n    {\n      \"action\" : \"collapse\",\n      \"errorCode\" : \"window_not_found\",\n      \"errorMessage\" : \"the fixture window could not be observed\",\n      \"status\" : \"skipped\"\n    },\n    {\n      \"action\" : \"select\",\n      \"errorCode\" : \"window_not_found\",\n      \"errorMessage\" : \"the fixture window could not be observed\",\n      \"status\" : \"skipped\"\n    },\n    {\n      \"action\" : \"select\",\n      \"errorCode\" : \"window_not_found\",\n      \"errorMessage\" : \"the fixture window could not be observed\",\n      \"status\" : \"skipped\"\n    },\n    {\n      \"action\" : \"type_text\",\n      \"errorCode\" : \"window_not_found\",\n      \"errorMessage\" : \"the fixture window could not be observed\",\n      \"status\" : \"skipped\"\n    }\n  ],\n  \"status\" : \"ran\",\n  \"titleUIElementLabelsVerified\" : false,\n  \"transactionResults\" : [\n    {\n      \"completedSteps\" : [\n\n      ],\n      \"errorCode\" : \"window_not_found\",\n      \"errorMessage\" : \"windowNotFound\",\n      \"kind\" : \"multi_edit\",\n      \"status\" : \"skipped\"\n    },\n    {\n      \"completedSteps\" : [\n\n      ],\n      \"errorCode\" : \"window_not_found\",\n      \"errorMessage\" : \"windowNotFound\",\n      \"kind\" : \"multi_select\",\n      \"status\" : \"skipped\"\n    }\n  ],\n  \"transactionsOverclaimed\" : true,\n  \"unverified\" : [\n    \"invoke\",\n    \"show_menu\",\n    \"set_value\",\n    \"increment\",\n    \"decrement\",\n    \"toggle\",\n    \"expand\",\n    \"collapse\",\n    \"select\",\n    \"select_text_range\",\n    \"select_text\",\n    \"set_caret\",\n    \"scroll_page\",\n    \"set_selected\",\n    \"scroll_to_visible\",\n    \"scroll_to_fraction\",\n    \"type_text\"\n  ],\n  \"verified\" : [\n\n  ]\n}\n",
+      "stderr": "",
+      "parsed": {
+        "bundleId": "ai.bimax.cu.fixture",
+        "declaredVerified": [
+          "invoke",
+          "show_menu",
+          "set_value",
+          "increment",
+          "decrement",
+          "toggle",
+          "expand",
+          "collapse",
+          "select",
+          "select_text_range",
+          "select_text",
+          "set_caret",
+          "set_selected",
+          "scroll_to_fraction",
+          "type_text"
+        ],
+        "overclaimed": [
+          "invoke",
+          "show_menu",
+          "set_value",
+          "increment",
+          "decrement",
+          "toggle",
+          "expand",
+          "collapse",
+          "select",
+          "select_text_range",
+          "select_text",
+          "set_caret",
+          "set_selected",
+          "scroll_to_fraction",
+          "type_text"
+        ],
+        "results": [
+          {
+            "action": "invoke",
+            "errorCode": "window_not_found",
+            "errorMessage": "the fixture window could not be observed",
+            "status": "skipped"
+          },
+          {
+            "action": "show_menu",
+            "errorCode": "window_not_found",
+            "errorMessage": "the fixture window could not be observed",
+            "status": "skipped"
+          },
+          {
+            "action": "toggle",
+            "errorCode": "window_not_found",
+            "errorMessage": "the fixture window could not be observed",
+            "status": "skipped"
+          },
+          {
+            "action": "set_value",
+            "errorCode": "window_not_found",
+            "errorMessage": "the fixture window could not be observed",
+            "status": "skipped"
+          },
+          {
+            "action": "set_value",
+            "errorCode": "window_not_found",
+            "errorMessage": "the fixture window could not be observed",
+            "status": "skipped"
+          },
+          {
+            "action": "increment",
+            "errorCode": "window_not_found",
+            "errorMessage": "the fixture window could not be observed",
+            "status": "skipped"
+          },
+          {
+            "action": "decrement",
+            "errorCode": "window_not_found",
+            "errorMessage": "the fixture window could not be observed",
+            "status": "skipped"
+          },
+          {
+            "action": "set_caret",
+            "errorCode": "window_not_found",
+            "errorMessage": "the fixture window could not be observed",
+            "status": "skipped"
+          },
+          {
+            "action": "select_text_range",
+            "errorCode": "window_not_found",
+            "errorMessage": "the fixture window could not be observed",
+            "status": "skipped"
+          },
+          {
+            "action": "select_text",
+            "errorCode": "window_not_found",
+            "errorMessage": "the fixture window could not be observed",
+            "status": "skipped"
+          },
+          {
+            "action": "set_selected",
+            "errorCode": "window_not_found",
+            "errorMessage": "the fixture window could not be observed",
+            "status": "skipped"
+          },
+          {
+            "action": "scroll_to_visible",
+            "errorCode": "window_not_found",
+            "errorMessage": "the fixture window could not be observed",
+            "status": "skipped"
+          },
+          {
+            "action": "scroll_to_fraction",
+            "errorCode": "window_not_found",
+            "errorMessage": "the fixture window could not be observed",
+            "status": "skipped"
+          },
+          {
+            "action": "scroll_page",
+            "errorCode": "window_not_found",
+            "errorMessage": "the fixture window could not be observed",
+            "status": "skipped"
+          },
+          {
+            "action": "expand",
+            "errorCode": "window_not_found",
+            "errorMessage": "the fixture window could not be observed",
+            "status": "skipped"
+          },
+          {
+            "action": "collapse",
+            "errorCode": "window_not_found",
+            "errorMessage": "the fixture window could not be observed",
+            "status": "skipped"
+          },
+          {
+            "action": "select",
+            "errorCode": "window_not_found",
+            "errorMessage": "the fixture window could not be observed",
+            "status": "skipped"
+          },
+          {
+            "action": "select",
+            "errorCode": "window_not_found",
+            "errorMessage": "the fixture window could not be observed",
+            "status": "skipped"
+          },
+          {
+            "action": "type_text",
+            "errorCode": "window_not_found",
+            "errorMessage": "the fixture window could not be observed",
+            "status": "skipped"
+          }
+        ],
+        "status": "ran",
+        "titleUIElementLabelsVerified": false,
+        "transactionResults": [
+          {
+            "completedSteps": [],
+            "errorCode": "window_not_found",
+            "errorMessage": "windowNotFound",
+            "kind": "multi_edit",
+            "status": "skipped"
+          },
+          {
+            "completedSteps": [],
+            "errorCode": "window_not_found",
+            "errorMessage": "windowNotFound",
+            "kind": "multi_select",
+            "status": "skipped"
+          }
+        ],
+        "transactionsOverclaimed": true,
+        "unverified": [
+          "invoke",
+          "show_menu",
+          "set_value",
+          "increment",
+          "decrement",
+          "toggle",
+          "expand",
+          "collapse",
+          "select",
+          "select_text_range",
+          "select_text",
+          "set_caret",
+          "scroll_page",
+          "set_selected",
+          "scroll_to_visible",
+          "scroll_to_fraction",
+          "type_text"
+        ],
+        "verified": []
+      }
+    },
+    "stop": {
+      "command": [
+        "/Applications/Bimax.app/Contents/XPCServices/BimaxCuService.xpc/Contents/MacOS/bimax-cu-service",
+        "--self-test-stop",
+        "ai.bimax.cu.fixture"
+      ],
+      "exitCode": 1,
+      "signal": null,
+      "stdout": "{\n  \"bundleId\" : \"ai.bimax.cu.fixture\",\n  \"foregroundPreserved\" : false,\n  \"reason\" : \"target_not_observable\",\n  \"status\" : \"skipped\",\n  \"targetUnchanged\" : false\n}\n",
+      "stderr": "",
+      "parsed": {
+        "bundleId": "ai.bimax.cu.fixture",
+        "foregroundPreserved": false,
+        "reason": "target_not_observable",
+        "status": "skipped",
+        "targetUnchanged": false
+      }
+    },
+    "visual": {
+      "command": [
+        "/Applications/Bimax.app/Contents/XPCServices/BimaxCuService.xpc/Contents/MacOS/bimax-cu-service",
+        "--self-test-capture",
+        "ai.bimax.cu.fixture"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "{\n  \"bundleId\" : \"ai.bimax.cu.fixture\",\n  \"completeFrames\" : 0,\n  \"height\" : 1000,\n  \"idleFrames\" : 0,\n  \"imageBytes\" : 20784,\n  \"lastFrameStatusRaw\" : 3,\n  \"oneShotFallback\" : true,\n  \"pid\" : 28659,\n  \"receivedFrames\" : 1,\n  \"status\" : \"ran\",\n  \"width\" : 1000,\n  \"windowId\" : 1856\n}\n",
+      "stderr": "",
+      "parsed": {
+        "bundleId": "ai.bimax.cu.fixture",
+        "completeFrames": 0,
+        "height": 1000,
+        "idleFrames": 0,
+        "imageBytes": 20784,
+        "lastFrameStatusRaw": 3,
+        "oneShotFallback": true,
+        "pid": 28659,
+        "receivedFrames": 1,
+        "status": "ran",
+        "width": 1000,
+        "windowId": 1856
+      }
+    },
+    "targetM02Build": {
+      "command": [
+        "/Users/vishsiddharth/Desktop/Bimax/app/scripts/computer-use/build-bimax-cu-fixture.sh",
+        "/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-phase2-package-HG2L3L/BimaxCuFixture.app",
+        "target"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-phase2-package-HG2L3L/BimaxCuFixture.app\n",
+      "stderr": ""
+    },
+    "bystanderBuild": {
+      "command": [
+        "/Users/vishsiddharth/Desktop/Bimax/app/scripts/computer-use/build-bimax-cu-fixture.sh",
+        "/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-phase2-package-HG2L3L/BimaxCuBystander.app",
+        "bystander"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-phase2-package-HG2L3L/BimaxCuBystander.app\n",
+      "stderr": ""
+    },
+    "targetM02Launch": {
+      "command": [
+        "open",
+        "-g",
+        "/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-phase2-package-HG2L3L/BimaxCuFixture.app",
+        "--args",
+        "--m02-fixture",
+        "--m02-state",
+        "/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-phase2-package-HG2L3L/reminders.json"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "",
+      "stderr": ""
+    },
+    "bystanderLaunch": {
+      "command": [
+        "open",
+        "/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-phase2-package-HG2L3L/BimaxCuBystander.app",
+        "--args",
+        "--bystander-fixture",
+        "--typing-state",
+        "/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-phase2-package-HG2L3L/typing.txt"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "",
+      "stderr": ""
+    },
+    "m02": {
+      "command": [
+        "/Applications/Bimax.app/Contents/XPCServices/BimaxCuService.xpc/Contents/MacOS/bimax-cu-service",
+        "--self-test-m02",
+        "ai.bimax.cu.fixture",
+        "ai.bimax.cu.bystander",
+        "/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-phase2-package-HG2L3L/reminders.json",
+        "/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-phase2-package-HG2L3L/typing.txt"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "stdout": "{\n  \"actionCompletedAtMs\" : 1787042254898,\n  \"bystanderBundleId\" : \"ai.bimax.cu.bystander\",\n  \"checks\" : [\n    {\n      \"detail\" : \"Mom demo time controls observed: 1\",\n      \"name\" : \"unique target\",\n      \"passed\" : true\n    },\n    {\n      \"detail\" : \"background_only via ax_attribute\",\n      \"name\" : \"semantic background delivery\",\n      \"passed\" : true\n    },\n    {\n      \"detail\" : \"6:00 PM -> 7:30 PM\",\n      \"name\" : \"value changed\",\n      \"passed\" : true\n    },\n    {\n      \"detail\" : \"Dentist remained 9:00 AM\",\n      \"name\" : \"other row unchanged\",\n      \"passed\" : true\n    },\n    {\n      \"detail\" : \"Optional(28915) -> Optional(28915)\",\n      \"name\" : \"foreground preserved\",\n      \"passed\" : true\n    },\n    {\n      \"detail\" : \"recorded M02-before|M02-after\",\n      \"name\" : \"bystander keystrokes preserved\",\n      \"passed\" : true\n    },\n    {\n      \"detail\" : \"stored 7:30 PM\",\n      \"name\" : \"state persisted\",\n      \"passed\" : true\n    },\n    {\n      \"detail\" : \"action 1787042254898, observation 1787042255002\",\n      \"name\" : \"fresh post-action observation\",\n      \"passed\" : true\n    },\n    {\n      \"detail\" : \"Mom demo 7:30 PM, Dentist 9:00 AM\",\n      \"name\" : \"reopen restored exact state\",\n      \"passed\" : true\n    }\n  ],\n  \"deliveryPath\" : \"ax_attribute\",\n  \"failed\" : 0,\n  \"freshObservationAtMs\" : 1787042255002,\n  \"frontmostPidAfter\" : 28915,\n  \"frontmostPidBefore\" : 28915,\n  \"passed\" : 9,\n  \"status\" : \"ran\",\n  \"targetBundleId\" : \"ai.bimax.cu.fixture\"\n}\n",
+      "stderr": "",
+      "parsed": {
+        "actionCompletedAtMs": 1787042254898,
+        "bystanderBundleId": "ai.bimax.cu.bystander",
+        "checks": [
+          {
+            "detail": "Mom demo time controls observed: 1",
+            "name": "unique target",
+            "passed": true
+          },
+          {
+            "detail": "background_only via ax_attribute",
+            "name": "semantic background delivery",
+            "passed": true
+          },
+          {
+            "detail": "6:00 PM -> 7:30 PM",
+            "name": "value changed",
+            "passed": true
+          },
+          {
+            "detail": "Dentist remained 9:00 AM",
+            "name": "other row unchanged",
+            "passed": true
+          },
+          {
+            "detail": "Optional(28915) -> Optional(28915)",
+            "name": "foreground preserved",
+            "passed": true
+          },
+          {
+            "detail": "recorded M02-before|M02-after",
+            "name": "bystander keystrokes preserved",
+            "passed": true
+          },
+          {
+            "detail": "stored 7:30 PM",
+            "name": "state persisted",
+            "passed": true
+          },
+          {
+            "detail": "action 1787042254898, observation 1787042255002",
+            "name": "fresh post-action observation",
+            "passed": true
+          },
+          {
+            "detail": "Mom demo 7:30 PM, Dentist 9:00 AM",
+            "name": "reopen restored exact state",
+            "passed": true
+          }
+        ],
+        "deliveryPath": "ax_attribute",
+        "failed": 0,
+        "freshObservationAtMs": 1787042255002,
+        "frontmostPidAfter": 28915,
+        "frontmostPidBefore": 28915,
+        "passed": 9,
+        "status": "ran",
+        "targetBundleId": "ai.bimax.cu.fixture"
+      }
+    }
+  },
+  "assertions": {
+    "packageStructure": true,
+    "bundleOnlyComponent": true,
+    "protocolSelected": true,
+    "architectureMatchesHost": true,
+    "capacityAdvertised": true,
+    "packagedTakeoverInterlock": true,
+    "semanticPerformed": false,
+    "physicalPerformed": false,
+    "visualPerformed": true,
+    "stopBeforeEffect": false,
+    "m02ExactState": true
+  },
+  "passed": false,
+  "finishedAt": "2026-08-18T08:37:36.138Z"
+}
