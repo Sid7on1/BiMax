@@ -9,7 +9,8 @@ import { cliEvents } from '../cli/events';
 import { loadConfig } from '../cli/config';
 import { normalizedToPixel, screenshotToGlobal, elementCenterToScreenshot, globalFrameToScreenshot, frameCenter, pixelInImage, Frame } from './coordinates';
 import { SurfaceRegistry, ExecutionSurface, InputOwner, chooseMechanism, AutomationMechanism } from './surface';
-import { MenuSurface, MenuCommand, MenuSurfaceError } from './menu.surface';
+import { MenuSurface, MenuCommand, MenuSurfaceError, describeMenuForModel, findSearchCommand } from './menu.surface';
+import { KeyboardSearch } from './keyboard.search';
 import { chooseTier, refineTierWithMenus, describeLadder, LadderDecision, MenuSignals } from './menu.ladder';
 import { DragMachine } from './drag';
 import { pointInFrame } from './coordinates';
@@ -58,7 +59,7 @@ export const PUBLIC_DESKTOP_ACTIONS = [
   'click', 'type', 'key', 'set_value', 'drag', 'scroll', 'hover', 'hold', 'mouse_down',
   'mouse_up', 'cursor', 'frontmost', 'move', 'copy', 'paste', 'clipboard', 'arrange',
   'desktop', 'close', 'quit_app', 'wait', 'record_start', 'record_status', 'record_stop',
-  'menu_activate',
+  'menu_activate', 'menu_search',
 ] as const;
 
 export type PublicDesktopAction = typeof PUBLIC_DESKTOP_ACTIONS[number];
@@ -76,6 +77,10 @@ export interface DesktopCommand {
   action: DesktopAction;
   /** `menu_activate`: the dotted index path from an observation's `menu` list, e.g. "5.19". */
   menuPath?: string;
+  /** `menu_search`: text to type into the app's own search box. */
+  searchText?: string;
+  /** `menu_search`: press Return to commit the selection. */
+  searchSubmit?: boolean;
   x?: number; y?: number;
   toX?: number; toY?: number;
   dx?: number; dy?: number;
@@ -307,6 +312,8 @@ export interface DesktopResult {
    * invisibly bidi-marked in some apps, and locale-dependent.
    */
   menu?: Array<{ path: string; indexPath: string }>;
+  /** The same commands grouped by menu with the app's own verbs first, for the model to read. */
+  menuSummary?: string;
   /** How many elements the capture resolved when the payload deliberately does not list them
    * (`screenshot`). The map itself is cached on the runtime, so semantic targeting is unaffected. */
   elementCount?: number;
@@ -2127,6 +2134,20 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
    */
   private readonly menuSurface = new MenuSurface(
     async (script: string, signal?: AbortSignal) => (await exec('osascript', ['-e', script], 30_000, signal)).stdout,
+  );
+  /**
+   * Type-to-search: the CONTENT half of the keyboard path.
+   *
+   * Menus reach an app's commands; they cannot reach one song or one conversation. Focus readback
+   * was measured and does not help — Spotify, Notion, ChatGPT and Claude all publish no focused
+   * element — so the remaining keyboard route is the app's own search box, whose entry point is
+   * discovered from the same menu walk.
+   */
+  private readonly keyboardSearch = new KeyboardSearch(
+    this.menuSurface,
+    async (script: string, signal?: AbortSignal) => (await exec('osascript', ['-e', script], 30_000, signal)).stdout,
+    undefined,
+    async (bundlePath: string) => (await exec('sdef', [bundlePath], 20_000)).stdout,
   );
   /** Exact PNG that produced observedTarget. A raw click can use a local patch from this image to
    * distinguish a moved/relabelled target from harmless animation elsewhere in the window. */
@@ -4297,6 +4318,10 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
         path: c.path.join(' > '),
         indexPath: c.indexPath.join('.'),
       })) : undefined,
+      // The same commands GROUPED BY MENU, app verbs first. A flat list of 60 dotted paths is
+      // complete and unreadable; grouped, "what can I do to playback" is one line instead of a scan.
+      // Measured on Spotify, the flat list led with About/Hide/Cut/Copy while Playback sat fourth.
+      menuSummary: menuCommands.length > 0 ? describeMenuForModel(menuCommands) : undefined,
       completionGuidance: [
         COMPUTER_COMPLETION_GUIDANCE,
         describeLadder(ladder, menuSignals) || '',
@@ -6221,6 +6246,29 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
               + (outcome.confirmed === true
                 ? ` — CONFIRMED: the item renamed itself within ${outcome.elapsedMs}ms, so the command took effect`
                 : ' — ran without error; this command does not rename itself, so observe to verify its effect'),
+          };
+        }
+        case 'menu_search': {
+          // The CONTENT half of the keyboard path: open the app's own search box (discovered from
+          // its menu bar, never a hardcoded shortcut), type, and optionally commit.
+          //
+          // This is a FOREGROUND operation by nature and says so: keystrokes go to the frontmost
+          // app, and the search command itself is often disabled until the app is active — measured,
+          // Spotify's `Edit > Search` is enabled=false backgrounded and true frontmost.
+          const app = target?.app ?? (await this.reacquireLastTarget())?.app;
+          if (!app) throw new Error('menu_search needs an observed app; call open or observe first');
+          const text = String(cmd.searchText ?? '');
+          if (!text.trim()) throw new Error('menu_search needs searchText');
+          const outcome = await this.keyboardSearch.search(app, text, { submit: !!cmd.searchSubmit });
+          return {
+            ok: true, action: 'menu_search', driver: BIMAX_DRIVER_LABEL, app,
+            summary: `searched ${app} for ${JSON.stringify(text)} via ${outcome.via}`
+              + (outcome.submitted ? ' and pressed Return' : ' without committing')
+              // Never claim the result was confirmed — say what COULD confirm it. On a blind app
+              // there is no focused element and no tree, so this is often "vision only", and that
+              // is the honest answer rather than a receipt dressed up as proof.
+              + `. NOT yet verified — what can confirm it: ${outcome.verifiable}`
+              + (outcome.observed ? ` (${outcome.observed})` : ''),
           };
         }
         case 'observe':

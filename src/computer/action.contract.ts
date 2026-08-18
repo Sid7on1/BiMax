@@ -49,6 +49,7 @@ export const COMPUTER_ACTION_CONTRACTS: Record<PublicDesktopAction, ComputerActi
   record_status: { purpose: 'Read current recording state.', input: 'No target.', returns: 'Enabled state, scope, paths, and error.', coordinateFrame: 'none' },
   record_stop: { purpose: 'Stop the active recording.', input: 'No target.', returns: 'Final recording and video paths.', coordinateFrame: 'none' },
   menu_activate: { purpose: "Run a command from the app's menu bar — the exact, verifiable path when the window's accessibility tree cannot serve the request.", input: "menuPath: the dotted index path from an observation's menu list (e.g. \"5.19\"). Never a menu NAME — names repeat, carry invisible marks, and change with locale.", returns: 'The activated command, and whether its effect was confirmed by the item renaming itself.', coordinateFrame: 'none' },
+  menu_search: { purpose: "Type into the app's OWN search box to reach CONTENT a menu cannot name — one song, one conversation, one file.", input: 'searchText (required); searchSubmit to press Return. The entry point is discovered from the menu bar, so no shortcut is passed.', returns: 'The search command used, and what could verify the result — never a claim that it was verified.', coordinateFrame: 'none' },
 };
 
 export function renderComputerActionReference(): string {
@@ -144,6 +145,8 @@ export function validateModelComputerCommand(cmd: DesktopCommand): string | null
       if (cmd.x != null && !cmd.frameId) return 'raw type coordinates require frameId from the exact screenshot';
       return null;
     case 'key': return cmd.combo?.trim() ? null : 'key needs combo';
+    case 'menu_search':
+      return cmd.searchText?.trim() ? null : 'menu_search needs searchText';
     case 'menu_activate': {
       const raw = cmd.menuPath?.trim();
       if (!raw) return "menu_activate needs menuPath — the dotted index path from an observation's menu list (e.g. \"5.19\")";

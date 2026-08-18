@@ -135,6 +135,52 @@ const DESTRUCTIVE_TITLE = /^(quit|shut ?down|restart|log ?out|sleep|move to (the
  */
 const DESTRUCTIVE_ANYWHERE = /\b(reset .*(data|settings)|and restart|erase|uninstall|deauthori[sz]e|revoke|clear .*(history|data|cache))\b/i;
 
+/**
+ * Commands every macOS app carries that are almost never the user's intent.
+ *
+ * These are not dangerous, they are NOISE. Measured on Spotify, the offered list led with
+ * "About Spotify", "Hide Spotify", "Hide Others", "Edit > Cut/Copy/Paste", "Window > Spotify" and
+ * five Help entries, while the six commands that actually drive the app (Playback > Previous, Seek,
+ * Volume; View > Zoom) sat below them. A model reading top-down sees the boilerplate first.
+ *
+ * They are RANKED DOWN, never removed: "Paste" is boilerplate until the task is pasting.
+ */
+const BOILERPLATE_TITLE =
+  /^(about |hide |show all$|bring all to front|minimi[sz]e|zoom$|arrange in front|enter full screen|exit full screen|.* help$|.* community$|check for updates|what.s new|acknowledgements|privacy policy|terms|report (an )?issue|send feedback|learn more)/i;
+
+/** Menus whose entire contents are system boilerplate rather than the app's own verbs. */
+const BOILERPLATE_MENU = /^(help|window)$/i;
+
+export function isBoilerplateCommand(command: { title: string; menu: string }): boolean {
+  return BOILERPLATE_MENU.test(command.menu) || BOILERPLATE_TITLE.test(command.title);
+}
+
+/**
+ * Find the app's OWN search entry point from its menu bar.
+ *
+ * This is what makes type-to-search universal without a per-app key table: measured 2026-08-19,
+ * Spotify publishes `Edit > Search` bound to Cmd-L, and Finder and TextEdit both publish `Find`.
+ * The app tells us how to reach its own search box, so nothing is hardcoded and nothing is guessed.
+ * An app with no such command (measured: Notion) simply has no entry point, which is a reportable
+ * fact rather than a reason to start pressing keys hopefully.
+ */
+export function findSearchCommand(commands: readonly MenuCommand[]): MenuCommand | null {
+  const ranked = commands
+    .filter(c => c.enabled && !c.hasSubmenu && !c.destructive)
+    .map(c => {
+      const title = c.title.toLowerCase().replace(/[.…]+$/, '');
+      if (title === 'search') return { c, score: 100 };
+      if (title === 'find') return { c, score: 90 };
+      if (/^search /.test(title)) return { c, score: 80 };
+      if (/^find$|^find /.test(title)) return { c, score: 70 };
+      if (/^(go to|jump to|quick open|open quickly)/.test(title)) return { c, score: 60 };
+      return { c, score: 0 };
+    })
+    .filter(entry => entry.score > 0)
+    .sort((a, b) => b.score - a.score);
+  return ranked[0]?.c ?? null;
+}
+
 export function isDestructiveCommand(title: string): boolean {
   const name = normalizeMenuName(title);
   return DESTRUCTIVE_TITLE.test(name) || DESTRUCTIVE_ANYWHERE.test(name);
@@ -413,6 +459,50 @@ export function buildFrontmostScript(app: string): string {
   return `tell application "System Events" to return (frontmost of process ${quoteAppleScript(app)}) as text`;
 }
 
+/**
+ * Render commands for the model: grouped by menu, app verbs before boilerplate.
+ *
+ * A flat list of 60 dotted paths is technically complete and practically unreadable. Grouping by
+ * menu mirrors how the app itself is organised, so "what can I do to playback" is answerable by
+ * reading one line instead of scanning sixty.
+ */
+export function describeMenuForModel(
+  commands: readonly MenuCommand[],
+  shortcuts: ReadonlyMap<string, MenuShortcut> = new Map(),
+  limitPerMenu = 12,
+): string {
+  const byMenu = new Map<string, MenuCommand[]>();
+  for (const command of commands) {
+    const list = byMenu.get(command.menu) ?? [];
+    list.push(command);
+    byMenu.set(command.menu, list);
+  }
+  // Order menus by how much of each is the app's OWN verbs. Ranking only Help/Window down was not
+  // enough: measured on Spotify the application menu led with About/Hide/Hide Others while Playback
+  // — the six commands that actually drive the app — sat fourth.
+  const usefulness = (menu: string) => {
+    const entries = byMenu.get(menu) ?? [];
+    if (BOILERPLATE_MENU.test(menu)) return -1;
+    const real = entries.filter(c => !isBoilerplateCommand(c)).length;
+    return entries.length === 0 ? 0 : real / entries.length;
+  };
+  const menus = [...byMenu.keys()].sort((a, b) => usefulness(b) - usefulness(a));
+  const lines: string[] = [];
+  for (const menu of menus) {
+    const entries = byMenu.get(menu)!
+      .slice()
+      .sort((a, b) => Number(isBoilerplateCommand(a)) - Number(isBoilerplateCommand(b)));
+    const rendered = entries.slice(0, limitPerMenu).map(command => {
+      const key = shortcuts.get(command.indexPath.join('.'));
+      const deeper = command.indexPath.length > 2 ? command.path.slice(1, -1).join(' > ') + ' > ' : '';
+      return `${deeper}${command.title}${key ? ` ${key.display}` : ''} [${command.indexPath.join('.')}]`;
+    });
+    const more = entries.length > limitPerMenu ? ` (+${entries.length - limitPerMenu} more)` : '';
+    lines.push(`${menu}: ${rendered.join(', ')}${more}`);
+  }
+  return lines.join('\n');
+}
+
 /** Runs an AppleScript and returns stdout. Injected so the surface is testable without a Mac. */
 export type OsaRunner = (script: string, signal?: AbortSignal) => Promise<string>;
 
@@ -557,6 +647,48 @@ export class MenuSurface {
       // measured — and a malformed script in this very method once made that assertion silently.
       return null;
     }
+  }
+
+  /**
+   * Resolve key equivalents for many commands in ONE script.
+   *
+   * MEASURED 2026-08-19: reading them one call at a time cost 3,971ms for 25 commands (~159ms each,
+   * dominated by process spawn), while a single script covering every item in the app took 1,576ms.
+   * Shortcuts are the whole point of the keyboard path, so they must not cost four seconds.
+   */
+  async shortcutsFor(
+    app: string,
+    indexPaths: ReadonlyArray<readonly number[]>,
+    signal?: AbortSignal,
+  ): Promise<Map<string, MenuShortcut>> {
+    const found = new Map<string, MenuShortcut>();
+    if (indexPaths.length === 0) return found;
+    const blocks = indexPaths.map(path => `  set k to ${quoteAppleScript(path.join('.'))}
+  set cc to ""
+  set md to "0"
+  try
+    set mi to ${buildItemReference(path)}
+    set v to value of attribute "AXMenuItemCmdChar" of mi
+    if v is not missing value then set cc to v as text
+    set v2 to value of attribute "AXMenuItemCmdModifiers" of mi
+    if v2 is not missing value then set md to v2 as text
+  end try
+  set out to out & k & fs & cc & fs & md & rs`).join('\n');
+    const script = `tell application "System Events" to tell process ${quoteAppleScript(app)}
+  set fs to character id 31
+  set rs to character id 30
+  set out to ""
+${blocks}
+  return out
+end tell`;
+    const stdout = await this.osa(script, signal).catch(() => '');
+    for (const record of String(stdout).split(RECORD)) {
+      if (!record.includes(FIELD)) continue;
+      const [key = '', cmdChar = '', modifiers = '0'] = record.split(FIELD);
+      const shortcut = describeShortcut(cmdChar, absentAttribute(modifiers) ? 0 : Number(modifiers) || 0);
+      if (shortcut) found.set(key.trim(), shortcut);
+    }
+    return found;
   }
 
   /** Resolve one command's key equivalent. Lazy: this is the only read that is not bulk. */

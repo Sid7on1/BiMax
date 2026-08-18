@@ -17,6 +17,9 @@
 
 import {
   MenuSurface,
+  describeMenuForModel,
+  findSearchCommand,
+  isBoilerplateCommand,
   MenuSurfaceError,
   buildActivateScript,
   buildItemReference,
@@ -335,5 +338,58 @@ describe('MenuSurface', () => {
     const osa = jest.fn(async () => '');
     const surface = new MenuSurface(osa);
     await expect(surface.snapshot('Headless')).rejects.toMatchObject({ kind: 'no_menu_bar' });
+  });
+});
+
+describe('spoon-feeding the model', () => {
+  // Measured on Spotify: the offered list led with About/Hide/Hide Others and Edit > Cut/Copy/Paste
+  // while Playback — the six commands that actually drive the app — sat fourth. A model reading
+  // top-down sees the boilerplate first.
+  const walk =
+    row(0, '2', 'Spotify') +
+    row(1, '2.1', 'About Spotify') +
+    row(1, '2.11', 'Hide Spotify') +
+    row(0, '4', 'Edit') +
+    row(1, '4.10', 'Search') +
+    row(0, '6', 'Playback') +
+    row(1, '6.1', 'Play') +
+    row(1, '6.3', 'Next') +
+    row(0, '8', 'Help') +
+    row(1, '8.1', 'Spotify Help');
+
+  it('recognises system boilerplate without deleting it', () => {
+    // "Paste" is boilerplate until the task is pasting, so these rank down rather than vanish.
+    expect(isBoilerplateCommand({ title: 'About Spotify', menu: 'Spotify' })).toBe(true);
+    expect(isBoilerplateCommand({ title: 'Anything', menu: 'Help' })).toBe(true);
+    expect(isBoilerplateCommand({ title: 'Next', menu: 'Playback' })).toBe(false);
+  });
+
+  it("puts the app's own verbs before the boilerplate", () => {
+    const text = describeMenuForModel(parseWalk(walk));
+    expect(text.indexOf('Playback:')).toBeLessThan(text.indexOf('Spotify:'));
+    expect(text.indexOf('Playback:')).toBeLessThan(text.indexOf('Help:'));
+  });
+
+  it('groups by menu and carries the index path used to activate', () => {
+    const text = describeMenuForModel(parseWalk(walk));
+    expect(text).toMatch(/Playback: .*Play \[6\.1\].*Next \[6\.3\]/);
+  });
+
+  it('shows a key equivalent when one is known', () => {
+    const shortcuts = new Map([['6.3', describeShortcut(String.fromCharCode(0xf703), 0)!]]);
+    expect(describeMenuForModel(parseWalk(walk), shortcuts)).toMatch(/Next ⌘→ \[6\.3\]/);
+  });
+
+  it("finds the app's own search command", () => {
+    // Discovered, never hardcoded: Spotify publishes Edit > Search, Finder and TextEdit publish Find.
+    const found = findSearchCommand(parseWalk(walk));
+    expect(found!.title).toBe('Search');
+    expect(found!.indexPath).toEqual([4, 10]);
+  });
+
+  it('returns null for an app that publishes no search command', () => {
+    // Measured: Notion has none. That is a reportable fact, not a reason to guess a shortcut.
+    const none = parseWalk(row(0, '3', 'File') + row(1, '3.1', 'New Tab'));
+    expect(findSearchCommand(none)).toBeNull();
   });
 });

@@ -276,6 +276,40 @@ runs. The untested floor was not fixed — it was moved one rung further away.
 
 ---
 
+## CORRECTION 2026-08-19 — the Spotify premise does NOT reproduce
+
+The measurement that motivated all of P7 — "Spotify's window publishes 1 element and 0 actionable
+controls" — **no longer reproduces**. Measured today through the runtime, cold, on the first observe:
+
+```
+elements=60  targetable=64  named=56  tier=ax_tree
+roles: AXWebArea:1 AXButton:18 AXStaticText:18 AXRow:8 AXCell:6 AXTable:1 AXLink:1 AXComboBox:1
+labels: "Skip to main content", "Go back", "Go forward", "Home", "Search", "What do you want to play?"
+```
+
+Spotify is a CEF app and publishes a **web** accessibility tree, like a browser. It is rich when the
+app has a real, rendered window.
+
+What produced the "1 element" reading is almost certainly WINDOW READINESS, not AX opacity. Measured
+alongside: a freshly launched, backgrounded Spotify has **no window at all** (`count of windows` = 0,
+System Events -1719), and System Events reports `entire contents` = 0 for it even while the driver
+reads 60 elements. So the blind observation was of an app that had not finished producing a window.
+
+**Consequences, stated plainly:**
+- The flagship justification for the menu rung is weaker than recorded. Menus remain correct, fast
+  and useful — and remain the only surface when a tree is genuinely absent — but "Spotify is blind"
+  should not be quoted as the motivating fact until it is re-measured on a cold, windowed app.
+- `AXFocusedUIElement` returning MISSING for Spotify/Notion/ChatGPT/Claude was measured while those
+  apps were in the same questionable state. That result needs re-running with a real window present
+  before "focus navigation does not work" is treated as settled.
+- The three diseases table's "structural blindness / Spotify: 1 element, 0 actionable" row is
+  therefore UNCONFIRMED, not established.
+
+The general lesson matches an existing one in this codebase: an empty AX tree is often a statement
+about WHEN you looked, not about the app. Re-observe with a real window before concluding opacity.
+
+---
+
 # P8 — a vision floor, only for what P7 and AX cannot reach
 
 ## Why a floor is needed at all
