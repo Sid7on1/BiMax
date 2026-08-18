@@ -44,4 +44,23 @@ describe('a truncated element walk is escalated once', () => {
       hasQuery: false, scanned: CEILING, returned: CEILING, ceiling: CEILING,
     })).toBeNull();
   });
+  /**
+   * The signal is NODES, not elements. Measured 2026-08-18: Music reported "truncated at 120 nodes"
+   * while returning 33 elements, because whole subtrees fold into one parent. The first version of
+   * this rule keyed on `returned >= scanned`, so 33 >= 120 was false and the escalation was dead
+   * code in every app — the audit caught it, not the unit tests.
+   */
+  it('escalates on the driver truncation marker even when few elements came back', () => {
+    expect(nextScanCapForTruncatedWalk({
+      hasQuery: false, scanned: 120, returned: 33, ceiling: CEILING,
+      tree: '- [0] AXWindow\n\n⚠️  AX tree truncated at 120 nodes (app has a very large accessibility tree)',
+    })).toBe(600);
+  });
+
+  it('accepts a complete walk whose tree carries no truncation notice', () => {
+    expect(nextScanCapForTruncatedWalk({
+      hasQuery: false, scanned: 120, returned: 33, ceiling: CEILING,
+      tree: '- [0] AXWindow "Notes"\n  - [1] AXRow',
+    })).toBeNull();
+  });
 });

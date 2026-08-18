@@ -435,15 +435,20 @@ export function unnamedTypingRefusal(
  * increase rather than a token one.
  */
 export function nextScanCapForTruncatedWalk(
-  args: { hasQuery: boolean; scanned: number; returned: number; ceiling: number },
+  args: { hasQuery: boolean; scanned: number; returned: number; ceiling: number; tree?: string },
 ): number | null {
-  const { hasQuery, scanned, returned, ceiling } = args;
+  const { hasQuery, scanned, returned, ceiling, tree } = args;
   // A named query has its own progressive search above; do not spend a second ladder on it.
   if (hasQuery) return null;
-  // `returned >= scanned` is how the driver reports "I stopped at the cap", so anything less is a
-  // complete walk and needs nothing.
-  if (returned < scanned) return null;
   if (scanned >= ceiling) return null;
+  // Truncation is reported in NODES, and the driver returns ELEMENTS — a walk that stops at 120
+  // nodes commonly yields far fewer elements, because whole subtrees fold into one parent. Keying
+  // on `returned >= scanned` therefore never fired: measured 2026-08-18, Music reported "truncated
+  // at 120 nodes" while returning 33 elements, and 33 >= 120 is false. The driver states the
+  // truncation in its own tree text, so read that; the element count remains a secondary signal for
+  // drivers that fill the element budget exactly.
+  const truncated = /truncated at \d+ nodes/i.test(String(tree || '')) || returned >= scanned;
+  if (!truncated) return null;
   return Math.min(ceiling, Math.max(600, scanned * 2));
 }
 
@@ -3912,6 +3917,7 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
       scanned: scanElements,
       returned: rawElements.length,
       ceiling: DRIVER_MAX_SCAN,
+      tree: String(data?.tree_markdown || ''),
     });
     if (deeperCap) {
       scanElements = deeperCap;
