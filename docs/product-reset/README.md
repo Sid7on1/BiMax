@@ -98,6 +98,12 @@ engine artifact plus its protocol schema; the Mac app pins and bundles one verif
 - `24_CU_PHASE2_DETERMINISTIC_COMPLETION_RECORD.md` — typed postconditions for every accepted
   packaged-native mutation, fresh receipt grading, target/focus binding, false-success mutants,
   and the physical/menu/visual/programmatic adapter work that remains Target.
+- `25_CU_PHASE3_PERCEPTION_AND_LATENCY_RECORD.md` — exact-window temporal readiness, full-snapshot
+  action authority, poisoned-cache mutants with caching still disabled, and separately budgeted
+  deterministic provider/observe/capture/verification timing.
+- `26_CU_PHASE4_UNTRUSTED_OBSERVATION_RECORD.md` — the HMAC-authenticated pre-observation task graph,
+  untrusted AX/capture typing, branch receipts, six scope-widening mutants and the bounded benign
+  bidi control, with broad/live adversarial qualification still Target.
 - `vision/` — the owner's complete Bimax Mac Buddy north-star vision, preserved verbatim and required
   reading for Mac app, adaptive-runtime, performance, environment-intelligence, CU, and Trust work.
 - `ownership-manifest.json` — machine-readable starting ownership for the extraction tooling.

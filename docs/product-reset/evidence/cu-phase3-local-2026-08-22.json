@@ -1,0 +1,18 @@
+{
+  "status": "Measured",
+  "scope": "deterministic compiled arm64 provider fixture",
+  "date": "2026-08-22",
+  "command": "npm run cu:phase3:check",
+  "prerequisites": ["phase0", "phase1", "phase2"],
+  "tests": { "focusedSuites": 6, "focusedTests": 38, "passed": true },
+  "corpus": "deterministic-native-provider-fixture-v1",
+  "sampleCount": 10,
+  "measuredMs": {
+    "coldProviderConnect": 109.725583,
+    "warmObserveP95": 0.874,
+    "captureP95": 0.329,
+    "verificationP95": 0.815
+  },
+  "authorityCache": "disabled_pending_mutation_proof",
+  "limitations": ["not live app", "not TCC", "not x64 execution", "not product latency"]
+}

@@ -228,3 +228,11 @@ Local implementation evidence, 2026-08-22: `../24_CU_PHASE2_DETERMINISTIC_COMPLE
 and `../evidence/cu-phase2-local-2026-08-22.json` record the deterministic compiled-provider
 postcondition gate and its two false-success mutants. This is not a new external source, live-app
 evidence, Product-ready status, or a competitive Win.
+
+Phase 3/4 local follow-up, 2026-08-22:
+`../25_CU_PHASE3_PERCEPTION_AND_LATENCY_RECORD.md` and
+`../26_CU_PHASE4_UNTRUSTED_OBSERVATION_RECORD.md` record the deterministic full-snapshot/readiness
+gate, separate protocol-fixture latency buckets, authenticated pre-observation branch graph, six
+killed scope-widening mutants, and one usable bidi benign control. These are local implementation
+records derived from the external research constraints above; they add no new external fact and do
+not establish live-app performance, broad injection robustness, Product-ready status, or a Win.

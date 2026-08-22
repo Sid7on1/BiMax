@@ -241,7 +241,11 @@ export async function createMacCapabilityServer(cwd = process.env.BIMAX_CWD || p
       // rather than whatever it last cached. `false` refreshes without enforcing here — each tool
       // decides which of its operations mutate.
       await assertUserHasNotTakenControl(false);
-      const text = await tool.execute(request.params.arguments || {}, { cwd, sessionId: `mac-provider-${process.pid}` });
+      const text = await tool.execute(request.params.arguments || {}, {
+        cwd,
+        sessionId: `mac-provider-${process.pid}`,
+        trustedPlan: request.params?._meta?.bimaxTrustedPlan,
+      });
       let structuredContent: unknown;
       try { structuredContent = JSON.parse(text); } catch { /* text-only result */ }
       return { content: [{ type: 'text', text }], ...(structuredContent !== undefined ? { structuredContent } : {}) };

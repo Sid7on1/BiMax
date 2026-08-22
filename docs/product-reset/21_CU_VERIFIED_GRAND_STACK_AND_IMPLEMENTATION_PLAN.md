@@ -60,8 +60,8 @@ The main corrections are:
 | 3. Grounding | Semantic resolution/text folding/menu paths/frame binding Implemented locally; ROI/local grounder Target | Refuse ambiguity. Every pixel target is bound to the full source frame and revalidated before delivery. |
 | 4. Execution | Semantic/physical/visual/stop locally exercised; packaged logical-native adapter Implemented and deterministically Measured; live packaged qualification Target | Descent-only ladder. Physical input requires an explicit foreground lease. Production never activates a compatibility backend. |
 | 5. Verification | Typed packaged-native mutation contract Implemented and deterministically Measured in Phase 2; live/broader executors Target | Performed is not proven. A new observation and independent evaluator must establish the requested end state. |
-| 6. Reliability and latency | Settler/bounds and read-only native session revival Implemented; deterministic compiled restart proof Measured; live P6/cache experiments Target | Fix process/session correctness before optimizing. Measure cold start, warm action, observe, capture, and verification separately. |
-| 7. Adversarial security | Deterministic sensitive floors partly Implemented; observation quarantine Target | Screen text is untrusted data. It cannot grant authority, rewrite the task, or widen the plan. |
+| 6. Reliability and latency | Phase 3 full-snapshot readiness and separate deterministic latency buckets Implemented/Measured; live P6 and cache experiments Target | Fix process/session correctness before optimizing. Measure cold start, warm action, observe, capture, and verification separately. |
+| 7. Adversarial security | Phase 4 authenticated pre-observation graph and narrow quarantine corpus Implemented/Measured; broad/live adversarial qualification Target | Screen text is untrusted data. It cannot grant authority, rewrite the task, or widen the plan. |
 | 8. Workflow memory | Target | Store only receipt-backed journeys; replay is a hint; reobserve every step; invalidate on app/window/fingerprint drift. |
 | 9. Programmatic/native sources | Target | Shortcuts/JXA/broker work remains inside app-owned `mac_control`, with the same approval and receipt contract. Engine shell is not re-enabled in Control Mac turns. |
 | 10. Optional local AI and training | Research Target | Foundation Models, FastVLM/MLX, trajectory export and fine-tuning are capability-detected experiments after the base product passes. |
@@ -166,6 +166,11 @@ longer renders “not requested” for an accepted mutation.
 
 ### Phase 3 — perception readiness and measured latency
 
+Local core status, 2026-08-22: **Implemented and deterministically Measured** for exact-window
+readiness, full-snapshot authority and separate compiled-fixture timing. Exact record:
+`25_CU_PHASE3_PERCEPTION_AND_LATENCY_RECORD.md`. No cache/optimization was adopted; live tree
+quality, notification loss, multi-app corpus and packaged/TCC latency remain Target.
+
 Scope:
 
 - retain the existing one-attempt-per-pid Electron accessibility request; measure before/after tree
@@ -179,6 +184,11 @@ Exit: each adopted optimization meets a predeclared reliability/latency budget o
 no optimization changes the action authority or stale-frame rules.
 
 ### Phase 4 — untrusted observation boundary
+
+Local core status, 2026-08-22: **Implemented and deterministically Measured** on a narrow signed-plan
+fixture. Exact record: `26_CU_PHASE4_UNTRUSTED_OBSERVATION_RECORD.md`. The zero-escape/zero-benign-
+block result has denominators 6 and 1; broad multilingual/OCR/live hostile-content qualification
+remains Target.
 
 Scope:
 

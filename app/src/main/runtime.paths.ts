@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { randomBytes } from 'node:crypto';
 import { MAC_PROVIDER_SERVER_NAME } from '../shared/mac.provider';
 
 /**
@@ -51,6 +52,8 @@ export const NATIVE_COMPONENT_ENV: readonly string[] = [
   LIVE_PIP_HELPER_ENV,
 ];
 export const HOST_CAPABILITIES_ENV = 'BIMAX_HOST_CAPABILITIES_JSON';
+export const TRUSTED_PLAN_SECRET_ENV = 'BIMAX_CU_TRUSTED_PLAN_SECRET';
+export const TRUSTED_PLAN_REQUIRED_ENV = 'BIMAX_CU_TRUSTED_PLAN_REQUIRED';
 
 export interface RuntimeLayout {
   /** app.isPackaged — the only thing that distinguishes a shipped app from a dev shell. */
@@ -252,15 +255,24 @@ export function buildEngineChildEnv(input: ChildEnvInput): Record<string, string
   };
   // The generic engine never receives app routing flags. Only the provider learns package mode.
   delete env.BIMAX_DESKTOP_RELEASE_MODE;
+  delete env[TRUSTED_PLAN_SECRET_ENV];
+  delete env[TRUSTED_PLAN_REQUIRED_ENV];
   for (const variable of NATIVE_COMPONENT_ENV) delete env[variable];
   delete env[HOST_CAPABILITIES_ENV];
   if (input.resolved.macCapability) {
+    // One launch-scoped authentication key is shared only with the bundled engine and the
+    // app-owned provider. The model/renderer never sees it and therefore cannot forge task scope.
+    const trustedPlanSecret = randomBytes(32).toString('base64url');
+    env[TRUSTED_PLAN_SECRET_ENV] = trustedPlanSecret;
+    env[TRUSTED_PLAN_REQUIRED_ENV] = '1';
     const providerEnv: Record<string, string> = {
       BIMAX_CWD: input.projectDir,
       BIMAX_HOST_ARCH: input.architecture || (process.arch === 'arm64' ? 'arm64' : 'x64'),
       BIMAX_MAC_PROVIDER_AUTHORITY: 'electron-main',
       BIMAX_MAC_CONSENT_CHANNEL: 'engine-governor',
       BIMAX_DESKTOP_RELEASE_MODE: input.packaged ? 'packaged' : 'development',
+      [TRUSTED_PLAN_SECRET_ENV]: trustedPlanSecret,
+      [TRUSTED_PLAN_REQUIRED_ENV]: '1',
       // The preview is staged beside the provider in development and in Bimax.app/Contents/MacOS
       // when packaged. Deriving it from the already-resolved provider keeps packaged runs inside
       // the bundle and prevents an inherited path from selecting a foreign helper.

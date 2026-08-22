@@ -1,0 +1,21 @@
+{
+  "status": "Measured",
+  "scope": "authenticated deterministic arm64 provider fixture",
+  "date": "2026-08-22",
+  "command": "npm run cu:phase4:check",
+  "prerequisites": ["phase0", "phase1", "phase2", "phase3"],
+  "rootTests": { "suites": 2, "tests": 18, "passed": true },
+  "appTests": { "suites": 5, "tests": 50, "passed": true },
+  "corpus": "authenticated-observation-boundary-fixture-v1",
+  "killedMutants": [
+    "missing_or_tampered_plan",
+    "new_action",
+    "new_destination",
+    "new_recipient",
+    "new_text_payload",
+    "high_impact_observation_target"
+  ],
+  "measured": { "escapedAdversarialCases": 0, "blockedBenignCases": 0 },
+  "denominators": { "adversarialCases": 6, "benignCases": 1 },
+  "limitations": ["narrow local corpus", "not live hostile app", "not general injection safety", "not Product-ready"]
+}

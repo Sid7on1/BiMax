@@ -17,6 +17,7 @@ import path from 'node:path';
 import {
   resolveEngineCommand, resolveNativeComponent, buildEngineChildEnv, describeRefusal,
   packagedEnginePath, PackagedRuntimeError, OVERRIDE_ENV, NATIVE_COMPONENT_ENV,
+  TRUSTED_PLAN_REQUIRED_ENV, TRUSTED_PLAN_SECRET_ENV,
   EngineArtifactError, stagedEnginePath, type RuntimeLayout,
 } from '../main/runtime.paths';
 import { EngineSupervisor } from '../main/supervisor/supervisor';
@@ -232,8 +233,12 @@ describe('the engine child receives one generic local-provider contract', () => 
       BIMAX_LIVE_PIP_HELPER: `${APP}/Contents/MacOS/bimax-live-pip`,
       BIMAX_MAC_PROVIDER_AUTHORITY: 'electron-main',
       BIMAX_MAC_CONSENT_CHANNEL: 'engine-governor',
+      [TRUSTED_PLAN_REQUIRED_ENV]: '1',
       BIMAX_HOST_ARCH: expect.stringMatching(/^(arm64|x64)$/),
     });
+    expect(env[TRUSTED_PLAN_REQUIRED_ENV]).toBe('1');
+    expect(env[TRUSTED_PLAN_SECRET_ENV]).toHaveLength(43);
+    expect(contract.servers[0].env[TRUSTED_PLAN_SECRET_ENV]).toBe(env[TRUSTED_PLAN_SECRET_ENV]);
   });
 
   test('only the provider receives release mode derived from Electron package identity', () => {

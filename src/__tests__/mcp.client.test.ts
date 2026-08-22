@@ -2,7 +2,13 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { loadMcpServers } from '../mcp/config';
-import { approvalHandledByAppOwnedProvider, listAllMcpTools, registerMcpTools } from '../mcp/client';
+import {
+  approvalHandledByAppOwnedProvider,
+  listAllMcpTools,
+  mcpToolCallRequest,
+  registerMcpTools,
+} from '../mcp/client';
+import { runWithTrustedComputerPlan } from '../mind/computer.trusted.plan';
 import { ToolRegistry } from '../tools/tool.registry';
 import { IGovernor } from '../core/interfaces';
 
@@ -88,6 +94,22 @@ describe('host-provider catalog contract', () => {
     expect(approvalHandledByAppOwnedProvider('bimax-mac', 'mac_control')).toBe(true);
     expect(approvalHandledByAppOwnedProvider('bimax-mac', 'other_tool')).toBe(false);
     expect(approvalHandledByAppOwnedProvider('third-party', 'mac_control')).toBe(false);
+  });
+
+  test('attaches the authenticated task plan only to the app-owned Mac call', async () => {
+    const previous = process.env.BIMAX_CU_TRUSTED_PLAN_SECRET;
+    process.env.BIMAX_CU_TRUSTED_PLAN_SECRET = 'mcp-plan-test';
+    try {
+      await runWithTrustedComputerPlan('open Fixture', async () => {
+        expect(mcpToolCallRequest('bimax-mac', 'mac_control', { action: 'open' }))
+          .toHaveProperty('_meta.bimaxTrustedPlan.plan.normalizedInstruction', 'open fixture');
+        expect(mcpToolCallRequest('other', 'mac_control', { action: 'open' })).not.toHaveProperty('_meta');
+        expect(mcpToolCallRequest('bimax-mac', 'other_tool', {})).not.toHaveProperty('_meta');
+      });
+    } finally {
+      if (previous === undefined) delete process.env.BIMAX_CU_TRUSTED_PLAN_SECRET;
+      else process.env.BIMAX_CU_TRUSTED_PLAN_SECRET = previous;
+    }
   });
 
   test('collects every page and returns a deterministic tool order', async () => {

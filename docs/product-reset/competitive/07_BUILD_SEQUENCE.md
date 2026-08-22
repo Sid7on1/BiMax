@@ -36,6 +36,16 @@ Bimax meaningfully better, not the largest feature inventory.
    postcondition and succeeds only after exact target/window binding plus fresh native read-back.
    Performed-only false success and shared stop-result mutants fail the local gate. Physical, menu,
    visual-recovery and programmatic adapter mutations remain Target rather than silently widening.
+   **Phase 3 follow-up, 2026-08-22:** the native logical adapter now authorizes actions only from
+   complete event-tracked exact-window full snapshots, classifies readiness per observation/window
+   generation, and measures cold provider, observe, capture and verification separately. The
+   deterministic 10-sample corpus met its frozen budgets. Cache/diff optimization remains off until
+   live notification-loss/poisoned-cache evidence exists.
+   **Phase 4 follow-up, 2026-08-22:** Electron main now provisions a launch-scoped plan-authentication
+   key; the engine signs the original human instruction/action graph before observation and attaches
+   it only to app-owned `mac_control`; the provider blocks screen-origin scope widening before native
+   delivery. A narrow 6-adversarial/1-benign corpus met its zero/zero budget. Broad/live adversarial
+   qualification remains Target.
 6. Split product ownership without copying the engine. **Implemented and locally Measured
    2026-08-09 for the local migration:** filtered Terminal and Desktop histories build and test
    independently, Desktop is pinned to the exact split Terminal manifest, and both source-boundary

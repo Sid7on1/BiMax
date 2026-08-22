@@ -109,7 +109,12 @@ describe('native logical mac_control adapter', () => {
     expect(parsed(await adapter.execute({ action: 'open', bundleId: 'ai.bimax.fixture' }, context)))
       .toMatchObject({ ok: true, action: 'open', nativeTool: 'BimaxWorkspaceTool' });
     const observation = parsed(await adapter.execute({ action: 'observe' }, context));
-    expect(observation).toMatchObject({ ok: true, action: 'observe', frameId: 'snapshot-one' });
+    expect(observation).toMatchObject({
+      ok: true, action: 'observe', frameId: 'snapshot-one',
+      perception: { state: 'ready' },
+      snapshotAuthority: { usable: true, cache: 'disabled_pending_mutation_proof' },
+      adapterTiming: { phase: 'observe' },
+    });
     expect(observation.elements[0]).toMatchObject({ token: 'continue', elementIndex: 0 });
     expect(native.observe).toHaveBeenCalledWith({
       pid: 42, scope: 'window', profile: 'balanced',
@@ -356,5 +361,73 @@ describe('native logical mac_control adapter', () => {
       action: 'click', elementToken: 'continue', expect: 'Welcome',
     }, context)))
       .toMatchObject({ ok: false, executor: 'stop', code: 'native_selector_unresolved' });
+  });
+
+  test('does not let a poisoned diff snapshot or a warming tree authorize an action', async () => {
+    const poisoned = fixture();
+    poisoned.observe.mockResolvedValueOnce(JSON.stringify({
+      snapshotId: 'poisoned', baseSnapshotId: 'older', diff: { operations: [] },
+      sessionId: 'native-session', pid: 42, windowId: 7, windowGeneration: 3,
+      eventRevision: 12, eventTracking: true,
+      truncated: false, partial: false, changedDuringCapture: false, nodes: [],
+    }));
+    const adapter = createNativeLogicalMacControl(poisoned.surface, MAC_CONTROL_SCHEMA);
+    const context = { sessionId: 'task-poisoned-cache' };
+    await adapter.execute({ action: 'open', app: 'Fixture' }, context);
+    expect(parsed(await adapter.execute({ action: 'observe' }, context))).toMatchObject({
+      ok: false, executor: 'stop', code: 'native_snapshot_unavailable',
+    });
+    expect(poisoned.action).not.toHaveBeenCalled();
+
+    poisoned.observe.mockResolvedValueOnce(JSON.stringify({
+      snapshotId: 'warming', sessionId: 'native-session', pid: 42,
+      windowId: 7, windowGeneration: 3, eventRevision: 13,
+      eventTracking: true, truncated: false, partial: false, changedDuringCapture: false,
+      nodes: [{ token: 'continue', role: 'AXGroup', label: 'Continue', enabled: true }],
+    }));
+    expect(parsed(await adapter.execute({ action: 'observe' }, context))).toMatchObject({
+      ok: true, perception: { state: 'warming' },
+    });
+    expect(parsed(await adapter.execute({
+      action: 'click', elementToken: 'continue', expect: 'Welcome',
+    }, context))).toMatchObject({
+      ok: false, executor: 'stop', code: 'native_perception_not_ready',
+    });
+    expect(poisoned.action).not.toHaveBeenCalled();
+  });
+
+  test('does not carry retained snapshot authority across authenticated task ids', async () => {
+    const oldSecret = process.env.BIMAX_CU_TRUSTED_PLAN_SECRET;
+    const oldRequired = process.env.BIMAX_CU_TRUSTED_PLAN_REQUIRED;
+    process.env.BIMAX_CU_TRUSTED_PLAN_SECRET = 'task-isolation-secret';
+    process.env.BIMAX_CU_TRUSTED_PLAN_REQUIRED = '1';
+    const sign = (taskId: string) => {
+      const { createHmac } = require('node:crypto') as typeof import('node:crypto');
+      const now = Date.now();
+      const plan = {
+        version: 1, taskId, issuedAtMs: now, expiresAtMs: now + 60_000,
+        instructionHash: 'test', normalizedInstruction: 'open fixture and click continue',
+        allowedActions: ['click', 'observe', 'open'],
+      };
+      return { plan, signature: createHmac('sha256', 'task-isolation-secret')
+        .update(JSON.stringify(plan)).digest('base64url') };
+    };
+    try {
+      const native = fixture();
+      const adapter = createNativeLogicalMacControl(native.surface, MAC_CONTROL_SCHEMA);
+      const first = { sessionId: 'provider', trustedPlan: sign('first') };
+      const second = { sessionId: 'provider', trustedPlan: sign('second') };
+      await adapter.execute({ action: 'open', app: 'Fixture' }, first);
+      await adapter.execute({ action: 'observe' }, first);
+      expect(parsed(await adapter.execute({
+        action: 'click', elementToken: 'continue', expect: 'Welcome',
+      }, second))).toMatchObject({ ok: false, executor: 'stop', code: 'native_selector_unresolved' });
+      expect(native.action).not.toHaveBeenCalled();
+    } finally {
+      if (oldSecret === undefined) delete process.env.BIMAX_CU_TRUSTED_PLAN_SECRET;
+      else process.env.BIMAX_CU_TRUSTED_PLAN_SECRET = oldSecret;
+      if (oldRequired === undefined) delete process.env.BIMAX_CU_TRUSTED_PLAN_REQUIRED;
+      else process.env.BIMAX_CU_TRUSTED_PLAN_REQUIRED = oldRequired;
+    }
   });
 });

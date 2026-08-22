@@ -6,6 +6,7 @@ import { withTimeout } from '../utils/withTimeout'; // shared, leak-safe — a h
 import { recordMcpCall } from './stats';
 import { McpServerSpec } from './config';
 import { extractTaskRef, awaitTaskResult } from './tasks';
+import { getActiveTrustedComputerPlan } from '../mind/computer.trusted.plan';
 
 // The MCP SDK ships package "exports" maps that our classic TS moduleResolution can't follow
 // for types; the dual-published CJS build resolves fine at runtime, so we require() it at the
@@ -254,6 +255,20 @@ export function approvalHandledByAppOwnedProvider(serverName: string, toolName: 
   return serverName === 'bimax-mac' && toolName === 'mac_control';
 }
 
+export function mcpToolCallRequest(
+  serverName: string,
+  toolName: string,
+  args: Record<string, unknown>,
+): Record<string, unknown> {
+  const trustedPlan = approvalHandledByAppOwnedProvider(serverName, toolName)
+    ? getActiveTrustedComputerPlan() : undefined;
+  return {
+    name: toolName,
+    arguments: args,
+    ...(trustedPlan ? { _meta: { bimaxTrustedPlan: trustedPlan } } : {}),
+  };
+}
+
 /**
  * Connect to one MCP server (stdio) and register each of its tools into the registry as a
  * native-looking `mcp__<server>__<tool>` tool, governed like any other. Returns the
@@ -295,9 +310,10 @@ export async function connectAndRegister(
           const started = Date.now();
           try {
             let res: any;
+            const call = mcpToolCallRequest(spec.name, String(t.name || ''), coerced);
             try {
               res = await withTimeout<any>(
-                client.callTool({ name: t.name, arguments: coerced }),
+                client.callTool(call),
                 timeoutMs,
                 `MCP tool '${spec.name}/${t.name}'`,
               );
@@ -310,7 +326,7 @@ export async function connectAndRegister(
               const fresh = await healer(spec.name);
               if (!fresh) throw e;
               res = await withTimeout<any>(
-                fresh.callTool({ name: t.name, arguments: coerced }),
+                fresh.callTool(call),
                 timeoutMs,
                 `MCP tool '${spec.name}/${t.name}' (after reconnect)`,
               );

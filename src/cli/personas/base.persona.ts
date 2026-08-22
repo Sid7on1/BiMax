@@ -28,6 +28,7 @@ import { getExemplarStore } from '../../mind/exemplar.store';
 import { getPolicyArms } from '../../mind/policy.arms';
 import { getHarnessTuner } from '../../mind/harness.tuner';
 import { buildComputerUseModelPrompt } from './computer.playbook';
+import { runWithTrustedComputerPlan } from '../../mind/computer.trusted.plan';
 
 /**
  * Conservative app-owned Computer Use intent check.
@@ -476,6 +477,16 @@ export abstract class AgentPersona {
   }
 
   public async execute(prompt: string, onToken?: (token: string) => void, options?: { maxIterations?: number; planMode?: boolean; useLite?: boolean; images?: string[]; signal?: AbortSignal; internalTurn?: boolean; sessionId?: string }): Promise<string> {
+    const toolNames = this.toolRegistry.getToolNames();
+    if (explicitlyRequiresComputerUse(prompt) && appOwnedComputerUseToolName(toolNames)) {
+      // Bind authority before the model sees its first observation. AsyncLocalStorage keeps
+      // concurrent personas isolated while MCP calls inherit the authenticated task plan.
+      return runWithTrustedComputerPlan(prompt, () => this.executeTurn(prompt, onToken, options));
+    }
+    return this.executeTurn(prompt, onToken, options);
+  }
+
+  private async executeTurn(prompt: string, onToken?: (token: string) => void, options?: { maxIterations?: number; planMode?: boolean; useLite?: boolean; images?: string[]; signal?: AbortSignal; internalTurn?: boolean; sessionId?: string }): Promise<string> {
     // Fresh user turn: reset the per-turn "touched" flag so the loop's persistence check only reacts
     // to items THIS turn opens (no spurious "keep going" on an unrelated next message). The list
     // itself is kept — it's re-injected into the prompt so the model never forgets its own phases.

@@ -19,6 +19,14 @@ import {
   type RequestedLogicalDelivery,
   type TypedLogicalPostcondition,
 } from './native.logical.verification';
+import {
+  NativePerceptionLatency,
+  NativePerceptionReadiness,
+  nativeSnapshotAuthority,
+  type NativePerceptionPhase,
+} from './native.perception';
+import type { AxReadinessObservation } from './ax.readiness';
+import { authorizeTrustedBranch, verifyTrustedPlan, type TrustedBranchDecision } from './trusted.plan';
 
 interface NativeSnapshotNode {
   token?: unknown;
@@ -34,7 +42,9 @@ interface NativeSnapshotRecord {
   pid: number;
   windowId?: number;
   windowGeneration?: number;
+  eventRevision: number;
   nodes: NativeSnapshotNode[];
+  readiness: AxReadinessObservation;
 }
 
 interface LogicalSessionState {
@@ -89,7 +99,9 @@ function parseNativeResult(text: string, tool: string): Record<string, any> {
 
 function sessionId(context: unknown): string {
   const value = object(context).sessionId;
-  return typeof value === 'string' && value.trim() ? value.trim() : 'mac-logical-default';
+  const providerSession = typeof value === 'string' && value.trim() ? value.trim() : 'mac-logical-default';
+  const trustedPlan = verifyTrustedPlan(context);
+  return trustedPlan ? `${providerSession}:task:${trustedPlan.taskId}` : providerSession;
 }
 
 function logicalResult(
@@ -147,6 +159,11 @@ function stop(action: string, reason: string, code = 'native_logical_action_unav
   }, null, 2);
 }
 
+function branchStop(action: string, branch: TrustedBranchDecision): string {
+  const result = JSON.parse(stop(action, branch.reason, 'untrusted_observation_authority'));
+  return JSON.stringify({ ...result, observationSecurity: branch }, null, 2);
+}
+
 function requirePostcondition(
   action: 'open' | 'click' | 'type' | 'set_value' | 'arrange' | 'close',
   command: DesktopCommand,
@@ -156,15 +173,20 @@ function requirePostcondition(
     : { error: result.reason || `${action} needs a checkable postcondition` };
 }
 
-function snapshotFrom(value: Record<string, any>): NativeSnapshotRecord | null {
-  if (typeof value.snapshotId !== 'string' || !Number.isSafeInteger(value.pid) || value.pid <= 0) return null;
+function snapshotFrom(
+  value: Record<string, any>,
+  readinessTracker: NativePerceptionReadiness,
+): NativeSnapshotRecord | null {
+  if (!nativeSnapshotAuthority(value).usable) return null;
   return {
     snapshotId: value.snapshotId,
     pid: value.pid,
     ...(Number.isSafeInteger(value.windowId) && value.windowId > 0 ? { windowId: value.windowId } : {}),
     ...(Number.isSafeInteger(value.windowGeneration) && value.windowGeneration >= 0
       ? { windowGeneration: value.windowGeneration } : {}),
+    eventRevision: value.eventRevision,
     nodes: Array.isArray(value.nodes) ? value.nodes.map(object) : [],
+    readiness: readinessTracker.observe(value),
   };
 }
 
@@ -186,6 +208,8 @@ export function createNativeLogicalMacControl(
 ): CapabilityTool {
   const nativeTools = new Map(surface.tools.map(tool => [tool.name, tool]));
   const sessions = new Map<string, LogicalSessionState>();
+  const readiness = new NativePerceptionReadiness();
+  const latency = new NativePerceptionLatency();
 
   const stateFor = (context: unknown) => {
     const key = sessionId(context);
@@ -201,10 +225,14 @@ export function createNativeLogicalMacControl(
     name: string,
     args: Record<string, unknown>,
     context: unknown,
+    phase: NativePerceptionPhase,
   ): Promise<Record<string, any> | null> => {
     const tool = nativeTools.get(name);
     if (!tool) return null;
-    return parseNativeResult(await tool.execute(args, context), name);
+    const measured = await latency.measure(phase, async () => parseNativeResult(
+      await tool.execute(args, context), name,
+    ));
+    return { ...measured.value, adapterTiming: measured.timing };
   };
 
   const snapshotFor = (state: LogicalSessionState, command: DesktopCommand) => {
@@ -215,17 +243,17 @@ export function createNativeLogicalMacControl(
   const selectToken = (
     state: LogicalSessionState,
     command: DesktopCommand,
-  ): { snapshot: NativeSnapshotRecord; token: string } | { error: string } => {
+  ): { snapshot: NativeSnapshotRecord; token: string; node: NativeSnapshotNode } | { error: string } => {
     const snapshot = snapshotFor(state, command);
     if (!snapshot) return { error: 'observe first; this action needs a retained native snapshot' };
     if (command.elementToken) {
       const found = snapshot.nodes.find(node => node.token === command.elementToken);
-      return found ? { snapshot, token: command.elementToken }
+      return found ? { snapshot, token: command.elementToken, node: found }
         : { error: 'elementToken is not present in the retained native snapshot; observe again' };
     }
     if (command.elementIndex !== undefined) {
       const node = snapshot.nodes[Math.floor(command.elementIndex)];
-      return typeof node?.token === 'string' ? { snapshot, token: node.token }
+      return typeof node?.token === 'string' ? { snapshot, token: node.token, node }
         : { error: 'elementIndex is outside the retained native snapshot; observe again' };
     }
     if (command.query?.trim()) {
@@ -236,7 +264,7 @@ export function createNativeLogicalMacControl(
           ? `query is ambiguous in the retained native snapshot (${matches.length} matches)`
           : 'query did not match a retained native element; observe again' };
       }
-      return { snapshot, token: matches[0].token };
+      return { snapshot, token: matches[0].token, node: matches[0] };
     }
     return { error: 'this native semantic action needs query, elementToken, or elementIndex' };
   };
@@ -259,6 +287,13 @@ export function createNativeLogicalMacControl(
       const invalid = validateModelComputerCommand(command);
       if (invalid) return stop(action, invalid, 'invalid_arguments');
 
+      if (['open', 'click', 'type', 'set_value', 'arrange', 'close'].includes(action)) {
+        const admission = authorizeTrustedBranch(
+          action, command as unknown as Record<string, unknown>, undefined, context,
+        );
+        if (admission.decision === 'blocked') return branchStop(action, admission);
+      }
+
       const state = stateFor(context);
       const workspace = nativeTools.get('BimaxWorkspaceTool');
       const observe = nativeTools.get('BimaxObserveTool');
@@ -280,6 +315,11 @@ export function createNativeLogicalMacControl(
             if (['click', 'type', 'set_value'].includes(candidate)) return !!semantic;
             return true;
           }),
+          perception: {
+            authorityCache: 'disabled_pending_mutation_proof',
+            readinessScope: 'pid_window_generation_observation',
+          },
+          latency: latency.summary(),
         }, null, 2);
       }
 
@@ -289,7 +329,7 @@ export function createNativeLogicalMacControl(
         const value = await invoke('BimaxWorkspaceTool', {
           operation,
           ...(command.pid ? { pid: command.pid } : {}),
-        }, context) as Record<string, any>;
+        }, context, 'workspace') as Record<string, any>;
         if (action === 'frontmost') {
           return logicalResult(action, 'BimaxWorkspaceTool', {
             frontmostPid: value.frontmostPid,
@@ -304,18 +344,20 @@ export function createNativeLogicalMacControl(
         if (!workspace || !enumValues(workspace, 'operation').includes('launch_app')) {
           return stop(action, 'the verified native service cannot launch applications');
         }
+        const branch = authorizeTrustedBranch(action, command as unknown as Record<string, unknown>, undefined, context);
+        if (branch.decision === 'blocked') return branchStop(action, branch);
         const required = requirePostcondition(action, command);
         if ('error' in required) return stop(action, required.error, 'postcondition_required');
         const value = await invoke('BimaxWorkspaceTool', {
           operation: 'launch_app',
           ...(command.bundleId ? { bundleId: command.bundleId } : { appName: command.app }),
-        }, context) as Record<string, any>;
+        }, context, 'workspace') as Record<string, any>;
         const pid = value.app?.pid ?? value.resolved?.running?.[0]?.pid;
         if (Number.isSafeInteger(pid) && pid > 0) state.pid = pid;
         state.latestSnapshotId = undefined;
         state.snapshots.clear();
         return mutationResult(
-          action, 'BimaxWorkspaceTool', value,
+          action, 'BimaxWorkspaceTool', { ...value, observationSecurity: branch },
           gradeWorkspaceMutation(action, value, required.postcondition),
         );
       }
@@ -332,9 +374,11 @@ export function createNativeLogicalMacControl(
           profile: profiles.includes('balanced') ? 'balanced' : profiles[0],
           ...(command.windowId ? { windowId: command.windowId } : {}),
           ...(command.maxElements ? { maxElements: command.maxElements } : {}),
-          ...(command.query ? { query: command.query } : {}),
-        }, context) as Record<string, any>;
-        const snapshot = snapshotFrom(value);
+          // The native service must return the complete tree. Model-facing query selection happens
+          // locally; a filtered provider response is evidence, never action authority.
+        }, context, 'observe') as Record<string, any>;
+        const authority = nativeSnapshotAuthority(value);
+        const snapshot = snapshotFrom(value, readiness);
         if (!snapshot) return stop(action, 'native observe returned no retainable full snapshot', 'native_snapshot_unavailable');
         state.pid = snapshot.pid;
         state.latestSnapshotId = snapshot.snapshotId;
@@ -345,6 +389,14 @@ export function createNativeLogicalMacControl(
           nodes,
           elements: nodes,
           frameId: snapshot.snapshotId,
+          perception: snapshot.readiness,
+          snapshotAuthority: authority,
+          observationTrust: {
+            classification: 'untrusted_observation',
+            sources: ['accessibility'],
+            mayInform: 'selection_within_authenticated_branch',
+            mayNotGrant: ['actions', 'recipients', 'destinations', 'destructive_scope'],
+          },
         }, 'semantic');
       }
 
@@ -359,8 +411,16 @@ export function createNativeLogicalMacControl(
         const value = await invoke('BimaxCaptureTool', {
           mode: 'image', pid: snapshot.pid, windowId: snapshot.windowId,
           windowGeneration: snapshot.windowGeneration,
-        }, context) as Record<string, any>;
-        return logicalResult(action, 'BimaxCaptureTool', { ...value, frameId: snapshot.snapshotId }, 'visual');
+        }, context, 'capture') as Record<string, any>;
+        return logicalResult(action, 'BimaxCaptureTool', {
+          ...value,
+          frameId: snapshot.snapshotId,
+          observationTrust: {
+            classification: 'untrusted_observation', sources: ['screen_capture'],
+            mayInform: 'selection_within_authenticated_branch',
+            mayNotGrant: ['actions', 'recipients', 'destinations', 'destructive_scope'],
+          },
+        }, 'visual');
       }
 
       if (action === 'click' || action === 'type' || action === 'set_value') {
@@ -370,6 +430,20 @@ export function createNativeLogicalMacControl(
         }
         const selected = selectToken(state, command);
         if ('error' in selected) return stop(action, selected.error, 'native_selector_unresolved');
+        if (selected.snapshot.readiness.state !== 'ready') {
+          return stop(
+            action,
+            `native perception is ${selected.snapshot.readiness.state}; observe again before acting`,
+            'native_perception_not_ready',
+          );
+        }
+        const branch = authorizeTrustedBranch(
+          action,
+          command as unknown as Record<string, unknown>,
+          selected.node as Record<string, unknown>,
+          context,
+        );
+        if (branch.decision === 'blocked') return branchStop(action, branch);
         const required = requirePostcondition(action, command);
         if ('error' in required) return stop(action, required.error, 'postcondition_required');
         const nativeAction = action === 'click' ? 'invoke' : action === 'type' ? 'type_text' : 'set_value';
@@ -408,13 +482,14 @@ export function createNativeLogicalMacControl(
           evidenceTier: 1,
           postcondition: required.postcondition.predicate,
           settleTimeoutMs: 750,
-        }, context) as Record<string, any>;
+        }, context, 'verification') as Record<string, any>;
         state.latestSnapshotId = undefined;
         state.snapshots.clear();
         const output = {
           ...value,
           frameId: selected.snapshot.snapshotId,
           elementToken: selected.token,
+          observationSecurity: branch,
         };
         return mutationResult(
           action, 'BimaxActionTool', output,
@@ -434,6 +509,8 @@ export function createNativeLogicalMacControl(
         if (!snapshot?.windowId || snapshot.windowGeneration === undefined) {
           return stop(action, `${action} needs a retained exact-window observation; observe first`, 'native_snapshot_required');
         }
+        const branch = authorizeTrustedBranch(action, command as unknown as Record<string, unknown>, undefined, context);
+        if (branch.decision === 'blocked') return branchStop(action, branch);
         const operation = action === 'close' ? 'close_window' : 'set_window_frame';
         if (!enumValues(workspace, 'operation').includes(operation)) {
           return stop(action, `the native handshake has not verified ${operation}`);
@@ -461,11 +538,11 @@ export function createNativeLogicalMacControl(
           windowId: snapshot.windowId,
           windowGeneration: snapshot.windowGeneration,
           ...(tile ? { tile } : {}),
-        }, context) as Record<string, any>;
+        }, context, 'verification') as Record<string, any>;
         state.latestSnapshotId = undefined;
         state.snapshots.clear();
         return mutationResult(
-          action, 'BimaxWorkspaceTool', value,
+          action, 'BimaxWorkspaceTool', { ...value, observationSecurity: branch },
           gradeWorkspaceMutation(action, value, postcondition),
         );
       }
