@@ -4,6 +4,9 @@ import type { Config } from 'jest';
 // windows/processes out of the unit harness; the PiP contract test deletes this value temporarily
 // to assert that packaged production still defaults the feature on.
 process.env.BIMAX_COMPUTER_PIP ??= '0';
+// Synthetic runtime fixtures must never fall through to System Events for their fake app names.
+// MenuSurface itself has dedicated injected-runner coverage; runtime tests opt out of live menus.
+process.env.BIMAX_COMPUTER_USE_MENU_ADAPTER ??= '0';
 
 const config: Config = {
   preset: 'ts-jest',

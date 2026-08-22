@@ -30,6 +30,7 @@ describe('frontmost app is read from the cheapest authority', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     process.env.BIMAX_COMPUTER_USE_DRIVER = process.execPath;
+    process.env.BIMAX_COMPUTER_USE_DAEMON = '0';
     process.env.BIMAX_COMPUTER_PIP = '0';
     __resetConfigForTests();
     (openClient as jest.Mock).mockResolvedValue({ callTool, close: jest.fn() });
@@ -41,6 +42,7 @@ describe('frontmost app is read from the cheapest authority', () => {
 
   afterEach(() => {
     delete process.env.BIMAX_COMPUTER_USE_DRIVER;
+    delete process.env.BIMAX_COMPUTER_USE_DAEMON;
     delete process.env.BIMAX_COMPUTER_PIP;
     __resetConfigForTests();
   });

@@ -111,6 +111,7 @@ describe('recovery latch semantics (runtime)', () => {
     jest.clearAllMocks();
     windowStateFails = false;
     process.env.BIMAX_COMPUTER_USE_DRIVER = process.execPath;
+    process.env.BIMAX_COMPUTER_USE_DAEMON = '0';
     process.env.BIMAX_COMPUTER_RECORD = '0';
     process.env.BIMAX_COMPUTER_PIP = '0';
     process.env.BIMAX_COMPUTER_VISIBLE = '0'; // background delivery → sidecar click path
@@ -134,6 +135,7 @@ describe('recovery latch semantics (runtime)', () => {
 
   afterEach(() => {
     delete process.env.BIMAX_COMPUTER_USE_DRIVER;
+    delete process.env.BIMAX_COMPUTER_USE_DAEMON;
     delete process.env.BIMAX_COMPUTER_RECORD;
     delete process.env.BIMAX_COMPUTER_PIP;
     delete process.env.BIMAX_COMPUTER_VISIBLE;
@@ -247,6 +249,7 @@ describe('routing: one driver implementation per action, one ActionResult', () =
   beforeEach(() => {
     jest.clearAllMocks();
     process.env.BIMAX_COMPUTER_USE_DRIVER = process.execPath;
+    process.env.BIMAX_COMPUTER_USE_DAEMON = '0';
     process.env.BIMAX_COMPUTER_RECORD = '0';
     process.env.BIMAX_COMPUTER_PIP = '0';
     process.env.BIMAX_COMPUTER_VISIBLE = '1';
@@ -272,6 +275,7 @@ describe('routing: one driver implementation per action, one ActionResult', () =
 
   afterEach(() => {
     delete process.env.BIMAX_COMPUTER_USE_DRIVER;
+    delete process.env.BIMAX_COMPUTER_USE_DAEMON;
     delete process.env.BIMAX_COMPUTER_RECORD;
     delete process.env.BIMAX_COMPUTER_PIP;
     delete process.env.BIMAX_COMPUTER_VISIBLE;

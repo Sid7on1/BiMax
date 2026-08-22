@@ -175,6 +175,11 @@ export class SidecarTransport implements SidecarTransportPort {
    * — a pre-0.12 driver has no `serve` and exits immediately, which lands the caller on the
    * legacy single-process launch unchanged. */
   private async ensureDaemon(driver: string): Promise<string | null> {
+    // Explicit compatibility seam for legacy drivers and unit harnesses whose MCP client is
+    // injected. Production leaves this unset and probes the packaged >=0.12 daemon normally.
+    if (/^(0|off|false|disabled)$/i.test(process.env.BIMAX_COMPUTER_USE_DAEMON?.trim() || '')) {
+      return null;
+    }
     if (this.daemon && this.daemon.exitCode === null && this.daemonSocket && fs.existsSync(this.daemonSocket)) {
       return this.daemonSocket;
     }

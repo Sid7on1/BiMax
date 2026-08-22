@@ -97,6 +97,7 @@ describe('BimaxComputerRuntime', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     process.env.BIMAX_COMPUTER_USE_DRIVER = process.execPath;
+    process.env.BIMAX_COMPUTER_USE_DAEMON = '0';
     process.env.BIMAX_COMPUTER_RECORD = '0';
     process.env.BIMAX_COMPUTER_PIP = '0';
     // Isolate the suite from the developer machine's global config. Individual background tests
@@ -127,6 +128,7 @@ describe('BimaxComputerRuntime', () => {
 
   afterEach(() => {
     delete process.env.BIMAX_COMPUTER_USE_DRIVER;
+    delete process.env.BIMAX_COMPUTER_USE_DAEMON;
     delete process.env.BIMAX_COMPUTER_RECORD;
     delete process.env.BIMAX_COMPUTER_PIP;
     delete process.env.BIMAX_COMPUTER_VISIBLE;

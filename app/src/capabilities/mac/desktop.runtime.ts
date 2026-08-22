@@ -2197,7 +2197,15 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
   private axReadiness = new Map<string, AxReadinessPrevious>();
   /** Existing measured menu walker, now owned by the packaged Mac provider. */
   private readonly menuSurface = new MenuSurface(
-    async (script: string, signal?: AbortSignal) => (await exec('osascript', ['-e', script], 30_000, signal)).stdout,
+    async (script: string, signal?: AbortSignal) => {
+      // Unit runtimes use synthetic applications and mocked sidecars. Let the harness explicitly
+      // keep those tests hermetic; production leaves this unset and retains the measured native
+      // menu adapter. Dedicated MenuSurface tests inject their own runner and remain unaffected.
+      if (/^(0|off|false|disabled)$/i.test(process.env.BIMAX_COMPUTER_USE_MENU_ADAPTER?.trim() || '')) {
+        throw new Error('native menu adapter disabled by runtime configuration');
+      }
+      return (await exec('osascript', ['-e', script], 30_000, signal)).stdout;
+    },
   );
   /** Latest visual state per recently observed window. Eight bounded surfaces support normal
    * multi-app work while preventing an hours-long session from accumulating screenshot state. */

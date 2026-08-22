@@ -33,6 +33,7 @@ describe('confidence-aware computer-use loop', () => {
     fs.writeFileSync(BEFORE, 'before-frame');
     fs.writeFileSync(AFTER, 'after-frame');
     process.env.BIMAX_COMPUTER_USE_DRIVER = process.execPath;
+    process.env.BIMAX_COMPUTER_USE_DAEMON = '0';
     process.env.BIMAX_COMPUTER_PIP = '0';
     process.env.BIMAX_COMPUTER_VISIBLE = '0';
     __resetConfigForTests();
@@ -48,9 +49,21 @@ describe('confidence-aware computer-use loop', () => {
       if (name === 'get_window_state') return ok({
         screenshot_file_path: acted ? AFTER : BEFORE,
         screenshot_width: 700, screenshot_height: 500,
+        // This suite exercises the confidence/recovery loop, not sparse-AX menu fallback. Supply
+        // enough named controls to classify the synthetic window as AX-ready and keep the fake
+        // `Demo` app from reaching the real macOS menu adapter.
         elements: acted
-          ? [{ element_index: 2, role: 'AXHeading', label: 'Dashboard', frame: { x: 20, y: 40, w: 200, h: 30 } }]
-          : [{ element_index: 1, role: 'AXButton', label: 'Continue', enabled: true, frame: { x: 20, y: 40, w: 100, h: 30 } }],
+          ? [
+            { element_index: 2, role: 'AXHeading', label: 'Dashboard', frame: { x: 20, y: 40, w: 200, h: 30 } },
+            { element_index: 3, role: 'AXButton', label: 'Refresh', enabled: true, frame: { x: 240, y: 40, w: 100, h: 30 } },
+            { element_index: 4, role: 'AXButton', label: 'Account', enabled: true, frame: { x: 350, y: 40, w: 100, h: 30 } },
+            { element_index: 5, role: 'AXButton', label: 'Help', enabled: true, frame: { x: 460, y: 40, w: 100, h: 30 } },
+          ]
+          : [
+            { element_index: 1, role: 'AXButton', label: 'Continue', enabled: true, frame: { x: 20, y: 40, w: 100, h: 30 } },
+            { element_index: 3, role: 'AXButton', label: 'Cancel', enabled: true, frame: { x: 130, y: 40, w: 100, h: 30 } },
+            { element_index: 4, role: 'AXButton', label: 'Help', enabled: true, frame: { x: 240, y: 40, w: 100, h: 30 } },
+          ],
         max_elements_echo: args?.max_elements,
       });
       return ok({ ok: true });
@@ -61,6 +74,7 @@ describe('confidence-aware computer-use loop', () => {
     fs.rmSync(BEFORE, { force: true });
     fs.rmSync(AFTER, { force: true });
     delete process.env.BIMAX_COMPUTER_USE_DRIVER;
+    delete process.env.BIMAX_COMPUTER_USE_DAEMON;
     delete process.env.BIMAX_COMPUTER_PIP;
     delete process.env.BIMAX_COMPUTER_VISIBLE;
     __resetConfigForTests();
