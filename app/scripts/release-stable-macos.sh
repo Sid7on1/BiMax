@@ -30,6 +30,7 @@ owned=(
   "$app_bundle/Contents/MacOS/bimax-mac-capability"
   "$app_bundle/Contents/MacOS/bimax-cu-bridge"
   "$app_bundle/Contents/MacOS/bimax-desktop-helper"
+  "$app_bundle/Contents/MacOS/bimax-live-pip"
   "$app_bundle/Contents/XPCServices/BimaxCuService.xpc/Contents/MacOS/bimax-cu-service"
 )
 team=""

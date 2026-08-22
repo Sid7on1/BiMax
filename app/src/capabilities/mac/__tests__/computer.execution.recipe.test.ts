@@ -14,7 +14,7 @@ describe('computer execution recipes', () => {
     for (const action of ['status', 'apps', 'windows', 'observe', 'screenshot', 'cursor', 'frontmost', 'wait', 'record_status'] as const) {
       expect(computerExecutionRecipe({ action }).serialization).toBe('concurrent-read');
     }
-    for (const action of ['open', 'focus', 'click', 'type', 'key', 'drag', 'scroll', 'clipboard', 'record_start', 'record_stop'] as const) {
+    for (const action of ['open', 'focus', 'click', 'type', 'key', 'drag', 'scroll', 'clipboard', 'record_start', 'record_stop', 'menu_activate', 'menu_search'] as const) {
       expect(computerExecutionRecipe({ action }).serialization).toBe('machine-exclusive');
     }
   });

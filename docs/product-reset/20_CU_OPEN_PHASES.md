@@ -29,7 +29,7 @@ Two facts that shape everything else:
 
 ---
 
-## P0 — the session ends after every action (packaged provider only)
+## P0 — packaged-provider session retirement (locally resolved deterministically 2026-08-22)
 
 **Symptom (live):** every `mac_control` action fails with "session … has ended; call start_session".
 The model reported it as a concrete blocker and fell back to AppleScript.
@@ -45,6 +45,13 @@ MCP, session id `mac-provider-<pid>`. Reproduce ACROSS that boundary; in-process
 Revival already exists and looks correct: `app/src/capabilities/mac/transport.ts` —
 `isRetiredSessionError()` (~line 81) and two `start_session` re-issues (~lines 241, 302). Either it
 is not firing on this path, or the session is retired again immediately after revival.
+
+**Phase 1 result:** the native provider does not use that compatibility transport. Its
+`NativeToolCoordinator` now recreates a `session_not_found` task session and retries a read once,
+discarding every old snapshot authority. Mutations are never retried. The compiled MCP provider
+passed 10 sequential reads, deterministic native-service retirement, and provider restart through
+one logical `mac_control`. The original live packaged symptom still needs a rebuilt-app/TCC rerun;
+the deterministic result is not silently upgraded into live-app evidence.
 
 ---
 
@@ -66,11 +73,23 @@ non-viability from the tree, fall forward only for apps that genuinely cannot do
 
 ## P3 — nothing verifies that an action worked
 
-Every action in the UI reads "Not confirmed — not requested". That is literal:
+**2026-08-22 packaged-native correction:** the Phase 2 logical adapter now requires a typed
+postcondition before every accepted mutation, derives only exact app/value/window defaults, and
+grades fresh native read-back. A bare `outcome:performed` returns
+`postcondition_unverified`; click/type without `expect` stop before effect. The compiled arm64
+provider fixture and two false-success mutants are preserved in
+`24_CU_PHASE2_DETERMINISTIC_COMPLETION_RECORD.md`.
+
+This closes P3 only for mutations already accepted by the packaged-native logical adapter.
+Physical, menu, visual-recovery and programmatic adapter mutations, plus live packaged-app proof,
+remain Target. The historical diagnosis below describes the compatibility UI/run that motivated
+the correction; it is no longer the packaged-native contract.
+
+In that historical compatibility UI, every action read "Not confirmed — not requested". That was literal:
 `postcondition: receipt?.postcondition ?? 'not requested'` — the model never sends `expect`, so no
 action is ever proven. A genuinely failed action reports `missed`; a refused one returns `ok:false`.
 
-**Undiagnosed, deliberately.** The last attempt to measure it was invalidated because the CU session
+**Historical diagnosis, retained.** The last compatibility attempt to measure it was invalidated because the CU session
 was dead for the whole run. One clean run distinguishes three different fixes:
 
 | what a clean run shows | what P3 actually is |
@@ -92,12 +111,17 @@ actions to ~4.
 
 ---
 
-## P6 — the conformance gate is flaky
+## P6 — live conformance is environmental; deterministic routing gate added 2026-08-22
 
 `phase2:check` failed the same three live assertions (semanticPerformed, physicalPerformed,
 stopBeforeEffect) immediately after install and passed on retry — three separate times in one day.
 Both runs are committed each time rather than only the green one. Until this is trustworthy, it
 cannot be used as evidence that P2 or P3 worked. Fix before relying on it.
+
+**Phase 1 result:** `cu:phase1:check` removes live TCC/application state from the routing/session
+release gate and uses a deterministic no-input native protocol fixture. The existing live
+conformance matrix remains separate and must preserve red and green attempts; it is still required
+for Product-ready claims.
 
 ---
 
@@ -396,13 +420,59 @@ Lumping these together is why past fixes became the next app's headache.
 
 # Suggested order for the next session
 
-1. **P7 wiring** — the surface itself is built and live-verified (`src/computer/menu.surface.ts`,
-   26 tests), but nothing in the runtime calls it. Finish it: expose menus in observation, add the
-   semantic action, then scope item 4 — prefer menus for commands, keep clicking for content. Until
-   that lands P7 is a capability, not a behaviour, and the model still cannot reach Spotify.
+**2026-08-20 correction:** the old first item below is no longer current. The working tree now wires
+the retained Menu capability into `app/src/capabilities/mac`; no second Terminal- or DMG-specific CU
+copy was created or removed. The implementation classifies temporal AX readiness instead of
+permanently labelling Spotify AX-poor, exposes menus as a command-intent adapter, keeps vision
+eligible whenever requested content is absent semantically, and treats menu search as the
+transaction open search → type → reobserve → ground result → select → verify. Menu mutations use
+the same acting, serialization, takeover, receipt and post-action evidence path as other mutations.
+
+The 2026-08-20 WhatsApp trace also produced two contract fixes: model observations now expose one
+canonical element handle instead of inviting `elementToken + elementIndex`, and typing resolves
+only editable controls before delivery, preventing a button whose value merely contains the word
+“message” from outranking the `AXTextArea` composer. Background-capable semantic actions are the
+default, and the exact-window nonactivating ScreenCaptureKit Live Target is wired into packaging.
+
+These changes are **Implemented and locally unit-Measured**. They remain short of Product-ready
+until a packaged app run preserves evidence for Spotify cold launch, stable AX, search-result
+selection and forced AX-opaque vision, plus WhatsApp recipient selection, composer mutation, send,
+exact postcondition, continuous Live Target frames, and proof that Bimax stayed frontmost.
+
+1. Run and preserve those packaged journeys; do not upgrade from local implementation evidence.
 2. **P0 session death** across the packaged provider boundary (in-process is exonerated).
 3. **P6 conformance flakiness** — until it is trustworthy it cannot prove P2 or P3 worked.
-4. **P8 vision floor** — detector-first; measure before adding the captioner. Note P7 shrinks what
-   this has to cover: it is now a floor for content, not for commands.
-5. P2 background, P3 verification, P4 learning. P2 gains a measured data point — a menu command
-   activates in the background without stealing focus, where a Notes row refuses with -25206.
+4. Complete the **P8 vision floor** with detector-first measurement for semantically absent content.
+5. Extend the Phase 2 postcondition grader to accepted physical, menu and visual-recovery mutations,
+   then continue P4 learning only from receipt-backed journeys.
+
+---
+
+## 2026-08-20 general ladder + installed build status
+
+The current implementation and package no longer encode a particular app as an AX-poor class or a
+special runtime route. AX readiness belongs to a window observation and can recover after cold
+launch; Menu adapts command intent but never stands in for content; and the existing visual path
+remains eligible whenever the requested content is not represented semantically. App names remain
+only where a historical measurement or regression fixture needs provenance.
+
+Menu activation and Menu-opened search now share the acting mutex, takeover guard, background
+delivery policy, action receipts and post-action evidence path. Background Menu delivery measures
+the human's frontmost app before and after the mutation, restores it if the target stole focus, and
+does not claim completion after a foreground violation. Search now has six required stages — open,
+type, reobserve, ground, select and verify — and stops before any stage whose recipient or expected
+state is not proven.
+
+The general packaged fixture is preserved at
+`app/benchmarks/computer-use/results/phase2/run-2026-08-20T13-53-53.109Z/report.json`; every asserted
+semantic, physical, visual, stop, temporal-readiness, content-policy, transaction, foreground and
+M02 exact-state row passed. The full local test result is 94 suites / 1,103 tests. The corrected
+local packaging path also rebuilt an arm64 bundle from source and passed strict nested signature
+and package-component verification. That source-equivalent candidate is installed at
+`/Applications/Bimax.app`, while the prior build remains recoverable at
+`/Applications/Bimax.app.backup-20260820-192506`.
+
+Status remains **Implemented and locally Measured**, not Product-ready. Broad live-app evidence,
+continuous mini-window UI proof, clean-Mac TCC, Developer ID/hardened-runtime signing, notarization,
+and physical visual action without an honest foreground escalation remain **Target**. No claim is
+made that macOS permits arbitrary pixel input into a background window.

@@ -35,13 +35,12 @@ function toolUnderTest() {
 
 beforeEach(() => { (globalThis as any).__runtimeReached = undefined; });
 
-describe('mac_control refuses ambiguous arguments before the runtime sees them', () => {
+describe('mac_control canonicalizes proven duplicate handles and refuses real ambiguity', () => {
   /**
-   * The exact command from the live 2026-08-18 "send hi to my mom using Messages" run. It carried
-   * two selectors; elementToken silently won, missed, and the model was told its handle was stale —
-   * so it re-sent the same malformed call three times and burned the turn.
+   * The exact shape from the live Messages/WhatsApp runs. Bimax exposed two spellings of one handle,
+   * the model copied both, and the provider refused the spoon-fed target before doing useful work.
    */
-  it('names the colliding selectors instead of reporting a stale handle', async () => {
+  it('collapses the token/index pair copied from one observed element', async () => {
     const { tool, approvals } = toolUnderTest();
     const out = JSON.parse(await tool.execute({
       app: 'Messages', action: 'type', text: 'Hi Mom2',
@@ -49,11 +48,24 @@ describe('mac_control refuses ambiguous arguments before the runtime sees them',
       frameId: 'f1-60545-39304', windowId: 39304, pid: 60545,
     } as any, { cwd: '/tmp', sessionId: 't' } as any));
 
-    expect(out.ok).toBe(false);
-    expect(out.code).toBe('invalid_arguments');
+    expect(out.ok).toBe(true);
+    expect((globalThis as any).__runtimeReached?.[0]).toMatchObject({
+      action: 'type', elementToken: 's0001:2',
+    });
+    expect((globalThis as any).__runtimeReached?.[0]).not.toHaveProperty('elementIndex');
+    expect(approvals).toHaveLength(1);
+  });
+
+  it('still names and refuses a token/index pair that identifies different elements', async () => {
+    const { tool, approvals } = toolUnderTest();
+    const out = JSON.parse(await tool.execute({
+      app: 'Messages', action: 'type', text: 'Hi Mom2',
+      elementToken: 's0001:19', elementIndex: 2,
+      frameId: 'f1-60545-39304', windowId: 39304, pid: 60545,
+    } as any, { cwd: '/tmp', sessionId: 't' } as any));
+
+    expect(out).toMatchObject({ ok: false, code: 'invalid_arguments' });
     expect(out.error).toContain('elementToken + elementIndex');
-    expect(out.error).not.toContain('stale');
-    // The refusal must be free: no runtime call, and no approval slot spent on a malformed command.
     expect((globalThis as any).__runtimeReached).toBeUndefined();
     expect(approvals).toHaveLength(0);
   });
@@ -82,5 +94,27 @@ describe('mac_control refuses ambiguous arguments before the runtime sees them',
     ));
     expect(out.code).not.toBe('invalid_action');
     expect((globalThis as any).__runtimeReached?.[0]).toMatchObject({ action: 'type', text: 'hi' });
+  });
+
+  it('requires menu_search to name both the result and its verifiable end state', async () => {
+    const { tool, approvals } = toolUnderTest();
+    const out = JSON.parse(await tool.execute({
+      action: 'menu_search', searchText: 'Yellow', query: 'Yellow by Coldplay',
+    } as any, { cwd: '/tmp', sessionId: 't' } as any));
+    expect(out).toMatchObject({ ok: false, code: 'invalid_arguments' });
+    expect(out.error).toContain('expect');
+    expect(approvals).toHaveLength(0);
+  });
+
+  it('delivers one complete menu_search transaction contract to the runtime', async () => {
+    const { tool } = toolUnderTest();
+    await tool.execute({
+      action: 'menu_search', searchText: 'Yellow', query: 'Yellow by Coldplay', expect: 'Pause',
+      deliveryMode: 'foreground',
+    } as any, { cwd: '/tmp', sessionId: 't' } as any);
+    expect((globalThis as any).__runtimeReached?.[0]).toMatchObject({
+      action: 'menu_search', searchText: 'Yellow', query: 'Yellow by Coldplay', expect: 'Pause',
+    });
+    expect((globalThis as any).__runtimeReached?.[0]).not.toHaveProperty('deliveryMode');
   });
 });

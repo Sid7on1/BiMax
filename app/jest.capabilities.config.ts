@@ -1,5 +1,10 @@
 import type { Config } from 'jest';
 
+// Runtime tests construct the real default PiP adapter unless they inject a fixture. Keep native
+// windows/processes out of the unit harness; the PiP contract test deletes this value temporarily
+// to assert that packaged production still defaults the feature on.
+process.env.BIMAX_COMPUTER_PIP ??= '0';
+
 const config: Config = {
   preset: 'ts-jest',
   testEnvironment: 'node',

@@ -20,6 +20,9 @@ echo "Bimax-Cu Service → native-service/BimaxCuService.xpc …"
 echo "Desktop helper → native-service/bimax-desktop-helper …"
 ( cd "$DESKTOP_ROOT" && bun scripts/computer-use/stage-desktop-helper.ts darwin "$arch" native-service/bimax-desktop-helper )
 [ -x native-service/bimax-desktop-helper ] || { echo "error: desktop helper was not staged" >&2; exit 1; }
+echo "Live target preview → native-service/bimax-live-pip …"
+( cd "$REPO" && "$DESKTOP_ROOT/scripts/computer-use/stage-live-pip.sh" darwin "$arch" )
+[ -x native-service/bimax-live-pip ] || { echo "error: live target preview was not staged" >&2; exit 1; }
 echo "Mac capability provider → native-service/bimax-mac-capability …"
 ( cd "$DESKTOP_ROOT" && bun build --compile --target="$provider_target" src/capabilities/mac/provider.entry.ts --outfile native-service/bimax-mac-capability )
 [ -x native-service/bimax-mac-capability ] || { echo "error: mac capability provider was not staged" >&2; exit 1; }

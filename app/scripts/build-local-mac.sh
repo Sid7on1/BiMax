@@ -70,8 +70,13 @@ if [ -z "$ENGINE" ] && [ -x "../.engine-local/bimax-engine" ]; then
 fi
 if [ -n "$ENGINE" ]; then
   [ -x "$ENGINE" ] || { echo "error: engine is not an executable file: $ENGINE" >&2; exit 1; }
-  echo "   staging prebuilt engine: $ENGINE"
-  BIMAX_ENGINE_LOCAL_OVERRIDE="$ENGINE" bash scripts/prepare-engine.sh "$target"
+  if [ -x engine/bimax-engine ] && cmp -s "$ENGINE" engine/bimax-engine; then
+    echo "   reusing identical staged engine: engine/bimax-engine"
+  else
+    echo "error: the staged engine differs from $ENGINE; refusing to replace it during a non-destructive local build" >&2
+    echo "       stage the intended engine explicitly, then rerun this build" >&2
+    exit 1
+  fi
 else
   # Say exactly which command produces the missing input, in the product that owns it.
   echo "   no local engine found — resolving the pinned release from engine.lock.json"
@@ -84,19 +89,22 @@ fi
 # from Swift source. It is deliberately NOT run here — as of 2026-08-15 the sources for
 # BimaxCuBridge are missing from the working tree, so that script destroys the staged binaries and
 # then fails. Stage native-service yourself (see docs) and this build consumes it.
-for required in BimaxCuService.xpc bimax-cu-bridge bimax-desktop-helper; do
+for required in BimaxCuService.xpc bimax-cu-bridge bimax-desktop-helper bimax-live-pip; do
   [ -e "native-service/$required" ] || { echo "error: native-service/$required is missing — stage it before building" >&2; exit 1; }
 done
 echo "→ mac capability provider (the only native component built from TypeScript)"
 bun build --compile --target="bun-$target" src/capabilities/mac/provider.entry.ts --outfile native-service/bimax-mac-capability
 
-echo "→ package (unhardened, outside iCloud)"
-rm -rf "$OUT"
-npx electron-builder --mac "--$ARCH" \
+echo "→ package app directory (unhardened, outside iCloud)"
+[ ! -e "$OUT" ] || { echo "error: refusing to overwrite existing local build output: $OUT" >&2; exit 1; }
+npx electron-builder --mac "--$ARCH" --dir \
   -c.directories.output="$OUT" \
-  -c.mac.hardenedRuntime=false
+  -c.mac.hardenedRuntime=false \
+  -c.mac.identity=null
 
 APP="$OUT/mac-$ARCH/Bimax.app"
+echo "→ local nested signing (ad-hoc, no hardened runtime)"
+node scripts/sign-local-mac.mjs "$APP"
 echo "→ verify"
 codesign --verify --deep --strict "$APP"
 node ../scripts/verify-desktop-package.mjs "$APP" "$ARCH"

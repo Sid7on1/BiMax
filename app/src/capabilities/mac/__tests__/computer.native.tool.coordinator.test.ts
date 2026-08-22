@@ -87,6 +87,35 @@ describe('native operation tool coordinator', () => {
     await expect(second).resolves.toBe('Fixture / ai.bimax.fixture');
   });
 
+  test('recreates a retired session once for a read without replaying a mutation', async () => {
+    const fake = fakeClient();
+    fake.release();
+    const coordinator = new NativeToolCoordinator(handshake(), fake.client);
+    await coordinator.workspace('task-restart', {});
+
+    fake.raw.workspace
+      .mockRejectedValueOnce(Object.assign(new Error('session retired'), { code: 'session_not_found' }))
+      .mockResolvedValueOnce({ apps: [] });
+    fake.raw.createSession.mockResolvedValueOnce({ sessionId: 'native-session-two' });
+    await expect(coordinator.workspace('task-restart', {})).resolves.toEqual({ apps: [] });
+    expect(fake.raw.createSession).toHaveBeenCalledTimes(2);
+    expect(fake.raw.workspace).toHaveBeenLastCalledWith('native-session-two', {});
+
+    fake.raw.observe.mockResolvedValueOnce(snapshot('native-session-two'));
+    await coordinator.observe('task-restart', {});
+    const prepared = await coordinator.prepareAction('task-restart', {
+      snapshotId: 'snapshot-one', elementToken: 'button', action: 'invoke',
+      deliveryPolicy: 'background_only',
+    });
+    fake.raw.action.mockRejectedValueOnce(Object.assign(
+      new Error('session retired during delivery'), { code: 'session_not_found' },
+    ));
+    await expect(coordinator.performAction('task-restart', prepared)).rejects.toMatchObject({
+      code: 'session_not_found',
+    });
+    expect(fake.raw.action).toHaveBeenCalledTimes(1);
+  });
+
   test('accepts only coordinator-issued, task-bound actions and invalidates authority after delivery', async () => {
     const fake = fakeClient();
     fake.release();

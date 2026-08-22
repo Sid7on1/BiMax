@@ -1,5 +1,6 @@
 import { normalizeDesktopAction, PUBLIC_DESKTOP_ACTIONS, type DesktopCommand } from './desktop.runtime';
 import {
+  canonicalizeRedundantSelectors,
   renderComputerActionReference,
   unwrapActionEnvelope,
   validateModelComputerCommand,
@@ -10,6 +11,8 @@ import { assertProviderHostArchitecture, DesktopCapabilityGovernor } from './pro
 import type { CapabilityTool } from './provider.tool';
 import { globalNativeInputInterlock } from './native.input.interlock';
 import { refreshTakeoverAuthority } from './takeover.authority';
+import { decideDesktopProductionRouting } from './production.routing';
+import { createNativeLogicalMacControl } from './native.logical.adapter';
 
 const { Server } = require('@modelcontextprotocol/sdk/server/index.js');
 const { StdioServerTransport } = require('@modelcontextprotocol/sdk/server/stdio.js');
@@ -20,6 +23,8 @@ export const MAC_CONTROL_SCHEMA = {
   properties: {
     action: { type: 'string', enum: [...PUBLIC_DESKTOP_ACTIONS], description: 'Exactly one action per call.' },
     app: { type: 'string' }, bundleId: { type: 'string' }, query: { type: 'string' },
+    menuPath: { type: 'string', description: 'menu_activate: dotted indexPath copied from the latest menu catalog.' },
+    searchText: { type: 'string', description: 'menu_search: literal search text. Also provide query for the result and expect for its selected end state.' },
     elementToken: { type: 'string' }, elementIndex: { type: 'number' },
     x: { type: 'number' }, y: { type: 'number' }, toX: { type: 'number' }, toY: { type: 'number' },
     toQuery: { type: 'string' }, toElementToken: { type: 'string' }, toElementIndex: { type: 'number' },
@@ -28,7 +33,7 @@ export const MAC_CONTROL_SCHEMA = {
     button: { type: 'string' }, count: { type: 'number' }, value: { type: 'string' },
     expect: { type: 'string' }, expectMode: { type: 'string' }, frameId: { type: 'string' },
     maxElements: { type: 'number' }, includeScreenshot: { type: 'boolean' }, layout: { type: 'string' },
-    direction: { type: 'string' }, amount: { type: 'number' }, deliveryMode: { type: 'string', enum: ['foreground', 'background'] },
+    direction: { type: 'string' }, amount: { type: 'number' },
     captureScope: { type: 'string' }, ms: { type: 'number' }, pid: { type: 'number' }, windowId: { type: 'number' },
   },
   required: ['action'],
@@ -59,13 +64,51 @@ export class UserTakeoverError extends Error {
   }
 }
 
+export type PackagedMacControlBlocker =
+  | 'native_tools_unavailable'
+  | 'native_logical_adapter_pending';
+
+/**
+ * Preserve the one logical `mac_control` contract while failing closed in a packaged build.
+ *
+ * The verified native surface currently consists of several low-level MCP tools. Registering those
+ * beside (or instead of) `mac_control` would violate the explicit-Control-Mac allow-list and would
+ * invite the model to widen its acting authority. Until those native operations sit behind the
+ * logical adapter, packaged Desktop exposes a visible refusal rather than silently falling back to
+ * the compatibility runtime.
+ */
+export function blockedMacControlTool(
+  code: PackagedMacControlBlocker,
+  reason: string,
+): CapabilityTool {
+  return {
+    name: 'mac_control',
+    description: 'Desktop-owned macOS control is blocked because the packaged native route is not ready. The refusal is visible and never activates a compatibility backend.',
+    schema: MAC_CONTROL_SCHEMA,
+    isDestructive: false,
+    execute: async (args): Promise<string> => {
+      const unwrapped = unwrapActionEnvelope(args as Record<string, unknown>);
+      const action = normalizeDesktopAction(String(unwrapped.action || 'status'));
+      return JSON.stringify({
+        ok: false,
+        action,
+        code,
+        blocked: true,
+        visible: true,
+        reason,
+        error: reason,
+      }, null, 2);
+    },
+  };
+}
+
 /** Exported as a seam: the argument contract below is only meaningful if it is exercised through
  * the same entry point `mac_control` actually uses. */
 export function compatibilityTool(cwd: string, governor: DesktopCapabilityGovernor): CapabilityTool {
   const runtime = globalComputerSessionManager.forSession(`mac-provider-${process.pid}`);
   return {
     name: 'mac_control',
-    description: 'Desktop-owned macOS control ladder. Start with status or observe, act once from the freshest frame, then verify the returned end state. Prefer the separately listed semantic native tools when their schemas are available.',
+    description: `Desktop-owned macOS control. Default delivery is background: never activate the target app merely to improve evidence; return foreground_required when macOS cannot safely deliver. Observe, perform one transaction from the freshest frame, then trust only its post-action evidence. Menus are commands, never content.\n${renderComputerActionReference()}`,
     schema: MAC_CONTROL_SCHEMA,
     isDestructive: true,
     execute: async (args): Promise<string> => {
@@ -81,13 +124,13 @@ export function compatibilityTool(cwd: string, governor: DesktopCapabilityGovern
       // Models trained on browser-computer APIs emit {action:"press", key:"return"}; this runtime
       // calls that field `combo`. normalizeDesktopAction folds the verb, so fold the payload too —
       // otherwise an explicit Return is refused with the absurd "key needs combo".
-      const command = {
+      const command = canonicalizeRedundantSelectors({
         ...sanitized,
         action,
         ...(action === 'key' && !sanitized.combo && (unwrapped as any).key
           ? { combo: (unwrapped as any).key }
           : {}),
-      } as DesktopCommand;
+      } as DesktopCommand);
 
       // The model-facing contract, applied HERE rather than only in the CLI's ComputerTool.
       //
@@ -132,14 +175,54 @@ export function compatibilityTool(cwd: string, governor: DesktopCapabilityGovern
   };
 }
 
+export interface MacCapabilityToolBuildDependencies {
+  createNative?: typeof createEligibleNativeComputerTools;
+}
+
+/** Exported so the release boundary can be mutation-tested without starting an MCP transport. */
+export async function buildMacCapabilityTools(
+  cwd: string,
+  governor: DesktopCapabilityGovernor,
+  env: Record<string, string | undefined> = process.env,
+  dependencies: MacCapabilityToolBuildDependencies = {},
+): Promise<CapabilityTool[]> {
+  const packaged = env.BIMAX_DESKTOP_RELEASE_MODE === 'packaged';
+  const nativeDisabled = env.BIMAX_MAC_PROVIDER_DISABLE_NATIVE === '1';
+  const semanticOnly = env.BIMAX_CU_NATIVE_SEMANTIC_ROUTING_ENABLED === '1';
+  const routing = decideDesktopProductionRouting({
+    desktopHost: env.BIMAX_MAC_PROVIDER_AUTHORITY === 'electron-main',
+    packaged,
+    // Development historically probes the native surface on every provider start. Preserve that
+    // behavior while making the release decision explicit and independently testable.
+    nativeFullRequested: !nativeDisabled && !semanticOnly,
+    nativeRolloutSelected: !nativeDisabled && semanticOnly,
+  });
+
+  const createNative = dependencies.createNative ?? createEligibleNativeComputerTools;
+  const native = routing.attemptNative
+    ? await createNative(governor, undefined, undefined, routing.nativeMode).catch(() => null)
+    : null;
+
+  if (packaged) {
+    if (!native) {
+      return [blockedMacControlTool(
+        'native_tools_unavailable',
+        'packaged Computer Use is blocked because the verified native service tools are unavailable',
+      )];
+    }
+    return [createNativeLogicalMacControl(native, MAC_CONTROL_SCHEMA)];
+  }
+
+  const tools: CapabilityTool[] = [];
+  if (routing.registerCompatibility) tools.push(compatibilityTool(cwd, governor));
+  if (native) tools.push(...native.tools);
+  return tools.sort((a, b) => a.name.localeCompare(b.name));
+}
+
 export async function createMacCapabilityServer(cwd = process.env.BIMAX_CWD || process.cwd()): Promise<any> {
   assertProviderHostArchitecture();
   const governor = new DesktopCapabilityGovernor();
-  const tools: CapabilityTool[] = [compatibilityTool(cwd, governor)];
-  const native = process.env.BIMAX_MAC_PROVIDER_DISABLE_NATIVE === '1'
-    ? null : await createEligibleNativeComputerTools(governor).catch(() => null);
-  if (native) tools.push(...native.tools);
-  tools.sort((a, b) => a.name.localeCompare(b.name));
+  const tools = await buildMacCapabilityTools(cwd, governor);
 
   const server = new Server({ name: 'bimax-mac', version: '1.0.0' }, { capabilities: { tools: {} } });
   server.setRequestHandler(ListToolsRequestSchema, async () => ({

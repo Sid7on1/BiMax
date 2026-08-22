@@ -37,6 +37,7 @@ export const OVERRIDE_ENV: Record<ComponentName, string> = {
   cuBridge: 'BIMAX_CU_BRIDGE_BINARY',
   desktopHelper: 'BIMAX_DESKTOP_HELPER',
 };
+export const LIVE_PIP_HELPER_ENV = 'BIMAX_LIVE_PIP_HELPER';
 
 /**
  * The variables the engine child reads directly from its own environment. They are cleared before
@@ -47,6 +48,7 @@ export const NATIVE_COMPONENT_ENV: readonly string[] = [
   OVERRIDE_ENV.cuService,
   OVERRIDE_ENV.cuBridge,
   OVERRIDE_ENV.desktopHelper,
+  LIVE_PIP_HELPER_ENV,
 ];
 export const HOST_CAPABILITIES_ENV = 'BIMAX_HOST_CAPABILITIES_JSON';
 
@@ -259,6 +261,10 @@ export function buildEngineChildEnv(input: ChildEnvInput): Record<string, string
       BIMAX_MAC_PROVIDER_AUTHORITY: 'electron-main',
       BIMAX_MAC_CONSENT_CHANNEL: 'engine-governor',
       BIMAX_DESKTOP_RELEASE_MODE: input.packaged ? 'packaged' : 'development',
+      // The preview is staged beside the provider in development and in Bimax.app/Contents/MacOS
+      // when packaged. Deriving it from the already-resolved provider keeps packaged runs inside
+      // the bundle and prevents an inherited path from selecting a foreign helper.
+      [LIVE_PIP_HELPER_ENV]: path.join(path.dirname(input.resolved.macCapability), 'bimax-live-pip'),
     };
     // Desktop ALWAYS requires a takeover authority. Declaring it separately from supplying it is
     // what lets the provider tell "nobody owns takeover here" apart from "my host owed me an

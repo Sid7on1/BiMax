@@ -112,7 +112,7 @@ export function chooseMechanism(
 ): MechanismChoice {
   const isPointer = POINTER_VERBS.has(action);
   const isKeyboard = KEYBOARD_VERBS.has(action);
-  const isAxSet = action === 'set_value';
+  const isAxSet = action === 'set_value' || action === 'menu_activate' || action === 'menu_search';
 
   // Browser surfaces never touch the physical cursor — drive them over the automation protocol.
   if (surface.kind === 'browser-tab' || surface.kind === 'browser-context') {

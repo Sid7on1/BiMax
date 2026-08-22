@@ -10,6 +10,13 @@ import { loadMacCapabilityConfig as loadConfig } from './config';
 import { normalizedToPixel, screenshotToGlobal, elementCenterToScreenshot, globalFrameToScreenshot, frameCenter, pixelInImage, Frame } from './coordinates';
 import { SurfaceRegistry, ExecutionSurface, InputOwner, chooseMechanism, AutomationMechanism } from './surface';
 import { ExecutorLevel, classifyExecutorLevel, describeLevel } from './executor.ladder';
+import { MenuSurface, MenuCommand, MenuSurfaceError, describeMenuForModel, findSearchCommand } from './menu.surface';
+import { decideMenuAdapter, offerableMenuCommands } from './menu.intent';
+import { isCompleteMenuSearchTransaction, type MenuSearchTransactionStage } from './menu.transaction';
+import {
+  classifyAxReadiness, nextAxReadinessPrevious,
+  type AxReadinessObservation, type AxReadinessPrevious,
+} from './ax.readiness';
 import { DragMachine } from './drag';
 import { pointInFrame } from './coordinates';
 import { classifyVerification, VerificationResult, evaluateExpectation } from './verification';
@@ -57,6 +64,7 @@ export const PUBLIC_DESKTOP_ACTIONS = [
   'click', 'type', 'key', 'set_value', 'drag', 'scroll', 'hover', 'hold', 'mouse_down',
   'mouse_up', 'cursor', 'frontmost', 'move', 'copy', 'paste', 'clipboard', 'arrange',
   'desktop', 'close', 'quit_app', 'wait', 'record_start', 'record_status', 'record_stop',
+  'menu_activate', 'menu_search',
 ] as const;
 
 export type PublicDesktopAction = typeof PUBLIC_DESKTOP_ACTIONS[number];
@@ -72,6 +80,10 @@ export type DesktopAction = PublicDesktopAction
 
 export interface DesktopCommand {
   action: DesktopAction;
+  /** menu_activate: dotted 1-based index path copied from the current menu command catalog. */
+  menuPath?: string;
+  /** menu_search: literal text entered into the app's own search field. */
+  searchText?: string;
   x?: number; y?: number;
   toX?: number; toY?: number;
   dx?: number; dy?: number;
@@ -304,6 +316,9 @@ export interface DesktopResult {
   pid?: number;
   windowId?: number;
   elements?: unknown[];
+  /** Compact app-command adapter. Menus never represent window content. */
+  menu?: Array<{ path: string; indexPath: string }>;
+  menuSummary?: string;
   /** How many elements the capture resolved when the payload deliberately does not list them
    * (`screenshot`). The map itself is cached on the runtime, so semantic targeting is unaffected. */
   elementCount?: number;
@@ -385,6 +400,15 @@ const EDITABLE_AX_ROLES = new Set(['AXTextField', 'AXTextArea', 'AXSearchField',
 function isEditableElement(element: { role?: string; editable?: boolean } | undefined): boolean {
   if (!element) return false;
   return element.editable === true || EDITABLE_AX_ROLES.has(String(element.role || ''));
+}
+
+/** Remove the requested typing verb from a field description before semantic ranking. */
+export function editableTargetQuery(query: string): string {
+  const original = String(query || '').trim();
+  const stripped = original
+    .replace(/^(?:type|write|enter|input)\b\s*(?:(?:in|into|inside|on)\s+)?(?:a|an|the)?\s*/i, '')
+    .trim();
+  return stripped || original;
 }
 
 /**
@@ -1259,7 +1283,7 @@ export function sweepShots(dir: string, keep = 30): void {
 const ACTING_VERBS = new Set<DesktopAction>([
   'open', 'focus', 'click', 'type', 'key', 'set_value', 'drag', 'scroll', 'move',
   'hover', 'hold', 'mouse_down', 'mouse_up', 'copy', 'paste', 'clipboard',
-  'arrange', 'desktop', 'close', 'quit_app', 'wait',
+  'arrange', 'desktop', 'close', 'quit_app', 'wait', 'menu_activate', 'menu_search',
 ]);
 
 /** Sidecar RPCs that can change app/system state; reads deliberately stay available while paused. */
@@ -1273,7 +1297,7 @@ const MUTATING_DRIVER_CALLS = new Set([
  * state and therefore do not consume a window frame. */
 const FRAME_GATED_VERBS = new Set<DesktopAction>([
   'click', 'type', 'key', 'set_value', 'drag', 'scroll',
-  'hover', 'hold', 'mouse_down', 'mouse_up', 'copy', 'paste', 'arrange',
+  'hover', 'hold', 'mouse_down', 'mouse_up', 'copy', 'paste', 'arrange', 'menu_activate', 'menu_search',
 ]);
 
 /** Frame-gated verbs addressed by an IDENTITY the element map cannot invalidate.
@@ -1357,7 +1381,7 @@ export function ensureActionResult(result: DesktopResult): DesktopResult {
  * actionResult already states it, but models act on the summary SENTENCE: in a live WhatsApp run,
  * the model clicked to open a chat and reported "Sent the message. Done." with nothing typed or
  * sent. Put the verdict where it cannot be skipped so a non-committing action cannot read as done. */
-const VERDICT_VERBS = new Set<DesktopAction>(['click', 'type', 'key', 'set_value', 'drag', 'scroll']);
+const VERDICT_VERBS = new Set<DesktopAction>(['click', 'type', 'key', 'set_value', 'drag', 'scroll', 'menu_activate', 'menu_search']);
 
 export function stampSummaryVerdict(result: DesktopResult): DesktopResult {
   const outcome = result.actionResult;
@@ -2169,22 +2193,12 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
    * the caller is stuck on the same surface no matter what it asks for.
    */
   private pinnedWindow: { pid: number; windowId: number } | null = null;
-  /**
-   * Apps proven undriveable in background delivery, latched for the session.
-   *
-   * Background delivery reads an app through its accessibility tree. Mac Catalyst and some Electron
-   * apps publish that tree only while ACTIVE: measured on WhatsApp within one session, background
-   * observation returned 41 Vision-OCR items with zero editable fields and no actionable handle,
-   * while foreground returned 43 real AX nodes including the composer and the attachment control.
-   *
-   * With no handle to target, a background click still reports "delivered" and the screen never
-   * changes. That single fact is what every downstream fallback — Vision element synthesis, transient
-   * adoption, display context, reopen, the activation pulse — was separately compensating for, and
-   * what makes a run bounce between guards instead of doing the task. Detect the condition ONCE at
-   * observation and escalate this app to foreground for the rest of the session; the fallbacks then
-   * stop being load-bearing rather than each needing to be smarter.
-   */
-  private backgroundUnviableApps = new Set<string>();
+  /** Per-window temporal readiness. A cold sparse sample is never promoted to an app identity. */
+  private axReadiness = new Map<string, AxReadinessPrevious>();
+  /** Existing measured menu walker, now owned by the packaged Mac provider. */
+  private readonly menuSurface = new MenuSurface(
+    async (script: string, signal?: AbortSignal) => (await exec('osascript', ['-e', script], 30_000, signal)).stdout,
+  );
   /** Latest visual state per recently observed window. Eight bounded surfaces support normal
    * multi-app work while preventing an hours-long session from accumulating screenshot state. */
   private visualHistory = new Map<string, Map<string, VisualFingerprint>>();
@@ -2447,10 +2461,10 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
     return {
       ...current,
       enabled: cfg.computerPip === true,
-      // PiP is deliberately the composited human view now, so it can include unrelated windows.
-      // Recording remains separately window-scoped and capture-safe via captureSurface().
+      // PiP is the exact desktop-independent target window. It stays visible over Bimax without
+      // activating the controlled application and is never used for coordinates or input.
       captureSafe: current.captureSafe,
-      surface: current.surface || (this.captureSurface() ? `Human view · ${this.captureSurface()!.label}` : undefined),
+      surface: current.surface || (this.captureSurface() ? `Live target · ${this.captureSurface()!.label}` : undefined),
     };
   }
 
@@ -2750,12 +2764,59 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
    * strips model-supplied deliveryMode, so only config (or this internal test seam) can choose it. */
   private async defaultDelivery(cmd: DesktopCommand): Promise<'background' | 'foreground'> {
     if (cmd.deliveryMode) return cmd.deliveryMode;
-    const cfg = await loadConfig().catch(() => ({ computerVisible: true } as any));
+    const cfg = await loadConfig().catch(() => ({ computerVisible: false } as any));
     return cfg.computerVisible === false ? 'background' : 'foreground';
   }
 
   /**
-   * Say — once per app — when a background observation produced nothing clickable.
+   * Perform one semantic mutation under a measured background-focus invariant.
+   *
+   * AX menu items can often be pressed in a non-frontmost process. The old implementation refused
+   * all such actions before trying, turning a useful background capability into dead code. This
+   * transaction is app-agnostic: it records the human's current app, mutates through AX, checks
+   * again, and restores the prior app if macOS or the target unexpectedly activated itself.
+   */
+  private async backgroundMutation<T>(
+    delivery: 'background' | 'foreground',
+    mutate: () => Promise<T>,
+    ctx?: { cwd?: string; signal?: AbortSignal },
+  ): Promise<{
+    value: T;
+    focusPreserved: boolean;
+    frontmostBefore?: string;
+    frontmostAfter?: string;
+    restored?: boolean;
+  }> {
+    if (delivery !== 'background') {
+      return { value: await mutate(), focusPreserved: true };
+    }
+    const before = await this.frontmostApp().catch(() => '');
+    if (!before) {
+      throw new Error('background mutation refused: the current frontmost app could not be measured');
+    }
+    const value = await mutate();
+    const after = await this.frontmostApp().catch(() => '');
+    if (after && appNamesMatch(after, before)) {
+      return { value, focusPreserved: true, frontmostBefore: before, frontmostAfter: after };
+    }
+
+    let restored = false;
+    try {
+      const restore = await this.fallback.run({ action: 'open', app: before }, ctx);
+      const confirmed = await this.frontmostApp().catch(() => '');
+      restored = restore.ok && !!confirmed && appNamesMatch(confirmed, before);
+    } catch { /* the receipt below must still disclose both the focus move and failed restoration */ }
+    return {
+      value,
+      focusPreserved: false,
+      frontmostBefore: before,
+      frontmostAfter: after || undefined,
+      restored,
+    };
+  }
+
+  /**
+   * Describe this observation when background AX produced nothing clickable.
    *
    * This DIAGNOSES and does not act. Two earlier attempts to make it act were both wrong and are
    * recorded here so they are not tried again:
@@ -2771,12 +2832,10 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
    */
   private noteBackgroundViability(app: string | undefined, delivery: 'background' | 'foreground'): string | null {
     if (delivery !== 'background' || !app) return null;
-    if (this.backgroundUnviableApps.has(appKey(app))) return null;
     const actionable = this.observedElements.filter(element =>
       ACTIONABLE_AX_ROLES.has(String(element.role || '')) && element.visualOnly !== true);
     if (actionable.length > 0) return null;
-    this.backgroundUnviableApps.add(appKey(app));
-    return `${app} exposes NO clickable accessibility element while it is inactive, so element clicks in this app have nothing to target and would report as delivered while changing nothing — target it by query="<visible label>" or x/y, or use typing, which does not need a handle. Measured cause: with computerVisible false this app is read only by on-screen text recognition; setting computerVisible true (BIMAX_COMPUTER_VISIBLE=1) restores its real accessibility tree.`;
+    return `${app} exposes no background-activatable AX control in this observation. This is a current readiness/delivery fact, not a permanent classification of the app. Content absent from AX remains eligible for on-device vision; any physical-only action is refused with foreground_required instead of stealing focus.`;
   }
 
   /** Single-use whole-display approval tokens. Minted ONLY by authorizeFullDisplayRecording()
@@ -2871,6 +2930,51 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
         elementIndex: top.element.elementIndex,
         elementToken: top.element.elementToken,
         reasons: top.reasons,
+      },
+    };
+  }
+
+  /** Resolve a typing destination only among controls that can actually receive text. */
+  private resolveObservedEditableElement(
+    query: string,
+    target: ComputerTarget,
+  ): ObservedElement & { targeting: NonNullable<DesktopResult['targeting']> } {
+    const editable = this.observedElements.filter(isEditableElement);
+    if (editable.length === 0) {
+      // Preserve the AX-opaque visual-placeholder route. The caller may turn its exact screenshot
+      // rectangle into one PID/window-scoped background type_text operation.
+      return this.resolveObservedElement(query, target);
+    }
+    const intended = editableTargetQuery(query);
+    if (!this.observedTarget || this.observedTarget.pid !== target.pid || this.observedTarget.windowId !== target.windowId) {
+      throw new Error('semantic targeting needs a fresh observe of the current window');
+    }
+    const ranked = rankSemanticTargets(intended, editable);
+    if (ranked.ranked.length === 0 || ranked.confidence === 'none') {
+      const labels = editable.map(element => element.label || element.value || element.description)
+        .filter(Boolean).slice(0, 8).join(', ');
+      throw new Error(`no editable field matched "${query}"${labels ? `; editable fields include: ${labels}` : ''}`);
+    }
+    const top = ranked.ranked[0];
+    if (ranked.ambiguous || ranked.confidence === 'low') {
+      const choices = ranked.ranked.slice(0, 6)
+        .map(candidate => `${candidate.element.role || 'editable field'} "${candidate.element.label || candidate.element.value || '?'}"`
+          + (candidate.element.elementToken ? ` (elementToken ${candidate.element.elementToken})`
+            : candidate.element.elementIndex != null ? ` (elementIndex ${candidate.element.elementIndex})` : ''))
+        .join(', ');
+      throw new Error(`typing target "${query}" is ambiguous: ${choices}; name the exact composer/search field or use its single canonical handle`);
+    }
+    return {
+      ...top.element,
+      targeting: {
+        query,
+        confidence: ranked.confidence as 'high' | 'medium',
+        margin: ranked.margin,
+        label: top.element.label || top.element.value,
+        role: top.element.role,
+        elementIndex: top.element.elementIndex,
+        elementToken: top.element.elementToken,
+        reasons: ['editable control required', ...top.reasons],
       },
     };
   }
@@ -3772,6 +3876,7 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
     windowReconcileAttempt = 0,
     windowAcquireAttempt = 0,
     focusAttempt = 0,
+    readinessAttempt = 0,
   ): Promise<DesktopResult> {
     if (!target.windowId) throw new Error('observe needs pid + windowId; open or select an application window first');
     phaseTrace.sync('watch_accessibility', () => this.watchTargetAccessibility(target));
@@ -3949,7 +4054,7 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
         if (reacquired.windowId && reacquired.windowId !== target.windowId) {
           target.windowId = reacquired.windowId;
           this.targets.retargetWindow(target.pid, reacquired.windowId);
-          return this.observeTarget(target, cwd, session, cmd, windowReconcileAttempt, 1);
+          return this.observeTarget(target, cwd, session, cmd, windowReconcileAttempt, 1, focusAttempt, readinessAttempt);
         }
       } catch { /* fall through to the honest degraded observation below */ }
     }
@@ -3977,8 +4082,55 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
           try { await this.call('bring_to_front', { pid: target.pid, window_id: target.windowId }); }
           catch { await this.fallback.run({ action: 'open', app: target.app }); }
           await waitUntil(async () => !(await this.frontmostMismatch(target.app!)), { timeoutMs: 900, intervalMs: 40 });
-          return this.observeTarget(target, cwd, session, cmd, windowReconcileAttempt, windowAcquireAttempt, 1);
+          return this.observeTarget(target, cwd, session, cmd, windowReconcileAttempt, windowAcquireAttempt, 1, readinessAttempt);
         } catch { /* fall through and report the cause rather than pretending the tree is silent */ }
+      }
+    }
+    const targetableForReadiness = windowElements.filter((element: any) =>
+      !STRUCTURAL_AX_ROLES.has(String(element?.role || '')));
+    const namedForReadiness = targetableForReadiness.filter((element: any) => {
+      const label = String(element?.label || element?.value || element?.description || '').trim();
+      return !!label && !/^unlabeled\b/i.test(label);
+    });
+    const readinessKey = `${target.pid}:${target.windowId}`;
+    const readiness: AxReadinessObservation = classifyAxReadiness({
+      targetableCount: targetableForReadiness.length,
+      namedTargetableCount: namedForReadiness.length,
+      editableCount: windowElements.filter((element: any) => isEditableElement({
+        role: element?.role, editable: element?.editable,
+      })).length,
+      ...(backgroundAppBlockedWalk ? { backgroundBlockedBy: backgroundAppBlockedWalk } : {}),
+    }, this.axReadiness.get(readinessKey), readinessAttempt);
+    this.axReadiness.set(readinessKey, nextAxReadinessPrevious(readiness));
+    // A cold Electron/Chromium placeholder gets a bounded chance to become rich. Never focus here:
+    // a background restriction is classified above and returned honestly, not "fixed" by stealing
+    // the foreground. Later observations always classify again, so no app is permanently AX-poor.
+    if (readiness.state === 'warming' && readinessAttempt < 2) {
+      await new Promise(resolve => setTimeout(resolve, 140 * (readinessAttempt + 1)));
+      return this.observeTarget(
+        target, cwd, session, cmd,
+        windowReconcileAttempt, windowAcquireAttempt, focusAttempt, readinessAttempt + 1,
+      );
+    }
+
+    const nativeQueryMatched = !!cmd.query?.trim() && rawContainsQuery(windowElements);
+    const menuAdapter = decideMenuAdapter({
+      query: cmd.query,
+      axReady: readiness.state === 'ready',
+      nativeQueryMatched,
+    });
+    let menuCommands: MenuCommand[] = [];
+    if (menuAdapter.consultMenus && target.app) {
+      try {
+        const snapshot = await phaseTrace.time('menu:commands', () => this.menuSurface.snapshot(target.app!));
+        const offered = offerableMenuCommands(snapshot.commands);
+        const needle = String(cmd.query || '').trim().toLocaleLowerCase();
+        menuCommands = needle
+          ? [...offered.filter(command => command.path.join(' ').toLocaleLowerCase().includes(needle)),
+            ...offered.filter(command => !command.path.join(' ').toLocaleLowerCase().includes(needle))]
+          : offered;
+      } catch (error) {
+        cliEvents.emit('debug', `menu intent adapter unavailable for ${target.app}: ${(error as MenuSurfaceError)?.kind || 'unknown'}`);
       }
     }
     const screenshotFile = String(data?.screenshot_file_path || screenshot);
@@ -4055,7 +4207,7 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
         if (sameProcess && sameTopApp && live && liveId !== target.windowId) {
           target.windowId = liveId;
           this.targets.retargetWindow(target.pid, liveId);
-          return this.observeTarget(target, cwd, session, cmd, 1);
+          return this.observeTarget(target, cwd, session, cmd, 1, windowAcquireAttempt, focusAttempt, readinessAttempt);
         }
       } catch { /* exact-window preflight still refuses any unresolved mismatch before input */ }
     }
@@ -4171,7 +4323,7 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
     // An app that publishes nothing is exactly the case vision exists for. Any AX-opaque surface —
     // a web-view app, a canvas, a game, a remote desktop, a video player — lands here.
     const emptyTree = windowElements.length === 0;
-    if (canSampleVisuals && (nativeQueryMissing || thinUnnamedTree || outputInvisible || emptyTree)) {
+    if (canSampleVisuals && (menuAdapter.visionEligible || nativeQueryMissing || thinUnnamedTree || outputInvisible || emptyTree)) {
       foveatedTriggered = true;
       const shapeRegions = unnamedActionables.map((element: any, index: number) => {
         const global = elementFrame(element);
@@ -4356,6 +4508,14 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
             shapeRegions: foveatedShapeCount,
             latencyMs: foveatedLatencyMs,
           },
+          axReadiness: readiness,
+          menuAdapter: {
+            kind: menuAdapter.kind,
+            consulted: menuAdapter.consultMenus,
+            offered: menuCommands.length,
+            reason: menuAdapter.reason,
+            visionEligible: menuAdapter.visionEligible,
+          },
         },
       },
       completionGuidance: [
@@ -4367,9 +4527,15 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
         windowPreparationNotice(windowElements, screenshotWidth, screenshotHeight) || '',
         visualSampled ? 'Element RGB labels are sRGB-normalized supporting evidence; combine them with native label, role, geometry, and a fresh screenshot rather than clicking by colour alone.' : '',
         foveatedTriggered ? 'Items marked source=on_device_vision were discovered from screenshot pixels. They can propose a target, but input is still refused unless the native hit-test receipt confirms the live app, label/role context, and geometry.' : '',
-        backgroundAppBlockedWalk ? `This window exposed no accessibility content because ${backgroundAppBlockedWalk} is frontmost, not ${target.app || 'the target app'}. Do not conclude the app has a thin tree and do not fall back to clicking OCR pixels: focus the target app, then observe again.` : '',
+        menuCommands.length ? 'MENU COMMANDS are exact app commands, not window content. Use menu_activate only for command intent; search results, songs, conversations, and documents must still be grounded from AX or vision.' : '',
+        backgroundAppBlockedWalk ? `This window exposed no accessibility content because ${backgroundAppBlockedWalk} is frontmost, not ${target.app || 'the target app'}. This is background_restricted, not permanent AX poverty. Continue only with safe visual/background targeting; otherwise return foreground_required without switching apps.` : '',
       ].filter(Boolean).join(' '),
-      elements, tree, degraded, verification,
+      elements,
+      menu: menuCommands.length ? menuCommands.map(command => ({
+        path: command.path.join(' > '), indexPath: command.indexPath.join('.'),
+      })) : undefined,
+      menuSummary: menuCommands.length ? describeMenuForModel(menuCommands) : undefined,
+      tree, degraded, verification,
       summary: verification
         ? `observed ${target.app || `pid ${target.pid}`} window ${target.windowId}: verification query "${verificationQuery}" ${verification.matched ? `matched ${matchCount} semantic element${matchCount === 1 ? '' : 's'}` : 'was not found in native text; inspect the attached screenshot before deciding whether the state is complete'}`
         : degraded
@@ -5490,7 +5656,7 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
   ): Promise<{ element?: ObservedElement; preflight?: PointPreflight }> {
     if (!cmd.query?.trim() && !cmd.elementToken && cmd.elementIndex == null) return {};
     const element = cmd.query?.trim()
-      ? this.resolveObservedElement(cmd.query, target)
+      ? this.resolveObservedEditableElement(cmd.query, target)
       : this.resolveObservedHandle(target, cmd);
     const role = String(element.role || '');
     if (!isEditableElement(element)) {
@@ -5760,9 +5926,9 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
                 query: regroundQuery,
                 maxElements: cmd.maxElements,
                 includeScreenshot: true,
-                // Re-grounding against a menu-only background frame resolves nothing and reports it
-                // as "no semantic element matched", naming OCR strings as the visible labels.
-                focusIfBackground: true,
+                // A background contract may return thinner evidence, but it may never be widened
+                // into a focus steal merely to improve semantic re-grounding.
+                focusIfBackground: allowsEvidenceFocus(this.activeDelivery),
               });
               if (!refreshed.ok) throw new Error(refreshed.error || refreshed.summary);
               // Re-acquire the SAME element by identity in the new tree and rewrite the handle to
@@ -6307,6 +6473,213 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
             summary: `focused ${switched.target.app} as pid ${switched.target.pid}${switched.target.windowId ? ` window ${switched.target.windowId}` : ''}${switched.frontmostWarning ? `; WARNING: ${switched.frontmostWarning}` : '; fresh screen attached'}`,
           };
         }
+        case 'menu_activate': {
+          if (!target?.app) throw new Error('menu_activate needs an observed app; call open or observe first');
+          const indexPath = String(cmd.menuPath || '').split('.').map(Number);
+          if (indexPath.length < 2 || indexPath.some(part => !Number.isInteger(part) || part < 1)) {
+            throw new Error('menu_activate needs a dotted indexPath copied from the latest menu catalog');
+          }
+          await this.takeoverGuard?.require();
+          this.lastMechanismChoice = 'accessibility';
+          const mutation = await this.backgroundMutation(
+            delivery,
+            () => this.menuSurface.activateAndConfirm(target.app!, indexPath, ctx?.signal),
+            ctx,
+          );
+          const activated = mutation.value;
+          const evidence = await this.postActionEvidence(target, cwd, session);
+          const foregroundInvariant = {
+            preserved: mutation.focusPreserved,
+            before: mutation.frontmostBefore,
+            after: mutation.frontmostAfter,
+            restored: mutation.restored,
+          };
+          if (!mutation.focusPreserved) {
+            return {
+              ...evidence,
+              ok: false, action: 'menu_activate', driver, app: target.app, pid: target.pid, windowId: target.windowId,
+              details: {
+                code: 'background_focus_changed', command: activated.title,
+                menuPath: indexPath.join('.'), foregroundInvariant,
+                mutationReceipt: { delivered: true, mechanism: 'accessibility', confirmation: activated.confirmed },
+              },
+              actionResult: {
+                delivered: true, observed: 'failed', confidence: 'proven',
+                failureReason: `the menu command was delivered but changed the human foreground from ${mutation.frontmostBefore} to ${mutation.frontmostAfter || 'an unknown app'}${mutation.restored ? '; the previous app was restored' : '; restoration was not proven'}`,
+              },
+              summary: `menu command "${activated.title}" was delivered but violated background focus isolation; completion is not claimed`,
+            };
+          }
+          return {
+            ok: true, action: 'menu_activate', driver, app: target.app, pid: target.pid, windowId: target.windowId,
+            details: {
+              command: activated.title,
+              menuPath: indexPath.join('.'),
+              foregroundInvariant,
+              mutationReceipt: { delivered: true, mechanism: 'accessibility', confirmation: activated.confirmed },
+            },
+            actionReceipt: {
+              kind: 'pointer',
+              target: { app: target.app, pid: target.pid, windowId: target.windowId, element: activated.title, role: 'AXMenuItem' },
+              preflight: { recipientPid: target.pid, recipientApp: target.app, windowMatched: true, elementMatched: true, elementConfidence: 'high', stable: true, reason: 'fresh index path was re-read and enabled immediately before AX activation' },
+              commit: { delivered: true, recipientApp: target.app },
+              ...(evidence.actionResult?.postcondition ? { postcondition: evidence.actionResult.postcondition } : {}),
+            },
+            ...evidence,
+            summary: `activated menu command "${activated.title}" in ${target.app}; fresh post-action evidence attached`,
+          };
+        }
+        case 'menu_search': {
+          if (!target?.app || !target.windowId) throw new Error('menu_search needs an observed app window');
+          const searchText = String(cmd.searchText || '').trim();
+          const resultQuery = String(cmd.query || '').trim();
+          const expectedState = String(cmd.expect || '').trim();
+          if (!searchText || !resultQuery || !expectedState) {
+            throw new Error('menu_search is a transaction and needs searchText, query (result), and expect (selected end state)');
+          }
+          const transaction: Array<Record<string, unknown> & { stage: MenuSearchTransactionStage; ok: boolean }> = [];
+          const searchField = () => this.observedElements
+            .filter(isEditableElement)
+            .sort((a, b) => {
+              const aText = `${a.role || ''} ${a.label || ''} ${a.description || ''}`;
+              const bText = `${b.role || ''} ${b.label || ''} ${b.description || ''}`;
+              return Number(/search/i.test(bText)) - Number(/search/i.test(aText));
+            })[0];
+
+          let field = searchField();
+          if (!field) {
+            const snapshot = await this.menuSurface.snapshot(target.app, { force: true, signal: ctx?.signal });
+            const entry = findSearchCommand(snapshot.commands);
+            if (!entry) throw new Error(`${target.app} publishes no enabled Search/Find command and no semantic search field`);
+            await this.takeoverGuard?.require();
+            const openedSearch = await this.backgroundMutation(
+              delivery,
+              () => this.menuSurface.activate(target.app!, entry.indexPath, ctx?.signal),
+              ctx,
+            );
+            transaction.push({
+              stage: 'open_search', ok: openedSearch.focusPreserved,
+              via: entry.path.join(' > '), menuPath: entry.indexPath.join('.'),
+              foregroundInvariant: {
+                preserved: openedSearch.focusPreserved,
+                before: openedSearch.frontmostBefore,
+                after: openedSearch.frontmostAfter,
+                restored: openedSearch.restored,
+              },
+            });
+            if (!openedSearch.focusPreserved) {
+              return {
+                ok: false, action: 'menu_search', driver, app: target.app, pid: target.pid, windowId: target.windowId,
+                details: { code: 'background_focus_changed', transaction },
+                actionResult: {
+                  delivered: true, observed: 'failed', confidence: 'proven',
+                  failureReason: `opening search changed the human foreground from ${openedSearch.frontmostBefore} to ${openedSearch.frontmostAfter || 'an unknown app'}${openedSearch.restored ? '; the previous app was restored' : '; restoration was not proven'}`,
+                },
+                summary: 'search was opened but violated background focus isolation; Bimax stopped before typing',
+              };
+            }
+            await new Promise(resolve => setTimeout(resolve, 350));
+            await this.observeTarget(target, cwd, session, {
+              action: 'observe', query: 'search', maxElements: 600, includeScreenshot: true,
+              focusIfBackground: allowsEvidenceFocus(delivery),
+            });
+            field = searchField();
+            if (!field) {
+              transaction.push({
+                stage: 'type', ok: false,
+                reason: 'the Search/Find command was delivered, but no editable field appeared in the fresh semantic observation',
+              });
+              return {
+                ok: false, action: 'menu_search', driver, app: target.app, pid: target.pid, windowId: target.windowId,
+                details: { code: 'search_field_missing_after_open', transaction },
+                actionResult: {
+                  delivered: true, observed: 'failed', confidence: 'proven',
+                  failureReason: 'Search/Find opened through the app menu, but the fresh window state exposed no editable field; Bimax stopped before typing',
+                },
+                summary: 'opened the app search command in the background, but no semantic editable field appeared; stopped before typing',
+              };
+            }
+          } else {
+            transaction.push({ stage: 'open_search', ok: true, via: 'semantic editable field', element: field.label || field.role });
+          }
+
+          await this.takeoverGuard?.require();
+          this.lastMechanismChoice = 'accessibility';
+          let typingReceipt: unknown;
+          if (field?.elementToken || field?.elementIndex != null) {
+            const address = field.elementToken
+              ? { element_token: field.elementToken }
+              : { element_index: field.elementIndex };
+            await this.call('hotkey', {
+              pid: target.pid, window_id: target.windowId, session, delivery_mode: delivery,
+              ...address, keys: ['cmd', 'a'],
+            });
+            typingReceipt = await this.call('type_text', {
+              pid: target.pid, window_id: target.windowId, session, delivery_mode: delivery,
+              ...address, text: searchText,
+            });
+          } else if (delivery === 'foreground') {
+            const typed = await this.fallback.run({ action: 'type', text: searchText, app: target.app }, ctx);
+            if (!typed.ok) throw new Error(typed.error || typed.summary);
+            typingReceipt = typed;
+          } else {
+            transaction.push({
+              stage: 'type', ok: false,
+              reason: 'the observed search field has no AX token/index for background delivery',
+            });
+            return {
+              ok: false, action: 'menu_search', driver, app: target.app, pid: target.pid, windowId: target.windowId,
+              details: { code: 'foreground_required', transaction },
+              actionResult: {
+                delivered: false, observed: 'rejected', confidence: 'proven',
+                failureReason: 'the search field is visible but has no background-addressable AX handle; Bimax did not type into an unproven focus owner',
+              },
+              summary: 'menu_search refused with foreground_required: the visible search field has no semantic handle; Bimax did not switch apps or type',
+            };
+          }
+          transaction.push({ stage: 'type', ok: true, characters: searchText.length, receipt: typingReceipt });
+
+          await new Promise(resolve => setTimeout(resolve, 420));
+          const resultsFrame = await this.observeTarget(target, cwd, session, {
+            action: 'observe', query: resultQuery, maxElements: 1000, includeScreenshot: true,
+            focusIfBackground: allowsEvidenceFocus(delivery),
+          });
+          transaction.push({
+            stage: 'reobserve', ok: resultsFrame.ok,
+            frameId: resultsFrame.frameId, verification: resultsFrame.verification,
+          });
+          const grounded = this.resolveObservedElement(resultQuery, target);
+          this.assertClickableSemanticTarget(grounded);
+          transaction.push({
+            stage: 'ground_result', ok: true, query: resultQuery,
+            role: grounded.role, label: grounded.label || grounded.value,
+            source: grounded.visualOnly ? 'vision' : 'accessibility',
+          });
+
+          const selected = await this.runInner({
+            action: 'click', query: resultQuery, expect: expectedState, expectMode: cmd.expectMode,
+            deliveryMode: delivery, session,
+          }, ctx);
+          transaction.push({
+            stage: 'select', ok: selected.ok, receipt: selected.actionReceipt,
+            stageResult: selected.actionResult,
+          });
+          const selectedStateProven = selected.ok && selected.actionResult?.confidence === 'proven';
+          transaction.push({
+            stage: 'verify', ok: selectedStateProven,
+            expected: expectedState, evidence: selected.actionResult,
+          });
+          const verified = isCompleteMenuSearchTransaction(transaction);
+          return {
+            ...selected,
+            ok: verified,
+            action: 'menu_search',
+            details: { transaction, selectedResult: resultQuery, expectedState },
+            summary: verified
+              ? `searched ${target.app} for ${JSON.stringify(searchText)}, grounded "${resultQuery}", selected it, and VERIFIED "${expectedState}" in the fresh end state`
+              : `menu_search delivered through result selection, but the expected end state "${expectedState}" was not proven; do not claim completion`,
+          };
+        }
         case 'observe':
         case 'screenshot': {
           // Ownership is cleared at every user-turn boundary (dispose), but the APP stays open and
@@ -6709,7 +7082,7 @@ export class BimaxComputerRuntime implements DesktopRuntimePort {
           const args: any = { pid: target.pid, text: cmd.text || '', session, delivery_mode: delivery };
           if (target.windowId) args.window_id = target.windowId;
           if (cmd.query?.trim()) {
-            const resolved = this.resolveObservedElement(cmd.query, target);
+            const resolved = this.resolveObservedEditableElement(cmd.query, target);
             const role = String(resolved.role || '');
             if (isEditableElement(resolved) && resolved.elementToken) args.element_token = resolved.elementToken;
             else if (isEditableElement(resolved) && resolved.elementIndex != null) args.element_index = resolved.elementIndex;

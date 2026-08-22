@@ -12,4 +12,11 @@ describe('mac_control public tool contract', () => {
     ]));
     expect(JSON.stringify(MAC_CONTROL_SCHEMA)).not.toContain('ComputerTool');
   });
+
+  it('publishes Menu mutations but never lets the model widen background delivery', () => {
+    expect(MAC_CONTROL_SCHEMA.properties.action.enum).toEqual(expect.arrayContaining([
+      'menu_activate', 'menu_search',
+    ]));
+    expect(MAC_CONTROL_SCHEMA.properties).not.toHaveProperty('deliveryMode');
+  });
 });

@@ -19,10 +19,23 @@ Bimax meaningfully better, not the largest feature inventory.
    rebuilt arm64 package/provider route has also passed semantic, physical, visual and
    stop-before-effect postconditions plus M02 9/9 and the provider takeover assertion;
    fresh-machine release rows remain external.
-5. ~~Freeze the compatibility backend; it cannot silently activate in production.~~ **Implemented,
-   locally Measured 2026-08-09** — packaged Electron identity forces the full native gate and never
-   registers `ComputerTool`; native refusal is a visible unavailable state. Development keeps the
-   compatibility surface for qualification only.
+5. ~~Freeze the compatibility backend; it cannot silently activate in production.~~ **Corrected and
+   locally Measured at the compiled provider boundary 2026-08-22.** The 2026-08-09 policy existed,
+   but a later source audit found provider registration did not call it and always added
+   compatibility `mac_control`. CU Phase 0 now derives provider mode from Electron package identity,
+   lists one visible blocked `mac_control` in packaged mode, publishes no low-level acting tools,
+   and kills an unreachable-packaged-branch mutant over compiled MCP stdio. Development retains the
+   compatibility lab. At the end of Phase 0, a working native logical `mac_control` was the next
+   Target.
+   **Phase 1 follow-up, 2026-08-22:** the native logical adapter and read-only session revival are
+   now Implemented and locally Measured across the compiled provider using the deterministic
+   10-read/service-restart/provider-restart gate. Unsupported native verbs stop visibly and no
+   mutation is replayed after session retirement. Live packaged-app and physical adapter journeys
+   remain Target.
+   **Phase 2 follow-up, 2026-08-22:** every mutation this adapter accepts now requires a typed
+   postcondition and succeeds only after exact target/window binding plus fresh native read-back.
+   Performed-only false success and shared stop-result mutants fail the local gate. Physical, menu,
+   visual-recovery and programmatic adapter mutations remain Target rather than silently widening.
 6. Split product ownership without copying the engine. **Implemented and locally Measured
    2026-08-09 for the local migration:** filtered Terminal and Desktop histories build and test
    independently, Desktop is pinned to the exact split Terminal manifest, and both source-boundary
@@ -70,7 +83,11 @@ Exit: Bimax Terminal is credible beside Claude Code, Codex, and OpenCode even wi
 3. ~~Add fresh action receipts with app/window/executor/evidence/postcondition.~~ **Implemented,
    locally Measured 2026-08-09** for native actions and the basic transcript inspector; packaged
    arm64 M02 evidence is stored and fresh-Mac evidence remains Target.
-4. Add background/foreground classification and focus restoration.
+4. Add background/foreground classification and focus restoration. **Implemented and
+   deterministically Measured for accepted packaged-native semantic/launch/window actions in CU
+   Phase 2:** each receipt exposes requested/actual delivery and measured focus change, rejects a
+   background focus lease or changed foreground, and keeps physical input unsupported until it can
+   be foreground-lease-only. Live accepted physical proof remains Target.
 5. The Desktop provider/native coordinator owns the immediate input latch and rechecks it before
    the bridge. **Implemented, locally Measured 2026-08-09** at the capability layer, and the
    **visible pause/takeover/resume control is now Implemented and locally Measured** (Phase 5):

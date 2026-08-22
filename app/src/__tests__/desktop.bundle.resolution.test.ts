@@ -229,10 +229,30 @@ describe('the engine child receives one generic local-provider contract', () => 
       BIMAX_CU_SERVICE_BINARY: BUNDLE.cuService,
       BIMAX_CU_BRIDGE_BINARY: BUNDLE.cuBridge,
       BIMAX_DESKTOP_HELPER: BUNDLE.desktopHelper,
+      BIMAX_LIVE_PIP_HELPER: `${APP}/Contents/MacOS/bimax-live-pip`,
       BIMAX_MAC_PROVIDER_AUTHORITY: 'electron-main',
       BIMAX_MAC_CONSENT_CHANNEL: 'engine-governor',
       BIMAX_HOST_ARCH: expect.stringMatching(/^(arm64|x64)$/),
     });
+  });
+
+  test('only the provider receives release mode derived from Electron package identity', () => {
+    const providerMode = (packaged: boolean) => {
+      const env = buildEngineChildEnv({
+        parentEnv: { BIMAX_DESKTOP_RELEASE_MODE: packaged ? 'development' : 'packaged' },
+        extraEnv: {},
+        packaged,
+        path: '/usr/bin',
+        projectDir: '/proj',
+        resolved: { macCapability: BUNDLE.macCapability },
+      });
+      expect(env.BIMAX_DESKTOP_RELEASE_MODE).toBeUndefined();
+      const contract = JSON.parse(String(env.BIMAX_HOST_CAPABILITIES_JSON));
+      return contract.servers[0].env.BIMAX_DESKTOP_RELEASE_MODE;
+    };
+
+    expect(providerMode(false)).toBe('development');
+    expect(providerMode(true)).toBe('packaged');
   });
 
   test('an UNRESOLVED component is stripped, not left as the inherited hostile value', () => {
@@ -301,7 +321,7 @@ describe('the engine child receives one generic local-provider contract', () => 
 
   test('every legacy native variable is covered by the strip list', () => {
     expect([...NATIVE_COMPONENT_ENV].sort()).toEqual(
-      ['BIMAX_CU_BRIDGE_BINARY', 'BIMAX_CU_SERVICE_BINARY', 'BIMAX_DESKTOP_HELPER'].sort(),
+      ['BIMAX_CU_BRIDGE_BINARY', 'BIMAX_CU_SERVICE_BINARY', 'BIMAX_DESKTOP_HELPER', 'BIMAX_LIVE_PIP_HELPER'].sort(),
     );
   });
 });

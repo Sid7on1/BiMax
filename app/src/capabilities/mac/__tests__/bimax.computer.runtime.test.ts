@@ -411,6 +411,39 @@ describe('BimaxComputerRuntime', () => {
     }));
   });
 
+  it('types into WhatsApp Compose message instead of a message-bearing chat button', async () => {
+    process.env.BIMAX_COMPUTER_VISIBLE = '0';
+    __resetConfigForTests();
+    callTool.mockImplementation(async ({ name }: any) => {
+      if (name === 'start_session' || name === 'set_agent_cursor_enabled') return result({ ok: true });
+      if (name === 'launch_app') return result({ name: 'WhatsApp', pid: 42861, windows: [{ window_id: 2049 }] });
+      if (name === 'list_windows') return result({ windows: [{ window_id: 2049, is_on_screen: true, bounds: { x: 0, y: 0, width: 1567, height: 918 } }] });
+      if (name === 'get_window_state') return result({
+        screenshot_file_path: '/tmp/whatsapp-compose.png', screenshot_width: 1567, screenshot_height: 918,
+        elements: [
+          { element_index: 22, element_token: 's000f:22', role: 'AXButton', label: 'Chapter2Drip',
+            value: 'message, A little welcome gift', frame: { x: 72, y: 682, w: 391, h: 73 } },
+          { element_index: 47, element_token: 's000f:47', role: 'AXTextArea', label: 'Compose message',
+            frame: { x: 526, y: 879, w: 985, h: 26 } },
+        ],
+      });
+      if (name === 'type_text') return result({ effect: 'delivered' });
+      return result({ ok: true });
+    });
+    const runtime = new BimaxComputerRuntime(simulatedNative());
+    await runtime.run({ action: 'open', app: 'WhatsApp' });
+    const typed = await runtime.run({ action: 'type', query: 'Type a message', text: 'hi' });
+
+    expect(typed.ok).toBe(true);
+    expect(callTool).toHaveBeenCalledWith(expect.objectContaining({
+      name: 'type_text',
+      arguments: expect.objectContaining({
+        pid: 42861, window_id: 2049, delivery_mode: 'background',
+        element_token: 's000f:47', text: 'hi',
+      }),
+    }));
+  });
+
   it('attaches native sRGB evidence and reports bounded temporal element changes', async () => {
     callTool.mockImplementation(async ({ name }: any) => {
       if (name === 'start_session' || name === 'bring_to_front' || name === 'set_agent_cursor_enabled') return result({ ok: true });
@@ -4958,7 +4991,9 @@ describe('BimaxComputerRuntime', () => {
       starve = false;
       caps.length = 0;
       await runtime.run({ action: 'observe', maxElements: 60 }, { cwd: '/tmp' });
-      expect(caps).toEqual([120]);                  // healthy app never pays the deep walk at all
+      // Readiness stability may repeat the same cheap pass, but it must never widen to the deep
+      // 2000-node scan once content exists. The retry count is bounded by the readiness contract.
+      expect(caps).toEqual([120, 120, 120]);
     });
   });
 
@@ -5396,6 +5431,125 @@ describe('BimaxComputerRuntime', () => {
       );
       expect(typed.ok).toBe(false);
       expect(typed.error).toMatch(/is not editable; focus a text field first/);
+      await runtime.dispose();
+    });
+  });
+
+  describe('app-agnostic background Menu isolation', () => {
+    const menuDriver = () => async ({ name }: any) => {
+      if (name === 'start_session' || name === 'set_agent_cursor_enabled') return result({ ok: true });
+      if (name === 'launch_app') return result({
+        name: 'TargetApp', pid: 42, windows: [{ window_id: 7, title: 'Target' }],
+      });
+      if (name === 'list_windows') return result({
+        windows: [{ window_id: 7, title: 'Target', is_on_screen: true, bounds: { x: 0, y: 0, width: 500, height: 700 } }],
+      });
+      if (name === 'get_window_state') return result({
+        screenshot_file_path: '/tmp/bimax-menu-target.png', screenshot_width: 500, screenshot_height: 700,
+        elements: [{ element_index: 1, element_token: 'target:1', role: 'AXButton', label: 'Action' }],
+      });
+      return result({ ok: true });
+    };
+
+    const foregroundFixture = () => {
+      let frontmost = 'Bimax';
+      const native: any = {
+        run: jest.fn(async (cmd: any) => {
+          if (cmd.action === 'open' && cmd.app) frontmost = cmd.app;
+          return { ok: true, action: cmd.action, driver: 'native-helper', summary: cmd.action };
+        }),
+        quickStatus: () => ({ driver: 'native-helper', ready: true, accessibility: true, screenRecording: true }),
+        frontmostApp: async () => frontmost,
+      };
+      return { native, frontmost: () => frontmost, setFrontmost: (app: string) => { frontmost = app; } };
+    };
+
+    it('AX-activates a generic app command while preserving Bimax as frontmost', async () => {
+      callTool.mockImplementation(menuDriver());
+      const fixture = foregroundFixture();
+      const runtime = new BimaxComputerRuntime(fixture.native);
+      await runtime.run({ action: 'open', app: 'TargetApp', deliveryMode: 'background' }, { cwd: '/tmp' });
+      (runtime as any).menuSurface.activateAndConfirm = jest.fn(async () => ({
+        title: 'Do Action', confirmed: true, elapsedMs: 1,
+      }));
+
+      const activated = await runtime.run({
+        action: 'menu_activate', menuPath: '2.3', deliveryMode: 'background',
+      }, { cwd: '/tmp' });
+
+      expect(activated.ok).toBe(true);
+      expect(activated.details).toEqual(expect.objectContaining({
+        foregroundInvariant: expect.objectContaining({ preserved: true, before: 'Bimax', after: 'Bimax' }),
+      }));
+      expect(fixture.frontmost()).toBe('Bimax');
+      await runtime.dispose();
+    });
+
+    it('stops and restores the human app if a background menu command steals focus', async () => {
+      callTool.mockImplementation(menuDriver());
+      const fixture = foregroundFixture();
+      const runtime = new BimaxComputerRuntime(fixture.native);
+      await runtime.run({ action: 'open', app: 'TargetApp', deliveryMode: 'background' }, { cwd: '/tmp' });
+      (runtime as any).menuSurface.activateAndConfirm = jest.fn(async () => {
+        fixture.setFrontmost('TargetApp');
+        return { title: 'Do Action', confirmed: null, elapsedMs: 1 };
+      });
+
+      const activated = await runtime.run({
+        action: 'menu_activate', menuPath: '2.3', deliveryMode: 'background',
+      }, { cwd: '/tmp' });
+
+      expect(activated).toMatchObject({
+        ok: false,
+        actionResult: { delivered: true, observed: 'failed', confidence: 'proven' },
+        details: {
+          code: 'background_focus_changed',
+          foregroundInvariant: { preserved: false, before: 'Bimax', after: 'TargetApp', restored: true },
+        },
+      });
+      expect(fixture.frontmost()).toBe('Bimax');
+      expect(fixture.native.run).toHaveBeenCalledWith(expect.objectContaining({ action: 'open', app: 'Bimax' }), { cwd: '/tmp' });
+      await runtime.dispose();
+    });
+
+    it('opens generic Search through Menu in the background and stops before ungrounded typing', async () => {
+      callTool.mockImplementation(menuDriver());
+      const fixture = foregroundFixture();
+      const runtime = new BimaxComputerRuntime(fixture.native);
+      await runtime.run({ action: 'open', app: 'TargetApp', deliveryMode: 'background' }, { cwd: '/tmp' });
+      (runtime as any).observedElements = [];
+      (runtime as any).menuSurface.snapshot = jest.fn(async () => ({
+        app: 'TargetApp', menus: ['Edit'], elapsedMs: 1,
+        commands: [{
+          title: 'Search', rawTitle: 'Search', path: ['Edit', 'Search'], indexPath: [2, 4],
+          menu: 'Edit', enabled: true, hasSubmenu: false, destructive: false,
+        }],
+      }));
+      (runtime as any).menuSurface.activate = jest.fn(async () => ({ title: 'Search' }));
+      (runtime as any).observeTarget = jest.fn(async () => {
+        (runtime as any).observedElements = [];
+        return { ok: true, action: 'observe', driver: 'test', frameId: 'fresh-search-frame' };
+      });
+
+      const searched = await runtime.run({
+        action: 'menu_search', searchText: 'needle', query: 'Wanted Result', expect: 'Selected',
+        deliveryMode: 'background',
+      }, { cwd: '/tmp' });
+
+      expect(searched).toMatchObject({
+        ok: false,
+        details: {
+          code: 'search_field_missing_after_open',
+          transaction: [
+            { stage: 'open_search', ok: true, foregroundInvariant: { preserved: true, before: 'Bimax', after: 'Bimax' } },
+            { stage: 'type', ok: false },
+          ],
+        },
+        actionResult: { delivered: true, observed: 'failed', confidence: 'proven' },
+      });
+      expect((runtime as any).menuSurface.activate).toHaveBeenCalledWith('TargetApp', [2, 4], undefined);
+      expect(callTool.mock.calls.some(([request]) => request.name === 'type_text')).toBe(false);
+      expect(fixture.frontmost()).toBe('Bimax');
       await runtime.dispose();
     });
   });

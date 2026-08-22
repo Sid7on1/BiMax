@@ -129,7 +129,7 @@ export const COMPUTER_USE_FLASH_PLAYBOOK = `[Compact desktop playbook]
 
 - Use ComputerTool. Never replace the requested action with manual instructions.
 - Open the app with the exact app name the user gave. Do not invent a bundleId. The open result is already a fresh observation.
-- Act only on controls present in the newest result. Use exactly one selector: elementToken, query, or elementIndex. Never guess coordinates when a semantic selector exists.
+- Act only on controls present in the newest result. Use exactly one selector: prefer elementToken when present, otherwise query, otherwise elementIndex. Never return both token and index for one element, and never guess coordinates when a semantic selector exists.
 - Make one ComputerTool call per step, then read its returned state before deciding the next step.
 - Text field replacement: use set_value with the exact text and one fresh field selector. Use type only when appending is intended.
 - Checkbox or radio: if its fresh value is already 1/true, stop. Otherwise click it exactly once. Never click a selected toggle again.

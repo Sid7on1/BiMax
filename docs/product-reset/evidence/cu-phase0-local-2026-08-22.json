@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "phase": "cu-phase0-release-routing",
+  "recordedAt": "2026-08-22",
+  "status": "measured-local-routing-invariant",
+  "productReady": false,
+  "machine": {
+    "os": "macOS 26.5.2 (25F84)",
+    "architecture": "arm64"
+  },
+  "command": "npm run cu:phase0:check",
+  "checks": {
+    "typecheck": "pass",
+    "focusedSuites": 7,
+    "focusedTests": 74,
+    "productionBuild": "pass",
+    "compiledProvider": "Mach-O 64-bit executable arm64",
+    "development": {
+      "tools": ["mac_control"],
+      "structuredStatus": true
+    },
+    "packaged": {
+      "tools": ["mac_control"],
+      "mutationAction": "click",
+      "ok": false,
+      "blocked": true,
+      "visible": true,
+      "code": "native_tools_unavailable",
+      "compatibilityActionReached": false
+    }
+  },
+  "mutation": {
+    "change": "make the packaged registration branch unreachable",
+    "compiledVerifierExitCode": 1,
+    "failure": "packaged tools/list returned [] instead of the required mac_control schema",
+    "restored": true,
+    "restoredVerifier": "pass"
+  },
+  "limitations": [
+    "native logical adapter remains Target",
+    "packaged Computer Use remains deliberately blocked",
+    "fresh-Mac TCC, x64, signing, notarization and update persistence were not tested"
+  ]
+}

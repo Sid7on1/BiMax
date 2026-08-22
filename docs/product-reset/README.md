@@ -87,6 +87,17 @@ engine artifact plus its protocol schema; the Mac app pins and bundles one verif
   explain-only anomaly ranker, out-of-process capability worker, official simulator adapters,
   optional Computer Use pack, bounded MLX/Core ML contracts, adaptive-concurrency canary and the
   Starlight/Moonlight Runtime inspector, with every real-device/distribution row kept explicit.
+- `21_CU_VERIFIED_GRAND_STACK_AND_IMPLEMENTATION_PLAN.md` — the corrected 2026-08-22 Computer Use
+  stack, primary-source verification, stale-claim audit, phased delivery order, and Phase 0
+  fail-closed provider-routing implementation record.
+- `22_CU_PHASE0_RELEASE_ROUTING_RECORD.md` — the executable CU Phase 0 plan, compiled-provider
+  fail-closed proof, mutation result, exact acceptance boundary, and Phase 1 handoff.
+- `23_CU_PHASE1_NATIVE_LOGICAL_ADAPTER_RECORD.md` — the single native `mac_control` adapter,
+  read-only session revival, compiled 10-call/service-restart/provider-restart proof, and explicit
+  live-app/physical-delivery boundary.
+- `24_CU_PHASE2_DETERMINISTIC_COMPLETION_RECORD.md` — typed postconditions for every accepted
+  packaged-native mutation, fresh receipt grading, target/focus binding, false-success mutants,
+  and the physical/menu/visual/programmatic adapter work that remains Target.
 - `vision/` — the owner's complete Bimax Mac Buddy north-star vision, preserved verbatim and required
   reading for Mac app, adaptive-runtime, performance, environment-intelligence, CU, and Trust work.
 - `ownership-manifest.json` — machine-readable starting ownership for the extraction tooling.

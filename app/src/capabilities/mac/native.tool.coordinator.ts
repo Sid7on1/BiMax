@@ -72,6 +72,11 @@ interface NativeTaskState {
   snapshots: Map<string, RetainedCoordinatorSnapshot>;
 }
 
+function isRetiredNativeSession(error: unknown): boolean {
+  const code = error && typeof error === 'object' ? (error as { code?: unknown }).code : undefined;
+  return code === 'session_not_found';
+}
+
 export interface PreparedNativeTransaction {
   serviceSessionId: string;
   compiled: CompiledNativeTransaction;
@@ -535,8 +540,8 @@ export class NativeToolCoordinator {
   }
 
   public async workspace(taskSessionId: string, request: Record<string, unknown>): Promise<unknown> {
-    const state = await this.state(taskSessionId);
-    return this.client.workspace(state.serviceSessionId, request);
+    return (await this.readWithSession(taskSessionId,
+      state => this.client.workspace(state.serviceSessionId, request))).value;
   }
 
   public async appIdentity(taskSessionId: string, pid: number): Promise<string> {
@@ -570,9 +575,10 @@ export class NativeToolCoordinator {
   ): Promise<ResolvedNativeApplication> {
     this.requireWorkspaceOperation('resolve_app');
     const lookup = appLookup(input);
-    const state = await this.state(taskSessionId);
+    const result = await this.readWithSession(taskSessionId,
+      state => this.client.resolveApp(state.serviceSessionId, { ...lookup }));
     return validResolvedApplication(
-      await this.client.resolveApp(state.serviceSessionId, { ...lookup }), lookup,
+      result.value, lookup,
     );
   }
 
@@ -635,8 +641,8 @@ export class NativeToolCoordinator {
    */
   public async inspectFile(taskSessionId: string, path: unknown): Promise<unknown> {
     this.requireWorkspaceOperation('inspect_file');
-    const state = await this.state(taskSessionId);
-    return this.client.inspectFile(state.serviceSessionId, { path: absolutePath(path) });
+    return (await this.readWithSession(taskSessionId,
+      state => this.client.inspectFile(state.serviceSessionId, { path: absolutePath(path) }))).value;
   }
 
   public async prepareFileOperation(
@@ -923,8 +929,9 @@ export class NativeToolCoordinator {
   }
 
   public async observe(taskSessionId: string, request: Record<string, unknown>): Promise<NativeAXSnapshot> {
-    const state = await this.state(taskSessionId);
-    const value = await this.client.observe(state.serviceSessionId, request);
+    const result = await this.readWithSession(taskSessionId,
+      state => this.client.observe(state.serviceSessionId, request));
+    const { state, value } = result;
     if (!validSnapshot(value, state.serviceSessionId)) {
       throw new NativeBridgeTransportError('malformed_ax_snapshot', 'native service returned a malformed AX snapshot');
     }
@@ -1153,6 +1160,27 @@ export class NativeToolCoordinator {
     this.creating.set(taskSessionId, creation);
     try { return await creation; }
     finally { if (this.creating.get(taskSessionId) === creation) this.creating.delete(taskSessionId); }
+  }
+
+  /**
+   * A native-service restart retires its session table while the provider and bridge may remain
+   * healthy. Read operations are safe to retry once: discard every snapshot authority from the
+   * retired session, create a fresh task session, and repeat the read. Mutations deliberately do
+   * not use this helper because delivery may be ambiguous and must never be replayed.
+   */
+  private async readWithSession<T>(
+    taskSessionId: string,
+    read: (state: NativeTaskState) => Promise<T>,
+  ): Promise<{ state: NativeTaskState; value: T; restarted: boolean }> {
+    let state = await this.state(taskSessionId);
+    try {
+      return { state, value: await read(state), restarted: false };
+    } catch (error) {
+      if (!isRetiredNativeSession(error)) throw error;
+      if (this.tasks.get(taskSessionId) === state) this.tasks.delete(taskSessionId);
+      state = await this.state(taskSessionId);
+      return { state, value: await read(state), restarted: true };
+    }
   }
 
   private materializeNodes(snapshot: NativeAXSnapshot): Map<string, NativeAXNode> | null {

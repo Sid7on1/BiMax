@@ -67,6 +67,9 @@ mac:
     # The compatibility/product helper is compiled at build time; user machines never invoke swiftc.
     - from: native-service/bimax-desktop-helper
       to: MacOS/bimax-desktop-helper
+    # Non-activating ScreenCaptureKit exact-window preview shown while Bimax remains foreground.
+    - from: native-service/bimax-live-pip
+      to: MacOS/bimax-live-pip
     - from: native-service/bimax-mac-capability
       to: MacOS/bimax-mac-capability
   # notarize: { teamId: "YOUR_TEAM_ID" }   # uncomment for release; needs APPLE_ID + APPLE_APP_SPECIFIC_PASSWORD

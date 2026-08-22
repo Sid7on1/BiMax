@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "phase": "cu-phase1-native-logical-adapter",
+  "recordedAt": "2026-08-22",
+  "status": "measured-local-deterministic-provider-boundary",
+  "productReady": false,
+  "machine": {
+    "os": "macOS 26.5.2 (25F84)",
+    "architecture": "arm64"
+  },
+  "command": "npm run cu:phase1:check",
+  "checks": {
+    "typecheck": "pass",
+    "focusedSuites": 10,
+    "focusedTests": 98,
+    "productionBuild": "pass",
+    "phase0NativeUnavailableRefusal": "pass",
+    "compiledProvider": "Mach-O 64-bit executable arm64",
+    "packagedTools": ["mac_control"],
+    "route": "native_logical_adapter",
+    "sequentialReads": 10,
+    "serviceRestartRecovered": true,
+    "providerRestartRecovered": true,
+    "mutationReplayOnRetiredSession": false
+  },
+  "mutation": {
+    "change": "replace native adapter registration with native_logical_adapter_pending blocker",
+    "compiledVerifierExitCode": 1,
+    "failure": "status did not report route native_logical_adapter",
+    "restored": true,
+    "restoredVerifier": "pass"
+  },
+  "fixture": {
+    "kind": "deterministic-no-input-native-protocol",
+    "purpose": "compiled MCP/provider/session/restart proof without live TCC or application mutation",
+    "notLiveAppEvidence": true
+  },
+  "limitations": [
+    "physical delivery is not yet represented by the internal native adapter contract",
+    "live packaged-app end-state journeys remain Target",
+    "fresh-Mac TCC, x64, signing, notarization and update persistence were not tested"
+  ]
+}

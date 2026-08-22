@@ -17,6 +17,7 @@ const service = path.join(
   contents, 'XPCServices/BimaxCuService.xpc/Contents/MacOS/bimax-cu-service',
 );
 const bridge = path.join(contents, 'MacOS/bimax-cu-bridge');
+const livePip = path.join(contents, 'MacOS/bimax-live-pip');
 const provider = path.join(contents, 'MacOS/bimax-mac-capability');
 const executable = path.join(contents, 'MacOS/Bimax');
 const engine = path.join(contents, 'Resources/engine/bimax-engine');
@@ -61,7 +62,7 @@ function stopFixture(appPath) {
   spawnSync('pkill', ['-f', appPath], { encoding: 'utf8' });
 }
 
-for (const required of [bundle, service, bridge, provider, executable, engine, asar]) {
+for (const required of [bundle, service, bridge, livePip, provider, executable, engine, asar]) {
   if (!existsSync(required)) throw new Error(`packaged conformance: missing ${required}`);
 }
 
@@ -170,6 +171,18 @@ try {
     // contains the immediate pre-delivery latch instead of looking for Desktop policy in Terminal.
     packagedTakeoverInterlock: packagedProviderStrings.includes('computer_use_paused')
       && packagedProviderStrings.includes('explicit resume is required'),
+    temporalAxReadiness: packagedProviderStrings.includes('AX is still warming')
+      && packagedProviderStrings.includes('AX is ready now')
+      && packagedProviderStrings.includes('not a permanent app capability classification'),
+    semanticContentPolicy: packagedProviderStrings.includes('AX already represents the window; no command catalog is needed'),
+    searchSelectionTransaction: [
+      'open_search', 'ground_result', 'menu_search needs expect',
+      'selected it, and VERIFIED',
+    ].every((needle) => packagedProviderStrings.includes(needle)),
+    opaqueContentVisualPolicy: packagedProviderStrings.includes('menus cannot represent it')
+      && packagedProviderStrings.includes('vision remains eligible'),
+    backgroundNeverSilentlyFocuses: packagedProviderStrings.includes('foreground_required')
+      && packagedProviderStrings.includes('Bimax did not switch apps'),
     semanticPerformed: catalog?.verified?.includes('set_value') && catalog?.overclaimed?.length === 0,
     physicalPerformed: catalog?.results?.some((row) =>
       row.action === 'type_text' && row.status === 'performed'

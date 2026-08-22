@@ -202,3 +202,29 @@ AppKit application reopen) and bounded coach lifecycle logs. The corrected local
 with M1–M5 rejection, the 64×64 raw-bitmap Electron smoke, 3 focused suites / 9 tests, production
 build and strict deep ad-hoc verification. This is a local regression record, not a new external
 source and not evidence for clean-Mac TCC, Developer ID, notarization or Product-ready status.
+
+## Computer Use grand-stack verification
+
+Accessed 2026-08-22 before correcting the external grand-stack drafts or changing provider
+registration. These sources support research cards and platform constraints; they do not establish
+Bimax Measured/Product-ready status or a competitive Win.
+
+| Source | What it supports | Constraint carried into Bimax |
+|---|---|---|
+| [Electron accessibility](https://www.electronjs.org/docs/latest/tutorial/accessibility) and [PR #38102](https://github.com/electron/electron/pull/38102) | `AXManualAccessibility` is Electron's programmatic third-party accessibility switch; PR #38102 fixed its old apparent-failure behavior | Retain the existing one-attempt-per-pid helper path; do not add a duplicate Swift owner or treat historical false failure as the current API contract |
+| [Apple ScreenCaptureKit sample](https://developer.apple.com/documentation/screencapturekit/capturing-screen-content-in-macos) and [SCScreenshotManager](https://developer.apple.com/documentation/screencapturekit/scscreenshotmanager) | Desktop-independent single-window filtering and one-shot screenshot APIs exist | Availability is a platform fact; occlusion support and latency remain Bimax measurements |
+| [Apple Shortcuts CLI guide](https://support.apple.com/guide/shortcuts-mac/run-shortcuts-from-the-command-line-apd455c82f02/mac) | `shortcuts run` accepts input/output; a shortcut that asks for input pauses | A provider wrapper needs a timeout and visible user-input blocker; the guide does not prove silent consent behavior |
+| [Apple Foundation Models updates](https://developer.apple.com/documentation/Updates/FoundationModels) and [macOS 27 overview](https://developer.apple.com/macos/whats-new/) | macOS 27 beta-era dynamic profiles, model protocol, multimodal prompting, OCR/barcode tools, `fm`, Python and updated model behavior | Optional, capability-detected experiment only; base CU continues on macOS 13 without it |
+| [Apple FastVLM research](https://machinelearning.apple.com/research/fastvlm-efficient-vision-encoding) and [official repository](https://github.com/apple/ml-fastvlm) | Research baseline and Apple-Silicon-compatible 0.5B/1.5B/7B artifacts | Candidate grounder; licensing, quality, resource and device gates precede adoption |
+| [VPI-Bench](https://arxiv.org/abs/2506.02456) and [WASP](https://arxiv.org/abs/2504.18575) | Visual/web prompt injection remains high-rate in author evaluations | Screen/AX/OCR text is untrusted evidence; add adversarial end-state fixtures |
+| [CaMeLs Can Use Computers Too](https://arxiv.org/abs/2601.09923) | Upfront branching-plan isolation gives control-flow integrity but branch steering remains | Typed trusted plan plus auditable branches; regex screening alone is insufficient |
+| [CoAct-1](https://arxiv.org/abs/2508.03923) | Hybrid GUI/programmatic delegation improves the authors' OSWorld success and step count | Direct engine shell would violate Bimax's current CU gate; any programmatic path stays provider/broker-owned |
+| [Agent Workflow Memory](https://arxiv.org/abs/2409.07429) and [OpenCUA](https://arxiv.org/abs/2508.09123) | Workflow induction and computer-use trajectory pipelines are credible research directions | Replay remains a hint with fresh validation; trajectory retention/export requires privacy controls |
+| [WebDreamer](https://arxiv.org/abs/2411.06559), [Agent JIT Compilation](https://arxiv.org/abs/2605.21470), and [Scaling Agents for Computer Use](https://arxiv.org/abs/2510.02250) | Model-based planning, typed invariant protocols, scheduling and trajectory judges improve author baselines | Later experiments only; deterministic postconditions and serial mutation remain hard floors |
+| [MacArena](https://arxiv.org/abs/2606.06560) | 421 verified tasks across 50 macOS apps; AIWILD workshop at ICML 2026 | Candidate external comparator; do not label it ICML main-track or replace Bimax's frozen release denominator |
+| [Cua Driver contracts](https://github.com/trycua/cua/blob/main/docs/content/docs/reference/cua-driver/contracts.mdx) and [repository](https://github.com/trycua/cua) | The project documents best-effort background macOS delivery and MCP contracts | Competitive evidence only; its private-SPI implementation requires independent license/provenance/distribution review and is not a Bimax copy source |
+
+Local implementation evidence, 2026-08-22: `../24_CU_PHASE2_DETERMINISTIC_COMPLETION_RECORD.md`
+and `../evidence/cu-phase2-local-2026-08-22.json` record the deterministic compiled-provider
+postcondition gate and its two false-success mutants. This is not a new external source, live-app
+evidence, Product-ready status, or a competitive Win.

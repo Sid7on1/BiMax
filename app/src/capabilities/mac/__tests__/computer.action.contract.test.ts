@@ -13,7 +13,7 @@ import * as fs from 'fs';
 import { openClient } from '../mcp.client';
 import { BimaxComputerRuntime } from '../desktop.runtime';
 import { classifyVerification, toActionResult } from '../verification';
-import { unwrapActionEnvelope, validateModelComputerCommand } from '../action.contract';
+import { computerResultForModel, unwrapActionEnvelope, validateModelComputerCommand } from '../action.contract';
 import { __resetConfigForTests } from '../config';
 
 /**
@@ -33,6 +33,26 @@ const hermeticFallback = () => ({
 } as any);
 
 describe('ActionResult contract (pure)', () => {
+  it('spoon-feeds one canonical handle per observed element', () => {
+    const projected = computerResultForModel({
+      ok: true, action: 'observe', summary: 'observed',
+      elements: [
+        { element_token: 's000f:47', element_index: 47, role: 'AXTextArea', label: 'Compose message' },
+        { element_index: 12, role: 'VisualText', label: 'visual only' },
+      ],
+      targeting: {
+        query: 'Compose message', confidence: 'high', margin: 20,
+        elementToken: 's000f:47', elementIndex: 47,
+      },
+    } as any);
+    expect(projected.elements).toEqual([
+      { element_token: 's000f:47', role: 'AXTextArea', label: 'Compose message' },
+      { element_index: 12, role: 'VisualText', label: 'visual only' },
+    ]);
+    expect(projected.targeting).toEqual(expect.objectContaining({ elementToken: 's000f:47' }));
+    expect(projected.targeting).not.toHaveProperty('elementIndex');
+  });
+
   it('pixel no-change is delivered-but-unproven, never a failure', () => {
     const v = classifyVerification({ ok: true, prevFrameHash: 'a', nextFrameHash: 'a', hadScreenshot: true });
     const r = toActionResult(v);

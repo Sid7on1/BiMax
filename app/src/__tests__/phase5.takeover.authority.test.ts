@@ -249,6 +249,7 @@ describe('takeover credentials stay on the Desktop side of the boundary', () => 
     expect(descriptor.servers[0].name).toBe('bimax-mac');
     expect(descriptor.servers[0].env.BIMAX_CU_TAKEOVER_ENDPOINT).toBe(base.takeover.endpoint);
     expect(descriptor.servers[0].env.BIMAX_CU_TAKEOVER_TOKEN).toBe(base.takeover.token);
+    expect(descriptor.servers[0].env.BIMAX_LIVE_PIP_HELPER).toBe('/Bimax.app/bimax-live-pip');
   });
 
   test('no provider means no descriptor and therefore no credentials anywhere', () => {

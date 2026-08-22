@@ -48,6 +48,8 @@ export const COMPUTER_ACTION_CONTRACTS: Record<PublicDesktopAction, ComputerActi
   record_start: { purpose: 'Start explicit computer-use recording.', input: 'captureScope window (default) or display; display records the human-visible screen and requires approval.', returns: 'Truthful recording scope and output directory.', coordinateFrame: 'none' },
   record_status: { purpose: 'Read current recording state.', input: 'No target.', returns: 'Enabled state, scope, paths, and error.', coordinateFrame: 'none' },
   record_stop: { purpose: 'Stop the active recording.', input: 'No target.', returns: 'Final recording and video paths.', coordinateFrame: 'none' },
+  menu_activate: { purpose: 'Run an exact app command from the current menu command catalog.', input: 'menuPath dotted index path from the latest observation; optional expect.', returns: 'Mutation receipt plus fresh post-action evidence; never window content.', coordinateFrame: 'none' },
+  menu_search: { purpose: 'Complete one app-search transaction and select a grounded result.', input: 'searchText, query naming the result, and expect naming the selected end state.', returns: 'Open/type/reobserve/ground/select stages, receipts, and verified fresh end state.', coordinateFrame: 'none' },
 };
 
 export function renderComputerActionReference(): string {
@@ -120,10 +122,42 @@ export function unwrapActionEnvelope(args: Record<string, unknown>): Record<stri
   return { action, ...(payload as Record<string, unknown>) };
 }
 
+function tokenIndex(token: string | undefined): number | null {
+  const matched = String(token || '').match(/:(\d+)$/);
+  return matched ? Number(matched[1]) : null;
+}
+
+/**
+ * Collapse two spellings of the SAME observed handle into the canonical token.
+ *
+ * Observations historically exposed both `element_token: "s0009:19"` and `element_index: 19`.
+ * Models quite reasonably copied both into the camel-cased tool schema, after which Bimax refused
+ * its own spoon-fed handle as ambiguous. This rewrite is safe only when the token itself proves the
+ * same numeric index; mismatched or opaque pairs remain untouched and validation rejects them.
+ */
+export function canonicalizeRedundantSelectors(cmd: DesktopCommand): DesktopCommand {
+  const canonical = { ...cmd };
+  const sourceIndex = tokenIndex(canonical.elementToken);
+  if (canonical.elementToken && canonical.elementIndex != null
+    && sourceIndex === Math.floor(canonical.elementIndex)) {
+    delete canonical.elementIndex;
+  }
+  const destinationIndex = tokenIndex(canonical.toElementToken);
+  if (canonical.toElementToken && canonical.toElementIndex != null
+    && destinationIndex === Math.floor(canonical.toElementIndex)) {
+    delete canonical.toElementIndex;
+  }
+  return canonical;
+}
+
 /** Reject malformed model calls before approval or runtime delivery. Runtime validation remains the
  * final authority; this layer exists to turn ambiguous argument soup into one precise action. */
 export function validateModelComputerCommand(cmd: DesktopCommand): string | null {
   if (!(PUBLIC_DESKTOP_ACTIONS as readonly string[]).includes(cmd.action)) return `unknown public action: ${String(cmd.action)}`;
+  if (cmd.expectMode !== undefined && cmd.expectMode !== 'present' && cmd.expectMode !== 'absent') {
+    return 'expectMode must be present or absent';
+  }
+  if (cmd.expectMode !== undefined && !cmd.expect?.trim()) return 'expectMode requires expect';
   const xy = pairError(cmd.x, cmd.y, 'x and y');
   const to = pairError(cmd.toX, cmd.toY, 'toX and toY');
   if (xy) return xy;
@@ -143,6 +177,16 @@ export function validateModelComputerCommand(cmd: DesktopCommand): string | null
       if (cmd.x != null && !cmd.frameId) return 'raw type coordinates require frameId from the exact screenshot';
       return null;
     case 'key': return cmd.combo?.trim() ? null : 'key needs combo';
+    case 'menu_activate': {
+      const path = String(cmd.menuPath || '');
+      return /^\d+(?:\.\d+)+$/.test(path)
+        ? null
+        : 'menu_activate needs menuPath as a dotted index path from the latest observation (for example 5.19)';
+    }
+    case 'menu_search':
+      if (!cmd.searchText?.trim()) return 'menu_search needs searchText';
+      if (!cmd.query?.trim()) return 'menu_search needs query naming the requested result to ground after typing';
+      return cmd.expect?.trim() ? null : 'menu_search needs expect naming the post-selection end state to verify';
     case 'set_value':
       if (cmd.value == null) return 'set_value needs value';
       if (selectorCount(cmd) !== 1 || cmd.x != null) return `set_value needs exactly one semantic selector (query, elementToken, or elementIndex)${suppliedSelectors(cmd) ? `, but received ${suppliedSelectors(cmd)}` : ''}`;
@@ -185,7 +229,7 @@ const MODEL_RESULT_KEYS: Array<keyof DesktopResult> = [
   'app', 'pid', 'windowId', 'bundleId', 'running', 'frontmostWarning',
   'screenshot', 'width', 'height', 'displayScreenshot', 'displayWidth', 'displayHeight',
   'frameId', 'frameHash', 'coordinateSpace', 'modalFrame',
-  'elements', 'degraded', 'visualEvidenceError', 'verification', 'targeting',
+  'elements', 'menu', 'menuSummary', 'degraded', 'visualEvidenceError', 'verification', 'targeting',
   'progressCheck', 'actionResult', 'actionReceipt', 'recoveryDecision', 'recoveryHint',
   'preview', 'clipboard', 'icons', 'windowFrame', 'requestedFrame',
   'recording', 'accessibility', 'screenRecording', 'displays', 'screens',
@@ -201,7 +245,24 @@ export function computerResultForModel(result: DesktopResult): Record<string, un
   const compact: Record<string, unknown> = {};
   for (const key of MODEL_RESULT_KEYS) {
     const value = result[key];
-    if (value !== undefined) compact[key] = value;
+    if (value === undefined) continue;
+    if (key === 'elements' && Array.isArray(value)) {
+      // One actionable handle per element. Keep the stable frame token when present; retain the
+      // numeric index only for older/visual entries that have no token.
+      compact[key] = value.map(entry => {
+        if (!entry || typeof entry !== 'object' || Array.isArray(entry)) return entry;
+        const projected = { ...(entry as Record<string, unknown>) };
+        if (projected.element_token) delete projected.element_index;
+        if (projected.elementToken) delete projected.elementIndex;
+        return projected;
+      });
+    } else if (key === 'targeting' && value && typeof value === 'object' && !Array.isArray(value)) {
+      const projected = { ...(value as Record<string, unknown>) };
+      if (projected.elementToken) delete projected.elementIndex;
+      compact[key] = projected;
+    } else {
+      compact[key] = value;
+    }
   }
   if (['status', 'request_access', 'apps', 'windows'].includes(result.action) && result.details != null) {
     compact.data = result.details;
