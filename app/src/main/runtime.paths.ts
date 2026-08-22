@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { randomBytes } from 'node:crypto';
 import { MAC_PROVIDER_SERVER_NAME } from '../shared/mac.provider';
+import { DESKTOP_CU_DATA_ENV } from '../shared/cu.storage';
 
 /**
  * Where a packaged Bimax.app is allowed to find its own executables.
@@ -220,6 +221,8 @@ export interface ChildEnvInput {
   packaged?: boolean;
   path: string;
   projectDir: string;
+  /** Electron's private app-data directory. Passed only to the app-owned Mac provider. */
+  desktopDataDirectory?: string;
   /** Electron's actual process architecture; binds the provider contract to the running chipset. */
   architecture?: 'arm64' | 'x64';
   /**
@@ -278,6 +281,7 @@ export function buildEngineChildEnv(input: ChildEnvInput): Record<string, string
       // the bundle and prevents an inherited path from selecting a foreign helper.
       [LIVE_PIP_HELPER_ENV]: path.join(path.dirname(input.resolved.macCapability), 'bimax-live-pip'),
     };
+    if (input.desktopDataDirectory) providerEnv[DESKTOP_CU_DATA_ENV] = input.desktopDataDirectory;
     // Desktop ALWAYS requires a takeover authority. Declaring it separately from supplying it is
     // what lets the provider tell "nobody owns takeover here" apart from "my host owed me an
     // authority and failed to start one" — the second must not act on the user's Mac.

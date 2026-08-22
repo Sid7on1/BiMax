@@ -1,6 +1,6 @@
 # Computer Use verified grand stack and delivery plan
 
-Status: corrected research and implementation plan, 2026-08-22.
+Status: corrected research and implementation plan, updated 2026-08-23.
 
 This document supersedes the four Desktop drafts named `Bimax-CU-Grand-*`. It reconciles those
 drafts with current source, `20_CU_OPEN_PHASES.md`, the Mac Buddy vision, the two-product boundary,
@@ -62,9 +62,9 @@ The main corrections are:
 | 5. Verification | Typed packaged-native mutation contract Implemented and deterministically Measured in Phase 2; live/broader executors Target | Performed is not proven. A new observation and independent evaluator must establish the requested end state. |
 | 6. Reliability and latency | Phase 3 full-snapshot readiness and separate deterministic latency buckets Implemented/Measured; live P6 and cache experiments Target | Fix process/session correctness before optimizing. Measure cold start, warm action, observe, capture, and verification separately. |
 | 7. Adversarial security | Phase 4 authenticated pre-observation graph and narrow quarantine corpus Implemented/Measured; broad/live adversarial qualification Target | Screen text is untrusted data. It cannot grant authority, rewrite the task, or widen the plan. |
-| 8. Workflow memory | Target | Store only receipt-backed journeys; replay is a hint; reobserve every step; invalidate on app/window/fingerprint drift. |
-| 9. Programmatic/native sources | Target | Shortcuts/JXA/broker work remains inside app-owned `mac_control`, with the same approval and receipt contract. Engine shell is not re-enabled in Control Mac turns. |
-| 10. Optional local AI and training | Research Target | Foundation Models, FastVLM/MLX, trajectory export and fine-tuning are capability-detected experiments after the base product passes. |
+| 8. Workflow memory | Private store/replay-safety core Implemented/locally Measured in Phase 5; product activation/live speedup Target | Store only receipt-backed journeys; replay is a hint; reobserve every step; invalidate on app/window/fingerprint drift. |
+| 9. Programmatic/native sources | Bounded broker contract Implemented/locally Measured in Phase 6; all live source workers Target | Shortcuts/JXA/broker work remains inside app-owned `mac_control`, with the same approval and receipt contract. Engine shell is not re-enabled in Control Mac turns. |
+| 10. Optional local AI and training | Capability/evaluation policy Implemented/locally Measured in Phase 7; workers, corpus and training Research Target | Foundation Models, FastVLM/MLX, trajectory export and fine-tuning are capability-detected experiments after the base product passes. |
 
 ## Evidence verdict
 
@@ -203,6 +203,11 @@ benign application content remains usable within a measured false-positive budge
 
 ### Phase 5 — receipt-backed journeys and trajectory export
 
+Local core status, 2026-08-23: **Implemented and deterministically Measured** for the bounded private
+record format and fail-closed replay coordinator. Exact record:
+`27_CU_PHASE5_RECEIPT_BACKED_JOURNEYS_RECORD.md`. Adapter activation, retention/export UX and a live
+repeated-journey improvement remain Target.
+
 Scope:
 
 - store versioned, bounded, private journey records in Desktop-owned application data;
@@ -216,6 +221,10 @@ takeover between steps, revoked permission, or changed app state aborts safely.
 
 ### Phase 6 — additional app-owned execution sources
 
+Local core status, 2026-08-23: **Implemented and deterministically Measured** for the fixed-manifest
+app-owned broker. Exact record: `28_CU_PHASE6_APP_OWNED_EXECUTION_SOURCES_RECORD.md`. Shortcuts,
+JXA, keyboard and clipboard workers remain unadvertised Target capabilities.
+
 Scope:
 
 - evaluate Shortcuts, JXA/application dictionaries, keyboard navigation, and clipboard transactions;
@@ -226,6 +235,11 @@ Exit: each source has provenance, timeouts, privacy behavior, exact postconditio
 where mutation is reversible.
 
 ### Phase 7 — optional local AI, rehearsal and training
+
+Local policy status, 2026-08-23: **Implemented and deterministically Measured** for capability
+admission, common evaluation budgets, non-authorizing rehearsal and fine-tune readiness. Exact
+record: `29_CU_PHASE7_OPTIONAL_LOCAL_AI_RECORD.md`. Native probes/workers, device measurements and
+all training remain Research Target.
 
 Scope:
 

@@ -1,0 +1,31 @@
+{
+  "status": "Measured",
+  "scope": "fixed-manifest Desktop execution-source broker with deterministic workers",
+  "date": "2026-08-23",
+  "command": "npm run cu:phase6:check",
+  "prerequisites": ["phase0", "phase1", "phase2", "phase3", "phase4", "phase5"],
+  "tests": { "focusedSuites": 1, "focusedTests": 12, "passed": true },
+  "sourcesExercised": [
+    "shortcuts",
+    "jxa",
+    "keyboard_navigation",
+    "clipboard_transaction"
+  ],
+  "invariantsProved": [
+    "fixed_worker_digest_and_provenance",
+    "bounded_timeout_and_parameters",
+    "model_authored_script_command_executable_and_path_rejected",
+    "trusted_plan_approval_permission_and_isolation_required",
+    "takeover_target_and_frame_continuity_required",
+    "independent_postcondition_required",
+    "takeover_removes_rollback_authority",
+    "reversible_clipboard_verification_failure_rolls_back_with_independent_proof"
+  ],
+  "limitations": [
+    "all workers are deterministic fixtures",
+    "no source is advertised through production mac_control",
+    "no live Shortcuts JXA keyboard or clipboard execution",
+    "not packaged-app evidence",
+    "not Product-ready"
+  ]
+}

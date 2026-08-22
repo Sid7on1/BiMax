@@ -233,6 +233,7 @@ export function spawnEngineProcess(projectDir: string, extraEnv: Record<string, 
       packaged: app.isPackaged,
       path: userShellPath(),
       projectDir,
+      desktopDataDirectory: path.join(app.getPath('userData'), 'Desktop'),
       architecture: process.arch === 'arm64' ? 'arm64' : 'x64',
       ...(takeoverBrokerCredentials ? { takeover: takeoverBrokerCredentials } : {}),
       resolved: {

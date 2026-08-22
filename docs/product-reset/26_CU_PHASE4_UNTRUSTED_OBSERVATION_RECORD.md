@@ -82,7 +82,11 @@ green. New coverage added on top of the original corpus:
 
 - compiled journey `crossTaskIsolation` — a second signed task in the same provider process cannot
   inherit the first task's retained snapshot authority even when its own instruction permits the
-  same verb on the same target; it stops `native_selector_unresolved`;
+  same verb on the same target; it stops `native_selector_unresolved`. Hardening note: the journey
+  deliberately attacks while the first task's frame is still LIVE. An earlier draft attacked with a
+  stale cleared frame and passed under a task-keying-removed mutant because post-mutation authority
+  discard masked the regression as a missing-snapshot stop; only the live-frame placement proved
+  the property, confirmed by mutant (escape receipt observed) and restore (green);
 - unit negatives for lifetime bounds (window >15 min; issued >30 s in the future), canonical-order
   signature breakage, malformed base64url, wrong-key signatures, and required-enforcement blocking
   on a secret-less host.

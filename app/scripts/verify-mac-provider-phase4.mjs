@@ -65,6 +65,20 @@ try {
   const observation = await logical('observe', {}, plan);
   assert(observation?.observationTrust?.classification === 'untrusted_observation',
     'AX observation was not typed as untrusted');
+
+  // Cross-task authority isolation, attacked while Task A's frame is LIVE. A second authenticated
+  // task in the SAME provider process must not resolve selectors inside another task's retained
+  // snapshots even when its own signed instruction permits the same verb on the same target —
+  // session state is keyed by the verified taskId. Placed before any mutation so no authority-
+  // discard rule can mask a task-keying regression as a missing-snapshot stop.
+  const secondTask = signed('Open Phase2Fixture and Click Continue', ['open', 'observe', 'click']);
+  const hijack = await logical('click', {
+    frameId: observation.frameId, elementToken: 'continue', expect: 'Verified',
+  }, secondTask);
+  assert(hijack?.ok === false && hijack?.executor === 'stop'
+    && hijack?.code === 'native_selector_unresolved',
+  `a new signed task inherited another task's snapshot authority: ${JSON.stringify(hijack)}`);
+
   const countBefore = (await logical('apps', {}, plan)).apps?.[0]?.app?.fixtureActionCount;
 
   const injected = await logical('click', {
@@ -113,17 +127,6 @@ try {
     'adversarial escape budget exceeded');
   assert(blockedBenignCases <= contract.maximumBlockedBenignCases,
     'benign false-block budget exceeded');
-
-  // Cross-task authority isolation. A second authenticated task in the SAME provider process
-  // starts with zero retained snapshot authority even when its own signed instruction permits the
-  // same verb on the same target — session state is keyed by the verified taskId.
-  const secondTask = signed('Open Phase2Fixture and Click Continue', ['open', 'observe', 'click']);
-  const hijack = await logical('click', {
-    frameId: observation.frameId, elementToken: 'continue', expect: 'Verified',
-  }, secondTask);
-  assert(hijack?.ok === false && hijack?.executor === 'stop'
-    && hijack?.code === 'native_selector_unresolved',
-  `a new signed task inherited another task's snapshot authority: ${JSON.stringify(hijack)}`);
 
   process.stdout.write(`${JSON.stringify({
     ok: true, architecture, fixture: contract.corpus,

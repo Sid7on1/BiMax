@@ -87,9 +87,9 @@ engine artifact plus its protocol schema; the Mac app pins and bundles one verif
   explain-only anomaly ranker, out-of-process capability worker, official simulator adapters,
   optional Computer Use pack, bounded MLX/Core ML contracts, adaptive-concurrency canary and the
   Starlight/Moonlight Runtime inspector, with every real-device/distribution row kept explicit.
-- `21_CU_VERIFIED_GRAND_STACK_AND_IMPLEMENTATION_PLAN.md` — the corrected 2026-08-22 Computer Use
-  stack, primary-source verification, stale-claim audit, phased delivery order, and Phase 0
-  fail-closed provider-routing implementation record.
+- `21_CU_VERIFIED_GRAND_STACK_AND_IMPLEMENTATION_PLAN.md` — the corrected Computer Use stack,
+  primary-source verification, stale-claim audit, phased delivery order, and current Phase 0–7
+  local-core status.
 - `22_CU_PHASE0_RELEASE_ROUTING_RECORD.md` — the executable CU Phase 0 plan, compiled-provider
   fail-closed proof, mutation result, exact acceptance boundary, and Phase 1 handoff.
 - `23_CU_PHASE1_NATIVE_LOGICAL_ADAPTER_RECORD.md` — the single native `mac_control` adapter,
@@ -104,6 +104,14 @@ engine artifact plus its protocol schema; the Mac app pins and bundles one verif
 - `26_CU_PHASE4_UNTRUSTED_OBSERVATION_RECORD.md` — the HMAC-authenticated pre-observation task graph,
   untrusted AX/capture typing, branch receipts, six scope-widening mutants and the bounded benign
   bidi control, with broad/live adversarial qualification still Target.
+- `27_CU_PHASE5_RECEIPT_BACKED_JOURNEYS_RECORD.md` — bounded Desktop-private journey storage,
+  redacted export policy and replay that reobserves/revalidates every step, with adapter activation
+  and live speedup still Target.
+- `28_CU_PHASE6_APP_OWNED_EXECUTION_SOURCES_RECORD.md` — fixed-manifest app-owned source broker with
+  plan/approval/takeover/timeout/postcondition/rollback gates; live source workers remain Target.
+- `29_CU_PHASE7_OPTIONAL_LOCAL_AI_RECORD.md` — optional Foundation Models/FastVLM capability and
+  evaluation policy, non-authorizing rehearsal, and fine-tune dataset admission; models and device
+  measurements remain Research Target.
 - `vision/` — the owner's complete Bimax Mac Buddy north-star vision, preserved verbatim and required
   reading for Mac app, adaptive-runtime, performance, environment-intelligence, CU, and Trust work.
 - `ownership-manifest.json` — machine-readable starting ownership for the extraction tooling.

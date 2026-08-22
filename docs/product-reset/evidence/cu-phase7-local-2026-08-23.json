@@ -1,0 +1,34 @@
+{
+  "status": "Measured",
+  "scope": "optional local-AI capability evaluation rehearsal and training-admission policy",
+  "date": "2026-08-23",
+  "command": "npm run cu:phase7:check",
+  "prerequisites": ["phase0", "phase1", "phase2", "phase3", "phase4", "phase5", "phase6"],
+  "tests": { "focusedSuites": 1, "focusedTests": 5, "passed": true },
+  "candidates": ["deterministic", "foundation_models", "fastvlm_mlx"],
+  "metricsRequired": [
+    "quality",
+    "safety",
+    "failure_rate",
+    "cold_p95_latency",
+    "warm_p95_latency",
+    "peak_memory",
+    "energy_proxy",
+    "model_size",
+    "repetitions"
+  ],
+  "invariantsProved": [
+    "deterministic_base_is_complete_without_optional_models",
+    "unavailable_unsafe_or_over_budget_candidate_not_selected",
+    "optional_model_cannot_override_deterministic_refusal",
+    "enabled_rehearsal_disagreement_or_unavailability_stops",
+    "fine_tuning_requires_consent_redaction_license_digest_and_sufficient_receipts"
+  ],
+  "limitations": [
+    "capability probes and model metrics are deterministic fixtures",
+    "no Foundation Models or FastVLM worker active",
+    "no supported-device corpus measured",
+    "fine-tuning has not begun",
+    "not Product-ready"
+  ]
+}

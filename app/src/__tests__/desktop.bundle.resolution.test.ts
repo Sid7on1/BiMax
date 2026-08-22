@@ -212,6 +212,7 @@ describe('the engine child receives one generic local-provider contract', () => 
       extraEnv: {},
       path: '/usr/bin',
       projectDir: '/proj',
+      desktopDataDirectory: '/Users/fixture/Library/Application Support/Bimax/Desktop',
       resolved: {
         macCapability: BUNDLE.macCapability,
         cuService: BUNDLE.cuService,
@@ -233,11 +234,13 @@ describe('the engine child receives one generic local-provider contract', () => 
       BIMAX_LIVE_PIP_HELPER: `${APP}/Contents/MacOS/bimax-live-pip`,
       BIMAX_MAC_PROVIDER_AUTHORITY: 'electron-main',
       BIMAX_MAC_CONSENT_CHANNEL: 'engine-governor',
+      BIMAX_CU_DESKTOP_DATA_DIR: '/Users/fixture/Library/Application Support/Bimax/Desktop',
       [TRUSTED_PLAN_REQUIRED_ENV]: '1',
       BIMAX_HOST_ARCH: expect.stringMatching(/^(arm64|x64)$/),
     });
     expect(env[TRUSTED_PLAN_REQUIRED_ENV]).toBe('1');
     expect(env[TRUSTED_PLAN_SECRET_ENV]).toHaveLength(43);
+    expect(env.BIMAX_CU_DESKTOP_DATA_DIR).toBeUndefined();
     expect(contract.servers[0].env[TRUSTED_PLAN_SECRET_ENV]).toBe(env[TRUSTED_PLAN_SECRET_ENV]);
   });
 

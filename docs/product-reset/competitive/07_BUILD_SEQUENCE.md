@@ -46,6 +46,13 @@ Bimax meaningfully better, not the largest feature inventory.
    it only to app-owned `mac_control`; the provider blocks screen-origin scope widening before native
    delivery. A narrow 6-adversarial/1-benign corpus met its zero/zero budget. Broad/live adversarial
    qualification remains Target.
+   **Phase 5–7 follow-up, 2026-08-23:** Desktop now has locally measured policy cores for bounded
+   private receipt-backed journeys, fixed-manifest app-owned execution sources, and optional local-
+   AI evaluation/rehearsal/training admission. These preserve the modified Phase 3 full-snapshot
+   authority and Phase 4 authenticated task isolation: replay reobserves every step; source workers
+   require plan/approval/takeover continuity and independent proof; optional models cannot authorize
+   a deterministic refusal. Product activation, real workers, device corpora and live/package
+   qualification remain Target.
 6. Split product ownership without copying the engine. **Implemented and locally Measured
    2026-08-09 for the local migration:** filtered Terminal and Desktop histories build and test
    independently, Desktop is pinned to the exact split Terminal manifest, and both source-boundary

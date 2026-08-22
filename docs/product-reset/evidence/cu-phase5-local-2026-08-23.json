@@ -1,0 +1,32 @@
+{
+  "status": "Measured",
+  "scope": "private journey format and deterministic replay-safety coordinator",
+  "date": "2026-08-23",
+  "command": "npm run cu:phase5:check",
+  "prerequisites": ["phase0", "phase1", "phase2", "phase3", "phase4"],
+  "tests": { "focusedSuites": 2, "focusedTests": 40, "passed": true },
+  "storage": {
+    "owner": "Desktop provider",
+    "formatVersion": 1,
+    "maximumJourneys": 64,
+    "maximumStepsPerJourney": 32,
+    "maximumFileBytes": 524288,
+    "rawInstructionRetained": false,
+    "rawObservationContentRetained": false
+  },
+  "refusalsProved": [
+    "semantic_fingerprint_changed",
+    "computer_use_permission_revoked",
+    "application_identity_or_version_changed",
+    "target_window_changed",
+    "user_takeover_intervened",
+    "journey_export_not_authorized"
+  ],
+  "limitations": [
+    "adapter recording and replay activation not wired",
+    "no live repeated-journey speedup measurement",
+    "no retention or export UI",
+    "not packaged-app evidence",
+    "not Product-ready"
+  ]
+}
