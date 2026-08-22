@@ -48,6 +48,15 @@ app-version/window fingerprints, packaged bundle execution, mutation against liv
 and clean-Mac evidence. Until those exist, Bimax must not claim that journey replay is available to
 users.
 
+## Independent verification and hardening (2026-08-23, second reviewer)
+
+The replay takeover guard was proven load-bearing by mutation: disabling the epoch-change refusal
+let replay continue after user takeover; the focused suite killed it immediately, and restoring
+returned green with byte-identical source. The privacy contract was re-read line-by-line —
+coordinates, tokens, labels, values, screenshots and normalized instructions are absent from both
+the stored and exported shapes, and export without an explicit policy rejects with
+`journey_export_not_export_authorized` semantics as tested (`journey_export_not_authorized`).
+
 Governing documents: `README.md`, `05_TARGET_ARCHITECTURE.md`, `07_MIGRATION_ROADMAP.md`,
 `08_ACCEPTANCE_GATES.md`, the Mac Buddy vision, the grand-stack plan, Phase 0–4 records, competitive
 gap/eval/source records, and Apple platform evidence in `competitive/08_SOURCE_LEDGER.md`.

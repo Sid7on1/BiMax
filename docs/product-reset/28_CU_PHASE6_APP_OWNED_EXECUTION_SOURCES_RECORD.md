@@ -48,6 +48,19 @@ and restoration proof, `mac_control` activation, real-app postconditions, privac
 journeys and clean-Mac qualification. Compatibility AppleScript remains frozen; this phase does not
 reactivate it.
 
+## Independent verification and hardening (2026-08-23, second reviewer)
+
+Two broker safety properties were proven load-bearing by mutation at the unit boundary:
+
+1. removing the no-rollback-after-continuity-failure guard let a reversible worker issue a
+   compensating mutation after user takeover — the focused suite caught it;
+2. restoring returned the suite green with byte-identical source.
+
+New coverage: a worker that exceeds its manifest deadline is refused with
+`execution_source_timeout` (`attempted:true`), and no rollback is attempted for a deadline miss.
+The admission chain (authenticated task → trusted-plan authorization → fresh exact-target
+observation → approval) was read line-by-line and matches the seven-step order documented above.
+
 Governing documents: `README.md`, `05_TARGET_ARCHITECTURE.md`, `07_MIGRATION_ROADMAP.md`,
 `08_ACCEPTANCE_GATES.md`, the Mac Buddy vision, the grand-stack plan, Phase 0–5 records, competitive
 strategy/gap/eval/source records, and Apple's Shortcuts/App Intents documentation.

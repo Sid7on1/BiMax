@@ -103,6 +103,20 @@ describe('Phase 6 app-owned execution source broker', () => {
     expect(fixture.execute).not.toHaveBeenCalled();
   });
 
+  test('a worker exceeding its manifest deadline is refused without compensation', async () => {
+    const fixture = setup();
+    fixture.execute.mockImplementationOnce(() => new Promise(() => undefined));
+    const receipt = await fixture.broker.executeFromMacControl({
+      operationId: manifests[0].id, taskId: 'task', parameters: { choice: 1 },
+      expectedPostcondition: { state: 'done' },
+    });
+    expect(receipt).toMatchObject({
+      outcome: 'refused', attempted: true, reason: 'execution_source_timeout',
+      timeoutMs: manifests[0].timeoutMs,
+    });
+    expect(fixture.rollback).not.toHaveBeenCalled();
+  });
+
   test.each([
     ['trusted-plan refusal', { authorized: false }, 'trusted_plan_did_not_authorize_operation'],
     ['approval refusal', { approved: false }, 'execution_not_approved'],

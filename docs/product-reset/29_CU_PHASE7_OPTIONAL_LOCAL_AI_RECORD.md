@@ -48,6 +48,14 @@ Apple's current documentation says `SystemLanguageModel` spans macOS 26.0–26.4
 versions and requires runtime availability checking because device, region and readiness vary. That
 is why an OS version check alone is deliberately insufficient here.
 
+## Independent verification and hardening (2026-08-23, second reviewer)
+
+The non-authorizing rehearsal property was proven load-bearing by mutation: removing the
+deterministic-refusal short-circuit let rehearsal authorize an action the deterministic policy had
+refused; the focused suite killed it immediately, and restoring returned green with byte-identical
+source. The fine-tuning readiness gate (consent, redaction, license, digest, corpus size) was read
+line-by-line against the documented denials and matches.
+
 Governing documents: `README.md`, `05_TARGET_ARCHITECTURE.md`, `07_MIGRATION_ROADMAP.md`,
 `08_ACCEPTANCE_GATES.md`, the Mac Buddy vision, the grand-stack plan, Phase 0–6 records, competitive
 model strategy/gap/eval/source records, and Apple's Foundation Models documentation.
