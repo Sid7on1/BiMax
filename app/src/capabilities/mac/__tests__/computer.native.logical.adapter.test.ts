@@ -247,6 +247,100 @@ describe('native logical mac_control adapter', () => {
     });
   });
 
+  test('foreground_lease requires a verified lease policy and proves the focus change', async () => {
+    const native = fixture();
+    // The default surface verifies no lease-backed policy, so an explicit request must stop
+    // before approval or delivery instead of quietly downgrading to background.
+    const strict = createNativeLogicalMacControl(native.surface, MAC_CONTROL_SCHEMA);
+    const strictContext = { sessionId: 'task-fg-unverified' };
+    await strict.execute({ action: 'open', app: 'Fixture' }, strictContext);
+    await strict.execute({ action: 'observe' }, strictContext);
+    expect(parsed(await strict.execute({
+      action: 'type', elementToken: 'composer', text: 'hi',
+      expect: 'hi', delivery: 'foreground_lease',
+    }, strictContext))).toMatchObject({
+      ok: false, executor: 'stop', blocked: true, code: 'foreground_policy_unverified',
+      verification: { status: 'not_attempted', freshObservation: false },
+    });
+    expect(native.action).toHaveBeenCalledTimes(0);
+
+    // With foreground_once verified by the live handshake, the request rides a lease-backed
+    // policy and the receipt must prove the measured focus move plus the lease itself.
+    const leased = fixture();
+    leased.action.mockImplementation(async (args: Record<string, unknown>) => JSON.stringify({
+      op: 'semantic.action.receipt', payload: {
+        outcome: 'performed', deliveryPolicy: args.deliveryPolicy,
+        element: {
+          token: args.elementToken, snapshotId: 'snapshot-one', pid: 42,
+          windowId: 7, windowGeneration: 3,
+        },
+        frontmostPidBefore: 900, frontmostPidAfter: args.deliveryPolicy === 'foreground_once' ? 42 : 900,
+        ...(args.deliveryPolicy === 'foreground_once'
+          ? { focusLease: { grantedAtMs: 1, expiresAtMs: 61_000 } } : {}),
+        eventRevisionBefore: 11, eventRevisionAfter: 12,
+        evidence: {
+          requiredTier: 1, achievedTier: 1, outcome: 'satisfied',
+          eventChanged: true, postconditionMatched: true, attempts: 1, settledAtMs: 1_000,
+        },
+      },
+      target: { pid: 42, windowId: 7, windowGeneration: 3 }, request: args,
+    }));
+    const actionTool = leased.surface.tools.find(entry => entry.name === 'BimaxActionTool')!;
+    actionTool.schema = {
+      type: 'object',
+      properties: {
+        ...((actionTool.schema as { properties?: Record<string, unknown> }).properties ?? {}),
+        deliveryPolicy: { enum: ['background_only', 'foreground_once'] },
+      },
+    };
+    const adapter = createNativeLogicalMacControl(leased.surface, MAC_CONTROL_SCHEMA);
+    const context = { sessionId: 'task-fg-lease' };
+    await adapter.execute({ action: 'open', app: 'Fixture' }, context);
+    await adapter.execute({ action: 'observe' }, context);
+    const delivered = parsed(await adapter.execute({
+      action: 'type', elementToken: 'composer', text: 'hi',
+      expect: 'hi', delivery: 'foreground_lease',
+    }, context));
+    expect(delivered).toMatchObject({
+      ok: true, verified: true,
+      verification: {
+        freshObservation: true,
+        delivery: { requested: 'foreground', actual: 'foreground', focusChanged: true },
+        evidence: { focusLease: { grantedAtMs: 1 } },
+      },
+    });
+    expect(leased.action).toHaveBeenLastCalledWith(expect.objectContaining({
+      deliveryPolicy: 'foreground_once',
+    }), context);
+
+    // The inverse rule survives unchanged: background delivery that acquires a lease or moves the
+    // frontmost app is still a broken promise, even when the semantic end state was satisfied.
+    leased.action.mockResolvedValueOnce(JSON.stringify({
+      op: 'semantic.action.receipt', payload: {
+        outcome: 'performed', deliveryPolicy: 'background_only',
+        element: {
+          token: 'continue', snapshotId: 'snapshot-one', pid: 42,
+          windowId: 7, windowGeneration: 3,
+        },
+        frontmostPidBefore: 900, frontmostPidAfter: 42,
+        focusLease: { grantedAtMs: 3, expiresAtMs: 4 },
+        eventRevisionBefore: 11, eventRevisionAfter: 12,
+        evidence: {
+          requiredTier: 1, achievedTier: 1, outcome: 'satisfied',
+          eventChanged: true, postconditionMatched: true, attempts: 1, settledAtMs: 1_000,
+        },
+      },
+      target: { pid: 42, windowId: 7, windowGeneration: 3 },
+    }));
+    await adapter.execute({ action: 'observe' }, context);
+    expect(parsed(await adapter.execute({
+      action: 'click', elementToken: 'continue', expect: 'Welcome',
+    }, context))).toMatchObject({
+      ok: false, verified: false, code: 'postcondition_unverified',
+      verification: { delivery: { requested: 'background', actual: 'foreground' } },
+    });
+  });
+
   test('a provider restart discards snapshot authority and requires a fresh observation', async () => {
     const native = fixture();
     const first = createNativeLogicalMacControl(native.surface, MAC_CONTROL_SCHEMA);

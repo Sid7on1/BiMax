@@ -16,6 +16,7 @@ import {
   gradeWorkspaceMutation,
   postconditionFor,
   type MutationGrade,
+  type RequestedLogicalDelivery,
   type TypedLogicalPostcondition,
 } from './native.logical.verification';
 
@@ -376,9 +377,26 @@ export function createNativeLogicalMacControl(
         if (!actions.includes(nativeAction)) {
           return stop(action, `the native handshake has not verified ${nativeAction}`);
         }
+        // Foreground delivery is an explicit caller decision, never a runtime fallback: it is only
+        // attempted when the live handshake itself verified a lease-backed policy, and the receipt
+        // grader then holds the result to the inverse of the background rules.
+        const requestedDelivery: RequestedLogicalDelivery =
+          sanitized.delivery === 'foreground_lease' ? 'foreground_lease' : 'background';
         const policies = enumValues(semantic, 'deliveryPolicy');
-        const deliveryPolicy = policies.includes('background_only') ? 'background_only'
-          : policies.includes('background_native') ? 'background_native' : policies[0];
+        let deliveryPolicy: string | undefined;
+        if (requestedDelivery === 'foreground_lease') {
+          if (!policies.includes('foreground_once') && !policies.includes('foreground_persistent')) {
+            return stop(
+              action,
+              'the native handshake has not verified a foreground lease policy',
+              'foreground_policy_unverified',
+            );
+          }
+          deliveryPolicy = policies.includes('foreground_once') ? 'foreground_once' : 'foreground_persistent';
+        } else {
+          deliveryPolicy = policies.includes('background_only') ? 'background_only'
+            : policies.includes('background_native') ? 'background_native' : policies[0];
+        }
         if (!deliveryPolicy) return stop(action, 'the native handshake has no verified delivery policy');
         const value = await invoke('BimaxActionTool', {
           snapshotId: selected.snapshot.snapshotId,
@@ -406,7 +424,7 @@ export function createNativeLogicalMacControl(
             pid: selected.snapshot.pid,
             windowId: selected.snapshot.windowId,
             windowGeneration: selected.snapshot.windowGeneration,
-          }),
+          }, requestedDelivery),
         );
       }
 

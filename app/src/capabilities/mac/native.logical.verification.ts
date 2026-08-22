@@ -40,22 +40,55 @@ function object(value: unknown): Record<string, any> {
     ? value as Record<string, any> : {};
 }
 
-function backgroundDelivery(
+export type RequestedLogicalDelivery = 'background' | 'foreground_lease';
+
+/**
+ * Grade what actually happened against what was requested.
+ *
+ * `background` keeps the original invariant: a background action must never take focus, acquire a
+ * lease, or move the frontmost app. `foreground_lease` inverts exactly those requirements — the
+ * delivery is only safe when the native receipt proves a lease-backed foreground policy; a
+ * foreground request delivered without a lease is treated like any other broken promise.
+ */
+function assessDelivery(
+  requested: RequestedLogicalDelivery,
   policy: unknown,
   frontmostPidBefore: unknown,
   frontmostPidAfter: unknown,
   focusLease: unknown,
 ): MutationVerification['delivery'] & { safe: boolean; reason?: string } {
-  const background = policy === 'background_only' || policy === 'background_native';
-  const foreground = policy === 'foreground_once' || policy === 'foreground_persistent';
+  const policyIsBackground = policy === 'background_only' || policy === 'background_native';
+  const policyIsForeground = policy === 'foreground_once' || policy === 'foreground_persistent';
   const beforeKnown = frontmostPidBefore === undefined || Number.isSafeInteger(frontmostPidBefore);
   const afterKnown = frontmostPidAfter === undefined || Number.isSafeInteger(frontmostPidAfter);
   const focusChanged = beforeKnown && afterKnown ? frontmostPidBefore !== frontmostPidAfter : undefined;
-  const actual = focusLease ? 'foreground' : background ? 'background' : foreground ? 'foreground' : 'unknown';
-  if (!background) {
+  const publicFields = () => ({
+    ...(typeof policy === 'string' ? { policy } : {}),
+    ...(focusChanged !== undefined ? { focusChanged } : {}),
+  });
+
+  if (requested === 'foreground_lease') {
+    if (!policyIsForeground) {
+      return {
+        requested: 'foreground',
+        actual: focusLease ? 'foreground' : policyIsBackground ? 'background' : 'unknown',
+        ...publicFields(),
+        safe: false, reason: 'foreground delivery did not use a verified lease policy',
+      };
+    }
+    if (!focusLease) {
+      return {
+        requested: 'foreground', actual: policyIsForeground ? 'foreground' : 'unknown', ...publicFields(),
+        safe: false, reason: 'a foreground request was delivered without the required focus lease',
+      };
+    }
+    return { requested: 'foreground', actual: 'foreground', ...publicFields(), safe: true };
+  }
+
+  const actual = focusLease ? 'foreground' : policyIsBackground ? 'background' : 'unknown';
+  if (!policyIsBackground) {
     return {
-      requested: 'background', actual, ...(typeof policy === 'string' ? { policy } : {}),
-      ...(focusChanged !== undefined ? { focusChanged } : {}),
+      requested: 'background', actual, ...publicFields(),
       safe: false, reason: 'the native receipt did not preserve the requested background policy',
     };
   }
@@ -160,10 +193,12 @@ export function gradeSemanticMutation(
   value: Record<string, unknown>,
   postcondition: TypedLogicalPostcondition,
   expectedTarget: ExpectedSemanticTarget,
+  requestedDelivery: RequestedLogicalDelivery = 'background',
 ): MutationGrade {
   const receipt = value.op === 'semantic.action.receipt' ? object(value.payload) : {};
   const evidence = object(receipt.evidence);
-  const deliveryAssessment = backgroundDelivery(
+  const deliveryAssessment = assessDelivery(
+    requestedDelivery,
     receipt.deliveryPolicy,
     receipt.frontmostPidBefore,
     receipt.frontmostPidAfter,
@@ -174,6 +209,7 @@ export function gradeSemanticMutation(
     outcome: receipt.outcome,
     eventRevisionBefore: receipt.eventRevisionBefore,
     eventRevisionAfter: receipt.eventRevisionAfter,
+    ...(receipt.focusLease ? { focusLease: receipt.focusLease } : {}),
     evidence,
   };
   if (value.op !== 'semantic.action.receipt') {
@@ -229,7 +265,8 @@ export function gradeWorkspaceMutation(
   value: Record<string, unknown>,
   postcondition: TypedLogicalPostcondition,
 ): MutationGrade {
-  const deliveryAssessment = backgroundDelivery(
+  const deliveryAssessment = assessDelivery(
+    'background',
     action === 'open' ? 'background_native' : 'background_only',
     value.frontmostPidBefore,
     value.frontmostPidAfter,

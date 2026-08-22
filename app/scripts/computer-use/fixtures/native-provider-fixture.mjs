@@ -168,6 +168,11 @@ function handle(request) {
     const postcondition = payload.evidence?.postcondition || {};
     const matched = postcondition.text !== 'NEVER_VERIFY'
       && (postcondition.text !== undefined || postcondition.expectedValue !== undefined);
+    // Foreground policies are delivered under a simulated exact-PID lease: activation moves the
+    // frontmost pid from the human (900) to the target (42), and the receipt carries the lease so
+    // the logical grader can prove the requested foreground actually happened.
+    const foreground = payload.deliveryPolicy === 'foreground_once'
+      || payload.deliveryPolicy === 'foreground_persistent';
     return response(request, { op: 'semantic.action.receipt', payload: {
       actionId: `phase2-action-${actionCount}`, element: payload.element,
       action: payload.action, primitive: payload.action === 'invoke' ? 'AXPress' : 'AXValue',
@@ -175,7 +180,8 @@ function handle(request) {
       startedAtMs: 1_000, completedAtMs: 1_010,
       eventRevisionBefore: payload.expectedEventRevision,
       eventRevisionAfter: payload.expectedEventRevision + 1,
-      frontmostPidBefore: 900, frontmostPidAfter: 900,
+      frontmostPidBefore: 900, frontmostPidAfter: foreground ? 42 : 900,
+      ...(foreground ? { focusLease: { grantedAtMs: 1_000, expiresAtMs: 61_000 } } : {}),
       attemptedPaths: [],
       evidence: {
         requiredTier: payload.evidence?.tier,

@@ -1,7 +1,7 @@
 {
   "name": "bimax",
   "version": "1.1.0",
-  "description": "BiMax \u2014 Autonomous AI agent for your terminal",
+  "description": "BiMax — Autonomous AI agent for your terminal",
   "bin": {
     "bimax": "bin/bimax.js"
   },
@@ -59,7 +59,8 @@
     "phase3:check": "bash scripts/phase3-local-gate.sh",
     "release:check": "bash scripts/release-gate.sh",
     "phase8:check": "bash scripts/phase8-local-gate.sh",
-    "phase9:check": "bash scripts/phase9-local-gate.sh"
+    "phase9:check": "bash scripts/phase9-local-gate.sh",
+    "cu:x64-parity": "node app/scripts/verify-mac-provider-x64.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",

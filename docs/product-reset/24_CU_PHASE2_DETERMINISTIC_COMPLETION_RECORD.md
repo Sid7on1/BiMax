@@ -18,6 +18,7 @@ fresh independent evidence:
 | `open` | derived `app_running` | native launch receipt names the requested app, reports launched + finished or already running, and reports unchanged foreground |
 | `click` | caller-declared `semantic_text` | fresh native AX evidence is `satisfied` with `postconditionMatched:true` |
 | `type` | caller-declared `semantic_text` | same fresh AX proof; text delivery alone is insufficient |
+| `type` with `delivery:'foreground_lease'` | caller-declared `semantic_text` | the same fresh AX proof, plus a receipt-proven lease-backed foreground policy (`foreground_once`/`foreground_persistent`) and the measured frontmost move; delivered without a lease it grades unverified |
 | `set_value` | derived `semantic_value` | fresh AX evidence matches the exact requested value |
 | `arrange` | derived `window_frame` | exact-window native read-back reports `attempted:true`, `honored:true`, and applied bounds |
 | `close` | derived `window_absent` | exact-window read-back reports `honored:true` and `windowGone:true` |
@@ -52,6 +53,28 @@ Physical keyboard/pointer, menu activation, and pixel delivery are not silently 
 logical verbs still return `executor:stop`, `verification.status:not_attempted`, and never call the
 native action tool. Read-only exact-window screenshots remain available and are labelled visual,
 but they cannot serve as proof of a visual mutation that the adapter does not yet implement.
+
+## Foreground-leased delivery through the adapter (2026-08-22)
+
+`mac_control` gains one optional `delivery:'foreground_lease'` argument for click/type/set_value.
+It is never a runtime fallback: the request is refused with `foreground_policy_unverified` unless
+the live handshake itself verified `foreground_once`/`foreground_persistent`, and the receipt
+grader then applies the inverse of the background rules — a lease-backed policy plus a measured
+frontmost move is required for success, while a background delivery that acquires either remains
+a false success. The acting surface stays exactly one logical `mac_control`.
+
+Deterministic proof: the compiled Phase 2 probe now includes a `physicalForeground` journey that
+delivers leased `type_text` against the fixture and requires `verified:true`,
+`delivery.actual:'foreground'`, `focusChanged:true`, and the receipt's `focusLease` surfaced in
+the graded evidence. Unit tests additionally cover the unverified-policy refusal and the inverse
+background rule. Scope honesty: this proves lease-backed foreground **keyboard** delivery
+(`type_text`) at the deterministic boundary; foreground-delivered AX press (`invoke`) rides the
+same path, while raw-HID pointer click delivery remains Target.
+
+The x64 parity row is now script-proven as well: `cu:x64-parity` cross-compiles the provider,
+header-checks the Mach-O x86_64 artifact, and — with Rosetta 2 present on the arm64 host — boots
+it and requires the identical packaged refusal. Without Rosetta it records an explicit
+`executed:false` skip instead of failing.
 
 ## Deterministic compiled-provider proof
 
@@ -95,12 +118,13 @@ Now Implemented and locally Measured:
 
 Still Target:
 
-- accepted physical delivery through the logical adapter with a foreground lease and independent
-  end-state proof;
-- accepted menu mutation and visual-recovery mutation behind the same receipt grader;
+- raw-HID pointer click delivery and menu activation behind the logical adapter with the same
+  receipt grader (foreground-leased keyboard `type_text` is now Implemented at the deterministic
+  boundary; see the dated section above);
 - programmatic source dispatch;
 - real packaged Bimax.app/TCC journeys and broad app corpus;
-- x64, fresh-Mac, stable signing/notarization, update, and permission-persistence rows.
+- x64 fresh-boot qualification beyond the Rosetta probe, clean-Mac, stable signing/notarization,
+  update, and permission-persistence rows.
 
 ## Governing documents
 

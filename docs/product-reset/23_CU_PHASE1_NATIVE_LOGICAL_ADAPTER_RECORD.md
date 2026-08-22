@@ -47,6 +47,13 @@ may advertise physical capability, but a handshake flag is not an executable con
 internal operation belongs to later Phase 1 hardening or Phase 2 and must preserve the same logical
 surface and receipts.
 
+Update, 2026-08-22 (later same day): foreground-leased **keyboard** delivery now flows through the
+adapter — an explicit `delivery:'foreground_lease'` request rides a handshake-verified
+`foreground_once`/`foreground_persistent` policy and is graded against lease-and-frontmost proof,
+while unverified policies stop with `foreground_policy_unverified`. Full contract, fixture journey,
+unit negatives, and scope limits are recorded in
+`24_CU_PHASE2_DETERMINISTIC_COMPLETION_RECORD.md`. Raw-HID pointer click remains on the stop rung.
+
 ## Session reliability correction
 
 `NativeToolCoordinator` now retries a read exactly once when the native service returns

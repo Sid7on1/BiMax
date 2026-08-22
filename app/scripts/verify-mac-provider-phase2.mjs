@@ -107,6 +107,23 @@ try {
   `derived value postcondition failed: ${JSON.stringify(value)}`);
   results.derivedValue = 'verified';
 
+  // Foreground-leased delivery: the caller explicitly requests a focus change, the native receipt
+  // must prove a lease-backed policy plus the measured frontmost move, and the grader must hold
+  // all of it to the inverse of the background rules.
+  const fourth = await observe();
+  const physical = await logical('type', {
+    elementToken: 'composer', frameId: fourth.frameId,
+    text: 'foreground-leased', expect: 'foreground-leased',
+    delivery: 'foreground_lease',
+  });
+  assert(physical.ok === true && physical.verified === true
+    && physical.verification?.delivery?.requested === 'foreground'
+    && physical.verification?.delivery?.actual === 'foreground'
+    && physical.verification?.delivery?.focusChanged === true
+    && typeof physical.verification?.evidence?.focusLease === 'object',
+  `foreground-leased delivery was not proven: ${JSON.stringify(physical)}`);
+  results.physicalForeground = 'verified';
+
   await observe();
   const arranged = await logical('arrange', { layout: 'left' });
   assert(arranged.ok === true && arranged.verification?.postcondition?.kind === 'window_frame',
