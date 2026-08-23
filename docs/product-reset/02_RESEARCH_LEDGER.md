@@ -54,10 +54,20 @@ Decision: fresh-install and upgrade permission persistence are mandatory tests. 
 for permission again after updates; the UI must say so honestly. Stable signing is the eventual fix,
 not a custom permission database or hidden workaround.
 
+2026-08-23 local-development revalidation: Apple documents that the designated requirement is how
+macOS decides whether changed code is the same code previously granted a privacy permission. A
+live two-binary probe with the existing `Bimax Local Code Signing` identity produced the same
+certificate-root-and-identifier requirement for different binaries, while the installed ad-hoc
+Bimax requirement was CDHash-only. The local build may therefore use that certificate to preserve
+the host identity, without representing it as Developer ID, notarized, Gatekeeper-accepted, or a
+public release. The separately approved native CU service remains ad-hoc and exact-hash gated.
+
 Sources:
 
 - [Apple: Capturing screen content in macOS](https://developer.apple.com/documentation/screencapturekit/capturing-screen-content-in-macos)
 - [Apple Developer Forums: ad-hoc identity reset confirmed by DTS](https://developer.apple.com/forums/thread/819406)
+- [Apple: Applying Code Requirements](https://developer.apple.com/documentation/security/applying-code-requirements)
+- [Apple TN3127: Inside Code Signing Requirements](https://developer.apple.com/documentation/Technotes/tn3127-inside-code-signing-requirements)
 
 #### Local SDK revalidation — 2026-08-09
 

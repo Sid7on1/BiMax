@@ -178,6 +178,15 @@ received `AXIsProcessTrusted = false`. The coach now names the required one-time
 an existing row and relaunches after completed host AX/Screen Recording drags to clear the process-
 lifetime TCC cache. Stable permission persistence remains gated on Developer ID signing.
 
+2026-08-23 correction: the repository now has access to a valid `Bimax Local Code Signing`
+identity. The local build path prefers it with hardened runtime disabled, yielding a stable
+certificate-root-and-identifier designated requirement for the Bimax host while preserving the
+native CU service's separate ad-hoc exact-hash trust gate. This removes identity churn for repeated
+local host rebuilds but does not satisfy the Developer ID, notarization, Gatekeeper, clean-Mac or
+public-update gates. The first installed certificate-signed build immediately recovered host 2/2
+without a regrant on this Mac; persistence after the next changed local rebuild remains to be
+measured before claiming the update journey.
+
 ## Workstream F — proof and release
 
 1. Implement the immutable run schema and artifact store.

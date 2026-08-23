@@ -23,6 +23,17 @@ describe('Phase 7 measured release facts', () => {
     });
   });
 
+  test('reports a non-Apple certificate as local development without upgrading it to stable', () => {
+    const result = parseSignatureAssessment(
+      { ok: true, stdout: '', stderr: 'Identifier=ai.bimax.app\nAuthority=Bimax Local Code Signing\nTeamIdentifier=not set\nCodeDirectory v=20400 size=1 flags=0x0(none)' },
+      { ok: false, stdout: '', stderr: 'rejected' },
+    );
+    expect(result).toMatchObject({
+      kind: 'local-development', authority: 'Bimax Local Code Signing', hardenedRuntime: false,
+      gatekeeper: 'rejected', notarization: 'rejected',
+    });
+  });
+
   test('diagnostic export is allowlisted and omits paths, raw logs, commands and secrets', () => {
     const exported = buildDiagnosticExport({
       now: () => new Date('2026-08-09T00:00:00.000Z'),

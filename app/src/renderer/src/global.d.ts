@@ -56,7 +56,7 @@ export type { WindowChromeState } from '../../shared/window.chrome';
 export type PermissionDisposition = 'granted' | 'denied' | 'not-determined' | 'unavailable';
 
 export interface CodeSignatureReport {
-  kind: 'developer-id' | 'apple-development' | 'ad-hoc' | 'unsigned' | 'unknown';
+  kind: 'developer-id' | 'apple-development' | 'local-development' | 'ad-hoc' | 'unsigned' | 'unknown';
   identifier?: string;
   teamIdentifier?: string;
   authority?: string;

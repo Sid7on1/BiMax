@@ -103,7 +103,7 @@ npx electron-builder --mac "--$ARCH" --dir \
   -c.mac.identity=null
 
 APP="$OUT/mac-$ARCH/Bimax.app"
-echo "→ local nested signing (ad-hoc, no hardened runtime)"
+echo "→ local nested signing (stable local identity when available; no hardened runtime)"
 node scripts/sign-local-mac.mjs "$APP"
 echo "→ verify"
 codesign --verify --deep --strict "$APP"

@@ -86,6 +86,26 @@ old installer bundles were moved to `~/.Trash/Bimax-duplicates-2026-08-12/`. The
 `node_modules` remains a build dependency and was not launched as the product. A final-identity TCC
 grant on a fresh Mac, Developer ID, notarization and stable publication remain Target.
 
+2026-08-23 local identity amendment: a repeated live report reproduced host 0/2 while the visible
+System Settings `Bimax` row belonged to the previous CDHash-only ad-hoc build. `tccd` attribution
+confirmed Bimax's helper was asking for responsible identifier `ai.bimax.app`; a separate shell
+probe was attributed to ChatGPT and therefore could not be used as Bimax grant evidence. The
+existing `Bimax Local Code Signing` identity was then tested on two different binaries with the
+same identifier; both emitted the same certificate-root designated requirement. The local signing
+path now prefers that certificate for the host, disables hardened runtime, and excludes the XPC CU
+service so its manual-alpha ad-hoc hash approval remains intact. This is a stable local-development
+identity only, not Developer ID, notarization, Gatekeeper acceptance, or a stable/public release.
+
+The corrected arm64 candidate passed the package ownership/deep-signature gate and the complete Mac
+regression (101 suites, 1,154 tests). Its host requirement is `identifier "ai.bimax.app"` plus the
+local certificate root, while the XPC service remains ad-hoc at exact hash
+`9e08537a69209c591b3089729a31476cf71ed689` and reports both permissions granted. It was installed
+at `/Applications/Bimax.app`; the prior app is recoverable at
+`/Applications/Bimax.previous-20260823-before-stable-local.app`. The installed Trust Center then
+visibly rendered `Control Mac is ready`, host 2/2, and both native-service permissions Allowed.
+That closes the reported current-build mismatch. A second changed certificate-signed app update is
+still required to measure persistence across rebuilds; public release identity remains Target.
+
 ## Verification run
 
 - Desktop typecheck and production build: pass.
