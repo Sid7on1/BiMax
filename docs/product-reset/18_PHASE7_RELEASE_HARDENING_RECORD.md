@@ -103,8 +103,28 @@ local certificate root, while the XPC service remains ad-hoc at exact hash
 at `/Applications/Bimax.app`; the prior app is recoverable at
 `/Applications/Bimax.previous-20260823-before-stable-local.app`. The installed Trust Center then
 visibly rendered `Control Mac is ready`, host 2/2, and both native-service permissions Allowed.
-That closes the reported current-build mismatch. A second changed certificate-signed app update is
-still required to measure persistence across rebuilds; public release identity remains Target.
+That closed the reported current-build mismatch. At that point, a second changed
+certificate-signed app update was still required to measure persistence across rebuilds; public
+release identity remained Target.
+
+2026-08-23 second local-update amendment: the next changed certificate-signed build preserved the
+host grants (Trust Center remained 2/2) and the separately owned XPC service remained Allowed for
+both permissions at its approved Code Directory hash
+`9e08537a69209c591b3089729a31476cf71ed689`. This locally Measures permission persistence across one
+changed rebuild under the stable local certificate requirement. It does not replace the clean-Mac,
+Developer ID, notarized-update, revoke/regrant or public-release rows.
+
+That rebuild also corrected an independent packaged-runtime fault: Electron's provider descriptor
+did not set `BIMAX_CU_NATIVE_ROUTING_ENABLED`, so an otherwise ready service was deterministically
+collapsed to the visible `native_tools_unavailable` stop. Packaged Electron now owns and forces the
+full-native opt-in only inside the scrubbed provider descriptor; the generic engine receives no
+native-routing variable, development preserves only an explicit contributor opt-in, and a hostile
+inherited semantic flag cannot downgrade the packaged decision. The installed provider process was
+restarted after installation and directly reported packaged mode, Electron-main authority and
+`BIMAX_CU_NATIVE_ROUTING_ENABLED=1`. Full unit regression (101 suites / 1,156 tests), typecheck,
+production packaging, strict nested signature verification and the Desktop ownership gate passed.
+This establishes the corrected launch contract and live permission state; an end-state Messages or
+other real-app task was deliberately not claimed from this read-only verification.
 
 ## Verification run
 

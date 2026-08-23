@@ -17,6 +17,7 @@ import path from 'node:path';
 import {
   resolveEngineCommand, resolveNativeComponent, buildEngineChildEnv, describeRefusal,
   packagedEnginePath, PackagedRuntimeError, OVERRIDE_ENV, NATIVE_COMPONENT_ENV,
+  NATIVE_ROUTING_ENV, NATIVE_SEMANTIC_ROUTING_ENV,
   TRUSTED_PLAN_REQUIRED_ENV, TRUSTED_PLAN_SECRET_ENV,
   EngineArtifactError, stagedEnginePath, type RuntimeLayout,
 } from '../main/runtime.paths';
@@ -261,6 +262,47 @@ describe('the engine child receives one generic local-provider contract', () => 
 
     expect(providerMode(false)).toBe('development');
     expect(providerMode(true)).toBe('packaged');
+  });
+
+  test('packaged Electron enables the verified native route only inside its provider descriptor', () => {
+    const env = buildEngineChildEnv({
+      parentEnv: {
+        [NATIVE_ROUTING_ENV]: '0',
+        [NATIVE_SEMANTIC_ROUTING_ENV]: '1',
+      },
+      extraEnv: {},
+      packaged: true,
+      path: '/usr/bin',
+      projectDir: '/proj',
+      resolved: {
+        macCapability: BUNDLE.macCapability,
+        cuService: BUNDLE.cuService,
+        cuBridge: BUNDLE.cuBridge,
+      },
+    });
+    const contract = JSON.parse(String(env.BIMAX_HOST_CAPABILITIES_JSON));
+
+    expect(env[NATIVE_ROUTING_ENV]).toBeUndefined();
+    expect(env[NATIVE_SEMANTIC_ROUTING_ENV]).toBeUndefined();
+    expect(contract.servers[0].env[NATIVE_ROUTING_ENV]).toBe('1');
+    expect(contract.servers[0].env[NATIVE_SEMANTIC_ROUTING_ENV]).toBeUndefined();
+  });
+
+  test('development forwards only explicit native-route opt-ins to the provider', () => {
+    const env = buildEngineChildEnv({
+      parentEnv: { [NATIVE_SEMANTIC_ROUTING_ENV]: '1' },
+      extraEnv: {},
+      packaged: false,
+      path: '/usr/bin',
+      projectDir: '/proj',
+      resolved: { macCapability: DEV.macCapability },
+    });
+    const contract = JSON.parse(String(env.BIMAX_HOST_CAPABILITIES_JSON));
+
+    expect(env[NATIVE_ROUTING_ENV]).toBeUndefined();
+    expect(env[NATIVE_SEMANTIC_ROUTING_ENV]).toBeUndefined();
+    expect(contract.servers[0].env[NATIVE_ROUTING_ENV]).toBeUndefined();
+    expect(contract.servers[0].env[NATIVE_SEMANTIC_ROUTING_ENV]).toBe('1');
   });
 
   test('an UNRESOLVED component is stripped, not left as the inherited hostile value', () => {

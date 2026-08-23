@@ -53,6 +53,13 @@ Bimax meaningfully better, not the largest feature inventory.
    require plan/approval/takeover continuity and independent proof; optional models cannot authorize
    a deterministic refusal. Product activation, real workers, device corpora and live/package
    qualification remain Target.
+   **Packaged launch-contract correction, 2026-08-23:** Electron now forces
+   `BIMAX_CU_NATIVE_ROUTING_ENABLED=1` inside the packaged provider descriptor after a live ready
+   Trust Center still produced `native_tools_unavailable` without that flag. The engine remains a
+   generic scrubbed descriptor consumer and receives no native route variable itself. The installed
+   replacement preserved host 2/2 and both exact-hash XPC grants across the changed local rebuild;
+   the live provider process carried the corrected flag. A model-backed real-app end-state journey
+   remains Target rather than inferred from readiness.
 6. Split product ownership without copying the engine. **Implemented and locally Measured
    2026-08-09 for the local migration:** filtered Terminal and Desktop histories build and test
    independently, Desktop is pinned to the exact split Terminal manifest, and both source-boundary

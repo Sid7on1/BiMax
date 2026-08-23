@@ -55,6 +55,8 @@ export const NATIVE_COMPONENT_ENV: readonly string[] = [
 export const HOST_CAPABILITIES_ENV = 'BIMAX_HOST_CAPABILITIES_JSON';
 export const TRUSTED_PLAN_SECRET_ENV = 'BIMAX_CU_TRUSTED_PLAN_SECRET';
 export const TRUSTED_PLAN_REQUIRED_ENV = 'BIMAX_CU_TRUSTED_PLAN_REQUIRED';
+export const NATIVE_ROUTING_ENV = 'BIMAX_CU_NATIVE_ROUTING_ENABLED';
+export const NATIVE_SEMANTIC_ROUTING_ENV = 'BIMAX_CU_NATIVE_SEMANTIC_ROUTING_ENABLED';
 
 export interface RuntimeLayout {
   /** app.isPackaged — the only thing that distinguishes a shipped app from a dev shell. */
@@ -249,6 +251,10 @@ export interface ChildEnvInput {
  * That is the same defect Phase 1 fixed on the Terminal side in `tui/engine.go`.
  */
 export function buildEngineChildEnv(input: ChildEnvInput): Record<string, string | undefined> {
+  const requestedNativeRouting = input.parentEnv[NATIVE_ROUTING_ENV] === '1'
+    || input.extraEnv[NATIVE_ROUTING_ENV] === '1';
+  const requestedSemanticRouting = input.parentEnv[NATIVE_SEMANTIC_ROUTING_ENV] === '1'
+    || input.extraEnv[NATIVE_SEMANTIC_ROUTING_ENV] === '1';
   const env: Record<string, string | undefined> = {
     ...input.parentEnv,
     ...input.extraEnv,
@@ -258,6 +264,8 @@ export function buildEngineChildEnv(input: ChildEnvInput): Record<string, string
   };
   // The generic engine never receives app routing flags. Only the provider learns package mode.
   delete env.BIMAX_DESKTOP_RELEASE_MODE;
+  delete env[NATIVE_ROUTING_ENV];
+  delete env[NATIVE_SEMANTIC_ROUTING_ENV];
   delete env[TRUSTED_PLAN_SECRET_ENV];
   delete env[TRUSTED_PLAN_REQUIRED_ENV];
   for (const variable of NATIVE_COMPONENT_ENV) delete env[variable];
@@ -274,6 +282,15 @@ export function buildEngineChildEnv(input: ChildEnvInput): Record<string, string
       BIMAX_MAC_PROVIDER_AUTHORITY: 'electron-main',
       BIMAX_MAC_CONSENT_CHANNEL: 'engine-governor',
       BIMAX_DESKTOP_RELEASE_MODE: input.packaged ? 'packaged' : 'development',
+      // A packaged Bimax.app owns the production route decision. The provider's structural
+      // discovery and live XPC handshake remain the authority on whether native control is
+      // actually eligible; this flag only allows those gates to be evaluated. Without it, a
+      // healthy, approved service is always collapsed to the generic native_tools_unavailable
+      // placeholder. Development preserves the contributor's explicit opt-in instead.
+      ...(input.packaged || requestedNativeRouting ? { [NATIVE_ROUTING_ENV]: '1' } : {}),
+      ...(!input.packaged && requestedSemanticRouting
+        ? { [NATIVE_SEMANTIC_ROUTING_ENV]: '1' }
+        : {}),
       [TRUSTED_PLAN_SECRET_ENV]: trustedPlanSecret,
       [TRUSTED_PLAN_REQUIRED_ENV]: '1',
       // The preview is staged beside the provider in development and in Bimax.app/Contents/MacOS
