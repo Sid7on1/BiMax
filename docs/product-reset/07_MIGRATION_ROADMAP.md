@@ -173,6 +173,33 @@ implementation/package qualification is complete. Clean-machine TCC/quarantine, 
 shipped, Developer ID signing and notarization are Phase 7 release qualification and cannot be
 manufactured on this development Mac.
 
+Repair audit, 2026-08-27: the packaged ownership statement above had regressed at two connection
+seams and is now **Implemented and locally package-Measured again**. The production bridge was
+constructing `BimaxCuServiceCore` in-process, so the staged `.xpc` existed without owning the live
+route; it now uses the app-bundled named XPC service and permits the embedded core only behind the
+explicit untrusted-development switch. The XPC listener derives the exact bridge designated
+requirement from the sealed bundle, validates the immediate peer with Security.framework, and also
+requires an exact signed Bimax app ancestor so an unrelated process cannot launch the bridge as a
+confused deputy. Trust Center now performs the same bridge → XPC handshake as the provider and gates
+readiness on the reached service's intact signature, identifier, exact approved Code Directory hash,
+and its own Accessibility/Screen Recording states. The generic engine still owns no native CU code;
+Desktop connects its generic `bimax-mac` provider before engine readiness instead of discovering it
+on the old delayed optional-MCP sweep.
+
+The local build now restages the engine manifest and rebuilds service, bridge, helpers and provider
+as one generation. `scripts/verify-desktop-package.mjs` launches that exact signed `Bimax.app`
+executable with `--self-test-native-route`, bypasses only the normal single-window lock, and requires
+Electron → bridge → intact `ai.bimax.cu.service` before the package passes. The 2026-08-27 arm64
+bundle at `/private/tmp/bimax-cu-repair.NUAo1x/release3/mac-arm64/Bimax.app` passed strict nested
+signature verification and this live topology gate. The same bundle then passed every packaged
+conformance assertion, including topology, semantic, physical, visual, stop, takeover, content,
+search, foreground-invariance and M02; raw evidence is preserved in
+`app/benchmarks/computer-use/results/phase2/run-2026-08-26T20-25-23.833Z/report.json`. Native tests
+passed 60/60, Desktop tests passed 1160/1160, and the engine suite accounted for 2469 tests (2458 passed plus 8 skipped in the full
+run; the 3 sandbox-denied loopback/home-install cases then passed 19/19 with their required local
+authority). This repairs a local package claim only: Developer ID/notarization, a clean-Mac TCC
+matrix, native Intel timing and a model-backed broad real-app journey remain **Target**.
+
 ## Phase 3 — publish the engine boundary
 
 - Promote the current NDJSON interface to a generated, versioned client protocol.

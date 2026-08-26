@@ -54,6 +54,23 @@ describe('computer-operation prompt contract', () => {
     expect(a.staticPrefix).toBe(b.staticPrefix);
   });
 
+  it('describes an app-owned capability that connects after persona construction', () => {
+    const registry = new ToolRegistry();
+    [createBashTool(governor), createReadFileTool(governor)].forEach(t => registry.register(t));
+    const p = new BiMaxPersona(registry, llm);
+    registry.register({
+      name: 'mcp__bimax-mac__mac_control',
+      description: 'Operate the Mac through the Bimax.app native authority.',
+      schema: { type: 'object', properties: {} },
+      isDestructive: true,
+      isConcurrencySafe: false,
+      execute: async () => '{}',
+    });
+    const prompt = p.getSystemPromptParts({ toolNames: ['mcp__bimax-mac__mac_control'] }).dynamicSuffix;
+    expect(prompt).toContain('mcp__bimax-mac__mac_control');
+    expect(prompt).not.toContain('BashTool:');
+  });
+
   it('BrowserTool advertises a truthful schema for the new observation controls', () => {
     const tool = createBrowserTool(governor);
     const props = tool.schema.properties;

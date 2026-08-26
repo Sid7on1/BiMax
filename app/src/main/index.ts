@@ -36,6 +36,7 @@ import {
   revokeManualAlphaService,
   type ManualAlphaServiceStatus,
 } from './manual-alpha.trust';
+import { assessNativeControlRoute, inspectNativeControlRoute } from './native.cu.route';
 import {
   launchExactProcessWithNativeHelper,
   startFocusActivationBroker,
@@ -119,7 +120,8 @@ async function workspaceCapabilities(): Promise<{
 
 // One packaged Bimax process owns the engine, Trust Center and native Computer Use service. A
 // second launch only brings that process forward; it must never create another permission owner.
-const ownsSingleInstance = app.requestSingleInstanceLock();
+const nativeRouteSelfTestRequested = process.argv.includes('--self-test-native-route');
+const ownsSingleInstance = nativeRouteSelfTestRequested || app.requestSingleInstanceLock();
 if (!ownsSingleInstance) app.quit();
 
 function revealMainWindow(): void {
@@ -429,8 +431,10 @@ async function currentTrustReport(): Promise<TrustReport> {
   const darwin = process.platform === 'darwin';
   const components = componentResolutions();
   const nativeServiceTrust = await inspectManualAlphaService(bimaxCuServiceBinary());
-  const nativePermissionsReady = nativeServiceTrust.permissions?.accessibility === 'granted'
-    && nativeServiceTrust.permissions?.screenRecording === 'granted';
+  const nativeRoute = await inspectNativeControlRoute(
+    components.find((component) => component.name === 'cuBridge')?.resolution.path,
+  );
+  const nativeRouteTrust = assessNativeControlRoute(nativeServiceTrust, nativeRoute);
   return buildTrustReport({
     now: () => new Date(),
     build: {
@@ -463,10 +467,8 @@ async function currentTrustReport(): Promise<TrustReport> {
         detail: `Bimax could not set up the control you would use to take over, so it will not act on your Mac${takeoverBrokerError ? ` (${takeoverBrokerError})` : ''}`,
       },
     nativeServiceTrust: {
-      ready: nativeServiceTrust.ready && nativePermissionsReady,
-      detail: nativeServiceTrust.ready && !nativePermissionsReady
-        ? 'The native Computer Use service still needs its own Accessibility and Screen Recording grants.'
-        : nativeServiceTrust.detail,
+      ready: nativeRouteTrust.ready,
+      detail: nativeRouteTrust.detail,
     },
   });
 }
@@ -577,6 +579,24 @@ function hardenSession(): void {
 }
 
 app.whenReady().then(async () => {
+  // Release/package verification must exercise the topology the DMG actually ships. Running the
+  // app executable with this flag keeps Electron as the bridge's signed ancestor, probes the
+  // app-bundled XPC service, emits one machine-readable result, and creates no UI or engine child.
+  // It deliberately bypasses only the ordinary single-instance window lock above so a separately
+  // installed Bimax cannot intercept verification of a freshly built bundle with the same ID.
+  if (nativeRouteSelfTestRequested) {
+    const components = componentResolutions();
+    const bridge = components.find((component) => component.name === 'cuBridge')?.resolution.path;
+    const route = await inspectNativeControlRoute(bridge, 5_000);
+    process.stdout.write(`${JSON.stringify({
+      schemaVersion: 1,
+      packaged: app.isPackaged,
+      appPath: app.getAppPath(),
+      route,
+    })}\n`);
+    app.exit(app.isPackaged && route.connected ? 0 : 1);
+    return;
+  }
   hardenSession();
   // safeStorage can consult Keychain only after ready. Load before constructing the supervisor so
   // the first engine generation receives the selected provider and its credential.

@@ -203,7 +203,47 @@ if let index = CommandLine.arguments.firstIndex(of: "--self-test-real-app-matrix
 }
 
 let service = BimaxCuXPCService()
-let delegate = BimaxCuXPCServiceDelegate(exportedObject: service)
+let allowUntrustedDevelopment = ProcessInfo.processInfo.environment["BIMAX_CU_ALLOW_UNTRUSTED_CLIENT"] == "1"
+let delegate: BimaxCuXPCServiceDelegate
+if allowUntrustedDevelopment {
+    delegate = BimaxCuXPCServiceDelegate(
+        exportedObject: service,
+        identityValidator: CodeSigningXPCClientValidator(
+            requirement: BimaxCuXPCServiceDelegate.defaultRequirement,
+            allowUnsignedDevelopment: true
+        )
+    )
+} else {
+    do {
+        // /Bimax.app/Contents/XPCServices/BimaxCuService.xpc -> /Bimax.app/Contents
+        let contents = Bundle.main.bundleURL
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let bridge = contents.appendingPathComponent("MacOS/bimax-cu-bridge").path
+        let appBundleURL = contents.deletingLastPathComponent()
+        guard let appBundle = Bundle(url: appBundleURL), let appExecutable = appBundle.executablePath else {
+            throw CodeSigningRequirementError.couldNotLoad(appBundleURL.path, errSecParam)
+        }
+        let bridgeRequirement = try CodeSigningXPCClientValidator.designatedRequirement(
+            forExecutableAt: bridge
+        )
+        let appRequirement = try CodeSigningXPCClientValidator.designatedRequirement(
+            forExecutableAt: appExecutable
+        )
+        let appValidator = CodeSigningXPCClientValidator(requirement: appRequirement)
+        delegate = BimaxCuXPCServiceDelegate(
+            exportedObject: service,
+            identityValidator: CodeSigningXPCClientValidator(requirement: bridgeRequirement),
+            ancestorAuthorizer: BimaxSignedAncestorAuthorizer(
+                validator: appValidator,
+                parentLookup: bimaxParentProcessIdentifier
+            )
+        )
+    } catch {
+        FileHandle.standardError.write(Data("bimax-cu-service: refusing insecure XPC startup: \(error)\n".utf8))
+        exit(EXIT_FAILURE)
+    }
+}
 let listener = NSXPCListener.service()
 listener.delegate = delegate
 listener.resume()

@@ -40,7 +40,7 @@ npx electron-vite build
 
 echo "→ engine"
 #
-# THE ENGINE IS AN INPUT TO THIS BUILD, NOT A STEP OF IT.
+# THE ENGINE IS A VERSIONED INPUT TO THIS BUILD, NOT DESKTOP SOURCE.
 #
 # The desktop app embeds the `bimax` CLI as its engine, but it consumes it as a finished BINARY and
 # never as source. This build therefore does not compile the CLI, does not cd into its tree, and
@@ -70,13 +70,9 @@ if [ -z "$ENGINE" ] && [ -x "../.engine-local/bimax-engine" ]; then
 fi
 if [ -n "$ENGINE" ]; then
   [ -x "$ENGINE" ] || { echo "error: engine is not an executable file: $ENGINE" >&2; exit 1; }
-  if [ -x engine/bimax-engine ] && cmp -s "$ENGINE" engine/bimax-engine; then
-    echo "   reusing identical staged engine: engine/bimax-engine"
-  else
-    echo "error: the staged engine differs from $ENGINE; refusing to replace it during a non-destructive local build" >&2
-    echo "       stage the intended engine explicitly, then rerun this build" >&2
-    exit 1
-  fi
+  # Always regenerate the staged binary + manifest atomically. Reusing `app/engine` let an old
+  # compiled runtime survive beside a newer renderer/provider/native stack.
+  BIMAX_ENGINE_LOCAL_OVERRIDE="$ENGINE" bash scripts/prepare-engine.sh "$target"
 else
   # Say exactly which command produces the missing input, in the product that owns it.
   echo "   no local engine found — resolving the pinned release from engine.lock.json"
@@ -85,15 +81,10 @@ else
   bash scripts/prepare-engine.sh "$target"
 fi
 
-# NOTE: prepare-native.sh begins with `rm -rf native-service` and rebuilds every native component
-# from Swift source. It is deliberately NOT run here — as of 2026-08-15 the sources for
-# BimaxCuBridge are missing from the working tree, so that script destroys the staged binaries and
-# then fails. Stage native-service yourself (see docs) and this build consumes it.
-for required in BimaxCuService.xpc bimax-cu-bridge bimax-desktop-helper bimax-live-pip; do
-  [ -e "native-service/$required" ] || { echo "error: native-service/$required is missing — stage it before building" >&2; exit 1; }
-done
-echo "→ mac capability provider (the only native component built from TypeScript)"
-bun build --compile --target="bun-$target" src/capabilities/mac/provider.entry.ts --outfile native-service/bimax-mac-capability
+echo "→ native service + XPC bridge + helpers + Mac provider"
+# One invocation owns the entire staging directory. Every DMG therefore contains one source
+# generation instead of silently mixing retained Swift binaries with a freshly compiled provider.
+bash scripts/prepare-native.sh "$target"
 
 echo "→ package app directory (unhardened, outside iCloud)"
 [ ! -e "$OUT" ] || { echo "error: refusing to overwrite existing local build output: $OUT" >&2; exit 1; }

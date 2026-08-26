@@ -36,8 +36,8 @@ export interface McpHealth {
  * redundant tools on the model and spawn a second engine process). Power users can opt into the raw
  * tools with BIMAX_CODEMEM_RAW_TOOLS=1.
  */
-async function builtinServers(): Promise<McpServerSpec[]> {
-  const out: McpServerSpec[] = loadHostCapabilityServers();
+async function optionalBuiltinServers(): Promise<McpServerSpec[]> {
+  const out: McpServerSpec[] = [];
   if (process.env.BIMAX_CODEMEM_RAW_TOOLS === '1') {
     try {
       const cbm = await codebaseMemorySpec();
@@ -124,22 +124,62 @@ export class McpManager {
   }
 
   /**
+   * Connect embedding-host capabilities before the headless protocol reports ready.
+   *
+   * These are not optional user integrations: in Bimax.app this is the sole app-owned Computer
+   * Use authority. Delaying it with npm-backed MCP servers created a window where an explicit
+   * Control Mac turn was accepted as an ordinary coding turn. Terminal supplies no descriptor, so
+   * this remains a zero-work no-op there.
+   */
+  public async connectHostCapabilities(
+    registry: ToolRegistry,
+    governor: IGovernor,
+  ): Promise<number> {
+    const specs = loadHostCapabilityServers();
+    const results = await Promise.allSettled(specs.map(async (spec) => {
+      if (spec.disabled) return false;
+      const connection = await this.connectSpec(spec, registry, governor);
+      if (connection) {
+        cliEvents.emit('status', `Host capability '${spec.name}' connected — ${connection.toolNames.length} tool(s)`);
+        return true;
+      }
+      const why = this.lastErrorFor(spec.name);
+      if (why) cliEvents.emit('status', `Host capability '${spec.name}' failed: ${why}`);
+      return false;
+    }));
+    const connected = results.filter(result => result.status === 'fulfilled' && result.value).length;
+    if (connected > 0) cliEvents.emit('mcp_changed');
+    return connected;
+  }
+
+  /**
    * Connect every configured server. Merges the GLOBAL store (~/.bimax/mcp.json) with the
    * project-local one (<projectRoot>/.bimax/mcp.json) — project entries override globals of the
    * same name. Best-effort. Used at boot.
    */
   public async connectAll(registry: ToolRegistry, governor: IGovernor, projectRoot?: string): Promise<number> {
     const byName = new Map<string, McpServerSpec>();
-    // Built-in engines first, so user config of the same name can override them.
-    for (const s of await builtinServers()) byName.set(s.name, s);
-    for (const s of loadMcpServers(os.homedir())) byName.set(s.name, s);
+    // Host capabilities are reserved by the embedding app. A project MCP config must never replace
+    // `bimax-mac` with a same-named third-party process after the trusted provider connected.
+    const host = loadHostCapabilityServers();
+    const reservedHostNames = new Set(host.map(spec => spec.name));
+    for (const s of host) byName.set(s.name, s);
+    for (const s of await optionalBuiltinServers()) byName.set(s.name, s);
+    for (const s of loadMcpServers(os.homedir())) {
+      if (!reservedHostNames.has(s.name)) byName.set(s.name, s);
+    }
     if (projectRoot && projectRoot !== os.homedir()) {
-      for (const s of loadMcpServers(projectRoot)) byName.set(s.name, s);
+      for (const s of loadMcpServers(projectRoot)) {
+        if (!reservedHostNames.has(s.name)) byName.set(s.name, s);
+      }
     }
     // Connect all servers IN PARALLEL — boot used to pay the sum of every server's handshake
     // (npx cold-starts routinely take seconds each); now it pays only the slowest one. Each
     // connectSpec tracks its own pending/error state, so concurrency is safe here.
     const results = await Promise.allSettled(Array.from(byName.values()).map(async (spec) => {
+      // The critical host provider was connected synchronously before protocol readiness. Do not
+      // restart it when the delayed optional-MCP sweep begins.
+      if (spec.eager && this.connections.has(spec.name)) return true;
       // Skip servers the user turned off — they stay in config until re-enabled.
       if (spec.disabled) {
         Logger.info(`[MCP] Skipping disabled server '${spec.name}'.`);

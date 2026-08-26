@@ -209,6 +209,15 @@ export abstract class AgentPersona {
     const insideCodebase = isCodebase(cwd);
     const contextMode = opts?.contextMode ?? 'smart';
     const allowedToolNames = opts?.toolNames ? new Set(opts.toolNames) : null;
+    // A specialized operation turn may name a host capability that connected after personas were
+    // constructed. Resolve that explicit list from the live registry; `this.tools` is the persona's
+    // static coding set and intentionally cannot represent a dynamically supplied app tool.
+    const promptTools = allowedToolNames
+      ? [...allowedToolNames].flatMap(name => {
+        const tool = this.toolRegistry.getTool(name);
+        return tool ? [tool] : [];
+      })
+      : this.tools;
 
     // Tool schemas are delivered natively via the function-calling API. The prompt only needs a
     // short "when to reach for which tool" map. In smart mode we list ONLY the tools whose schemas
@@ -219,11 +228,11 @@ export abstract class AgentPersona {
     // source of truth) — so index-gated graph tools don't get advertised before the repo is indexed.
     // An explicit specialized-turn allow-list overrides smart-mode deferral. The matching schemas
     // are forced onto the wire by AgentLoop, so the textual map must list that same exact set.
-    const sentTools = this.tools.filter(t => allowedToolNames
+    const sentTools = promptTools.filter(t => allowedToolNames
       ? allowedToolNames.has(t.name)
       : this.toolRegistry.isSent(t.name, contextMode));
     const deferredTools = contextMode === 'smart'
-      ? this.tools.filter(t => !allowedToolNames
+      ? promptTools.filter(t => !allowedToolNames
         && this.toolRegistry.isDeferred(t.name)
         && !this.toolRegistry.isDiscovered(t.name))
       : [];

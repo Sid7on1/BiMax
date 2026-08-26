@@ -21,6 +21,7 @@ export interface ManualAlphaServiceStatus {
   serviceVersion?: string;
   binary?: string;
   codeDirectoryHash?: string;
+  signingIdentifier?: string;
   approvedHash?: string;
   approvedAt?: string;
   permissions?: { accessibility: string; screenRecording: string };
@@ -34,6 +35,7 @@ interface HandshakeShape {
     adHocSigned?: unknown;
     signatureIntact?: unknown;
     codeDirectoryHash?: unknown;
+    signingIdentifier?: unknown;
     accessibility?: unknown;
     screenRecording?: unknown;
   };
@@ -74,10 +76,13 @@ export async function inspectManualAlphaService(binary?: string): Promise<Manual
       accessibility: String(permissions.accessibility || 'unknown'),
       screenRecording: String(permissions.screenRecording || 'unknown'),
     };
-    if (permissions.serviceSigned === true) {
+    const signingIdentifier = typeof permissions.signingIdentifier === 'string'
+      ? permissions.signingIdentifier : undefined;
+    if (permissions.serviceSigned === true && permissions.signatureIntact === true) {
       return {
-        state: 'developer-id', ready: true, canApprove: false, serviceVersion, binary, permissions: servicePermissions,
-        detail: 'The Computer Use service has a production signing identity.',
+        state: 'developer-id', ready: true, canApprove: false, serviceVersion, binary,
+        signingIdentifier, permissions: servicePermissions,
+        detail: 'The Computer Use service has an intact non-ad-hoc signing identity.',
       };
     }
 
@@ -88,6 +93,7 @@ export async function inspectManualAlphaService(binary?: string): Promise<Manual
     const base = {
       serviceVersion,
       binary,
+      ...(signingIdentifier ? { signingIdentifier } : {}),
       permissions: servicePermissions,
       ...(HASH.test(codeDirectoryHash) ? { codeDirectoryHash } : {}),
       ...(approval ? {

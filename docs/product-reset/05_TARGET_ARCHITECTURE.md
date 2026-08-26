@@ -171,6 +171,8 @@ Desktop release:
 2. build/test Swift package, XPC bundle, bridge, Electron main/preload/renderer;
 3. run protocol contract and app-owned CU conformance;
 4. sign every nested executable consistently when credentials exist;
-5. package arm64/x64 DMGs, notarize/staple for stable release, and verify on a clean Mac;
-6. manual alpha may skip Developer ID but must publish checksums, show the override instructions,
+5. run the signed packaged app's no-window topology probe and require Electron → bridge → the exact
+   intact app-bundled XPC service; a standalone service self-test is not a substitute;
+6. package arm64/x64 DMGs, notarize/staple for stable release, and verify on a clean Mac;
+7. manual alpha may skip Developer ID but must publish checksums, show the override instructions,
    and test permission behavior honestly.

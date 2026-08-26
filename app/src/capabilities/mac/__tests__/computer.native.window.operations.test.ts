@@ -36,7 +36,7 @@ function handshake(verified: string[] = WINDOW_OPERATIONS): NativeServiceHandsha
     },
     permissions: {
       accessibility: 'granted', screenRecording: 'denied', screenCapturable: false,
-      inputMonitoring: 'not_required', serviceSigned: true,
+      inputMonitoring: 'not_required', serviceSigned: true, signatureIntact: true,
     },
   };
 }

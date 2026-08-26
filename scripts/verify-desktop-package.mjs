@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { existsSync, statSync } from 'node:fs';
 import path from 'node:path';
@@ -77,9 +77,39 @@ const plistValue = (key) => execFileSync('plutil', ['-extract', key, 'raw', file
 if (plistValue('CFBundleIdentifier') !== 'ai.bimax.cu.service') fail('XPC service has the wrong bundle identifier');
 if (plistValue('CFBundleExecutable') !== 'bimax-cu-service') fail('XPC service has the wrong executable contract');
 if (plistValue('CFBundlePackageType') !== 'XPC!') fail('native service is not declared as an XPC bundle');
+if (plistValue('LSMinimumSystemVersion') !== '13.0') fail('XPC service minimum macOS does not match the app');
+
+// Static bundle shape cannot prove an XPC route. Start this exact packaged Electron executable in
+// its no-window diagnostic mode so it remains the signed ancestor of its bridge, then require the
+// bridge to reach the identity reported by the embedded service. This is deliberately part of the
+// app package gate, not a standalone service smoke test.
+const topology = spawnSync(files.appExecutable, ['--self-test-native-route'], {
+  encoding: 'utf8',
+  timeout: 15_000,
+});
+if (topology.error) fail(`packaged native route could not start: ${topology.error.message}`);
+if (topology.status !== 0) {
+  fail(`packaged native route failed (${topology.status ?? topology.signal}): ${(topology.stderr || topology.stdout).trim()}`);
+}
+let topologyResult;
+try {
+  topologyResult = JSON.parse(topology.stdout.trim().split('\n').at(-1));
+} catch {
+  fail(`packaged native route returned invalid JSON: ${topology.stdout.trim()}`);
+}
+if (topologyResult?.packaged !== true || topologyResult?.route?.connected !== true) {
+  fail(`packaged native route did not connect: ${topologyResult?.route?.detail || 'unknown failure'}`);
+}
+if (topologyResult.route.signingIdentifier !== 'ai.bimax.cu.service') {
+  fail(`packaged bridge reached the wrong service identity: ${topologyResult.route.signingIdentifier || 'missing'}`);
+}
+if (topologyResult.route.signatureIntact !== true) {
+  fail('packaged bridge reached a service whose code signature is not intact');
+}
 
 console.log(`desktop package gate: PASS ${bundle}`);
 console.log(`desktop package gate: PASS ${expectedArchitecture} app, engine, provider, XPC service, bridge, helper, live target preview`);
 console.log('desktop package gate: PASS packaged engine receives one generic local capability-provider contract');
 console.log('desktop package gate: PASS packaged macOS capability provider is native-only and fail-closed');
 console.log('desktop package gate: PASS packaged run resolves engine and native components from the bundle only');
+console.log('desktop package gate: PASS packaged app -> bridge -> exact signed XPC service topology');

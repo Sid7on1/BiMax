@@ -120,6 +120,7 @@ try {
     path.join(repo, 'scripts/verify-desktop-package.mjs'), bundle,
     os.arch() === 'x64' ? 'x86_64' : os.arch(),
   ]);
+  report.rows.productionTopology = jsonRun(executable, ['--self-test-native-route'], { timeout: 15_000 });
   report.rows.fixtureBuild = run(path.join(desktopRoot, 'scripts/computer-use/build-bimax-cu-fixture.sh'), [target]);
   if (report.rows.fixtureBuild.exitCode !== 0) throw new Error('target fixture build failed');
 
@@ -151,6 +152,7 @@ try {
   ]);
 
   const handshake = report.rows.handshake.parsed;
+  const productionTopology = report.rows.productionTopology.parsed;
   const catalog = report.rows.semanticAndPhysical.parsed;
   const stop = report.rows.stop.parsed;
   const visual = report.rows.visual.parsed;
@@ -161,6 +163,10 @@ try {
   });
   report.assertions = {
     packageStructure: report.rows.structure.exitCode === 0,
+    packagedAppOwnsXpcRoute: productionTopology?.packaged === true
+      && productionTopology?.route?.connected === true
+      && productionTopology?.route?.signingIdentifier === 'ai.bimax.cu.service'
+      && productionTopology?.route?.signatureIntact === true,
     bundleOnlyComponent: service.startsWith(`${contents}${path.sep}`),
     protocolSelected: handshake?.selectedProtocol === 'bimax.cu.v1',
     architectureMatchesHost: handshake?.platform?.architecture === expectedArchitecture,

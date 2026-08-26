@@ -52,7 +52,9 @@ model changes are invalid runs, not product failures or passes.
   bounded activation retries, the task ends with a concrete model-route blocker and an idle UI;
 - provider secrets are stored through macOS Keychain-backed main-process storage and never appear
   in renderer persistence, NDJSON, diagnostics or logs;
-- app bundle/XPC/bridge/helper signatures and locations pass structural verification;
+- app bundle/XPC/bridge/helper signatures and locations pass structural verification, and the exact
+  signed packaged app executable proves Electron → bridge → intact app-bundled XPC service through
+  a no-window handshake (a direct service self-test does not satisfy this gate);
 - the exact native service permissions, not merely the Electron host permissions, gate readiness;
 - add-by-drag permission guidance exposes a real native bundle drag source, keeps System Settings in
   front and names the bundle that must land in the list;

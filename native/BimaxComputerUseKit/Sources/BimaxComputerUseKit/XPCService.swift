@@ -1,5 +1,6 @@
 import Foundation
 import Security
+import Darwin
 import BimaxCuProtocol
 
 // RECONSTRUCTED 2026-08-17 — the XPC listener plumbing the eviction took with it.
@@ -69,8 +70,97 @@ public struct CodeSigningXPCClientValidator: XPCClientIdentityValidating {
         guard processIdentifier > 0 else {
             return .init(accepted: false, reason: "invalid_pid")
         }
-        return .init(accepted: true, reason: allowUnsignedDevelopment ? "development" : "signed")
+        if allowUnsignedDevelopment {
+            return .init(accepted: true, reason: "development")
+        }
+        guard let requirement = kernelCodeSigningRequirement else {
+            return .init(accepted: false, reason: "missing_signing_requirement")
+        }
+
+        var guest: SecCode?
+        let attributes = [kSecGuestAttributePid as String: NSNumber(value: processIdentifier)] as CFDictionary
+        guard SecCodeCopyGuestWithAttributes(nil, attributes, [], &guest) == errSecSuccess,
+              let guest else {
+            return .init(accepted: false, reason: "client_code_unavailable")
+        }
+        var compiled: SecRequirement?
+        guard SecRequirementCreateWithString(requirement as CFString, [], &compiled) == errSecSuccess,
+              let compiled else {
+            return .init(accepted: false, reason: "invalid_signing_requirement")
+        }
+        guard SecCodeCheckValidity(guest, [], compiled) == errSecSuccess else {
+            return .init(accepted: false, reason: "signing_requirement_failed")
+        }
+        return .init(accepted: true, reason: "signed")
     }
+
+    /// Resolve the executable's own designated requirement after verifying its current seal.
+    ///
+    /// The XPC service uses this for the exact bridge and containing app that were packaged beside
+    /// it. A Developer ID build therefore binds to its stable signer/identifier requirement, while
+    /// a manual-alpha ad-hoc build binds to the exact sealed code directory. No hard-coded Team ID
+    /// or development certificate name is needed, and a sibling copied from another build fails.
+    public static func designatedRequirement(forExecutableAt path: String) throws -> String {
+        var staticCode: SecStaticCode?
+        let create = SecStaticCodeCreateWithPath(URL(fileURLWithPath: path) as CFURL, [], &staticCode)
+        guard create == errSecSuccess, let staticCode else {
+            throw CodeSigningRequirementError.couldNotLoad(path, create)
+        }
+        let validity = SecStaticCodeCheckValidity(staticCode, [], nil)
+        guard validity == errSecSuccess else {
+            throw CodeSigningRequirementError.invalidSeal(path, validity)
+        }
+        var requirement: SecRequirement?
+        let copy = SecCodeCopyDesignatedRequirement(staticCode, [], &requirement)
+        guard copy == errSecSuccess, let requirement else {
+            throw CodeSigningRequirementError.missingDesignatedRequirement(path, copy)
+        }
+        var text: CFString?
+        let stringify = SecRequirementCopyString(requirement, [], &text)
+        guard stringify == errSecSuccess, let text else {
+            throw CodeSigningRequirementError.couldNotStringify(path, stringify)
+        }
+        return text as String
+    }
+}
+
+public enum CodeSigningRequirementError: Error, CustomStringConvertible, Sendable {
+    case couldNotLoad(String, OSStatus)
+    case invalidSeal(String, OSStatus)
+    case missingDesignatedRequirement(String, OSStatus)
+    case couldNotStringify(String, OSStatus)
+
+    public var description: String {
+        switch self {
+        case .couldNotLoad(let path, let status):
+            return "could not load signed code at \(path) (\(status))"
+        case .invalidSeal(let path, let status):
+            return "code signature is invalid at \(path) (\(status))"
+        case .missingDesignatedRequirement(let path, let status):
+            return "code has no designated requirement at \(path) (\(status))"
+        case .couldNotStringify(let path, let status):
+            return "could not serialize the designated requirement at \(path) (\(status))"
+        }
+    }
+}
+
+/// Read a process's immutable parent relation from libproc. Failure is an authorization failure,
+/// never a reason to skip an ancestor, because a missing link would let a detached bridge hide its
+/// real launcher.
+public func bimaxParentProcessIdentifier(_ processIdentifier: pid_t) -> pid_t? {
+    guard processIdentifier > 1 else { return nil }
+    var info = proc_bsdinfo()
+    let count = withUnsafeMutablePointer(to: &info) { pointer in
+        proc_pidinfo(
+            processIdentifier,
+            PROC_PIDTBSDINFO,
+            0,
+            pointer,
+            Int32(MemoryLayout<proc_bsdinfo>.size)
+        )
+    }
+    guard count == Int32(MemoryLayout<proc_bsdinfo>.size), info.pbi_ppid > 0 else { return nil }
+    return pid_t(info.pbi_ppid)
 }
 
 /// Accepts a client when it, or one of its ancestors, is a signed Bimax process.
@@ -209,6 +299,7 @@ public final class BimaxCuXPCService: NSObject, BimaxCuXPCServicing {
 public final class BimaxCuXPCServiceDelegate: NSObject, NSXPCListenerDelegate {
     private let exportedObject: BimaxCuXPCService
     private let identityValidator: any XPCClientIdentityValidating
+    private let ancestorAuthorizer: BimaxSignedAncestorAuthorizer?
     private let lifecycle: XPCConnectionLifecycle
 
     /// Admits only a caller signed as the Bimax app.
@@ -218,11 +309,13 @@ public final class BimaxCuXPCServiceDelegate: NSObject, NSXPCListenerDelegate {
         exportedObject: BimaxCuXPCService,
         identityValidator: any XPCClientIdentityValidating
             = CodeSigningXPCClientValidator(requirement: BimaxCuXPCServiceDelegate.defaultRequirement),
-        lifecycle: XPCConnectionLifecycle = XPCConnectionLifecycle()
+        lifecycle: XPCConnectionLifecycle = XPCConnectionLifecycle(),
+        ancestorAuthorizer: BimaxSignedAncestorAuthorizer? = nil
     ) {
         self.exportedObject = exportedObject
         self.identityValidator = identityValidator
         self.lifecycle = lifecycle
+        self.ancestorAuthorizer = ancestorAuthorizer
         super.init()
     }
 
@@ -236,6 +329,16 @@ public final class BimaxCuXPCServiceDelegate: NSObject, NSXPCListenerDelegate {
         ).accepted else {
             lifecycle.didReject()
             return false
+        }
+        if let ancestorAuthorizer {
+            let ancestry = ancestorAuthorizer.authorize(
+                parentPID: connection.processIdentifier,
+                userIdentifier: connection.effectiveUserIdentifier
+            )
+            guard ancestry.accepted else {
+                lifecycle.didReject()
+                return false
+            }
         }
         if let requirement = identityValidator.kernelCodeSigningRequirement {
             // Belt and braces: the check above reads the audit token ourselves, this makes the
@@ -287,6 +390,19 @@ public final class BimaxCuXPCClient: @unchecked Sendable {
     public init(endpoint: NSXPCListenerEndpoint, timeout: TimeInterval = 30) {
         self.connection = NSXPCConnection(listenerEndpoint: endpoint)
         self.timeout = timeout
+        configureConnection()
+    }
+
+    /// Production connection to the application-embedded service. `serviceName` is intentionally
+    /// distinct from a Mach service: launchd resolves it from Bimax.app/Contents/XPCServices and
+    /// starts the isolated service on demand.
+    public init(serviceName: String, timeout: TimeInterval = 30) {
+        self.connection = NSXPCConnection(serviceName: serviceName)
+        self.timeout = timeout
+        configureConnection()
+    }
+
+    private func configureConnection() {
         let interface = NSXPCInterface(with: BimaxCuXPCServicing.self)
         let allowed = NSSet(array: [NSData.self]) as! Set<AnyHashable>
         interface.setClasses(
@@ -312,7 +428,13 @@ public final class BimaxCuXPCClient: @unchecked Sendable {
     public func close() { connection.invalidate() }
 
     public func request(_ envelope: RequestEnvelope) throws -> ResponseEnvelope {
-        let payload = try JSONEncoder().encode(envelope)
+        let data = try request(data: JSONEncoder().encode(envelope))
+        return try JSONDecoder().decode(ResponseEnvelope.self, from: data)
+    }
+
+    /// Preserve the exact JSON envelope across the stdio/XPC boundary. The bridge has no business
+    /// decoding and re-encoding an operation owned by the service protocol.
+    public func request(data payload: Data) throws -> Data {
         let semaphore = DispatchSemaphore(value: 0)
         let box = XPCReplyBox<Data>()
         guard let proxy = connection.remoteObjectProxyWithErrorHandler({ error in
@@ -330,7 +452,7 @@ public final class BimaxCuXPCClient: @unchecked Sendable {
         }
         if let failure = box.failure { throw BimaxCuXPCClientError.transport(failure) }
         guard let data = box.value else { throw BimaxCuXPCClientError.malformedResponse }
-        return try JSONDecoder().decode(ResponseEnvelope.self, from: data)
+        return data
     }
 
     public func readImage(_ read: ImageHandleReadRequest) throws -> Data {

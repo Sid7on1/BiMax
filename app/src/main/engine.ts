@@ -155,7 +155,13 @@ function engineReleaseEnv(command: string): Record<string, string> {
     };
     const arch = process.arch === 'arm64' ? 'arm64' : 'x64';
     const artifact = manifest.artifacts?.find((a) => a.platform === 'darwin' && a.arch === arch);
-    if (!artifact || statSync(command).size !== artifact.sizeBytes) return {};
+    if (!artifact) return {};
+    // electron-builder signs nested Mach-O executables after staging, which changes their byte
+    // size and digest while preserving the release artifact's code under the containing app seal.
+    // Comparing the post-sign binary to the pre-sign manifest made every installed DMG advertise
+    // `dev/unknown`. Bundle-only path resolution plus the app signature are the runtime integrity
+    // boundary; the release/package gates verify the pre-sign artifact against this manifest.
+    statSync(command); // still require the resolved engine to exist and be readable
     return {
       BIMAX_ENGINE_VERSION: String(manifest.engine?.version || 'unknown'),
       BIMAX_ENGINE_COMMIT: String(manifest.engine?.buildCommit || 'unknown'),

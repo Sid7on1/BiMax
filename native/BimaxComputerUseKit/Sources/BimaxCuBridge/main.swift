@@ -18,9 +18,8 @@ import BimaxComputerUseKit
 ///     top-level error as a transport failure and a response.error as a service failure);
 ///   - the host runs strictly one exchange at a time and condemns the process on an unsolicited
 ///     line — so this loop is sequential, reads to EOF, and never writes anything unasked;
-///   - the embedded engine is `BimaxCuServiceCore` (the same core the XPC service hosts); the
-///     bridge is its stdio host, which is why the target depends on the whole Kit rather than
-///     the protocol library alone.
+///   - packaged production routes every request through the application-embedded XPC service;
+///     only an explicit untrusted-development override may embed the core outside a DMG.
 ///
 /// The engine call is synchronous (its operations bound themselves against the envelope's
 /// deadline); the bridge adds no second timeout on top, only the transport-level size caps and
@@ -84,7 +83,9 @@ guard CommandLine.arguments.contains("--stdio") else {
     exit(64)
 }
 
-let core = BimaxCuServiceCore()
+let allowUntrustedDevelopment = ProcessInfo.processInfo.environment["BIMAX_CU_ALLOW_UNTRUSTED_CLIENT"] == "1"
+let developmentCore = allowUntrustedDevelopment ? BimaxCuServiceCore() : nil
+let xpcClient = allowUntrustedDevelopment ? nil : BimaxCuXPCClient(serviceName: "ai.bimax.cu.service")
 // `private` because LineReader is a private type; a non-private constant of a private type cannot
 // be declared at file scope.
 private let reader = LineReader(FileHandle.standardInput)
@@ -118,7 +119,23 @@ while let line = reader.next() {
     // both impossible (`[String: Any]` is not Encodable) and wrong in principle: a re-serialisation
     // round-trip can reorder keys and renormalise numbers, so the engine would validate a document
     // the host never sent. `parsed` is used only to read `requestId` and to reject a non-object.
-    let responseData = core.handle(data: Data(trimmed.utf8))
+    let responseData: Data
+    if let developmentCore {
+        responseData = developmentCore.handle(data: Data(trimmed.utf8))
+    } else {
+        do {
+            responseData = try xpcClient!.request(data: Data(trimmed.utf8))
+        } catch {
+            stdoutLine([
+                "requestId": requestId,
+                "error": [
+                    "code": "bridge_xpc_unavailable",
+                    "message": "the Bimax.app XPC Computer Use service is unavailable: \(error)",
+                ],
+            ])
+            continue
+        }
+    }
 
     // Wrap the engine's ResponseEnvelope in the transport frame: the host correlates on the
     // outer requestId first, then validates identity fields inside `response`.

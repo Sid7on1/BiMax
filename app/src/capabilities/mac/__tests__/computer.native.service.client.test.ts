@@ -46,7 +46,10 @@ function handshake(overrides: Partial<NativeServiceHandshake> = {}): NativeServi
       recording: { trajectory: false, video: false, replayModes: [] },
     },
     limits: { maxTransactionSteps: 5, maxElements: 2_000, maxDiffOperations: 5_000, maxImageDimension: 4_096, maxConcurrentReadSessions: 4, maxCaptureStreams: 2 },
-    permissions: { accessibility: 'granted', screenRecording: 'denied', screenCapturable: false, inputMonitoring: 'not_required', serviceSigned: true },
+    permissions: {
+      accessibility: 'granted', screenRecording: 'denied', screenCapturable: false,
+      inputMonitoring: 'not_required', serviceSigned: true, signatureIntact: true,
+    },
     ...overrides,
   };
 }
@@ -471,6 +474,16 @@ describe('user-approved ad-hoc service (Developer-ID dropped, integrity kept)', 
     const assessment = assessNativeSemanticOptIn(signed, true);
     expect(assessment.eligible).toBe(true);
     expect(assessment.blockers).toEqual([]);
+  });
+
+  test('a non-ad-hoc identity never hides a failed signature validation', () => {
+    const signed = signingIsTheOnlyBlocker();
+    signed.permissions.serviceSigned = true;
+    signed.permissions.signatureIntact = false;
+    expect(assessNativeSemanticOptIn(signed, true)).toMatchObject({
+      eligible: false,
+      blockers: ['service_signature_invalid'],
+    });
   });
 
   // The gate above shipped implemented, tested, and INERT: no caller supplied an approval, so it

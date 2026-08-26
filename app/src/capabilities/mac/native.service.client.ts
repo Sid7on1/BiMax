@@ -207,7 +207,11 @@ export function assessAdHocServiceTrust(
   permissions: NativeServiceHandshake['permissions'],
   approval?: AdHocServiceApproval,
 ): AdHocTrustAssessment {
-  if (permissions.serviceSigned) return { trusted: true, reason: 'signed with a production identity' };
+  if (permissions.serviceSigned) {
+    return permissions.signatureIntact === true
+      ? { trusted: true, reason: 'non-ad-hoc signature is intact' }
+      : { trusted: false, reason: 'the signed service failed code-signature validation' };
+  }
   if (permissions.adHocSigned !== true) {
     return { trusted: false, reason: 'the service is neither production-signed nor ad-hoc signed, so there is no seal to verify' };
   }
@@ -236,7 +240,9 @@ function signingBlockers(
   env: NodeJS.ProcessEnv = process.env,
   approval?: AdHocServiceApproval,
 ): string[] {
-  if (handshake.permissions.serviceSigned) return [];
+  if (handshake.permissions.serviceSigned) {
+    return handshake.permissions.signatureIntact === true ? [] : ['service_signature_invalid'];
+  }
   // A user-approved, intact ad-hoc service is advisory rather than disqualifying — but it stays in
   // every assessment, so no status line or receipt can imply the run carried a production identity.
   if (assessAdHocServiceTrust(handshake.permissions, approval).trusted) {

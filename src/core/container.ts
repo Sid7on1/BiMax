@@ -376,6 +376,11 @@ export async function createContainer(config?: Partial<CliConfig>): Promise<{
     });
   }
 
+  // The embedding host's provider is part of readiness, not optional MCP background work. Bimax
+  // Terminal supplies no host descriptor, while Bimax.app waits here until its one app-owned Mac
+  // capability is either registered (including an honest blocked tool) or visibly failed.
+  await globalMcpManager.connectHostCapabilities(toolRegistry, governor);
+
   // External MCP servers — best-effort, never blocks boot. Once the initial (parallel) connect
   // settles, the watchdog takes over: a 60s background sweep that probes each live connector and
   // auto-reconnects dead ones (bounded attempts; BIMAX_MCP_WATCHDOG=0 disables).

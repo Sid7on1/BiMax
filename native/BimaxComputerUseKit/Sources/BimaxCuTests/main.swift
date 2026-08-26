@@ -1,5 +1,6 @@
 import ApplicationServices
 import CoreText
+import Darwin
 import Foundation
 import ImageIO
 import BimaxCuProtocol
@@ -2540,6 +2541,35 @@ private func testDevelopmentIdentityPolicy() throws {
     let foreign = validator.validate(processIdentifier: 123, effectiveUserIdentifier: 502)
     try expect(!foreign.accepted && foreign.reason == "uid_mismatch", "foreign uid was accepted")
     try expect(!validator.validate(processIdentifier: 0, effectiveUserIdentifier: 501).accepted, "invalid pid was accepted")
+
+    let ownExecutable = URL(fileURLWithPath: CommandLine.arguments[0]).standardizedFileURL.path
+    let ownRequirement = try CodeSigningXPCClientValidator.designatedRequirement(
+        forExecutableAt: ownExecutable
+    )
+    let strictSelfValidator = CodeSigningXPCClientValidator(
+        requirement: ownRequirement,
+        expectedUserIdentifier: geteuid()
+    )
+    try expect(
+        strictSelfValidator.validate(
+            processIdentifier: getpid(), effectiveUserIdentifier: geteuid()
+        ).accepted,
+        "the Security.framework validator rejected the exact designated requirement of its peer"
+    )
+    let wrongRequirement = CodeSigningXPCClientValidator(
+        requirement: "identifier \"ai.bimax.not-the-test-client\"",
+        expectedUserIdentifier: geteuid()
+    )
+    try expect(
+        !wrongRequirement.validate(
+            processIdentifier: getpid(), effectiveUserIdentifier: geteuid()
+        ).accepted,
+        "the Security.framework validator accepted a peer with a mismatched requirement"
+    )
+    try expect(
+        bimaxParentProcessIdentifier(getpid()) == getppid(),
+        "the native ancestry lookup did not return the kernel-reported parent"
+    )
 
     let parents: [pid_t: pid_t] = [40: 30, 30: 20, 20: 1]
     let ancestry = BimaxSignedAncestorAuthorizer(

@@ -39,7 +39,7 @@ function handshake(): NativeServiceHandshake {
     },
     permissions: {
       accessibility: 'granted', screenRecording: 'denied', screenCapturable: false,
-      inputMonitoring: 'not_required', serviceSigned: true,
+      inputMonitoring: 'not_required', serviceSigned: true, signatureIntact: true,
     },
   };
 }
