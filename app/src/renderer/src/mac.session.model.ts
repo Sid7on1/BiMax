@@ -135,6 +135,25 @@ export function describeMacAction(action: string, payload: Record<string, any> |
   return word;
 }
 
+/** Describe an attempted action without claiming it happened. */
+export function describeMacActionIntent(action: string, payload: Record<string, any> | null): string {
+  const target = String(payload?.targeting?.label || payload?.query || '').trim();
+  const verb: Record<string, string> = {
+    click: 'click', type: 'type', key: 'press', set_value: 'set', open: 'open',
+    focus: 'switch to', scroll: 'scroll', drag: 'drag', hover: 'hover over',
+    observe: 'look at', screenshot: 'capture', close: 'close', quit_app: 'quit',
+    copy: 'copy', paste: 'paste', move: 'move', arrange: 'arrange', wait: 'wait',
+    status: 'check permissions', apps: 'list apps', windows: 'list windows',
+    frontmost: 'check the front app',
+  };
+  const word = verb[action] || action.replace(/_/g, ' ');
+  const app = String(payload?.app || '').trim();
+  if (target) return `${word} ${target}`;
+  if ((action === 'open' || action === 'focus' || action === 'quit_app') && app) return `${word} ${app}`;
+  if (action === 'observe' && app) return `look at ${app}`;
+  return word;
+}
+
 /**
  * Fold this task's Mac provider tool calls into one live session.
  *
@@ -156,6 +175,8 @@ export function deriveMacSession(
 
   for (const call of macCalls) {
     const payload = call.status === 'running' ? null : parse(call.output);
+    const input = parse(call.input);
+    const displayPayload = payload ? { ...input, ...payload } : input;
     const receipt = payload ? inspectActionReceipt(call.output) : null;
     const action = String(payload?.action || actionFromInput(call.input) || 'action');
     const atMs = millis(call.endTime) ?? millis(call.startTime);
@@ -198,14 +219,17 @@ export function deriveMacSession(
     timeline.push({
       id: call.id,
       label: refusedForTakeover
-        ? `Refused ${describeMacAction(action, payload).toLowerCase()} — you have control`
-        : describeMacAction(action, payload),
+        ? `Refused ${describeMacActionIntent(action, displayPayload)} — you have control`
+        : payload?.ok === false
+          ? `Blocked: ${describeMacActionIntent(action, displayPayload)}`
+          : describeMacAction(action, displayPayload),
       action,
-      outcome: receipt?.outcome || (call.status === 'running' ? 'running' : payload?.ok === false ? 'refused' : 'completed'),
+      outcome: receipt?.outcome || (call.status === 'running' ? 'running' : payload?.ok === false ? 'blocked' : 'completed'),
       executor: receipt?.executor ?? 'unattributed',
       focus: receipt?.focus ?? 'unknown',
-      postcondition: receipt?.postcondition ?? 'not requested',
-      status: call.status,
+      postcondition: receipt?.postcondition
+        ?? String(payload?.verification?.reason || payload?.reason || payload?.error || 'not requested'),
+      status: call.status === 'running' ? 'running' : payload?.ok === false ? 'error' : call.status,
       atMs,
       refusedForTakeover,
     });

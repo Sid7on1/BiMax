@@ -204,6 +204,23 @@ run; the 3 sandbox-denied loopback/home-install cases then passed 19/19 with the
 authority). This repairs a local package claim only: Developer ID/notarization, a clean-Mac TCC
 matrix, native Intel timing and a model-backed broad real-app journey remain **Target**.
 
+Authenticated-plan race repair, 2026-08-27: a live installed-app Messages request exposed that a
+Computer Use turn was signed only when `mac_control` was already registered at persona entry. On
+the old delayed MCP path, the provider could appear during the same turn and receive a call with no
+plan; the native authority correctly stopped it as `untrusted_observation_authority`, while the
+renderer incorrectly described the attempted `open` as completed. Plan binding now follows the
+explicit user instruction and the Desktop-only launch secret rather than ToolRegistry timing, so a
+late registration/reconnection inherits the authenticated turn. Blocked provider results now render
+as errors such as `Blocked: open Messages`, retain the refusal reason, and never advance the live
+target. The exact reported sentence is pinned in engine and renderer regression tests. Full local
+qualification passed 2462 engine tests (8 intentional skips) and 1161 Desktop tests. A freshly
+rebuilt engine was packaged with the app as
+`app/release/Bimax-1.1.0-arm64-local-planfix-2026-08-27.dmg` (SHA-256
+`a479c70dc54a760acce8d3950203c6c3617fed0056c0485971152d70d2665c4e`); `hdiutil verify`, strict
+nested signature validation and the read-only mounted Electron → bridge → exact XPC topology gate
+all passed. No real message was typed or sent. Safe-contact send completion and clean-Mac release
+qualification remain **Target**.
+
 ## Phase 3 — publish the engine boundary
 
 - Promote the current NDJSON interface to a generated, versioned client protocol.

@@ -486,10 +486,12 @@ export abstract class AgentPersona {
   }
 
   public async execute(prompt: string, onToken?: (token: string) => void, options?: { maxIterations?: number; planMode?: boolean; useLite?: boolean; images?: string[]; signal?: AbortSignal; internalTurn?: boolean; sessionId?: string }): Promise<string> {
-    const toolNames = this.toolRegistry.getToolNames();
-    if (explicitlyRequiresComputerUse(prompt) && appOwnedComputerUseToolName(toolNames)) {
-      // Bind authority before the model sees its first observation. AsyncLocalStorage keeps
-      // concurrent personas isolated while MCP calls inherit the authenticated task plan.
+    if (explicitlyRequiresComputerUse(prompt)) {
+      // Bind authority before the model sees its first observation. Do not couple the signature to
+      // the provider already being present in ToolRegistry: Desktop can reconnect/register the MCP
+      // surface while a turn is in flight. The launch-scoped secret exists only in Bimax.app, so
+      // Terminal still gets the ordinary no-op path. AsyncLocalStorage keeps concurrent personas
+      // isolated while a later-appearing app-owned call inherits this turn's authenticated plan.
       return runWithTrustedComputerPlan(prompt, () => this.executeTurn(prompt, onToken, options));
     }
     return this.executeTurn(prompt, onToken, options);

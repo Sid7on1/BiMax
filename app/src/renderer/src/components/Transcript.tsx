@@ -10,21 +10,32 @@ import { Markdown } from '../markdown';
 import { Dashboard } from './Dashboards';
 import { cn } from '../lib/cn';
 import { inspectActionReceipt, type ActionReceiptView } from '../receipt.inspector';
-import { isMacToolCall, describeMacAction } from '../mac.session.model';
+import { isMacToolCall, describeMacAction, describeMacActionIntent } from '../mac.session.model';
 
 /** Plain-language label for a Mac provider call, or '' when the call is ordinary coding work. */
-function macCallLabel(call: ToolCallEntry): string {
-  if (!isMacToolCall(call)) return '';
+function macCallView(call: ToolCallEntry): { label: string; failed: boolean } | null {
+  if (!isMacToolCall(call)) return null;
   let payload: Record<string, unknown> | null = null;
+  let input: Record<string, unknown> | null = null;
   try {
     const parsed = JSON.parse(call.output);
     payload = parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : null;
   } catch { payload = null; }
-  const action = String(payload?.action || (call.input.match(/"action"\s*:\s*"([a-z_]+)"/i)?.[1] ?? ''));
-  if (!action) return '';
-  return payload?.code === 'computer_use_paused'
-    ? `Refused ${describeMacAction(action, payload).toLowerCase()} — you have control`
-    : describeMacAction(action, payload);
+  try {
+    const parsed = JSON.parse(call.input);
+    input = parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : null;
+  } catch { input = null; }
+  const action = String(payload?.action || input?.action || '');
+  if (!action) return null;
+  const displayPayload = { ...input, ...payload };
+  const failed = payload?.ok === false;
+  const label = payload?.code === 'computer_use_paused'
+    || payload?.code === 'computer_use_takeover_intervened'
+    ? `Refused ${describeMacActionIntent(action, displayPayload)} — you have control`
+    : failed
+      ? `Blocked: ${describeMacActionIntent(action, displayPayload)}`
+      : describeMacAction(action, displayPayload);
+  return { label, failed };
 }
 
 /**
@@ -477,10 +488,11 @@ function ToolCard({ call, inGroup }: { call: ToolCallEntry; inGroup?: boolean })
   const [open, setOpen] = useState(false);
   const screenshot = computerScreenshot(call);
   const receipt = call.status === 'success' ? inspectActionReceipt(call.output) : null;
-  const mac = macCallLabel(call);
+  const mac = macCallView(call);
+  const visualStatus = call.status === 'success' && mac?.failed ? 'error' : call.status;
   const icon =
-    call.status === 'running' ? <Loader size={13} className="animate-spin text-amber" />
-    : call.status === 'success' ? <CircleCheck size={13} className="text-moss" />
+    visualStatus === 'running' ? <Loader size={13} className="animate-spin text-amber" />
+    : visualStatus === 'success' ? <CircleCheck size={13} className="text-moss" />
     : <CircleX size={13} className="text-rust" />;
   const secs = call.endTime
     ? Math.max(0, (new Date(call.endTime).getTime() - new Date(call.startTime).getTime()) / 1000)
@@ -493,13 +505,13 @@ function ToolCard({ call, inGroup }: { call: ToolCallEntry; inGroup?: boolean })
         aria-expanded={open}
         className={cn(
           'group -ml-1 flex min-h-7 w-[calc(100%+4px)] cursor-pointer items-center gap-2 rounded-md px-1.5 py-1 text-left text-[12px] transition-colors',
-          call.status === 'error' ? 'text-rust hover:bg-rust/5' : 'text-dim hover:bg-hover/55',
+          visualStatus === 'error' ? 'text-rust hover:bg-rust/5' : 'text-dim hover:bg-hover/55',
         )}
       >
         <span className="shrink-0">{icon}</span>
         {/* A Mac action reads as an intent, not as a tool name plus its JSON arguments. */}
         {mac ? (
-          <span className="min-w-0 flex-1 truncate text-dim group-hover:text-ink">{mac}</span>
+          <span className="min-w-0 flex-1 truncate text-dim group-hover:text-ink">{mac.label}</span>
         ) : (
           <span className="flex min-w-0 flex-1 items-baseline gap-1.5">
             <span className="shrink-0 text-dim">{toolVerb(call.toolName)}</span>

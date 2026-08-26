@@ -5,6 +5,7 @@ import { BiMaxPersona } from '../cli/personas/implementations';
 import { createBashTool } from '../tools/implementations/bash.tool';
 import { createReadFileTool } from '../tools/implementations/file.tool';
 import { createBrowserTool } from '../tools/implementations/browser.tool';
+import { getActiveTrustedComputerPlan } from '../mind/computer.trusted.plan';
 
 // Prompt-architecture regressions for the computer-operation contract.
 //
@@ -69,6 +70,21 @@ describe('computer-operation prompt contract', () => {
     const prompt = p.getSystemPromptParts({ toolNames: ['mcp__bimax-mac__mac_control'] }).dynamicSuffix;
     expect(prompt).toContain('mcp__bimax-mac__mac_control');
     expect(prompt).not.toContain('BashTool:');
+  });
+
+  it('authenticates a Mac turn even when the provider registers after turn entry', async () => {
+    const previous = process.env.BIMAX_CU_TRUSTED_PLAN_SECRET;
+    process.env.BIMAX_CU_TRUSTED_PLAN_SECRET = 'late-provider-test';
+    try {
+      const p = persona(false);
+      (p as any).executeTurn = jest.fn(async () => getActiveTrustedComputerPlan());
+      const envelope = await p.execute('send hi to my mom on Messages') as any;
+      expect(envelope?.plan.normalizedInstruction).toBe('send hi to my mom on messages');
+      expect(envelope?.plan.allowedActions).toEqual(expect.arrayContaining(['click', 'type']));
+    } finally {
+      if (previous === undefined) delete process.env.BIMAX_CU_TRUSTED_PLAN_SECRET;
+      else process.env.BIMAX_CU_TRUSTED_PLAN_SECRET = previous;
+    }
   });
 
   it('BrowserTool advertises a truthful schema for the new observation controls', () => {

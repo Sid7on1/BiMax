@@ -50,6 +50,9 @@ model changes are invalid runs, not product failures or passes.
   tools beside it, never shell, file mutation or a third-party Computer Use provider, and the turn
   cannot terminate on model narration alone; if the route fails to invoke the tool after the
   bounded activation retries, the task ends with a concrete model-route blocker and an idle UI;
+- the authenticated task plan is bound from the explicit user instruction before model execution
+  and does not depend on whether the Desktop provider registered before or during that turn; a
+  missing/invalid plan fails closed, and the UI labels that result blocked rather than completed;
 - provider secrets are stored through macOS Keychain-backed main-process storage and never appear
   in renderer persistence, NDJSON, diagnostics or logs;
 - app bundle/XPC/bridge/helper signatures and locations pass structural verification, and the exact

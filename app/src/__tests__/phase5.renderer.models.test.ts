@@ -235,6 +235,28 @@ describe('Mac live session', () => {
     expect(session.state).not.toBe('paused');
   });
 
+  test('a provider block is never rendered as a completed action', () => {
+    const blocked = macCall({
+      input: JSON.stringify({ action: 'open', app: 'Messages' }),
+      status: 'success',
+      output: JSON.stringify({
+        ok: false, action: 'open', blocked: true, code: 'untrusted_observation_authority',
+        reason: 'missing, expired, or invalid authenticated task plan',
+        verification: {
+          status: 'not_attempted', freshObservation: false,
+          reason: 'missing, expired, or invalid authenticated task plan',
+        },
+      }),
+    });
+    const session = deriveMacSession([blocked], { paused: false, reason: '' }, NOW);
+    expect(session.state).toBe('blocked');
+    expect(session.latest).toMatchObject({
+      label: 'Blocked: open Messages', status: 'error', outcome: 'blocked',
+      postcondition: 'missing, expired, or invalid authenticated task plan',
+    });
+    expect(session.target).toBeNull();
+  });
+
   test('actions read as intents, with no mechanism vocabulary', () => {
     expect(describeMacAction('click', { targeting: { label: 'Send' } })).toBe('Clicked Send');
     expect(describeMacAction('open', { app: 'Messages' })).toBe('Opened Messages');
