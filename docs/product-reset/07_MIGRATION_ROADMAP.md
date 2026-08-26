@@ -191,8 +191,12 @@ as one generation. `scripts/verify-desktop-package.mjs` launches that exact sign
 executable with `--self-test-native-route`, bypasses only the normal single-window lock, and requires
 Electron → bridge → intact `ai.bimax.cu.service` before the package passes. The 2026-08-27 arm64
 bundle at `/private/tmp/bimax-cu-repair.NUAo1x/release3/mac-arm64/Bimax.app` passed strict nested
-signature verification and this live topology gate. The same bundle then passed every packaged
-conformance assertion, including topology, semantic, physical, visual, stop, takeover, content,
+signature verification and this live topology gate. That exact app was packaged as a local arm64
+DMG, whose filesystem checksum passed; its read-only mounted copy passed the same live topology
+gate. The distributable local artifact is `app/release/Bimax-1.1.0-arm64-local-2026-08-27.dmg`
+(SHA-256 `7eddb4ac1e19dcfc29a407c087ee8d87f701e511b3bbde16ebd3dde9af4aa5be`). The
+same bundle then passed every packaged conformance assertion, including topology, semantic,
+physical, visual, stop, takeover, content,
 search, foreground-invariance and M02; raw evidence is preserved in
 `app/benchmarks/computer-use/results/phase2/run-2026-08-26T20-25-23.833Z/report.json`. Native tests
 passed 60/60, Desktop tests passed 1160/1160, and the engine suite accounted for 2469 tests (2458 passed plus 8 skipped in the full
