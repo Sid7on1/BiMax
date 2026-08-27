@@ -1,4 +1,5 @@
 import { classifyMacActionImpact as classifyDesktopActionImpact } from './action.impact';
+import { randomUUID } from 'node:crypto';
 import { capabilityEvents as cliEvents } from './events';
 import { loadMacCapabilityConfig as loadConfig } from './config';
 import type { CapabilityGovernor as IGovernor } from './provider.policy';
@@ -105,6 +106,138 @@ function appLookupArgs(args: Record<string, unknown>): { bundleId?: unknown; app
     ...(args.bundleId !== undefined ? { bundleId: args.bundleId } : {}),
     ...(args.appName !== undefined ? { appName: args.appName } : {}),
   };
+}
+
+interface FocusBrokerCredentials { endpoint: string; token: string }
+
+function focusBrokerCredentials(env: NodeJS.ProcessEnv = process.env): FocusBrokerCredentials | null {
+  const endpoint = String(env.BIMAX_CU_FOCUS_BROKER_ENDPOINT || '').trim();
+  const token = String(env.BIMAX_CU_FOCUS_BROKER_TOKEN || '').trim();
+  if (!endpoint || !/^[0-9a-f]{64}$/.test(token)) return null;
+  try {
+    const url = new URL(endpoint);
+    if (url.protocol !== 'http:' || url.hostname !== '127.0.0.1'
+      || url.pathname !== '/v1/focus/activate' || url.username || url.password
+      || url.search || url.hash) return null;
+  } catch { return null; }
+  return { endpoint, token };
+}
+
+async function requestFocusActivation(
+  credentials: FocusBrokerCredentials,
+  targetPid: number,
+  targetBundleId: string,
+): Promise<{ accepted: boolean; code: string }> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 2_500);
+  try {
+    const response = await fetch(credentials.endpoint, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        version: 1,
+        token: credentials.token,
+        requestId: `provider-${randomUUID()}`,
+        targetPid,
+        targetBundleId,
+        expiresAtMs: Date.now() + 4_000,
+      }),
+      signal: controller.signal,
+    });
+    const value = await response.json() as { accepted?: unknown; code?: unknown };
+    return {
+      accepted: response.ok && value.accepted === true,
+      code: typeof value.code === 'string' ? value.code : 'invalid_response',
+    };
+  } catch {
+    return { accepted: false, code: 'focus_broker_unreachable' };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+const pause = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
+
+function nativeAppRecord(value: unknown, pid: number): Record<string, unknown> | null {
+  const apps = value && typeof value === 'object' && Array.isArray((value as { apps?: unknown }).apps)
+    ? (value as { apps: unknown[] }).apps : [];
+  for (const entry of apps) {
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry)) continue;
+    const app = (entry as { app?: unknown }).app;
+    if (app && typeof app === 'object' && !Array.isArray(app)
+      && (app as { pid?: unknown }).pid === pid) return app as Record<string, unknown>;
+  }
+  return null;
+}
+
+function createFocusTool(
+  governor: IGovernor,
+  coordinator: NativeToolCoordinator,
+  credentials: FocusBrokerCredentials,
+): BuiltTool {
+  return buildTool({
+    name: 'BimaxFocusTool',
+    description: 'Bring one exact, already-running application PID to the foreground through the Electron-owned authenticated focus broker and verify the OS frontmost PID.',
+    schema: {
+      type: 'object', additionalProperties: false,
+      properties: {
+        pid: { type: 'integer', minimum: 1 },
+        bundleId: { type: 'string', minLength: 3, maxLength: 255 },
+      },
+      required: ['pid', 'bundleId'],
+    },
+    isDestructive: true,
+    approvalHandledInternally: true,
+    execute: async (args, context): Promise<string> => {
+      const session = taskSession(context);
+      const pid = Number(args.pid);
+      const bundleId = typeof args.bundleId === 'string' ? args.bundleId.trim() : '';
+      if (!Number.isSafeInteger(pid) || pid <= 0 || !/^[A-Za-z0-9.-]{3,255}$/.test(bundleId)) {
+        throw new Error('focus requires one exact running pid and bundleId');
+      }
+      const before = await coordinator.workspace(session, {}) as Record<string, unknown>;
+      const app = nativeAppRecord(before, pid);
+      if (!app || app.bundleId !== bundleId) {
+        throw new Error('focus target no longer matches the live native application inventory');
+      }
+      const frontmostPidBefore = before.frontmostPid;
+      if (frontmostPidBefore === pid) {
+        return json({
+          operation: 'focus_app', outcome: 'already_frontmost', activated: true,
+          requestedActivation: false, app, frontmostPidBefore, frontmostPidAfter: pid,
+        });
+      }
+      await governor.approveTaskExecution('COMPUTER_CONTROL', {
+        tool: 'BimaxFocusTool', action: 'bring application to foreground',
+        app: app.displayName || bundleId, bundleId, target: { pid, bundleId },
+        highImpact: true, impactReason: 'changes the application visible in the foreground',
+        isDestructive: true,
+      });
+      const broker = await requestFocusActivation(credentials, pid, bundleId);
+      if (!broker.accepted) {
+        return json({
+          operation: 'focus_app', outcome: 'blocked', activated: false,
+          requestedActivation: true, app, frontmostPidBefore,
+          frontmostPidAfter: frontmostPidBefore, code: broker.code,
+        });
+      }
+      let after = before;
+      const deadline = Date.now() + 1_800;
+      while (Date.now() < deadline) {
+        after = await coordinator.workspace(session, {}) as Record<string, unknown>;
+        if (after.frontmostPid === pid) break;
+        await pause(60);
+      }
+      const frontmostPidAfter = after.frontmostPid;
+      return json({
+        operation: 'focus_app',
+        outcome: frontmostPidAfter === pid ? 'activated' : 'activation_unverified',
+        activated: frontmostPidAfter === pid,
+        requestedActivation: true, app, frontmostPidBefore, frontmostPidAfter,
+        brokerCode: broker.code,
+      });
+    },
+  }, governor);
 }
 
 /**
@@ -371,6 +504,9 @@ export async function createEligibleNativeComputerTools(
       }
     },
   }, governor));
+
+  const focusCredentials = focusBrokerCredentials();
+  if (focusCredentials) tools.push(createFocusTool(governor, coordinator, focusCredentials));
 
   if (tools.length === 0) {
     await coordinator.dispose();

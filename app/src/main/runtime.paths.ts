@@ -58,6 +58,13 @@ export const TRUSTED_PLAN_REQUIRED_ENV = 'BIMAX_CU_TRUSTED_PLAN_REQUIRED';
 export const NATIVE_ROUTING_ENV = 'BIMAX_CU_NATIVE_ROUTING_ENABLED';
 export const NATIVE_SEMANTIC_ROUTING_ENV = 'BIMAX_CU_NATIVE_SEMANTIC_ROUTING_ENABLED';
 
+// Bimax for Mac currently ships as a single-model product. Keep this policy at the Desktop
+// process boundary so Terminal remains provider/model configurable, while every engine route the
+// app can create (work, quick, vision, workers, and recovery) sees the same explicit model.
+export const DESKTOP_STRICT_MODEL_ENV = 'BIMAX_DESKTOP_STRICT_MODEL';
+export const DESKTOP_STRICT_MODEL = 'stepfun-ai/step-3.7-flash';
+export const DESKTOP_FIRST_TOKEN_TIMEOUT_MS = '45000';
+
 export interface RuntimeLayout {
   /** app.isPackaged — the only thing that distinguishes a shipped app from a dev shell. */
   packaged: boolean;
@@ -261,7 +268,16 @@ export function buildEngineChildEnv(input: ChildEnvInput): Record<string, string
     PATH: input.path,
     BIMAX_HEADLESS: '1',
     BIMAX_CWD: input.projectDir,
+    [DESKTOP_STRICT_MODEL_ENV]: DESKTOP_STRICT_MODEL,
+    BGW_MODEL: DESKTOP_STRICT_MODEL,
+    BGW_LITE_MODEL: DESKTOP_STRICT_MODEL,
+    BGW_VISION_MODEL: DESKTOP_STRICT_MODEL,
+    // A provider can be slow, but a shipped app may not show an unbounded Working spinner. One
+    // strict attempt gets a generous 45s to produce headers/first payload, then fails visibly.
+    BGW_FIRST_CHUNK_TIMEOUT_MS: DESKTOP_FIRST_TOKEN_TIMEOUT_MS,
   };
+  // Strict means strict: an inherited autonomous fallback may not replace the app's model.
+  delete env.BIMAX_FALLBACK_MODEL;
   // The generic engine never receives app routing flags. Only the provider learns package mode.
   delete env.BIMAX_DESKTOP_RELEASE_MODE;
   delete env[NATIVE_ROUTING_ENV];
@@ -306,6 +322,18 @@ export function buildEngineChildEnv(input: ChildEnvInput): Record<string, string
     if (input.takeover) {
       providerEnv.BIMAX_CU_TAKEOVER_ENDPOINT = input.takeover.endpoint;
       providerEnv.BIMAX_CU_TAKEOVER_TOKEN = input.takeover.token;
+    }
+    // The focus broker is created by Electron main after app.ready and before the engine is
+    // opened. The engine inherits the credentials, but host capability providers are spawned from
+    // this explicit allow-list rather than the engine environment. Forward only the exact pair;
+    // omitting either keeps foreground activation unavailable and fail-closed.
+    const focusEndpoint = input.extraEnv.BIMAX_CU_FOCUS_BROKER_ENDPOINT
+      || input.parentEnv.BIMAX_CU_FOCUS_BROKER_ENDPOINT;
+    const focusToken = input.extraEnv.BIMAX_CU_FOCUS_BROKER_TOKEN
+      || input.parentEnv.BIMAX_CU_FOCUS_BROKER_TOKEN;
+    if (focusEndpoint && focusToken) {
+      providerEnv.BIMAX_CU_FOCUS_BROKER_ENDPOINT = focusEndpoint;
+      providerEnv.BIMAX_CU_FOCUS_BROKER_TOKEN = focusToken;
     }
     if (input.resolved.cuService) providerEnv[OVERRIDE_ENV.cuService] = input.resolved.cuService;
     if (input.resolved.cuBridge) providerEnv[OVERRIDE_ENV.cuBridge] = input.resolved.cuBridge;

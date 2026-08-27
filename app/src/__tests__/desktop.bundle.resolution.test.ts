@@ -19,6 +19,7 @@ import {
   packagedEnginePath, PackagedRuntimeError, OVERRIDE_ENV, NATIVE_COMPONENT_ENV,
   NATIVE_ROUTING_ENV, NATIVE_SEMANTIC_ROUTING_ENV,
   TRUSTED_PLAN_REQUIRED_ENV, TRUSTED_PLAN_SECRET_ENV,
+  DESKTOP_STRICT_MODEL_ENV, DESKTOP_STRICT_MODEL, DESKTOP_FIRST_TOKEN_TIMEOUT_MS,
   EngineArtifactError, stagedEnginePath, type RuntimeLayout,
 } from '../main/runtime.paths';
 import { EngineSupervisor } from '../main/supervisor/supervisor';
@@ -264,6 +265,24 @@ describe('the engine child receives one generic local-provider contract', () => 
     expect(providerMode(true)).toBe('packaged');
   });
 
+  test('the authenticated focus broker pair reaches the Desktop capability provider', () => {
+    const endpoint = 'http://127.0.0.1:43210/v1/focus/activate';
+    const token = 'a'.repeat(64);
+    const env = buildEngineChildEnv({
+      parentEnv: {
+        BIMAX_CU_FOCUS_BROKER_ENDPOINT: endpoint,
+        BIMAX_CU_FOCUS_BROKER_TOKEN: token,
+      },
+      extraEnv: {}, packaged: true, path: '/usr/bin', projectDir: '/proj',
+      resolved: { macCapability: BUNDLE.macCapability },
+    });
+    const contract = JSON.parse(String(env.BIMAX_HOST_CAPABILITIES_JSON));
+    expect(contract.servers[0].env).toMatchObject({
+      BIMAX_CU_FOCUS_BROKER_ENDPOINT: endpoint,
+      BIMAX_CU_FOCUS_BROKER_TOKEN: token,
+    });
+  });
+
   test('packaged Electron enables the verified native route only inside its provider descriptor', () => {
     const env = buildEngineChildEnv({
       parentEnv: {
@@ -346,6 +365,12 @@ describe('the engine child receives one generic local-provider contract', () => 
     expect(env.BIMAX_HEADLESS).toBe('1');
     expect(env.BIMAX_CWD).toBe('/proj');
     expect(env.PATH).toBe('/opt/homebrew/bin:/usr/bin');
+    expect(env[DESKTOP_STRICT_MODEL_ENV]).toBe(DESKTOP_STRICT_MODEL);
+    expect(env.BGW_MODEL).toBe(DESKTOP_STRICT_MODEL);
+    expect(env.BGW_LITE_MODEL).toBe(DESKTOP_STRICT_MODEL);
+    expect(env.BGW_VISION_MODEL).toBe(DESKTOP_STRICT_MODEL);
+    expect(env.BGW_FIRST_CHUNK_TIMEOUT_MS).toBe(DESKTOP_FIRST_TOKEN_TIMEOUT_MS);
+    expect(env.BIMAX_FALLBACK_MODEL).toBeUndefined();
   });
 
   test('app package identity never leaks as an engine routing flag', () => {

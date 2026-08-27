@@ -115,6 +115,17 @@ function parse(output: string): Record<string, any> | null {
   try { return asObject(JSON.parse(output)); } catch { return null; }
 }
 
+/** Native receipts carry a structured application identity; never coerce that object into UI text. */
+function macAppLabel(value: unknown): string {
+  if (typeof value === 'string') return value.trim();
+  const candidate = asObject(value);
+  if (!candidate) return '';
+  for (const key of ['displayName', 'name', 'label', 'bundleId']) {
+    if (typeof candidate[key] === 'string' && candidate[key].trim()) return candidate[key].trim();
+  }
+  return '';
+}
+
 /** Plain-language label for a Mac action, with no AX/OCR/mechanism vocabulary. */
 export function describeMacAction(action: string, payload: Record<string, any> | null): string {
   const target = String(payload?.targeting?.label || payload?.query || '').trim();
@@ -128,7 +139,7 @@ export function describeMacAction(action: string, payload: Record<string, any> |
   };
   const word = verb[action];
   if (!word) return action.replace(/_/g, ' ');
-  const app = String(payload?.app || '').trim();
+  const app = macAppLabel(payload?.app || payload?.application);
   if (target) return `${word} ${target}`;
   if ((action === 'open' || action === 'focus' || action === 'quit_app') && app) return `${word} ${app}`;
   if (action === 'observe' && app) return `Looked at ${app}`;
@@ -147,7 +158,7 @@ export function describeMacActionIntent(action: string, payload: Record<string, 
     frontmost: 'check the front app',
   };
   const word = verb[action] || action.replace(/_/g, ' ');
-  const app = String(payload?.app || '').trim();
+  const app = macAppLabel(payload?.app || payload?.application);
   if (target) return `${word} ${target}`;
   if ((action === 'open' || action === 'focus' || action === 'quit_app') && app) return `${word} ${app}`;
   if (action === 'observe' && app) return `look at ${app}`;
@@ -187,7 +198,7 @@ export function deriveMacSession(
     if (payload && payload.ok !== false) sawBlocked = false;
 
     // Target identity only advances on a result that actually named one.
-    const app = String(payload?.app ?? payload?.target?.app ?? '').trim();
+    const app = macAppLabel(payload?.app ?? payload?.application ?? payload?.target?.app);
     const pid = Number.isFinite(Number(payload?.pid ?? payload?.target?.pid))
       ? Number(payload?.pid ?? payload?.target?.pid) : null;
     const windowId = Number.isFinite(Number(payload?.windowId ?? payload?.target?.windowId))

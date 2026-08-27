@@ -14,9 +14,11 @@ export function buildComputerUseExecutionPrompt(userText: string): string {
   if (!task) return '';
   return `${task}\n\n${COMPUTER_USE_EXECUTION_MARKER}
 - You are executing this task now through mcp__bimax-mac__mac_control. Do not give instructions to the user and do not narrate prospective JSON or the tool schema.
-- Call exactly one mac_control action, read its fresh returned frame/elements/receipt, then choose the next action. Continue this loop until the task is complete.
-- The open result is already a fresh observation. Prefer its semantic elementIndex/elementToken/query over guessed coordinates. Never reuse an element handle after the returned frame changes.
-- For keyboard-driven apps, focus the opened app and use key/type when that is clearer than guessing buttons. Attach expect when native text can prove the requested result.
+- The packaged native route supports only: status, apps, windows, open, focus, observe, screenshot, click, type, set_value, frontmost, arrange, close, wait. Never invent another tool name or action.
+- Call exactly one mac_control action, read its returned frame/elements/receipt, then choose the next action. Continue only while each call changes state or produces new evidence.
+- Start an interactive app with open and delivery="foreground_lease". A successful foreground open/focus includes a fresh frame and semantic elements; use elementToken/query from that frame and never reuse them after the frame changes.
+- Use type for text and click a freshly observed semantic commit control when required. key/press/hotkey and guessed coordinates are unavailable on this route. Attach expect naming a fresh, checkable result.
+- A blocked result is a stop unless it explicitly names one supported recovery and that recovery has not already failed. Never repeat open/focus/observe after the same blocker.
 - Finish only when the newest native result proves the requested end state. If it cannot be proven, report the concrete runtime blocker instead of claiming success.`;
 }
 

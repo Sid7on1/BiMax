@@ -177,6 +177,61 @@ describe('native operation tool registration', () => {
     await surface?.coordinator.dispose();
   });
 
+  test('registers the Desktop focus broker as an exact-PID verified capability', async () => {
+    const previousEndpoint = process.env.BIMAX_CU_FOCUS_BROKER_ENDPOINT;
+    const previousToken = process.env.BIMAX_CU_FOCUS_BROKER_TOKEN;
+    const previousFetch = global.fetch;
+    process.env.BIMAX_CU_FOCUS_BROKER_ENDPOINT = 'http://127.0.0.1:43210/v1/focus/activate';
+    process.env.BIMAX_CU_FOCUS_BROKER_TOKEN = 'b'.repeat(64);
+    global.fetch = jest.fn(async () => ({
+      ok: true,
+      json: async () => ({ accepted: true, code: 'accepted' }),
+    })) as unknown as typeof fetch;
+    try {
+      const handshake = eligibleHandshake();
+      const bridge = operation(handshake);
+      (bridge.raw.workspace as jest.Mock)
+        .mockResolvedValueOnce({
+          apps: [{ app: { pid: 42, displayName: 'Fixture', bundleId: 'ai.bimax.fixture' } }],
+          frontmostPid: 501,
+        })
+        .mockResolvedValueOnce({
+          apps: [{ app: { pid: 42, displayName: 'Fixture', bundleId: 'ai.bimax.fixture' } }],
+          frontmostPid: 42,
+        });
+      const surface = await createEligibleNativeComputerTools(
+        governor, capability(handshake), bridge.client,
+      );
+      const focus = surface?.tools.find(tool => tool.name === 'BimaxFocusTool');
+      expect(focus).toBeDefined();
+      (governor.approveTaskExecution as jest.Mock).mockClear();
+      const output = JSON.parse(String(await focus?.execute({
+        pid: 42, bundleId: 'ai.bimax.fixture',
+      }, { sessionId: 'task-focus' })));
+      expect(output).toMatchObject({
+        operation: 'focus_app', outcome: 'activated', activated: true,
+        requestedActivation: true, frontmostPidBefore: 501, frontmostPidAfter: 42,
+      });
+      expect(governor.approveTaskExecution).toHaveBeenCalledWith(
+        'COMPUTER_CONTROL', expect.objectContaining({
+          tool: 'BimaxFocusTool', action: 'bring application to foreground',
+          bundleId: 'ai.bimax.fixture', target: { pid: 42, bundleId: 'ai.bimax.fixture' },
+        }),
+      );
+      expect(global.fetch).toHaveBeenCalledWith(
+        process.env.BIMAX_CU_FOCUS_BROKER_ENDPOINT,
+        expect.objectContaining({ method: 'POST' }),
+      );
+      await surface?.coordinator.dispose();
+    } finally {
+      if (previousEndpoint === undefined) delete process.env.BIMAX_CU_FOCUS_BROKER_ENDPOINT;
+      else process.env.BIMAX_CU_FOCUS_BROKER_ENDPOINT = previousEndpoint;
+      if (previousToken === undefined) delete process.env.BIMAX_CU_FOCUS_BROKER_TOKEN;
+      else process.env.BIMAX_CU_FOCUS_BROKER_TOKEN = previousToken;
+      global.fetch = previousFetch;
+    }
+  });
+
   test('file operations are workspace-scoped and cross the right approval boundary', async () => {
     const handshake = eligibleHandshake();
     handshake.capabilities.workspace.operations = [

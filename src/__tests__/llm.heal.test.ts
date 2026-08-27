@@ -19,6 +19,25 @@ const pickable = (tier: 'coding' | 'lite' | 'vision') =>
   MODEL_CATALOG.find(m => m.tier === tier && !m.avoidAutoSelect)!.value;
 
 describe('LlmAdapter.healModels', () => {
+  it('never heals or replaces an intentional Desktop strict model', async () => {
+    const previous = process.env.BIMAX_DESKTOP_STRICT_MODEL;
+    process.env.BIMAX_DESKTOP_STRICT_MODEL = 'stepfun-ai/step-3.7-flash';
+    try {
+      const a = adapterServing(SERVED(pickable('coding')));
+      a.applyConfig({ model: 'another/model', liteModel: 'another/lite', visionModel: 'another/vision' });
+
+      expect(await a.healModels()).toEqual([]);
+      expect(a.readEffective()).toMatchObject({
+        model: 'stepfun-ai/step-3.7-flash',
+        liteModel: 'stepfun-ai/step-3.7-flash',
+        visionModel: 'stepfun-ai/step-3.7-flash',
+      });
+    } finally {
+      if (previous === undefined) delete process.env.BIMAX_DESKTOP_STRICT_MODEL;
+      else process.env.BIMAX_DESKTOP_STRICT_MODEL = previous;
+    }
+  });
+
   it('heals the quick and vision slots, not just the work model', () => {
     // THE bug. The work model is fine, so the old healer reported "nothing wrong" and returned —
     // while every greeting kept routing to an unserved quick model and answering with silence.

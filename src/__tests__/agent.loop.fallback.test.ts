@@ -28,6 +28,24 @@ afterAll(() => {
 describe('AgentLoop — fallback model chain', () => {
   afterEach(() => {
     delete process.env.BIMAX_FALLBACK_MODEL;
+    delete process.env.BIMAX_DESKTOP_STRICT_MODEL;
+  });
+
+  it('never retries or fails over when Desktop locks the exact model', async () => {
+    process.env.BIMAX_DESKTOP_STRICT_MODEL = 'stepfun-ai/step-3.7-flash';
+    process.env.BIMAX_FALLBACK_MODEL = 'backup-model';
+    const { llm, applied } = makeFailoverLlm({ type: 'error', message: 'stream stalled', recoverable: true, kind: 'transient' });
+    let calls = 0;
+    const original = (llm as any).chat.bind(llm);
+    (llm as any).chat = async function* (...args: any[]) { calls++; yield* original(...args); };
+
+    const loop = new AgentLoop(llm, new ToolRegistry(), null as any);
+    let out = '';
+    for await (const token of loop.execute([{ role: 'user', content: 'go' }], 'sys', { maxIterations: 10 })) out += token;
+
+    expect(calls).toBe(1);
+    expect(applied).toEqual([]);
+    expect(out).toContain('provider returned an error');
   });
 
   // An LLM whose chat() fails until applyConfig() switches the model, then succeeds.

@@ -43,6 +43,11 @@ const ENV_OVERRIDES: Partial<Record<keyof CliConfig, string>> = {
   computerApprovals: 'BIMAX_COMPUTER_APPROVALS',
 };
 
+const STRICT_MODEL_KEYS: readonly (keyof CliConfig)[] = [
+  'model', 'liteModel', 'visionModel', 'fallbackModel', 'subagentModel',
+];
+const desktopStrictModel = (): string => String(process.env.BIMAX_DESKTOP_STRICT_MODEL || '').trim();
+
 export type ConfigSource = 'default' | 'global' | 'project' | 'env';
 
 export interface CliConfig {
@@ -331,7 +336,15 @@ export async function loadConfig(): Promise<CliConfig> {
   // routing) sat behind an unhidable 20-30s think phase. Split it back apart in memory — the
   // coding slot keeps the user's pick; quick replies go to the plain lite default. Non-reasoning
   // picks are untouched (true single-model setups stay unified).
-  try {
+  const strictModel = desktopStrictModel();
+  if (strictModel) {
+    cached.model = strictModel;
+    cached.liteModel = strictModel;
+    cached.visionModel = strictModel;
+    cached.subagentModel = strictModel;
+    cached.fallbackModel = '';
+    for (const key of STRICT_MODEL_KEYS) sources[key] = 'env';
+  } else try {
     const { isReasoningModel, LEGACY_SAFE_LITE_MODEL } = require('./models');
     if (cached.liteModel && cached.liteModel === cached.model && isReasoningModel(cached.liteModel)) {
       cached.liteModel = LEGACY_SAFE_LITE_MODEL;
@@ -371,12 +384,20 @@ async function doSave(updates: Partial<CliConfig>, opts: SaveOptions = {}): Prom
   const origin = opts.origin || 'user';
   const current = await loadConfig();
 
+  // Model controls are read-only in the single-model Desktop build. Drop these writes entirely:
+  // persisting them would mutate the user's separate Terminal preferences even though the app
+  // cannot honor them. Non-model settings in the same patch still save normally.
+  const effectiveUpdates: Partial<CliConfig> = { ...updates };
+  if (desktopStrictModel()) {
+    for (const key of STRICT_MODEL_KEYS) delete (effectiveUpdates as any)[key];
+  }
+
   // The volatility guard: runtime-origin writes to env-overridden keys are dropped (in-memory
   // state still updates, so the session keeps working with the recovered value).
-  let accepted: Partial<CliConfig> = updates;
+  let accepted: Partial<CliConfig> = effectiveUpdates;
   if (origin === 'runtime') {
     accepted = {};
-    for (const [key, value] of Object.entries(updates) as [keyof CliConfig, any][]) {
+    for (const [key, value] of Object.entries(effectiveUpdates) as [keyof CliConfig, any][]) {
       if (sources[key] === 'env') {
         console.warn(`[Config] Not persisting runtime change to "${key}" — its value came from ${ENV_OVERRIDES[key] || 'the environment'} and is session-scoped.`);
       } else {
@@ -385,7 +406,7 @@ async function doSave(updates: Partial<CliConfig>, opts: SaveOptions = {}): Prom
     }
   }
 
-  cached = { ...current, ...updates }; // the live session always reflects the requested state
+  cached = { ...current, ...effectiveUpdates }; // the live session reflects accepted session state
 
   // Route each accepted key to the file it belongs in.
   const globalUpdates: Record<string, any> = {};

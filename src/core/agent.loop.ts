@@ -39,6 +39,32 @@ export const PREPARATORY_CAPABILITY_ACTIONS = new Set([
   'cursor', 'frontmost', 'desktop', 'record_status',
 ]);
 
+const RECOVERABLE_CAPABILITY_BLOCKS = new Set([
+  'invalid_arguments',
+  'postcondition_required',
+  'native_target_required',
+  'native_selector_unresolved',
+  'native_snapshot_required',
+  'native_snapshot_unavailable',
+  'native_perception_not_ready',
+]);
+
+/**
+ * A packaged Mac provider stop receipt is a state-machine boundary, not an ordinary failed tool.
+ * Only refusals whose code names a supported, state-changing correction remain recoverable. This
+ * catches alternating open/focus/observe thrash that an identical-call detector cannot see.
+ */
+export function terminalCapabilityBlocker(result: string): string | null {
+  try {
+    const value = JSON.parse(result);
+    if (value?.ok !== false || value?.blocked !== true || value?.executor !== 'stop') return null;
+    const code = typeof value.code === 'string' ? value.code : 'native_operation_blocked';
+    if (RECOVERABLE_CAPABILITY_BLOCKS.has(code)) return null;
+    const reason = [value.reason, value.error].find(candidate => typeof candidate === 'string' && candidate.trim());
+    return `${code}: ${reason || 'the native provider stopped the operation'}`;
+  } catch { return null; }
+}
+
 /** Mutating tools whose success is an implicit "this change is correct" claim. */
 export const CLAIMING_TOOLS = new Set(['EditFileTool', 'WriteFileTool', 'MultiEditTool', 'SymbolEditTool']);
 
@@ -116,6 +142,9 @@ export class AgentLoop {
    * configured, already failed over, or the fallback IS the currently failing model.
    */
   private async fallbackModelFor(): Promise<string | null> {
+    // Bimax for Mac can opt into an exact model contract. A fallback under that contract would be
+    // a lie: the UI would still name the locked model while another model performed the work.
+    if (String(process.env.BIMAX_DESKTOP_STRICT_MODEL || '').trim()) return null;
     if (this.fallbackApplied) return null;
     // Env beats config so headless/autonomous runs (and tests) can arm the chain per-process.
     let fb = String(process.env.BIMAX_FALLBACK_MODEL || '').trim();
@@ -239,7 +268,10 @@ export class AgentLoop {
     // single malformed tool-call emission) so a deterministically-failing turn can't
     // spin the loop, while a flaky one still gets a fresh attempt (new key / re-sample).
     let transientRetries = 0;
-    const MAX_TRANSIENT_RETRIES = 2;
+    // One bounded provider attempt in strict Desktop mode. Retrying the same model/key after a
+    // first-token timeout only multiplies visible dead air; the user gets the exact failure and can
+    // retry deliberately. Terminal retains its two changing retries and configured failover.
+    const MAX_TRANSIENT_RETRIES = String(process.env.BIMAX_DESKTOP_STRICT_MODEL || '').trim() ? 0 : 2;
     // A context rejection gets one bounded pass through the graded recovery ladder: cheap tool
     // result draining, existing reactive compaction, then a hard recent-turn truncation. A tier
     // only earns a retry when it strictly reduces the estimated request size.
@@ -283,6 +315,10 @@ export class AgentLoop {
     // The next provider request then names the required function explicitly. Successful action
     // rounds return to auto selection so AskUserTool remains reachable for real ambiguities.
     let forceRequiredToolNextRound = false;
+    // Once a required capability proves a terminal native stop, the next round is answer-only.
+    // Removing schemas enforces the transition even when a small controller ignores prose nudges.
+    let operationTerminalBlocker: string | null = null;
+    let terminalBlockerNudged = false;
     // Black-box recorder: every execute() is an episode — each LLM call in this run is
     // recorded (request hash + response stream) to a bundle under .bimax/episodes/,
     // self-flushing per call. /episodes replays it; BIMAX_RECORDER=0 disables.
@@ -336,13 +372,14 @@ export class AgentLoop {
       const schemaPool = allowedToolNames
         ? this.tools.getAllSchemas()
         : this.tools.getSchemas({ mode: contextMode });
-      const schemas = schemaPool
+      const schemas = (operationTerminalBlocker ? [] : schemaPool)
         .filter((schema: any) => !allowedToolNames || allowedToolNames.has(String(schema?.name || '')));
       // Once an external operation starts, prose cannot advance it. Ask the provider to require the
       // named native function until evidence proves the operation complete; then return to auto so
       // the model can provide its final answer. This closes the live failure where a capable model
       // called `open` once, then narrated "I will type" forever despite repeated textual nudges.
-      const forceRequiredTool = options?.requireTool && (!requiredToolUsed || forceRequiredToolNextRound);
+      const forceRequiredTool = !operationTerminalBlocker
+        && options?.requireTool && (!requiredToolUsed || forceRequiredToolNextRound);
       forceRequiredToolNextRound = false;
       const generator = recordedLlm.chat(this.messages, {
         system: systemPrompt,
@@ -647,7 +684,8 @@ export class AgentLoop {
       // complete invocation of the one tool the turn requires. Without this the operation ends
       // silently one action short — the observed "printed the click instead of clicking" failure.
       if (toolCalls.length === 0 && currentContent) {
-        const requiredTool = options?.requireTool ? this.tools.getTool(options.requireTool) : undefined;
+        const requiredTool = !operationTerminalBlocker && options?.requireTool
+          ? this.tools.getTool(options.requireTool) : undefined;
         const recovered = extractTextToolCalls(currentContent, (n) => !!this.tools.getTool(n), {
           ...(requiredTool ? { defaultTool: { name: requiredTool.name, schema: requiredTool.schema } } : {}),
         });
@@ -666,7 +704,7 @@ export class AgentLoop {
       // the exact observed failure: hidden reasoning ended empty, then the retry confidently claimed
       // it had no app access. Re-ask for the required tool instead, bounded so a model that cannot
       // call tools still terminates honestly. This is capability-level routing, not an app workflow.
-      if (options?.requireTool && !requiredToolUsed) {
+      if (!operationTerminalBlocker && options?.requireTool && !requiredToolUsed) {
         const hasRequiredCall = toolCalls.some(tc => tc.name === options.requireTool);
         if (hasRequiredCall) {
           // Drop any pre-tool narration/refusal that was deliberately withheld above. The post-tool
@@ -708,7 +746,7 @@ export class AgentLoop {
       // cannot proceed must still terminate honestly rather than loop. A request that truly only
       // asked to open an app costs one extra round here and then finishes, which is the right
       // trade against silently reporting an unperformed operation as done.
-      if (options?.requireTool && requiredToolUsed && !sawAdvancingAction
+      if (!operationTerminalBlocker && options?.requireTool && requiredToolUsed && !sawAdvancingAction
         && lastCapabilitySucceeded && toolCalls.length === 0) {
         if (completionNudges < MAX_COMPLETION_NUDGES) {
           completionNudges++;
@@ -1036,8 +1074,13 @@ export class AgentLoop {
           const result = ran ? ran.result : 'Tool call interrupted before it ran.';
           this.messages.push({ role: 'tool', tool_call_id: tc.id, content: result });
           if (ran) {
-            const sig = loopDetector.record(tc.name, tc.args, result, ran.isError);
+            let structuredFailure = false;
+            try { structuredFailure = JSON.parse(result)?.ok === false; } catch { /* text result */ }
+            const sig = loopDetector.record(tc.name, tc.args, result, ran.isError || structuredFailure);
             if (sig) loopSignals.push(sig);
+            if (!operationTerminalBlocker && options?.requireTool && tc.name === options.requireTool) {
+              operationTerminalBlocker = terminalCapabilityBlocker(result);
+            }
             const shot = screenshotFromToolResult(tc.name, result);
             if (shot) {
               let metadata: any = {};
@@ -1062,6 +1105,19 @@ export class AgentLoop {
         // History is now well-formed (every tool_call answered) even on interrupt — so stop here
         // instead of leaving a dangling turn, and the next user message appends to a valid log.
         if (interrupted) return;
+
+        if (operationTerminalBlocker && !terminalBlockerNudged) {
+          terminalBlockerNudged = true;
+          forceRequiredToolNextRound = false;
+          this.messages.push({
+            role: 'user',
+            content:
+              `[OPERATION BLOCKED — ANSWER ONLY] The required native capability stopped with: ` +
+              `${operationTerminalBlocker}. Do not call or invent another tool and do not retry ` +
+              `open/focus/observe. Tell the user this concrete blocker plainly.`,
+          });
+          cliEvents.emit('status', 'Mac operation blocked — reporting the verified blocker');
+        }
 
         // Vision observation loop: a browser screenshot this batch produced becomes an image the
         // model actually SEES on its next turn — but only when the active model advertises vision

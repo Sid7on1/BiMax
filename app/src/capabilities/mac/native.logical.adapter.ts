@@ -72,13 +72,38 @@ const TILE_BY_LAYOUT: Record<string, string> = {
 };
 
 const ADAPTER_ACTIONS = new Set<PublicDesktopAction>([
-  'status', 'apps', 'windows', 'open', 'observe', 'screenshot',
+  'status', 'apps', 'windows', 'open', 'focus', 'observe', 'screenshot',
   'click', 'type', 'set_value', 'frontmost', 'arrange', 'close', 'wait',
 ]);
 
 function object(value: unknown): Record<string, any> {
   return value && typeof value === 'object' && !Array.isArray(value)
     ? value as Record<string, any> : {};
+}
+
+function appLabel(value: unknown): string {
+  if (typeof value === 'string') return value.trim();
+  const candidate = object(value);
+  for (const key of ['displayName', 'name', 'label', 'bundleId']) {
+    if (typeof candidate[key] === 'string' && candidate[key].trim()) return candidate[key].trim();
+  }
+  return '';
+}
+
+function stableAppReceipt(value: Record<string, any>): Record<string, any> {
+  const application = object(value.app);
+  const resolved = object(value.resolved);
+  const running = Array.isArray(resolved.running) ? object(resolved.running[0]) : {};
+  const pid = application.pid ?? running.pid;
+  const bundleId = application.bundleId ?? resolved.bundleId ?? running.bundleId;
+  const app = appLabel(application) || appLabel(resolved) || appLabel(running);
+  return {
+    ...value,
+    ...(Object.keys(application).length ? { application } : {}),
+    ...(app ? { app } : {}),
+    ...(Number.isSafeInteger(pid) && pid > 0 ? { pid } : {}),
+    ...(typeof bundleId === 'string' && bundleId.trim() ? { bundleId: bundleId.trim() } : {}),
+  };
 }
 
 function enumValues(tool: CapabilityTool | undefined, property: string): string[] {
@@ -240,6 +265,66 @@ export function createNativeLogicalMacControl(
     return id ? state.snapshots.get(id) : undefined;
   };
 
+  const observeTarget = async (
+    state: LogicalSessionState,
+    pid: number,
+    command: DesktopCommand,
+    context: unknown,
+  ): Promise<{ value?: Record<string, any>; error?: string }> => {
+    const observeTool = nativeTools.get('BimaxObserveTool');
+    if (!observeTool) return { error: 'the verified native accessibility observer is unavailable' };
+    let windowId = command.windowId;
+    let windowGeneration: number | undefined;
+    const workspaceTool = nativeTools.get('BimaxWorkspaceTool');
+    if (!windowId && workspaceTool && enumValues(workspaceTool, 'operation').includes('windows')) {
+      const inventory = await invoke('BimaxWorkspaceTool', {
+        operation: 'windows', pid, includeOffscreenWindows: true,
+      }, context, 'workspace') as Record<string, any>;
+      const candidates = Array.isArray(inventory.windows) ? inventory.windows : [];
+      const exact = candidates.map((entry: unknown) => object(object(entry).window))
+        .find((entry: Record<string, any>) => entry.pid === pid
+          && Number.isSafeInteger(entry.windowId) && entry.windowId > 0);
+      if (exact) {
+        windowId = exact.windowId;
+        if (Number.isSafeInteger(exact.generation) && exact.generation >= 0) {
+          windowGeneration = exact.generation;
+        }
+      }
+    }
+    const profiles = enumValues(observeTool, 'profile');
+    const scopes = enumValues(observeTool, 'scope');
+    const value = await invoke('BimaxObserveTool', {
+      pid,
+      scope: scopes.includes('window') && windowId ? 'window'
+        : scopes.includes('application') ? 'application' : scopes[0],
+      profile: profiles.includes('balanced') ? 'balanced' : profiles[0],
+      ...(windowId ? { windowId } : {}),
+      ...(windowGeneration !== undefined ? { windowGeneration } : {}),
+      ...(command.maxElements ? { maxElements: command.maxElements } : {}),
+    }, context, 'observe') as Record<string, any>;
+    const authority = nativeSnapshotAuthority(value);
+    const snapshot = snapshotFrom(value, readiness);
+    if (!snapshot) return { error: 'native observe returned no retainable full snapshot' };
+    state.pid = snapshot.pid;
+    state.latestSnapshotId = snapshot.snapshotId;
+    state.snapshots.set(snapshot.snapshotId, snapshot);
+    const nodes = snapshot.nodes.map((node, elementIndex) => ({ ...node, elementIndex }));
+    return { value: {
+      ...value,
+      nodes,
+      elements: nodes,
+      frameId: snapshot.snapshotId,
+      perception: snapshot.readiness,
+      snapshotAuthority: authority,
+      observationTrust: {
+        classification: 'untrusted_observation',
+        sources: ['accessibility'],
+        mayInform: 'selection_within_authenticated_branch',
+        mayNotGrant: ['actions', 'recipients', 'destinations', 'destructive_scope'],
+      },
+    } };
+  };
+
   const selectToken = (
     state: LogicalSessionState,
     command: DesktopCommand,
@@ -287,7 +372,7 @@ export function createNativeLogicalMacControl(
       const invalid = validateModelComputerCommand(command);
       if (invalid) return stop(action, invalid, 'invalid_arguments');
 
-      if (['open', 'click', 'type', 'set_value', 'arrange', 'close'].includes(action)) {
+      if (['open', 'focus', 'click', 'type', 'set_value', 'arrange', 'close'].includes(action)) {
         const admission = authorizeTrustedBranch(
           action, command as unknown as Record<string, unknown>, undefined, context,
         );
@@ -299,6 +384,7 @@ export function createNativeLogicalMacControl(
       const observe = nativeTools.get('BimaxObserveTool');
       const semantic = nativeTools.get('BimaxActionTool');
       const capture = nativeTools.get('BimaxCaptureTool');
+      const focus = nativeTools.get('BimaxFocusTool');
 
       if (action === 'status') {
         return JSON.stringify({
@@ -310,6 +396,7 @@ export function createNativeLogicalMacControl(
           nativeTools: [...nativeTools.keys()].sort(),
           supportedActions: [...ADAPTER_ACTIONS].filter(candidate => {
             if (['apps', 'windows', 'open', 'frontmost', 'arrange', 'close'].includes(candidate)) return !!workspace;
+            if (candidate === 'focus') return !!focus && !!workspace;
             if (candidate === 'observe') return !!observe;
             if (candidate === 'screenshot') return !!capture;
             if (['click', 'type', 'set_value'].includes(candidate)) return !!semantic;
@@ -331,10 +418,12 @@ export function createNativeLogicalMacControl(
           ...(command.pid ? { pid: command.pid } : {}),
         }, context, 'workspace') as Record<string, any>;
         if (action === 'frontmost') {
+          const application = Array.isArray(value.apps)
+            ? value.apps.find((entry: any) => entry?.app?.pid === value.frontmostPid)?.app : undefined;
           return logicalResult(action, 'BimaxWorkspaceTool', {
             frontmostPid: value.frontmostPid,
-            app: Array.isArray(value.apps)
-              ? value.apps.find((entry: any) => entry?.app?.pid === value.frontmostPid)?.app : undefined,
+            app: appLabel(application),
+            ...(application ? { application } : {}),
           }, 'semantic');
         }
         return logicalResult(action, 'BimaxWorkspaceTool', value, 'semantic');
@@ -356,48 +445,101 @@ export function createNativeLogicalMacControl(
         if (Number.isSafeInteger(pid) && pid > 0) state.pid = pid;
         state.latestSnapshotId = undefined;
         state.snapshots.clear();
-        return mutationResult(
-          action, 'BimaxWorkspaceTool', { ...value, observationSecurity: branch },
-          gradeWorkspaceMutation(action, value, required.postcondition),
-        );
+        const normalized: Record<string, any> = {
+          ...stableAppReceipt(value), observationSecurity: branch,
+        };
+        const launchGrade = gradeWorkspaceMutation(action, value, required.postcondition);
+        if (!launchGrade.ok || sanitized.delivery !== 'foreground_lease') {
+          return mutationResult(action, 'BimaxWorkspaceTool', normalized, launchGrade);
+        }
+        if (!focus || !Number.isSafeInteger(pid) || pid <= 0 || !normalized.bundleId) {
+          return stop(action, 'foreground open needs the authenticated Desktop focus broker and one exact running app identity', 'foreground_focus_unavailable');
+        }
+        const focused = await invoke('BimaxFocusTool', {
+          pid, bundleId: normalized.bundleId,
+        }, context, 'verification') as Record<string, any>;
+        if (focused.activated !== true || focused.frontmostPidAfter !== pid) {
+          return JSON.stringify({
+            ...normalized,
+            ok: false, action, driver: 'bimax-native', executor: 'stop', blocked: true,
+            visible: true, actionAttempted: true, code: 'foreground_activation_unverified',
+            reason: `the Desktop focus broker did not verify pid ${pid} as frontmost`,
+            error: `the Desktop focus broker did not verify pid ${pid} as frontmost`,
+            verification: { status: 'unverified', freshObservation: false, evidence: { launch: value, focus: focused } },
+          }, null, 2);
+        }
+        const observed = await observeTarget(state, pid, command, context);
+        if (!observed.value) {
+          return JSON.stringify({
+            ...normalized,
+            ok: false, action, driver: 'bimax-native', executor: 'stop', blocked: true,
+            visible: true, actionAttempted: true, code: 'native_post_focus_observation_unavailable',
+            reason: observed.error, error: observed.error,
+            verification: { status: 'unverified', freshObservation: false, evidence: { launch: value, focus: focused } },
+          }, null, 2);
+        }
+        return logicalResult(action, 'BimaxWorkspaceTool+BimaxFocusTool+BimaxObserveTool', {
+          ...normalized,
+          ...observed.value,
+          verified: true,
+          verification: {
+            status: 'verified', freshObservation: true,
+            postcondition: required.postcondition,
+            delivery: { requested: 'foreground', actual: 'foreground', focusChanged: true },
+            evidence: { launch: value, focus: focused },
+          },
+        }, 'semantic');
+      }
+
+      if (action === 'focus') {
+        if (!focus || !workspace) return stop(action, 'the authenticated Desktop focus route is unavailable');
+        const inventory = await invoke('BimaxWorkspaceTool', { operation: 'apps' }, context, 'workspace') as Record<string, any>;
+        const apps = (Array.isArray(inventory.apps) ? inventory.apps : [])
+          .map((entry: unknown) => object(object(entry).app));
+        const wanted = command.app?.trim().toLocaleLowerCase();
+        const matches = apps.filter((candidate: Record<string, any>) => command.pid
+          ? candidate.pid === command.pid
+          : wanted && [candidate.displayName, candidate.name, candidate.bundleId]
+            .some(value => typeof value === 'string' && value.trim().toLocaleLowerCase() === wanted));
+        if (matches.length !== 1) {
+          return stop(action, matches.length > 1
+            ? 'focus target is ambiguous in the live native application inventory'
+            : 'focus target is not running in the live native application inventory', 'native_target_required');
+        }
+        const application = matches[0];
+        if (!Number.isSafeInteger(application.pid) || typeof application.bundleId !== 'string') {
+          return stop(action, 'focus target lacks an exact pid and bundleId', 'native_target_required');
+        }
+        const value = await invoke('BimaxFocusTool', {
+          pid: application.pid, bundleId: application.bundleId,
+        }, context, 'verification') as Record<string, any>;
+        if (value.activated !== true || value.frontmostPidAfter !== application.pid) {
+          return stop(action, 'the Desktop focus broker did not verify the requested app as frontmost', 'foreground_activation_unverified');
+        }
+        state.pid = application.pid;
+        state.latestSnapshotId = undefined;
+        state.snapshots.clear();
+        const observed = await observeTarget(state, application.pid, command, context);
+        if (!observed.value) return stop(action, observed.error!, 'native_post_focus_observation_unavailable');
+        return logicalResult(action, 'BimaxFocusTool+BimaxObserveTool', {
+          ...observed.value,
+          app: appLabel(application), application,
+          pid: application.pid, bundleId: application.bundleId,
+          verified: true,
+          verification: {
+            status: 'verified', freshObservation: true,
+            delivery: { requested: 'foreground', actual: 'foreground', focusChanged: value.requestedActivation === true },
+            evidence: value,
+          },
+        }, 'semantic');
       }
 
       if (action === 'observe') {
-        if (!observe) return stop(action, 'the verified native accessibility observer is unavailable');
         const pid = command.pid ?? state.pid;
         if (!pid) return stop(action, 'observe needs pid until this logical session has opened a native application', 'native_target_required');
-        const profiles = enumValues(observe, 'profile');
-        const scopes = enumValues(observe, 'scope');
-        const value = await invoke('BimaxObserveTool', {
-          pid,
-          scope: scopes.includes('window') ? 'window' : scopes[0],
-          profile: profiles.includes('balanced') ? 'balanced' : profiles[0],
-          ...(command.windowId ? { windowId: command.windowId } : {}),
-          ...(command.maxElements ? { maxElements: command.maxElements } : {}),
-          // The native service must return the complete tree. Model-facing query selection happens
-          // locally; a filtered provider response is evidence, never action authority.
-        }, context, 'observe') as Record<string, any>;
-        const authority = nativeSnapshotAuthority(value);
-        const snapshot = snapshotFrom(value, readiness);
-        if (!snapshot) return stop(action, 'native observe returned no retainable full snapshot', 'native_snapshot_unavailable');
-        state.pid = snapshot.pid;
-        state.latestSnapshotId = snapshot.snapshotId;
-        state.snapshots.set(snapshot.snapshotId, snapshot);
-        const nodes = snapshot.nodes.map((node, elementIndex) => ({ ...node, elementIndex }));
-        return logicalResult(action, 'BimaxObserveTool', {
-          ...value,
-          nodes,
-          elements: nodes,
-          frameId: snapshot.snapshotId,
-          perception: snapshot.readiness,
-          snapshotAuthority: authority,
-          observationTrust: {
-            classification: 'untrusted_observation',
-            sources: ['accessibility'],
-            mayInform: 'selection_within_authenticated_branch',
-            mayNotGrant: ['actions', 'recipients', 'destinations', 'destructive_scope'],
-          },
-        }, 'semantic');
+        const observed = await observeTarget(state, pid, command, context);
+        if (!observed.value) return stop(action, observed.error!, 'native_snapshot_unavailable');
+        return logicalResult(action, 'BimaxObserveTool', observed.value, 'semantic');
       }
 
       if (action === 'screenshot') {

@@ -34,7 +34,7 @@ export const MAC_CONTROL_SCHEMA = {
     expect: { type: 'string' }, expectMode: { type: 'string' }, frameId: { type: 'string' },
     delivery: {
       type: 'string', enum: ['background', 'foreground_lease'],
-      description: 'click/type/set_value only. background (default) never changes focus; foreground_lease explicitly requests an approved, leased focus change and is disclosed as such in the receipt.',
+      description: 'open/click/type/set_value. background (default) never changes focus; foreground_lease explicitly requests an approved, authenticated focus change and is disclosed as such in the receipt.',
     },
     maxElements: { type: 'number' }, includeScreenshot: { type: 'boolean' }, layout: { type: 'string' },
     direction: { type: 'string' }, amount: { type: 'number' },

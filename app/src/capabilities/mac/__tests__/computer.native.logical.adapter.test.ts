@@ -44,7 +44,11 @@ function fixture() {
             window: { pid: 42, windowId: 7, generation: 3 },
             frontmostPidBefore: 900, frontmostPidAfter: 900,
           }
-      : { operation: args.operation, apps: [{ app: { pid: 42, displayName: 'Fixture' } }], frontmostPid: 42 },
+      : {
+        operation: args.operation,
+        apps: [{ app: { pid: 42, bundleId: 'ai.bimax.fixture', displayName: 'Fixture' } }],
+        frontmostPid: 42,
+      },
   ));
   const observe = jest.fn(async () => JSON.stringify({
     snapshotId: 'snapshot-one', sessionId: 'native-session', pid: 42,
@@ -74,6 +78,12 @@ function fixture() {
   const capture = jest.fn(async () => JSON.stringify({
     mode: 'image', image: { handle: 'image-one' }, width: 800, height: 600,
   }));
+  const focus = jest.fn(async (args: Record<string, unknown>) => JSON.stringify({
+    operation: 'focus_app', outcome: 'activated', activated: true,
+    requestedActivation: true,
+    app: { pid: args.pid, bundleId: args.bundleId, displayName: 'Fixture' },
+    frontmostPidBefore: 900, frontmostPidAfter: args.pid,
+  }));
   const surface = {
     coordinator: { dispose: jest.fn(async () => {}) } as never,
     tools: [
@@ -88,9 +98,12 @@ function fixture() {
         deliveryPolicy: { enum: ['background_only'] },
       }, action),
       tool('BimaxCaptureTool', { mode: { enum: ['image'] } }, capture),
+      tool('BimaxFocusTool', {
+        pid: { type: 'integer' }, bundleId: { type: 'string' },
+      }, focus),
     ],
   } as NativeComputerToolSurface;
-  return { surface, workspace, observe, action, capture };
+  return { surface, workspace, observe, action, capture, focus };
 }
 
 function parsed(value: string | undefined) {
@@ -157,6 +170,43 @@ describe('native logical mac_control adapter', () => {
         .toMatchObject({ ok: true, action: 'apps', nativeTool: 'BimaxWorkspaceTool' });
     }
     expect(native.workspace).toHaveBeenCalledTimes(10);
+  });
+
+  test('foreground open uses the authenticated focus tool, returns a fresh observation, and keeps app text scalar', async () => {
+    const native = fixture();
+    const adapter = createNativeLogicalMacControl(native.surface, MAC_CONTROL_SCHEMA);
+    const result = parsed(await adapter.execute({
+      action: 'open', app: 'Fixture', delivery: 'foreground_lease',
+    }, { sessionId: 'task-foreground-open' }));
+
+    expect(result).toMatchObject({
+      ok: true, verified: true, action: 'open', app: 'Fixture', pid: 42,
+      bundleId: 'ai.bimax.fixture', frameId: 'snapshot-one',
+      verification: {
+        status: 'verified', freshObservation: true,
+        delivery: { requested: 'foreground', actual: 'foreground' },
+      },
+    });
+    expect(typeof result.app).toBe('string');
+    expect(result.application).toMatchObject({ pid: 42, displayName: 'Fixture' });
+    expect(result.elements[0]).toMatchObject({ token: 'continue', elementIndex: 0 });
+    expect(native.focus).toHaveBeenCalledWith({
+      pid: 42, bundleId: 'ai.bimax.fixture',
+    }, expect.objectContaining({ sessionId: 'task-foreground-open' }));
+  });
+
+  test('focus is a real verified transition and never falls through to the unsupported stop rung', async () => {
+    const native = fixture();
+    const adapter = createNativeLogicalMacControl(native.surface, MAC_CONTROL_SCHEMA);
+    const result = parsed(await adapter.execute({
+      action: 'focus', pid: 42,
+    }, { sessionId: 'task-focus' }));
+
+    expect(result).toMatchObject({
+      ok: true, verified: true, action: 'focus', app: 'Fixture', pid: 42,
+      frameId: 'snapshot-one', verification: { status: 'verified', freshObservation: true },
+    });
+    expect(native.focus).toHaveBeenCalledTimes(1);
   });
 
   test('semantic, physical, visual-delivery, menu, and stop paths fail closed before effect', async () => {

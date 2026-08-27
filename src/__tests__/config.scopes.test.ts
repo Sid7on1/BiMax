@@ -12,7 +12,7 @@ import * as os from 'os';
 let dir: string;
 let cfgPath: string;
 
-const ENV_KEYS = ['BGW_MODEL', 'BGW_LITE_MODEL', 'BGW_VISION_MODEL', 'BGW_REASONING_EFFORT', 'BIMAX_BREAKGLASS_DIR'];
+const ENV_KEYS = ['BGW_MODEL', 'BGW_LITE_MODEL', 'BGW_VISION_MODEL', 'BGW_REASONING_EFFORT', 'BIMAX_DESKTOP_STRICT_MODEL', 'BIMAX_BREAKGLASS_DIR'];
 const savedEnv: Record<string, string | undefined> = {};
 
 function freshConfigModule() {
@@ -180,6 +180,25 @@ describe('config scopes — file integrity', () => {
 });
 
 describe('config scopes — deprecated/legacy value migration', () => {
+  it('keeps every model route unified and read-only in Desktop strict mode', async () => {
+    await fs.writeFile(cfgPath, JSON.stringify({
+      model: 'terminal/model', liteModel: 'terminal/lite', visionModel: 'terminal/vision',
+      fallbackModel: 'terminal/fallback', subagentModel: 'terminal/subagent',
+    }));
+    process.env.BIMAX_DESKTOP_STRICT_MODEL = 'stepfun-ai/step-3.7-flash';
+    const { loadConfig, saveConfig } = freshConfigModule();
+
+    const cfg = await loadConfig();
+    expect(cfg).toMatchObject({
+      model: 'stepfun-ai/step-3.7-flash', liteModel: 'stepfun-ai/step-3.7-flash',
+      visionModel: 'stepfun-ai/step-3.7-flash', subagentModel: 'stepfun-ai/step-3.7-flash',
+      fallbackModel: '',
+    });
+    await saveConfig({ model: 'other/model', fallbackModel: 'other/fallback', theme: 'dark' });
+    expect(await disk()).toMatchObject({ model: 'terminal/model', fallbackModel: 'terminal/fallback', theme: 'dark' });
+    expect((await loadConfig()).model).toBe('stepfun-ai/step-3.7-flash');
+  });
+
   it('a reasoning model copied into the lite slot splits back apart in memory only', async () => {
     await fs.writeFile(cfgPath, JSON.stringify({ model: 'stepfun-ai/step-3.7-flash', liteModel: 'stepfun-ai/step-3.7-flash' }));
     const { loadConfig } = freshConfigModule();

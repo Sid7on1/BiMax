@@ -1,4 +1,4 @@
-import { AgentLoop } from '../core/agent.loop';
+import { AgentLoop, terminalCapabilityBlocker } from '../core/agent.loop';
 import { ToolRegistry } from '../tools/tool.registry';
 import { LLMProvider, ChatEvent } from '../core/llm.provider';
 
@@ -78,6 +78,58 @@ async function drain(loop: AgentLoop, system: string, opts: any): Promise<string
 }
 
 describe('AgentLoop — a prepared turn is not a completed operation', () => {
+  it('classifies native stop receipts but preserves named snapshot recovery', () => {
+    expect(terminalCapabilityBlocker(JSON.stringify({
+      ok: false, blocked: true, executor: 'stop',
+      code: 'native_logical_action_unavailable', reason: 'focus is unavailable',
+    }))).toBe('native_logical_action_unavailable: focus is unavailable');
+    expect(terminalCapabilityBlocker(JSON.stringify({
+      ok: false, blocked: true, executor: 'stop',
+      code: 'native_snapshot_required', reason: 'observe first',
+    }))).toBeNull();
+  });
+
+  it('turns a terminal native stop into an enforced answer-only round', async () => {
+    const calls: any[] = [];
+    const registry = new ToolRegistry();
+    registry.register({
+      name: TOOL, description: 'capability', schema: { type: 'object', properties: {} },
+      isDestructive: true, isConcurrencySafe: false,
+      execute: async (args: any) => {
+        calls.push(args);
+        return JSON.stringify({
+          ok: false, blocked: true, executor: 'stop',
+          code: 'foreground_activation_unverified', reason: 'Messages did not become frontmost',
+        });
+      },
+    } as any);
+    let round = 0;
+    const seenToolCounts: number[] = [];
+    const llm = {
+      userModel: 'test-model',
+      async *chat(_messages: any[], options: any): AsyncGenerator<ChatEvent> {
+        seenToolCounts.push((options?.tools || []).length);
+        round++;
+        if (round === 1) {
+          yield { type: 'tool_call', id: 'open', name: TOOL, args: '{"action":"open","app":"Messages"}' } as any;
+        } else {
+          yield { type: 'token', text: 'Messages could not be verified as frontmost, so I stopped.' };
+        }
+        yield { type: 'done' } as any;
+      },
+    } as unknown as LLMProvider;
+    const loop = new AgentLoop(llm, registry, undefined, 128_000);
+    const out = await drain(loop, 'sys', {
+      requireTool: TOOL, toolNames: [TOOL], maxIterations: 5,
+    });
+
+    expect(calls).toHaveLength(1);
+    expect(seenToolCounts).toEqual([1, 0]);
+    expect(out).toContain('could not be verified as frontmost');
+    expect(loop.messages.some(message => typeof message.content === 'string'
+      && message.content.includes('[OPERATION BLOCKED — ANSWER ONLY]'))).toBe(true);
+  });
+
   it('does not let a lone open end the turn, and re-asks for the real action', async () => {
     const { registry, calls } = registryWithCapability();
     // The live shape: open, then narrate instead of acting. The gate must interrupt that and the

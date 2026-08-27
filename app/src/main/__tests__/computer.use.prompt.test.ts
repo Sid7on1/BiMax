@@ -21,4 +21,13 @@ describe('app-owned Control Mac execution prompt', () => {
     expect(visibleComputerUsePrompt(engine)).toBe(user);
     expect(visibleComputerUsePrompt(user)).toBe(user);
   });
+
+  test('names only packaged native actions and makes a repeated blocker terminal', () => {
+    const prompt = buildComputerUseExecutionPrompt('Open Messages');
+    expect(prompt).toContain('open, focus, observe, screenshot, click, type, set_value');
+    expect(prompt).toContain('Never invent another tool name or action');
+    expect(prompt).toContain('Never repeat open/focus/observe after the same blocker');
+    expect(prompt).toContain('key/press/hotkey and guessed coordinates are unavailable');
+    expect(prompt).not.toContain('use key/type');
+  });
 });

@@ -77,6 +77,7 @@ export function selectRequestModel(
 }
 
 export class LlmAdapter implements LLMProvider {
+  public readonly strictModel = String(process.env.BIMAX_DESKTOP_STRICT_MODEL || '').trim();
   public defaultModel = process.env.BGW_MODEL || 'mistralai/mistral-small-4-119b-2603';
   public requestTimeout = parseInt(process.env.BGW_TIMEOUT || '120000', 10);
   public temperature: number = parseFloat(process.env.BGW_TEMPERATURE || '0.1');
@@ -126,7 +127,14 @@ export class LlmAdapter implements LLMProvider {
 
   private budgetVeto?: any; // Will be typed as BudgetVeto but avoiding circular imports or just use any here
 
-  constructor(private apiKeyManager: ApiKeyManager) {}
+  constructor(private apiKeyManager: ApiKeyManager) {
+    if (this.strictModel) {
+      this.defaultModel = this.strictModel;
+      this.userModel = this.strictModel;
+      this.liteModel = this.strictModel;
+      this.visionModel = this.strictModel;
+    }
+  }
 
   public setBudgetVeto(budgetVeto: any) {
     this.budgetVeto = budgetVeto;
@@ -176,15 +184,21 @@ export class LlmAdapter implements LLMProvider {
   }
 
   public applyConfig(cfg: { model?: string; timeout?: number; temperature?: number; topP?: number; maxTokens?: number; reasoningEffort?: string; parallelToolCalls?: boolean; liteModel?: string; visionModel?: string }) {
-    if (cfg.model) { this.defaultModel = cfg.model; this.userModel = cfg.model; }
+    if (!this.strictModel && cfg.model) { this.defaultModel = cfg.model; this.userModel = cfg.model; }
     if (cfg.timeout) this.requestTimeout = cfg.timeout;
     if (cfg.temperature !== undefined) this.temperature = cfg.temperature;
     if (cfg.topP !== undefined) this.topP = cfg.topP;
     if (cfg.maxTokens) this.maxTokens = cfg.maxTokens;
     if (cfg.reasoningEffort !== undefined) this.reasoningEffort = cfg.reasoningEffort || undefined;
     if (cfg.parallelToolCalls !== undefined) this.parallelToolCalls = cfg.parallelToolCalls;
-    if (cfg.liteModel !== undefined) this.liteModel = cfg.liteModel || undefined;
-    if (cfg.visionModel !== undefined) this.visionModel = cfg.visionModel || undefined;
+    if (!this.strictModel && cfg.liteModel !== undefined) this.liteModel = cfg.liteModel || undefined;
+    if (!this.strictModel && cfg.visionModel !== undefined) this.visionModel = cfg.visionModel || undefined;
+    if (this.strictModel) {
+      this.defaultModel = this.strictModel;
+      this.userModel = this.strictModel;
+      this.liteModel = this.strictModel;
+      this.visionModel = this.strictModel;
+    }
   }
 
   // Reuse one OpenAI client per (baseURL, key) instead of constructing a fresh one — with its own
@@ -271,6 +285,9 @@ export class LlmAdapter implements LLMProvider {
   // Returns one entry per slot actually changed (empty = nothing to do). Best-effort: a provider
   // without a /models endpoint returns [] above, so we leave every slot untouched.
   public async healModels(): Promise<Array<{ slot: 'work' | 'quick' | 'vision'; from: string; to: string }>> {
+    // The Desktop lock is an intentional product/user choice. `avoidAutoSelect` is advice for an
+    // automatic picker, never authority to veto that choice or silently rewrite it.
+    if (this.strictModel) return [];
     const ids = await this.listProviderModels();
     if (ids.length === 0) return [];
     const served = new Set(ids);
@@ -354,6 +371,7 @@ export class LlmAdapter implements LLMProvider {
   }
 
   private pickModel(keyResult: KeyResult, lite?: boolean, hasImages?: boolean): string {
+    if (this.strictModel) return this.strictModel;
     const chosen = (lite && this.liteModel)
       ? this.liteModel
       // The user's explicit choice (set via /model → applyConfig) must win. Previously the key's

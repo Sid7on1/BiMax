@@ -263,6 +263,12 @@ export async function startHeadless(container: any, config: any): Promise<void> 
     capabilities: (provider, id) => capabilitiesFor(provider, id) as any,
     readEnv: (name) => process.env[name],
   };
+  const strictDesktopModel = String(process.env.BIMAX_DESKTOP_STRICT_MODEL || '').trim();
+  const buildVisibleCatalog = async (refresh: boolean) => {
+    const result = await buildCatalog(catalogDeps, 0, refresh);
+    if (strictDesktopModel) result.models = result.models.filter(model => model.id === strictDesktopModel);
+    return result;
+  };
 
   const dispose = startStdioHost({
     emitter: cliEvents,
@@ -295,7 +301,7 @@ export async function startHeadless(container: any, config: any): Promise<void> 
     onConfigGet: configSubset,
     onConfigSet: (patch) => configWire.write(patch),
     onCatalogGet: async (refresh) => {
-      const { t, id, ...rest } = await buildCatalog(catalogDeps, 0, refresh);
+      const { t, id, ...rest } = await buildVisibleCatalog(refresh);
       return rest;
     },
     onProviderSet: async ({ name, baseURL, apiKey }) => {
@@ -320,7 +326,7 @@ export async function startHeadless(container: any, config: any): Promise<void> 
       await saveConfig({ provider: name, ...(baseURL ? { providerBaseURL: baseURL } : {}) } as any);
       // A new provider means a new key pool, a new endpoint and a different served-model list; the
       // session cache belongs to the old one, so force a refresh rather than answering from it.
-      const { t, id, ...rest } = await buildCatalog(catalogDeps, 0, true);
+      const { t, id, ...rest } = await buildVisibleCatalog(true);
       cliEvents.emit('config_changed');
       return rest;
     },

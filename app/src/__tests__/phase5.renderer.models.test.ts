@@ -261,6 +261,24 @@ describe('Mac live session', () => {
     expect(describeMacAction('click', { targeting: { label: 'Send' } })).toBe('Clicked Send');
     expect(describeMacAction('open', { app: 'Messages' })).toBe('Opened Messages');
     expect(describeMacAction('observe', { app: 'Notes' })).toBe('Looked at Notes');
+    expect(describeMacAction('open', {
+      app: { pid: 42, bundleId: 'com.apple.MobileSMS', displayName: 'Messages' },
+    })).toBe('Opened Messages');
+    expect(describeMacAction('open', { app: { pid: 42 } })).toBe('Opened');
+  });
+
+  test('structured native app identities never leak object coercion into Live Target', () => {
+    const session = deriveMacSession([macCall({
+      input: JSON.stringify({ action: 'open', app: 'Messages' }),
+      output: JSON.stringify({
+        ok: true, action: 'open',
+        app: { pid: 42, bundleId: 'com.apple.MobileSMS', displayName: 'Messages' },
+        pid: 42, frameId: 'native-one',
+      }),
+    })], { paused: false, reason: '' }, NOW);
+    expect(session.target?.app).toBe('Messages');
+    expect(session.latest?.label).toBe('Opened Messages');
+    expect(JSON.stringify(session)).not.toContain('[object Object]');
   });
 
   // Mutant: treating age as fresh whenever it is recorded.
