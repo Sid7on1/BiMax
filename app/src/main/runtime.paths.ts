@@ -62,8 +62,20 @@ export const NATIVE_SEMANTIC_ROUTING_ENV = 'BIMAX_CU_NATIVE_SEMANTIC_ROUTING_ENA
 // process boundary so Terminal remains provider/model configurable, while every engine route the
 // app can create (work, quick, vision, workers, and recovery) sees the same explicit model.
 export const DESKTOP_STRICT_MODEL_ENV = 'BIMAX_DESKTOP_STRICT_MODEL';
+/** Product identity shown by the Mac app; wire ids differ across providers. */
 export const DESKTOP_STRICT_MODEL = 'stepfun-ai/step-3.7-flash';
+export const DESKTOP_STRICT_MODEL_BY_PROVIDER: Readonly<Record<string, string>> = {
+  nvidia: DESKTOP_STRICT_MODEL,
+  openrouter: 'stepfun/step-3.7-flash',
+  stepfun: 'step-3.7-flash',
+};
 export const DESKTOP_FIRST_TOKEN_TIMEOUT_MS = '45000';
+
+/** Resolve the exact Step 3.7 Flash id accepted by the selected provider. */
+export function desktopStrictModelForProvider(provider: string | undefined): string {
+  return DESKTOP_STRICT_MODEL_BY_PROVIDER[String(provider || '').trim().toLowerCase()]
+    || DESKTOP_STRICT_MODEL;
+}
 
 export interface RuntimeLayout {
   /** app.isPackaged — the only thing that distinguishes a shipped app from a dev shell. */
@@ -262,16 +274,21 @@ export function buildEngineChildEnv(input: ChildEnvInput): Record<string, string
     || input.extraEnv[NATIVE_ROUTING_ENV] === '1';
   const requestedSemanticRouting = input.parentEnv[NATIVE_SEMANTIC_ROUTING_ENV] === '1'
     || input.extraEnv[NATIVE_SEMANTIC_ROUTING_ENV] === '1';
+  const provider = input.extraEnv.BIMAX_DESKTOP_PROVIDER
+    || input.parentEnv.BIMAX_DESKTOP_PROVIDER
+    || input.extraEnv.BGW_PROVIDER
+    || input.parentEnv.BGW_PROVIDER;
+  const strictModel = desktopStrictModelForProvider(provider);
   const env: Record<string, string | undefined> = {
     ...input.parentEnv,
     ...input.extraEnv,
     PATH: input.path,
     BIMAX_HEADLESS: '1',
     BIMAX_CWD: input.projectDir,
-    [DESKTOP_STRICT_MODEL_ENV]: DESKTOP_STRICT_MODEL,
-    BGW_MODEL: DESKTOP_STRICT_MODEL,
-    BGW_LITE_MODEL: DESKTOP_STRICT_MODEL,
-    BGW_VISION_MODEL: DESKTOP_STRICT_MODEL,
+    [DESKTOP_STRICT_MODEL_ENV]: strictModel,
+    BGW_MODEL: strictModel,
+    BGW_LITE_MODEL: strictModel,
+    BGW_VISION_MODEL: strictModel,
     // A provider can be slow, but a shipped app may not show an unbounded Working spinner. One
     // strict attempt gets a generous 45s to produce headers/first payload, then fails visibly.
     BGW_FIRST_CHUNK_TIMEOUT_MS: DESKTOP_FIRST_TOKEN_TIMEOUT_MS,

@@ -43,7 +43,7 @@ export const MODEL_CATALOG: ModelEntry[] = [
   { label: 'DeepSeek V4 Pro', value: 'deepseek-ai/deepseek-v4-pro', desc: '1M context, terminal + coding — very slow NIM cold-start; opt in', tier: 'coding', avoidAutoSelect: true },
   { label: 'GPT-OSS 120B', value: 'openai/gpt-oss-120b', desc: 'Timed out on all four 60s probes (2026-07-29); opt in only', tier: 'coding', avoidAutoSelect: true },
   { label: 'MiniMax M3', value: 'minimaxai/minimax-m3', desc: 'Strong coder — slow to start', tier: 'coding', avoidAutoSelect: true },
-  { label: 'Step 3.7 Flash', value: 'stepfun-ai/step-3.7-flash', desc: 'Multimodal reasoner — listed on NIM but timed out (180s, no headers) on 2026-07-27', tier: 'coding', avoidAutoSelect: true },
+  { label: 'Step 3.7 Flash', value: 'stepfun-ai/step-3.7-flash', desc: 'Exact Mac model family — NVIDIA route retired 2026-08-28; use StepFun or OpenRouter', tier: 'coding', avoidAutoSelect: true },
 
   // — Vision: sees screenshots and images. Probed 2026-07-19 on a real image; only VLMs that
   //   ANSWERED correctly are listed. The default work model already sees, so this slot is a
@@ -53,7 +53,7 @@ export const MODEL_CATALOG: ModelEntry[] = [
   { label: 'Nemotron 3 Nano Omni', value: 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning', desc: 'Chose a wrong click for both selected-contact and recipient-trap frames', tier: 'vision', avoidAutoSelect: true },
   { label: 'Mistral Small 4', value: 'mistralai/mistral-small-4-119b-2603', desc: 'Previously fast + multimodal; not advertised to this NIM account on 2026-07-29', tier: 'vision', avoidAutoSelect: true },
   // 400s on tools+image requests makes it unsuitable for iterative visual work.
-  { label: 'Step 3.7 Flash', value: 'stepfun-ai/step-3.7-flash', desc: '262K multimodal context — 400s on tools+image, and timed out (180s) on plain text (2026-07-27)', tier: 'vision', avoidAutoSelect: true },
+  { label: 'Step 3.7 Flash', value: 'stepfun-ai/step-3.7-flash', desc: 'Exact Mac multimodal model family — NVIDIA route retired; use StepFun or OpenRouter', tier: 'vision', avoidAutoSelect: true },
   // Listed by /models yet every completion 404s — the exact trap `unservable` exists for. Kept in
   // the picker (other keys do serve it) but barred from automatic selection.
   { label: 'Kimi K2.6', value: 'moonshotai/kimi-k2.6', desc: 'Multimodal — listed on NIM but 404s on completion (2026-07-27)', tier: 'vision', avoidAutoSelect: true },
@@ -62,7 +62,7 @@ export const MODEL_CATALOG: ModelEntry[] = [
   // — Quick: instant small replies (never a thinking model) — (tier 'lite' kept as the internal key)
   { label: 'Llama 3.1 8B', value: 'meta/llama-3.1-8b-instruct', desc: 'Default — exact reply 0.61s, valid tool call 0.56s live', tier: 'lite' },
   { label: 'Qwen 3.5 122B', value: 'qwen/qwen3.5-122b-a10b', desc: 'Previously sub-second; not advertised to this NIM account on 2026-07-29', tier: 'lite', avoidAutoSelect: true },
-  { label: 'Step 3.7 Flash', value: 'stepfun-ai/step-3.7-flash', desc: 'Reasoning-heavy — timed out (180s, no headers) on 2026-07-27', tier: 'lite', avoidAutoSelect: true },
+  { label: 'Step 3.7 Flash', value: 'stepfun-ai/step-3.7-flash', desc: 'Exact Mac model family — NVIDIA route retired 2026-08-28; use StepFun or OpenRouter', tier: 'lite', avoidAutoSelect: true },
   { label: 'Mistral Small 4', value: 'mistralai/mistral-small-4-119b-2603', desc: 'Previously fast; not advertised to this NIM account on 2026-07-29', tier: 'lite', avoidAutoSelect: true },
   { label: 'Sarvam M', value: 'sarvamai/sarvam-m', desc: 'Multilingual alternative', tier: 'lite' },
 

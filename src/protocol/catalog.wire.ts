@@ -34,6 +34,7 @@ export interface CatalogDeps {
 
 const PROVIDER_LABEL: Record<string, string> = {
   nvidia: 'NVIDIA NIM',
+  stepfun: 'StepFun',
   openai: 'OpenAI',
   anthropic: 'Anthropic',
   openrouter: 'OpenRouter',
@@ -157,4 +158,26 @@ export async function buildCatalog(deps: CatalogDeps, id: number, refresh = fals
     models: buildModelEntries(deps, servedIds, active),
     ...(error ? { error } : {}),
   };
+}
+
+/** Keep the Mac product on one model family while making a retired provider route actionable. */
+export function constrainCatalogToStrictModel(
+  result: CatalogResultMsg,
+  strictModel: string,
+): CatalogResultMsg {
+  if (!strictModel) return result;
+  // The Mac app is an exact-model product, not a generic provider picker. Only these two live
+  // provider namespaces serve Step 3.7 Flash now. Keep an incompatible active provider visible so
+  // the user can understand/migrate the current state, but never advertise unrelated providers as
+  // viable routes for the strict model.
+  const compatibleProviders = new Set(['stepfun', 'openrouter']);
+  const providers = result.providers.filter(provider =>
+    compatibleProviders.has(provider.name) || provider.active);
+  const models = result.models.filter(model => model.id === strictModel);
+  const active = providers.find(provider => provider.active);
+  const provider = active?.label || active?.name || 'the selected provider';
+  const served = models.some(model => model.served);
+  const error = result.error || (served ? undefined
+    : `Step 3.7 Flash is not currently served by ${provider}. Open Bimax Settings → Models → Providers and add a StepFun or OpenRouter API key.`);
+  return { ...result, providers, models, ...(error ? { error } : {}) };
 }

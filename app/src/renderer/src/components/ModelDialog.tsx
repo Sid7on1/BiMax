@@ -613,12 +613,9 @@ function ProviderPane({
   }, [onApply]);
 
   const fallback: ProviderEntry[] = [
-    ['nvidia', 'NVIDIA NIM', 'NVIDIA_API_KEY'],
-    ['openai', 'OpenAI', 'OPENAI_API_KEY'],
-    ['anthropic', 'Anthropic', 'ANTHROPIC_API_KEY'],
+    ['stepfun', 'StepFun', 'STEPFUN_API_KEY'],
     ['openrouter', 'OpenRouter', 'OPENROUTER_API_KEY'],
-    ['deepseek', 'DeepSeek', 'DEEPSEEK_API_KEY'],
-    ['google', 'Google AI', 'GOOGLE_API_KEY'],
+    ['nvidia', 'NVIDIA NIM · Step 3.7 retired', 'NVIDIA_API_KEY'],
   ].map(([name, label, apiKeyEnv]) => ({
     name, label, apiKeyEnv, baseURL: '', active: false, hasKey: false, keyCount: 0,
   }));
@@ -677,6 +674,7 @@ function ProviderRow({
   onUse: () => void;
   onSaveKey: () => void;
 }): React.ReactElement {
+  const servesStep37 = provider.name === 'stepfun' || provider.name === 'openrouter';
   return (
     <div className={cn('rounded-lg border transition-colors', provider.active ? 'border-ember/60 bg-ember/[0.06]' : 'border-line')}>
       <div className="flex items-center gap-3 px-3 py-2.5">
@@ -684,6 +682,7 @@ function ProviderRow({
           <span className="flex items-center gap-1.5 text-[12.5px] font-medium text-ink">
             {provider.label}
             {provider.active && <Pill tone="ember">active</Pill>}
+            {!servesStep37 && <Pill tone="amber">not available</Pill>}
           </span>
           <span className="truncate text-[10.5px] text-faint">
             {provider.hasKey
@@ -691,13 +690,13 @@ function ProviderRow({
               : `no key · set ${provider.apiKeyEnv}`}
           </span>
         </span>
-        <button
-          onClick={onExpand}
-          className="shrink-0 cursor-pointer rounded-lg border border-line px-2 py-1.5 text-[11px] text-dim transition-colors hover:border-ember/50 hover:text-ink"
-        >
-          {provider.hasKey ? <KeyRound size={11} /> : <Plus size={11} />}
-        </button>
-        {!provider.active && (
+        {servesStep37 && <button
+            onClick={onExpand}
+            className="shrink-0 cursor-pointer rounded-lg border border-line px-2 py-1.5 text-[11px] text-dim transition-colors hover:border-ember/50 hover:text-ink"
+          >
+            {provider.hasKey ? <KeyRound size={11} /> : <Plus size={11} />}
+          </button>}
+        {!provider.active && provider.hasKey && servesStep37 && (
           <button
             onClick={onUse}
             disabled={busy}

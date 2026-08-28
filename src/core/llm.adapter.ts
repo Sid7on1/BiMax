@@ -65,6 +65,46 @@ export function normalizeNvidiaMessages(messages: Message[]): Message[] {
   return out;
 }
 
+/**
+ * OpenAI's SDK expects JSON errors to be shaped as `{ error: { message } }`. NVIDIA's API gateway
+ * returns RFC 7807 problem documents instead (`{ title, status, detail }`). The SDK discards that
+ * top-level document and constructs `410 status code (no body)`, hiding the one field that explains
+ * the failure. Normalize only failed JSON/problem responses, keep the body bounded, and leave every
+ * successful/unknown response byte-for-byte untouched.
+ */
+export async function normalizeProviderErrorResponse(response: Response): Promise<Response> {
+  if (response.ok) return response;
+  const contentType = String(response.headers.get('content-type') || '').toLowerCase();
+  if (!contentType.includes('json') && !contentType.includes('problem')) return response;
+
+  let text = '';
+  try { text = await response.clone().text(); } catch { return response; }
+  if (!text || text.length > 16_384) return response;
+
+  let problem: any;
+  try { problem = JSON.parse(text); } catch { return response; }
+  if (!problem || typeof problem !== 'object' || problem.error) return response;
+  const detail = typeof problem.detail === 'string' ? problem.detail.trim() : '';
+  const title = typeof problem.title === 'string' ? problem.title.trim() : '';
+  const message = detail || title;
+  if (!message) return response;
+
+  const headers = new Headers(response.headers);
+  headers.set('content-type', 'application/json');
+  headers.delete('content-length');
+  return new Response(JSON.stringify({
+    error: {
+      message,
+      ...(title ? { type: title.toLowerCase().replace(/\s+/g, '_') } : {}),
+      ...(response.status === 410 ? { code: 'model_gone' } : {}),
+    },
+  }), {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 /** Pure request router, exported so image-slot behavior stays regression-testable. */
 export function selectRequestModel(
   primary: string,
@@ -215,7 +255,9 @@ export class LlmAdapter implements LLMProvider {
       // The SDK's built-in retry re-sends to the SAME key — under NIM's per-key server-side
       // queueing that stacked up to 4×timeout (8 minutes) of invisible dead air per call,
       // which is exactly the "sub-agents are hell of slow" hang.
-      client = new OpenAI({ apiKey, baseURL, maxRetries: 0 });
+      const providerFetch: typeof fetch = async (...args) =>
+        normalizeProviderErrorResponse(await fetch(...args));
+      client = new OpenAI({ apiKey, baseURL, maxRetries: 0, fetch: providerFetch });
       this.clientCache.set(cacheKey, client);
     }
     return client;
@@ -478,12 +520,22 @@ export class LlmAdapter implements LLMProvider {
   // isn't in the active provider's namespace". Rewrites e.message in place when it matches;
   // no-op for every other error, so existing classification/retry behavior is untouched.
   private enrichModelNotFound(e: any, kr: KeyResult, lite?: boolean, attemptedModel?: string): void {
-    if (![400, 404].includes(e?.status ?? 0)) return;
+    if (![400, 404, 410].includes(e?.status ?? 0)) return;
     const raw = String(e?.message || '');
-    if ((e?.status ?? 0) !== 404 && e?.code !== 'model_not_found' &&
-        !(/model/i.test(raw) && /not.{0,4}found|not.{0,4}a.{0,4}valid|does not exist|invalid|unknown|no such|unavailable/i.test(raw))) return;
     const model = attemptedModel || this.pickModel(kr, lite);
     const provider = kr.provider || 'the active provider';
+    if ((e?.status ?? 0) === 410) {
+      this.markUnservable(model);
+      const strictStep37 = !!this.strictModel && /step-3\.7-flash/i.test(model);
+      const recovery = strictStep37
+        ? 'To keep Step 3.7 Flash, open Bimax Settings → Models → Providers and add a StepFun or OpenRouter key.'
+        : `Switch to a provider that still serves this model.`;
+      e.message = `Model "${model}" is not served by provider "${provider}" (HTTP 410 Gone). ${recovery} ` +
+        `(API said: ${raw.trim() || 'the model endpoint is gone'})`;
+      return;
+    }
+    if ((e?.status ?? 0) !== 404 && e?.code !== 'model_not_found' &&
+        !(/model/i.test(raw) && /not.{0,4}found|not.{0,4}a.{0,4}valid|does not exist|invalid|unknown|no such|unavailable/i.test(raw))) return;
     // The provider just told us this id is not real. Record it so /models membership can no longer
     // vouch for it: NVIDIA lists ids it then 404s, and trusting the listing is what let a healed
     // config stay permanently broken.

@@ -190,7 +190,10 @@ export class HeadlessSession {
       } else if (/No API keys configured/i.test(detail)) {
         // First-run / dismissed onboarding: a keyless turn must say so in the transcript, not die
         // into the hidden log view. Name the exact next step.
-        cliEvents.emit('message', this.msg('system', '⚠ No API key configured — run /keys to add one (or set NVIDIA_API_KEY in ~/.breakglass/.env).', 'error'));
+        const strictStep37 = /step-3\.7-flash/i.test(String(process.env.BIMAX_DESKTOP_STRICT_MODEL || ''));
+        cliEvents.emit('message', this.msg('system', strictStep37
+          ? '⚠ Step 3.7 Flash needs a provider key. Open Bimax Settings → Models → Providers and add a StepFun or OpenRouter API key.'
+          : '⚠ No API key configured — run /keys to add one for the selected provider.', 'error'));
       } else if (/rejected the API key|unauthorized/i.test(detail)) {
         // Auth-dead pool (expired key): the adapter fails fast now; make the failure actionable.
         cliEvents.emit('message', this.msg('system', `⚠ ${detail}`, 'error'));

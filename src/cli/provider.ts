@@ -9,6 +9,7 @@ export interface LlmProvider {
 
 const PROVIDERS: LlmProvider[] = [
   { name: 'nvidia', baseURL: 'https://integrate.api.nvidia.com/v1', apiKeyEnv: 'NVIDIA_API_KEY', defaultModel: 'mistralai/mistral-small-4-119b-2603' },
+  { name: 'stepfun', baseURL: 'https://api.stepfun.ai/v1', apiKeyEnv: 'STEPFUN_API_KEY', defaultModel: 'step-3.7-flash' },
   { name: 'openai', baseURL: 'https://api.openai.com/v1', apiKeyEnv: 'OPENAI_API_KEY', defaultModel: 'gpt-4o' },
   { name: 'anthropic', baseURL: 'https://api.anthropic.com/v1', apiKeyEnv: 'ANTHROPIC_API_KEY', defaultModel: 'claude-3-opus-20240229' },
   { name: 'openrouter', baseURL: 'https://openrouter.ai/api/v1', apiKeyEnv: 'OPENROUTER_API_KEY', defaultModel: 'openai/gpt-4o' },
@@ -105,6 +106,12 @@ function keysForProvider(provider: LlmProvider): KeyConfig[] {
 export function buildKeyPool(): KeyConfig[] {
   const active = keysForProvider(getCurrentProvider());
   if (active.length > 0) return active;
+  // Bimax for Mac pins one exact model family and maps its wire id to the selected provider. If
+  // that provider has no key, borrowing a key from another namespace sends (for example)
+  // `step-3.7-flash` to NVIDIA or `stepfun-ai/step-3.7-flash` to OpenRouter. That does not recover
+  // the turn; it leaks the request to a provider the user did not select and produces a misleading
+  // model-not-found error. Desktop therefore fails closed until the selected provider has a key.
+  if (String(process.env.BIMAX_DESKTOP_STRICT_MODEL || '').trim()) return [];
   for (const provider of PROVIDERS) {
     const keys = keysForProvider(provider);
     if (keys.length > 0) return keys;

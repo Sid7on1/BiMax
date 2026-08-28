@@ -32,4 +32,17 @@ describe('provider credential startup', () => {
     expect(isEncryptionAvailable).not.toHaveBeenCalled();
     expect(decryptString).not.toHaveBeenCalled();
   });
+
+  test('offers StepFun as a Keychain-backed provider', () => {
+    (existsSync as jest.Mock).mockReturnValue(false);
+    let isolated!: typeof import('../provider.credentials');
+    jest.isolateModules(() => { isolated = require('../provider.credentials'); });
+
+    expect(isolated.providerCredentialStatuses()).toContainEqual({
+      name: 'stepfun',
+      hasKey: false,
+      storage: 'none',
+      active: false,
+    });
+  });
 });

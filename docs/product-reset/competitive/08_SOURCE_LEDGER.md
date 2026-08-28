@@ -238,3 +238,21 @@ gate, separate protocol-fixture latency buckets, authenticated pre-observation b
 killed scope-widening mutants, and one usable bidi benign control. These are local implementation
 records derived from the external research constraints above; they add no new external fact and do
 not establish live-app performance, broad injection robustness, Product-ready status, or a Win.
+
+## Step 3.7 Flash provider continuity
+
+Accessed 2026-08-28 after the installed Bimax app returned HTTP 410 for a greeting. The live,
+authenticated API response is the serving-authority evidence; provider marketing/catalog pages are
+discovery evidence only and must not override a failed request.
+
+| Source | Current evidence | Bimax consequence |
+|---|---|---|
+| [NVIDIA Step 3.7 Flash build page](https://build.nvidia.com/stepfun-ai/step-3.7-flash/build) plus a secret-safe authenticated request to `integrate.api.nvidia.com/v1` | The public page still described `stepfun-ai/step-3.7-flash`, while the live chat endpoint returned RFC 7807 HTTP 410 stating that the model reached end of life on 2026-08-28T08:00:00Z; NVIDIA's authenticated model list contained no StepFun id | Treat the NVIDIA route as retired. Preserve the RFC 7807 `detail` field instead of allowing the OpenAI-compatible client to reduce it to `410 status code (no body)` |
+| [OpenRouter: StepFun Step 3.7 Flash](https://openrouter.ai/stepfun/step-3.7-flash) | Current provider page and API slug are `stepfun/step-3.7-flash` | Map the Mac app's exact model family to the OpenRouter wire id only when OpenRouter is selected and keyed |
+| [StepFun quickstart](https://platform.stepfun.ai/docs/en/quickstart/overview) and [chat API](https://platform.stepfun.ai/docs/en/api-reference/chat/chat-completion-create) | The direct OpenAI-compatible base URL is `https://api.stepfun.ai/v1`; the direct model id is `step-3.7-flash` | Add a first-class StepFun credential/provider route and keep the key in the existing Electron-main Keychain boundary |
+
+Local evidence: three bounded live NVIDIA request shapes returned the same 410 end-of-life problem,
+and an authenticated `/models` query returned no StepFun model. No key or response payload outside
+the model/status/detail fields was preserved. OpenRouter and direct StepFun availability remain
+unverified from this machine until the user supplies one of those provider keys; this is not a live
+successful-answer claim, a Computer Use completion, Product-ready status, or a competitive Win.

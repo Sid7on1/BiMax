@@ -13,6 +13,7 @@ import path from 'node:path';
 
 const PROVIDER_ENV: Record<string, string> = {
   nvidia: 'NVIDIA_API_KEY',
+  stepfun: 'STEPFUN_API_KEY',
   openai: 'OPENAI_API_KEY',
   anthropic: 'ANTHROPIC_API_KEY',
   openrouter: 'OPENROUTER_API_KEY',

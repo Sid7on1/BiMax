@@ -7,11 +7,12 @@ import dotenv from 'dotenv';
 const envSchema = z.object({
   OPENAI_API_KEY: z.string().min(20, "API Key must be at least 20 chars long").optional(),
   OPENAI_API_KEYS: z.string().optional(),
+  STEPFUN_API_KEY: z.string().min(8, "StepFun API key must be at least 8 chars long").optional(),
   GITHUB_TOKEN: z.string().optional(),
   DATABASE_URL: z.string().url("DATABASE_URL must be a valid connection string URL").optional(),
   AGENT_PORT: z.coerce.number().min(1).max(65535).optional()
-}).refine(data => data.OPENAI_API_KEY || data.OPENAI_API_KEYS || process.env.NVIDIA_API_KEY, {
-  message: "Must provide either OPENAI_API_KEY, OPENAI_API_KEYS, or NVIDIA_API_KEY",
+}).refine(data => data.OPENAI_API_KEY || data.OPENAI_API_KEYS || data.STEPFUN_API_KEY || process.env.NVIDIA_API_KEY || process.env.OPENROUTER_API_KEY, {
+  message: "Must provide an API key for the selected model provider",
   path: ["OPENAI_API_KEY"]
 });
 

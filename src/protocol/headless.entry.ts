@@ -4,7 +4,7 @@ import { buildPersonas } from '../cli/personas/factory';
 import { HeadlessSession } from './headless.session';
 import { startStdioHost } from './stdio.host';
 import { createConfigWire } from './config.wire';
-import { buildCatalog, type CatalogDeps } from './catalog.wire';
+import { buildCatalog, constrainCatalogToStrictModel, type CatalogDeps } from './catalog.wire';
 import { getProviders, getProvider, getCurrentProvider, setProvider } from '../cli/provider';
 import { saveApiKeyToEnv } from '../cli/env.loader';
 import { MODEL_CATALOG } from '../cli/models';
@@ -266,8 +266,7 @@ export async function startHeadless(container: any, config: any): Promise<void> 
   const strictDesktopModel = String(process.env.BIMAX_DESKTOP_STRICT_MODEL || '').trim();
   const buildVisibleCatalog = async (refresh: boolean) => {
     const result = await buildCatalog(catalogDeps, 0, refresh);
-    if (strictDesktopModel) result.models = result.models.filter(model => model.id === strictDesktopModel);
-    return result;
+    return constrainCatalogToStrictModel(result, strictDesktopModel);
   };
 
   const dispose = startStdioHost({

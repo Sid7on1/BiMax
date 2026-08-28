@@ -20,6 +20,7 @@ import {
   NATIVE_ROUTING_ENV, NATIVE_SEMANTIC_ROUTING_ENV,
   TRUSTED_PLAN_REQUIRED_ENV, TRUSTED_PLAN_SECRET_ENV,
   DESKTOP_STRICT_MODEL_ENV, DESKTOP_STRICT_MODEL, DESKTOP_FIRST_TOKEN_TIMEOUT_MS,
+  DESKTOP_STRICT_MODEL_BY_PROVIDER, desktopStrictModelForProvider,
   EngineArtifactError, stagedEnginePath, type RuntimeLayout,
 } from '../main/runtime.paths';
 import { EngineSupervisor } from '../main/supervisor/supervisor';
@@ -371,6 +372,24 @@ describe('the engine child receives one generic local-provider contract', () => 
     expect(env.BGW_VISION_MODEL).toBe(DESKTOP_STRICT_MODEL);
     expect(env.BGW_FIRST_CHUNK_TIMEOUT_MS).toBe(DESKTOP_FIRST_TOKEN_TIMEOUT_MS);
     expect(env.BIMAX_FALLBACK_MODEL).toBeUndefined();
+  });
+
+  test.each([
+    ['openrouter', DESKTOP_STRICT_MODEL_BY_PROVIDER.openrouter],
+    ['stepfun', DESKTOP_STRICT_MODEL_BY_PROVIDER.stepfun],
+  ])('maps the Step 3.7 Flash wire id for %s across every model slot', (provider, model) => {
+    const env = buildEngineChildEnv({
+      parentEnv: {},
+      extraEnv: { BIMAX_DESKTOP_PROVIDER: provider },
+      path: '/usr/bin',
+      projectDir: '/proj',
+      resolved: {},
+    });
+    expect(desktopStrictModelForProvider(provider)).toBe(model);
+    expect(env[DESKTOP_STRICT_MODEL_ENV]).toBe(model);
+    expect(env.BGW_MODEL).toBe(model);
+    expect(env.BGW_LITE_MODEL).toBe(model);
+    expect(env.BGW_VISION_MODEL).toBe(model);
   });
 
   test('app package identity never leaks as an engine routing flag', () => {
