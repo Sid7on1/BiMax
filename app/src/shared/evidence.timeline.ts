@@ -1,8 +1,8 @@
-// The Desktop Trust Center's view of the causal evidence timeline — Phase 8, owner section 28.
+// Desktop's view of the causal evidence timeline — Phase 8, owner section 28.
 //
 // This is the renderer-facing half of the shared vocabulary in `evidence.gen.ts` (generated from the
 // engine's `src/evidence/schema.ts`; regenerate with `npm run gen:app-protocol`). It is a pure view
-// model: it takes evidence records and produces rows the Trust Center renders, and it holds the line
+// model: it takes evidence records and produces rows the evidence panel renders, and it holds the line
 // on the two things 08_ACCEPTANCE_GATES.md says the section 28 surface must never do.
 //
 //   1. "an evidence gap, dropped event or unavailable sensor cannot produce an unqualified safe
@@ -158,7 +158,7 @@ export function buildEvidenceTimeline(records: EvidenceRecord[], evictions: { re
 }
 
 /**
- * The one-line header the Trust Center shows above the timeline.
+ * The one-line header shown above the timeline.
  *
  * Silence has to be earned. A task with no findings and complete measured evidence says so; a task
  * with no findings whose evidence was partial says *that* instead, because those are different
@@ -198,7 +198,7 @@ export interface RetentionControl {
 }
 
 /**
- * The delete controls the Trust Center offers, with their exact effect precomputed. §2.4 requires
+ * The delete controls offered for the timeline, with their exact effect precomputed. §2.4 requires
  * "disable, delete, revoke, and diagnostic controls" and a stated retention — a control whose blast
  * radius the user learns about afterwards does not meet that bar.
  */

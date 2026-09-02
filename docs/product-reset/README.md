@@ -1,9 +1,23 @@
-# Bimax two-product reset
+# Bimax product reset
+
+## Current direction — code-only agentic IDE (2026-09-02)
+
+The owner has superseded the app-owned Computer Use plan. Bimax Terminal and Bimax Desktop now
+expose one coding-agent boundary: project files, create/edit/delete, shell, tests, git, review,
+plans, code search, MCP, browser research, subagents, checkpoints, and task receipts.
+
+Computer Use is disabled in both products. Desktop does not register `bimax-mac`/`mac_control`,
+start takeover or focus brokers, request Accessibility, Screen Recording, or Microphone, or package
+the XPC service, bridge, helper, preview, or Mac capability provider. Historical CU records remain
+evidence, not active requirements. See `30_CODE_ONLY_AGENTIC_IDE_RESET_RECORD.md`.
 
 Status: research and migration design, 2026-08-08. This folder is the source of truth for the
 Mac-only product split. Product work should link its issue or pull request to one of the gates in
 `08_ACCEPTANCE_GATES.md`; new architectural claims should be added to the source ledger before they
 become implementation requirements.
+
+The material below records the superseded Mac automation direction. Use it as historical evidence,
+not as authorization to restore a runtime capability.
 
 The repository-level `AGENTS.md` makes consultation of this research mandatory before agents plan,
 review, or change Bimax. A change that ignores that rule is incomplete even when local tests pass.
@@ -112,6 +126,8 @@ engine artifact plus its protocol schema; the Mac app pins and bundles one verif
 - `29_CU_PHASE7_OPTIONAL_LOCAL_AI_RECORD.md` — optional Foundation Models/FastVLM capability and
   evaluation policy, non-authorizing rehearsal, and fine-tune dataset admission; models and device
   measurements remain Research Target.
+- `30_CODE_ONLY_AGENTIC_IDE_RESET_RECORD.md` — the current owner decision, enforced code-only
+  boundary, local verification, and remaining clean-machine/package release proof.
 - `vision/` — the owner's complete Bimax Mac Buddy north-star vision, preserved verbatim and required
   reading for Mac app, adaptive-runtime, performance, environment-intelligence, CU, and Trust work.
 - `ownership-manifest.json` — machine-readable starting ownership for the extraction tooling.

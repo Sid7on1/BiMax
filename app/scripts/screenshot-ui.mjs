@@ -36,12 +36,22 @@ const server = createServer((req, res) => {
 await new Promise((r) => server.listen(0, '127.0.0.1', r));
 const base = `http://127.0.0.1:${server.address().port}`;
 
+// puppeteer 22+ returns a Promise from executablePath(), and 23 removed `headless: 'new'`.
+// Passing the unawaited promise through produced "Browser was not found at the configured
+// executablePath ([object Promise])" — a launch failure that reads like a missing install.
+// Omitting executablePath entirely lets puppeteer resolve its own bundled browser, which is what
+// this script always wanted; the env var stays as the explicit override.
+const uiChrome = process.env.BIMAX_UI_CHROME;
 const browser = await puppeteer.launch({
-  executablePath: process.env.BIMAX_UI_CHROME || puppeteer.executablePath(),
-  headless: 'new',
+  ...(uiChrome ? { executablePath: uiChrome } : {}),
+  headless: true,
   args: ['--no-sandbox', '--hide-scrollbars'],
 });
 const page = await browser.newPage();
+// A render crash still produces a screenshot — of the error card. Without this, the suite looks
+// like it passed and every shot silently becomes a picture of a caught exception.
+page.on('pageerror', (e) => console.error('[pageerror]', e.message));
+page.on('console', (m) => { if (m.type() === 'error') console.error('[console.error]', m.text().slice(0, 300)); });
 await page.setViewport({ width: 1440, height: 860, deviceScaleFactor: 2 });
 
 await page.evaluateOnNewDocument(() => {
@@ -55,9 +65,9 @@ await page.evaluateOnNewDocument(() => {
     { value: '/ledger', label: '/ledger', desc: 'Hash-chained event ledger', kind: 'command' },
   ];
   const FAKE_CONFIG = {
-    model: 'stepfun-ai/step-3.7-flash', liteModel: 'stepfun-ai/step-3.7-flash', fallbackModel: '', subagentModel: '',
-    temperature: 0.7, topP: 0.95, maxTokens: 4096, reasoningEffort: 'high', contextMode: 'smart',
-    contextWindowTokens: 128000, parallelToolCalls: true, maxToolIterations: 50, maxSubAgents: 5,
+    model: 'moonshotai/kimi-k3', liteModel: 'moonshotai/kimi-k3', fallbackModel: '', subagentModel: '',
+    temperature: 1, topP: 0.95, maxTokens: 4096, reasoningEffort: 'low', contextMode: 'smart',
+    contextWindowTokens: 1048576, parallelToolCalls: false, maxToolIterations: 50, maxSubAgents: 5,
     notificationBell: true, verbose: false, reducedMotion: false, autoIndex: true,
     gitAutoCommit: false, autoVerify: true, sandboxBash: false, selfCritic: true,
     adversarialVerify: false, diffApproval: true, blastGate: false, showMapPanel: true, showTokenMeter: true,
@@ -97,6 +107,14 @@ await page.evaluateOnNewDocument(() => {
       return dir;
     },
     rendererReady: () => {},
+    setAppearance: () => {},
+    // useWindowChrome subscribes on mount; without this the whole renderer throws
+    // "Cannot read properties of undefined (reading 'onState')" and every screenshot below becomes
+    // a picture of the error card.
+    windowChrome: {
+      get: async () => ({ fullScreen: false, zoomed: false }),
+      onState: () => () => {},
+    },
     supervisor: {
       getStatus: async () => ({
         phase: 'ready', enteredAt: Date.now(), attempt: 1, generation: 1,
@@ -129,6 +147,14 @@ await page.evaluateOnNewDocument(() => {
           { path: 'src/legacy/poll.ts', status: 'D', staged: true, insertions: 0, deletions: 41 },
         ],
       }),
+      remote: async () => ({
+        isRepo: true, branch: 'main', remoteUrl: 'https://github.com/example/bimax',
+        remoteName: 'origin', slug: 'example/bimax', hasUpstream: true, upstream: 'origin/main',
+        ahead: 2, behind: 0, dirty: 4, lastFetch: '',
+      }),
+      fetch: async () => ({ ok: true, output: 'Already up to date.' }),
+      pull: async () => ({ ok: true, output: 'Already up to date.' }),
+      push: async () => ({ ok: true, output: 'Everything up-to-date' }),
       diff: async () => [
         'diff --git a/src/api/client.ts b/src/api/client.ts',
         'index 3f1c2aa..9e4d7b1 100644',
@@ -156,10 +182,29 @@ await page.evaluateOnNewDocument(() => {
       ],
     },
     files: {
+      // Deliberately unsorted and mixed: the panel is responsible for putting directories first,
+      // so a stub that arrives pre-sorted would hide a regression in exactly that.
+      search: async (q) => {
+        const all = [
+          { rel: 'src/api/client.ts', name: 'client.ts', dir: false },
+          { rel: 'src/api/retry.ts', name: 'retry.ts', dir: false },
+          { rel: 'src/protocol.ts', name: 'protocol.ts', dir: false },
+          { rel: 'docs/README.md', name: 'README.md', dir: false },
+          { rel: 'src/api', name: 'api', dir: true },
+        ];
+        const hits = all.filter((h) => h.name.toLowerCase().includes(String(q).toLowerCase()));
+        return { hits, truncated: false };
+      },
       list: async (rel) => (rel === ''
         ? [
-          { name: 'src', dir: true }, { name: 'tui', dir: true }, { name: 'docs', dir: true },
-          { name: 'package.json', dir: false }, { name: 'README.md', dir: false },
+          // Dot-directories must be hidden by default; dotFILES must stay visible.
+          { name: '.bimax', dir: true }, { name: '.breakglass', dir: true },
+          { name: '.bimax-toolcheck', dir: true },
+          { name: 'README.md', dir: false }, { name: 'src', dir: true },
+          { name: '.gitignore', dir: false }, { name: 'tui', dir: true },
+          { name: 'package.json', dir: false }, { name: 'docs', dir: true },
+          { name: 'build.sh', dir: false }, { name: 'node_modules', dir: true },
+          { name: 'config.yml', dir: false }, { name: 'logo.png', dir: false },
         ]
         : rel === 'src'
           ? [{ name: 'api', dir: true }, { name: 'index.ts', dir: false }, { name: 'protocol.ts', dir: false }]
@@ -249,7 +294,16 @@ const clickButton = async ({ title, text: buttonText }) => {
     button?.click();
     return Boolean(button);
   }, { title, text: buttonText });
-  if (!clicked) throw new Error(`Missing button: ${title || buttonText}`);
+  // BIMAX_UI_LENIENT lets a partial run continue past a control that a UI change removed, so a
+  // single stale step cannot block screenshotting the surfaces further down. It is opt-in: the
+  // default still fails loudly, because a silently-skipped step is a silently-unverified screenshot.
+  if (!clicked) {
+    if (process.env.BIMAX_UI_LENIENT === '1') {
+      console.warn(`[skip] missing button: ${title || buttonText}`);
+      return;
+    }
+    throw new Error(`Missing button: ${title || buttonText}`);
+  }
 };
 const assertVisible = async (selector, description) => {
   const visible = await page.$eval(selector, (node) => {
@@ -268,7 +322,7 @@ await sleep(200);
 
 await feed({ t: 'ready', protocol: 3 });
 await feed({ t: 'event', name: 'ui_snapshot', args: [{
-  models: { coding: 'minimaxai/minimax-m3', lite: 'step-3.7-flash' },
+  models: { coding: 'moonshotai/kimi-k3', lite: 'mistralai/mistral-7b-instruct-v0.3' },
   goalCount: 2,
   mind: {
     weakSpots: 2, driveDeviations: 1, habits: 3,
@@ -415,7 +469,12 @@ await clickButton({ text: 'Work automatically' });
 await sleep(250);
 const hasAskPreset = await page.evaluate(() => [...document.querySelectorAll('button')]
   .some((button) => button.textContent.includes('Ask before changes')));
-if (!hasAskPreset) throw new Error('Permission preset menu did not open');
+if (!hasAskPreset) {
+  // Another surface removed with the permissions UI. Same rule as clickButton: loud by default,
+  // skippable only for an explicitly partial run.
+  if (process.env.BIMAX_UI_LENIENT !== '1') throw new Error('Permission preset menu did not open');
+  console.warn('[skip] permission preset menu is gone');
+}
 await page.screenshot({ path: path.join(outDir, 'ui-composer.png') });
 await page.keyboard.press('Escape');
 await sleep(150);
@@ -434,7 +493,10 @@ const clickTab = async (label) => {
     button?.click();
     return Boolean(button);
   }, label);
-  if (!clicked) throw new Error(`Missing dock tab: ${label}`);
+  if (!clicked) {
+    if (process.env.BIMAX_UI_LENIENT === '1') { console.warn(`[skip] missing dock tab: ${label}`); return false; }
+    throw new Error(`Missing dock tab: ${label}`);
+  }
 };
 
 // Mind tab
@@ -450,15 +512,61 @@ await clickButton({ title: 'src/api/client.ts' });
 await sleep(350);
 await page.screenshot({ path: path.join(outDir, 'ui-diff.png') });
 
-// Files tab: tree expanded one level.
-await clickTab('Files');
-await sleep(300);
+// Files lane: open the right panel, choose the lane from its picker, expand one level.
+// The old dock tab this used to click no longer exists — the panel is now four lanes behind a
+// <select>, so drive that instead of a control that was removed.
+await page.evaluate(() => {
+  const toggle = [...document.querySelectorAll('button')]
+    .find((b) => (b.getAttribute('aria-label') || b.getAttribute('title') || '').includes('evidence'));
+  toggle?.click();
+});
+await sleep(400);
+await page.evaluate(() => {
+  const select = document.querySelector('select[aria-label="Choose evidence lane"]');
+  if (select) {
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLSelectElement.prototype, 'value').set;
+    setter.call(select, 'files');
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+});
+await sleep(400);
 await page.evaluate(() => {
   const rows = [...document.querySelectorAll('[role="button"], button')];
   rows.find((b) => b.getAttribute('title') === 'src')?.click();
 });
 await sleep(250);
 await page.screenshot({ path: path.join(outDir, 'ui-files.png') });
+
+// Files tab, filtering: the filter searches the whole project, not the expanded rows.
+await page.evaluate(() => {
+  const input = document.querySelector('input[aria-label="Filter files"]');
+  if (input) {
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+    setter.call(input, 'ts');
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+});
+await sleep(500);
+await page.screenshot({ path: path.join(outDir, 'ui-files-filter.png') });
+await page.evaluate(() => {
+  const input = document.querySelector('input[aria-label="Filter files"]');
+  if (input) {
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+    setter.call(input, '');
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+});
+await sleep(300);
+
+// Clicking a file in the Files LANE must reveal the editor. This is the regression that shipped:
+// every other piece of state was set correctly and the panel kept rendering the tree, so the click
+// looked inert. Screenshot proves the code is on screen, highlighted.
+await page.evaluate(() => {
+  const rows = [...document.querySelectorAll('[role="button"]')];
+  rows.find((b) => (b.getAttribute('title') || '').startsWith('src/protocol.ts'))?.click();
+});
+await sleep(700);
+await page.screenshot({ path: path.join(outDir, 'ui-files-editor.png') });
 
 // IDE editor pane: open a file from the tree — CodeMirror takes over the right side.
 await page.evaluate(() => {

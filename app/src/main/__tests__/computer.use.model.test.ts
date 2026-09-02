@@ -3,26 +3,51 @@ import { computerUseModelReadiness } from '../../renderer/src/computer.use.model
 import type { CatalogModelEntry, EngineCatalog, EngineConfig } from '../../renderer/src/protocol';
 
 const work: CatalogModelEntry = {
-  id: 'work', label: 'Work', desc: '', tier: 'coding', served: true, curated: true,
+  id: 'work',
+  label: 'Work',
+  desc: '',
+  tier: 'coding',
+  served: true,
+  curated: true,
   capabilities: {
-    visionInput: false, reasoningEffortKnob: true, thinking: true,
-    structuredOutputs: true, parallelToolCalls: true, contextWindow: 100_000,
+    visionInput: false,
+    reasoningEffortKnob: true,
+    thinking: true,
+    structuredOutputs: true,
+    parallelToolCalls: true,
+    contextWindow: 100_000,
   },
 };
 const vision: CatalogModelEntry = {
-  id: 'vision', label: 'Vision', desc: '', tier: 'vision', served: true, curated: true,
+  id: 'vision',
+  label: 'Vision',
+  desc: '',
+  tier: 'vision',
+  served: true,
+  curated: true,
   capabilities: {
-    visionInput: true, reasoningEffortKnob: false, thinking: false,
-    structuredOutputs: false, parallelToolCalls: false, contextWindow: 32_000,
+    visionInput: true,
+    reasoningEffortKnob: false,
+    thinking: false,
+    structuredOutputs: false,
+    parallelToolCalls: false,
+    contextWindow: 32_000,
   },
 };
 
 function catalog(models = [work, vision], error?: string): EngineCatalog {
   return {
-    providers: [{
-      name: 'openai', label: 'OpenAI', baseURL: 'https://api.openai.com/v1',
-      apiKeyEnv: 'OPENAI_API_KEY', hasKey: true, keyCount: 1, active: true,
-    }],
+    providers: [
+      {
+        name: 'openai',
+        label: 'OpenAI',
+        baseURL: 'https://api.openai.com/v1',
+        apiKeyEnv: 'OPENAI_API_KEY',
+        hasKey: true,
+        keyCount: 1,
+        active: true,
+      },
+    ],
     models,
     ...(error ? { error } : {}),
   };
@@ -49,10 +74,7 @@ describe('Control Mac model preflight', () => {
 
   test('rejects a served Vision model in the Work slot because serving images is not tool-use proof', () => {
     const visionAsWork = { ...vision, id: 'vision-work' };
-    const result = computerUseModelReadiness(
-      { model: 'vision-work' },
-      catalog([visionAsWork]),
-    );
+    const result = computerUseModelReadiness({ model: 'vision-work' }, catalog([visionAsWork]));
     expect(result.ready).toBe(false);
     expect(result.reasons).toContain('Choose a Work model verified for agent tool use.');
   });
@@ -67,28 +89,20 @@ describe('Control Mac model preflight', () => {
     expect(result.reasons).toContain('Choose a Work model verified for agent tool use.');
   });
 
-  test('accepts an explicitly selected multimodal Work model even when duplicate slot rows end in Quick', () => {
-    const stepWork: CatalogModelEntry = {
+  test('accepts one multimodal model recommended in both Work and Vision', () => {
+    const kimi: CatalogModelEntry = {
       ...work,
-      id: 'stepfun-ai/step-3.7-flash',
-      avoidAutoSelect: true,
+      id: 'moonshotai/kimi-k3',
+      recommendedFor: ['coding', 'vision'],
       capabilities: { ...work.capabilities!, visionInput: true },
-    };
-    const stepVision: CatalogModelEntry = {
-      ...stepWork,
-      tier: 'vision',
-    };
-    const stepQuick: CatalogModelEntry = {
-      ...stepWork,
-      tier: 'lite',
     };
 
     const result = computerUseModelReadiness(
       {
-        model: 'stepfun-ai/step-3.7-flash',
-        visionModel: 'stepfun-ai/step-3.7-flash',
+        model: 'moonshotai/kimi-k3',
+        visionModel: 'moonshotai/kimi-k3',
       },
-      catalog([stepWork, stepVision, stepQuick]),
+      catalog([kimi]),
     );
 
     expect(result.ready).toBe(true);

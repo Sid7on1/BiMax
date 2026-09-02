@@ -345,9 +345,43 @@ export function findBrowserExecutable(): string | undefined {
   try { return fs.statSync(configured).isFile() ? configured : undefined; } catch { return undefined; }
 }
 
-/** Page-side mutation counter: lets the runtime detect "the page reacted" without blind sleeps.
+/** Page-side mutation counter & stealth shield: lets the runtime detect "the page reacted" without
+ * blind sleeps, neuters anti-debugging loops, and triggers framework semantic trees (Flutter/Docs).
  * Installed at page creation AND on every new document, so it survives navigations. */
 const MUTATION_COUNTER_SCRIPT = `(() => {
+  try {
+    // 1. Neuter anti-debugging loops (Function/eval debugger traps)
+    const origFunc = window.Function;
+    const patchedFunc = function(...args) {
+      if (args.some(a => typeof a === 'string' && /debugger/i.test(a))) {
+        return function() {};
+      }
+      return origFunc.apply(this, args);
+    };
+    patchedFunc.prototype = origFunc.prototype;
+    window.Function = patchedFunc;
+
+    // 2. Trigger framework accessibility trees (Flutter Web & Canvas apps)
+    const triggerFlutterSemantics = () => {
+      try {
+        // NO TypeScript in here, and no backticks either. This whole constant is a template
+        // literal injected into the page as JavaScript, so the compiler never sees inside it:
+        // a TS cast type-checks as part of a string and then throws
+        // SyntaxError: Unexpected identifier 'as' in the browser, killing the ENTIRE script at its
+        // first occurrence. That is what shipped — the mutation counter below never installed, so
+        // "did the page react?" silently degraded to blind waiting, and the anti-debugging shield
+        // never ran. A backtick in a comment ends the literal early, which is the same class of
+        // trap one level up.
+        const placeholder = document.querySelector('flt-semantics-placeholder');
+        if (placeholder) placeholder.click();
+        if (window.flutterConfiguration && window.flutterConfiguration.ensureSemantics) {
+          window.flutterConfiguration.ensureSemantics();
+        }
+      } catch { /* Ignore */ }
+    };
+    triggerFlutterSemantics();
+  } catch { /* Best-effort stealth */ }
+
   if (window.__bimaxObs) return;
   window.__bimaxMutations = 0;
   const observer = new MutationObserver(records => { window.__bimaxMutations += records.length; });
@@ -782,7 +816,9 @@ export class BrowserRuntime implements BrowserRuntimePort {
       ? ['--no-sandbox', '--disable-setuid-sandbox'] : [];
     const executablePath = findBrowserExecutable();
     this.browser = await puppeteer.launch({
-      headless: process.env.BIMAX_BROWSER_HEADFUL === '1' ? false : 'new',
+      // puppeteer 23 removed the `'new'` literal — `true` IS the new headless mode from v22 on.
+      // Left as the string, launch throws before Chromium is ever started.
+      headless: process.env.BIMAX_BROWSER_HEADFUL !== '1',
       userDataDir: roots.profile,
       args,
       ...(executablePath ? { executablePath } : {}),
@@ -900,7 +936,7 @@ export class BrowserRuntime implements BrowserRuntimePort {
     target: BrowserDocumentTarget;
   }> {
     await this.clearIndexedElements();
-    const candidates = await page.$$('a[href], area[href], button, input:not([type="hidden"]), textarea, select, summary, [contenteditable="true"], [role="button"], [role="link"], [role="checkbox"], [role="radio"], [role="tab"], [role="menuitem"], [tabindex]:not([tabindex="-1"])');
+    const candidates = await page.$$('a[href], area[href], button, input:not([type="hidden"]), textarea, select, summary, [contenteditable="true"], [role="button"], [role="link"], [role="checkbox"], [role="radio"], [role="tab"], [role="menuitem"], [role="treeitem"], [role="gridcell"], [role="option"], [role="switch"], [tabindex]:not([tabindex="-1"]), flt-semantics, flt-semantics-placeholder');
     const elements: Array<Record<string, unknown>> = [];
     for (const handle of candidates) {
       if (elements.length >= maxElements) { await handle.dispose().catch(() => {}); continue; }

@@ -33,16 +33,18 @@ describe('provider credential startup', () => {
     expect(decryptString).not.toHaveBeenCalled();
   });
 
-  test('offers StepFun as a Keychain-backed provider', () => {
+  test('offers NVIDIA for Kimi K3 and omits the retired StepFun route', () => {
     (existsSync as jest.Mock).mockReturnValue(false);
     let isolated!: typeof import('../provider.credentials');
     jest.isolateModules(() => { isolated = require('../provider.credentials'); });
 
-    expect(isolated.providerCredentialStatuses()).toContainEqual({
-      name: 'stepfun',
+    const statuses = isolated.providerCredentialStatuses();
+    expect(statuses).toContainEqual({
+      name: 'nvidia',
       hasKey: false,
       storage: 'none',
       active: false,
     });
+    expect(statuses.map((status) => status.name)).not.toContain('stepfun');
   });
 });

@@ -157,23 +157,18 @@ export class AgentLoop {
     const llm = this.llm as any;
     const current = String(llm?.userModel || llm?.defaultModel || '');
 
-    // Failing over is the machine choosing a model on the user's behalf, so it obeys the same
-    // safety policy as healing. Two ways a configured fallback disqualifies itself:
-    //   • the provider already rejected it outright this session (proven dead), or
-    //   • the catalog flags it avoidAutoSelect (documented to time out or to not call tools).
-    // Honouring such a fallback converts a visible model error into an invisible 180s hang, which
-    // is strictly worse: the user sees a spinner and no reply. (Live case: the configured fallback
-    // was stepfun-ai/step-3.7-flash, which sent no response headers for 180s.)
+    // A CONFIGURED fallback is the user's own choice, so only evidence may disqualify it: the
+    // provider must have actually rejected it this session. `avoidAutoSelect` used to disqualify it
+    // too, which inverted the outcome — measured 2026-09-02, a configured fallback of
+    // `nemotron-3.5-lightning-30b-a3b` (6.7s, calls tools) was discarded for carrying the note
+    // "task probe pending", and the derived replacement was a model the provider does not serve.
+    // The flag gates AUTOMATIC candidates, which is what its name says and where it still applies
+    // (autoSelectCandidates, below); it is not authority over a value the user set.
     if (fb) {
       let unsafe = false;
       try { unsafe = !!llm?.isUnservable?.(fb); } catch { /* optional capability */ }
-      if (!unsafe) {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const { MODEL_CATALOG } = require('../cli/models') as typeof import('../cli/models');
-        unsafe = MODEL_CATALOG.some(m => m.value === fb && m.avoidAutoSelect);
-      }
       if (unsafe) {
-        Logger.warn(`[AgentLoop] Configured fallback model "${fb}" is not a safe automatic target; deriving one instead.`);
+        Logger.warn(`[AgentLoop] Configured fallback model "${fb}" was rejected by the provider this session; deriving one instead.`);
         fb = '';
       }
     }
@@ -405,6 +400,10 @@ export class AgentLoop {
       // call's arguments — see the parse-failure branch, which needs to tell the two causes apart.
       const toolCalls: { id: string; name: string; args: string; truncated?: boolean }[] = [];
       let currentContent = '';
+      // Kimi K3 requires its exact out-of-band reasoning to accompany the assistant tool-call
+      // message on the next request. Most models do not, so the adapter marks only required chunks
+      // replayable; ordinary hidden thinking is never persisted into provider history.
+      let replayableReasoning = '';
       // Set when the partial turn must be discarded and re-asked (after compaction or
       // a transient-error retry); triggers the `continue` below.
       let discardTurn = false;
@@ -450,6 +449,7 @@ export class AgentLoop {
           chatSpan.setAttribute('gen_ai.response.finish_reasons', 'length');
         } else if (event.type === 'thinking') {
           // Internal reasoning: surface to the UI status area, never into the reply
+          if (event.replay) replayableReasoning += event.text;
           cliEvents.emit('thinking', event.text);
         } else if (event.type === 'tool_call') {
           toolCalls.push(event);
@@ -566,17 +566,13 @@ export class AgentLoop {
               transientRetries = 0;
               cliEvents.emit('status', `Model failing — switched to fallback "${fb}"`);
               cliEvents.emit('log', { id: Date.now(), level: 'warn', text: `Active model kept failing (${event.message}); failed over to fallback model "${fb}".`, timestamp: new Date() });
-              // Persist it. Without this the dead pin survives restart, and because /models still
-              // lists it, startup healing calls it healthy — so every future session burns a
-              // guaranteed-404 round trip before failing over to this same model again.
-              // origin:'runtime' keeps the volatility guard's protection for BGW_MODEL sessions.
-              // Awaited, not fire-and-forget: an unawaited write outlives the turn and can land
-              // after the process (or a test's environment) has torn down.
-              try {
-                // eslint-disable-next-line @typescript-eslint/no-require-imports
-                await (require('../cli/config') as typeof import('../cli/config')).saveConfig({ model: fb } as any, { origin: 'runtime' });
-                cliEvents.emit('config_changed');
-              } catch { /* persistence optional */ }
+              // Session-scoped, exactly like the boot healer. This used to persist `fb` so a dead
+              // pin would not survive restart — but `fb` is frequently DERIVED (autoSelectCandidates
+              // below), so persisting it wrote a machine guess over the model the user chose in the
+              // picker, permanently and silently. One failing turn was enough. The user's stored
+              // choice is theirs; the failover keeps THIS session alive and says so in the status
+              // line, and the next launch starts from what they actually picked.
+              cliEvents.emit('config_changed');
               discardTurn = true;
               break;
             }
@@ -654,7 +650,10 @@ export class AgentLoop {
         }
         if (toolCalls.length === 0 && truncationContinues < MAX_TRUNCATION_CONTINUES) {
           truncationContinues++;
-          if (currentContent) this.messages.push({ role: 'assistant', content: currentContent });
+          if (currentContent) this.messages.push({
+            role: 'assistant', content: currentContent,
+            ...(replayableReasoning ? { reasoning_content: replayableReasoning } : {}),
+          });
           this.messages.push({
             role: 'user',
             content:
@@ -768,7 +767,10 @@ export class AgentLoop {
       }
 
       if (currentContent) {
-        this.messages.push({ role: 'assistant', content: currentContent });
+        this.messages.push({
+          role: 'assistant', content: currentContent,
+          ...(replayableReasoning ? { reasoning_content: replayableReasoning } : {}),
+        });
       }
 
       // Drop identical tool calls the model sometimes emits twice in one turn (e.g. cd x2): same name
@@ -815,7 +817,10 @@ export class AgentLoop {
         // assistant turn is already persisted above; we just stop before side effects.
         if (signal?.aborted) return;
         // Build the tool_calls payload for the assistant message
-        const asstMsg: Message = { role: 'assistant', tool_calls: [] };
+        const asstMsg: Message = {
+          role: 'assistant', tool_calls: [],
+          ...(replayableReasoning ? { reasoning_content: replayableReasoning } : {}),
+        };
         if (currentContent) asstMsg.content = currentContent;
 
         for (const tc of toolCalls) {

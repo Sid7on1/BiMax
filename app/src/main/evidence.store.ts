@@ -15,7 +15,7 @@
 //      data on disk is a lie. `deleteTask` and `deleteAll` remove records and record the eviction,
 //      so the timeline shows that data is gone rather than pretending it never existed.
 //   3. **Bounded, with the bound visible.** Retention classes expire, capacity evicts, and both
-//      leave an eviction note the Trust Center renders as an evidence gap.
+//      leave an eviction note rendered as an evidence gap.
 //
 // Electron-free: no `electron` import, so the whole store is testable in a plain Node process.
 
@@ -123,17 +123,17 @@ export class DesktopEvidenceStore {
     return this.drop(expired.map(r => r.id), 'retention');
   }
 
-  /** The Trust Center's per-task delete control. */
+  /** Per-task delete control. */
   deleteTask(taskIntentId: string): number {
     return this.drop(this.forTask(taskIntentId).map(r => r.id), 'user-deletion');
   }
 
-  /** The Trust Center's "delete every observation" control. */
+  /** The "delete every observation" control. */
   deleteObservations(): number {
     return this.drop(this.all().filter(r => r.kind === 'Observation').map(r => r.id), 'user-deletion');
   }
 
-  /** The Trust Center's "delete everything" control. */
+  /** The "delete everything" control. */
   deleteAll(): number {
     return this.drop([...this.order], 'user-deletion');
   }

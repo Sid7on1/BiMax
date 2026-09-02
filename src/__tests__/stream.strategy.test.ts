@@ -29,7 +29,7 @@ function capsSeed(caps: ReturnType<typeof capabilitiesFor>): boolean {
   return caps.inlineReasoning || caps.nativeThinking;
 }
 
-const STEP = 'stepfun-ai/step-3.7-flash'; // the default (native reasoning_content reasoner)
+const STEP = 'stepfun-ai/step-3.7-flash'; // legacy native reasoning_content reasoner fixture
 
 describe('chooseThinkStrategy', () => {
   it('native reasoner (step-3.7) streams from token 1 (implicit off)', () => {
@@ -59,7 +59,7 @@ describe('chooseThinkStrategy', () => {
   });
 });
 
-describe('streaming contract — the six P0-2 regressions (default model step-3.7)', () => {
+describe('streaming contract — the six P0-2 native-reasoner regressions', () => {
   // 1. Tag-free short answer split across chunks: visible deltas arrive BEFORE stream end.
   it('streams a tag-free short answer incrementally, not in one end-of-stream burst', () => {
     const r = driveForModel(STEP, ['Hey! ', 'What are we ', 'building today?']);

@@ -1,0 +1,107 @@
+import path from 'node:path';
+
+export interface RuntimeLayout {
+  packaged: boolean;
+  resourcesPath: string;
+  devRepoRoot: string;
+  env: Record<string, string | undefined>;
+  exists: (candidate: string) => boolean;
+}
+
+export interface EngineCommand {
+  cmd: string;
+  args: string[];
+  cwd: string;
+  source: 'bundle' | 'artifact' | 'override';
+  refusedOverride?: { variable: string; value: string };
+}
+
+export interface Resolution {
+  path?: string;
+  source: 'bundle' | 'artifact' | 'override' | 'missing';
+  refusedOverride?: { variable: string; value: string };
+}
+
+export class PackagedRuntimeError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'PackagedRuntimeError';
+  }
+}
+
+export class EngineArtifactError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'EngineArtifactError';
+  }
+}
+
+export function resolveEngineCommand(layout: RuntimeLayout, projectDir: string): EngineCommand {
+  const variable = 'BIMAX_ENGINE_CMD';
+  const override = layout.env[variable]?.trim();
+  if (layout.packaged) {
+    const bundled = path.join(layout.resourcesPath, 'engine', 'bimax-engine');
+    if (!layout.exists(bundled)) {
+      throw new PackagedRuntimeError(
+        `packaged Bimax.app is missing its bundled engine at ${bundled}; refusing a development fallback`,
+      );
+    }
+    return {
+      cmd: bundled,
+      args: [],
+      cwd: projectDir,
+      source: 'bundle',
+      ...(override ? { refusedOverride: { variable, value: override } } : {}),
+    };
+  }
+  if (override) {
+    const parts = override.split(/\s+/);
+    return { cmd: parts[0], args: parts.slice(1), cwd: projectDir, source: 'override' };
+  }
+  const staged = path.join(layout.devRepoRoot, 'app', 'engine', 'bimax-engine');
+  if (!layout.exists(staged)) {
+    throw new EngineArtifactError(
+      `Desktop engine artifact is not staged at ${staged}; run npm --prefix app run prepare:engine or set BIMAX_ENGINE_CMD explicitly`,
+    );
+  }
+  return { cmd: staged, args: [], cwd: projectDir, source: 'artifact' };
+}
+
+export function describeRefusal(refusal: { variable: string; value: string }): string {
+  return `[desktop] ignored ${refusal.variable} in a packaged build; requested: ${refusal.value}`;
+}
+
+export function buildEngineChildEnv(input: {
+  parentEnv: Record<string, string | undefined>;
+  extraEnv: Record<string, string>;
+  path: string;
+  projectDir: string;
+}): Record<string, string | undefined> {
+  const env: Record<string, string | undefined> = {
+    ...input.parentEnv,
+    ...input.extraEnv,
+    PATH: input.path,
+    BIMAX_HEADLESS: '1',
+    BIMAX_CWD: input.projectDir,
+    BGW_FIRST_CHUNK_TIMEOUT_MS: '45000',
+  };
+  for (const variable of [
+    'BIMAX_MAC_CAPABILITY_PROVIDER',
+    'BIMAX_CU_SERVICE_BINARY',
+    'BIMAX_CU_BRIDGE_BINARY',
+    'BIMAX_DESKTOP_HELPER',
+    'BIMAX_LIVE_PIP_HELPER',
+    'BIMAX_HOST_CAPABILITIES_JSON',
+    'BIMAX_CU_TRUSTED_PLAN_SECRET',
+    'BIMAX_CU_TRUSTED_PLAN_REQUIRED',
+    'BIMAX_CU_NATIVE_ROUTING_ENABLED',
+    'BIMAX_CU_NATIVE_SEMANTIC_ROUTING_ENABLED',
+    'BIMAX_DESKTOP_RELEASE_MODE',
+    'BIMAX_DESKTOP_STRICT_MODEL',
+    'BGW_MODEL',
+    'BGW_LITE_MODEL',
+    'BGW_VISION_MODEL',
+    'BIMAX_FALLBACK_MODEL',
+  ]) delete env[variable];
+  return env;
+}

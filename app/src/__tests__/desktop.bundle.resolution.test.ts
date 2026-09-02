@@ -15,13 +15,22 @@
 import path from 'node:path';
 
 import {
-  resolveEngineCommand, resolveNativeComponent, buildEngineChildEnv, describeRefusal,
-  packagedEnginePath, PackagedRuntimeError, OVERRIDE_ENV, NATIVE_COMPONENT_ENV,
-  NATIVE_ROUTING_ENV, NATIVE_SEMANTIC_ROUTING_ENV,
-  TRUSTED_PLAN_REQUIRED_ENV, TRUSTED_PLAN_SECRET_ENV,
-  DESKTOP_STRICT_MODEL_ENV, DESKTOP_STRICT_MODEL, DESKTOP_FIRST_TOKEN_TIMEOUT_MS,
-  DESKTOP_STRICT_MODEL_BY_PROVIDER, desktopStrictModelForProvider,
-  EngineArtifactError, stagedEnginePath, type RuntimeLayout,
+  resolveEngineCommand,
+  resolveNativeComponent,
+  buildEngineChildEnv,
+  describeRefusal,
+  packagedEnginePath,
+  PackagedRuntimeError,
+  OVERRIDE_ENV,
+  NATIVE_COMPONENT_ENV,
+  NATIVE_ROUTING_ENV,
+  NATIVE_SEMANTIC_ROUTING_ENV,
+  TRUSTED_PLAN_REQUIRED_ENV,
+  TRUSTED_PLAN_SECRET_ENV,
+  DESKTOP_FIRST_TOKEN_TIMEOUT_MS,
+  EngineArtifactError,
+  stagedEnginePath,
+  type RuntimeLayout,
 } from '../main/runtime.paths';
 import { EngineSupervisor } from '../main/supervisor/supervisor';
 import { CrashJournal } from '../main/supervisor/journal';
@@ -105,10 +114,12 @@ describe('packaged runs resolve the engine from the bundle only', () => {
   });
 
   test('a packaged app missing its engine fails even when an override could have "fixed" it', () => {
-    expect(() => resolveEngineCommand(
-      layout({ packaged: true, present: [], env: { BIMAX_ENGINE_CMD: '/tmp/evil-engine' } }),
-      '/proj',
-    )).toThrow(PackagedRuntimeError);
+    expect(() =>
+      resolveEngineCommand(
+        layout({ packaged: true, present: [], env: { BIMAX_ENGINE_CMD: '/tmp/evil-engine' } }),
+        '/proj',
+      ),
+    ).toThrow(PackagedRuntimeError);
   });
 });
 
@@ -274,7 +285,10 @@ describe('the engine child receives one generic local-provider contract', () => 
         BIMAX_CU_FOCUS_BROKER_ENDPOINT: endpoint,
         BIMAX_CU_FOCUS_BROKER_TOKEN: token,
       },
-      extraEnv: {}, packaged: true, path: '/usr/bin', projectDir: '/proj',
+      extraEnv: {},
+      packaged: true,
+      path: '/usr/bin',
+      projectDir: '/proj',
       resolved: { macCapability: BUNDLE.macCapability },
     });
     const contract = JSON.parse(String(env.BIMAX_HOST_CAPABILITIES_JSON));
@@ -366,30 +380,31 @@ describe('the engine child receives one generic local-provider contract', () => 
     expect(env.BIMAX_HEADLESS).toBe('1');
     expect(env.BIMAX_CWD).toBe('/proj');
     expect(env.PATH).toBe('/opt/homebrew/bin:/usr/bin');
-    expect(env[DESKTOP_STRICT_MODEL_ENV]).toBe(DESKTOP_STRICT_MODEL);
-    expect(env.BGW_MODEL).toBe(DESKTOP_STRICT_MODEL);
-    expect(env.BGW_LITE_MODEL).toBe(DESKTOP_STRICT_MODEL);
-    expect(env.BGW_VISION_MODEL).toBe(DESKTOP_STRICT_MODEL);
+    expect(env.BIMAX_DESKTOP_STRICT_MODEL).toBeUndefined();
+    expect(env.BGW_MODEL).toBeUndefined();
+    expect(env.BGW_LITE_MODEL).toBeUndefined();
+    expect(env.BGW_VISION_MODEL).toBeUndefined();
     expect(env.BGW_FIRST_CHUNK_TIMEOUT_MS).toBe(DESKTOP_FIRST_TOKEN_TIMEOUT_MS);
     expect(env.BIMAX_FALLBACK_MODEL).toBeUndefined();
   });
 
-  test.each([
-    ['openrouter', DESKTOP_STRICT_MODEL_BY_PROVIDER.openrouter],
-    ['stepfun', DESKTOP_STRICT_MODEL_BY_PROVIDER.stepfun],
-  ])('maps the Step 3.7 Flash wire id for %s across every model slot', (provider, model) => {
+  test('clears inherited model locks so persisted Work, Quick, and Vision choices remain independent', () => {
     const env = buildEngineChildEnv({
-      parentEnv: {},
-      extraEnv: { BIMAX_DESKTOP_PROVIDER: provider },
+      parentEnv: {
+        BIMAX_DESKTOP_STRICT_MODEL: 'stepfun-ai/step-3.7-flash',
+        BGW_MODEL: 'legacy/work',
+        BGW_LITE_MODEL: 'legacy/quick',
+        BGW_VISION_MODEL: 'legacy/vision',
+      },
+      extraEnv: { BIMAX_DESKTOP_PROVIDER: 'nvidia' },
       path: '/usr/bin',
       projectDir: '/proj',
       resolved: {},
     });
-    expect(desktopStrictModelForProvider(provider)).toBe(model);
-    expect(env[DESKTOP_STRICT_MODEL_ENV]).toBe(model);
-    expect(env.BGW_MODEL).toBe(model);
-    expect(env.BGW_LITE_MODEL).toBe(model);
-    expect(env.BGW_VISION_MODEL).toBe(model);
+    expect(env.BIMAX_DESKTOP_STRICT_MODEL).toBeUndefined();
+    expect(env.BGW_MODEL).toBeUndefined();
+    expect(env.BGW_LITE_MODEL).toBeUndefined();
+    expect(env.BGW_VISION_MODEL).toBeUndefined();
   });
 
   test('app package identity never leaks as an engine routing flag', () => {
@@ -429,9 +444,14 @@ describe('a broken packaged app fails visibly rather than crashing the shell', (
 
     const supervisor = new EngineSupervisor({
       // Exactly what engine.ts now does when a packaged bundle has no engine.
-      spawn: () => { throw new PackagedRuntimeError('packaged Bimax.app is missing its bundled engine at /x'); },
+      spawn: () => {
+        throw new PackagedRuntimeError('packaged Bimax.app is missing its bundled engine at /x');
+      },
       now: () => 1,
-      setTimeout: (fn: () => void) => { timers.push(fn); return timers.length; },
+      setTimeout: (fn: () => void) => {
+        timers.push(fn);
+        return timers.length;
+      },
       clearTimeout: () => undefined,
       setInterval: () => 1,
       clearInterval: () => undefined,
@@ -439,7 +459,12 @@ describe('a broken packaged app fails visibly rather than crashing the shell', (
       memory: () => ({ freeBytes: 8e9, totalBytes: 16e9 }),
       env: {},
       // The real journal over in-memory storage — a stub would not prove the failure is recorded.
-      journal: new CrashJournal({ load: () => stored, save: (text: string) => { stored = text; } }),
+      journal: new CrashJournal({
+        load: () => stored,
+        save: (text: string) => {
+          stored = text;
+        },
+      }),
       logTail: () => '',
       onStatus: (s: unknown) => phases.push((s as { phase: string }).phase),
       onMessage: () => undefined,
@@ -468,9 +493,7 @@ describe('a broken packaged app fails visibly rather than crashing the shell', (
 
 describe('this slice changed no Computer Use behaviour', () => {
   test('the resolver decides locations only — it never launches or routes anything', () => {
-    const source = require('node:fs').readFileSync(
-      path.join(__dirname, '..', 'main', 'runtime.paths.ts'), 'utf8',
-    );
+    const source = require('node:fs').readFileSync(path.join(__dirname, '..', 'main', 'runtime.paths.ts'), 'utf8');
     const code = source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
     expect(code).not.toMatch(/spawn|exec|child_process|XPCConnection|AXIsProcessTrusted/i);
     expect(code).not.toMatch(/from\s+'electron'/);

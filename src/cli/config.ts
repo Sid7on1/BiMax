@@ -44,7 +44,11 @@ const ENV_OVERRIDES: Partial<Record<keyof CliConfig, string>> = {
 };
 
 const STRICT_MODEL_KEYS: readonly (keyof CliConfig)[] = [
-  'model', 'liteModel', 'visionModel', 'fallbackModel', 'subagentModel',
+  'model',
+  'liteModel',
+  'visionModel',
+  'fallbackModel',
+  'subagentModel',
 ];
 const desktopStrictModel = (): string => String(process.env.BIMAX_DESKTOP_STRICT_MODEL || '').trim();
 
@@ -52,8 +56,8 @@ export type ConfigSource = 'default' | 'global' | 'project' | 'env';
 
 export interface CliConfig {
   defaultAgent: string;
-  model: string;       // the CODING model — drives the main agent loop
-  liteModel: string;   // the LITE model — used for cheap aux calls (summaries, self-critic, ask-user)
+  model: string; // the CODING model — drives the main agent loop
+  liteModel: string; // the LITE model — used for cheap aux calls (summaries, self-critic, ask-user)
   visionModel: string; // the VISION model — image turns reroute here when the coding model is text-only ('' = none)
   // Resilience chain: when the active model keeps failing mid-run (retry budget exhausted, or the
   // provider starts rejecting it), the loop switches to this model once instead of dying. '' = off.
@@ -161,33 +165,23 @@ export interface CliConfig {
 
 export const DEFAULTS: CliConfig = {
   defaultAgent: 'bimax',
-  // Work: tool-call fidelity is selected before raw latency, because a model that cannot call tools
-  // cannot drive the loop at all (mistralai/mistral-nemotron declares Reasoning only — no Function
-  // Calling — and prints bare tool JSON as prose; it is flagged avoidAutoSelect in cli/models.ts).
-  //
-  // The previous pick here was stepfun-ai/step-3.7-flash, chosen from its capability card. Three
-  // independent LIVE probes contradict that card — cli/models.ts records "timed out (180s, no
-  // response headers)" for both its Work and Vision rows, and core/agent.loop.ts records the same
-  // model sending no headers for 180s as a configured fallback. A measurement outranks a card, and
-  // shipping a default the catalog itself bars from automatic selection is what turned a bad model
-  // choice into a silent hang: the spinner runs and no reply ever arrives.
+  // Work: Kimi K3 is the requested current NVIDIA default. The authenticated provider catalogue
+  // served this exact id on 2026-08-29, and NVIDIA documents multimodal input, tool calling,
+  // structured output and a 1M context window. Real Bimax task quality and latency remain Target;
+  // the bounded local first-token probe did not answer within 60 seconds.
   //
   // These MUST equal the DEFAULT_* constants in cli/models.ts (enforced by models.test.ts).
   // Re-measure with `npm run benchmark:models` — that script, not this comment, is the authority.
-  model: 'nvidia/nemotron-3-nano-30b-a3b',
-  // Quick slot: plain model, never a reasoner. Live exact reply 0.61s; valid tool call 0.56s.
-  liteModel: 'meta/llama-3.1-8b-instruct',
-  // Vision: the only VLM in the catalog that both grounded a real composer action AND refused the
-  // unproven-recipient safety trap. The previous default (nemotron-3-nano-omni) is faster on paper
-  // but chose a WRONG click on both grounded frames, which is why the catalog flags it
-  // avoidAutoSelect — a vision slot that clicks confidently in the wrong place is worse than a slow
-  // one.
-  visionModel: 'nvidia/nemotron-nano-12b-v2-vl',
+  model: 'moonshotai/kimi-k3',
+  // Quick stays a plain instruct route; Kimi K3 always thinks and would defeat this slot's purpose.
+  liteModel: 'mistralai/mistral-7b-instruct-v0.3',
+  // Kimi K3 is natively multimodal, so Work and Vision share the same current provider route.
+  visionModel: 'moonshotai/kimi-k3',
   fallbackModel: '', // off by default — set to a second NIM id to survive mid-run model outages
   subagentModel: '', // '' = sub-agents use the main model
-  provider: '',          // '' = follow BGW_PROVIDER, else 'nvidia' (see cli/provider.ts)
-  providerBaseURL: '',   // '' = the provider's own endpoint
-  maxThinkingTokens: 0,  // 0 = the provider's default reasoning budget
+  provider: '', // '' = follow BGW_PROVIDER, else 'nvidia' (see cli/provider.ts)
+  providerBaseURL: '', // '' = the provider's own endpoint
+  maxThinkingTokens: 0, // 0 = the provider's default reasoning budget
 
   timeout: 120000,
   temperature: 0.7,
@@ -264,8 +258,12 @@ async function readJson(file: string): Promise<Partial<CliConfig>> {
     const backup = `${file}.corrupt-${Date.now()}`;
     try {
       await fs.copyFile(file, backup);
-      console.warn(`[Config] ${file} is not valid JSON — preserved a copy at ${backup} and continuing with defaults for that scope.`);
-    } catch { /* best-effort backup */ }
+      console.warn(
+        `[Config] ${file} is not valid JSON — preserved a copy at ${backup} and continuing with defaults for that scope.`,
+      );
+    } catch {
+      /* best-effort backup */
+    }
     return {};
   }
 }
@@ -283,7 +281,11 @@ async function writeJsonAtomic(file: string, value: unknown): Promise<void> {
   try {
     await fs.rename(tmp, file);
   } catch (e) {
-    try { await fs.unlink(tmp); } catch { /* already gone */ }
+    try {
+      await fs.unlink(tmp);
+    } catch {
+      /* already gone */
+    }
     throw e;
   }
 }
@@ -294,7 +296,10 @@ function parseEnvValue(key: keyof CliConfig, raw: string): unknown {
   // what runs unattended. Matches the capability provider's own config.
   if (key === 'computerApprovals') return raw === 'high-impact-only' ? 'high-impact-only' : 'always';
   const kind = typeof (DEFAULTS as any)[key];
-  if (kind === 'number') { const n = Number(raw); return Number.isFinite(n) ? n : undefined; }
+  if (kind === 'number') {
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : undefined;
+  }
   if (kind === 'boolean') return raw !== 'false' && raw !== '0';
   return raw;
 }
@@ -308,7 +313,7 @@ export async function loadConfig(): Promise<CliConfig> {
   // long-run default was raised. The scope contract above is authoritative: only project-owned
   // fields may flow from this file.
   const projectCfg = Object.fromEntries(
-    PROJECT_KEYS.filter(key => key in rawProjectCfg).map(key => [key, rawProjectCfg[key]]),
+    PROJECT_KEYS.filter((key) => key in rawProjectCfg).map((key) => [key, rawProjectCfg[key]]),
   ) as Partial<CliConfig>;
   // Compose the scopes in precedence order, recording where each effective value came from.
   const merged: CliConfig = { ...DEFAULTS, ...globalCfg, ...projectCfg };
@@ -326,7 +331,10 @@ export async function loadConfig(): Promise<CliConfig> {
     const raw = process.env[envVar];
     if (raw !== undefined && raw !== '') {
       const v = parseEnvValue(key, raw);
-      if (v !== undefined) { (merged as any)[key] = v; sources[key] = 'env'; }
+      if (v !== undefined) {
+        (merged as any)[key] = v;
+        sources[key] = 'env';
+      }
     }
   }
   cached = merged;
@@ -344,12 +352,25 @@ export async function loadConfig(): Promise<CliConfig> {
     cached.subagentModel = strictModel;
     cached.fallbackModel = '';
     for (const key of STRICT_MODEL_KEYS) sources[key] = 'env';
-  } else try {
-    const { isReasoningModel, LEGACY_SAFE_LITE_MODEL } = require('./models');
-    if (cached.liteModel && cached.liteModel === cached.model && isReasoningModel(cached.liteModel)) {
-      cached.liteModel = LEGACY_SAFE_LITE_MODEL;
+  } else
+    try {
+      const { isReasoningModel, LEGACY_SAFE_LITE_MODEL } = require('./models');
+      const retiredStep = (value: string): boolean => /(?:stepfun-ai\/)?step-3\.7-flash/i.test(value);
+      // The former Desktop build persisted Step 3.7 into every role. NVIDIA retired that route, so
+      // migrate the effective session to current defaults without silently rewriting the user's
+      // config file; the next explicit picker change persists normally.
+      if (retiredStep(cached.model)) cached.model = DEFAULTS.model;
+      if (retiredStep(cached.liteModel)) cached.liteModel = DEFAULTS.liteModel;
+      if (retiredStep(cached.visionModel)) cached.visionModel = DEFAULTS.visionModel;
+      if (retiredStep(cached.subagentModel)) cached.subagentModel = DEFAULTS.subagentModel;
+      if (retiredStep(cached.fallbackModel)) cached.fallbackModel = DEFAULTS.fallbackModel;
+      if (cached.provider.trim().toLowerCase() === 'stepfun') cached.provider = 'nvidia';
+      if (cached.liteModel && cached.liteModel === cached.model && isReasoningModel(cached.liteModel)) {
+        cached.liteModel = LEGACY_SAFE_LITE_MODEL;
+      }
+    } catch {
+      /* models module unavailable in some test harnesses — defaults already sane */
     }
-  } catch { /* models module unavailable in some test harnesses — defaults already sane */ }
   return cached;
 }
 
@@ -375,7 +396,10 @@ export interface SaveOptions {
 let saveChain: Promise<unknown> = Promise.resolve();
 
 export function saveConfig(updates: Partial<CliConfig>, opts: SaveOptions = {}): Promise<CliConfig> {
-  const run = saveChain.then(() => doSave(updates, opts), () => doSave(updates, opts));
+  const run = saveChain.then(
+    () => doSave(updates, opts),
+    () => doSave(updates, opts),
+  );
   saveChain = run;
   return run;
 }
@@ -383,6 +407,32 @@ export function saveConfig(updates: Partial<CliConfig>, opts: SaveOptions = {}):
 async function doSave(updates: Partial<CliConfig>, opts: SaveOptions = {}): Promise<CliConfig> {
   const origin = opts.origin || 'user';
   const current = await loadConfig();
+
+  // Attribution for model writes.
+  //
+  // The stored work model was repeatedly found replaced by an id the provider does not serve, and
+  // four separate writers were fixed on suspicion without the cause ever being reproduced. A
+  // config layer cannot know WHO called it — but it can record the stack, which turns "something
+  // rewrote my model" from a guess into a name. Only fires when a model key actually CHANGES
+  // value, so it costs nothing on an ordinary save, and writes to the same place the engine already
+  // logs so it survives into a packaged run.
+  try {
+    const MODEL_KEYS = ['model', 'liteModel', 'visionModel', 'fallbackModel', 'subagentModel'] as const;
+    const changed = MODEL_KEYS.filter(
+      (k) => updates[k] !== undefined && updates[k] !== (current as unknown as Record<string, unknown>)[k],
+    );
+    if (changed.length > 0) {
+      const where = (new Error().stack || '').split('\n').slice(2, 7).map(l => l.trim()).join(' <- ');
+      for (const key of changed) {
+        // console.warn, not Logger: this module is imported by the config layer itself and must
+        // not take a dependency on the logger's own configuration to report a config problem.
+        console.warn(
+          `[Config] model write: ${key} "${String((current as unknown as Record<string, unknown>)[key] ?? '')}" -> `
+          + `"${String(updates[key])}" origin=${origin} :: ${where}`,
+        );
+      }
+    }
+  } catch { /* diagnostics must never break a save */ }
 
   // Model controls are read-only in the single-model Desktop build. Drop these writes entirely:
   // persisting them would mutate the user's separate Terminal preferences even though the app
@@ -399,7 +449,9 @@ async function doSave(updates: Partial<CliConfig>, opts: SaveOptions = {}): Prom
     accepted = {};
     for (const [key, value] of Object.entries(effectiveUpdates) as [keyof CliConfig, any][]) {
       if (sources[key] === 'env') {
-        console.warn(`[Config] Not persisting runtime change to "${key}" — its value came from ${ENV_OVERRIDES[key] || 'the environment'} and is session-scoped.`);
+        console.warn(
+          `[Config] Not persisting runtime change to "${key}" — its value came from ${ENV_OVERRIDES[key] || 'the environment'} and is session-scoped.`,
+        );
       } else {
         (accepted as any)[key] = value;
       }
@@ -428,12 +480,14 @@ async function doSave(updates: Partial<CliConfig>, opts: SaveOptions = {}): Prom
       // user had switched away from). Strip the just-updated global keys from the project file.
       try {
         const existingProject = await readJson(projectPath());
-        const stale = Object.keys(globalUpdates).filter(k => k in existingProject);
+        const stale = Object.keys(globalUpdates).filter((k) => k in existingProject);
         if (stale.length) {
           for (const k of stale) delete (existingProject as any)[k];
           await writeJsonAtomic(projectPath(), existingProject);
         }
-      } catch { /* no project file — nothing to migrate */ }
+      } catch {
+        /* no project file — nothing to migrate */
+      }
     }
     if (Object.keys(projectUpdates).length) {
       const existing = await readJson(projectPath());

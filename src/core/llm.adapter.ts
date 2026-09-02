@@ -6,7 +6,7 @@ import { capabilitiesFor, ModelCapabilities, anthropicBetaHeaders } from './capa
 import { contentToText } from './multimodal';
 import { globalTelemetry } from '../telemetry/telemetry';
 import { cliEvents } from '../cli/events';
-import { autoSelectCandidates, isAvoidAutoSelect } from '../cli/models';
+import { autoSelectCandidates } from '../cli/models';
 
 // Streaming & response-parsing helpers now live in ./llm.stream (extracted to keep this file
 // focused on the adapter class). Imported for internal use and re-exported so existing importers
@@ -77,7 +77,7 @@ export async function normalizeProviderErrorResponse(response: Response): Promis
   const contentType = String(response.headers.get('content-type') || '').toLowerCase();
   if (!contentType.includes('json') && !contentType.includes('problem')) return response;
 
-  let text = '';
+    let text: string;
   try { text = await response.clone().text(); } catch { return response; }
   if (!text || text.length > 16_384) return response;
 
@@ -118,7 +118,7 @@ export function selectRequestModel(
 
 export class LlmAdapter implements LLMProvider {
   public readonly strictModel = String(process.env.BIMAX_DESKTOP_STRICT_MODEL || '').trim();
-  public defaultModel = process.env.BGW_MODEL || 'mistralai/mistral-small-4-119b-2603';
+  public defaultModel = process.env.BGW_MODEL || 'moonshotai/kimi-k3';
   public requestTimeout = parseInt(process.env.BGW_TIMEOUT || '120000', 10);
   public temperature: number = parseFloat(process.env.BGW_TEMPERATURE || '0.1');
   // Nucleus sampling cap. Clipping the low-probability tail is what actually curbs the
@@ -356,18 +356,27 @@ export class LlmAdapter implements LLMProvider {
     ) => {
       // An unset optional slot is not broken — it just falls back to the work model at call time.
       if (!current) return;
-      // Three ways a pin is broken, in increasing subtlety:
+      // A pin is broken only on EVIDENCE, of which there are exactly two kinds:
       //   1. the provider does not list it at all;
-      //   2. the provider lists it but has actually rejected it this session (`unservable`);
-      //   3. the provider serves it, but the catalog records it as unfit to be chosen automatically
-      //      — it times out, 400s on the real workload, or cannot call tools.
-      // Case 3 matters because these pins are almost always the residue of an EARLIER automatic
-      // pick, and leaving one in place can strand vision workflows: the vision slot may point at a
-      // model that 400s on every tools+image request, so every screenshot step fails. The switch
-      // is announced with a /model pointer, so an explicit choice can always be re-pinned.
+      //   2. the provider lists it but has actually rejected it this session (`unservable`).
+      //
+      // `isAvoidAutoSelect` used to be a third reason, and it inverted this function. That flag is
+      // a catalogue OPINION, not evidence, and it is already applied where it belongs — in
+      // autoSelectCandidates(), which is what "avoid AUTO select" names. Using it to EVICT an
+      // incumbent meant a deliberately chosen model was thrown out for a merely-unvalidated note.
+      //
+      // Measured on this account 2026-09-02: the healer replaced `nemotron-3-nano-omni…-reasoning`
+      // (answers in 4.0s, calls tools) with `moonshotai/kimi-k3` (90s timeout, no response), and
+      // `nemotron-3.5-lightning-30b-a3b` (6.7s, calls tools) with `mistral-7b-instruct-v0.3`
+      // (HTTP 404) — because the two working models carry `avoidAutoSelect` while the two broken
+      // ones do not. Their notes read "GUI probes chose wrong clicks" (a Computer Use finding, and
+      // CU is no longer part of this product) and "task probe pending" (simply unbenchmarked).
+      // Neither says "cannot serve a coding turn". The result was zero tool calls on every turn.
+      //
+      // This mirrors the rule already stated for the Desktop lock above: advice for an automatic
+      // picker is never authority to veto the user's choice or silently rewrite it.
       const reason = !served.has(current) ? 'is not served by the provider'
         : this.unservable.has(current) ? 'was rejected by the provider at call time'
-        : isAvoidAutoSelect(current) ? 'is served but is not fit for automatic use (see the catalog note)'
         : null;
       if (!reason) return;
       const to = replacementFor(tier);
@@ -396,10 +405,32 @@ export class LlmAdapter implements LLMProvider {
    * explicit per-call `temperature` (e.g. the deterministic aux callers) always wins. Mirrors
    * opencode's provider/transform.ts.
    */
+  /**
+   * Reasoning models must not run at the plain default temperature.
+   *
+   * The default here is 0.1 (BGW_TEMPERATURE), which is tuned for plain instruct models. A
+   * reasoning MoE sampled that cold goes degenerate: it collapses into a token loop and emits the
+   * same fragment forever ("ellsellsells…"), which reaches the user as a stalled turn that never
+   * calls a tool. minimax was already pinned to 1.0 for exactly this reason — that pin was the
+   * single-model version of this rule, and it is kept verbatim because it comes from minimax's own
+   * model card. REASONING_FLOOR generalises it to every model the capability layer identifies as a
+   * reasoner, rather than waiting to discover each one the same painful way.
+   *
+   * An EXPLICIT temperature always wins: `override` (a per-call choice) and a user-set
+   * `temperature` above the floor are both respected, so this can only ever raise a value that was
+   * never chosen for a reasoning model in the first place. Settings → temperature still overrides
+   * it outright.
+   */
   public resolveSampling(model: string, override?: number): { temperature: number; top_p: number } {
     const id = (model || '').toLowerCase();
     if (id.includes('minimax')) return { temperature: override ?? 1.0, top_p: this.topP };
-    return { temperature: override ?? this.temperature, top_p: this.topP };
+    if (override !== undefined) return { temperature: override, top_p: this.topP };
+
+    const REASONING_FLOOR = 0.6;
+    const caps = capabilitiesFor(null, model);
+    const isReasoner = !!(caps.nativeThinking || caps.inlineReasoning || caps.openerlessReasoning);
+    const temperature = isReasoner ? Math.max(this.temperature, REASONING_FLOOR) : this.temperature;
+    return { temperature, top_p: this.topP };
   }
 
   /**
@@ -526,9 +557,9 @@ export class LlmAdapter implements LLMProvider {
     const provider = kr.provider || 'the active provider';
     if ((e?.status ?? 0) === 410) {
       this.markUnservable(model);
-      const strictStep37 = !!this.strictModel && /step-3\.7-flash/i.test(model);
-      const recovery = strictStep37
-        ? 'To keep Step 3.7 Flash, open Bimax Settings → Models → Providers and add a StepFun or OpenRouter key.'
+      const strictKimiK3 = !!this.strictModel && /kimi-k3/i.test(model);
+      const recovery = strictKimiK3
+        ? 'Open Bimax Settings → Models → Providers and add or select an NVIDIA API key for Kimi K3.'
         : `Switch to a provider that still serves this model.`;
       e.message = `Model "${model}" is not served by provider "${provider}" (HTTP 410 Gone). ${recovery} ` +
         `(API said: ${raw.trim() || 'the model endpoint is gone'})`;
@@ -911,7 +942,7 @@ export class LlmAdapter implements LLMProvider {
         // BGW_PARALLEL_TOOL_CALLS=true for providers that support it.
         // Default ON now (batched tool calls = faster). Only constrain to single-call for backends
         // that reject multi-tool turns, via config / BGW_PARALLEL_TOOL_CALLS=false.
-        if (!this.parallelToolCalls) {
+        if (!this.parallelToolCalls || !caps.parallelToolCalls) {
           requestOptions.parallel_tool_calls = false;
         }
       }
@@ -921,7 +952,11 @@ export class LlmAdapter implements LLMProvider {
       // Only send reasoning_effort to a model that advertises the knob — several backends 400 on an
       // unknown sampling field. Reasoning models (o-series, deepseek-r1, minimax) are flagged in the
       // table; unknowns can opt in with BGW_CAP_REASONING_EFFORT=true.
-      const effort = options.reasoningEffort ?? this.reasoningEffort;
+      // Kimi K3 defaults to maximum reasoning at the provider, which is a poor interactive default
+      // and exceeded the bounded local first-token probes. Prefer its documented low setting unless
+      // the user explicitly asks for another effort. Other model families retain their old default.
+      const effort = options.reasoningEffort ?? this.reasoningEffort
+        ?? (caps.requiresReasoningReplay ? 'low' : undefined);
       if (effort && caps.reasoningEffortKnob) requestOptions.reasoning_effort = effort;
 
       // C6 — Anthropic beta-header features (1M context, token-efficient tools, interleaved
@@ -1000,7 +1035,7 @@ export class LlmAdapter implements LLMProvider {
       if (caps.inlineReasoning || caps.nativeThinking) this.detectedReasoners.add(model);
       const knownReasoner = this.detectedReasoners.has(model);
       // chooseThinkStrategy is the single source of truth (see llm.stream.ts). OPENER-based inline
-      // reasoners (step-3.7, the default) get implicit=false → a tag-free answer streams from token 1
+      // opener-based/native reasoners get implicit=false → a tag-free answer streams from token 1
       // while `<think>…</think>` reasoning is still hidden by the explicit filter path. Only genuinely
       // OPENER-LESS reasoners (step-3.5) and UNKNOWN models buffer the ambiguous leading region.
       const strategy = chooseThinkStrategy(caps, this.implicitThink, knownReasoner);
@@ -1104,7 +1139,7 @@ export class LlmAdapter implements LLMProvider {
             const released = thinkFilter.releaseAsAnswer();
             if (released) yield { type: 'token', text: released };
           }
-          yield { type: 'thinking', text: reasoning };
+          yield { type: 'thinking', text: reasoning, ...(caps.requiresReasoningReplay ? { replay: true } : {}) };
         }
 
         // Yield tokens, with inline <think> spans diverted to the thinking channel.

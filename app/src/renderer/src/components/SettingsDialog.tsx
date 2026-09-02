@@ -60,7 +60,7 @@ const PAGES: Page[] = [
     ],
   },
   {
-    id: 'safety', label: 'Permissions & safety', icon: <Shield size={15} />, subtitle: 'Approval gates and Mac trust',
+    id: 'safety', label: 'Agent safety', icon: <Shield size={15} />, subtitle: 'Project-scoped approval and mutation gates',
     items: [
       { key: 'diffApproval', label: 'Diff approval', desc: 'Surface every mutating edit and wait for approval.', control: { kind: 'toggle' } },
       { key: 'blastGate', label: 'Blast-radius gate', desc: 'Confirm edits touching high-impact code symbols.', control: { kind: 'toggle' } },
@@ -138,7 +138,7 @@ export function SettingsDialog({
           ))}
           <div className="mt-auto pt-4">
             <button onClick={() => { onClose(); onOpenHealth(); }} className="settings-support pressable">
-              <Activity size={14} /><span><strong>Support & Trust</strong><small>Permissions, app health and diagnostics</small></span>
+              <Activity size={14} /><span><strong>Support</strong><small>App health and diagnostics</small></span>
             </button>
           </div>
         </nav>
@@ -163,9 +163,6 @@ export function SettingsDialog({
                 {page === 'providers' && !q ? (
                   <ActionCard icon={<KeyRound size={16} />} title="Provider catalogue & credentials" description="Connect API providers, store keys in the macOS Keychain and choose a compatible model for each role." action="Manage providers" onClick={onOpenModels} />
                 ) : null}
-                {page === 'safety' && !q ? (
-                  <ActionCard icon={<Shield size={16} />} title="Trust Center" description="Live macOS permission state, Computer Use service provenance and the draggable app bundle." action="Open Trust Center" onClick={() => { onClose(); onOpenHealth(); }} />
-                ) : null}
                 {visible.map((item, index) => <SettingRow key={item.key} item={item} cfg={cfg ?? {}} onApply={apply} index={index} disabled={unsupported} />)}
                 {q && visible.length === 0 ? <div className="mt-10 text-center text-xs text-faint">No settings match “{search}”.</div> : null}
               </div>
@@ -182,17 +179,17 @@ function CapabilitySettings({ page, phase9, onOpenModels, onOpenInspector, onOpe
 }): React.ReactElement {
   if (page === 'browser') return (
     <div className="settings-capability-grid">
-      <ActionCard icon={<Globe2 size={16} />} title="Structured research browser" description="BrowserTool uses stable indexed targets, screenshots, downloads, assertions and page-health evidence before generic Mac clicks." action="Open Browser lane" onClick={() => onOpenInspector('browser')} />
+      <ActionCard icon={<Globe2 size={16} />} title="Structured research browser" description="BrowserTool uses stable indexed targets, screenshots, downloads, assertions and page-health evidence inside its isolated browser profile." action="Open Browser lane" />
       <CapabilityNote icon={<Shield size={15} />} title="Isolated automation profile" description="Bimax uses its managed Puppeteer browser by default. Your personal Chrome profile, history and extensions are not attached." />
       <CapabilityNote icon={<BrainCircuit size={15} />} title="Research receipts" description="URLs, page titles, failed requests and console errors stay attached to the task as reviewable evidence." />
     </div>
   );
   if (page === 'environment') {
     const ready = phase9.environment?.tools.filter((tool) => tool.state === 'ready').length ?? 0;
-    return <div className="settings-capability-grid"><CapabilityHero icon={<TerminalSquare size={18} />} title={`${ready} developer tools resolved`} description="A bounded, read-only inventory of runtimes, package managers, SDKs and local services. No profile sourcing or project scripts." status={phase9.environment ? 'Live' : 'Loading'} /><ActionCard icon={<ExternalLink size={15} />} title="Environment map" description="Inspect exact tool paths, versions and project declarations in Evidence Studio." action="Open Environment" onClick={() => onOpenInspector('environment')} /></div>;
+    return <div className="settings-capability-grid"><CapabilityHero icon={<TerminalSquare size={18} />} title={`${ready} developer tools resolved`} description="A bounded, read-only inventory of runtimes, package managers, SDKs and local services. No profile sourcing or project scripts." status={phase9.environment ? 'Live' : 'Loading'} /><ActionCard icon={<ExternalLink size={15} />} title="Environment map" description="Inspect exact tool paths, versions and project declarations in Evidence Studio." action="Open Environment" /></div>;
   }
   const ready = phase9.alchemist?.backends.filter((backend) => backend.state === 'ready').length ?? 0;
-  return <div className="settings-capability-grid"><CapabilityHero icon={<FlaskConical size={18} />} title={`${ready} local model backends ready`} description="MLX, Core ML Tools, llama.cpp and Ollama are detected without installing or running a model." status={phase9.alchemist?.state ?? 'Loading'} /><ActionCard icon={<BrainCircuit size={15} />} title="Measured experiment pipeline" description="Inspect → quantize or fine-tune → compare quality, memory and latency → verify → export. Unavailable steps remain disabled." action="Open Alchemist" onClick={() => onOpenInspector('alchemist')} /><ActionCard icon={<Cpu size={15} />} title="Model roles" description="Select provider models for coding and Computer Use before running an agent." action="Manage models" onClick={onOpenModels} /><ActionCard icon={<Shield size={15} />} title="Isolation boundary" description="Model transforms require isolated workers and immutable artifact handles; unsafe pickle input is refused." action="Open support" onClick={() => { onClose(); onOpenHealth(); }} /></div>;
+  return <div className="settings-capability-grid"><CapabilityHero icon={<FlaskConical size={18} />} title={`${ready} local model backends ready`} description="MLX, Core ML Tools, llama.cpp and Ollama are detected without installing or running a model." status={phase9.alchemist?.state ?? 'Loading'} /><ActionCard icon={<BrainCircuit size={15} />} title="Measured experiment pipeline" description="Inspect → quantize or fine-tune → compare quality, memory and latency → verify → export. Unavailable steps remain disabled." action="Open Alchemist" /><ActionCard icon={<Cpu size={15} />} title="Model roles" description="Select provider models for coding, quick replies, and specialist agents." action="Manage models" onClick={onOpenModels} /><ActionCard icon={<Shield size={15} />} title="Isolation boundary" description="Model transforms require isolated workers and immutable artifact handles; unsafe pickle input is refused." action="Open support" onClick={() => { onClose(); onOpenHealth(); }} /></div>;
 }
 
 function CapabilityHero({ icon, title, description, status }: { icon: React.ReactNode; title: string; description: string; status: string }): React.ReactElement {
@@ -203,8 +200,21 @@ function CapabilityNote({ icon, title, description }: { icon: React.ReactNode; t
   return <section className="settings-note"><span>{icon}</span><div><h3>{title}</h3><p>{description}</p></div></section>;
 }
 
-function ActionCard({ icon, title, description, action, onClick }: { icon: React.ReactNode; title: string; description: string; action: string; onClick: () => void }): React.ReactElement {
-  return <button onClick={onClick} className="settings-action-card pressable"><span className="settings-capability-icon">{icon}</span><span className="min-w-0 flex-1 text-left"><strong>{title}</strong><small>{description}</small></span><span className="settings-action-label">{action}<ExternalLink size={11} /></span></button>;
+/**
+ * A capability card. `onClick` is optional: some capabilities are described here but have no lane
+ * to open any more, and a button that navigates nowhere is worse than a plain statement — so
+ * without a handler the card renders as static prose and drops its action affordance entirely.
+ */
+function ActionCard({ icon, title, description, action, onClick }: { icon: React.ReactNode; title: string; description: string; action: string; onClick?: () => void }): React.ReactElement {
+  const body = (
+    <>
+      <span className="settings-capability-icon">{icon}</span>
+      <span className="min-w-0 flex-1 text-left"><strong>{title}</strong><small>{description}</small></span>
+      {onClick ? <span className="settings-action-label">{action}<ExternalLink size={11} /></span> : null}
+    </>
+  );
+  if (!onClick) return <div className="settings-action-card">{body}</div>;
+  return <button onClick={onClick} className="settings-action-card pressable">{body}</button>;
 }
 
 function SettingRow({ item, cfg, onApply, index, disabled }: { item: Item; cfg: EngineConfig; onApply: (key: keyof EngineConfig, value: unknown, debounceMs?: number) => void; index: number; disabled: boolean }): React.ReactElement {

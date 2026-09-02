@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  ChevronRight, PenLine, Search, Users, MonitorSmartphone, Cpu, ShieldCheck, Settings2, HardDrive, FlaskConical,
+  ChevronRight, PenLine, Search, Users, Cpu, Settings2, HardDrive, FlaskConical,
 } from 'lucide-react';
 import { cn } from '../lib/cn';
 import { UiSnapshot } from '../protocol';
@@ -14,7 +14,7 @@ import type { InspectorTabId } from '../inspector.model';
  * *Nothing here reports state.* The previous panel carried a status orb, a branch/architecture
  * string, live counts, an "active" flag and a machine-health strip — six live readings in the one
  * surface whose job is to move you somewhere. Each of those facts already has a home next to the
- * evidence it describes (`TaskHeader`, the inspector lanes, the Trust Center), so a second copy here
+ * evidence it describes (`TaskHeader`, the inspector lanes, Settings), so a second copy here
  * could only ever be a copy that disagrees. The single exception is the attention marker on
  * Permissions, which is a *destination* cue — it says where to go, not what is happening.
  *
@@ -73,35 +73,30 @@ export function TaskSidebar({
   onNewTask,
   onOpenPalette,
   onResume,
-  onOpenTrust,
   onOpenInspector,
   onOpenSettings,
   onOpenMachineHealth,
-  computerUseBlocked,
 }: {
   snapshot: UiSnapshot | null;
   onNewTask: () => void;
   onOpenPalette: () => void;
   onResume: (id: string) => void;
-  onOpenTrust: () => void;
   onOpenInspector: (tab: InspectorTabId) => void;
   onOpenSettings: () => void;
   onOpenMachineHealth: () => void;
-  computerUseBlocked: boolean;
 }): React.ReactElement {
   const sessions = snapshot?.sessions ?? [];
   // The running task first, then history — one list, because "which task am I in" is a property of
   // the row (it is the selected one), not a reason for a second heading.
   const ordered = [...sessions.filter((s) => s.current), ...sessions.filter((s) => !s.current)];
+  // Recents shows 8 by default. "Show more" reveals the rest rather than growing the panel
+  // unbounded; it collapses back so the list can never become the whole sidebar.
+  const RECENTS_PAGE = 8;
+  const [recentsExpanded, setRecentsExpanded] = useState(false);
+  const visibleRecents = recentsExpanded ? ordered : ordered.slice(0, RECENTS_PAGE);
+  const hiddenRecents = Math.max(0, ordered.length - RECENTS_PAGE);
 
   const groups: NavGroup[] = [
-    {
-      id: 'workspace',
-      label: 'Workspace',
-      items: [
-        { id: 'agents', label: 'Agents', icon: <Users size={15} />, onSelect: () => onOpenInspector('team') },
-      ],
-    },
   ];
 
   /**
@@ -111,18 +106,6 @@ export function TaskSidebar({
    * for burying them in a dialog. A flyout off the last row is both: out of the way, one hover deep.
    */
   const machine: NavItem[] = [
-    { id: 'computer', label: 'Computer', icon: <MonitorSmartphone size={15} />, onSelect: () => onOpenInspector('mac') },
-    { id: 'runtime', label: 'Runtime', icon: <Cpu size={15} />, onSelect: () => onOpenInspector('runtime') },
-    {
-      id: 'permissions',
-      label: 'Permissions',
-      icon: <ShieldCheck size={15} />,
-      keys: '⌘⇧T',
-      onSelect: onOpenTrust,
-      marked: computerUseBlocked,
-    },
-    { id: 'environment', label: 'Environment', icon: <HardDrive size={15} />, onSelect: () => onOpenInspector('environment') },
-    { id: 'alchemist', label: 'ML Alchemist', icon: <FlaskConical size={15} />, onSelect: () => onOpenInspector('alchemist') },
     { id: 'health', label: 'App health', icon: <HardDrive size={15} />, onSelect: onOpenMachineHealth },
   ];
 
@@ -158,13 +141,13 @@ export function TaskSidebar({
       </div>
 
       {/* --- Everything else, grouped ------------------------------------------------------- */}
-      <div className="min-h-0 flex-1 space-y-0.5 overflow-y-auto px-3 py-2">
+      <div className="quiet-scrollbar min-h-0 flex-1 space-y-0.5 overflow-y-auto px-3 py-2">
         <Section id="recents" label="Recents" defaultOpen>
           {ordered.length === 0 ? (
             <p className="px-2.5 py-1.5 text-[12px] text-faint">Nothing yet</p>
           ) : (
             <>
-              {ordered.slice(0, 8).map((session) => (
+              {visibleRecents.map((session) => (
                 <button
                   key={session.id}
                   onClick={() => onResume(session.id)}
@@ -179,6 +162,14 @@ export function TaskSidebar({
                   </span>
                 </button>
               ))}
+              {hiddenRecents > 0 && (
+                <button
+                  onClick={() => setRecentsExpanded((v) => !v)}
+                  className="w-full cursor-pointer rounded-lg px-2.5 py-1.5 text-left text-[11.5px] text-faint hover:bg-hover hover:text-dim focus-visible:outline-2 focus-visible:outline-ember"
+                >
+                  {recentsExpanded ? 'Show less' : `Show more (${hiddenRecents})`}
+                </button>
+              )}
             </>
           )}
         </Section>

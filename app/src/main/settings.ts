@@ -60,13 +60,21 @@ export function isRealProject(dir: string | undefined | null): boolean {
 }
 
 /**
- * The project to open on launch: an explicit env override wins, else the last valid saved project,
- * else null (→ the renderer shows the project-first welcome). Both candidates are validated, so a
- * stale/deleted saved path or a $HOME value can never boot the engine in the wrong place.
+ * The project to open on launch.
+ *
+ * Only an EXPLICIT instruction opens a project automatically: `$BIMAX_CWD`, or launching from a
+ * folder. The last-used project is deliberately NOT reopened — a coding session is scoped to a
+ * repository, and silently resuming the previous one means the app starts doing work in a project
+ * the user may not have meant to be in, with no moment at which they chose it. Reopening was also
+ * indistinguishable from "the app ignored me": there was no way to get to the picker except by
+ * closing a project you never asked to open.
+ *
+ * `null` sends the renderer to the project-first welcome, where the recents list makes returning to
+ * yesterday's repository one click — chosen rather than assumed.
  */
 export function pickInitialProject(saved: string | undefined, envCwd: string | undefined = process.env.BIMAX_CWD): string | null {
   if (isRealProject(envCwd)) return path.resolve(envCwd!);
-  if (isRealProject(saved)) return path.resolve(saved!);
+  void saved; // kept in settings for the recents list; never auto-opened
   return null;
 }
 

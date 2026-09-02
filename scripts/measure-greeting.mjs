@@ -14,7 +14,7 @@ import * as perf from '../dist/telemetry/perf.js';
 
 const RUNS = parseInt(process.argv[2] || '10', 10);
 const PROMPT = process.argv[3] || 'hi';
-const MODEL = process.env.BGW_MODEL || 'stepfun-ai/step-3.7-flash';
+const MODEL = process.env.BGW_MODEL || 'mistralai/mistral-7b-instruct-v0.3';
 const SYSTEM =
   'You are BiMax, an autonomous coding agent in the BiMax terminal. Right now you are making brief ' +
   'conversation. Reply in one or two natural sentences. Do not mention tools.';

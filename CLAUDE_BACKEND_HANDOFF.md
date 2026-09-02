@@ -61,7 +61,8 @@ Observed UI: the spinner runs, then the complete answer appears at once.
 
 Root evidence:
 
-- Default model: `stepfun-ai/step-3.7-flash`.
+- Historical default at the time of this observation: `stepfun-ai/step-3.7-flash` (now retired;
+  current Work/Vision default is `moonshotai/kimi-k3`).
 - `src/core/capabilities.ts` marks the Step family `inlineReasoning: true`.
 - `ThinkTagFilter` consequently waits for a closing thinking tag.
 - A short, tag-free answer never exceeds the preamble cap, so it is released only by `flush()` at
@@ -196,4 +197,3 @@ Before claiming completion, run and include exact results for:
 3. Public v1.0.1 only after all gates pass.
 4. A short protocol proposal if the frontend needs new phase/timing events.
 5. A final list of known limitations; do not label provider queue time as a Bimax fix.
-

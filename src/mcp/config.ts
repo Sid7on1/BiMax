@@ -30,6 +30,12 @@ export interface McpServerSpec {
 
 export const HOST_CAPABILITIES_ENV = 'BIMAX_HOST_CAPABILITIES_JSON';
 
+/** Computer Use was removed from the product. Keep the name reservation at the generic MCP seam
+ * so neither an embedding host nor a project config can silently restore the old mac_control path. */
+export function isDisabledProductCapabilityName(name: string): boolean {
+  return String(name || '').trim().toLowerCase() === 'bimax-mac';
+}
+
 /**
  * Parse the narrow, process-local capability contract supplied by an embedding host.
  *
@@ -49,7 +55,12 @@ export function loadHostCapabilityServers(raw = process.env[HOST_CAPABILITIES_EN
     for (const value of candidates.slice(0, 8)) {
       const name = typeof value?.name === 'string' ? value.name.trim() : '';
       const command = typeof value?.command === 'string' ? value.command.trim() : '';
-      if (!/^[a-z0-9][a-z0-9._-]{0,63}$/i.test(name) || seen.has(name) || !path.isAbsolute(command)) continue;
+      if (
+        !/^[a-z0-9][a-z0-9._-]{0,63}$/i.test(name)
+        || isDisabledProductCapabilityName(name)
+        || seen.has(name)
+        || !path.isAbsolute(command)
+      ) continue;
       const args = Array.isArray(value.args) && value.args.every((arg: unknown) => typeof arg === 'string')
         ? value.args.slice(0, 32) : [];
       const envEntries = value.env && typeof value.env === 'object' && !Array.isArray(value.env)
@@ -100,7 +111,7 @@ export function normalizeArgs(args: any): string[] | undefined {
 
 /** A spec is usable if it has either a launch command or a remote URL. */
 function isValidSpec(s: any): s is McpServerSpec {
-  return !!(s && s.name && (s.command || s.url));
+  return !!(s && s.name && !isDisabledProductCapabilityName(s.name) && (s.command || s.url));
 }
 
 /**

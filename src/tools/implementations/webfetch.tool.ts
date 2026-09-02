@@ -1,5 +1,6 @@
 import { IGovernor } from '../../core/interfaces';
 import { buildTool } from '../tool.factory';
+import { requireNetworkConsent } from '../../security/network.consent';
 
 const MAX_RESPONSE_CHARS = 100_000;
 const FETCH_TIMEOUT_MS = 30_000;
@@ -72,6 +73,13 @@ export const createWebFetchTool = (governor: IGovernor) => buildTool({
   execute: async (args: { url: string }) => {
     const check = validateFetchUrl(args.url);
     if (!check.ok) return `Error: ${check.reason}`;
+
+    // Reaching the network is a decision the user owns. Asked once per host per session, so a
+    // research turn does not become a stream of prompts. See security/network.consent.ts.
+    const refusal = await requireNetworkConsent(governor, {
+      target: String(check.url), tool: 'WebFetchTool', purpose: 'read this page',
+    });
+    if (refusal) return refusal;
 
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);

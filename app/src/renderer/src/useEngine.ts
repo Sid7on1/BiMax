@@ -8,7 +8,6 @@ import { supportsProtocolMajor } from '../../shared/protocol.compat.gen';
 import {
   normalizeUiSnapshot, normalizeReviewSnapshot, normalizeSubAgents, normalizeTodos,
 } from './protocol.normalize';
-import { visibleComputerUsePrompt } from './computer.use.prompt';
 
 /**
  * The renderer's engine state machine: consumes protocol Outbound messages from the preload
@@ -109,9 +108,7 @@ function onEvent(state: EngineUiState, name: string, args: any[]): EngineUiState
     case 'message': {
       const incoming = args[0] as MessageEntry;
       if (!incoming) return state;
-      const msg = incoming.role === 'user'
-        ? { ...incoming, content: visibleComputerUsePrompt(incoming.content) }
-        : incoming;
+      const msg = incoming;
       // The engine echoes the user's turn as its own `message` event (that echo is what the session
       // file persists). The composer already painted an instant local bubble — adopt the engine's
       // entry into it instead of appending a duplicate.
@@ -174,10 +171,7 @@ function onEvent(state: EngineUiState, name: string, args: any[]): EngineUiState
         } else if (e.role === 'user' || e.role === 'assistant' || e.role === 'system') {
           // Replayed menus are inert (their engine-side handlers died with the original process).
           // The sentinel must not equal any option's value — '' would light up "Skip"-style options.
-          const replayed = e.role === 'user'
-            ? { ...e, content: visibleComputerUsePrompt(String(e.content ?? '')) }
-            : e;
-          items.push({ kind: 'msg', msg: replayed as MessageEntry, menuChosen: e.uiComponent === 'menu' ? '__replayed__' : undefined });
+          items.push({ kind: 'msg', msg: e as MessageEntry, menuChosen: e.uiComponent === 'menu' ? '__replayed__' : undefined });
         }
       }
       return { ...state, items, streaming: '', thinking: '' };

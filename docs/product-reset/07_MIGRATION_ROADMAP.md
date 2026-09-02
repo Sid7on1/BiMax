@@ -1,5 +1,9 @@
 # Migration roadmap
 
+> **Direction change, 2026-09-02:** Computer Use phases are retired from the shipped product. The
+> active migration is the code-only path in `30_CODE_ONLY_AGENTIC_IDE_RESET_RECORD.md`. Historical
+> phase records below remain evidence and are not a backlog to reactivate.
+
 The split is a sequence of reversible slices. “All tests green” at each slice means the tests that
 can actually detect the requested outcome, not deleting or weakening a failing test.
 

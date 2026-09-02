@@ -1,4 +1,10 @@
-import { capabilitiesFor, capabilityGlyphs, FLOOR, isFirstPartyAnthropic, anthropicBetaHeaders } from '../core/capabilities';
+import {
+  capabilitiesFor,
+  capabilityGlyphs,
+  FLOOR,
+  isFirstPartyAnthropic,
+  anthropicBetaHeaders,
+} from '../core/capabilities';
 import { markCacheBreakpoint, applyCacheBreakpoints } from '../core/llm.adapter';
 
 // The capability layer is the spine of BiMax's "Claude-when-you-can, universal-always" design.
@@ -6,7 +12,9 @@ import { markCacheBreakpoint, applyCacheBreakpoints } from '../core/llm.adapter'
 // and (2) the curated families resolve to the right powers. Plus the env override escape hatch.
 describe('capabilitiesFor — model capability resolution', () => {
   const ENV = { ...process.env };
-  afterEach(() => { process.env = { ...ENV }; });
+  afterEach(() => {
+    process.env = { ...ENV };
+  });
 
   it('returns the conservative FLOOR for unknown / local models (byte-identical-to-today guarantee)', () => {
     const caps = capabilitiesFor('local', 'some-random-7b-instruct');
@@ -65,6 +73,22 @@ describe('capabilitiesFor — model capability resolution', () => {
     expect(caps.parallelToolCalls).toBe(false);
   });
 
+  it('keeps curated Quick recommendations out of hidden reasoning mode', () => {
+    for (const id of [
+      'mistralai/mistral-7b-instruct-v0.3',
+      'google/gemma-3-4b-it',
+      'ibm/granite-3.0-3b-a800m-instruct',
+      'zyphra/zamba2-7b-instruct',
+      'nvidia/mistral-nemo-minitron-8b-8k-instruct',
+      'deepseek-ai/deepseek-coder-6.7b-instruct',
+      'google/codegemma-7b',
+    ]) {
+      const caps = capabilitiesFor('nvidia', id);
+      expect(caps.plainContent).toBe(true);
+      expect(caps.nativeThinking || caps.inlineReasoning || caps.openerlessReasoning).toBe(false);
+    }
+  });
+
   it('routes NVIDIA GUI/vision models with vision and their real context windows', () => {
     const omni = capabilitiesFor('nvidia', 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning');
     expect(omni.visionInput).toBe(true);
@@ -101,6 +125,17 @@ describe('capabilitiesFor — model capability resolution', () => {
     expect(caps.contextWindow).toBe(262_000);
   });
 
+  it('Kimi K3 exposes the complete NVIDIA multimodal tool-round contract', () => {
+    const caps = capabilitiesFor('nvidia', 'moonshotai/kimi-k3');
+    expect(caps.nativeThinking).toBe(true);
+    expect(caps.reasoningEffortKnob).toBe(true);
+    expect(caps.requiresReasoningReplay).toBe(true);
+    expect(caps.structuredOutputs).toBe(true);
+    expect(caps.fixedSampling).toBe(true);
+    expect(caps.visionInput).toBe(true);
+    expect(caps.contextWindow).toBe(1_048_576);
+  });
+
   // The A3 reasoning_effort send-gate keys off reasoningEffortKnob: only flagged models get the
   // field (others 400 on it). Lock both polarities so a table edit can't silently break the gate.
   it('reasoningEffortKnob: on for true reasoning models, off for the rest (incl. minimax)', () => {
@@ -119,6 +154,7 @@ describe('capabilitiesFor — model capability resolution', () => {
     expect(capabilitiesFor('openai', 'o3-mini').fixedSampling).toBe(true);
     expect(capabilitiesFor('openai', 'o1-preview').fixedSampling).toBe(true);
     expect(capabilitiesFor('openai', 'gpt-5').fixedSampling).toBe(true);
+    expect(capabilitiesFor('nvidia', 'moonshotai/kimi-k3').fixedSampling).toBe(true);
     expect(capabilitiesFor('openai', 'gpt-4o').fixedSampling).toBe(false);
     expect(capabilitiesFor('anthropic', 'claude-3-5-sonnet').fixedSampling).toBe(false);
     expect(capabilitiesFor('nvidia', 'minimaxai/minimax-m3').fixedSampling).toBe(false);
@@ -185,9 +221,7 @@ describe('capabilitiesFor — model capability resolution', () => {
 describe('markCacheBreakpoint — Anthropic cache_control', () => {
   it('converts a string system message into a single cache-marked text part', () => {
     const out = markCacheBreakpoint({ role: 'system', content: 'big stable prompt' });
-    expect(out.content).toEqual([
-      { type: 'text', text: 'big stable prompt', cache_control: { type: 'ephemeral' } },
-    ]);
+    expect(out.content).toEqual([{ type: 'text', text: 'big stable prompt', cache_control: { type: 'ephemeral' } }]);
     expect(out.role).toBe('system');
   });
 
@@ -206,7 +240,8 @@ describe('markCacheBreakpoint — Anthropic cache_control', () => {
 
 describe('applyCacheBreakpoints — full-prefix caching', () => {
   const cc = { type: 'ephemeral' };
-  const marked = (m: any) => Array.isArray(m.content) && m.content[m.content.length - 1]?.cache_control?.type === 'ephemeral';
+  const marked = (m: any) =>
+    Array.isArray(m.content) && m.content[m.content.length - 1]?.cache_control?.type === 'ephemeral';
 
   it('marks BOTH the system message and the conversation tail', () => {
     const msgs = [
@@ -216,8 +251,8 @@ describe('applyCacheBreakpoints — full-prefix caching', () => {
       { role: 'user', content: 'do the thing' },
     ];
     const out = applyCacheBreakpoints(msgs);
-    expect(marked(out[0])).toBe(true);          // system cached
-    expect(marked(out[3])).toBe(true);          // conversation tail cached
+    expect(marked(out[0])).toBe(true); // system cached
+    expect(marked(out[3])).toBe(true); // conversation tail cached
     expect(Array.isArray(out[1].content)).toBe(false); // middle untouched
     expect(Array.isArray(out[2].content)).toBe(false);
   });
@@ -238,11 +273,14 @@ describe('applyCacheBreakpoints — full-prefix caching', () => {
     ]);
     expect(marked(out[0])).toBe(true);
     expect(marked(out[1])).toBe(true); // fell back to the last markable message
-    expect(out[2].content).toBe('');   // untouched
+    expect(out[2].content).toBe(''); // untouched
   });
 
   it('does not mutate the input array or its messages', () => {
-    const input = [{ role: 'system', content: 'a' }, { role: 'user', content: 'b' }];
+    const input = [
+      { role: 'system', content: 'a' },
+      { role: 'user', content: 'b' },
+    ];
     applyCacheBreakpoints(input);
     expect(input[0].content).toBe('a');
     expect(input[1].content).toBe('b');
@@ -279,7 +317,9 @@ describe('isFirstPartyAnthropic — C6 host gate', () => {
 
 describe('anthropicBetaHeaders — C6 opt-in beta emission', () => {
   const ENV = { ...process.env };
-  afterEach(() => { process.env = { ...ENV }; });
+  afterEach(() => {
+    process.env = { ...ENV };
+  });
 
   it('emits nothing on a non-Anthropic host even when the env is set', () => {
     process.env.BGW_ANTHROPIC_BETA = 'context-1m-2025-08-07';

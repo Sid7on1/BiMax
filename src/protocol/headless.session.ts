@@ -10,10 +10,6 @@ import {
 } from '../telemetry/perf';
 import { IGraphStore } from '../graph/models';
 import { getSessionRecorder } from '../cli/session.recorder';
-// The real saveConfig, not deps.saveConfig: healing must pass origin:'runtime' so the volatility
-// guard drops the write when the model came from BGW_MODEL (a test/benchmark session), and the
-// injected dep does not carry that option.
-import { saveConfig } from '../cli/config';
 
 /**
  * Confidence-in-margin (turn-end form): from the epistemic-ledger delta across a turn, decide what
@@ -190,9 +186,9 @@ export class HeadlessSession {
       } else if (/No API keys configured/i.test(detail)) {
         // First-run / dismissed onboarding: a keyless turn must say so in the transcript, not die
         // into the hidden log view. Name the exact next step.
-        const strictStep37 = /step-3\.7-flash/i.test(String(process.env.BIMAX_DESKTOP_STRICT_MODEL || ''));
-        cliEvents.emit('message', this.msg('system', strictStep37
-          ? '⚠ Step 3.7 Flash needs a provider key. Open Bimax Settings → Models → Providers and add a StepFun or OpenRouter API key.'
+        const strictKimiK3 = /kimi-k3/i.test(String(process.env.BIMAX_DESKTOP_STRICT_MODEL || ''));
+        cliEvents.emit('message', this.msg('system', strictKimiK3
+          ? '⚠ Kimi K3 needs an NVIDIA provider key. Open Bimax Settings → Models → Providers and add or select NVIDIA.'
           : '⚠ No API key configured — run /keys to add one for the selected provider.', 'error'));
       } else if (/rejected the API key|unauthorized/i.test(detail)) {
         // Auth-dead pool (expired key): the adapter fails fast now; make the failure actionable.
@@ -253,10 +249,9 @@ export class HeadlessSession {
       if (typeof adapter?.healModels !== 'function') return;
       const healed = await adapter.healModels() as Array<{ slot: string; from: string; to: string }>;
       if (!healed.length) return;
-      const SLOT_KEY: Record<string, string> = { work: 'model', quick: 'liteModel', vision: 'visionModel' };
-      const patch: Record<string, string> = {};
-      for (const h of healed) patch[SLOT_KEY[h.slot]] = h.to;
-      try { saveConfig(patch as any, { origin: 'runtime' }); } catch { /* persistence optional */ }
+      // Session-scoped, like the boot healer: recover the turn without rewriting the model the
+      // user chose. See the note in headless.entry.ts — persisting this is what made an explicit
+      // pick silently revert to the top-ranked candidate on every later launch.
       const lines = healed.map(h => `  • ${h.slot}: "${h.from}" → "${h.to}"`);
       cliEvents.emit('message', this.msg('system',
         `Switched to a model your provider actually serves — send that again:\n${lines.join('\n')}`, 'info'));

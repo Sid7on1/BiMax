@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Search, FolderOpen, GitCompareArrows, Files, SquareTerminal, Users, Map,
-  BrainCircuit, ShieldCheck, Settings, SquarePen, AppWindow, Receipt, Globe, Activity, FlaskConical, HardDrive,
+  BrainCircuit, Settings, SquarePen, Receipt, Globe, Activity, FlaskConical, HardDrive,
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from './ui/dialog';
 import type { InspectorTabId } from '../inspector.model';
@@ -17,13 +17,12 @@ interface PaletteAction {
 }
 
 export function CommandPalette({
-  open, onClose, onOpenInspector, onOpenTerminal, onOpenTrust, onOpenWorkspace, onOpenSettings, onNewTask, onOpenGallery,
+  open, onClose, onOpenInspector, onOpenTerminal, onOpenWorkspace, onOpenSettings, onNewTask, onOpenGallery,
 }: {
   open: boolean;
   onClose: () => void;
   onOpenInspector: (tab: InspectorTabId) => void;
   onOpenTerminal: () => void;
-  onOpenTrust: () => void;
   onOpenWorkspace: (tab: WorkspaceSheetTab) => void;
   onOpenSettings: () => void;
   onNewTask: () => void;
@@ -38,22 +37,15 @@ export function CommandPalette({
   const actions = useMemo<PaletteAction[]>(() => [
     { id: 'new', label: 'Start a new task', group: 'Task', icon: <SquarePen size={14} />, run: onNewTask },
     { id: 'project', label: 'Open another project', group: 'Project', icon: <FolderOpen size={14} />, run: () => { void window.bimax.pickFolder(); } },
-    { id: 'code', label: 'Review changes', group: 'Evidence', icon: <GitCompareArrows size={14} />, run: () => onOpenInspector('code') },
-    { id: 'mac', label: 'Show the Mac live target', group: 'Evidence', icon: <AppWindow size={14} />, run: () => onOpenInspector('mac') },
-    { id: 'browser', label: 'Show browser activity', group: 'Evidence', icon: <Globe size={14} />, run: () => onOpenInspector('browser') },
-    { id: 'receipt', label: 'Open the task receipt', group: 'Evidence', icon: <Receipt size={14} />, run: () => onOpenInspector('receipt') },
-    { id: 'team', label: 'Show parallel work', group: 'Evidence', icon: <Users size={14} />, run: () => onOpenInspector('team') },
-    { id: 'runtime', label: 'Inspect adaptive runtime', group: 'Evidence', icon: <Activity size={14} />, run: () => onOpenInspector('runtime') },
-    { id: 'environment', label: 'Inspect developer environment', group: 'Evidence', icon: <HardDrive size={14} />, run: () => onOpenInspector('environment') },
-    { id: 'alchemist', label: 'Open ML Alchemist', group: 'Evidence', icon: <FlaskConical size={14} />, run: () => onOpenInspector('alchemist') },
+    { id: 'review', label: 'Review changes', group: 'Evidence', icon: <GitCompareArrows size={14} />, run: () => onOpenInspector('review') },
+    { id: 'github', label: 'GitHub — fetch, pull, push', group: 'Evidence', icon: <GitCompareArrows size={14} />, run: () => onOpenInspector('github') },
     { id: 'files', label: 'Browse files', group: 'Workspace', icon: <Files size={14} />, run: () => onOpenInspector('files') },
     { id: 'terminal', label: 'Open terminal', group: 'Workspace', icon: <SquareTerminal size={14} />, run: onOpenTerminal },
     { id: 'map', label: 'Explore code map', group: 'Workspace', icon: <Map size={14} />, run: () => onOpenWorkspace('map') },
     { id: 'memory', label: 'Open memory', group: 'Workspace', icon: <BrainCircuit size={14} />, run: () => onOpenWorkspace('memory') },
     { id: 'chats', label: 'Browse all chats', group: 'Task', icon: <Files size={14} />, run: onOpenGallery },
-    { id: 'trust', label: 'Open Permissions', group: 'App', icon: <ShieldCheck size={14} />, run: onOpenTrust },
     { id: 'settings', label: 'Open settings', group: 'App', icon: <Settings size={14} />, run: onOpenSettings },
-  ], [onNewTask, onOpenGallery, onOpenInspector, onOpenSettings, onOpenTerminal, onOpenTrust, onOpenWorkspace]);
+  ], [onNewTask, onOpenGallery, onOpenInspector, onOpenSettings, onOpenTerminal, onOpenWorkspace]);
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();

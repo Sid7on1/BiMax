@@ -176,7 +176,7 @@ export class DogfoodEngine {
       if (!address || typeof address === 'string') throw new Error('static preview server did not bind');
 
       browser = await puppeteer.launch({
-        headless: 'new',
+        headless: true,
         args: ['--no-sandbox', '--disable-gpu'],
       });
       {

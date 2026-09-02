@@ -7,9 +7,9 @@ import os from 'node:os';
 import type { EngineHandle, SpawnCallbacks } from './supervisor/supervisor';
 import { ProcessProvenanceTracker, type ProcessProvenanceRecord } from '../phase9/process.provenance';
 import {
-  resolveEngineCommand, resolveNativeComponent, describeRefusal, buildEngineChildEnv,
-  type RuntimeLayout, type Resolution, type ComponentName,
-} from './runtime.paths';
+  resolveEngineCommand, describeRefusal, buildEngineChildEnv,
+  type RuntimeLayout, type Resolution,
+} from './coding.runtime.paths';
 
 /**
  * Finder-launched macOS apps inherit launchd's minimal PATH (/usr/bin:/bin:...), not the user's
@@ -53,23 +53,12 @@ function userShellPath(): string {
  * into a deliberate $BIMAX_ENGINE_CMD override; there is no implicit source compilation path.
  */
 
-/**
- * Loopback credentials for the app-owned user takeover latch, published by index.ts once its
- * broker is listening. They only ever reach the mac capability provider's own descriptor
- * environment (runtime.paths.ts), never the generic engine environment and never the renderer.
- */
-let takeoverBrokerCredentials: { endpoint: string; token: string } | null = null;
-
 // S28-D starts with the process tree Bimax itself launches. This bounded tracker contains no raw
 // argv, environment, project path, or network payload and needs no system-wide entitlement.
 const processProvenance = new ProcessProvenanceTracker();
 
 export function engineProcessProvenance(): ProcessProvenanceRecord[] {
   return processProvenance.snapshot();
-}
-
-export function setTakeoverBrokerCredentials(value: { endpoint: string; token: string } | null): void {
-  takeoverBrokerCredentials = value;
 }
 
 // In dev the app lives at <repo>/app, so the engine repo is one level up from the app package.
@@ -90,25 +79,12 @@ function runtimeLayout(): RuntimeLayout {
 }
 
 /**
- * Native component lookups. Each returns the bundle path in a packaged run, honours the dev
- * override only outside one, and reports a refused override so it can be logged rather than
- * silently swallowed.
- */
-function nativeComponent(component: 'macCapability' | 'cuService' | 'cuBridge' | 'desktopHelper'): Resolution {
-  return resolveNativeComponent(runtimeLayout(), component);
-}
-
-/**
  * The same resolution the spawn path uses, exposed for Trust diagnostics. Reporting must describe
  * exactly what a launch would do, so it deliberately shares one code path rather than re-deriving
  * paths — a diagnostics view that disagrees with the launcher is worse than none.
  */
-export function componentResolutions(): Array<{ name: ComponentName; resolution: Resolution }> {
+export function componentResolutions(): Array<{ name: 'engine'; resolution: Resolution }> {
   const layout = runtimeLayout();
-  const native = (['macCapability', 'cuService', 'cuBridge', 'desktopHelper'] as const).map((name) => ({
-    name: name as ComponentName,
-    resolution: resolveNativeComponent(layout, name),
-  }));
 
   // The engine is resolved by a different function because a packaged build with no engine throws.
   // For reporting, that condition is a missing component, not an exception.
@@ -123,19 +99,12 @@ export function componentResolutions(): Array<{ name: ComponentName; resolution:
   } catch {
     engine = { source: 'missing' };
   }
-  return [{ name: 'engine' as ComponentName, resolution: engine }, ...native];
+  return [{ name: 'engine', resolution: engine }];
 }
 
-export function bimaxCuServiceBinary(): string | undefined {
-  return nativeComponent('cuService').path;
-}
-
-export function bimaxCuBridgeBinary(): string | undefined {
-  return nativeComponent('cuBridge').path;
-}
-
-export function bimaxDesktopHelperBinary(): string | undefined {
-  return nativeComponent('desktopHelper').path;
+/** Retired compatibility hook for historical diagnostics; no native helper is resolvable. */
+export function bimaxDesktopHelperBinary(): undefined {
+  return undefined;
 }
 
 function resolveCommand(projectDir: string): { cmd: string; args: string[]; cwd: string; refusals: string[] } {
@@ -209,23 +178,7 @@ export function spawnEngineProcess(projectDir: string, extraEnv: Record<string, 
   };
   logLine(`[desktop] ${new Date().toISOString()} starting engine for ${projectDir}: ${command}`);
 
-  // Every override a packaged build refused is written before the child starts. A refusal that is
-  // never reported is indistinguishable from an override that silently failed to apply.
-  const nativeService = nativeComponent('cuService');
-  const nativeBridge = nativeComponent('cuBridge');
-  const desktopHelper = nativeComponent('desktopHelper');
-  const macCapability = nativeComponent('macCapability');
-  for (const refusal of [
-    ...refusals,
-    ...[macCapability, nativeService, nativeBridge, desktopHelper]
-      .map((r) => r.refusedOverride)
-      .filter((r): r is NonNullable<typeof r> => !!r)
-      .map(describeRefusal),
-  ]) logLine(refusal);
-
-  const nativeServiceBinary = nativeService.path;
-  const nativeBridgeBinary = nativeBridge.path;
-  const desktopHelperBinary = desktopHelper.path;
+  for (const refusal of refusals) logLine(refusal);
 
   // The engine must START where its runtime resolves (repo root in dev), but the user's project
   // is projectDir — BIMAX_CWD tells the engine to chdir there (same contract as the Go TUI).
@@ -236,18 +189,8 @@ export function spawnEngineProcess(projectDir: string, extraEnv: Record<string, 
     env: buildEngineChildEnv({
       parentEnv: process.env,
       extraEnv: { ...extraEnv, ...engineReleaseEnv(cmd) },
-      packaged: app.isPackaged,
       path: userShellPath(),
       projectDir,
-      desktopDataDirectory: path.join(app.getPath('userData'), 'Desktop'),
-      architecture: process.arch === 'arm64' ? 'arm64' : 'x64',
-      ...(takeoverBrokerCredentials ? { takeover: takeoverBrokerCredentials } : {}),
-      resolved: {
-        macCapability: macCapability.path,
-        cuService: nativeServiceBinary,
-        cuBridge: nativeBridgeBinary,
-        desktopHelper: desktopHelperBinary,
-      },
     }),
     stdio: ['pipe', 'pipe', 'pipe'],
   });

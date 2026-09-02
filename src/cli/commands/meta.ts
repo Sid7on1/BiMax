@@ -37,7 +37,7 @@ globalCommandRegistry.register({
         type: 'menu',
         title: 'Routing Rules',
         options: [
-          { label: '[+] Add New Rule', value: 'add_rule', desc: 'Create a new regex to agent mapping' },
+          { label: '+ · Add New Rule', value: 'add_rule', desc: 'Create a new regex to agent mapping' },
           ...rules.map((r, i) => ({
             label: `/${r[0]}/`,
             value: i.toString(),

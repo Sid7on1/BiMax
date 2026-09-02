@@ -136,3 +136,124 @@ export async function gitLog(cwd: string, n: number): Promise<{ hash: string; su
     return [];
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────────────────────
+ * GitHub lane — remote state plus the three network verbs the USER drives from the IDE.
+ *
+ * The engine's GitTool deliberately never pushes ("outward-facing actions stay manual"): an AGENT
+ * must not publish on its own. That rule is about autonomy, not about the person sitting at the
+ * keyboard — these run only from an explicit click, exactly like typing the command in a terminal.
+ *
+ * Nothing here takes a credential. Push/pull reuse whatever git already has (credential helper,
+ * SSH agent, gh auth), so Bimax never sees, stores, or forwards a GitHub token. A repo with no
+ * usable credential fails with git's own message, which is the honest outcome.
+ * ───────────────────────────────────────────────────────────────────────────────────────────── */
+
+export interface GitRemoteInfo {
+  /** false when the folder is not a git repository at all. */
+  isRepo: boolean;
+  branch: string;
+  /** The push remote's URL, normalised to https for display. Empty when there is no remote. */
+  remoteUrl: string;
+  remoteName: string;
+  /** "owner/repo" when the remote is recognisably GitHub, else ''. */
+  slug: string;
+  /** Whether this branch has an upstream to pull from / push to. */
+  hasUpstream: boolean;
+  upstream: string;
+  ahead: number;
+  behind: number;
+  /** Uncommitted worktree/index changes — a pull with these present is likely to conflict. */
+  dirty: number;
+  lastFetch: string;
+}
+
+/** Strip credentials and the .git suffix; turn SSH form into the https form a human recognises. */
+function displayRemote(raw: string): { url: string; slug: string } {
+  const url = raw.trim();
+  if (!url) return { url: '', slug: '' };
+  const ssh = url.match(/^git@([^:]+):(.+?)(?:\.git)?$/);
+  if (ssh) return { url: `https://${ssh[1]}/${ssh[2]}`, slug: /github\.com$/i.test(ssh[1]) ? ssh[2] : '' };
+  const https = url.match(/^https?:\/\/(?:[^@/]*@)?([^/]+)\/(.+?)(?:\.git)?$/);
+  if (https) return { url: `https://${https[1]}/${https[2]}`, slug: /github\.com$/i.test(https[1]) ? https[2] : '' };
+  return { url, slug: '' };
+}
+
+export async function gitRemoteInfo(cwd: string): Promise<GitRemoteInfo> {
+  const empty: GitRemoteInfo = {
+    isRepo: false, branch: '', remoteUrl: '', remoteName: '', slug: '',
+    hasUpstream: false, upstream: '', ahead: 0, behind: 0, dirty: 0, lastFetch: '',
+  };
+  try {
+    await run(cwd, ['rev-parse', '--is-inside-work-tree']);
+  } catch {
+    return empty;
+  }
+
+  const one = async (args: string[]): Promise<string> => {
+    try { return (await run(cwd, args)).trim(); } catch { return ''; }
+  };
+
+  const branch = await one(['rev-parse', '--abbrev-ref', 'HEAD']);
+  const remoteName = (await one(['remote'])).split('\n')[0]?.trim() ?? '';
+  const raw = remoteName ? await one(['remote', 'get-url', remoteName]) : '';
+  const { url, slug } = displayRemote(raw);
+  const upstream = await one(['rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{upstream}']);
+
+  let ahead = 0, behind = 0;
+  if (upstream) {
+    // `--count --left-right` prints "<behind>\t<ahead>" for upstream...HEAD.
+    const counts = await one(['rev-list', '--left-right', '--count', `${upstream}...HEAD`]);
+    const m = counts.match(/^(\d+)\s+(\d+)$/);
+    if (m) { behind = Number(m[1]); ahead = Number(m[2]); }
+  }
+
+  const porcelain = await one(['status', '--porcelain']);
+  const dirty = porcelain ? porcelain.split('\n').filter(Boolean).length : 0;
+
+  return {
+    isRepo: true, branch, remoteUrl: url, remoteName, slug,
+    hasUpstream: !!upstream, upstream, ahead, behind, dirty,
+    lastFetch: '',
+  };
+}
+
+export interface GitOpResult { ok: boolean; output: string }
+
+/**
+ * Run one network verb and report git's own words verbatim.
+ *
+ * `--no-rebase` and `--ff-only` are deliberate: a pull that silently rebases or creates a merge
+ * commit is a surprising write. `--ff-only` fails loudly when the histories diverged, which is the
+ * point at which a person should decide, not a button.
+ */
+async function networkVerb(cwd: string, args: string[]): Promise<GitOpResult> {
+  return new Promise((resolve) => {
+    execFile('git', args, {
+      cwd, encoding: 'utf8', maxBuffer: 8 * 1024 * 1024, timeout: 120_000,
+      // Never let git stop on an interactive credential prompt inside a GUI app: with no TTY it
+      // would hang forever with no way to answer. Failing fast surfaces "authentication required".
+      env: { ...process.env, GIT_TERMINAL_PROMPT: '0' },
+    }, (err, stdout, stderr) => {
+      const output = `${stdout || ''}${stderr || ''}`.trim();
+      resolve({ ok: !err, output: output || (err ? String(err.message) : 'done') });
+    });
+  });
+}
+
+export function gitFetch(cwd: string): Promise<GitOpResult> {
+  return networkVerb(cwd, ['fetch', '--prune']);
+}
+
+export function gitPull(cwd: string): Promise<GitOpResult> {
+  return networkVerb(cwd, ['pull', '--ff-only']);
+}
+
+/** Push the current branch. Sets upstream on first push so the next one needs no argument. */
+export async function gitPush(cwd: string, setUpstream: boolean): Promise<GitOpResult> {
+  const branch = (await (async () => { try { return (await run(cwd, ['rev-parse', '--abbrev-ref', 'HEAD'])).trim(); } catch { return ''; } })());
+  if (!branch || branch === 'HEAD') return { ok: false, output: 'Detached HEAD — check out a branch before pushing.' };
+  const remote = (await (async () => { try { return (await run(cwd, ['remote'])).split('\n')[0]?.trim() ?? ''; } catch { return ''; } })());
+  if (!remote) return { ok: false, output: 'This repository has no remote configured.' };
+  return networkVerb(cwd, setUpstream ? ['push', '--set-upstream', remote, branch] : ['push']);
+}

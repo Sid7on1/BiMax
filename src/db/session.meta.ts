@@ -22,12 +22,25 @@ function metaPath(): string {
 }
 
 function readAllMeta(): SessionMeta[] {
+  let raw: string;
   try {
-    const raw = fs.readFileSync(metaPath(), 'utf8');
-    return raw.trim().split('\n').filter(Boolean).map(l => JSON.parse(l) as SessionMeta);
+    raw = fs.readFileSync(metaPath(), 'utf8');
   } catch {
-    return [];
+    return [];   // no file yet — a genuinely empty history
   }
+  // Parse per line. A torn or truncated line is the ONLY thing that should be lost: parsing the
+  // whole file under one try/catch meant a single bad byte returned [], which silently erased the
+  // entire session list (Recents rendered "Nothing yet") AND made updateMeta's findIndex miss every
+  // id, so titles and message counts stopped being written and every later session stayed
+  // "(no messages yet)" forever. Append-only logs must degrade line by line.
+  const out: SessionMeta[] = [];
+  for (const line of raw.split('\n')) {
+    if (!line.trim()) continue;
+    try {
+      out.push(JSON.parse(line) as SessionMeta);
+    } catch { /* skip the damaged line, keep the history */ }
+  }
+  return out;
 }
 
 function appendMeta(meta: SessionMeta): void {
@@ -44,7 +57,15 @@ function updateMeta(id: string, updates: Partial<SessionMeta>): void {
     const idx = all.findIndex(m => m.id === id);
     if (idx === -1) return;
     all[idx] = { ...all[idx], ...updates };
-    fs.writeFileSync(metaPath(), all.map(m => JSON.stringify(m)).join('\n') + '\n', 'utf8');
+    // Write through a temp file and rename. A full-file writeFileSync here races appendMeta (and a
+    // second engine process), and an interrupted one leaves a half-written line that used to poison
+    // every later read. rename(2) is atomic on the same filesystem, so a reader sees either the old
+    // file or the new one — never a torn one.
+    const p = metaPath();
+    const tmp = `${p}.${process.pid}.tmp`;
+    fs.mkdirSync(path.dirname(p), { recursive: true });
+    fs.writeFileSync(tmp, all.map(m => JSON.stringify(m)).join('\n') + '\n', 'utf8');
+    fs.renameSync(tmp, p);
   } catch { /* best-effort */ }
 }
 

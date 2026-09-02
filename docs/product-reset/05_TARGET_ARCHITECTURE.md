@@ -1,5 +1,10 @@
 # Target architecture
 
+> **Current target, 2026-09-02:** Bimax is code-only. The Desktop Computer Use provider and
+> fallback ladder below are retired historical architecture. Desktop consumes the pinned coding
+> engine and owns IDE host capabilities only. It must not inject `bimax-mac` or ship native CU
+> payloads. See `30_CODE_ONLY_AGENTIC_IDE_RESET_RECORD.md`.
+
 ## Repository and process ownership
 
 ```text

@@ -242,6 +242,12 @@ export function isDeadConnectionError(e: any): boolean {
  */
 export type McpHealer = (serverName: string) => Promise<any | null>;
 
+/** Acting on the host computer is outside the code-only Bimax product boundary, even when an
+ * arbitrary MCP server advertises the old tool name under a different server id. */
+export function isDisabledComputerUseToolName(name: string): boolean {
+  return /^(?:mac_control|computer_control|computer)$/i.test(String(name || '').trim());
+}
+
 /**
  * Bimax for Mac owns approval for its single native Computer Use entrypoint.
  *
@@ -290,6 +296,10 @@ export async function connectAndRegister(
     const listed = await listAllMcpTools(client);
     const toolNames: string[] = [];
     for (const t of listed) {
+      if (isDisabledComputerUseToolName(String(t.name || ''))) {
+        Logger.warn(`[MCP] Skipping disabled Computer Use tool '${spec.name}/${t.name}'.`);
+        continue;
+      }
       const toolName = `mcp__${spec.name}__${t.name}`;
       registered.set(toolName, registry.getTool(toolName));
       registry.register(buildTool({

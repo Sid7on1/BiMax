@@ -67,6 +67,38 @@ export function createModelManageTool(governor: IGovernor, llmAdapter: LlmAdapte
 
       if (args.action === 'use') {
         if (!args.model) return 'use requires "model" (an id from action="list").';
+
+        // Never PERSIST a model the provider does not serve.
+        //
+        // This wrote whatever id it was handed. A model id that the provider does not serve then
+        // became the stored work model, so every later launch started from a guaranteed 404 and the
+        // user's own choice was gone — with nothing on screen saying what had replaced it. An
+        // unserved id is never a valid destination for a switch, whoever asked for it.
+        //
+        // The check is skipped only when the provider list itself is unavailable (empty), because
+        // an outage must not block a deliberate switch — that is indistinguishable from "the
+        // provider serves nothing", and refusing there would strand the user.
+        try {
+          const servedIds: string[] = await llmAdapter.listProviderModels();
+          if (servedIds.length > 0 && !servedIds.includes(args.model)) {
+            // Substring matching is useless here: the real near-miss was
+            // `nemotron-3-nano-30b-a3b` against `nemotron-3-nano-omni-30b-a3b-reasoning`, where an
+            // inserted token breaks containment. Compare leading hyphen tokens instead.
+            const tokens = (id: string): string[] => (id.split('/').pop() || '').split('-');
+            const want = tokens(String(args.model));
+            const near = servedIds
+              .map(id => ({ id, score: tokens(id).findIndex((t, i) => t !== want[i]) }))
+              .map(x => ({ ...x, score: x.score === -1 ? want.length : x.score }))
+              .filter(x => x.score >= 2)
+              .sort((a, b) => b.score - a.score)
+              .slice(0, 3)
+              .map(x => x.id);
+            return `Refusing to switch: "${args.model}" is not served by the active provider.`
+              + (near.length ? ` Did you mean: ${near.join(', ')}?` : '')
+              + ` Run action="list" to see what it serves.`;
+          }
+        } catch { /* provider unreachable — fall through rather than block a deliberate switch */ }
+
         const slot = args.slot === 'lite' ? 'lite' : 'coding';
         if (slot === 'coding') {
           llmAdapter.applyConfig({ model: args.model });

@@ -9,6 +9,12 @@ export interface Message {
   tool_call_id?: string;
   name?: string;
   tool_calls?: { id: string; type: 'function'; function: { name: string; arguments: string } }[];
+  /**
+   * Some native-thinking providers require the complete prior assistant message on the next tool
+   * round. Kimi K3 is one: dropping this field after a tool call makes the continuation invalid.
+   * It is never rendered as reply content.
+   */
+  reasoning_content?: string;
 }
 
 export interface ChatOptions {
@@ -26,7 +32,7 @@ export interface ChatOptions {
 
 export type ChatEvent =
   | { type: 'token'; text: string }
-  | { type: 'thinking'; text: string } // Model's internal reasoning — never show as the reply
+  | { type: 'thinking'; text: string; replay?: boolean } // Internal reasoning; replay only when the provider contract requires it
   // Note: args comes in as a string. `truncated` marks a call the model was still writing when it
   // hit the output-token ceiling — its arguments are cut mid-JSON, so a parse failure here is OUR
   // limit being reached, not the model emitting garbage, and the two need different advice.

@@ -1,7 +1,7 @@
 // Guards the model-400 root-cause fix: the key pool must be single-provider (the active one), the
 // active provider must be read from BGW_PROVIDER lazily, and /provider (setProvider) must override.
 const KEY_VARS = [
-  'NVIDIA_API_KEY', 'STEPFUN_API_KEY', 'OPENROUTER_API_KEY', 'OPENAI_API_KEY',
+  'NVIDIA_API_KEY', 'OPENROUTER_API_KEY', 'OPENAI_API_KEY',
   'BGW_PROVIDER', 'BIMAX_DESKTOP_STRICT_MODEL',
 ];
 
@@ -45,13 +45,12 @@ describe('buildKeyPool — single active provider', () => {
     expect(buildKeyPool()).toHaveLength(0);
   });
 
-  it('supports StepFun directly with its own key and endpoint', () => {
-    const { buildKeyPool } = freshProvider({ STEPFUN_API_KEY: 'step-secret', BGW_PROVIDER: 'stepfun' });
+  it('uses Kimi K3 as the NVIDIA provider default', () => {
+    const { buildKeyPool } = freshProvider({ NVIDIA_API_KEY: 'nv-secret', BGW_PROVIDER: 'nvidia' });
     expect(buildKeyPool()).toEqual([expect.objectContaining({
-      keyStr: 'step-secret',
-      provider: 'stepfun',
-      baseURL: 'https://api.stepfun.ai/v1',
-      model: 'step-3.7-flash',
+      keyStr: 'nv-secret',
+      provider: 'nvidia',
+      model: 'moonshotai/kimi-k3',
     })]);
   });
 
@@ -59,7 +58,7 @@ describe('buildKeyPool — single active provider', () => {
     const { buildKeyPool } = freshProvider({
       NVIDIA_API_KEY: 'nv1',
       BGW_PROVIDER: 'openrouter',
-      BIMAX_DESKTOP_STRICT_MODEL: 'stepfun/step-3.7-flash',
+      BIMAX_DESKTOP_STRICT_MODEL: 'moonshotai/kimi-k3',
     });
     expect(buildKeyPool()).toEqual([]);
   });

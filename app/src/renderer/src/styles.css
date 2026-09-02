@@ -580,6 +580,31 @@
   -webkit-app-region: no-drag;
 }
 
+/* The left panel's scroller.
+
+   The global rule above draws a 10px thumb with a `2px solid var(--color-bg)` border. That border
+   is what makes it read as a heavy opaque slab against the sidebar's translucent ground — the bar
+   is painting a solid background colour over a surface that is deliberately not solid. Here the
+   scrollbar is an overlay instead: no track, no border, half the width, and a thumb that only
+   materialises while the pointer is actually in the list. */
+@utility quiet-scrollbar {
+  scrollbar-gutter: stable;
+  &::-webkit-scrollbar { width: 6px; height: 6px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: transparent;
+    border: 0;
+    border-radius: 3px;
+    transition: background 140ms ease;
+  }
+  &:hover::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--color-line) 65%, transparent);
+  }
+  &:hover::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--color-hover) 85%, transparent);
+  }
+}
+
 /* Scrollable strips (tab bars) that must not show a scrollbar track. */
 @utility no-scrollbar {
   scrollbar-width: none;

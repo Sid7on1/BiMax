@@ -47,10 +47,10 @@ the live runner never recomputes those counts with `gpt-tokenizer`.
 
 ## Prompt-caching availability for the live baseline
 
-The official baseline currently uses `stepfun-ai/step-3.7-flash` through NVIDIA's hosted
-OpenAI-compatible Chat Completions endpoint. BiMax's request-side caching optimization emits
+The official baseline now uses `moonshotai/kimi-k3` through NVIDIA's hosted OpenAI-compatible Chat
+Completions endpoint. BiMax's request-side caching optimization emits
 Anthropic-style `cache_control: { type: "ephemeral" }` breakpoints only when
-`caps.promptCaching` is true. The StepFun capability resolves that flag to false, so the live
+`caps.promptCaching` is true. The Kimi K3 capability resolves that flag to false, so the live
 baseline never enters that path. The NVIDIA Chat Completions contract does not advertise a
 client-controlled `cache_control` parameter, and the benchmark's usage chunks expose no cache
 read/write or cached-token counters (they currently omit usable completion-token accounting too).

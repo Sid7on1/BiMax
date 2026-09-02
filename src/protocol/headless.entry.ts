@@ -4,7 +4,7 @@ import { buildPersonas } from '../cli/personas/factory';
 import { HeadlessSession } from './headless.session';
 import { startStdioHost } from './stdio.host';
 import { createConfigWire } from './config.wire';
-import { buildCatalog, constrainCatalogToStrictModel, type CatalogDeps } from './catalog.wire';
+import { buildCatalog, type CatalogDeps } from './catalog.wire';
 import { getProviders, getProvider, getCurrentProvider, setProvider } from '../cli/provider';
 import { saveApiKeyToEnv } from '../cli/env.loader';
 import { MODEL_CATALOG } from '../cli/models';
@@ -89,8 +89,15 @@ export async function startHeadless(container: any, config: any): Promise<void> 
       return;
     }
     if (session.isBusy) {
-      if (attempt < 30) recoveryTimer = setTimeout(() => { void attemptAutomaticRecovery(attempt + 1); }, 1000);
-      else cliEvents.emit('status', 'Automatic assignment recovery deferred because the current turn stayed busy; use /subagents resume later.');
+      if (attempt < 30)
+        recoveryTimer = setTimeout(() => {
+          void attemptAutomaticRecovery(attempt + 1);
+        }, 1000);
+      else
+        cliEvents.emit(
+          'status',
+          'Automatic assignment recovery deferred because the current turn stayed busy; use /subagents resume later.',
+        );
       return;
     }
     // `activeSessionId()` is '' on every fresh boot — a brand-new terminal is indistinguishable
@@ -101,7 +108,10 @@ export async function startHeadless(container: any, config: any): Promise<void> 
     // Automatic recovery is only safe when the CURRENT session already is the crashed one.
     const activeSession = outcomeManager.activeSessionId();
     if (activeSession !== plan.sessionId) {
-      cliEvents.emit('status', `${plan.agents.length} interrupted assignment(s) from a previous session (${plan.sessionId}) can be recovered — run /resume ${plan.sessionId} then /subagents resume to pick them back up.`);
+      cliEvents.emit(
+        'status',
+        `${plan.agents.length} interrupted assignment(s) from a previous session (${plan.sessionId}) can be recovered — run /resume ${plan.sessionId} then /subagents resume to pick them back up.`,
+      );
       return;
     }
     recoveryStarted = true;
@@ -109,13 +119,18 @@ export async function startHeadless(container: any, config: any): Promise<void> 
     await session.dispatch(`/resume ${plan.sessionId}`);
     if (outcomeManager.activeSessionId() !== plan.sessionId) {
       recoveryStarted = false;
-      cliEvents.emit('status', `Could not restore outcome session ${plan.sessionId}; interrupted agents were not restarted.`);
+      cliEvents.emit(
+        'status',
+        `Could not restore outcome session ${plan.sessionId}; interrupted agents were not restarted.`,
+      );
       return;
     }
     await session.dispatch('/subagents resume');
     cliEvents.emit('status', `${plan.agents.length} interrupted assignment(s) resumed safely.`);
   };
-  const onAgentRecoveryAvailable = () => { void attemptAutomaticRecovery(); };
+  const onAgentRecoveryAvailable = () => {
+    void attemptAutomaticRecovery();
+  };
   cliEvents.on('agent_recovery_available', onAgentRecoveryAvailable);
 
   // Durable outcome convergence: a background assignment settling queues a receipt in the
@@ -126,8 +141,11 @@ export async function startHeadless(container: any, config: any): Promise<void> 
   let continuationRunning = false;
   let reportedHaltRevision = 0;
   const continuationEnabled = () => {
-    try { return getConfig().autoContinueOutcome !== false && process.env.BIMAX_AUTO_CONTINUE_OUTCOME !== '0'; }
-    catch { return config.autoContinueOutcome !== false && process.env.BIMAX_AUTO_CONTINUE_OUTCOME !== '0'; }
+    try {
+      return getConfig().autoContinueOutcome !== false && process.env.BIMAX_AUTO_CONTINUE_OUTCOME !== '0';
+    } catch {
+      return config.autoContinueOutcome !== false && process.env.BIMAX_AUTO_CONTINUE_OUTCOME !== '0';
+    }
   };
   const continuationWakeLimit = () => {
     const requested = Number(process.env.BIMAX_AUTO_CONTINUE_MAX_WAKEUPS || 24);
@@ -151,8 +169,9 @@ export async function startHeadless(container: any, config: any): Promise<void> 
   const continuationPrompt = (taskIds: string[]) => {
     const contract = outcomeManager.current();
     const tasks = (contract?.tasks || []).filter((task: OutcomeTask) => taskIds.includes(task.id));
-    const settled = tasks.map((task: OutcomeTask) =>
-      `- ${task.id}: ${task.title} · ${task.status}${task.assignment?.integrationStatus ? ` · integration ${task.assignment.integrationStatus}` : ''}`
+    const settled = tasks.map(
+      (task: OutcomeTask) =>
+        `- ${task.id}: ${task.title} · ${task.status}${task.assignment?.integrationStatus ? ` · integration ${task.assignment.integrationStatus}` : ''}`,
     );
     return [
       '[ENGINE OUTCOME CONTINUATION — this is not a new user request]',
@@ -176,14 +195,19 @@ export async function startHeadless(container: any, config: any): Promise<void> 
       if (reportedHaltRevision !== pending.revision) {
         reportedHaltRevision = pending.revision;
         cliEvents.emit('message', {
-          id: `outcome-halt-${Date.now()}`, role: 'system', level: 'warn',
+          id: `outcome-halt-${Date.now()}`,
+          role: 'system',
+          level: 'warn',
           content: `Outcome auto-continuation paused safely: ${pending.lastError || 'circuit breaker reached'}`,
           timestamp: new Date(),
         } as MessageEntry);
       }
       return;
     }
-    if (session.isBusy) { scheduleOutcomeContinuation(500); return; }
+    if (session.isBusy) {
+      scheduleOutcomeContinuation(500);
+      return;
+    }
     const claim = outcomeManager.claimContinuation(continuationWakeLimit(), 30_000);
     if (!claim || claim.claimedRevision === undefined) {
       // A prior process may have died during its coordinator wake. The short durable lease avoids
@@ -193,13 +217,18 @@ export async function startHeadless(container: any, config: any): Promise<void> 
     }
     continuationRunning = true;
     const before = outcomeManager.progressFingerprint();
-    cliEvents.emit('status', `Outcome loop ${claim.wakeups}: coordinating ${claim.taskIds.length || 'remaining'} task(s)…`);
+    cliEvents.emit(
+      'status',
+      `Outcome loop ${claim.wakeups}: coordinating ${claim.taskIds.length || 'remaining'} task(s)…`,
+    );
     const result = await session.dispatchAutonomous(continuationPrompt(claim.taskIds));
     const progress = result === 'completed' && before !== outcomeManager.progressFingerprint();
     outcomeManager.completeContinuation(
       claim.claimedRevision,
       progress,
-      progress ? undefined : `Coordinator wake ${result === 'completed' ? 'made no measurable outcome progress' : result}.`,
+      progress
+        ? undefined
+        : `Coordinator wake ${result === 'completed' ? 'made no measurable outcome progress' : result}.`,
     );
     continuationRunning = false;
 
@@ -208,8 +237,14 @@ export async function startHeadless(container: any, config: any): Promise<void> 
       return;
     }
     const after = outcomeManager.continuation();
-    if (after?.state === 'halted') { scheduleOutcomeContinuation(); return; }
-    if (after?.state === 'pending') { scheduleOutcomeContinuation(progress ? 250 : 1000); return; }
+    if (after?.state === 'halted') {
+      scheduleOutcomeContinuation();
+      return;
+    }
+    if (after?.state === 'pending') {
+      scheduleOutcomeContinuation(progress ? 250 : 1000);
+      return;
+    }
     if (outcomeNeedsAnotherWake()) {
       outcomeManager.requestContinuation([], 'outcome_incomplete');
     }
@@ -227,13 +262,19 @@ export async function startHeadless(container: any, config: any): Promise<void> 
   // on demand so a Smart↔Full context-mode toggle moves the meter. Mirrors FullScreen's calc.
   setTokensBaseline(() => {
     try {
-      const mode = ((getConfig().contextMode as 'smart' | 'full') || 'smart');
+      const mode = (getConfig().contextMode as 'smart' | 'full') || 'smart';
       const persona = personas.bimax || Object.values(personas)[0];
       const sys = persona?.getSystemPrompt({ planMode: governor?.mode === 'plan', contextMode: mode }) || '';
       let toolTokens = 0;
-      try { toolTokens = estimateTokens(JSON.stringify(toolRegistry.getSchemas({ mode }))); } catch { /* registry optional */ }
+      try {
+        toolTokens = estimateTokens(JSON.stringify(toolRegistry.getSchemas({ mode })));
+      } catch {
+        /* registry optional */
+      }
       return estimateTokens(sys) + toolTokens;
-    } catch { return 0; }
+    } catch {
+      return 0;
+    }
   });
 
   // Settings surface (protocol v3): the allowlisted, JSON-safe subset of CliConfig a graphical
@@ -256,28 +297,37 @@ export async function startHeadless(container: any, config: any): Promise<void> 
   const catalogDeps: CatalogDeps = {
     getProviders: () => getProviders(),
     activeProvider: () => getCurrentProvider(),
-    catalog: () => MODEL_CATALOG.map(m => ({
-      label: m.label, value: m.value, desc: m.desc, tier: m.tier, avoidAutoSelect: m.avoidAutoSelect,
-    })),
+    catalog: () =>
+      MODEL_CATALOG.map((m) => ({
+        label: m.label,
+        value: m.value,
+        desc: m.desc,
+        tier: m.tier,
+        avoidAutoSelect: m.avoidAutoSelect,
+        recommendedFor: m.recommendedFor,
+        tags: m.tags,
+        parameters: m.parameters,
+        releaseDate: m.releaseDate,
+      })),
     listServed: (refresh) => llmAdapter.listProviderModels(refresh),
     capabilities: (provider, id) => capabilitiesFor(provider, id) as any,
     readEnv: (name) => process.env[name],
   };
-  const strictDesktopModel = String(process.env.BIMAX_DESKTOP_STRICT_MODEL || '').trim();
-  const buildVisibleCatalog = async (refresh: boolean) => {
-    const result = await buildCatalog(catalogDeps, 0, refresh);
-    return constrainCatalogToStrictModel(result, strictDesktopModel);
-  };
+  const buildVisibleCatalog = (refresh: boolean) => buildCatalog(catalogDeps, 0, refresh);
 
   const dispose = startStdioHost({
     emitter: cliEvents,
-    onInput: (text) => { void session.dispatch(text); },
+    onInput: (text) => {
+      void session.dispatch(text);
+    },
     onInterrupt: () => session.interrupt(),
     onQuery: (text) => completeInput(text, graphStore, process.cwd()),
     onMenuSelect: (id, value) => session.selectMenu(id, value),
     // Typed recovery resume (protocol v3 additive): same code path as the user's /resume, but
     // requested as a structured message so front-ends never fabricate slash-command text.
-    onResume: (id) => { void session.dispatch(`/resume ${id}`); },
+    onResume: (id) => {
+      void session.dispatch(`/resume ${id}`);
+    },
     onControls: async ({ mode, tier, autonomy }) => {
       // One wire message, one serialized sequence. In particular, every non-plan autonomy preset
       // exits plan mode first, so the chrome can never claim edits are enabled while PLAN still
@@ -290,7 +340,7 @@ export async function startHeadless(container: any, config: any): Promise<void> 
         plan: ['/plan on'],
         full: ['/plan off', '/governor off', '/diff-approval off'],
       };
-      for (const command of autonomy ? commands[autonomy] ?? [] : []) await session.dispatch(command);
+      for (const command of autonomy ? (commands[autonomy] ?? []) : []) await session.dispatch(command);
       // /plan on|off emits the legacy mode_change event for the TUI. Re-apply the behavioral mode
       // afterwards so Code/Beast/Explore/Sketch never visually collapse to General, and their
       // governor gate remains the final authority for combinations such as Explore + Full auto.
@@ -313,8 +363,9 @@ export async function startHeadless(container: any, config: any): Promise<void> 
       // answer than simply using it. saveApiKeyToEnv writes owner-only, refuses to follow a
       // symlink, and updates process.env so the running key pool picks it up without a restart.
       if (apiKey) {
-        try { saveApiKeyToEnv(provider.apiKeyEnv, apiKey); }
-        catch (e: any) {
+        try {
+          saveApiKeyToEnv(provider.apiKeyEnv, apiKey);
+        } catch (e: any) {
           return { providers: [], models: [], error: `Could not save the key: ${String(e?.message || e)}` };
         }
       }
@@ -353,22 +404,34 @@ export async function startHeadless(container: any, config: any): Promise<void> 
         phase: 'ready' as const,
       };
       loopDelay.reset();
-      try { process.stdout.write(JSON.stringify(msg) + '\n'); } catch { /* parent gone */ }
+      try {
+        process.stdout.write(JSON.stringify(msg) + '\n');
+      } catch {
+        /* parent gone */
+      }
     };
     // Establish liveness before optional background services (MCP/code-memory/headroom) get their
     // first timer turn. The supervisor can now detect and recover a connector that wedges startup.
     emitHeartbeat();
     const timer = setInterval(emitHeartbeat, heartbeatMs);
     timer.unref(); // the heartbeat must never keep a shutting-down engine alive
-    stopHeartbeat = () => { clearInterval(timer); loopDelay.disable(); };
+    stopHeartbeat = () => {
+      clearInterval(timer);
+      loopDelay.disable();
+    };
   }
 
   // Register the inline diff-approval gate over the protocol (Ink registers its own in FullScreen).
   // When the user enables /diff-approval, mutating tools surface their diff and wait for a reply.
   const { registerDiffApprover } = require('../cli/diffApproval');
-  registerDiffApprover((summary: string, diff: string) => new Promise<boolean>((resolve) => {
-    cliEvents.emit('diff_prompt', summary, diff, (answer: string) => resolve(/^(a|y|approve|accept)/i.test(answer)));
-  }));
+  registerDiffApprover(
+    (summary: string, diff: string) =>
+      new Promise<boolean>((resolve) => {
+        cliEvents.emit('diff_prompt', summary, diff, (answer: string) =>
+          resolve(/^(a|y|approve|accept)/i.test(answer)),
+        );
+      }),
+  );
 
   // Goal mutations land on a separate emitter; FullScreen bridges it to cliEvents for Ink, so the
   // headless path must too — otherwise the footer goal counter (refreshed by ui_snapshot on
@@ -399,7 +462,9 @@ export async function startHeadless(container: any, config: any): Promise<void> 
         const timer = setTimeout(() => offerKeys(), 350);
         timer.unref?.();
       }
-    } catch { /* onboarding must never block engine readiness */ }
+    } catch {
+      /* onboarding must never block engine readiness */
+    }
   }
 
   // Mind layer wake-up: one QUICK drives measurement at boot (cheap signals only — a grep and a
@@ -412,7 +477,9 @@ export async function startHeadless(container: any, config: any): Promise<void> 
         const { getDrivesEngine } = require('../mind/drives.engine');
         await getDrivesEngine().check({ quick: true });
         cliEvents.emit('mind_changed');
-      } catch { /* best-effort */ }
+      } catch {
+        /* best-effort */
+      }
     })();
   }
 
@@ -426,38 +493,58 @@ export async function startHeadless(container: any, config: any): Promise<void> 
     const interrupted = ledger.interruptedTasks();
     if (interrupted.length) {
       for (const t of interrupted) {
-        ledger.append({ taskId: t.taskId, type: 'transition', state: 'failed-resumable', reason: 'engine restarted while task was running' });
+        ledger.append({
+          taskId: t.taskId,
+          type: 'transition',
+          state: 'failed-resumable',
+          reason: 'engine restarted while task was running',
+        });
       }
       const resumable = interrupted.filter((t: any) => t.resumable);
-      const lines = interrupted.slice(0, 5).map((t: any) =>
-        `  ✗ ${t.title}${t.resumable ? ` — retry with /tasks retry ${t.taskId}` : ''}`);
+      const lines = interrupted
+        .slice(0, 5)
+        .map((t: any) => `  ✗ ${t.title}${t.resumable ? ` — retry with /tasks retry ${t.taskId}` : ''}`);
       cliEvents.emit('message', {
-        id: `task-recovery-${Date.now()}`, role: 'system', level: 'warn',
+        id: `task-recovery-${Date.now()}`,
+        role: 'system',
+        level: 'warn',
         content: `${interrupted.length} background task(s) were interrupted by the last shutdown:\n${lines.join('\n')}${resumable.length ? '' : '\n  (none are re-creatable — no recorded command)'}`,
         timestamp: new Date(),
       } as MessageEntry);
     }
-  } catch { /* ledger recovery is best-effort */ }
+  } catch {
+    /* ledger recovery is best-effort */
+  }
 
   // Self-heal a stale/invalid model pin (e.g. config.json points at a model from a different
   // provider) so the first turn doesn't 400. Non-blocking — runs concurrently with `ready` so it
   // never delays startup; if the user's first turn beats it, the agent loop's model-404 message
-  // covers that one turn. Persists the switch so the next launch is already correct.
+  // covers that one turn. Session-scoped: the switch is NOT persisted (see the note below).
   void (async () => {
     try {
       const healed = await llmAdapter.healModels();
       if (healed.length) {
-        // origin:'runtime' — the volatility guard drops this write when the model came from
-        // BGW_MODEL (test/benchmark/CI session), so healing can never contaminate the user's
-        // real configuration. Real drift (a stale persisted pin) still persists its fix.
-        const SLOT_KEY: Record<string, string> = { work: 'model', quick: 'liteModel', vision: 'visionModel' };
-        const patch: Record<string, string> = {};
-        for (const h of healed as Array<{ slot: string; from: string; to: string }>) patch[SLOT_KEY[h.slot]] = h.to;
-        try { saveConfig(patch as any, { origin: 'runtime' }); } catch { /* persistence optional */ }
-        const lines = (healed as Array<{ slot: string; from: string; to: string }>)
-          .map(h => `  • ${h.slot}: "${h.from}" → "${h.to}"`);
+        // The heal applies to THIS SESSION only — it is deliberately not persisted.
+        //
+        // It used to `saveConfig(patch, { origin: 'runtime' })` so "the next launch is already
+        // correct". That silently overwrote the model the user had explicitly chosen in the
+        // picker, and because `moonshotai/kimi-k3` is the top-ranked coding candidate
+        // (models.ts:autoSelectCandidates), every heal landed on the same id. The reported
+        // symptom was "whenever I open the app the kimi model is selected again" — one transient
+        // provider hiccup was enough to replace a deliberate choice permanently, and the user had
+        // no way to tell that anything had rewritten it.
+        //
+        // Healing in memory keeps the session working (nothing 400s) while the stored choice
+        // stays the user's. If the pin is genuinely dead the heal simply runs again next launch
+        // and says so again, which is honest; a stale pin is now fixed by the user in the picker,
+        // never by the engine behind their back.
+        const lines = (healed as Array<{ slot: string; from: string; to: string }>).map(
+          (h) => `  • ${h.slot}: "${h.from}" → "${h.to}"`,
+        );
         cliEvents.emit('message', {
-          id: `heal-${Date.now()}`, role: 'system', level: 'info',
+          id: `heal-${Date.now()}`,
+          role: 'system',
+          level: 'info',
           // Deliberately not "aren't served by your provider": a slot also heals when the model IS
           // served but can't do the job (e.g. one that 400s on every tools+image request), and
           // claiming the provider doesn't have it would send the user chasing the wrong problem.
@@ -466,7 +553,9 @@ export async function startHeadless(container: any, config: any): Promise<void> 
         } as MessageEntry);
         cliEvents.emit('config_changed');
       }
-    } catch { /* best-effort */ }
+    } catch {
+      /* best-effort */
+    }
   })();
 
   // First-run onboarding (parity with Ink's FullScreen): inside a real project with no map yet,
@@ -476,23 +565,51 @@ export async function startHeadless(container: any, config: any): Promise<void> 
   // scratch dir (~ / Desktop) never indexes hundreds of thousands of junk nodes.
   const uiMenu = (title: string, options: any[]): MessageEntry => ({
     id: `ui-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-    role: 'system', uiComponent: 'menu', payload: { title, options }, content: '', timestamp: new Date(),
+    role: 'system',
+    uiComponent: 'menu',
+    payload: { title, options },
+    content: '',
+    timestamp: new Date(),
   });
   let aiOffered = false;
-  const onboardingDone = () => { try { return !!getConfig().onboardingComplete; } catch { return false; } };
-  const nodeCount = () => { try { return summarizeGraph(graphStore).nodeCount; } catch { return 0; } };
+  const onboardingDone = () => {
+    try {
+      return !!getConfig().onboardingComplete;
+    } catch {
+      return false;
+    }
+  };
+  const nodeCount = () => {
+    try {
+      return summarizeGraph(graphStore).nodeCount;
+    } catch {
+      return 0;
+    }
+  };
 
   // After a map is built, offer the AI graph once (the indexer emits graph_changed on completion).
   cliEvents.on('graph_changed', () => {
     if (aiOffered || onboardingDone()) return;
-    let s; try { s = summarizeGraph(graphStore); } catch { return; }
+    let s;
+    try {
+      s = summarizeGraph(graphStore);
+    } catch {
+      return;
+    }
     if (s.nodeCount > 0 && !s.aiGraphBuilt) {
       aiOffered = true;
-      try { saveConfig({ onboardingComplete: true } as any); } catch { /* best-effort */ }
-      cliEvents.emit('message', uiMenu('Add the AI graph? (semantic layer: purpose + risk per symbol)', [
-        { label: '[ Build AI graph ]', value: '/index-ai force', desc: 'Makes API calls — richer impact analysis' },
-        { label: '[ Skip ]', value: '', desc: 'You can run /index-ai later' },
-      ]));
+      try {
+        saveConfig({ onboardingComplete: true } as any);
+      } catch {
+        /* best-effort */
+      }
+      cliEvents.emit(
+        'message',
+        uiMenu('Add the AI graph? (semantic layer: purpose + risk per symbol)', [
+          { label: '[ Build AI graph ]', value: '/index-ai force', desc: 'Makes API calls — richer impact analysis' },
+          { label: '[ Skip ]', value: '', desc: 'You can run /index-ai later' },
+        ]),
+      );
     }
   });
 
@@ -500,7 +617,11 @@ export async function startHeadless(container: any, config: any): Promise<void> 
   // machines (capability `autoIndex`). Config keeps working for everyone else.
   const autoIndexEnabled = () => {
     if (process.env.BIMAX_AUTO_INDEX === '0') return false;
-    try { return getConfig().autoIndex !== false; } catch { return true; }
+    try {
+      return getConfig().autoIndex !== false;
+    } catch {
+      return true;
+    }
   };
 
   if (isCodebase(process.cwd()) && nodeCount() === 0) {
@@ -510,15 +631,28 @@ export async function startHeadless(container: any, config: any): Promise<void> 
       // GraphQuery tools without the user clicking a menu or running /index. Previously "autoIndex"
       // only flipped an enabled flag and nothing ever called it, so the graph stayed empty.
       cliEvents.emit('status', 'Indexing codebase for symbol-level navigation…');
-      void codebaseIndexer.autoIndex(false, false).catch(() => { /* best-effort; /index retries */ });
+      void codebaseIndexer.autoIndex(false, false).catch(() => {
+        /* best-effort; /index retries */
+      });
     } else if (!onboardingDone()) {
       // autoIndex off → ask before building (the original onboarding menu).
       setTimeout(() => {
         if (nodeCount() !== 0 || onboardingDone()) return;
-        cliEvents.emit('message', uiMenu('New codebase detected — build the map graph?', [
-          { label: '[ Build map graph ]', value: '/index force', desc: 'AST index so I navigate to the exact symbol (skips node_modules, .git, build dirs)' },
-          { label: '[ Skip ]', value: '', desc: 'You can run /index later' },
-        ]));
+        cliEvents.emit(
+          'message',
+          // Labels are DATA, not presentation. These carried literal square brackets —
+          // "[ Build map graph ]" — which is terminal decoration, and the desktop app renders the
+          // label verbatim into a button. The result was a GUI card that looked like a TUI prompt.
+          // A front-end that wants brackets can add them; one that doesn't cannot remove them.
+          uiMenu('New codebase detected — build the map graph?', [
+            {
+              label: 'Build map graph',
+              value: '/index force',
+              desc: 'AST index so I navigate to the exact symbol (skips node_modules, .git, build dirs)',
+            },
+            { label: 'Skip', value: '', desc: 'You can run /index later' },
+          ]),
+        );
       }, 600);
     }
   }
@@ -530,9 +664,21 @@ export async function startHeadless(container: any, config: any): Promise<void> 
       done = true;
       // Signals/stdin loss do not necessarily travel through cliEvents. Flush every durable
       // thread domain directly so the latest assignment/evidence cannot vanish on terminal close.
-      try { outcomeManager.shutdown(); } catch { /* best-effort */ }
-      try { reviewManager.shutdown(); } catch { /* best-effort */ }
-      try { sessionRecorder.shutdown(); } catch { /* best-effort */ }
+      try {
+        outcomeManager.shutdown();
+      } catch {
+        /* best-effort */
+      }
+      try {
+        reviewManager.shutdown();
+      } catch {
+        /* best-effort */
+      }
+      try {
+        sessionRecorder.shutdown();
+      } catch {
+        /* best-effort */
+      }
       stopHeartbeat?.();
       if (recoveryTimer) clearTimeout(recoveryTimer);
       if (continuationTimer) clearTimeout(continuationTimer);

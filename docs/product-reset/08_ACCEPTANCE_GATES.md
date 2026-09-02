@@ -1,5 +1,19 @@
 # Acceptance gates
 
+## Code-only product gate (current, 2026-09-02)
+
+- Terminal and Desktop expose create/read/edit/multi-edit/delete/mkdir, shell, tests, git, search,
+  LSP, review, plans, checkpoints, subagents, browser research, and ordinary MCP integrations.
+- Neither frontend exposes Control Mac, Live Target, takeover, Computer Use model readiness, or a
+  permissions/Trust Center journey.
+- The engine rejects `bimax-mac` and skips MCP tools named `mac_control`, `computer_control`, or
+  `computer`, regardless of the advertising server name.
+- Desktop strips inherited CU environment variables and never emits a Mac host capability.
+- The app bundle contains no XPC service, CU bridge/helper/preview, Mac capability provider, or
+  Accessibility/Screen Recording/Microphone usage description.
+- Launching and completing a code task requests no TCC permission. Reintroducing a provider,
+  payload, or UI entry must make the boundary test fail.
+
 The target is not a cosmetic `n/n`. A test counts only if it fails when the feature is deliberately
 broken and grades the real end state. Provider outages, missing observations, stale fixtures, and
 model changes are invalid runs, not product failures or passes.
@@ -36,13 +50,13 @@ model changes are invalid runs, not product failures or passes.
 - project file, PTY and git IPC reject traversal/malformed payloads;
 - code task works with zero CU permissions.
 
-## Bimax Desktop computer-use gate
+## Retired Bimax Desktop computer-use gate (historical; must not ship)
 
 - packaged app, not a dev shell, owns the permission and focus experience;
 - a Control Mac task cannot reach the engine until the active provider credential, a currently
   served curated Work row for the configured model id, and a currently served screenshot-capable
-  route are confirmed; duplicate catalogue rows are resolved by requested slot rather than by row
-  order, and `avoidAutoSelect` never vetoes a model the user intentionally selected; a served
+  route are confirmed; one unique catalogue row may carry several slot recommendations, and
+  `avoidAutoSelect` never vetoes a model the user intentionally selected; a served
   Vision/unknown model with no Work row and provider timeout/error are visible blocked states,
   never implicit fallbacks;
 - once admitted, an explicit Control Mac turn is narrowed to the app-owned `mac_control` capability

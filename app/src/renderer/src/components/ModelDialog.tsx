@@ -1,12 +1,26 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Check, TriangleAlert, Loader, Search, RefreshCw, KeyRound, Plus, Eye, Wrench,
-  Brain, Gauge, X, ChevronRight,
+  Check,
+  TriangleAlert,
+  Loader,
+  Search,
+  RefreshCw,
+  KeyRound,
+  Plus,
+  Eye,
+  Wrench,
+  Brain,
+  Gauge,
+  X,
+  ChevronRight,
+  CalendarDays,
+  Layers3,
 } from 'lucide-react';
 import { cn } from '../lib/cn';
+import { buildModelPickerGroups } from './ui/model.catalog.view';
+import { LocalModels } from './LocalModels';
 import type { EngineConfig, EngineCatalog, CatalogModelEntry, ProviderEntry } from '../protocol';
 import { Dialog, DialogContent, DialogTitle } from './ui/dialog';
-import { computerUseModelReadiness } from '../computer.use.model';
 
 /**
  * The model window.
@@ -44,7 +58,7 @@ interface Slot {
 const SLOTS: Slot[] = [
   { key: 'model', label: 'Work', desc: 'Builds, reasons, and runs the task', tier: 'coding' },
   { key: 'liteModel', label: 'Quick', desc: 'Short replies and small supporting steps', tier: 'lite' },
-  { key: 'visionModel', label: 'Vision', desc: 'Reads screenshots and grounds clicks', tier: 'vision' },
+  { key: 'visionModel', label: 'Vision', desc: 'Analyzes images and visual context', tier: 'vision' },
   { key: 'subagentModel', label: 'Team', desc: 'Parallel sub-agents — empty means Work', optional: true },
   { key: 'fallbackModel', label: 'Backup', desc: 'Takes over when Work is unavailable', optional: true },
 ];
@@ -60,12 +74,14 @@ type Outcome = { state: 'saving' } | { state: 'applied' } | { state: 'rejected';
 type Pane = { view: 'slots' } | { view: 'pick'; slot: Slot } | { view: 'providers' };
 
 export function ModelDialog({
-  open, onClose, purpose = 'general', onComputerUseReady, configGet, configSet, catalogGet,
+  open,
+  onClose,
+  configGet,
+  configSet,
+  catalogGet,
 }: {
   open: boolean;
   onClose: () => void;
-  purpose?: 'general' | 'computer-use';
-  onComputerUseReady?: () => void;
   configGet: () => Promise<EngineConfig>;
   configSet: (patch: EngineConfig) => Promise<EngineConfig>;
   catalogGet: (refresh?: boolean) => Promise<EngineCatalog>;
@@ -93,24 +109,35 @@ export function ModelDialog({
     setRefreshing(false);
   }, [catalogGet, configGet]);
 
-  const apply = useCallback(async (key: string, value: string) => {
-    setOutcomes((current) => ({ ...current, [key]: { state: 'saving' } }));
-    const canonical = await configSet({ [key]: value } as EngineConfig);
-    // Treat bridge values as snapshots. Some engines/mocks reuse the same object identity; cloning
-    // keeps readiness and the disabled Continue button live after a slot changes.
-    setConfig({ ...canonical });
-    const actual = String((canonical as Record<string, unknown>)[key] ?? '');
-    setOutcomes((current) => ({
-      ...current,
-      [key]: actual.trim() === value.trim() ? { state: 'applied' } : { state: 'rejected', actual },
-    }));
-  }, [configSet]);
+  const apply = useCallback(
+    async (key: string, value: string) => {
+      setOutcomes((current) => ({ ...current, [key]: { state: 'saving' } }));
+      const canonical = await configSet({ [key]: value } as EngineConfig);
+      // Treat bridge values as snapshots. Some engines/mocks reuse the same object identity; cloning
+      // keeps readiness and the disabled Continue button live after a slot changes.
+      setConfig({ ...canonical });
+      const actual = String((canonical as Record<string, unknown>)[key] ?? '');
+      setOutcomes((current) => ({
+        ...current,
+        [key]: actual.trim() === value.trim() ? { state: 'applied' } : { state: 'rejected', actual },
+      }));
+    },
+    [configSet],
+  );
 
   const activeProvider = catalog?.providers.find((p) => p.active);
-  const cuReadiness = useMemo(() => computerUseModelReadiness(config, catalog), [config, catalog]);
+  const servedModelCount = useMemo(
+    () => new Set((catalog?.models ?? []).filter((model) => model.served).map((model) => model.id)).size,
+    [catalog],
+  );
 
   return (
-    <Dialog open={open} onOpenChange={(value) => { if (!value) onClose(); }}>
+    <Dialog
+      open={open}
+      onOpenChange={(value) => {
+        if (!value) onClose();
+      }}
+    >
       {/* The one dialog that morphs. Prompt 2 §42 names `model button→picker` as the case the
           signature exists for: the model control and the picker are the same subject at two sizes,
           and the surface is always opened from a visible control that states the current model. */}
@@ -131,9 +158,11 @@ export function ModelDialog({
               </button>
             )}
             <DialogTitle className="truncate text-[14px] font-semibold">
-              {pane.view === 'slots' ? (purpose === 'computer-use' ? 'Models for Control Mac' : 'Model catalogue')
-                : pane.view === 'providers' ? 'Providers'
-                : `Choose a model for ${pane.slot.label}`}
+              {pane.view === 'slots'
+                ? 'Model catalogue'
+                : pane.view === 'providers'
+                  ? 'Providers'
+                  : `Choose a model for ${pane.slot.label}`}
             </DialogTitle>
           </div>
           <div className="flex shrink-0 items-center gap-1.5">
@@ -177,7 +206,9 @@ export function ModelDialog({
                 // rejected by the supervisor while the child is booting.
                 const deadline = Date.now() + 45_000;
                 while (Date.now() < deadline) {
-                  const status = await window.bimax.supervisor.getStatus().catch(() => null) as { phase?: string } | null;
+                  const status = (await window.bimax.supervisor.getStatus().catch(() => null)) as {
+                    phase?: string;
+                  } | null;
                   if (status?.phase === 'ready' || status?.phase === 'degraded') break;
                   await new Promise((resolve) => setTimeout(resolve, 250));
                 }
@@ -191,32 +222,19 @@ export function ModelDialog({
               slot={pane.slot}
               catalog={catalog}
               current={String((config as Record<string, unknown>)[pane.slot.key] ?? '')}
-              onPick={async (id) => { await apply(pane.slot.key, id); setPane({ view: 'slots' }); }}
+              onPick={async (id) => {
+                await apply(pane.slot.key, id);
+                setPane({ view: 'slots' });
+              }}
             />
           ) : (
-            <>
-              {purpose === 'computer-use' && (
-                <div className={cn(
-                  'mx-5 mt-4 rounded-xl border px-3.5 py-3 text-[11.5px] leading-relaxed',
-                  cuReadiness.ready ? 'border-moss/25 bg-moss/5 text-dim' : 'border-amber/30 bg-amber/5 text-dim',
-                )}>
-                  <div className="mb-1 flex items-center gap-2 font-semibold text-ink">
-                    {cuReadiness.ready ? <Check size={13} className="text-moss" /> : <TriangleAlert size={13} className="text-amber" />}
-                    {cuReadiness.ready ? 'Control Mac model route is ready' : 'Pick a compatible route before Bimax can control the Mac'}
-                  </div>
-                  {cuReadiness.ready
-                    ? `${cuReadiness.work?.label} will run tools; ${cuReadiness.vision?.label} will ground screenshots.`
-                    : cuReadiness.reasons.join(' ')}
-                </div>
-              )}
-              <SlotsPane
-                config={config}
-                catalog={catalog}
-                outcomes={outcomes}
-                onOpenPicker={(slot) => setPane({ view: 'pick', slot })}
-                onApply={apply}
-              />
-            </>
+            <SlotsPane
+              config={config}
+              catalog={catalog}
+              outcomes={outcomes}
+              onOpenPicker={(slot) => setPane({ view: 'pick', slot })}
+              onApply={apply}
+            />
           )}
         </div>
 
@@ -225,21 +243,15 @@ export function ModelDialog({
             {catalog?.error
               ? catalog.error
               : activeProvider
-                ? `${activeProvider.label} · ${catalog?.models.filter((m) => m.served).length ?? 0} models served`
+                ? `${activeProvider.label} · ${servedModelCount} models served`
                 : 'Changes apply to the next turn.'}
           </p>
           <div className="flex shrink-0 items-center gap-2">
-            {purpose === 'computer-use' && (
-              <button onClick={onClose} className="cursor-pointer rounded-lg px-2.5 py-1.5 text-[11.5px] text-dim hover:bg-well hover:text-ink">
-                Not now
-              </button>
-            )}
             <button
-              onClick={purpose === 'computer-use' ? onComputerUseReady : onClose}
-              disabled={purpose === 'computer-use' && !cuReadiness.ready}
+              onClick={onClose}
               className="pressable shrink-0 cursor-pointer rounded-lg bg-ember px-3.5 py-1.5 text-[12.5px] font-semibold text-bg transition-colors hover:bg-ember-bright focus-visible:outline-2 focus-visible:outline-ember disabled:cursor-default disabled:opacity-35"
             >
-              {purpose === 'computer-use' ? 'Continue to permissions' : 'Done'}
+              Done
             </button>
           </div>
         </footer>
@@ -251,7 +263,11 @@ export function ModelDialog({
 /* -------------------------------------------------------------------------- slots ------------ */
 
 function SlotsPane({
-  config, catalog, outcomes, onOpenPicker, onApply,
+  config,
+  catalog,
+  outcomes,
+  onOpenPicker,
+  onApply,
 }: {
   config: EngineConfig;
   catalog: EngineCatalog | null;
@@ -261,10 +277,7 @@ function SlotsPane({
 }): React.ReactElement {
   const effort = String(config.reasoningEffort ?? '');
   const thinking = Number((config as Record<string, unknown>).maxThinkingTokens ?? 0);
-  const byId = useMemo(
-    () => new Map((catalog?.models ?? []).map((m) => [m.id, m])),
-    [catalog],
-  );
+  const byId = useMemo(() => new Map((catalog?.models ?? []).map((m) => [m.id, m])), [catalog]);
   const workModel = byId.get(String(config.model ?? ''));
 
   return (
@@ -308,9 +321,7 @@ function SlotsPane({
           letting a dead control look live.
         */}
         {workModel?.capabilities && !workModel.capabilities.reasoningEffortKnob && effort !== '' && (
-          <Note tone="amber">
-            {workModel.label} does not take an effort hint — the engine will not send one.
-          </Note>
+          <Note tone="amber">{workModel.label} does not take an effort hint — the engine will not send one.</Note>
         )}
         {outcomes.reasoningEffort?.state === 'rejected' && (
           <Note tone="amber">The engine kept “{outcomes.reasoningEffort.actual || 'off'}”.</Note>
@@ -331,7 +342,13 @@ function SlotsPane({
 }
 
 function SlotRow({
-  slot, value, entry, outcome, knownCatalog, onOpen, onClear,
+  slot,
+  value,
+  entry,
+  outcome,
+  knownCatalog,
+  onOpen,
+  onClear,
 }: {
   slot: Slot;
   value: string;
@@ -367,7 +384,9 @@ function SlotRow({
           </span>
           <span className="flex min-w-0 items-center gap-2">
             <span className="flex min-w-0 flex-col items-end">
-              <span className={cn('max-w-[260px] truncate text-[11.5px] font-medium', value ? 'text-ink' : 'text-faint')}>
+              <span
+                className={cn('max-w-[260px] truncate text-[11.5px] font-medium', value ? 'text-ink' : 'text-faint')}
+              >
                 {entry?.label || (value ? value.split('/').pop() : slot.optional ? 'Off' : 'Not set')}
               </span>
               {entry && <span className="max-w-[260px] truncate font-mono text-[9.5px] text-faint">{entry.id}</span>}
@@ -387,11 +406,21 @@ function SlotRow({
       </div>
       {missing && (
         <Note tone="amber">
-          {entry ? 'This provider is not serving that model right now.' : 'Not in this provider’s list — it may have been renamed or dropped.'}
+          {entry
+            ? 'This provider is not serving that model right now.'
+            : 'Not in this provider’s list — it may have been renamed or dropped.'}
         </Note>
       )}
-      {outcome?.state === 'saving' && <Note tone="faint"><Loader size={11} className="animate-spin" /> Applying…</Note>}
-      {outcome?.state === 'applied' && <Note tone="moss"><Check size={11} /> The engine is using this.</Note>}
+      {outcome?.state === 'saving' && (
+        <Note tone="faint">
+          <Loader size={11} className="animate-spin" /> Applying…
+        </Note>
+      )}
+      {outcome?.state === 'applied' && (
+        <Note tone="moss">
+          <Check size={11} /> The engine is using this.
+        </Note>
+      )}
       {outcome?.state === 'rejected' && (
         <Note tone="amber">Not applied — the engine kept “{outcome.actual || 'empty'}”.</Note>
       )}
@@ -402,11 +431,17 @@ function SlotRow({
 /* ------------------------------------------------------------------------- picker ------------- */
 
 const TIER_LABEL: Record<CatalogModelEntry['tier'], string> = {
-  coding: 'Work', lite: 'Quick', vision: 'Vision', other: 'Other',
+  coding: 'Work',
+  lite: 'Quick',
+  vision: 'Vision',
+  other: 'Other',
 };
 
 function PickPane({
-  slot, catalog, current, onPick,
+  slot,
+  catalog,
+  current,
+  onPick,
 }: {
   slot: Slot;
   catalog: EngineCatalog | null;
@@ -417,21 +452,12 @@ function PickPane({
   const [showAll, setShowAll] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => { searchRef.current?.focus(); }, []);
+  useEffect(() => {
+    searchRef.current?.focus();
+  }, []);
 
   const groups = useMemo(() => {
-    const all = catalog?.models ?? [];
-    const needle = query.trim().toLowerCase();
-    const matches = needle
-      ? all.filter((m) => m.id.toLowerCase().includes(needle) || m.label.toLowerCase().includes(needle))
-      : all;
-    // Searching means the user is looking for something specific — never hide a match behind
-    // "browse all", or the search box appears broken for models outside the slot's tier.
-    const scoped = (needle || showAll || !slot.tier) ? matches : matches.filter((m) => m.tier === slot.tier);
-    const recommended = scoped.filter((m) => m.curated && m.served);
-    const unverified = scoped.filter((m) => m.curated && !m.served);
-    const extra = scoped.filter((m) => !m.curated);
-    return { recommended, unverified, extra, total: all.length };
+    return buildModelPickerGroups(catalog?.models ?? [], slot.tier, query, showAll);
   }, [catalog, query, showAll, slot.tier]);
 
   if (!catalog) {
@@ -447,12 +473,16 @@ function PickPane({
             ref={searchRef}
             value={query}
             spellCheck={false}
-            placeholder={`Search ${groups.total} models…`}
+            placeholder={`Search ${groups.availableTotal} available models…`}
             onChange={(event) => setQuery(event.target.value)}
             className="min-w-0 flex-1 bg-transparent text-[12.5px] text-ink outline-none placeholder:text-faint"
           />
           {!!query && (
-            <button onClick={() => setQuery('')} aria-label="Clear search" className="cursor-pointer text-faint hover:text-ink">
+            <button
+              onClick={() => setQuery('')}
+              aria-label="Clear search"
+              className="cursor-pointer text-faint hover:text-ink"
+            >
               <X size={12} />
             </button>
           )}
@@ -471,8 +501,8 @@ function PickPane({
           onPick={onPick}
         />
         <ModelGroup
-          label="Everything else this provider serves"
-          hint="Real ids we have not measured."
+          label="All other models this provider serves"
+          hint="Available live. Models outside this slot’s recommendations may be slower or lack the needed capabilities."
           models={groups.extra}
           current={current}
           onPick={onPick}
@@ -489,7 +519,7 @@ function PickPane({
             onClick={() => setShowAll(true)}
             className="mt-2 w-full cursor-pointer rounded-lg border border-dashed border-line px-3 py-2 text-[11.5px] text-dim transition-colors hover:border-ember/50 hover:text-ink"
           >
-            Browse all {groups.total} models
+            Browse all {groups.availableTotal} available models
           </button>
         )}
       </div>
@@ -498,7 +528,11 @@ function PickPane({
 }
 
 function ModelGroup({
-  label, hint, models, current, onPick,
+  label,
+  hint,
+  models,
+  current,
+  onPick,
 }: {
   label: string;
   hint?: string;
@@ -521,7 +555,9 @@ function ModelGroup({
 }
 
 function ModelRow({
-  model, selected, onPick,
+  model,
+  selected,
+  onPick,
 }: {
   model: CatalogModelEntry;
   selected: boolean;
@@ -539,7 +575,9 @@ function ModelRow({
         model.avoidAutoSelect ? 'not auto-picked' : '',
         model.served ? '' : 'not served right now',
         model.id,
-      ].filter(Boolean).join(', ')}
+      ]
+        .filter(Boolean)
+        .join(', ')}
       className={cn(
         'group flex w-full cursor-pointer items-start gap-2.5 rounded-lg border px-3 py-2.5 text-left transition-all duration-150 active:scale-[0.995]',
         selected ? 'border-ember bg-ember/10' : 'border-transparent hover:border-line hover:bg-well/60',
@@ -552,23 +590,58 @@ function ModelRow({
         <span className="flex flex-wrap items-center gap-1.5">
           <span className="text-[12.5px] font-medium text-ink">{model.label}</span>
           <Pill>{TIER_LABEL[model.tier]}</Pill>
+          {(model.recommendedFor ?? []).map((tier) =>
+            tier === model.tier ? null : <Pill key={tier}>{TIER_LABEL[tier]}</Pill>,
+          )}
           {/*
             avoidAutoSelect is a bar on the MACHINE choosing this model, never on the person. The
             reason lives in `desc` — usually a measured timeout or missing tool-calling — so it is
             surfaced as a caution the user can overrule, not a disabled row.
           */}
           {model.avoidAutoSelect && (
-            <Pill tone="amber"><TriangleAlert size={9} /> not auto-picked</Pill>
+            <Pill tone="amber">
+              <TriangleAlert size={9} /> not auto-picked
+            </Pill>
           )}
           {!model.served && <Pill tone="amber">unverified</Pill>}
         </span>
         <span className="truncate font-mono text-[10.5px] text-faint">{model.id}</span>
         <span className="text-[11px] leading-snug text-dim">{model.desc}</span>
+        {model.curated && (
+          <span className="mt-0.5 flex flex-wrap items-center gap-2 text-[10.5px] text-faint">
+            <span className="flex items-center gap-1">
+              <Layers3 size={10} /> {model.parameters ?? 'parameters not published'}
+            </span>
+            <span className="flex items-center gap-1">
+              <CalendarDays size={10} />{' '}
+              {model.releaseDate ? `released ${model.releaseDate}` : 'release date not published'}
+            </span>
+          </span>
+        )}
+        {!!model.tags?.length && (
+          <span className="mt-0.5 flex flex-wrap gap-1">
+            {model.tags.slice(0, 5).map((tag) => (
+              <Pill key={tag}>{tag}</Pill>
+            ))}
+          </span>
+        )}
         {caps && (
           <span className="mt-0.5 flex flex-wrap items-center gap-2 text-[10.5px] text-faint">
-            {caps.visionInput && <span className="flex items-center gap-1"><Eye size={10} /> vision</span>}
-            {caps.thinking && <span className="flex items-center gap-1"><Brain size={10} /> thinks</span>}
-            {caps.parallelToolCalls && <span className="flex items-center gap-1"><Wrench size={10} /> parallel tools</span>}
+            {caps.visionInput && (
+              <span className="flex items-center gap-1">
+                <Eye size={10} /> vision
+              </span>
+            )}
+            {caps.thinking && (
+              <span className="flex items-center gap-1">
+                <Brain size={10} /> thinks
+              </span>
+            )}
+            {caps.parallelToolCalls && (
+              <span className="flex items-center gap-1">
+                <Wrench size={10} /> parallel tools
+              </span>
+            )}
             {caps.contextWindow > 0 && (
               <span className="flex items-center gap-1">
                 <Gauge size={10} /> {Math.round(caps.contextWindow / 1000)}k context
@@ -584,7 +657,8 @@ function ModelRow({
 /* ----------------------------------------------------------------------- providers ------------ */
 
 function ProviderPane({
-  catalog, onApply,
+  catalog,
+  onApply,
 }: {
   catalog: EngineCatalog | null;
   onApply: (input: { name: string; baseURL?: string; apiKey?: string }) => Promise<void>;
@@ -593,32 +667,44 @@ function ProviderPane({
   const [keyFor, setKeyFor] = useState<string | null>(null);
   const [keyValue, setKeyValue] = useState('');
   const [baseURL, setBaseURL] = useState('');
-  const [credentialStatus, setCredentialStatus] = useState<Awaited<ReturnType<typeof window.bimax.providers.credentialStatus>>>([]);
+  const [credentialStatus, setCredentialStatus] = useState<
+    Awaited<ReturnType<typeof window.bimax.providers.credentialStatus>>
+  >([]);
 
   useEffect(() => {
-    void window.bimax.providers.credentialStatus().then(setCredentialStatus).catch(() => setCredentialStatus([]));
+    void window.bimax.providers
+      .credentialStatus()
+      .then(setCredentialStatus)
+      .catch(() => setCredentialStatus([]));
   }, [catalog]);
 
-  const run = useCallback(async (input: { name: string; baseURL?: string; apiKey?: string }) => {
-    setBusy(input.name);
-    try {
-      await onApply(input);
-      setCredentialStatus(await window.bimax.providers.credentialStatus().catch(() => []));
-      setKeyFor(null);
-      setKeyValue('');
-      setBaseURL('');
-    } finally {
-      setBusy(null);
-    }
-  }, [onApply]);
+  const run = useCallback(
+    async (input: { name: string; baseURL?: string; apiKey?: string }) => {
+      setBusy(input.name);
+      try {
+        await onApply(input);
+        setCredentialStatus(await window.bimax.providers.credentialStatus().catch(() => []));
+        setKeyFor(null);
+        setKeyValue('');
+        setBaseURL('');
+      } finally {
+        setBusy(null);
+      }
+    },
+    [onApply],
+  );
 
-  const fallback: ProviderEntry[] = [
-    ['stepfun', 'StepFun', 'STEPFUN_API_KEY'],
-    ['openrouter', 'OpenRouter', 'OPENROUTER_API_KEY'],
-    ['nvidia', 'NVIDIA NIM · Step 3.7 retired', 'NVIDIA_API_KEY'],
-  ].map(([name, label, apiKeyEnv]) => ({
-    name, label, apiKeyEnv, baseURL: '', active: false, hasKey: false, keyCount: 0,
-  }));
+  const fallback: ProviderEntry[] = [['nvidia', 'NVIDIA NIM · Kimi K3', 'NVIDIA_API_KEY']].map(
+    ([name, label, apiKeyEnv]) => ({
+      name,
+      label,
+      apiKeyEnv,
+      baseURL: '',
+      active: false,
+      hasKey: false,
+      keyCount: 0,
+    }),
+  );
   const rows = (catalog?.providers.length ? catalog.providers : fallback).map((provider) => {
     const secure = credentialStatus.find((item) => item.name === provider.name);
     return secure?.hasKey
@@ -629,9 +715,22 @@ function ProviderPane({
   return (
     <div className="px-5 py-4">
       <p className="mb-3 text-[11.5px] leading-relaxed text-dim">
-        Choose who serves the models Bimax uses. Keys you save here are protected by macOS Keychain
-        and injected only into the engine process — never written to a project or sent through chat.
+        Choose who serves the models Bimax uses. Keys you save here are protected by macOS Keychain and injected only
+        into the engine process — never written to a project or sent through chat.
       </p>
+
+      {/* Local runtimes come FIRST: an on-machine model needs no key and sends nothing outward,
+          which makes it the better default whenever one is actually ready. */}
+      <div className="mb-3">
+        <LocalModels
+          onUse={async ({ baseURL, model }: { baseURL: string; model: string }) => {
+            // A local OpenAI-compatible server is just a provider with a base URL. Reuse the same
+            // path a hosted provider takes so there is one code path, not a parallel "local mode".
+            await onApply({ name: 'openai', baseURL });
+            await window.bimax.send({ t: 'configSet', id: Date.now(), patch: { model } });
+          }}
+        />
+      </div>
 
       <div className="flex flex-col gap-1.5">
         {rows.map((provider) => (
@@ -661,7 +760,16 @@ function ProviderPane({
 }
 
 function ProviderRow({
-  provider, busy, expanded, keyValue, baseURL, onKeyValue, onBaseURL, onExpand, onUse, onSaveKey,
+  provider,
+  busy,
+  expanded,
+  keyValue,
+  baseURL,
+  onKeyValue,
+  onBaseURL,
+  onExpand,
+  onUse,
+  onSaveKey,
 }: {
   provider: ProviderEntry;
   busy: boolean;
@@ -674,15 +782,20 @@ function ProviderRow({
   onUse: () => void;
   onSaveKey: () => void;
 }): React.ReactElement {
-  const servesStep37 = provider.name === 'stepfun' || provider.name === 'openrouter';
+  const servesKimiK3 = provider.name === 'nvidia';
   return (
-    <div className={cn('rounded-lg border transition-colors', provider.active ? 'border-ember/60 bg-ember/[0.06]' : 'border-line')}>
+    <div
+      className={cn(
+        'rounded-lg border transition-colors',
+        provider.active ? 'border-ember/60 bg-ember/[0.06]' : 'border-line',
+      )}
+    >
       <div className="flex items-center gap-3 px-3 py-2.5">
         <span className="flex min-w-0 flex-1 flex-col">
           <span className="flex items-center gap-1.5 text-[12.5px] font-medium text-ink">
             {provider.label}
             {provider.active && <Pill tone="ember">active</Pill>}
-            {!servesStep37 && <Pill tone="amber">not available</Pill>}
+            {!servesKimiK3 && <Pill tone="amber">not verified</Pill>}
           </span>
           <span className="truncate text-[10.5px] text-faint">
             {provider.hasKey
@@ -690,13 +803,15 @@ function ProviderRow({
               : `no key · set ${provider.apiKeyEnv}`}
           </span>
         </span>
-        {servesStep37 && <button
+        {servesKimiK3 && (
+          <button
             onClick={onExpand}
             className="shrink-0 cursor-pointer rounded-lg border border-line px-2 py-1.5 text-[11px] text-dim transition-colors hover:border-ember/50 hover:text-ink"
           >
             {provider.hasKey ? <KeyRound size={11} /> : <Plus size={11} />}
-          </button>}
-        {!provider.active && provider.hasKey && servesStep37 && (
+          </button>
+        )}
+        {!provider.active && provider.hasKey && servesKimiK3 && (
           <button
             onClick={onUse}
             disabled={busy}
@@ -720,7 +835,9 @@ function ProviderRow({
               autoComplete="off"
               placeholder={provider.apiKeyEnv}
               onChange={(event) => onKeyValue(event.target.value)}
-              onKeyDown={(event) => { if (event.key === 'Enter' && keyValue) onSaveKey(); }}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' && keyValue) onSaveKey();
+              }}
               className="min-w-0 flex-1 rounded-lg border border-line bg-well px-2.5 py-1.5 font-mono text-[11.5px] text-ink outline-none placeholder:text-faint focus:border-ember/60"
             />
             <button
@@ -731,7 +848,9 @@ function ProviderRow({
               {busy ? <Loader size={11} className="animate-spin" /> : 'Save & use'}
             </button>
           </div>
-          <label className="mt-2 mb-1 block text-[10.5px] text-faint">Custom HTTPS endpoint <span className="opacity-70">(optional)</span></label>
+          <label className="mt-2 mb-1 block text-[10.5px] text-faint">
+            Custom HTTPS endpoint <span className="opacity-70">(optional)</span>
+          </label>
           <input
             type="url"
             value={baseURL}
@@ -751,7 +870,11 @@ function ProviderRow({
 const THINKING_PRESETS = [0, 1024, 4096, 16384];
 
 function ThinkingTokens({
-  value, supported, modelLabel, outcome, onApply,
+  value,
+  supported,
+  modelLabel,
+  outcome,
+  onApply,
 }: {
   value: number;
   supported: boolean;
@@ -778,8 +901,7 @@ function ThinkingTokens({
         ))}
       </div>
       <p className="mt-1.5 text-[11px] text-faint">
-        How many tokens the model may spend reasoning before it must answer. Default leaves it to the
-        provider.
+        How many tokens the model may spend reasoning before it must answer. Default leaves it to the provider.
       </p>
       {!supported && modelLabel && <Note tone="amber">{modelLabel} does not expose a thinking budget.</Note>}
       {outcome?.state === 'rejected' && <Note tone="amber">The engine kept “{outcome.actual || '0'}”.</Note>}
@@ -798,13 +920,21 @@ function Section({ label, children }: { label: string; children: React.ReactNode
   );
 }
 
-function Pill({ children, tone = 'line' }: { children: React.ReactNode; tone?: 'line' | 'amber' | 'ember' }): React.ReactElement {
+function Pill({
+  children,
+  tone = 'line',
+}: {
+  children: React.ReactNode;
+  tone?: 'line' | 'amber' | 'ember';
+}): React.ReactElement {
   return (
     <span
       className={cn(
         'inline-flex items-center gap-1 rounded-full px-1.5 py-px text-[9.5px] font-medium',
-        tone === 'amber' ? 'bg-amber/15 text-amber'
-          : tone === 'ember' ? 'bg-ember/20 text-ember'
+        tone === 'amber'
+          ? 'bg-amber/15 text-amber'
+          : tone === 'ember'
+            ? 'bg-ember/20 text-ember'
             : 'bg-well text-faint',
       )}
     >

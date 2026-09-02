@@ -121,350 +121,52 @@ describe('task state', () => {
   });
 });
 
-describe('Mac live session', () => {
-  test('the freshness budget matches the runtime that would refuse a stale frame', () => {
-    // If these ever diverge the UI would call an observation fresh that the runtime rejects.
-    expect(EVIDENCE_MAX_AGE_MS).toBe(DEFAULT_FRAME_MAX_AGE_MS);
-  });
-
-  test('recognizes the FULLY QUALIFIED names the engine actually emits', () => {
-    // src/mcp/client.ts registers every provider tool as `mcp__<server>__<tool>`, and
-    // runtime.paths.ts names this server `bimax-mac`. These are the strings that appear in a real
-    // tool_call event; recognizing only the bare names meant the Mac lane never lit up in
-    // production, however green the renderer journeys were.
-    expect(isMacToolCall({ toolName: 'mcp__bimax-mac__mac_control' })).toBe(true);
-    expect(isMacToolCall({ toolName: 'mcp__bimax-mac__BimaxActionTool' })).toBe(true);
-    expect(isMacToolCall({ toolName: 'mcp__bimax-mac__BimaxTransactionTool' })).toBe(true);
-    // Our own server may add tools later; they must not silently vanish from the Mac lane.
-    expect(isMacToolCall({ toolName: 'mcp__bimax-mac__some_future_tool' })).toBe(true);
-  });
-
-  test('still recognizes the bare names used where no MCP client sits in between', () => {
-    // The provider itself, the stdio contract probe and the packaged conformance harness call the
-    // provider directly, so both shapes are legitimate — through ONE recognizer.
-    expect(isMacToolCall({ toolName: 'mac_control' })).toBe(true);
-    expect(isMacToolCall({ toolName: 'BimaxActionTool' })).toBe(true);
-  });
-
-  test('does NOT classify unrelated MCP tools as Mac tools', () => {
-    // A third party's tool called mac_control is not Bimax's Mac provider. Treating it as one would
-    // put someone else's output into the Live Target, the takeover state and the receipt.
-    expect(isMacToolCall({ toolName: 'mcp__github__mac_control' })).toBe(false);
-    expect(isMacToolCall({ toolName: 'mcp__other-server__BimaxActionTool' })).toBe(false);
-    expect(isMacToolCall({ toolName: 'mcp__bimax-mac-evil__mac_control' })).toBe(false);
-    expect(isMacToolCall({ toolName: 'mcp__codebase-memory__search' })).toBe(false);
-    expect(isMacToolCall({ toolName: 'Edit' })).toBe(false);
-    expect(isMacToolCall({ toolName: '' })).toBe(false);
-    // The engine-owned ComputerTool no longer exists; matching it would resurrect dead vocabulary.
-    expect(isMacToolCall({ toolName: 'ComputerTool' })).toBe(false);
-  });
-
-  test('the recognizer and the descriptor agree on the server name', () => {
-    // If runtime.paths.ts ever renamed the server, the renderer would stop recognizing production
-    // events. Both read the same constant, and this asserts it.
-    const env = buildEngineChildEnv({
-      parentEnv: {}, extraEnv: {}, path: '/usr/bin', projectDir: '/tmp/p',
-      architecture: 'arm64', resolved: { macCapability: '/Bimax.app/mac-capability' },
-    });
-    const descriptor = JSON.parse(env.BIMAX_HOST_CAPABILITIES_JSON as string);
-    expect(descriptor.servers[0].name).toBe(MAC_PROVIDER_SERVER_NAME);
-    expect(isMacToolCall({ toolName: `mcp__${descriptor.servers[0].name}__mac_control` })).toBe(true);
-  });
-
-  test('a fully qualified Mac result drives the live session end to end', () => {
-    const session = deriveMacSession(
-      [macCall({ toolName: 'mcp__bimax-mac__mac_control' })], { paused: false, reason: '' }, NOW,
-    );
-    expect(session.active).toBe(true);
-    expect(session.target).toEqual({ app: 'Notes', pid: 4211, windowId: 88 });
-    expect(session.latest?.label).toBe('Clicked Save');
-  });
-
-  test('binds the exact target, observation and confirmation from the payload', () => {
-    const session = deriveMacSession([macCall()], { paused: false, reason: '' }, NOW);
-    expect(session.active).toBe(true);
-    expect(session.target).toEqual({ app: 'Notes', pid: 4211, windowId: 88 });
-    expect(session.evidence?.observation).toBe('f7-4211-88');
-    expect(session.evidence?.freshness).toBe('fresh');
-    expect(session.latest?.label).toBe('Clicked Save');
-    expect(session.latest?.executor).toBe('semantic');
-    // The compatibility receipt names the condition it matched, which is what the UI shows.
-    expect(session.latest?.postcondition).toBe('matched · saved');
-  });
-
-  test('evidence past the budget is stale, and an untimestamped one is unknown — never fresh', () => {
-    const old = macCall({
-      startTime: new Date(NOW - 200_000).toISOString(),
-      endTime: new Date(NOW - 190_000).toISOString(),
-    });
-    expect(deriveMacSession([old], { paused: false, reason: '' }, NOW).evidence?.freshness).toBe('stale');
-
-    const undated = macCall({ startTime: 'not a date', endTime: undefined });
-    const session = deriveMacSession([undated], { paused: false, reason: '' }, NOW);
-    expect(session.evidence?.freshness).toBe('unknown');
-    expect(describeEvidenceAge(session.evidence)).toBe('age not recorded');
-  });
-
-  test('a target is never inherited from a payload that did not name one', () => {
-    const nameless = macCall({ id: 'm2', payload: { app: undefined, pid: undefined, windowId: undefined } });
-    const session = deriveMacSession([nameless], { paused: false, reason: '' }, NOW);
-    expect(session.target).toBeNull();
-  });
-
-  test('paused comes from the app-owned latch, and a refusal is counted as evidence of it', () => {
-    const refused = macCall({
-      id: 'm3', status: 'error',
-      output: JSON.stringify({ ok: false, code: 'computer_use_paused', action: 'type', app: 'Notes' }),
-    });
-    const session = deriveMacSession([macCall(), refused], { paused: true, reason: 'You took control' }, NOW);
-    expect(session.paused).toBe(true);
-    expect(session.state).toBe('paused');
-    expect(session.refusedWhilePaused).toBe(1);
-    expect(session.latest?.refusedForTakeover).toBe(true);
-    expect(session.latest?.label).toContain('Refused');
-  });
-
-  test('a refusal alone never makes the UI claim the user has control', () => {
-    const refused = macCall({
-      id: 'm3', status: 'error',
-      output: JSON.stringify({ ok: false, code: 'computer_use_paused', action: 'type' }),
-    });
-    // Latch says running. The refusal is in the transcript but the control state is main's to state.
-    const session = deriveMacSession([refused], { paused: false, reason: '' }, NOW);
-    expect(session.paused).toBe(false);
-    expect(session.state).not.toBe('paused');
-  });
-
-  test('a provider block is never rendered as a completed action', () => {
-    const blocked = macCall({
-      input: JSON.stringify({ action: 'open', app: 'Messages' }),
-      status: 'success',
-      output: JSON.stringify({
-        ok: false, action: 'open', blocked: true, code: 'untrusted_observation_authority',
-        reason: 'missing, expired, or invalid authenticated task plan',
-        verification: {
-          status: 'not_attempted', freshObservation: false,
-          reason: 'missing, expired, or invalid authenticated task plan',
-        },
-      }),
-    });
-    const session = deriveMacSession([blocked], { paused: false, reason: '' }, NOW);
-    expect(session.state).toBe('blocked');
-    expect(session.latest).toMatchObject({
-      label: 'Blocked: open Messages', status: 'error', outcome: 'blocked',
-      postcondition: 'missing, expired, or invalid authenticated task plan',
-    });
-    expect(session.target).toBeNull();
-  });
-
-  test('actions read as intents, with no mechanism vocabulary', () => {
-    expect(describeMacAction('click', { targeting: { label: 'Send' } })).toBe('Clicked Send');
-    expect(describeMacAction('open', { app: 'Messages' })).toBe('Opened Messages');
-    expect(describeMacAction('observe', { app: 'Notes' })).toBe('Looked at Notes');
-    expect(describeMacAction('open', {
-      app: { pid: 42, bundleId: 'com.apple.MobileSMS', displayName: 'Messages' },
-    })).toBe('Opened Messages');
-    expect(describeMacAction('open', { app: { pid: 42 } })).toBe('Opened');
-  });
-
-  test('structured native app identities never leak object coercion into Live Target', () => {
-    const session = deriveMacSession([macCall({
-      input: JSON.stringify({ action: 'open', app: 'Messages' }),
-      output: JSON.stringify({
-        ok: true, action: 'open',
-        app: { pid: 42, bundleId: 'com.apple.MobileSMS', displayName: 'Messages' },
-        pid: 42, frameId: 'native-one',
-      }),
-    })], { paused: false, reason: '' }, NOW);
-    expect(session.target?.app).toBe('Messages');
-    expect(session.latest?.label).toBe('Opened Messages');
-    expect(JSON.stringify(session)).not.toContain('[object Object]');
-  });
-
-  // Mutant: treating age as fresh whenever it is recorded.
-  test('MUTANT — calling any timestamped observation fresh would pass off a three-minute-old screen', () => {
-    const naive = (ageMs: number | null): string => (ageMs === null ? 'unknown' : 'fresh');
-    expect(naive(180_000)).toBe('fresh');
-    const old = macCall({
-      startTime: new Date(NOW - 190_000).toISOString(),
-      endTime: new Date(NOW - 180_000).toISOString(),
-    });
-    expect(deriveMacSession([old], { paused: false, reason: '' }, NOW).evidence?.freshness).toBe('stale');
-  });
-});
-
-describe('contextual inspector', () => {
-  const emptyMac = deriveMacSession([], { paused: false, reason: '' }, NOW);
-
-  test('a lane appears only once its evidence exists', () => {
-    const tabs = inspectorTabs({
-      review: null, gitStatus: null, mac: emptyMac, subagents: [], hasProject: true, browserUrl: '',
-    });
-    expect(tabs.find(tab => tab.id === 'mac')?.available).toBe(false);
-    expect(tabs.find(tab => tab.id === 'browser')?.available).toBe(false);
-    expect(tabs.find(tab => tab.id === 'team')?.available).toBe(false);
-    expect(tabs.find(tab => tab.id === 'receipt')?.available).toBe(false);
-    // Files is workspace navigation, not task evidence: a project is enough.
-    expect(tabs.find(tab => tab.id === 'files')?.available).toBe(true);
+describe('the four-lane inspector', () => {
+  test('Files, Review and Terminal ride on the project; GitHub needs a repository', () => {
+    const tabs = inspectorTabs({ review: null, gitStatus: null, hasProject: true, isRepo: false });
+    expect(tabs.map(t => t.id)).toEqual(['files', 'review', 'terminal', 'github']);
+    expect(tabs.find(t => t.id === 'files')?.available).toBe(true);
+    expect(tabs.find(t => t.id === 'review')?.available).toBe(true);
+    expect(tabs.find(t => t.id === 'terminal')?.available).toBe(true);
+    expect(tabs.find(t => t.id === 'github')?.available).toBe(false);
   });
 
   test('every unavailable lane explains itself instead of vanishing', () => {
-    const tabs = inspectorTabs({
-      review: null, gitStatus: null, mac: emptyMac, subagents: [], hasProject: false, browserUrl: '',
-    });
+    const tabs = inspectorTabs({ review: null, gitStatus: null, hasProject: false });
     for (const tab of tabs.filter(candidate => !candidate.available)) {
       expect(tab.emptyReason.length).toBeGreaterThan(10);
     }
   });
 
-  test('stale evidence, a pause, and a failed check each raise attention', () => {
-    const stale = deriveMacSession([macCall({
-      startTime: new Date(NOW - 200_000).toISOString(),
-      endTime: new Date(NOW - 190_000).toISOString(),
-    })], { paused: false, reason: '' }, NOW);
-    const tabs = inspectorTabs({
-      review: review({ state: 'verification_failed' }), gitStatus: null, mac: stale,
-      subagents: [], hasProject: true, browserUrl: '',
+  test('a failed verification raises attention on Review; commits behind raise it on GitHub', () => {
+    const failed = inspectorTabs({
+      review: review({ state: 'verification_failed' }), gitStatus: null, hasProject: true,
     });
-    expect(tabs.find(tab => tab.id === 'mac')?.attention).toBe(true);
-    expect(tabs.find(tab => tab.id === 'code')?.attention).toBe(true);
+    expect(failed.find(tab => tab.id === 'review')?.attention).toBe(true);
+
+    const behind = inspectorTabs({
+      review: null, gitStatus: null, hasProject: true, isRepo: true, ahead: 0, behind: 3,
+    });
+    expect(behind.find(tab => tab.id === 'github')?.attention).toBe(true);
+  });
+
+  test('unpushed commits become the GitHub badge', () => {
+    const tabs = inspectorTabs({ review: null, gitStatus: null, hasProject: true, isRepo: true, ahead: 2, behind: 0 });
+    expect(tabs.find(tab => tab.id === 'github')?.count).toBe(2);
   });
 
   test('resolveActiveTab never selects an unavailable lane and honours an explicit choice', () => {
-    const tabs = inspectorTabs({
-      review: review(), gitStatus: null, mac: emptyMac, subagents: [], hasProject: true, browserUrl: '',
-    });
-    expect(resolveActiveTab(tabs, 'mac')).not.toBe('mac');
-    expect(resolveActiveTab(tabs, 'code')).toBe('code');
-    expect(resolveActiveTab(tabs, null)).toBe('code');
+    const tabs = inspectorTabs({ review: review(), gitStatus: null, hasProject: true, isRepo: false });
+    expect(resolveActiveTab(tabs, 'github')).not.toBe('github');
+    expect(resolveActiveTab(tabs, 'review')).toBe('review');
+    expect(resolveActiveTab(tabs, null)).toBe('files');
   });
 
   test('a lane needing attention wins when the user has not chosen', () => {
     const tabs = inspectorTabs({
-      review: review({ state: 'verification_failed' }), gitStatus: null,
-      mac: emptyMac, subagents: [], hasProject: true, browserUrl: '',
+      review: review({ state: 'verification_failed' }), gitStatus: null, hasProject: true,
     });
-    expect(resolveActiveTab(tabs, null)).toBe('code');
-  });
-});
-
-describe('final receipt', () => {
-  test('a claim is proven only when a check passed and none failed', () => {
-    const mac = deriveMacSession([macCall()], { paused: false, reason: '' }, NOW);
-    const receipt = buildFinalReceipt({ review: review(), mac });
-    expect(receipt.complete).toBe(true);
-    expect(receipt.claims.find(claim => claim.id === 'code-changes')?.proven).toBe(true);
-    expect(receipt.claims.find(claim => claim.id === 'mac-actions')?.proven).toBe(true);
-  });
-
-  test('a failed check makes the code claim unproven and names the gap', () => {
-    const mac = deriveMacSession([], { paused: false, reason: '' }, NOW);
-    const receipt = buildFinalReceipt({
-      review: review({
-        state: 'verification_failed',
-        verifications: [{ command: 'npm test', ok: false, settled: 1, coveredFiles: [], repoWide: false, at: NOW }],
-      }),
-      mac,
-    });
-    expect(receipt.complete).toBe(false);
-    expect(receipt.claims[0].proven).toBe(false);
-    expect(receipt.gaps.join(' ')).toMatch(/failed/);
-  });
-
-  test('edits with no check at all are unproven, not quietly complete', () => {
-    const mac = deriveMacSession([], { paused: false, reason: '' }, NOW);
-    const receipt = buildFinalReceipt({ review: review({ verifications: [] }), mac });
-    expect(receipt.complete).toBe(false);
-    expect(receipt.gaps.join(' ')).toMatch(/no verification command was run/);
-  });
-
-  test('a Mac action that never confirmed its end state is a gap', () => {
-    const unconfirmed = macCall({
-      payload: {
-        actionResult: { delivered: true, observed: 'changed', postcondition: { query: 'saved', matched: false } },
-        actionReceipt: {
-          kind: 'pointer', target: { app: 'Notes', pid: 4211, windowId: 88 },
-          preflight: { reason: 'matched' }, commit: { delivered: true },
-          postcondition: { query: 'saved', matched: false },
-        },
-      },
-    });
-    const mac = deriveMacSession([unconfirmed], { paused: false, reason: '' }, NOW);
-    const receipt = buildFinalReceipt({ review: null, mac });
-    expect(receipt.complete).toBe(false);
-    expect(receipt.claims[0].gap).toMatch(/no action confirmed its expected end state/);
-  });
-
-  test('stale evidence and refusals while paused are recorded as gaps', () => {
-    const refused = macCall({
-      id: 'm3', status: 'error',
-      output: JSON.stringify({ ok: false, code: 'computer_use_paused', action: 'type' }),
-    });
-    const stale = macCall({
-      id: 'm4',
-      startTime: new Date(NOW - 200_000).toISOString(),
-      endTime: new Date(NOW - 190_000).toISOString(),
-    });
-    const mac = deriveMacSession([stale, refused], { paused: true, reason: 'You took control' }, NOW);
-    const receipt = buildFinalReceipt({ review: null, mac });
-    expect(receipt.gaps.join(' ')).toMatch(/older than the freshness budget/);
-    expect(receipt.gaps.join(' ')).toMatch(/refused while you held control/);
-  });
-
-  test('an UNATTRIBUTED executor cannot produce a proven Mac claim', () => {
-    // executor.ladder.ts returns `unattributed` exactly when the runtime could not say which
-    // executor acted. A green postcondition beside an unknown executor is not proof: there is no
-    // record of what actually touched the machine.
-    const unattributed = macCall({ payload: { executor: { level: undefined, mechanism: null } } });
-    const mac = deriveMacSession([unattributed], { paused: false, reason: '' }, NOW);
-    expect(mac.latest?.executor).toBe('unattributed');
-    expect(mac.latest?.postcondition).toMatch(/^matched/);
-
-    const receipt = buildFinalReceipt({ review: null, mac });
-    const claim = receipt.claims.find(candidate => candidate.id === 'mac-actions');
-    expect(claim?.proven).toBe(false);
-    expect(claim?.gap).toMatch(/could not be attributed to an executor/);
-    expect(receipt.complete).toBe(false);
-    // The evidence row for that action must not read as a tick either.
-    expect(claim?.evidence[0].ok).toBe(false);
-  });
-
-  test('a proven Mac claim needs success, a matched postcondition, an executor AND a bound target', () => {
-    const mac = deriveMacSession([macCall()], { paused: false, reason: '' }, NOW);
-    expect(buildFinalReceipt({ review: null, mac }).claims[0].proven).toBe(true);
-
-    // Same successful, confirmed, attributed action — but nothing ever named the app/window/frame.
-    const unbound = deriveMacSession(
-      [macCall({ payload: { app: undefined, pid: undefined, windowId: undefined, frameId: undefined, actionReceipt: undefined } })],
-      { paused: false, reason: '' }, NOW,
-    );
-    const receipt = buildFinalReceipt({ review: null, mac: unbound });
-    expect(receipt.claims[0].proven).toBe(false);
-  });
-
-  // Mutant: attribution ignored.
-  test('MUTANT — proving on postcondition alone would pass an unattributed action', () => {
-    const naive = (postconditionMatched: boolean): boolean => postconditionMatched;
-    expect(naive(true)).toBe(true);
-    const mac = deriveMacSession(
-      [macCall({ payload: { executor: { level: undefined, mechanism: null } } })],
-      { paused: false, reason: '' }, NOW,
-    );
-    expect(buildFinalReceipt({ review: null, mac }).claims[0].proven).toBe(false);
-  });
-
-  // Mutant: "the tools ran, so it worked".
-  test('MUTANT — proving a claim from delivery alone would call a failed run complete', () => {
-    const naive = (delivered: boolean): boolean => delivered;
-    expect(naive(true)).toBe(true);
-    const mac = deriveMacSession([], { paused: false, reason: '' }, NOW);
-    const receipt = buildFinalReceipt({
-      review: review({
-        verifications: [{ command: 'npm test', ok: false, settled: 1, coveredFiles: [], repoWide: false, at: NOW }],
-      }),
-      mac,
-    });
-    expect(receipt.complete).toBe(false);
+    expect(resolveActiveTab(tabs, null)).toBe('review');
   });
 });
 

@@ -256,3 +256,23 @@ and an authenticated `/models` query returned no StepFun model. No key or respon
 the model/status/detail fields was preserved. OpenRouter and direct StepFun availability remain
 unverified from this machine until the user supplies one of those provider keys; this is not a live
 successful-answer claim, a Computer Use completion, Product-ready status, or a competitive Win.
+
+## Kimi K3 NVIDIA migration
+
+Accessed 2026-08-29 after the owner directed Bimax to retire StepFun from product routing and make
+Kimi K3 the default. The authenticated serving inventory establishes availability only; it does not
+establish response latency, tool fidelity, Computer Use quality, Product-ready status, or a Win.
+
+| Source | Current evidence | Bimax consequence |
+|---|---|---|
+| Secret-safe authenticated `GET https://integrate.api.nvidia.com/v1/models` | The active NVIDIA account returned 83 unique ids, including `moonshotai/kimi-k3`, and no StepFun id. Response rows exposed only `id`, `object`, `created`, and `owned_by`; they did not expose trustworthy capability tags, parameter counts, or release dates, and the sampled `created` value was identical across unrelated models | Remove StepFun from active provider/default routing; use the exact NVIDIA Kimi K3 id; keep live membership as availability truth and source recommendation metadata separately from publisher model cards |
+| [NVIDIA Kimi K3 model page](https://build.nvidia.com/moonshotai/kimi-k3/playground) and [NVIDIA API reference](https://docs.api.nvidia.com/nim/re/reference/moonshotai-kimi-k3) | NVIDIA documents native text/image input, tool/function calls, structured output, always-on reasoning, configurable `low`/`high`/`max` effort, a 1,048,576-token context window, and the requirement to replay the complete assistant message including `reasoning_content` and `tool_calls` across tool rounds | Add an exact Kimi K3 capability profile, omit unsupported generic sampling fields, default unspecified effort to `low`, preserve replay-required reasoning only, and count it in context pressure |
+| [NVIDIA Nemotron 3.5 Lightning model card](https://build.nvidia.com/nvidia/nemotron-3.5-lightning-30b-a3b/modelcard), [Muse Glimmer model card](https://build.nvidia.com/meta/muse-glimmer-30b/modelcard), and [Laguna XS 2.1 model card](https://build.nvidia.com/poolside/laguna-xs-2.1/modelcard) | Publisher cards provide model-specific parameter scale, release date, input modality and tool/reasoning claims that the live inventory endpoint omits | Curate recommendation membership and display metadata independently from live availability; mark unmeasured routes `avoidAutoSelect` instead of converting publisher claims into Bimax qualification |
+| Installed local manual-alpha package, 2026-08-29 | Recompiled the arm64 engine, rebuilt and locally signed the complete Desktop bundle, installed it at `/Applications/Bimax.app`, and passed the package/signature gate against that exact installed path. The installed `app.asar` SHA-256 is `68015fc7b013857671228c65568d3b67582cd74bf7328793edbf922b03e46ea7`; the bundled engine SHA-256 is `2fa184b0e07db7f0d0a66cbade5a40b9dde65a0cb21fc840595ed229e88e3825`. Fresh app UI inspection showed 83 NVIDIA models served; Kimi K3 recommended in Work and Vision; fast, plain models first in Quick; parameters/release dates/tags in recommendation rows; Browse all expanding uncurated live ids; and a Quick search returning `openai/gpt-oss-120b`. Existing Work selection remained DeepSeek while migrated Quick/Vision resolved to Mistral/Kimi, proving model slots are no longer app-locked | Treat the installed local build as current for owner testing. This proves packaging, catalogue projection and visible selection only; it is not Developer-ID/notarized distribution, a successful Kimi task, a Computer Use completion, Product-ready status, or a Win |
+
+Local qualification boundary: one authenticated catalogue request succeeded. Bounded completion and
+streaming probes produced no model payload within 60 seconds on this key; a separate default-effort
+attempt was interrupted after more than 120 seconds without a response. Those are provider-route
+availability/latency observations, not a model-quality failure and not a valid task evaluation.
+Kimi K3 is now the owner-selected default, while coding reliability, tool fidelity, screenshot
+grounding, real-app Computer Use and latency remain Target pending healthy repeated runs.

@@ -4,15 +4,8 @@ import path from 'node:path';
 import os from 'node:os';
 import { FSWatcher, readFileSync, writeFileSync, renameSync, mkdirSync } from 'node:fs';
 import {
-  bimaxCuServiceBinary, spawnEngineProcess, recentEngineLog, componentResolutions,
-  setTakeoverBrokerCredentials, engineProcessProvenance,
+  spawnEngineProcess, recentEngineLog, engineProcessProvenance,
 } from './engine';
-import {
-  UserTakeoverAuthority, startUserTakeoverBroker, parseTakeoverRequest,
-  type TakeoverBrokerHandle, type TakeoverState,
-} from './takeover';
-import { buildTrustReport, toDisposition, MINIMUM_MACOS, type TrustReport } from './trust';
-import { inspectExecutable } from './release.integrity';
 import { buildDiagnosticExport } from './diagnostic.export';
 import { DesktopEvidenceStore } from './evidence.store';
 import { buildEvidenceTimeline, retentionControls } from '../shared/evidence.timeline';
@@ -20,28 +13,11 @@ import type { WindowChromeState } from '../shared/window.chrome';
 import { EngineSupervisor } from './supervisor/supervisor';
 import { CrashJournal } from './supervisor/journal';
 import { SupervisorStatus } from './supervisor/types';
-import { gitStatus, gitDiff, gitBranches, gitLog } from './git';
-import { listDir, readFilePreview, writeFileContent, readSessionMeta, watchProject } from './files';
+import { gitStatus, gitDiff, gitBranches, gitLog, gitRemoteInfo, gitFetch, gitPull, gitPush } from './git';
+import { discoverLocalModels } from './local.models';
+import { listDir, readFilePreview, writeFileContent, readSessionMeta, watchProject, searchFiles } from './files';
 import { createPty, writePty, resizePty, killPty, killAllPtys } from './pty';
 import { pickInitialProject, loadSettings, recordProject, recentProjects, isRealProject } from './settings';
-import {
-  startCoach, stopCoach, setCoachInteractive, startBundleDrag, draggableBundlePath,
-  probePermissions, coachWebContentsId, coachBundlePath, isAwaitingHostGrant,
-  type PermissionProbe,
-} from './permission.coach';
-import { hostGrants } from './host.grants';
-import {
-  approveManualAlphaService,
-  inspectManualAlphaService,
-  revokeManualAlphaService,
-  type ManualAlphaServiceStatus,
-} from './manual-alpha.trust';
-import { assessNativeControlRoute, inspectNativeControlRoute } from './native.cu.route';
-import {
-  launchExactProcessWithNativeHelper,
-  startFocusActivationBroker,
-  type FocusActivationBrokerHandle,
-} from './focus-broker';
 import {
   REQUIRED_WEB_PREFERENCES, RENDERER_CSP, InvalidPayloadError,
   isTrustedSender, isAllowedNavigation, isAllowedPermission,
@@ -80,13 +56,6 @@ let projectWatcher: FSWatcher | null = null;
 let lastStatus: SupervisorStatus | null = null;
 let latestUiSnapshot: unknown = null;
 let latestReviewSnapshot: unknown = null;
-let focusBroker: FocusActivationBrokerHandle | null = null;
-// One latch, owned here. The renderer's Pause/Resume writes it; the mac capability provider reads
-// it over loopback before every mutating tool. See main/takeover.ts.
-const takeover = new UserTakeoverAuthority();
-let takeoverBroker: TakeoverBrokerHandle | null = null;
-// Non-null when the broker failed to start; it becomes a visible Computer Use blocker.
-let takeoverBrokerError: string | null = null;
 
 // Phase 9 S29-F: one automatic decision class. Other runtime/rendering decisions are reported in
 // shadow mode; Reduce Motion remains a hard renderer constraint. `off` is the explicit override.
@@ -118,21 +87,11 @@ async function workspaceCapabilities(): Promise<{
   return { environment, alchemist };
 }
 
-// One packaged Bimax process owns the engine, Trust Center and native Computer Use service. A
-// second launch only brings that process forward; it must never create another permission owner.
-const nativeRouteSelfTestRequested = process.argv.includes('--self-test-native-route');
-const ownsSingleInstance = nativeRouteSelfTestRequested || app.requestSingleInstanceLock();
+// One packaged Bimax process owns the coding engine. A second launch only brings it forward.
+const ownsSingleInstance = app.requestSingleInstanceLock();
 if (!ownsSingleInstance) app.quit();
 
 function revealMainWindow(): void {
-  // During an app-bundle drag, macOS may send this app a reopen event as it resolves the dropped
-  // bundle. Do not touch window state re-entrantly; the coach closes and restores the main window
-  // after the native drag settles.
-  if (coachWebContentsId() !== null) return;
-  // The same applies after the tile is gone. A dropped host permission leaves macOS asking the user
-  // for a password, and revealing the window on that reopen event is what used to bury the sheet.
-  // The coach's grant watch owns the window until it has a real reason to give it back.
-  if (isAwaitingHostGrant()) return;
   if (win && !win.isDestroyed()) {
     win.show();
     win.focus();
@@ -221,40 +180,6 @@ function windowChrome(): WindowChromeState {
   };
 }
 
-/**
- * Getting the main window out of the way for an add-by-drag permission journey — and back.
- *
- * `hide()` is the wrong verb for a full-screen window. macOS gives a full-screen window its own
- * Space, and hiding it tears that Space down: the window returns as an ordinary one, mid-journey,
- * as a side effect of pressing Enable. Nobody asked for that, and it is not even buying anything —
- * a window in its own Space cannot overlap System Settings in the first place. Opening the pane
- * switches Spaces on its own, and the coach tile is `visibleOnFullScreen`, so it comes along.
- *
- * So: hide only what hiding is safe for, and remember which it was, because a window we never hid
- * must not be `show()`n back into existence on a Space the user may have since left.
- */
-function permissionJourneyWindowMoves(): { stepAside: () => void; restore: () => void } {
-  let wasHidden = false;
-  return {
-    stepAside: () => {
-      if (!win || win.isDestroyed()) return;
-      if (win.isFullScreen()) {
-        wasHidden = false;
-        return;
-      }
-      wasHidden = true;
-      win.hide();
-    },
-    restore: () => {
-      if (!win || win.isDestroyed()) return;
-      if (win.isMinimized()) win.restore();
-      if (wasHidden) win.show();
-      win.focus();
-      app.focus({ steal: true });
-    },
-  };
-}
-
 // ------------------------------------------------------------------------------------------------
 // IPC boundary. Every privileged channel goes through secureHandle/secureOn — there is no
 // ipcMain.handle/ipcMain.on below that skips the sender check. Policy itself lives in security.ts
@@ -262,12 +187,9 @@ function permissionJourneyWindowMoves(): { stepAside: () => void; restore: () =>
 
 /** What the main process currently considers its own renderer. Recomputed per message. */
 function trustedRenderer(): TrustedRenderer {
-  const coachId = coachWebContentsId();
   return {
     webContentsId: win && !win.isDestroyed() ? win.webContents.id : null,
-    // The drag coach is our own window and needs the same door; without this its bundle lookup,
-    // click-through hand-off and drag are all refused, which looks exactly like "nothing to drag".
-    auxiliaryWebContentsIds: coachId === null ? [] : [coachId],
+    auxiliaryWebContentsIds: [],
     devServerUrl: process.env.ELECTRON_RENDERER_URL,
   };
 }
@@ -426,53 +348,6 @@ function projectDir(): string {
   return supervisor?.currentProject ?? '';
 }
 
-/** One measured source for the Trust Center screen and its exported support bundle. */
-async function currentTrustReport(): Promise<TrustReport> {
-  const darwin = process.platform === 'darwin';
-  const components = componentResolutions();
-  const nativeServiceTrust = await inspectManualAlphaService(bimaxCuServiceBinary());
-  const nativeRoute = await inspectNativeControlRoute(
-    components.find((component) => component.name === 'cuBridge')?.resolution.path,
-  );
-  const nativeRouteTrust = assessNativeControlRoute(nativeServiceTrust, nativeRoute);
-  return buildTrustReport({
-    now: () => new Date(),
-    build: {
-      packaged: app.isPackaged,
-      appVersion: app.getVersion(),
-      electron: process.versions.electron,
-      chrome: process.versions.chrome,
-      node: process.versions.node,
-      platform: process.platform,
-      osRelease: os.release(),
-      minimumMacOS: MINIMUM_MACOS,
-    },
-    permissions: {
-      // Fresh-child readings — see host.grants.ts. This is the gate the native Computer Use path
-      // checks before it will route, so a stale negative here does not merely mislabel a row: it
-      // keeps Bimax CU switched off after the user has already granted everything it asked for.
-      accessibility: darwin ? hostGrants().accessibility : 'unavailable',
-      screenRecording: darwin ? hostGrants().screenRecording : 'unavailable',
-    },
-    components,
-    integrity: {
-      app: inspectExecutable(process.execPath),
-      components: Object.fromEntries(components.flatMap(({ name, resolution }) =>
-        resolution.path ? [[name, inspectExecutable(resolution.path)]] : [])),
-    },
-    userTakeover: takeoverBroker
-      ? { available: true }
-      : {
-        available: false,
-        detail: `Bimax could not set up the control you would use to take over, so it will not act on your Mac${takeoverBrokerError ? ` (${takeoverBrokerError})` : ''}`,
-      },
-    nativeServiceTrust: {
-      ready: nativeRouteTrust.ready,
-      detail: nativeRouteTrust.detail,
-    },
-  });
-}
-
 function createWindow(): void {
   win = new BrowserWindow({
     width: 1180,
@@ -579,24 +454,6 @@ function hardenSession(): void {
 }
 
 app.whenReady().then(async () => {
-  // Release/package verification must exercise the topology the DMG actually ships. Running the
-  // app executable with this flag keeps Electron as the bridge's signed ancestor, probes the
-  // app-bundled XPC service, emits one machine-readable result, and creates no UI or engine child.
-  // It deliberately bypasses only the ordinary single-instance window lock above so a separately
-  // installed Bimax cannot intercept verification of a freshly built bundle with the same ID.
-  if (nativeRouteSelfTestRequested) {
-    const components = componentResolutions();
-    const bridge = components.find((component) => component.name === 'cuBridge')?.resolution.path;
-    const route = await inspectNativeControlRoute(bridge, 5_000);
-    process.stdout.write(`${JSON.stringify({
-      schemaVersion: 1,
-      packaged: app.isPackaged,
-      appPath: app.getAppPath(),
-      route,
-    })}\n`);
-    app.exit(app.isPackaged && route.connected ? 0 : 1);
-    return;
-  }
   hardenSession();
   // safeStorage can consult Keychain only after ready. Load before constructing the supervisor so
   // the first engine generation receives the selected provider and its credential.
@@ -611,60 +468,6 @@ app.whenReady().then(async () => {
     });
   }
   supervisor = createSupervisor();
-  // Start the takeover broker BEFORE the first engine spawn: a provider launched without the
-  // endpoint would have no authority to consult, and its mirror is inert in that case.
-  try {
-    takeoverBroker = await startUserTakeoverBroker(takeover);
-    setTakeoverBrokerCredentials({ endpoint: takeoverBroker.endpoint, token: takeoverBroker.token });
-  } catch (error) {
-    // Fail closed, loudly. The provider still launches — coding and read-only Mac diagnostics are
-    // unaffected — but it was told a takeover authority is REQUIRED and will receive none, so every
-    // native mutation is refused. The Trust Center says this rather than showing Computer Use as
-    // available with no way to stop it.
-    takeoverBrokerError = String((error as Error)?.message || error);
-    console.error('[takeover-broker] unavailable:', error);
-  }
-  if (process.platform === 'darwin') {
-    try {
-      const activatorBinary = bimaxCuServiceBinary();
-      if (!activatorBinary) throw new Error('native focus activator is not packaged');
-      focusBroker = await startFocusActivationBroker({
-        bimaxPid: process.pid,
-        isBimaxFocused: () => !!win?.isFocused(),
-        activateBundle: async (bundleId, pid) => {
-          if (pid === process.pid) {
-            app.setActivationPolicy('regular');
-            app.show();
-            win?.show();
-            const activated = await launchExactProcessWithNativeHelper(
-              activatorBinary, bundleId, pid,
-            );
-            if (activated) win?.focus();
-            return activated;
-          }
-          setImmediate(() => void (async () => {
-            const activated = await launchExactProcessWithNativeHelper(
-              activatorBinary, bundleId, pid, process.pid,
-            );
-            if (activated) {
-              app.setActivationPolicy('accessory');
-              win?.hide();
-              app.hide();
-            }
-          })());
-          // Accepted means scheduled. The native lease polls the exact PID and is the only source
-          // of truth about whether the activation actually landed.
-          return true;
-        },
-      });
-      // The renderer never receives these values. Only the coordinator child inherits the
-      // capability, and the broker independently requires Bimax to be frontmost before leaving it.
-      process.env.BIMAX_CU_FOCUS_BROKER_ENDPOINT = focusBroker.endpoint;
-      process.env.BIMAX_CU_FOCUS_BROKER_TOKEN = focusBroker.token;
-    } catch (error) {
-      console.error('[focus-broker] unavailable:', error);
-    }
-  }
   createWindow();
 
   // Launch project: an env override or the last valid saved project — NEVER $HOME. When null, the
@@ -750,25 +553,6 @@ app.whenReady().then(async () => {
 
   secureHandle<string>('app:get-project', '', () => projectDir());
 
-  // Trust diagnostics — read-only, and deliberately non-prompting. Opening a diagnostics view must
-  // never be the thing that triggers a macOS permission dialog, so both probes are the query-only
-  // forms: isTrustedAccessibilityClient(false) and getMediaAccessStatus.
-  secureHandle<TrustReport | null>('trust:report', null, () => currentTrustReport());
-
-  // Manual-alpha trust is exact-hash consent, never a blanket unsigned-service switch. The main
-  // process re-probes immediately before recording consent, so renderer text cannot select a
-  // different binary than the one the user reviewed.
-  secureHandle<ManualAlphaServiceStatus | null>('trust:manual-alpha-status', null, () =>
-    inspectManualAlphaService(bimaxCuServiceBinary()));
-  secureHandle<ManualAlphaServiceStatus | null>('trust:approve-manual-alpha', null, (_e, raw: unknown) => {
-    if (typeof raw !== 'string' || !/^[0-9a-f]{40,64}$/i.test(raw.trim())) {
-      throw new InvalidPayloadError('manual-alpha approval requires an exact code directory hash');
-    }
-    return approveManualAlphaService(bimaxCuServiceBinary(), raw);
-  });
-  secureHandle<ManualAlphaServiceStatus | null>('trust:revoke-manual-alpha', null, () =>
-    revokeManualAlphaService(bimaxCuServiceBinary()));
-
   secureHandle<'saved' | 'cancelled' | 'failed'>('trust:export-diagnostics', 'failed', async () => {
     if (!win) return 'failed';
     const selected = await dialog.showSaveDialog(win, {
@@ -780,7 +564,6 @@ app.whenReady().then(async () => {
     if (selected.canceled || !selected.filePath) return 'cancelled';
     const payload = buildDiagnosticExport({
       now: () => new Date(),
-      trust: await currentTrustReport(),
       status: lastStatus ?? supervisor?.status() ?? null,
       crashes: supervisor?.crashHistory() ?? [],
     });
@@ -824,108 +607,6 @@ app.whenReady().then(async () => {
     throw new InvalidPayloadError('unknown evidence delete scope');
   });
 
-  // Open the exact macOS privacy pane for a permission Bimax needs. This is the "Continue opens
-  // Accessibility settings" step in `04_FRONTEND_PLAN.md`'s contextual Trust Center: Bimax cannot
-  // grant a TCC permission and must never appear to — it takes the user to the switch.
-  // The pane name is chosen from a fixed map, never from renderer-supplied text.
-  secureHandle<boolean>('trust:open-permission-settings', false, async (_e, which: unknown) => {
-    const panes: Record<string, string> = {
-      accessibility: 'x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility',
-      screenRecording: 'x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture',
-    };
-    const url = typeof which === 'string' ? panes[which] : undefined;
-    if (!url) throw new InvalidPayloadError('unknown permission pane');
-    if (process.platform !== 'darwin') return false;
-    await shell.openExternal(url);
-    return true;
-  });
-
-  // The drag coach: open the pane AND float a draggable app bundle over it. macOS's Accessibility
-  // list is add-by-drag, so pointing at it is not enough — see main/permission.coach.ts for why the
-  // overlay must stay click-through outside the icon.
-  secureHandle<boolean>('permissions:start-coach', false, async (_e, which: unknown) => {
-    if (typeof which !== 'string') throw new InvalidPayloadError('coach pane must be a string');
-    // An open modal remains above System Settings even after blur on macOS. Hide it for the
-    // add-by-drag journey and let the compact always-on-top coach provide the explicit way back.
-    const moves = permissionJourneyWindowMoves();
-    return startCoach(which, moves.stepAside, moves.restore);
-  });
-
-  // Microphone is not an add-by-drag TCC list. Apple requires the responsible app to issue the
-  // media authorization request, which macOS remembers for that exact signed identity. If the
-  // user previously denied it, open the fixed Microphone pane so they can change the remembered
-  // decision. This is the working fourth permission path; a fake drag tile would never grant it.
-  secureHandle<boolean>('permissions:request-microphone', false, async () => {
-    if (process.platform !== 'darwin') return false;
-    const status = systemPreferences.getMediaAccessStatus('microphone');
-    if (status === 'granted') return true;
-    if (status === 'not-determined' || status === 'unknown') {
-      return systemPreferences.askForMediaAccess('microphone');
-    }
-    await shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone');
-    return true;
-  });
-
-  secureHandle<boolean>('permissions:start-service-coach', false, async (_e, which: unknown) => {
-    if (which !== 'accessibility' && which !== 'screenRecording') {
-      throw new InvalidPayloadError('service coach pane must be accessibility or screenRecording');
-    }
-    const binary = bimaxCuServiceBinary();
-    if (!binary) return false;
-    const marker = '.xpc/Contents/MacOS/';
-    const at = binary.indexOf(marker);
-    const bundle = at >= 0 ? binary.slice(0, at + '.xpc'.length) : binary;
-    const moves = permissionJourneyWindowMoves();
-    return startCoach(which, moves.stepAside, moves.restore, bundle);
-  });
-
-  secureHandle<boolean>('permissions:stop-coach', false, () => { stopCoach('renderer-request'); return true; });
-
-  // Mouse hand-off. `true` only while the pointer is genuinely over the icon; anything else and the
-  // overlay would start swallowing clicks meant for System Settings.
-  secureOn('permissions:coach-interactive', (_e, interactive: unknown) => {
-    setCoachInteractive(interactive === true);
-  });
-
-  // Native file drag of the .app bundle — this is the payload System Settings actually accepts.
-  secureOn('permissions:drag-bundle', (event) => { startBundleDrag(event); });
-
-  /** Whether a bundle exists to drag, so the coach can show manual steps instead of a dead icon. */
-  secureHandle<string>('permissions:bundle-path', '', () => coachBundlePath());
-
-  // Live readings for all four permissions, plus WHICH bundle they belong to. The bundle matters:
-  // in a dev run macOS grants Electron.app, so toggling the "Bimax" row changes nothing here and a
-  // bare green tick would be actively misleading.
-  secureHandle<PermissionProbe | null>('permissions:probe', null, () => probePermissions());
-
-  /**
-   * Relaunch, so the permission readings can change at all.
-   *
-   * macOS caches a process's TCC answers — `AXIsProcessTrusted` in particular keeps returning the
-   * value it had at launch. Revoking Accessibility in System Settings therefore CANNOT be observed
-   * by this process no matter how often it asks, and polling harder only makes the stale answer
-   * arrive faster. A restart is the actual mechanism, so it is offered as one instead of leaving a
-   * green tick that will not change.
-   */
-  secureHandle<boolean>('permissions:relaunch', false, () => {
-    stopCoach();
-    app.relaunch();
-    app.quit();
-    return true;
-  });
-
-  // User takeover — the visible half of the Phase 2/4 latch. `takeover:set` is the ONLY writer;
-  // the capability provider can read this state but can never clear it, so the control cannot be
-  // undone by the thing it exists to stop.
-  secureHandle<TakeoverState>('takeover:get', takeover.state(), () => takeover.state());
-  secureHandle<TakeoverState>('takeover:set', takeover.state(), (_e, raw: unknown) => {
-    const request = parseTakeoverRequest(raw);
-    if (!request) throw new InvalidPayloadError('not a takeover request');
-    const next = takeover.set(request);
-    broadcast('takeover:state', next);
-    return next;
-  });
-
   // Recent projects for the welcome screen (validated, most-recent first).
   secureHandle<string[]>('app:recent-projects', [], () => recentProjects());
 
@@ -955,6 +636,19 @@ app.whenReady().then(async () => {
   secureHandle<string>('git:diff', '', (_e, file: unknown, untracked: unknown) =>
     gitDiff(projectDir(), file, untracked === true));
   secureHandle<unknown>('git:branches', { current: '', all: [] }, () => gitBranches(projectDir()));
+  // GitHub lane. Reads are free; the three network verbs are user-initiated only — nothing here is
+  // reachable by the engine or the model, and none of them takes or stores a credential.
+  secureHandle<unknown>('git:remote', null, () => gitRemoteInfo(projectDir()));
+  // Local model runtimes. Read-only probe of this machine — no network, no credentials.
+  secureHandle<unknown>('models:local', { runtimes: [], servable: [], scannedAt: '' }, () => discoverLocalModels());
+  // Filename search for the Files filter. Read-only, bounded, and confined to the project root by
+  // the same resolver the tree uses.
+  secureHandle<unknown>('files:search', { hits: [], truncated: false }, (_e, query: unknown) =>
+    searchFiles(projectDir(), query));
+  secureHandle<unknown>('git:fetch', { ok: false, output: 'unavailable' }, () => gitFetch(projectDir()));
+  secureHandle<unknown>('git:pull', { ok: false, output: 'unavailable' }, () => gitPull(projectDir()));
+  secureHandle<unknown>('git:push', { ok: false, output: 'unavailable' }, (_e, setUpstream: unknown) =>
+    gitPush(projectDir(), setUpstream === true));
   secureHandle<unknown>('git:log', [], (_e, n: unknown) =>
     gitLog(projectDir(), n === undefined ? 15 : asBoundedInt(n, 1, 1000, 'git log count')));
 
@@ -1005,8 +699,6 @@ app.whenReady().then(async () => {
   });
 
   secureOn('app:renderer-ready', () => {
-    // A reloaded renderer must not paint "running" over a paused agent.
-    broadcast('takeover:state', takeover.state());
     // A renderer that reloads while zoomed or in full screen would otherwise start out translucent
     // and only correct itself at the next window event, which may never come.
     broadcast('window:chrome', windowChrome());
@@ -1050,10 +742,4 @@ app.on('before-quit', () => {
   killAllPtys();
   projectWatcher?.close();
   projectWatcher = null;
-  void focusBroker?.close();
-  focusBroker = null;
-  void takeoverBroker?.close();
-  takeoverBroker = null;
-  takeoverBrokerError = null;
-  setTakeoverBrokerCredentials(null);
 });

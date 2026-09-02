@@ -115,6 +115,45 @@ export interface ManualAlphaServiceStatus {
 
 import type { EvidenceTimeline, RetentionControl } from '../../shared/evidence.timeline';
 
+export interface GitRemoteInfo {
+  isRepo: boolean;
+  branch: string;
+  remoteUrl: string;
+  remoteName: string;
+  slug: string;
+  hasUpstream: boolean;
+  upstream: string;
+  ahead: number;
+  behind: number;
+  dirty: number;
+  lastFetch: string;
+}
+
+export interface GitOpResult { ok: boolean; output: string }
+
+export interface LocalModelEntry {
+  id: string;
+  label: string;
+  runtime: 'ollama' | 'lmstudio' | 'huggingface' | 'llamacpp';
+  servable: boolean;
+  sizeBytes?: number;
+  detail: string;
+}
+export interface LocalRuntimeEntry {
+  id: 'ollama' | 'lmstudio' | 'huggingface' | 'llamacpp';
+  label: string;
+  installed: boolean;
+  running: boolean;
+  baseURL?: string;
+  models: LocalModelEntry[];
+  hint: string;
+}
+export interface LocalModelReport {
+  runtimes: LocalRuntimeEntry[];
+  servable: LocalModelEntry[];
+  scannedAt: string;
+}
+
 declare global {
   interface Window {
     bimax: {
@@ -138,6 +177,7 @@ declare global {
       pickFiles: () => Promise<string[]>;
       restartEngine: () => Promise<string>;
       providers: {
+        localModels: () => Promise<LocalModelReport>;
         credentialStatus: () => Promise<Array<{
           name: string;
           hasKey: boolean;
@@ -167,11 +207,16 @@ declare global {
         diff: (file: string, untracked: boolean) => Promise<string>;
         branches: () => Promise<{ current: string; all: string[] }>;
         log: (n: number) => Promise<GitCommitEntry[]>;
+        remote: () => Promise<GitRemoteInfo | null>;
+        fetch: () => Promise<GitOpResult>;
+        pull: () => Promise<GitOpResult>;
+        push: (setUpstream: boolean) => Promise<GitOpResult>;
       };
       files: {
         list: (rel: string) => Promise<FileEntry[]>;
         read: (rel: string) => Promise<FilePreview>;
         reveal: (rel: string) => Promise<void>;
+        search: (query: string) => Promise<{ hits: { rel: string; name: string; dir: boolean }[]; truncated: boolean }>;
         write: (rel: string, content: string) => Promise<void>;
         onChanged: (cb: () => void) => () => void;
       };

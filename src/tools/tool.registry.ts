@@ -29,6 +29,13 @@ const CORE_TOOLS = new Set<string>([
   // SkillTool is itself the progressive-disclosure entry point (the prompt's AVAILABLE SKILLS
   // section tells the model to call it), so it must always be loaded — never deferred.
   'SkillTool',
+  // DocumentTool must be visible for the same reason WebSearch is: deferring it does not make the
+  // model search for it, it makes the model do the wrong thing silently. Measured — asked for a
+  // Word document with DocumentTool deferred, the model reached for the always-present
+  // WriteFileTool and wrote 543 bytes of markdown into a file named `.docx`, which Word cannot
+  // open. That is the exact failure DocumentTool was built to remove, and a tool the model never
+  // sees removes nothing.
+  'DocumentTool',
 ]);
 
 /**

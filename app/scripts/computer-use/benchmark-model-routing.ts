@@ -24,7 +24,7 @@ import dotenv from 'dotenv';
 // last modified a year ago, whose capability block lists Reasoning alone) spends its turns printing
 // tool JSON as prose instead of calling anything.
 const DEFAULT_CANDIDATES = [
-  'stepfun-ai/step-3.7-flash',                      // 201B MoE · text+image · FC + structured output
+  'moonshotai/kimi-k3',                             // native multimodal · tools · structured output · 1M context
   'nvidia/nemotron-3-ultra-550b-a55b',              // 561B · 1M ctx · FC · most-used free endpoint
   'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning',  // 33B/3B active · omni + OCR · FC · fast
   'nvidia/nemotron-nano-12b-v2-vl',                 // incumbent vision slot

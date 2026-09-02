@@ -1,5 +1,10 @@
 # Frontend plan
 
+> **Superseded scope, 2026-09-02:** both frontends are code-only agentic IDE surfaces. The Control
+> Mac lane, Trust Center permission journey, Live Target, takeover controls, and native Mac action
+> receipts below are historical evidence and must not be exposed or shipped. See
+> `30_CODE_ONLY_AGENTIC_IDE_RESET_RECORD.md`.
+
 ## Product 1: Bimax Terminal
 
 Promise: **the coding agent that finishes work in the terminal you already use.** Mac-only support at

@@ -118,3 +118,71 @@ export function watchProject(root: string, onChange: () => void): FSWatcher | nu
     return null; // recursive watch unavailable — renderer's poll interval still refreshes
   }
 }
+
+/**
+ * Project-wide filename search for the Files filter.
+ *
+ * A filter that only matched the folders the user had already expanded would be a worse tool than
+ * no filter: it answers "no results" for a file that plainly exists, which teaches the user not to
+ * trust it. So the walk is real — but bounded three ways, because this runs on every keystroke:
+ * a node budget, a depth cap, and the same IGNORE set the tree uses. Hitting the budget is
+ * reported (`truncated`) rather than silently returning a short list.
+ */
+export interface FileSearchHit {
+  /** Project-relative path. */
+  rel: string;
+  name: string;
+  dir: boolean;
+}
+
+export interface FileSearchResult {
+  hits: FileSearchHit[];
+  truncated: boolean;
+}
+
+export async function searchFiles(
+  root: string,
+  query: unknown,
+  limit = 200,
+): Promise<FileSearchResult> {
+  const needle = String(query ?? '').trim().toLowerCase();
+  if (!needle) return { hits: [], truncated: false };
+  // Guard the walk itself, not just the result: a deep tree costs the same to walk whether or not
+  // anything matches.
+  const NODE_BUDGET = 20_000;
+  const MAX_DEPTH = 12;
+
+  const hits: FileSearchHit[] = [];
+  let visited = 0;
+  let truncated = false;
+
+  const walk = async (rel: string, depth: number): Promise<void> => {
+    if (truncated || depth > MAX_DEPTH || hits.length >= limit) return;
+    let entries: import('node:fs').Dirent[];
+    try {
+      entries = await fs.readdir(safeJoin(root, rel), { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if (IGNORE.has(entry.name)) continue;
+      if (++visited > NODE_BUDGET) { truncated = true; return; }
+      const childRel = rel ? `${rel}/${entry.name}` : entry.name;
+      if (entry.name.toLowerCase().includes(needle)) {
+        hits.push({ rel: childRel, name: entry.name, dir: entry.isDirectory() });
+        if (hits.length >= limit) { truncated = true; return; }
+      }
+      if (entry.isDirectory()) await walk(childRel, depth + 1);
+      if (truncated) return;
+    }
+  };
+
+  await walk('', 0);
+  // Files before directories, then shortest path first: a filter is usually looking for a file,
+  // and a shallower match is more often the one meant.
+  hits.sort((a, b) =>
+    Number(a.dir) - Number(b.dir)
+    || a.rel.split('/').length - b.rel.split('/').length
+    || a.rel.localeCompare(b.rel));
+  return { hits, truncated };
+}

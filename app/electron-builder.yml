@@ -1,4 +1,4 @@
-# Bimax for Mac packaging — DMG for macOS only.
+# Bimax agentic IDE packaging — DMG for macOS only.
 # The headless engine (bun --compile, standalone — no Node on the host) is bundled as an
 # extraResource; scripts/prepare-engine.sh must have compiled it for the TARGET platform/arch
 # before electron-builder runs (the dist:* npm scripts sequence this).
@@ -32,18 +32,10 @@ asar: true
 
 mac:
   category: public.app-category.developer-tools
-  extendInfo:
-    NSMicrophoneUsageDescription: Bimax uses the microphone only when you explicitly start voice input.
   target:
     - dmg
   darkModeSupport: true
-  # Bimax for Mac's support floor. This is a product decision, not an Electron requirement —
-  # Electron 43 itself still runs on older macOS. macOS 13 is chosen because the native XPC service
-  # installs NSXPCConnection code-signing requirements (evaluated against the immutable audit token)
-  # from macOS 13, so below the floor the CU service would fall back to the weaker PID-based check;
-  # and because Electron 44 raises its own floor to macOS 13, so this avoids moving the boundary
-  # again during the next runtime upgrade. It writes LSMinimumSystemVersion into Info.plist, so the
-  # OS refuses to launch the app below the floor rather than failing later in the native path.
+  # macOS 13 keeps the application on a current Electron-compatible product floor.
   minimumSystemVersion: "13.0"
   # Release signing (see docs/SECURITY_INSTALL.md). Hardened runtime + entitlements are always
   # declared so that WHEN a Developer ID cert is present (CSC_LINK/CSC_KEY_PASSWORD, or one in the
@@ -56,22 +48,6 @@ mac:
   gatekeeperAssess: false
   entitlements: buildResources/entitlements.mac.plist
   entitlementsInherit: buildResources/entitlements.mac.plist
-  # A real nested XPC bundle, signed with the containing app. Runtime activation remains subject to
-  # the live structural/signing gate and rollout circuit; packaging alone never enables delivery.
-  extraFiles:
-    - from: native-service/BimaxCuService.xpc
-      to: XPCServices/BimaxCuService.xpc
-    # Signed bridge: validates a live ai.bimax.app ancestor before using the Data-only XPC client.
-    - from: native-service/bimax-cu-bridge
-      to: MacOS/bimax-cu-bridge
-    # The compatibility/product helper is compiled at build time; user machines never invoke swiftc.
-    - from: native-service/bimax-desktop-helper
-      to: MacOS/bimax-desktop-helper
-    # Non-activating ScreenCaptureKit exact-window preview shown while Bimax remains foreground.
-    - from: native-service/bimax-live-pip
-      to: MacOS/bimax-live-pip
-    - from: native-service/bimax-mac-capability
-      to: MacOS/bimax-mac-capability
   # notarize: { teamId: "YOUR_TEAM_ID" }   # uncomment for release; needs APPLE_ID + APPLE_APP_SPECIFIC_PASSWORD
 
 dmg:

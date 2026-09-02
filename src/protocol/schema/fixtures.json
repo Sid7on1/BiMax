@@ -108,9 +108,9 @@
       "t": "configResult",
       "id": 5,
       "config": {
-        "model": "stepfun-ai/step-3.7-flash",
+        "model": "moonshotai/kimi-k3",
         "notificationBell": false,
-        "temperature": 0.7,
+        "temperature": 1,
         "contextMode": "smart"
       }
     },
@@ -146,10 +146,21 @@
       ],
       "models": [
         {
-          "id": "stepfun-ai/step-3.7-flash",
-          "label": "Step 3.7 Flash",
-          "desc": "fast coding model",
+          "id": "moonshotai/kimi-k3",
+          "label": "Kimi K3",
+          "desc": "native multimodal coding agent",
           "tier": "coding",
+          "recommendedFor": [
+            "coding",
+            "vision"
+          ],
+          "tags": [
+            "coding",
+            "vision",
+            "agentic"
+          ],
+          "parameters": "2.8T · 104B active",
+          "releaseDate": "2026-08-20",
           "served": true,
           "curated": true,
           "capabilities": {

@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  PanelLeft, PanelRight, FolderOpen, GitBranch, Palette, Sun, Moon, Monitor, ShieldCheck,
+  PanelLeft, PanelRight, FolderOpen, GitBranch, Palette, Sun, Moon, Monitor,
 } from 'lucide-react';
 import { cn } from '../lib/cn';
 import type { GitStatusResult } from '../global';
@@ -18,7 +18,7 @@ import { APPEARANCES, Appearance } from '../appearance';
  */
 export function TitleBar({
   project, protocolMismatch, gitStatus, sidebarOpen, inspectorOpen,
-  onToggleSidebar, onPeekSidebar, onToggleInspector, onOpenChanges, onOpenTrust, appearance, onAppearance,
+  onToggleSidebar, onPeekSidebar, onToggleInspector, onOpenChanges, appearance, onAppearance,
 }: {
   project: string;
   protocolMismatch: number | null;
@@ -30,7 +30,6 @@ export function TitleBar({
   onPeekSidebar?: () => void;
   onToggleInspector: () => void;
   onOpenChanges: () => void;
-  onOpenTrust: () => void;
   appearance: Appearance;
   onAppearance: (appearance: Appearance) => void;
 }): React.ReactElement {
@@ -120,13 +119,6 @@ export function TitleBar({
             priority: 'always',
             active: inspectorOpen,
             onSelect: onToggleInspector,
-          },
-          {
-            id: 'trust',
-            label: 'Trust Center (⌘⇧T)',
-            icon: <ShieldCheck size={15} />,
-            priority: 'low',
-            onSelect: onOpenTrust,
           },
         ] : []}
       >

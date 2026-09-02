@@ -47,23 +47,41 @@ const moonlightTheme = EditorView.theme({
   '.cm-panels input': { backgroundColor: '#0d0d0d', color: '#eeeeec', border: '1px solid #303030' },
 }, { dark: true });
 
+/**
+ * Syntax colour.
+ *
+ * This was previously a set of greys — #ffffff for keywords, #d1d1ce for strings, #b9b9b5 for
+ * numbers — so the editor "highlighted" by font weight alone and read as plain white text. Weight
+ * cannot carry the distinctions an editor needs: a string, a number and an identifier all look the
+ * same, which is precisely the information highlighting exists to give.
+ *
+ * The hues are deliberately desaturated to sit on the app's near-black ground rather than the
+ * saturated primaries most themes use — the surrounding UI is monochrome, and a code pane glowing
+ * in full-strength red and blue would be the loudest thing in the window. Related tokens share a
+ * hue family so the eye groups them: declarations warm, data green/gold, callables blue, types
+ * violet, and everything structural stays grey so it recedes.
+ */
 const moonlightHighlight = HighlightStyle.define([
-  { tag: [t.comment, t.blockComment, t.lineComment], color: '#747470', fontStyle: 'italic' },
-  { tag: [t.keyword, t.operatorKeyword, t.modifier, t.controlKeyword, t.moduleKeyword], color: '#ffffff', fontWeight: '600' },
-  { tag: [t.string, t.special(t.string), t.regexp], color: '#d1d1ce' },
-  { tag: [t.number, t.bool, t.null, t.atom], color: '#b9b9b5' },
-  { tag: [t.function(t.variableName), t.function(t.propertyName), t.labelName], color: '#eeeeec' },
-  { tag: [t.typeName, t.className, t.namespace], color: '#c8c8c4' },
-  { tag: [t.propertyName, t.attributeName], color: '#ababA7' },
-  { tag: [t.variableName, t.definition(t.variableName)], color: '#e5e5e2' },
-  { tag: [t.punctuation, t.bracket, t.separator], color: '#999995' },
-  { tag: [t.meta, t.processingInstruction, t.annotation], color: '#999995' },
-  { tag: t.heading, color: '#ffffff', fontWeight: '600' },
-  { tag: t.link, color: '#e2e2df', textDecoration: 'underline' },
+  { tag: [t.comment, t.blockComment, t.lineComment, t.docComment], color: '#6f6f69', fontStyle: 'italic' },
+  { tag: [t.keyword, t.controlKeyword, t.moduleKeyword, t.operatorKeyword, t.modifier], color: '#e08a52', fontWeight: '600' },
+  { tag: [t.definitionKeyword, t.self], color: '#e08a52' },
+  { tag: [t.string, t.special(t.string)], color: '#8fb573' },
+  { tag: [t.regexp, t.escape], color: '#6fae9e' },
+  { tag: [t.number, t.bool, t.null, t.atom], color: '#d9b25c' },
+  { tag: [t.function(t.variableName), t.function(t.propertyName), t.labelName], color: '#75a7cc' },
+  { tag: [t.typeName, t.className, t.namespace, t.standard(t.typeName)], color: '#b491cf' },
+  { tag: [t.propertyName, t.attributeName], color: '#9dc0d4' },
+  { tag: [t.variableName, t.definition(t.variableName)], color: '#e3e3e0' },
+  { tag: [t.operator, t.derefOperator], color: '#c2c2bd' },
+  { tag: [t.punctuation, t.bracket, t.separator, t.paren, t.brace, t.squareBracket], color: '#7d7d78' },
+  { tag: [t.meta, t.processingInstruction, t.annotation, t.tagName], color: '#c98fb0' },
+  { tag: t.heading, color: '#e08a52', fontWeight: '600' },
+  { tag: t.link, color: '#75a7cc', textDecoration: 'underline' },
   { tag: t.emphasis, fontStyle: 'italic' },
   { tag: t.strong, fontWeight: '600' },
-  { tag: [t.inserted], color: '#d6d6d2' },
-  { tag: [t.deleted], color: '#b1b1ad' },
+  { tag: t.invalid, color: '#cc7a6f' },
+  { tag: [t.inserted], color: '#8fb573' },
+  { tag: [t.deleted], color: '#cc7a6f' },
 ]);
 
 function langFor(path: string) {

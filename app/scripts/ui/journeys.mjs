@@ -13,14 +13,39 @@
 import path from 'node:path';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import {
-  APP_DIR, WINDOW_SIZES, serveRenderer, openRenderer, feed, feedEvent, setProject, setEngineState,
-  bridgeCalls, settle, visibleText, clickByText, pressChord, shot, accessibilityFindings, typeInComposer,
+  APP_DIR,
+  WINDOW_SIZES,
+  serveRenderer,
+  openRenderer,
+  feed,
+  feedEvent,
+  setProject,
+  setEngineState,
+  bridgeCalls,
+  settle,
+  visibleText,
+  clickByText,
+  pressChord,
+  shot,
+  accessibilityFindings,
+  typeInComposer,
   setSupervisor,
   horizontalOverflow,
 } from './harness.mjs';
 import {
-  PROJECT, baseFixture, grantedTrustReport, deniedTrustReport, uiSnapshot, reviewSnapshot, failedReviewSnapshot,
-  macToolCall, browserToolCall, codingToolCall, userMessage, assistantMessage, MALFORMED_FRAMES,
+  PROJECT,
+  baseFixture,
+  grantedTrustReport,
+  deniedTrustReport,
+  uiSnapshot,
+  reviewSnapshot,
+  failedReviewSnapshot,
+  macToolCall,
+  browserToolCall,
+  codingToolCall,
+  userMessage,
+  assistantMessage,
+  MALFORMED_FRAMES,
 } from './fixtures.mjs';
 
 const args = process.argv.slice(2);
@@ -32,10 +57,19 @@ const RESULTS_DIR = path.join(APP_DIR, 'benchmarks/ui/results/phase5', `run-${RU
 const SHOTS_DIR = path.join(APP_DIR, 'benchmarks/ui/screenshots');
 
 class Grade {
-  constructor() { this.checks = []; }
-  expect(name, pass, observed) { this.checks.push({ name, pass: !!pass, observed: String(observed).slice(0, 400) }); return this; }
-  get passed() { return this.checks.every((check) => check.pass); }
-  get failures() { return this.checks.filter((check) => !check.pass); }
+  constructor() {
+    this.checks = [];
+  }
+  expect(name, pass, observed) {
+    this.checks.push({ name, pass: !!pass, observed: String(observed).slice(0, 400) });
+    return this;
+  }
+  get passed() {
+    return this.checks.every((check) => check.pass);
+  }
+  get failures() {
+    return this.checks.filter((check) => !check.pass);
+  }
 }
 
 /**
@@ -49,7 +83,9 @@ async function bootTask(page, { review = null, tools = [], snapshot = uiSnapshot
   await feedEvent(page, 'ui_snapshot', [snapshot]);
   await feedEvent(page, 'message', [userMessage('u1', 'Add retry with backoff to the fetch client')]);
   for (const call of tools) await feedEvent(page, 'tool_call', [call]);
-  await feedEvent(page, 'message', [assistantMessage('a1', 'Added a shared `retry` helper and wired the three call sites.')]);
+  await feedEvent(page, 'message', [
+    assistantMessage('a1', 'Added a shared `retry` helper and wired the three call sites.'),
+  ]);
   if (review) await feedEvent(page, 'review_update', [review]);
   await settle(page, 350);
 }
@@ -75,10 +111,26 @@ async function j1(page, dir) {
   await shot(page, dir, 'j1-submitted');
 
   return new Grade()
-    .expect('the instruction reached the engine exactly once', submitted.length === 1, JSON.stringify(submitted.map((s) => s.payload.text)))
-    .expect('it reached it verbatim', submitted[0]?.payload?.text === 'Add retry with backoff to the fetch client', submitted[0]?.payload?.text)
-    .expect('the user’s own turn is now in the transcript', text.includes('Add retry with backoff to the fetch client'), 'transcript')
-    .expect('no engine vocabulary leaked into the task surface', !/\b(NDJSON|MCP|XPC|AXUIElement|executor level)\b/.test(text), 'plain language');
+    .expect(
+      'the instruction reached the engine exactly once',
+      submitted.length === 1,
+      JSON.stringify(submitted.map((s) => s.payload.text)),
+    )
+    .expect(
+      'it reached it verbatim',
+      submitted[0]?.payload?.text === 'Add retry with backoff to the fetch client',
+      submitted[0]?.payload?.text,
+    )
+    .expect(
+      'the user’s own turn is now in the transcript',
+      text.includes('Add retry with backoff to the fetch client'),
+      'transcript',
+    )
+    .expect(
+      'no engine vocabulary leaked into the task surface',
+      !/\b(NDJSON|MCP|XPC|AXUIElement|executor level)\b/.test(text),
+      'plain language',
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -96,8 +148,16 @@ async function j2(page, dir) {
   await shot(page, dir, 'j2-diff');
 
   return new Grade()
-    .expect('the changed files are listed', openText.includes('src/api/client.ts') && openText.includes('src/api/retry.ts'), 'both files')
-    .expect('the verification command and its result are shown', openText.includes('npm test -- retry'), 'verification row')
+    .expect(
+      'the changed files are listed',
+      openText.includes('src/api/client.ts') && openText.includes('src/api/retry.ts'),
+      'both files',
+    )
+    .expect(
+      'the verification command and its result are shown',
+      openText.includes('npm test -- retry'),
+      'verification row',
+    )
     .expect('the task state says verified', /Verified/.test(openText), openText.match(/Verified[^\n]*/)?.[0] ?? '')
     .expect('the diff for a chosen file is readable', diffText.includes('retry(3, () => fetch(url))'), 'diff hunk');
 }
@@ -109,43 +169,102 @@ async function j3(page, dir) {
   await bootTask(page, { review: reviewSnapshot() });
   // The engine dies mid-task, then a new generation restores the thread from the session file.
   await setSupervisor(page, {
-    phase: 'exited', enteredAt: Date.now(), attempt: 2, generation: 2,
-    message: 'Bimax stopped', reason: 'engine exited unexpectedly', profile: 'full',
-    capabilities: [], degradedCapabilities: [], interruptedSessionId: '2026-08-09_14-02-11',
+    phase: 'exited',
+    enteredAt: Date.now(),
+    attempt: 2,
+    generation: 2,
+    message: 'Bimax stopped',
+    reason: 'engine exited unexpectedly',
+    profile: 'full',
+    capabilities: [],
+    degradedCapabilities: [],
+    interruptedSessionId: '2026-08-09_14-02-11',
   });
   await setEngineState(page, 'exited', 'engine exited unexpectedly');
-  await feedEvent(page, 'log', [{ id: 'd1', level: 'error', text: 'engine exited unexpectedly', timestamp: new Date().toISOString() }]);
+  await feedEvent(page, 'log', [
+    { id: 'd1', level: 'error', text: 'engine exited unexpectedly', timestamp: new Date().toISOString() },
+  ]);
   await settle(page, 300);
   const crashedText = await visibleText(page);
   await shot(page, dir, 'j3-crashed');
 
   await setSupervisor(page, {
-    phase: 'ready', enteredAt: Date.now(), attempt: 2, generation: 3,
-    message: 'Bimax is ready', reason: 'ready', profile: 'full',
-    capabilities: [], degradedCapabilities: [],
+    phase: 'ready',
+    enteredAt: Date.now(),
+    attempt: 2,
+    generation: 3,
+    message: 'Bimax is ready',
+    reason: 'ready',
+    profile: 'full',
+    capabilities: [],
+    degradedCapabilities: [],
   });
   await setEngineState(page, 'ready', '');
   await feed(page, { t: 'ready', protocol: 3 });
-  await feedEvent(page, 'session_restore', [{
-    id: '2026-08-09_14-02-11',
-    entries: [
-      { id: 'u1', role: 'user', content: 'Add retry with backoff to the fetch client', timestamp: new Date().toISOString() },
-      { id: 't1', role: 'tool', toolName: 'Edit', input: 'src/api/retry.ts', output: 'ok', status: 'success', startTime: new Date().toISOString() },
-      { id: 'a1', role: 'assistant', content: 'Added the retry helper and wired the call sites.', timestamp: new Date().toISOString() },
-    ],
-  }]);
+  await feedEvent(page, 'session_restore', [
+    {
+      id: '2026-08-09_14-02-11',
+      entries: [
+        {
+          id: 'u1',
+          role: 'user',
+          content: 'Add retry with backoff to the fetch client',
+          timestamp: new Date().toISOString(),
+        },
+        {
+          id: 't1',
+          role: 'tool',
+          toolName: 'Edit',
+          input: 'src/api/retry.ts',
+          output: 'ok',
+          status: 'success',
+          startTime: new Date().toISOString(),
+        },
+        {
+          id: 'a1',
+          role: 'assistant',
+          content: 'Added the retry helper and wired the call sites.',
+          timestamp: new Date().toISOString(),
+        },
+      ],
+    },
+  ]);
   await feedEvent(page, 'review_update', [reviewSnapshot()]);
   await settle(page, 400);
   const resumedText = await visibleText(page);
   await shot(page, dir, 'j3-resumed');
 
   return new Grade()
-    .expect('the crash is stated in the app, not swallowed', /Bimax hit a problem/.test(crashedText), crashedText.match(/Bimax hit a problem[^\n]*/)?.[0] ?? '')
-    .expect('recovery is offered, not just reported', /Try again/.test(crashedText) && /Restore last task/.test(crashedText), 'recovery actions')
-    .expect('the restored thread carries the original request', resumedText.includes('Add retry with backoff to the fetch client'), 'user turn restored')
-    .expect('the restored thread carries the agent’s answer', resumedText.includes('Added the retry helper'), 'assistant turn restored')
-    .expect('the review evidence survived the restart', resumedText.includes('src/api/client.ts') || (await openLane(page, 'Changes')).includes('src/api/client.ts'), 'review restored')
-    .expect('the crash banner is gone once the engine is back', !/Bimax hit a problem/.test(resumedText), 'banner cleared');
+    .expect(
+      'the crash is stated in the app, not swallowed',
+      /Bimax hit a problem/.test(crashedText),
+      crashedText.match(/Bimax hit a problem[^\n]*/)?.[0] ?? '',
+    )
+    .expect(
+      'recovery is offered, not just reported',
+      /Try again/.test(crashedText) && /Restore last task/.test(crashedText),
+      'recovery actions',
+    )
+    .expect(
+      'the restored thread carries the original request',
+      resumedText.includes('Add retry with backoff to the fetch client'),
+      'user turn restored',
+    )
+    .expect(
+      'the restored thread carries the agent’s answer',
+      resumedText.includes('Added the retry helper'),
+      'assistant turn restored',
+    )
+    .expect(
+      'the review evidence survived the restart',
+      resumedText.includes('src/api/client.ts') || (await openLane(page, 'Changes')).includes('src/api/client.ts'),
+      'review restored',
+    )
+    .expect(
+      'the crash banner is gone once the engine is back',
+      !/Bimax hit a problem/.test(resumedText),
+      'banner cleared',
+    );
 }
 
 /** Open an evidence lane by its tab label, revealing the inspector first if it is hidden. */
@@ -191,13 +310,37 @@ async function j4(page, dir) {
   await shot(page, dir, 'j4-coding-still-works');
 
   return new Grade()
-    .expect('the denied permission is named', /Accessibility/.test(trustText) && /Off/.test(trustText), 'permission row')
-    .expect('the blocker is stated in plain language', /Finish Computer Use setup/.test(trustText) && /needed/.test(trustText), 'blocker')
+    .expect(
+      'the denied permission is named',
+      /Accessibility/.test(trustText) && /Off/.test(trustText),
+      'permission row',
+    )
+    .expect(
+      'the blocker is stated in plain language',
+      /Finish Computer Use setup/.test(trustText) && /needed/.test(trustText),
+      'blocker',
+    )
     .expect('coding is shown as unaffected', /Code work stays available/.test(trustText), 'coding stays available')
-    .expect('Bimax does not claim it can grant the permission', /only you and macOS can grant access/.test(trustText), 'honest wording')
-    .expect('the grant path starts the exact Accessibility drag coach', started.length === 1 && started[0].payload === 'accessibility', JSON.stringify(started))
-    .expect('the drag coach survives the inactive-to-active React transition', stoppedPrematurely.length === 0, JSON.stringify(stoppedPrematurely))
-    .expect('a coding instruction still reaches the engine', submitted.some((call) => call.payload.text === 'Run the retry tests again'), 'coding usable');
+    .expect(
+      'Bimax does not claim it can grant the permission',
+      /only you and macOS can grant access/.test(trustText),
+      'honest wording',
+    )
+    .expect(
+      'the grant path starts the exact Accessibility drag coach',
+      started.length === 1 && started[0].payload === 'accessibility',
+      JSON.stringify(started),
+    )
+    .expect(
+      'the drag coach survives the inactive-to-active React transition',
+      stoppedPrematurely.length === 0,
+      JSON.stringify(stoppedPrematurely),
+    )
+    .expect(
+      'a coding instruction still reaches the engine',
+      submitted.some((call) => call.payload.text === 'Run the retry tests again'),
+      'coding usable',
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -218,10 +361,26 @@ async function j10(page, dir) {
 
   return new Grade()
     .expect('the exact code hash is shown before approval', before.includes('b'.repeat(64)), 'full Code Directory hash')
-    .expect('the UI says local approval is not builder identity', /does not establish who built it/.test(before), 'provenance boundary')
-    .expect('the UI says local approval cannot bypass macOS', /never bypasses macOS permissions/.test(before), 'TCC boundary')
-    .expect('the renderer submits the exact displayed hash', approvals.length === 1 && approvals[0].payload === 'b'.repeat(64), JSON.stringify(approvals))
-    .expect('the approved end state is explicit', /Local build approved/.test(after) && /Revoke approval/.test(after), 'approved exact build');
+    .expect(
+      'the UI says local approval is not builder identity',
+      /does not establish who built it/.test(before),
+      'provenance boundary',
+    )
+    .expect(
+      'the UI says local approval cannot bypass macOS',
+      /never bypasses macOS permissions/.test(before),
+      'TCC boundary',
+    )
+    .expect(
+      'the renderer submits the exact displayed hash',
+      approvals.length === 1 && approvals[0].payload === 'b'.repeat(64),
+      JSON.stringify(approvals),
+    )
+    .expect(
+      'the approved end state is explicit',
+      /Local build approved/.test(after) && /Revoke approval/.test(after),
+      'approved exact build',
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -229,7 +388,7 @@ async function j10(page, dir) {
 
 async function j11(page, dir) {
   await bootTask(page);
-  await clickByText(page, 'minimax-m3', { exact: true });
+  await clickByText(page, 'kimi-k3', { exact: true });
   await clickByText(page, 'Change model…', { exact: false });
   await settle(page, 350);
   const slots = await visibleText(page);
@@ -237,18 +396,38 @@ async function j11(page, dir) {
 
   await clickByText(page, 'Work model:', { exact: false });
   await settle(page, 250);
-  await clickByText(page, 'Browse all 4 models', { exact: true });
+  await clickByText(page, 'Browse all 5 models', { exact: true });
   await settle(page, 180);
   const picker = await visibleText(page);
   await shot(page, dir, 'j11-model-picker');
 
   return new Grade()
     .expect('the model catalogue is a dedicated window', /Model catalogue/.test(slots), 'catalogue title')
-    .expect('each job has a plain-language slot', /Work/.test(slots) && /Quick/.test(slots) && /Vision/.test(slots) && /Backup/.test(slots), 'slot names')
-    .expect('the active model has a human label and exact id', /Step 3\.7 Flash/.test(slots) && /stepfun-ai\/step-3\.7-flash/.test(slots), 'label + id')
-    .expect('the active provider and served count are visible', /OpenRouter/.test(slots) && /3 models served/.test(slots), 'provider status')
-    .expect('the picker separates recommendations from provider truth', /Recommended/i.test(picker) && /Not served right now/i.test(picker), 'served distinction')
-    .expect('model capabilities are readable before selection', /parallel tools/.test(picker) && /128k context/.test(picker), 'capability summary');
+    .expect(
+      'each job has a plain-language slot',
+      /Work/.test(slots) && /Quick/.test(slots) && /Vision/.test(slots) && /Backup/.test(slots),
+      'slot names',
+    )
+    .expect(
+      'the active model has a human label and exact id',
+      /Kimi K3/.test(slots) && /moonshotai\/kimi-k3/.test(slots),
+      'label + id',
+    )
+    .expect(
+      'the active provider and unique served count are visible',
+      /NVIDIA NIM/.test(slots) && /4 models served/.test(slots),
+      'provider status',
+    )
+    .expect(
+      'the picker separates recommendations from provider truth',
+      /Recommended/i.test(picker) && /Not served right now/i.test(picker),
+      'served distinction',
+    )
+    .expect(
+      'model capabilities are readable before selection',
+      /vision/.test(picker) && /1049k context/.test(picker),
+      'capability summary',
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -273,7 +452,16 @@ async function j5(page, dir) {
   await shot(page, dir, 'j5-paused');
 
   // While paused the provider refuses; that refusal arrives as a normal tool result.
-  await feedEvent(page, 'tool_call', [macToolCall({ id: 'm3', action: 'type', app: 'Notes', label: 'Body', code: 'computer_use_paused', status: 'error' })]);
+  await feedEvent(page, 'tool_call', [
+    macToolCall({
+      id: 'm3',
+      action: 'type',
+      app: 'Notes',
+      label: 'Body',
+      code: 'computer_use_paused',
+      status: 'error',
+    }),
+  ]);
   await settle(page, 300);
   const refusedText = await visibleText(page);
   await shot(page, dir, 'j5-refused-while-paused');
@@ -287,13 +475,29 @@ async function j5(page, dir) {
   const setCalls = resumedCalls.filter((call) => call.name === 'takeover.set').map((call) => call.payload.paused);
 
   return new Grade()
-    .expect('the exact target app and window are shown', /Notes/.test(runningText) && /Window 88/.test(runningText), runningText.match(/Window \d+[^\n]*/)?.[0] ?? '')
-    .expect('taking control tells main to pause, once', pausedCalls.filter((c) => c.name === 'takeover.set' && c.payload.paused === true).length === 1, JSON.stringify(setCalls))
+    .expect(
+      'the exact target app and window are shown',
+      /Notes/.test(runningText) && /Window 88/.test(runningText),
+      runningText.match(/Window \d+[^\n]*/)?.[0] ?? '',
+    )
+    .expect(
+      'taking control tells main to pause, once',
+      pausedCalls.filter((c) => c.name === 'takeover.set' && c.payload.paused === true).length === 1,
+      JSON.stringify(setCalls),
+    )
     .expect('the UI now states the user has control', /You have control/.test(pausedText), 'paused state')
     .expect('it promises no input until resume', /will not click or type/.test(pausedText), 'promise')
-    .expect('an attempted action while paused is shown as refused, not performed', /Refused/.test(refusedText) && /Nothing was sent to your Mac/.test(refusedText), 'refusal row')
+    .expect(
+      'an attempted action while paused is shown as refused, not performed',
+      /Refused/.test(refusedText) && /Nothing was sent to your Mac/.test(refusedText),
+      'refusal row',
+    )
     .expect('resuming is explicit and reaches main', setCalls.join(',') === 'true,false', JSON.stringify(setCalls))
-    .expect('the paused state is cleared only after main confirms', !/You have control/.test(resumedText), 'resumed state');
+    .expect(
+      'the paused state is cleared only after main confirms',
+      !/You have control/.test(resumedText),
+      'resumed state',
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -324,11 +528,27 @@ async function j6(page, dir) {
   return new Grade()
     .expect('the app being operated is named', /Notes/.test(freshText), 'app')
     .expect('the exact window is named', /Window 88/.test(freshText), 'window')
-    .expect('the age of the evidence is stated', /Last look .*(just now|s ago|m ago)/.test(freshText), freshText.match(/Last look[^\n]*/)?.[0] ?? '')
-    .expect('the latest action is readable without jargon', /Clicked Save/.test(freshText), freshText.match(/Clicked[^\n]*/)?.[0] ?? '')
+    .expect(
+      'the age of the evidence is stated',
+      /Last look .*(just now|s ago|m ago)/.test(freshText),
+      freshText.match(/Last look[^\n]*/)?.[0] ?? '',
+    )
+    .expect(
+      'the latest action is readable without jargon',
+      /Clicked Save/.test(freshText),
+      freshText.match(/Clicked[^\n]*/)?.[0] ?? '',
+    )
     .expect('the confirmation is stated, not implied', /Confirmed/.test(freshText), 'postcondition surfaced')
-    .expect('stale evidence is called stale', /Last look[^\n]*(m ago)/.test(staleText) && /look again before acting/.test(staleText), staleText.match(/Last look[^\n]*/)?.[0] ?? '')
-    .expect('no plumbing vocabulary is visible at rest', !/\b(AXUIElement|CGEvent|ScreenCaptureKit|snapshotId|frameId)\b/.test(freshText), 'plain language');
+    .expect(
+      'stale evidence is called stale',
+      /Last look[^\n]*(m ago)/.test(staleText) && /look again before acting/.test(staleText),
+      staleText.match(/Last look[^\n]*/)?.[0] ?? '',
+    )
+    .expect(
+      'no plumbing vocabulary is visible at rest',
+      !/\b(AXUIElement|CGEvent|ScreenCaptureKit|snapshotId|frameId)\b/.test(freshText),
+      'plain language',
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -352,7 +572,14 @@ async function j7(page, dir) {
   await bootTask(page, {
     review: failedReviewSnapshot(),
     tools: [
-      macToolCall({ id: 'm1', action: 'click', app: 'Notes', label: 'Save', ageMs: 3_000, postcondition: { query: 'Reminder saved', matched: false } }),
+      macToolCall({
+        id: 'm1',
+        action: 'click',
+        app: 'Notes',
+        label: 'Save',
+        ageMs: 3_000,
+        postcondition: { query: 'Reminder saved', matched: false },
+      }),
     ],
   });
   await openLane(page, 'Receipt');
@@ -361,12 +588,28 @@ async function j7(page, dir) {
 
   return new Grade()
     .expect('the code claim links to its changed files', /src\/api\/client\.ts/.test(provenText), 'code evidence')
-    .expect('the code claim links to the check that proves it', /npm test -- retry/.test(provenText) && /passed/.test(provenText), 'verification evidence')
+    .expect(
+      'the code claim links to the check that proves it',
+      /npm test -- retry/.test(provenText) && /passed/.test(provenText),
+      'verification evidence',
+    )
     .expect('the Mac claim links to its action', /Clicked Save/.test(provenText), 'mac evidence')
     .expect('a fully evidenced task says so', /Everything Bimax claimed is proven/.test(provenText), 'complete verdict')
-    .expect('a failed check makes the receipt unproven', /Some claims are not proven/.test(unprovenText), 'incomplete verdict')
-    .expect('the failed check is named as the gap', /check(s)? failed/.test(unprovenText), unprovenText.match(/check[^\n]*failed[^\n]*/)?.[0] ?? '')
-    .expect('an unconfirmed Mac action is named as a gap', /(no action confirmed its expected end state|did not confirm an end state)/.test(unprovenText), unprovenText.match(/(no action confirmed[^\n]*|did not confirm[^\n]*)/)?.[0] ?? '');
+    .expect(
+      'a failed check makes the receipt unproven',
+      /Some claims are not proven/.test(unprovenText),
+      'incomplete verdict',
+    )
+    .expect(
+      'the failed check is named as the gap',
+      /check(s)? failed/.test(unprovenText),
+      unprovenText.match(/check[^\n]*failed[^\n]*/)?.[0] ?? '',
+    )
+    .expect(
+      'an unconfirmed Mac action is named as a gap',
+      /(no action confirmed its expected end state|did not confirm an end state)/.test(unprovenText),
+      unprovenText.match(/(no action confirmed[^\n]*|did not confirm[^\n]*)/)?.[0] ?? '',
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -381,14 +624,18 @@ async function j8(page, dir) {
 
   const request = 'Open System Settings and click the Privacy & Security section';
   await typeInComposer(page, request);
-  const inferred = await page.evaluate(() => document.querySelector('[data-bimax-pill="lane-chip"]')?.textContent?.trim() ?? '');
+  const inferred = await page.evaluate(
+    () => document.querySelector('[data-bimax-pill="lane-chip"]')?.textContent?.trim() ?? '',
+  );
   await shot(page, dir, 'j8-lane-inferred');
 
   // Correct the inference to Code. On this denied fixture, any loss of that explicit correction
   // would open Trust Center instead of sending the instruction, so the end state proves it stuck.
   await clickByText(page, 'Control Mac', { exact: true });
   await clickByText(page, 'Code');
-  const corrected = await page.evaluate(() => document.querySelector('[data-bimax-pill="lane-chip"]')?.textContent?.trim() ?? '');
+  const corrected = await page.evaluate(
+    () => document.querySelector('[data-bimax-pill="lane-chip"]')?.textContent?.trim() ?? '',
+  );
   await pressChord(page, 'Enter');
   await settle(page, 350);
   const calls = await bridgeCalls(page);
@@ -399,8 +646,16 @@ async function j8(page, dir) {
   return new Grade()
     .expect('the request is visibly inferred as Control Mac', inferred.includes('Control Mac'), inferred)
     .expect('the user can visibly correct it to Code', corrected === 'Code', corrected)
-    .expect('the corrected lane is respected at execution', submitted.length === 1 && submitted[0]?.payload?.text === request, JSON.stringify(submitted))
-    .expect('a corrected Code task does not open the permission flow', !/Before Bimax controls your Mac/.test(text), 'Trust Center stayed closed');
+    .expect(
+      'the corrected lane is respected at execution',
+      submitted.length === 1 && submitted[0]?.payload?.text === request,
+      JSON.stringify(submitted),
+    )
+    .expect(
+      'a corrected Code task does not open the permission flow',
+      !/Before Bimax controls your Mac/.test(text),
+      'Trust Center stayed closed',
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -432,7 +687,9 @@ async function j9(page, dir) {
 
   // Simulate the person returning from System Settings. The sheet and close handler each re-read
   // the real bridge report; only the fresh available report releases the held instruction.
-  await page.evaluate((report) => { window.__bimaxHarness.fixture.trustReport = report; }, grantedTrustReport());
+  await page.evaluate((report) => {
+    window.__bimaxHarness.fixture.trustReport = report;
+  }, grantedTrustReport());
   await clickByText(page, 'Review permissions', { exact: true });
   await settle(page, 350);
   await clickByText(page, 'Checked', { exact: false });
@@ -445,12 +702,36 @@ async function j9(page, dir) {
   await shot(page, dir, 'j9-waiting-task-released');
 
   return new Grade()
-    .expect('the first Mac task opens contextual permission guidance', /Trust Center/.test(gatedText) && gatedText.includes(macRequest), 'waiting task named')
-    .expect('the blocked Mac task is not sent', !gatedCalls.some((call) => call.name === 'send' && call.payload?.t === 'input'), JSON.stringify(gatedCalls.filter((call) => call.name === 'send')))
-    .expect('closing without grants keeps the task visible', waitingText.includes(`Waiting to run “${macRequest}”`), 'waiting banner')
-    .expect('a Code task still runs while the Mac task waits', submitted.some((call) => call.payload?.text === codeRequest), JSON.stringify(submitted))
-    .expect('a fresh granted report visibly makes Mac control ready', /Control Mac is ready/.test(readyText), 'ready after re-check')
-    .expect('the original Mac task resumes exactly once after the grant', submitted.filter((call) => call.payload?.text === macRequest).length === 1, JSON.stringify(submitted));
+    .expect(
+      'the first Mac task opens contextual permission guidance',
+      /Trust Center/.test(gatedText) && gatedText.includes(macRequest),
+      'waiting task named',
+    )
+    .expect(
+      'the blocked Mac task is not sent',
+      !gatedCalls.some((call) => call.name === 'send' && call.payload?.t === 'input'),
+      JSON.stringify(gatedCalls.filter((call) => call.name === 'send')),
+    )
+    .expect(
+      'closing without grants keeps the task visible',
+      waitingText.includes(`Waiting to run “${macRequest}”`),
+      'waiting banner',
+    )
+    .expect(
+      'a Code task still runs while the Mac task waits',
+      submitted.some((call) => call.payload?.text === codeRequest),
+      JSON.stringify(submitted),
+    )
+    .expect(
+      'a fresh granted report visibly makes Mac control ready',
+      /Control Mac is ready/.test(readyText),
+      'ready after re-check',
+    )
+    .expect(
+      'the original Mac task resumes exactly once after the grant',
+      submitted.filter((call) => call.payload?.text === macRequest).length === 1,
+      JSON.stringify(submitted),
+    );
 }
 
 // J12 — an incompatible Computer Use route opens the dedicated model preflight and cannot run
@@ -480,15 +761,37 @@ async function j12(page, dir) {
   await clickByText(page, 'Continue to permissions', { exact: true });
   await settle(page, 300);
   const after = await bridgeCalls(page);
-  const submitted = after.filter((call) => call.name === 'send' && call.payload?.t === 'input' && call.payload?.text === request);
+  const submitted = after.filter(
+    (call) => call.name === 'send' && call.payload?.t === 'input' && call.payload?.text === request,
+  );
   await shot(page, dir, 'j12-model-preflight-ready');
 
   return new Grade()
-    .expect('an incompatible route opens a dedicated model window', /Models for Control Mac/.test(blocked), 'preflight title')
-    .expect('the missing screenshot route is explained', /Vision model for screenshot grounding|supports image input/.test(blocked), 'vision requirement')
-    .expect('the task does not reach the engine before a compatible route exists', !before.some((call) => call.name === 'send' && call.payload?.t === 'input'), JSON.stringify(before.filter((call) => call.name === 'send')))
-    .expect('the selected work and vision roles are shown as ready', /Control Mac model route is ready/.test(ready), 'ready route')
-    .expect('the held task resumes exactly once after model preflight', submitted.length === 1, JSON.stringify(submitted));
+    .expect(
+      'an incompatible route opens a dedicated model window',
+      /Models for Control Mac/.test(blocked),
+      'preflight title',
+    )
+    .expect(
+      'the missing screenshot route is explained',
+      /Vision model for screenshot grounding|supports image input/.test(blocked),
+      'vision requirement',
+    )
+    .expect(
+      'the task does not reach the engine before a compatible route exists',
+      !before.some((call) => call.name === 'send' && call.payload?.t === 'input'),
+      JSON.stringify(before.filter((call) => call.name === 'send')),
+    )
+    .expect(
+      'the selected work and vision roles are shown as ready',
+      /Control Mac model route is ready/.test(ready),
+      'ready route',
+    )
+    .expect(
+      'the held task resumes exactly once after model preflight',
+      submitted.length === 1,
+      JSON.stringify(submitted),
+    );
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -521,16 +824,30 @@ async function jResilience(page, dir, pageErrors) {
   await shot(page, dir, 'r4-protocol-mismatch');
 
   await setEngineState(page, 'exited', 'engine crashed');
-  await feedEvent(page, 'log', [{ id: 'x1', level: 'error', text: 'engine crashed', timestamp: new Date().toISOString() }]);
+  await feedEvent(page, 'log', [
+    { id: 'x1', level: 'error', text: 'engine crashed', timestamp: new Date().toISOString() },
+  ]);
   await settle(page, 250);
   await shot(page, dir, 'r5-crashed');
 
   return new Grade()
-    .expect('an unopened task shows a real empty state, not a blank pane', emptyText.trim().length > 40, `${emptyText.trim().length} chars`)
-    .expect('a project that has not reported yet renders without a blank window', loadingText.trim().length > 20, `${loadingText.trim().length} chars`)
+    .expect(
+      'an unopened task shows a real empty state, not a blank pane',
+      emptyText.trim().length > 40,
+      `${emptyText.trim().length} chars`,
+    )
+    .expect(
+      'a project that has not reported yet renders without a blank window',
+      loadingText.trim().length > 20,
+      `${loadingText.trim().length} chars`,
+    )
     .expect('no malformed or unknown frame threw', afterMalformed === before, pageErrors.slice(before).join(' | '))
     .expect('the shell is still usable after malformed frames', malformedText.includes('Bimax'), 'shell alive')
-    .expect('an unparseable Mac result does not fabricate a target', !/Window undefined|pid undefined|NaN/.test(malformedText), 'no fabricated facts')
+    .expect(
+      'an unparseable Mac result does not fabricate a target',
+      !/Window undefined|pid undefined|NaN/.test(malformedText),
+      'no fabricated facts',
+    )
     .expect('an incompatible protocol version is stated', /needs an update/i.test(mismatchText), 'mismatch banner');
 }
 
@@ -590,7 +907,11 @@ async function jAccess(page, dir, size) {
   await settle(page, 250);
 
   const findings = await accessibilityFindings(page);
-  grade.expect('every control, image and tab is named and reachable', findings.length === 0, findings.join(' | ') || 'none');
+  grade.expect(
+    'every control, image and tab is named and reachable',
+    findings.length === 0,
+    findings.join(' | ') || 'none',
+  );
 
   await shot(page, dir, `a11y-${size.name}`);
   return grade;
@@ -618,7 +939,9 @@ async function jPerformance(page, dir) {
 
   const interaction = await page.evaluate(async () => {
     const timings = [];
-    const tabs = [...document.querySelectorAll('[role="tab"]')].filter((tab) => tab.getAttribute('aria-disabled') !== 'true');
+    const tabs = [...document.querySelectorAll('[role="tab"]')].filter(
+      (tab) => tab.getAttribute('aria-disabled') !== 'true',
+    );
     for (let round = 0; round < 12; round++) {
       const tab = tabs[round % tabs.length];
       const start = performance.now();
@@ -638,12 +961,17 @@ async function jPerformance(page, dir) {
   // Nothing may be running on a timer once the task is idle.
   const idleWork = await page.evaluate(async () => {
     let frames = 0;
-    const tick = () => { frames++; requestAnimationFrame(tick); };
+    const tick = () => {
+      frames++;
+      requestAnimationFrame(tick);
+    };
     // Count how many animation frames the page itself schedules over a quiet second: a page with no
     // running animation still gets frames from this probe, so what matters is that nothing else is
     // mutating the DOM. Record the DOM mutation count instead.
     let mutations = 0;
-    const observer = new MutationObserver((records) => { mutations += records.length; });
+    const observer = new MutationObserver((records) => {
+      mutations += records.length;
+    });
     observer.observe(document.body, { childList: true, subtree: true, attributes: true, characterData: true });
     requestAnimationFrame(tick);
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -655,8 +983,16 @@ async function jPerformance(page, dir) {
 
   const grade = new Grade()
     .expect('200 Mac results fold in under 8s', foldMs < 8_000, `${foldMs}ms`)
-    .expect('switching evidence lanes stays under 150ms at p95', interaction.p95 < 150, `p50 ${interaction.p50.toFixed(1)}ms · p95 ${interaction.p95.toFixed(1)}ms · max ${interaction.max.toFixed(1)}ms`)
-    .expect('an idle task does not keep mutating the DOM', idleWork.domMutationsWhileIdle < 20, `${idleWork.domMutationsWhileIdle} mutations in 1s`);
+    .expect(
+      'switching evidence lanes stays under 150ms at p95',
+      interaction.p95 < 150,
+      `p50 ${interaction.p50.toFixed(1)}ms · p95 ${interaction.p95.toFixed(1)}ms · max ${interaction.max.toFixed(1)}ms`,
+    )
+    .expect(
+      'an idle task does not keep mutating the DOM',
+      idleWork.domMutationsWhileIdle < 20,
+      `${idleWork.domMutationsWhileIdle} mutations in 1s`,
+    );
   grade.measurements = { foldMs, interaction, idleWork };
   return grade;
 }
@@ -723,8 +1059,11 @@ const MUTATIONS = [
       const text = await openLane(page, 'Mac');
       await shot(page, dir, 'mut-stale');
       // The J6 freshness assertion, applied to stale evidence: it must NOT read as fresh.
-      return new Grade()
-        .expect('stale evidence reads as fresh', /Last look (just now|\ds ago)/.test(text), text.match(/Last look[^\n]*/)?.[0] ?? '');
+      return new Grade().expect(
+        'stale evidence reads as fresh',
+        /Last look (just now|\ds ago)/.test(text),
+        text.match(/Last look[^\n]*/)?.[0] ?? '',
+      );
     },
   },
   {
@@ -738,8 +1077,11 @@ const MUTATIONS = [
       });
       const text = await openLane(page, 'Receipt');
       await shot(page, dir, 'mut-receipt');
-      return new Grade()
-        .expect('a task with a failed check claims everything is proven', /Everything Bimax claimed is proven/.test(text), 'verdict');
+      return new Grade().expect(
+        'a task with a failed check claims everything is proven',
+        /Everything Bimax claimed is proven/.test(text),
+        'verdict',
+      );
     },
   },
   {
@@ -752,8 +1094,11 @@ const MUTATIONS = [
       await settle(page, 500);
       const text = await visibleText(page);
       await shot(page, dir, 'mut-permissions');
-      return new Grade()
-        .expect('coding is reported unavailable under a denied permission', /Coding[\s\S]{0,80}Unavailable/.test(text), text.match(/Coding[\s\S]{0,60}/)?.[0] ?? '');
+      return new Grade().expect(
+        'coding is reported unavailable under a denied permission',
+        /Coding[\s\S]{0,80}Unavailable/.test(text),
+        text.match(/Coding[\s\S]{0,60}/)?.[0] ?? '',
+      );
     },
   },
   {
@@ -777,12 +1122,11 @@ const MUTATIONS = [
       await settle(page, 300);
       const calls = (await bridgeCalls(page)).slice(before);
       await shot(page, dir, 'mut-coach-destroyed');
-      return new Grade()
-        .expect(
-          'an activated drag coach remains alive',
-          !calls.some((call) => call.name === 'permissionCoach.stop'),
-          JSON.stringify(calls.filter((call) => call.name.startsWith('permissionCoach.'))),
-        );
+      return new Grade().expect(
+        'an activated drag coach remains alive',
+        !calls.some((call) => call.name === 'permissionCoach.stop'),
+        JSON.stringify(calls.filter((call) => call.name.startsWith('permissionCoach.'))),
+      );
     },
   },
 ];
@@ -793,26 +1137,49 @@ const JOURNEYS = [
   { id: 'J1', name: 'Start a coding task', run: j1, fixture: () => baseFixture() },
   { id: 'J2', name: 'Review and verify code changes', run: j2, fixture: () => baseFixture() },
   { id: 'J3', name: 'Resume a task after a crash', run: j3, fixture: () => baseFixture() },
-  { id: 'J4', name: 'Diagnose Mac permissions while coding stays usable', run: j4, fixture: () => baseFixture({ trustReport: deniedTrustReport() }) },
+  {
+    id: 'J4',
+    name: 'Diagnose Mac permissions while coding stays usable',
+    run: j4,
+    fixture: () => baseFixture({ trustReport: deniedTrustReport() }),
+  },
   { id: 'J5', name: 'Pause, take over and resume a Mac task', run: j5, fixture: () => baseFixture() },
   { id: 'J6', name: 'Understand the live target without Diagnostics', run: j6, fixture: () => baseFixture() },
   { id: 'J7', name: 'Inspect the final receipt', run: j7, fixture: () => baseFixture() },
-  { id: 'J8', name: 'Infer and correct the task lane', run: j8, fixture: () => baseFixture({ trustReport: deniedTrustReport() }) },
-  { id: 'J9', name: 'Gate and resume the first Control Mac task', run: j9, fixture: () => baseFixture({ trustReport: deniedTrustReport() }) },
   {
-    id: 'J10', name: 'Approve an exact unsigned local Computer Use build', run: j10,
-    fixture: () => baseFixture({
-      trustReport: deniedTrustReport(),
-      manualAlphaStatus: {
-        state: 'approval-required', ready: false, canApprove: true,
-        serviceVersion: 'fixture-1', codeDirectoryHash: 'b'.repeat(64),
-        detail: 'This local Computer Use service build needs exact-hash approval.',
-      },
-    }),
+    id: 'J8',
+    name: 'Infer and correct the task lane',
+    run: j8,
+    fixture: () => baseFixture({ trustReport: deniedTrustReport() }),
+  },
+  {
+    id: 'J9',
+    name: 'Gate and resume the first Control Mac task',
+    run: j9,
+    fixture: () => baseFixture({ trustReport: deniedTrustReport() }),
+  },
+  {
+    id: 'J10',
+    name: 'Approve an exact unsigned local Computer Use build',
+    run: j10,
+    fixture: () =>
+      baseFixture({
+        trustReport: deniedTrustReport(),
+        manualAlphaStatus: {
+          state: 'approval-required',
+          ready: false,
+          canApprove: true,
+          serviceVersion: 'fixture-1',
+          codeDirectoryHash: 'b'.repeat(64),
+          detail: 'This local Computer Use service build needs exact-hash approval.',
+        },
+      }),
   },
   { id: 'J11', name: 'Inspect the loaded model slots and provider catalogue', run: j11, fixture: () => baseFixture() },
   {
-    id: 'J12', name: 'Gate Control Mac on a compatible model route', run: j12,
+    id: 'J12',
+    name: 'Gate Control Mac on a compatible model route',
+    run: j12,
     fixture: () => {
       const fixture = baseFixture();
       fixture.config.visionModel = '';
@@ -861,9 +1228,13 @@ async function main() {
       const resilience = await openRenderer({ base, fixture: baseFixture() });
       const rGrade = await jResilience(resilience.page, RESULTS_DIR, resilience.pageErrors);
       results.push({
-        id: 'R1', name: 'Loading, empty, malformed, mismatched and crashed states',
-        outcome: rGrade.passed ? 'pass' : 'fail', checks: rGrade.checks,
-        pageErrors: resilience.pageErrors, accessibilityFindings: [], error: null,
+        id: 'R1',
+        name: 'Loading, empty, malformed, mismatched and crashed states',
+        outcome: rGrade.passed ? 'pass' : 'fail',
+        checks: rGrade.checks,
+        pageErrors: resilience.pageErrors,
+        accessibilityFindings: [],
+        error: null,
       });
       console.log(`${rGrade.passed ? 'PASS' : 'FAIL'} R1 resilience`);
       for (const failed of rGrade.failures) console.log(`   ✗ ${failed.name} — observed: ${failed.observed}`);
@@ -873,10 +1244,14 @@ async function main() {
       const perf = await openRenderer({ base, fixture: baseFixture() });
       const perfGrade = await jPerformance(perf.page, RESULTS_DIR);
       results.push({
-        id: 'P1', name: 'Interaction cost on a long Mac session',
+        id: 'P1',
+        name: 'Interaction cost on a long Mac session',
         outcome: perfGrade.passed && perf.pageErrors.length === 0 ? 'pass' : 'fail',
-        checks: perfGrade.checks, pageErrors: perf.pageErrors, accessibilityFindings: [],
-        measurements: perfGrade.measurements, error: null,
+        checks: perfGrade.checks,
+        pageErrors: perf.pageErrors,
+        accessibilityFindings: [],
+        measurements: perfGrade.measurements,
+        error: null,
       });
       console.log(`${perfGrade.passed ? 'PASS' : 'FAIL'} P1 interaction cost`);
       for (const failed of perfGrade.failures) console.log(`   ✗ ${failed.name} — observed: ${failed.observed}`);
@@ -888,9 +1263,13 @@ async function main() {
         const run = await openRenderer({ base, fixture: baseFixture(), size });
         const grade = await jAccess(run.page, RESULTS_DIR, size);
         results.push({
-          id: `A-${size.name}`, name: `Keyboard and accessibility at ${size.width}×${size.height}`,
+          id: `A-${size.name}`,
+          name: `Keyboard and accessibility at ${size.width}×${size.height}`,
           outcome: grade.passed && run.pageErrors.length === 0 ? 'pass' : 'fail',
-          checks: grade.checks, pageErrors: run.pageErrors, accessibilityFindings: [], error: null,
+          checks: grade.checks,
+          pageErrors: run.pageErrors,
+          accessibilityFindings: [],
+          error: null,
         });
         console.log(`${grade.passed && run.pageErrors.length === 0 ? 'PASS' : 'FAIL'} A-${size.name}`);
         for (const failed of grade.failures) console.log(`   ✗ ${failed.name} — observed: ${failed.observed}`);
@@ -904,20 +1283,29 @@ async function main() {
     const mutations = [];
     if (MUTATE) {
       for (const mutation of MUTATIONS) {
-        const fixture = mutation.id === 'M4-denied-permission-blocks-coding'
-          ? baseFixture({ trustReport: deniedTrustReport() })
-          : baseFixture();
+        const fixture =
+          mutation.id === 'M4-denied-permission-blocks-coding'
+            ? baseFixture({ trustReport: deniedTrustReport() })
+            : baseFixture();
         const run = await openRenderer({ base, fixture });
         let grade;
-        try { grade = await mutation.run(run.page, RESULTS_DIR); }
-        catch (failure) { grade = new Grade().expect('mutation ran', false, String(failure)); }
+        try {
+          grade = await mutation.run(run.page, RESULTS_DIR);
+        } catch (failure) {
+          grade = new Grade().expect('mutation ran', false, String(failure));
+        }
         // A mutation is only useful if the grader REJECTS it.
         const detected = !grade.passed;
         mutations.push({
-          id: mutation.id, journey: mutation.journey, describe: mutation.describe,
-          detected, checks: grade.checks,
+          id: mutation.id,
+          journey: mutation.journey,
+          describe: mutation.describe,
+          detected,
+          checks: grade.checks,
         });
-        console.log(`${detected ? 'PASS' : 'FAIL'} mutation ${mutation.id} (${detected ? 'rejected as required' : 'SLIPPED THROUGH'})`);
+        console.log(
+          `${detected ? 'PASS' : 'FAIL'} mutation ${mutation.id} (${detected ? 'rejected as required' : 'SLIPPED THROUGH'})`,
+        );
         await run.browser.close();
       }
     }
@@ -929,7 +1317,11 @@ async function main() {
       started_at: started,
       ended_at: new Date().toISOString(),
       product: 'bimax-desktop-renderer',
-      grader: { version: '1.0', mutation_pass_ran: MUTATE, mutant_checks_passed: MUTATE ? mutations.every((m) => m.detected) : null },
+      grader: {
+        version: '1.0',
+        mutation_pass_ran: MUTATE,
+        mutant_checks_passed: MUTATE ? mutations.every((m) => m.detected) : null,
+      },
       window_sizes: WINDOW_SIZES,
       journeys: results,
       mutations,

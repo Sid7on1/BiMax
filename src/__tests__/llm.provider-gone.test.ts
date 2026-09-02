@@ -8,25 +8,25 @@ describe('LlmAdapter provider-gone recovery', () => {
     else process.env.BIMAX_DESKTOP_STRICT_MODEL = previousStrict;
   });
 
-  it('turns a Step 3.7 410 into a provider-specific Settings instruction', async () => {
-    process.env.BIMAX_DESKTOP_STRICT_MODEL = 'stepfun-ai/step-3.7-flash';
+  it('turns a strict Kimi K3 410 into a provider-specific Settings instruction', async () => {
+    process.env.BIMAX_DESKTOP_STRICT_MODEL = 'moonshotai/kimi-k3';
     const manager = {
       getNextKey: async () => ({
-        keyStr: 'secret', model: 'stepfun-ai/step-3.7-flash',
+        keyStr: 'secret', model: 'moonshotai/kimi-k3',
         baseURL: 'https://integrate.api.nvidia.com/v1', provider: 'nvidia', idx: 0, waitTimeSecs: 0,
       }),
       reportKeyResult: jest.fn(),
       allKeysAuthDead: () => false,
     } as any;
     const adapter = new LlmAdapter(manager);
-    const error: any = new Error("The model 'stepfun-ai/step-3.7-flash' has reached its end of life.");
+    const error: any = new Error("The model 'moonshotai/kimi-k3' is no longer served.");
     error.status = 410;
     (adapter as any).createClient = () => ({
       chat: { completions: { create: async () => { throw error; } } },
     });
 
     await expect(adapter.chatCompletion([{ role: 'user', content: 'hi' }])).rejects.toThrow(
-      /Settings → Models → Providers.*StepFun or OpenRouter key/i,
+      /Settings → Models → Providers.*NVIDIA API key/i,
     );
     expect(manager.reportKeyResult).toHaveBeenCalledWith(0, 410);
   });

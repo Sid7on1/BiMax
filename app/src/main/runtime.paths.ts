@@ -1,7 +1,4 @@
 import path from 'node:path';
-import { randomBytes } from 'node:crypto';
-import { MAC_PROVIDER_SERVER_NAME } from '../shared/mac.provider';
-import { DESKTOP_CU_DATA_ENV } from '../shared/cu.storage';
 
 /**
  * Where a packaged Bimax.app is allowed to find its own executables.
@@ -58,24 +55,7 @@ export const TRUSTED_PLAN_REQUIRED_ENV = 'BIMAX_CU_TRUSTED_PLAN_REQUIRED';
 export const NATIVE_ROUTING_ENV = 'BIMAX_CU_NATIVE_ROUTING_ENABLED';
 export const NATIVE_SEMANTIC_ROUTING_ENV = 'BIMAX_CU_NATIVE_SEMANTIC_ROUTING_ENABLED';
 
-// Bimax for Mac currently ships as a single-model product. Keep this policy at the Desktop
-// process boundary so Terminal remains provider/model configurable, while every engine route the
-// app can create (work, quick, vision, workers, and recovery) sees the same explicit model.
-export const DESKTOP_STRICT_MODEL_ENV = 'BIMAX_DESKTOP_STRICT_MODEL';
-/** Product identity shown by the Mac app; wire ids differ across providers. */
-export const DESKTOP_STRICT_MODEL = 'stepfun-ai/step-3.7-flash';
-export const DESKTOP_STRICT_MODEL_BY_PROVIDER: Readonly<Record<string, string>> = {
-  nvidia: DESKTOP_STRICT_MODEL,
-  openrouter: 'stepfun/step-3.7-flash',
-  stepfun: 'step-3.7-flash',
-};
 export const DESKTOP_FIRST_TOKEN_TIMEOUT_MS = '45000';
-
-/** Resolve the exact Step 3.7 Flash id accepted by the selected provider. */
-export function desktopStrictModelForProvider(provider: string | undefined): string {
-  return DESKTOP_STRICT_MODEL_BY_PROVIDER[String(provider || '').trim().toLowerCase()]
-    || DESKTOP_STRICT_MODEL;
-}
 
 export interface RuntimeLayout {
   /** app.isPackaged — the only thing that distinguishes a shipped app from a dev shell. */
@@ -155,18 +135,13 @@ export function stagedEnginePath(layout: RuntimeLayout): string {
  * Resolve one native component. In a packaged run this only ever returns a path inside the bundle;
  * a component that is missing from the bundle is `missing`, never substituted from elsewhere.
  */
-export function resolveNativeComponent(
-  layout: RuntimeLayout,
-  component: Exclude<ComponentName, 'engine'>,
-): Resolution {
+export function resolveNativeComponent(layout: RuntimeLayout, component: Exclude<ComponentName, 'engine'>): Resolution {
   const variable = OVERRIDE_ENV[component];
   const override = layout.env[variable]?.trim();
 
   if (layout.packaged) {
     const bundled = bundlePath(layout, component);
-    const resolution: Resolution = layout.exists(bundled)
-      ? { path: bundled, source: 'bundle' }
-      : { source: 'missing' };
+    const resolution: Resolution = layout.exists(bundled) ? { path: bundled, source: 'bundle' } : { source: 'missing' };
     // The override is refused, not obeyed — and the refusal is reported.
     if (override) resolution.refusedOverride = { variable, value: override };
     return resolution;
@@ -270,30 +245,22 @@ export interface ChildEnvInput {
  * That is the same defect Phase 1 fixed on the Terminal side in `tui/engine.go`.
  */
 export function buildEngineChildEnv(input: ChildEnvInput): Record<string, string | undefined> {
-  const requestedNativeRouting = input.parentEnv[NATIVE_ROUTING_ENV] === '1'
-    || input.extraEnv[NATIVE_ROUTING_ENV] === '1';
-  const requestedSemanticRouting = input.parentEnv[NATIVE_SEMANTIC_ROUTING_ENV] === '1'
-    || input.extraEnv[NATIVE_SEMANTIC_ROUTING_ENV] === '1';
-  const provider = input.extraEnv.BIMAX_DESKTOP_PROVIDER
-    || input.parentEnv.BIMAX_DESKTOP_PROVIDER
-    || input.extraEnv.BGW_PROVIDER
-    || input.parentEnv.BGW_PROVIDER;
-  const strictModel = desktopStrictModelForProvider(provider);
   const env: Record<string, string | undefined> = {
     ...input.parentEnv,
     ...input.extraEnv,
     PATH: input.path,
     BIMAX_HEADLESS: '1',
     BIMAX_CWD: input.projectDir,
-    [DESKTOP_STRICT_MODEL_ENV]: strictModel,
-    BGW_MODEL: strictModel,
-    BGW_LITE_MODEL: strictModel,
-    BGW_VISION_MODEL: strictModel,
-    // A provider can be slow, but a shipped app may not show an unbounded Working spinner. One
-    // strict attempt gets a generous 45s to produce headers/first payload, then fails visibly.
+    // A provider can be slow, but a shipped app may not show an unbounded Working spinner.
     BGW_FIRST_CHUNK_TIMEOUT_MS: DESKTOP_FIRST_TOKEN_TIMEOUT_MS,
   };
-  // Strict means strict: an inherited autonomous fallback may not replace the app's model.
+  // Desktop model choices come from the engine's persisted slot configuration. Clear inherited
+  // process overrides so a shell that once pinned a model cannot make the picker lie about what it
+  // applied. Kimi K3 remains the engine's Work/Vision default, not an unchangeable app lock.
+  delete env.BIMAX_DESKTOP_STRICT_MODEL;
+  delete env.BGW_MODEL;
+  delete env.BGW_LITE_MODEL;
+  delete env.BGW_VISION_MODEL;
   delete env.BIMAX_FALLBACK_MODEL;
   // The generic engine never receives app routing flags. Only the provider learns package mode.
   delete env.BIMAX_DESKTOP_RELEASE_MODE;
@@ -303,70 +270,7 @@ export function buildEngineChildEnv(input: ChildEnvInput): Record<string, string
   delete env[TRUSTED_PLAN_REQUIRED_ENV];
   for (const variable of NATIVE_COMPONENT_ENV) delete env[variable];
   delete env[HOST_CAPABILITIES_ENV];
-  if (input.resolved.macCapability) {
-    // One launch-scoped authentication key is shared only with the bundled engine and the
-    // app-owned provider. The model/renderer never sees it and therefore cannot forge task scope.
-    const trustedPlanSecret = randomBytes(32).toString('base64url');
-    env[TRUSTED_PLAN_SECRET_ENV] = trustedPlanSecret;
-    env[TRUSTED_PLAN_REQUIRED_ENV] = '1';
-    const providerEnv: Record<string, string> = {
-      BIMAX_CWD: input.projectDir,
-      BIMAX_HOST_ARCH: input.architecture || (process.arch === 'arm64' ? 'arm64' : 'x64'),
-      BIMAX_MAC_PROVIDER_AUTHORITY: 'electron-main',
-      BIMAX_MAC_CONSENT_CHANNEL: 'engine-governor',
-      BIMAX_DESKTOP_RELEASE_MODE: input.packaged ? 'packaged' : 'development',
-      // A packaged Bimax.app owns the production route decision. The provider's structural
-      // discovery and live XPC handshake remain the authority on whether native control is
-      // actually eligible; this flag only allows those gates to be evaluated. Without it, a
-      // healthy, approved service is always collapsed to the generic native_tools_unavailable
-      // placeholder. Development preserves the contributor's explicit opt-in instead.
-      ...(input.packaged || requestedNativeRouting ? { [NATIVE_ROUTING_ENV]: '1' } : {}),
-      ...(!input.packaged && requestedSemanticRouting
-        ? { [NATIVE_SEMANTIC_ROUTING_ENV]: '1' }
-        : {}),
-      [TRUSTED_PLAN_SECRET_ENV]: trustedPlanSecret,
-      [TRUSTED_PLAN_REQUIRED_ENV]: '1',
-      // The preview is staged beside the provider in development and in Bimax.app/Contents/MacOS
-      // when packaged. Deriving it from the already-resolved provider keeps packaged runs inside
-      // the bundle and prevents an inherited path from selecting a foreign helper.
-      [LIVE_PIP_HELPER_ENV]: path.join(path.dirname(input.resolved.macCapability), 'bimax-live-pip'),
-    };
-    if (input.desktopDataDirectory) providerEnv[DESKTOP_CU_DATA_ENV] = input.desktopDataDirectory;
-    // Desktop ALWAYS requires a takeover authority. Declaring it separately from supplying it is
-    // what lets the provider tell "nobody owns takeover here" apart from "my host owed me an
-    // authority and failed to start one" — the second must not act on the user's Mac.
-    providerEnv.BIMAX_CU_TAKEOVER_REQUIRED = '1';
-    if (input.takeover) {
-      providerEnv.BIMAX_CU_TAKEOVER_ENDPOINT = input.takeover.endpoint;
-      providerEnv.BIMAX_CU_TAKEOVER_TOKEN = input.takeover.token;
-    }
-    // The focus broker is created by Electron main after app.ready and before the engine is
-    // opened. The engine inherits the credentials, but host capability providers are spawned from
-    // this explicit allow-list rather than the engine environment. Forward only the exact pair;
-    // omitting either keeps foreground activation unavailable and fail-closed.
-    const focusEndpoint = input.extraEnv.BIMAX_CU_FOCUS_BROKER_ENDPOINT
-      || input.parentEnv.BIMAX_CU_FOCUS_BROKER_ENDPOINT;
-    const focusToken = input.extraEnv.BIMAX_CU_FOCUS_BROKER_TOKEN
-      || input.parentEnv.BIMAX_CU_FOCUS_BROKER_TOKEN;
-    if (focusEndpoint && focusToken) {
-      providerEnv.BIMAX_CU_FOCUS_BROKER_ENDPOINT = focusEndpoint;
-      providerEnv.BIMAX_CU_FOCUS_BROKER_TOKEN = focusToken;
-    }
-    if (input.resolved.cuService) providerEnv[OVERRIDE_ENV.cuService] = input.resolved.cuService;
-    if (input.resolved.cuBridge) providerEnv[OVERRIDE_ENV.cuBridge] = input.resolved.cuBridge;
-    if (input.resolved.desktopHelper) providerEnv[OVERRIDE_ENV.desktopHelper] = input.resolved.desktopHelper;
-    env[HOST_CAPABILITIES_ENV] = JSON.stringify({
-      version: 1,
-      transport: 'stdio',
-      servers: [{
-        // The engine registers each of this server's tools as `mcp__<name>__<tool>`, so this
-        // constant is what the renderer's Mac-lane recognizer matches against. One source of truth.
-        name: MAC_PROVIDER_SERVER_NAME,
-        command: input.resolved.macCapability,
-        args: [],
-        env: providerEnv,
-      }],
-    });
-  }
+  // Code-only product boundary: resolved native components and inherited CU variables are ignored.
+  // The only capabilities the child can load are ordinary coding tools and user-configured MCP.
   return env;
 }

@@ -54,6 +54,8 @@ const api = {
   pickFiles: (): Promise<string[]> => ipcRenderer.invoke('app:pick-files'),
   restartEngine: (): Promise<string> => ipcRenderer.invoke('engine:restart'),
   providers: {
+    /** What this machine can run locally, and what is merely downloaded. */
+    localModels: (): Promise<unknown> => ipcRenderer.invoke('models:local'),
     credentialStatus: (): Promise<unknown[]> => ipcRenderer.invoke('providers:credential-status'),
     configure: (input: { name: string; apiKey?: string; baseURL?: string }): Promise<unknown> =>
       ipcRenderer.invoke('providers:configure', input),
@@ -84,11 +86,19 @@ const api = {
     diff: (file: string, untracked: boolean): Promise<string> => ipcRenderer.invoke('git:diff', file, untracked),
     branches: (): Promise<unknown> => ipcRenderer.invoke('git:branches'),
     log: (n: number): Promise<unknown> => ipcRenderer.invoke('git:log', n),
+    // GitHub lane: remote/branch/ahead-behind, and the three verbs the user drives by clicking.
+    remote: (): Promise<unknown> => ipcRenderer.invoke('git:remote'),
+    fetch: (): Promise<{ ok: boolean; output: string }> => ipcRenderer.invoke('git:fetch'),
+    pull: (): Promise<{ ok: boolean; output: string }> => ipcRenderer.invoke('git:pull'),
+    push: (setUpstream: boolean): Promise<{ ok: boolean; output: string }> =>
+      ipcRenderer.invoke('git:push', setUpstream),
   },
   files: {
     list: (rel: string): Promise<unknown> => ipcRenderer.invoke('files:list', rel),
     read: (rel: string): Promise<unknown> => ipcRenderer.invoke('files:read', rel),
     reveal: (rel: string): Promise<void> => ipcRenderer.invoke('files:reveal', rel),
+    search: (query: string): Promise<{ hits: { rel: string; name: string; dir: boolean }[]; truncated: boolean }> =>
+      ipcRenderer.invoke('files:search', query),
     write: (rel: string, content: string): Promise<void> => ipcRenderer.invoke('files:write', rel, content),
     onChanged: (cb: () => void): (() => void) => {
       const h = (): void => cb();
@@ -97,28 +107,6 @@ const api = {
     },
   },
   sessionsMeta: (): Promise<unknown> => ipcRenderer.invoke('sessions:meta'),
-  // User takeover of the Mac. Main owns the latch (main/takeover.ts); this is the user's only
-  // door to it, and the capability provider's read-only mirror is a separate loopback channel the
-  // renderer never sees.
-  takeover: {
-    get: (): Promise<unknown> => ipcRenderer.invoke('takeover:get'),
-    set: (request: { paused: boolean; reason?: string }): Promise<unknown> =>
-      ipcRenderer.invoke('takeover:set', request),
-    onState: (cb: (state: unknown) => void): (() => void) => {
-      const h = (_e: unknown, state: unknown): void => cb(state);
-      ipcRenderer.on('takeover:state', h);
-      return () => ipcRenderer.removeListener('takeover:state', h);
-    },
-  },
-  // Trust diagnostics: build identity, macOS permission state, and which executables this run
-  // resolved. Read-only and non-prompting — see main/trust.ts.
-  trustReport: (): Promise<unknown> => ipcRenderer.invoke('trust:report'),
-  manualAlpha: {
-    status: (): Promise<unknown> => ipcRenderer.invoke('trust:manual-alpha-status'),
-    approve: (codeDirectoryHash: string): Promise<unknown> =>
-      ipcRenderer.invoke('trust:approve-manual-alpha', codeDirectoryHash),
-    revoke: (): Promise<unknown> => ipcRenderer.invoke('trust:revoke-manual-alpha'),
-  },
   // Contextual evidence (Phase 8, owner section 28). Read-only from the renderer's side: it can ask
   // for a derived timeline and it can ask main to delete records, but it can never inject one.
   evidence: {
@@ -131,28 +119,6 @@ const api = {
   },
   exportDiagnostics: (): Promise<'saved' | 'cancelled' | 'failed'> =>
     ipcRenderer.invoke('trust:export-diagnostics'),
-  // Takes the user to the macOS switch. Bimax never grants a permission itself.
-  openPermissionSettings: (which: 'accessibility' | 'screenRecording'): Promise<boolean> =>
-    ipcRenderer.invoke('trust:open-permission-settings', which),
-  /**
-   * The drag coach. `startCoach` opens the pane and, for add-by-drag panes, floats a compact
-   * draggable app bundle over it. `setInteractive` is retained as a compatibility no-op;
-   * `dragBundle` begins the real native file drag.
-   */
-  permissionCoach: {
-    start: (which: 'accessibility' | 'screenRecording' | 'fullDisk' | 'microphone'): Promise<boolean> =>
-      ipcRenderer.invoke('permissions:start-coach', which),
-    startService: (which: 'accessibility' | 'screenRecording'): Promise<boolean> =>
-      ipcRenderer.invoke('permissions:start-service-coach', which),
-    stop: (): Promise<boolean> => ipcRenderer.invoke('permissions:stop-coach'),
-    setInteractive: (interactive: boolean): void =>
-      ipcRenderer.send('permissions:coach-interactive', interactive),
-    dragBundle: (): void => ipcRenderer.send('permissions:drag-bundle'),
-    bundlePath: (): Promise<string> => ipcRenderer.invoke('permissions:bundle-path'),
-    probe: (): Promise<unknown> => ipcRenderer.invoke('permissions:probe'),
-    relaunch: (): Promise<boolean> => ipcRenderer.invoke('permissions:relaunch'),
-    requestMicrophone: (): Promise<boolean> => ipcRenderer.invoke('permissions:request-microphone'),
-  },
   pty: {
     create: (cols: number, rows: number): Promise<number> => ipcRenderer.invoke('pty:create', cols, rows),
     input: (id: number, data: string): void => ipcRenderer.send('pty:input', id, data),

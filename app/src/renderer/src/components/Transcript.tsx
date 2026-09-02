@@ -9,34 +9,6 @@ import { MessageEntry, ToolCallEntry } from '../protocol';
 import { Markdown } from '../markdown';
 import { Dashboard } from './Dashboards';
 import { cn } from '../lib/cn';
-import { inspectActionReceipt, type ActionReceiptView } from '../receipt.inspector';
-import { isMacToolCall, describeMacAction, describeMacActionIntent } from '../mac.session.model';
-
-/** Plain-language label for a Mac provider call, or '' when the call is ordinary coding work. */
-function macCallView(call: ToolCallEntry): { label: string; failed: boolean } | null {
-  if (!isMacToolCall(call)) return null;
-  let payload: Record<string, unknown> | null = null;
-  let input: Record<string, unknown> | null = null;
-  try {
-    const parsed = JSON.parse(call.output);
-    payload = parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : null;
-  } catch { payload = null; }
-  try {
-    const parsed = JSON.parse(call.input);
-    input = parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : null;
-  } catch { input = null; }
-  const action = String(payload?.action || input?.action || '');
-  if (!action) return null;
-  const displayPayload = { ...input, ...payload };
-  const failed = payload?.ok === false;
-  const label = payload?.code === 'computer_use_paused'
-    || payload?.code === 'computer_use_takeover_intervened'
-    ? `Refused ${describeMacActionIntent(action, displayPayload)} — you have control`
-    : failed
-      ? `Blocked: ${describeMacActionIntent(action, displayPayload)}`
-      : describeMacAction(action, displayPayload);
-  return { label, failed };
-}
 
 /**
  * Transcript v2 — virtualized scrollback (day-long sessions stay smooth), consecutive tool
@@ -197,10 +169,17 @@ export function Transcript({
           Header: () => <div className="h-4" />,
           Footer: () => (
             <div className="px-4 pb-3">
+              {/* Liveness only — the reasoning TEXT is deliberately not shown.
+                  Streaming the raw reasoning channel here put the model's private scratchpad in
+                  the transcript, and a reasoning model that degenerates (a token loop such as
+                  "ellsellsells…") rendered that loop straight to the user as if it were output.
+                  The tail was never readable at 200 chars in one truncated line anyway. What the
+                  reader needs from this row is "it is alive and it is thinking", which is exactly
+                  what it now says; the full reasoning is still captured on the message. */}
               {thinking && (
                 <div className="reading-column mx-auto mb-3.5 truncate text-xs text-faint italic">
                   <span className="mr-1.5 inline-block size-1.5 animate-soft-blink rounded-full bg-ember" />
-                  thinking… <span className="opacity-70">{thinking.slice(-200)}</span>
+                  Thinking…
                 </div>
               )}
               {/* The only liveness cue left now that the task strip is gone. It sits in the flow of
@@ -486,10 +465,7 @@ function MenuCard({
 
 function ToolCard({ call, inGroup }: { call: ToolCallEntry; inGroup?: boolean }): React.ReactElement {
   const [open, setOpen] = useState(false);
-  const screenshot = computerScreenshot(call);
-  const receipt = call.status === 'success' ? inspectActionReceipt(call.output) : null;
-  const mac = macCallView(call);
-  const visualStatus = call.status === 'success' && mac?.failed ? 'error' : call.status;
+  const visualStatus = call.status;
   const icon =
     visualStatus === 'running' ? <Loader size={13} className="animate-spin text-amber" />
     : visualStatus === 'success' ? <CircleCheck size={13} className="text-moss" />
@@ -497,7 +473,7 @@ function ToolCard({ call, inGroup }: { call: ToolCallEntry; inGroup?: boolean })
   const secs = call.endTime
     ? Math.max(0, (new Date(call.endTime).getTime() - new Date(call.startTime).getTime()) / 1000)
     : null;
-  const subject = mac ? '' : toolSubject(call);
+  const subject = toolSubject(call);
   return (
     <div className={cn(inGroup && 'mb-1.5', !inGroup && 'reading-column mx-auto', !inGroup && call.parentId && 'pl-[22px]')}>
       <button
@@ -509,15 +485,10 @@ function ToolCard({ call, inGroup }: { call: ToolCallEntry; inGroup?: boolean })
         )}
       >
         <span className="shrink-0">{icon}</span>
-        {/* A Mac action reads as an intent, not as a tool name plus its JSON arguments. */}
-        {mac ? (
-          <span className="min-w-0 flex-1 truncate text-dim group-hover:text-ink">{mac.label}</span>
-        ) : (
-          <span className="flex min-w-0 flex-1 items-baseline gap-1.5">
-            <span className="shrink-0 text-dim">{toolVerb(call.toolName)}</span>
-            {subject ? <span className="min-w-0 truncate font-mono text-[11px] text-ink/85">{subject}</span> : null}
-          </span>
-        )}
+        <span className="flex min-w-0 flex-1 items-baseline gap-1.5">
+          <span className="shrink-0 text-dim">{toolVerb(call.toolName)}</span>
+          {subject ? <span className="min-w-0 truncate font-mono text-[11px] text-ink/85">{subject}</span> : null}
+        </span>
         {call.agentLabel ? (
           <span className="shrink-0 text-[10px] text-faint">
             {call.agentLabel}
@@ -533,14 +504,6 @@ function ToolCard({ call, inGroup }: { call: ToolCallEntry; inGroup?: boolean })
           over the conversation before you had decided you cared about it. */}
       {open && (
         <div className="anim-fade-up mt-1 ml-4 space-y-1 border-l border-line/70 pl-3">
-          {screenshot ? (
-            <img
-              src={localImageUrl(screenshot)}
-              alt="Latest computer screen"
-              className="max-h-[360px] w-auto max-w-full rounded-lg border border-line object-contain"
-            />
-          ) : null}
-          {receipt ? <ActionReceiptCard receipt={receipt} /> : null}
           <pre className="max-h-[280px] overflow-auto rounded-md bg-well/70 px-3 py-2.5 font-mono text-[11px] leading-normal whitespace-pre-wrap text-dim">
             {call.input ? `» ${call.input}\n\n` : ''}
             {call.output || (call.status === 'running' ? 'running…' : '(no output)')}
@@ -549,79 +512,6 @@ function ToolCard({ call, inGroup }: { call: ToolCallEntry; inGroup?: boolean })
       )}
     </div>
   );
-}
-
-/**
- * A Mac action in the task stream.
- *
- * `04_FRONTEND_PLAN.md` is explicit that "raw JSON, element handles, coordinates, AX/OCR source,
- * retries, and fallback codes are inside a Diagnostics disclosure. Normal users see intent and
- * evidence, not plumbing." The receipt used to render its whole table inline, so every Mac action
- * put `Observation f7-4211-88 · Executor semantic · Focus none` into the conversation. The claim
- * now reads as a sentence and the table lives one disclosure down — the same split the Live Target
- * inspector uses, with the same words.
- */
-function ActionReceiptCard({ receipt }: { receipt: ActionReceiptView }): React.ReactElement {
-  const verified = receipt.postcondition.startsWith('matched');
-  const rows: Array<[string, string]> = [
-    ['Target', receipt.target],
-    ['Observation', receipt.observation],
-    ['Executor', receipt.executor],
-    ['Focus', receipt.focus],
-    ['Timing', receipt.timing],
-    ['Postcondition', receipt.postcondition],
-  ];
-  return (
-    <div
-      className={cn(
-        'mt-1 rounded-lg border px-3 py-1.5 text-[11.5px]',
-        verified ? 'border-moss/20 bg-moss/5' : 'border-line bg-raise',
-      )}
-    >
-      <div className="flex items-center gap-2">
-        <span className={verified ? 'text-moss' : 'text-dim'}>
-          {verified
-            ? `Confirmed on ${receipt.target.split(' · ')[0]}`
-            : `Not confirmed — ${receipt.postcondition}`}
-        </span>
-        <span className="ml-auto shrink-0 text-faint">{receipt.outcome}</span>
-      </div>
-      <details className="mt-0.5">
-        <summary className="cursor-pointer text-[10px] text-faint hover:text-dim">Details</summary>
-        <dl className="mt-1 grid grid-cols-[82px_minmax(0,1fr)] gap-x-2 gap-y-1 text-[10.5px]">
-          {rows.map(([label, value]) => (
-            <React.Fragment key={label}>
-              <dt className="text-faint">{label}</dt>
-              <dd className="min-w-0 break-words font-mono text-dim">{value}</dd>
-            </React.Fragment>
-          ))}
-        </dl>
-      </details>
-    </div>
-  );
-}
-
-/**
- * A Mac action's own screenshot, when the Desktop provider attached one.
- *
- * The old check was `toolName === 'ComputerTool'`, which Phase 4 deleted along with the engine's
- * Computer Use ownership — so this had been rendering nothing at all. `isMacToolCall` is the same
- * predicate the Live Target inspector uses, so the transcript and the inspector can never disagree
- * about which calls are Mac work.
- */
-function computerScreenshot(call: ToolCallEntry): string {
-  if (!isMacToolCall(call) || call.status !== 'success' || !call.output) return '';
-  try {
-    const parsed = JSON.parse(call.output);
-    return typeof parsed?.screenshot === 'string' ? parsed.screenshot : '';
-  } catch {
-    return '';
-  }
-}
-
-function localImageUrl(file: string): string {
-  const normalized = file.replace(/\\/g, '/');
-  return `file://${normalized.startsWith('/') ? '' : '/'}${encodeURI(normalized)}`;
 }
 
 function truncate(s: string, n: number): string {

@@ -387,19 +387,19 @@ export class ContextManager {
   // so across a long session only the handful of NEW/rewritten messages are ever re-tokenized.
   // (The old implementation re-encoded the ENTIRE conversation with gpt-tokenizer on every single
   // turn — an O(session) CPU spike per turn that grew with the thing it was supposed to manage.)
-  private tokenCache = new WeakMap<object, { content: unknown; tokens: number }>();
+  private tokenCache = new WeakMap<object, { content: unknown; reasoning: unknown; tokens: number }>();
 
   private countMessageTokens(m: Message): number {
     const key = m as unknown as object;
     const hit = this.tokenCache.get(key);
-    if (hit && hit.content === m.content) return hit.tokens;
+    if (hit && hit.content === m.content && hit.reasoning === m.reasoning_content) return hit.tokens;
     let tokens: number;
     try {
-      tokens = encode(contentToText(m.content)).length;
+      tokens = encode(`${contentToText(m.content)}${m.reasoning_content || ''}`).length;
     } catch {
-      tokens = Math.ceil(String(contentToText(m.content) ?? '').length / 4);
+      tokens = Math.ceil(`${String(contentToText(m.content) ?? '')}${m.reasoning_content || ''}`.length / 4);
     }
-    this.tokenCache.set(key, { content: m.content, tokens });
+    this.tokenCache.set(key, { content: m.content, reasoning: m.reasoning_content, tokens });
     return tokens;
   }
 

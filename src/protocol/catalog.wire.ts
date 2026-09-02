@@ -21,8 +21,15 @@ export interface CatalogDeps {
   activeProvider: () => { name: string };
   /** Curated recommendations. */
   catalog: () => Array<{
-    label: string; value: string; desc: string;
-    tier: 'coding' | 'vision' | 'lite' | 'other'; avoidAutoSelect?: boolean;
+    label: string;
+    value: string;
+    desc: string;
+    tier: 'coding' | 'vision' | 'lite' | 'other';
+    avoidAutoSelect?: boolean;
+    recommendedFor?: Array<'coding' | 'vision' | 'lite'>;
+    tags?: string[];
+    parameters?: string;
+    releaseDate?: string;
   }>;
   /** Ids the ACTIVE provider currently serves. Rejects/throws when offline or unkeyed. */
   listServed: (refresh: boolean) => Promise<string[]>;
@@ -34,7 +41,6 @@ export interface CatalogDeps {
 
 const PROVIDER_LABEL: Record<string, string> = {
   nvidia: 'NVIDIA NIM',
-  stepfun: 'StepFun',
   openai: 'OpenAI',
   anthropic: 'Anthropic',
   openrouter: 'OpenRouter',
@@ -50,7 +56,10 @@ const PROVIDER_LABEL: Record<string, string> = {
  * tell what the engine loaded.
  */
 function describeKeys(raw: string | undefined): { hasKey: boolean; keyCount: number; keyHint?: string } {
-  const keys = String(raw || '').split(',').map(k => k.trim()).filter(Boolean);
+  const keys = String(raw || '')
+    .split(',')
+    .map((k) => k.trim())
+    .filter(Boolean);
   if (keys.length === 0) return { hasKey: false, keyCount: 0 };
   const last = keys[keys.length - 1];
   // A 4-character tail identifies a key to the person who owns it and to nobody else. Short keys
@@ -81,7 +90,11 @@ export function buildProviderEntries(deps: CatalogDeps): ProviderEntry[] {
  *   - served but NOT curated → appended, `curated: false`. These are real, selectable ids we have
  *     no measurement for; the front-end presents them as unvetted rather than recommended.
  */
-export function buildModelEntries(deps: CatalogDeps, servedIds: string[], provider: string | null): CatalogModelEntry[] {
+export function buildModelEntries(
+  deps: CatalogDeps,
+  servedIds: string[],
+  provider: string | null,
+): CatalogModelEntry[] {
   const served = new Set(servedIds);
   const curated = deps.catalog();
   const seen = new Set<string>();
@@ -97,7 +110,9 @@ export function buildModelEntries(deps: CatalogDeps, servedIds: string[], provid
         parallelToolCalls: !!caps.parallelToolCalls,
         contextWindow: Number(caps.contextWindow) || 0,
       };
-    } catch { return undefined; }
+    } catch {
+      return undefined;
+    }
   };
 
   const rows: CatalogModelEntry[] = curated.map((entry) => {
@@ -107,6 +122,10 @@ export function buildModelEntries(deps: CatalogDeps, servedIds: string[], provid
       label: entry.label,
       desc: entry.desc,
       tier: entry.tier,
+      ...(entry.recommendedFor ? { recommendedFor: entry.recommendedFor } : {}),
+      ...(entry.tags ? { tags: entry.tags } : {}),
+      ...(entry.parameters ? { parameters: entry.parameters } : {}),
+      ...(entry.releaseDate ? { releaseDate: entry.releaseDate } : {}),
       // With no live list at all (offline / no key), "not served" would be a lie about every model.
       // Report served:false only when we genuinely have a list to have been absent from.
       served: served.size === 0 ? false : served.has(entry.value),
@@ -142,7 +161,7 @@ export async function buildCatalog(deps: CatalogDeps, id: number, refresh = fals
   try {
     servedIds = (await deps.listServed(refresh)) || [];
     if (servedIds.length === 0) {
-      const hasKey = providers.find(p => p.active)?.hasKey;
+      const hasKey = providers.find((p) => p.active)?.hasKey;
       error = hasKey
         ? 'This provider returned no model list. The curated models below are unverified against it.'
         : 'No API key is set for this provider, so its model list could not be read.';
@@ -158,26 +177,4 @@ export async function buildCatalog(deps: CatalogDeps, id: number, refresh = fals
     models: buildModelEntries(deps, servedIds, active),
     ...(error ? { error } : {}),
   };
-}
-
-/** Keep the Mac product on one model family while making a retired provider route actionable. */
-export function constrainCatalogToStrictModel(
-  result: CatalogResultMsg,
-  strictModel: string,
-): CatalogResultMsg {
-  if (!strictModel) return result;
-  // The Mac app is an exact-model product, not a generic provider picker. Only these two live
-  // provider namespaces serve Step 3.7 Flash now. Keep an incompatible active provider visible so
-  // the user can understand/migrate the current state, but never advertise unrelated providers as
-  // viable routes for the strict model.
-  const compatibleProviders = new Set(['stepfun', 'openrouter']);
-  const providers = result.providers.filter(provider =>
-    compatibleProviders.has(provider.name) || provider.active);
-  const models = result.models.filter(model => model.id === strictModel);
-  const active = providers.find(provider => provider.active);
-  const provider = active?.label || active?.name || 'the selected provider';
-  const served = models.some(model => model.served);
-  const error = result.error || (served ? undefined
-    : `Step 3.7 Flash is not currently served by ${provider}. Open Bimax Settings → Models → Providers and add a StepFun or OpenRouter API key.`);
-  return { ...result, providers, models, ...(error ? { error } : {}) };
 }

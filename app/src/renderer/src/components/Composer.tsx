@@ -1,25 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  ArrowUp, Square, FunctionSquare, FileText, Shield, Cpu, AppWindow, Code2,
+  ArrowUp, Square, FunctionSquare, FileText, Shield, Cpu,
   ChevronUp, Sparkles, Pencil, Search, Hammer, Flame, Plus,
 } from 'lucide-react';
 import { CompletionItem, ControlsMsg, UiSnapshot } from '../protocol';
 import { cn } from '../lib/cn';
 import { Button } from './ui/button';
-import { SeedMenu, SeedMenuItem, SeedMenuLabel, SeedMenuNote, SeedMenuReadout, SeedMenuSeparator } from './ui/morph/SeedMenu';
+import { SeedMenu, SeedMenuItem, SeedMenuLabel, SeedMenuReadout, SeedMenuSeparator } from './ui/morph/SeedMenu';
 import type { SupervisorStatus } from '../global';
-import { inferLane, LANE_LABEL, type LaneInference, type TaskLane } from '../lane.inference';
 
 /**
- * One composer for both lanes.
- *
- * `04_FRONTEND_PLAN.md`: "One composer across modes. The app infers the lane from the request and
- * shows a visible chip: `Code` or `Control Mac`. The user can correct it before execution. Keep
- * three understandable control levels."
- *
- * So the strip under the input is: the lane chip (inferred, correctable), the control level, the
- * model, attach, and the live context ring. The engine's own mode vocabulary moved behind Custom
- * rules — it was the primary workflow control and should never have been.
+ * Code-only composer for the agentic IDE. The strip under the input contains project autonomy,
+ * model routing, attachment, and live context controls; there is no host-computer lane.
  */
 
 /**
@@ -74,8 +66,7 @@ export function Composer({
   snapshot: UiSnapshot | null;
   streamedChars: number;
   completions: CompletionItem[];
-  /** Receives the text AND the lane the user is actually running, corrected or not. */
-  onSubmit: (text: string, lane: TaskLane) => void;
+  onSubmit: (text: string) => void;
   onInterrupt: () => void;
   onControls: (controls: Omit<ControlsMsg, 't'>) => void;
   onCommand: (cmd: string) => void;
@@ -86,12 +77,9 @@ export function Composer({
   runtime: SupervisorStatus | null;
 }): React.ReactElement {
   const [text, setText] = useState('');
-  const [queued, setQueued] = useState<{ text: string; lane: TaskLane } | null>(null);
+  const [queued, setQueued] = useState<string | null>(null);
   const [sel, setSel] = useState(0);
   const [permission, setPermission] = useState('auto');
-  // The user's correction, if any. Cleared when the request changes, because a lane chosen for a
-  // different sentence is not a choice about this one.
-  const [laneOverride, setLaneOverride] = useState<TaskLane | null>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const historyRef = useRef<string[]>([]);
@@ -105,12 +93,6 @@ export function Composer({
   const activeLevel = CONTROL_LEVELS.find((level) => level.id === permission) ?? CONTROL_LEVELS[1];
   const activeTier = TIERS.find((t) => t.id === (tier || 'auto')) ?? TIERS[0];
 
-  const inferred: LaneInference = inferLane(text);
-  const lane: TaskLane = laneOverride ?? inferred.lane;
-  const laneWhy = laneOverride
-    ? `You set this task to ${LANE_LABEL[laneOverride]}.`
-    : inferred.why;
-
   const ctxPct = snapshot && snapshot.contextWindow > 0
     ? Math.min(100, Math.round(((snapshot.tokensBaseline + streamedChars / 4) / snapshot.contextWindow) * 100))
     : null;
@@ -120,7 +102,7 @@ export function Composer({
   // The user never has to wait for or understand the background runtime lifecycle.
   useEffect(() => {
     if (!available || !queued) return;
-    onSubmit(queued.text, queued.lane);
+    onSubmit(queued);
     setQueued(null);
   }, [available, queued, onSubmit]);
 
@@ -147,7 +129,6 @@ export function Composer({
 
   const change = (v: string): void => {
     setText(v);
-    setLaneOverride(null);
     histIdxRef.current = -1;
     clearTimeout(debounceRef.current);
     if (v.includes('@')) {
@@ -162,14 +143,12 @@ export function Composer({
     historyRef.current.push(text);
     histIdxRef.current = -1;
     if (!available) {
-      setQueued({ text, lane });
+      setQueued(text);
       setText('');
-      setLaneOverride(null);
       return;
     }
-    onSubmit(text, lane);
+    onSubmit(text);
     setText('');
-    setLaneOverride(null);
   };
 
   const accept = (item: CompletionItem): void => {
@@ -275,42 +254,6 @@ export function Composer({
           >
             <Plus size={16} />
           </button>
-
-          {/* The lane chip: what Bimax thinks this request is, and one click to correct it. */}
-          <SeedMenu
-            label="Task type"
-            trigger={(open) => (
-              <ComposerPill
-                open={open}
-                icon={lane === 'mac' ? <AppWindow size={13} /> : <Code2 size={13} />}
-                label={LANE_LABEL[lane]}
-                tone={lane === 'mac' ? 'mac' : 'default'}
-                title={laneWhy}
-                testId="lane-chip"
-              />
-            )}
-          >
-            {(close) => (
-              <>
-                <SeedMenuLabel>What is this task?</SeedMenuLabel>
-                <SeedMenuNote>{laneWhy}</SeedMenuNote>
-                <SeedMenuItem
-                  icon={<Code2 size={13} />}
-                  selected={lane === 'code'}
-                  label={LANE_LABEL.code}
-                  desc="Work on this project’s files, tests and commands"
-                  onClick={() => { setLaneOverride('code'); close(); }}
-                />
-                <SeedMenuItem
-                  icon={<AppWindow size={13} />}
-                  selected={lane === 'mac'}
-                  label={LANE_LABEL.mac}
-                  desc="Operate an app on your Mac — asks for permission the first time"
-                  onClick={() => { setLaneOverride('mac'); close(); }}
-                />
-              </>
-            )}
-          </SeedMenu>
 
           {/* Widest of the strip's menus: in `custom` it grows three sections deep, and `fitHeight`
               means the surface is exactly as tall as whichever shape it is in rather than sized for

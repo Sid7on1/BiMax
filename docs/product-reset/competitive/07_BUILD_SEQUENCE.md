@@ -1,5 +1,10 @@
 # Competitive build sequence
 
+> **Superseded 2026-09-02:** prioritize the code-only agentic IDE. Computer Use workstreams are
+> retired; the active order is coding-tool reliability, Desktop IDE ergonomics, protocol/recovery,
+> provider reliability, and code-only packaging proof. See
+> `../30_CODE_ONLY_AGENTIC_IDE_RESET_RECORD.md`.
+
 This sequence extends `../07_MIGRATION_ROADMAP.md`. It prioritizes the smallest set that can make
 Bimax meaningfully better, not the largest feature inventory.
 
