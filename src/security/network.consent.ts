@@ -1,4 +1,5 @@
 import { IGovernor } from '../core/interfaces';
+import { checkEgress } from './egress.guard';
 
 /**
  * One consent for reaching the network, asked once and remembered for the session.
@@ -58,6 +59,18 @@ export async function requireNetworkConsent(
   governor: IGovernor,
   request: NetworkConsentRequest,
 ): Promise<string | null> {
+  // Policy before preference. Sovereign mode is an organisational rule, not a per-user choice, so
+  // it is settled before the user is asked anything — otherwise an air-gapped deployment would
+  // present a prompt whose "allow" answer the deployment cannot honour. This also records the
+  // attempt in the egress ledger whether or not the mode is on, so "what did it contact during
+  // that task?" has a complete answer either way.
+  const policyRefusal = checkEgress({
+    target: request.target,
+    subsystem: request.tool,
+    purpose: request.purpose,
+  });
+  if (policyRefusal) return policyRefusal;
+
   const host = hostOf(request.target);
   const standing = decisions.get(host);
   if (standing === 'granted') return null;

@@ -19,6 +19,20 @@ import type { ToolCallSlot } from './llm.stream';
 import { markProviderRequest, markFirstRawChunk } from '../telemetry/perf';
 import { attributeSlowWait, SLOW_WAIT_THRESHOLD_MS } from '../telemetry/netprobe';
 import { CircuitBreaker, Outcome, BreakerOpen, RetryPolicy, serverConfig } from './circuit-breaker';
+import { assertEgressAllowed } from '../security/egress.guard';
+
+/**
+ * The URL a `fetch` call is actually aimed at. The SDK may hand us a string, a `URL`, or a
+ * `Request`, and the guard must classify the real destination rather than the configured base —
+ * they differ whenever the SDK builds a path or a caller passes an absolute override. Falls back
+ * to the base URL only when the argument carries no usable URL at all.
+ */
+function requestUrlOf(input: unknown, fallback: string): string {
+  if (typeof input === 'string') return input;
+  if (input instanceof URL) return input.href;
+  const url = (input as { url?: unknown } | null)?.url;
+  return typeof url === 'string' && url ? url : fallback;
+}
 
 // Provider-fault classification for the LLM circuit breaker. The per-key ApiKeyManager already
 // rotates and cools individual keys; the breaker sits ABOVE that to catch a whole-provider outage,
@@ -255,8 +269,19 @@ export class LlmAdapter implements LLMProvider {
       // The SDK's built-in retry re-sends to the SAME key — under NIM's per-key server-side
       // queueing that stacked up to 4×timeout (8 minutes) of invisible dead air per call,
       // which is exactly the "sub-agents are hell of slow" hang.
-      const providerFetch: typeof fetch = async (...args) =>
-        normalizeProviderErrorResponse(await fetch(...args));
+      // Sovereignty is enforced HERE, at the one call every model request passes through, rather
+      // than where the base URL is configured. A check at configuration time proves what was
+      // intended; a check at the fetch proves what was sent — including a request the SDK aimed
+      // somewhere the config never named. In sovereign mode an external destination throws before
+      // any bytes are written, and the attempt is recorded either way.
+      const providerFetch: typeof fetch = async (...args) => {
+        assertEgressAllowed({
+          target: requestUrlOf(args[0], baseURL),
+          subsystem: 'LlmAdapter',
+          purpose: 'model request',
+        });
+        return normalizeProviderErrorResponse(await fetch(...args));
+      };
       client = new OpenAI({ apiKey, baseURL, maxRetries: 0, fetch: providerFetch });
       this.clientCache.set(cacheKey, client);
     }
