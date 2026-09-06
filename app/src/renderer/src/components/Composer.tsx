@@ -286,6 +286,17 @@ export function Composer({
           * is the worst outcome available: the user believes the file was read and acts on an answer
           * that never saw it.
           */}
+        {snapshot?.composer && (snapshot.composer.session + snapshot.composer.library) === 0 && !text && (
+          // Empty state. Without it the Composer is invisible until you already know it exists: the
+          // corpus readout suppresses itself at zero and the drop zone only renders mid-drag, so the
+          // paperclip was the sole affordance and drag-and-drop was undiscoverable. An empty state is
+          // the only moment a feature can introduce itself.
+          <div className="flex items-center gap-1.5 px-5 pt-2 text-[11px] text-faint">
+            <FileText size={11} />
+            <span>Drop files here — PDFs, scans, spreadsheets, notes. Bimax reads them and cites what it uses.</span>
+          </div>
+        )}
+
         {snapshot?.composer && (snapshot.composer.session + snapshot.composer.library) > 0 && (
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-5 pt-2 text-[11px] text-faint">
             <span className="inline-flex items-center gap-1.5">
