@@ -25,7 +25,12 @@ export const createGitTool = (governor: IGovernor) => buildTool({
 
 Does NOT push. Use commit to checkpoint a logical unit of work.`,
   isDestructive: false, // per-action governance handled inside
-  isConcurrencySafe: false,
+  /**
+   * Per-call: the reporting actions read the repo and may overlap with sibling calls, while `add`
+   * and `commit` mutate the index and must hold the turn's barrier. Unknown or missing actions
+   * fail closed to exclusive.
+   */
+  isConcurrencySafe: (args: any) => ['status', 'diff', 'log'].includes(args?.action),
   schema: {
     type: 'object',
     properties: {

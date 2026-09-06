@@ -54,7 +54,10 @@ describe('CommandRegistry.getPaletteOptions — curated palette', () => {
     // (+1 in 2026-07: /setup — the guided provider→key→model wizard belongs on the surface.)
     // (+1 in 2026-07: /computer — the browser/desktop computer-use capability hub is a primary verb.)
     // (+1 in 2026-07: /tasks — background task workspaces (cancel/pause/retry) are a primary verb.)
-    expect(opts.length).toBeLessThanOrEqual(29);
+    // (+1 in 2026-09: /sovereign — air-gap mode is the product's headline claim and the surface an
+    //  operator checks before doing confidential work, so it is a primary verb. /route ships beside
+    //  it but is a routing DIAGNOSTIC, so it is demoted with the other routing internals.)
+    expect(opts.length).toBeLessThanOrEqual(30);
     const values = opts.map(o => o.value);
     // Demoted clusters must NOT be on the browsable surface (they live in the HUD / a primary verb).
     for (const hidden of ['/self', '/tier', '/undo', '/checkpoint', '/edit', '/write', '/resume', '/output', '/index-ai']) {

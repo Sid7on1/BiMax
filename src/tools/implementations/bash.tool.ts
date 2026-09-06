@@ -3,9 +3,10 @@ import { promisify } from 'util';
 import * as os from 'os';
 import { IGovernor } from '../../core/interfaces';
 import { buildTool } from '../tool.factory';
-import { sandboxArgv, sandboxBin, floorRoot, floorArgv, floorChildEnv, floorBlockedReason } from '../../sandbox/exec.sandbox';
+import { sandboxArgv, sandboxBin, floorRoot, floorArgv, floorChildEnv, floorBlockedReason, sovereignShellBlockedReason } from '../../sandbox/exec.sandbox';
 import { outcomeOk, classifiedError } from '../outcome';
 import { guiAutomationRefusal } from '../gui.automation.guard';
+import { isReadOnlyShellCommand } from '../shell.readonly';
 
 const execAsync = promisify(exec);
 const execFileAsync = promisify(execFile);
@@ -53,6 +54,13 @@ Reserve BashTool for actual shell operations (installs, builds, git, processes, 
 - Quote paths with spaces using double quotes.
 - Git: never force-push or reset --hard unless explicitly asked; never commit unless asked.`,
   isDestructive: true,
+  /**
+   * Per-call, not per-tool. BashTool as a whole is a barrier, but a turn of `git status`, `rg TODO`,
+   * `wc -l` is three read-only lookups with no reason to serialize. Only a strictly read-only
+   * FOREGROUND command overlaps; `isReadOnlyShellCommand` fails closed on every ambiguity, and the
+   * Governor, sandbox and task guard still run for the call either way.
+   */
+  isConcurrencySafe: (args: any) => args?.background !== true && isReadOnlyShellCommand(args?.command),
   schema: {
     type: 'object',
     properties: {
@@ -85,6 +93,11 @@ Reserve BashTool for actual shell operations (installs, builds, git, processes, 
       // authority (BIMAX_SANDBOX_FLOOR_SOFT=1 is the explicit opt-out).
       const blocked = floorBlockedReason();
       if (blocked) throw classifiedError(`Command blocked: ${blocked}`, 'permission', 'blocked');
+      // Sovereign mode: a subprocess is outside the in-process egress perimeter, so the kernel has
+      // to deny it the network. Where the OS cannot, the shell is refused rather than run with
+      // isolation we cannot demonstrate.
+      const sovereignBlocked = sovereignShellBlockedReason();
+      if (sovereignBlocked) throw classifiedError(`Command blocked: ${sovereignBlocked}`, 'permission', 'blocked');
       // Background promotion: long-running work becomes a tracked task workspace instead of a
       // blocking foreground exec (task registry + execution ledger; honest pause via SIGSTOP).
       // Not available under the sandbox floor — the floored argv path must stay foreground where

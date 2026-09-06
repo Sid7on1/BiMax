@@ -102,8 +102,25 @@ describe('RAM ledger: JSON vs SQLite code store', () => {
     expect(sqliteStore.residentBytes()).toBeLessThan(N * 200);
 
     // And the measured gap: SQLite must hold clearly less heap than JSON over the same corpus.
-    // Loose bound (not a ratio) so GC jitter on a busy CI box cannot flake it.
-    expect(sqliteDelta).toBeLessThan(jsonDelta * 0.75);
+    //
+    // `jsonDelta * 0.75` IS a ratio, despite the comment this replaces claiming otherwise, and it
+    // inverts when the baseline is negative. A negative jsonDelta means GC ran between the two
+    // `heapUsed()` reads, so the JSON store's cost was never measured — the heap simply ended lower
+    // than it started. Comparing against it then demands `sqliteDelta < -34 MB`, which nothing can
+    // satisfy. Measured on an 8 GB box under memory pressure: the run reported jsonDelta ≈ -34 MB
+    // and failed, while the structural invariant above (the real claim) passed untouched.
+    //
+    // An unusable measurement is not evidence of a regression, so it must not be reported as one.
+    // The invariant that does not depend on GC timing is asserted unconditionally above.
+    if (jsonDelta > 0) {
+      expect(sqliteDelta).toBeLessThan(jsonDelta * 0.75);
+    } else {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `  [ram-ledger] skipping the comparative bound: GC ran during the JSON baseline ` +
+        `(jsonDelta ${(jsonDelta / 1e6).toFixed(1)} MB). The structural invariant still ran.`,
+      );
+    }
 
     // Same pipeline, same answers: both stores return the same top hit for a lexical query.
     const jsonHits = await jsonStore.semanticSearch('fn377', 1, 0, { tags: ['code'] });

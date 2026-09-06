@@ -6,6 +6,8 @@ import { useGit } from './useGit';
 import { useWindowChrome } from './useWindowChrome';
 import { MorphRegion } from './components/ui/morph/MorphRegion';
 import { TitleBar } from './components/TitleBar';
+import { EmbeddedBrowserWorkspace } from './components/browser/EmbeddedBrowserWorkspace';
+import { useEmbeddedBrowser } from './useEmbeddedBrowser';
 import { TaskSidebar } from './components/TaskSidebar';
 import { Inspector } from './components/Inspector';
 import { EngineStatusBanner } from './components/EngineStatusBanner';
@@ -79,7 +81,11 @@ export function App(): React.ReactElement {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [workspaceSheet, setWorkspaceSheet] = useState<WorkspaceSheetTab | null>(null);
   const [appearance, setAppearance] = useState<Appearance>(savedAppearance);
-  const [view, setView] = useState<'chat' | 'gallery'>('chat');
+  const [view, setView] = useState<'chat' | 'gallery' | 'browser'>('chat');
+  // The browser lane owns main-process WebContentsViews. It is told whether it is on screen so
+  // the native view hides on a lane switch — a BrowserView has no z-index and would otherwise
+  // sit opaquely on top of the conversation.
+  const browserLane = useEmbeddedBrowser(view === 'browser');
   const [openFiles, setOpenFiles] = useState<string[]>([]);
   const [activeFile, setActiveFile] = useState<string | null>(null);
   const [machineHealthOpen, setMachineHealthOpen] = useState(false);
@@ -160,9 +166,20 @@ export function App(): React.ReactElement {
 
   /** Start a fresh task. One definition, because the sidebar, the palette and ⌘N must agree. */
   const newTask = useCallback(() => {
+    // INTERRUPT FIRST. `/clear force` resets the conversation history, the taint tracker and the
+    // todo list — but it does not stop a turn that is already running (see `/clear` in
+    // cli/commands/meta.ts: it emits the `clear` event and returns; there is no abort). Starting a
+    // new task while the agent was working therefore left the OLD turn executing: its remaining
+    // tool calls kept running against the filesystem, and their results streamed into the new
+    // task's transcript. Reported live, with file deletions among the calls that kept going.
+    //
+    // The renderer's own guard against the stray events is `awaitingNewTurn` in engine.state.ts;
+    // this is the other half, and the more important one — that guard hides the events, this stops
+    // the work. Interrupting when nothing is running is a no-op, so it is unconditional.
+    interrupt();
     sendCommand('/clear force');
     setView('chat');
-  }, [sendCommand]);
+  }, [interrupt, sendCommand]);
 
   const resumeSession = useCallback((id: string) => {
     window.bimax.send({ t: 'resume', id });
@@ -256,6 +273,8 @@ export function App(): React.ReactElement {
         onPeekSidebar={() => setSidebarPeek(true)}
         onToggleInspector={() => setInspectorOpen((v) => !v)}
         onOpenChanges={() => openInspector('review')}
+        browserOpen={view === 'browser'}
+        onToggleBrowser={() => setView((v) => (v === 'browser' ? 'chat' : 'browser'))}
         appearance={appearance}
         onAppearance={setAppearance}
       />
@@ -317,6 +336,20 @@ export function App(): React.ReactElement {
                 <ProjectWelcome />
               ) : view === 'gallery' ? (
                 <GalleryView project={state.project} onResume={resumeSession} onBack={() => setView('chat')} />
+              ) : view === 'browser' ? (
+                <EmbeddedBrowserWorkspace
+                  tabs={browserLane.tabs}
+                  activeTabId={browserLane.activeTabId}
+                  onSelectTab={browserLane.selectTab}
+                  onCloseTab={browserLane.closeTab}
+                  onNewTab={browserLane.newTab}
+                  onNavigate={browserLane.navigate}
+                  onBack={browserLane.back}
+                  onForward={browserLane.forward}
+                  onReload={browserLane.reload}
+                  onApproveAction={() => undefined}
+                  onRejectAction={() => undefined}
+                />
               ) : (
                 <>
                   {supervisorStatus && (

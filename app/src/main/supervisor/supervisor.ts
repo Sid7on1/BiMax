@@ -2,7 +2,7 @@ import {
   CapabilityPlan, CrashKind, CrashRecord, EnginePhase, HeartbeatInfo, MemoryInfo, ProfileId,
   SupervisorStatus,
 } from './types';
-import { bootProgress, isStartupPhase, phaseMessage, transition } from './machine';
+import { bootProgress, isLivePhase, isStartupPhase, phaseMessage, transition } from './machine';
 import {
   CrashEvent, DEFAULT_POLICY, PolicyConfig, classifyExit, decideRestart,
 } from './policy';
@@ -287,6 +287,12 @@ export class EngineSupervisor {
       this.writeToChild(raw);
       return;
     }
+    // A correlated request — one the renderer is holding a promise open on — must never be met
+    // with silence. Queuing is honest only while an engine is actually on its way; from a terminal
+    // phase nothing will ever drain the queue, and the front-end is left to time out and report
+    // the only thing IT can see ("the engine did not answer… check the provider key") while the
+    // supervisor already knows the real reason and knows the key is not it.
+    if (!this.answerIsComing() && this.answerUndeliverable(raw, t)) return;
     if (isSafeToReplay(raw)) {
       this.queue.push(raw);
       if (this.queue.length > MAX_QUEUE) this.queue.shift();
@@ -294,6 +300,37 @@ export class EngineSupervisor {
     }
     if (t === 'interrupt') return; // nothing to interrupt — dropping is the correct semantics
     this.deps.onNotice('warn', `Engine is not ready (${this.phase}) — "${t}" was not delivered. Retry once the engine is back.`);
+  }
+
+  /** True while a child is alive or a (re)start is in flight — i.e. a queued read still has a reader. */
+  private answerIsComing(): boolean {
+    return isLivePhase(this.phase) || this.phase === 'restarting';
+  }
+
+  /**
+   * Answer a correlated request the engine will not receive, using the phase as the reason.
+   * Returns false for kinds that carry no reply contract, which keep the queue/notice path.
+   *
+   * Reads only. A mutation (`configSet`) is deliberately absent: "not delivered" and "delivered
+   * and rejected" are different facts about the user's config, and only the notice path can say
+   * the first without implying the second.
+   */
+  private answerUndeliverable(raw: unknown, t: string): boolean {
+    const id = (raw as Record<string, unknown>).id;
+    if (typeof id !== 'number') return false;
+    const because = `${phaseMessage(this.phase)}. This request never reached it — `
+      + 'your provider key and endpoint were not involved.';
+    if (t === 'catalogGet' || t === 'providerSet') {
+      this.deps.onMessage({ t: 'catalogResult', id, providers: [], models: [], error: because });
+      return true;
+    }
+    if (t === 'configGet') {
+      // `configResult` carries no error field, so this says only what its shape can say: no
+      // config. The catalogue reply above is what actually names the cause on screen.
+      this.deps.onMessage({ t: 'configResult', id, config: {} });
+      return true;
+    }
+    return false;
   }
 
   /** Resume a saved session: immediately when ready, otherwise after the next successful start. */

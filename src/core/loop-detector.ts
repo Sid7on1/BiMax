@@ -20,6 +20,16 @@ interface CallRecord {
   tool: string;
   argsHash: string;
   resultHash: string;
+  /**
+   * What "the same outcome" means for THIS tool. Normally the whole result, but a tool that reports
+   * a `frameHash` has told us which part of its result carries the progress signal, so that field is
+   * used instead. Without this the two guards cancelled out for exactly those tools: a frameHash
+   * suppresses the generic_repeat check below (successive frames may legitimately differ), and the
+   * no_progress_poll check meant to cover that gap compared the FULL result — which for a visual
+   * tool embeds a fresh screenshot path every call, so its hash never repeated and the check could
+   * never fire. A vision tool polling one unchanged frame was therefore caught by nothing at all.
+   */
+  progressHash: string;
   isError: boolean;
 }
 
@@ -77,12 +87,14 @@ export class LoopDetector {
     // prove progress. Treat a structured frame hash as generic progress evidence; this keeps the
     // engine independent of any provider/tool name while still catching an unchanged-frame poll.
     let hasFrameProgressEvidence = false;
+    let progressHash = resultHash;
     try {
       const parsed = JSON.parse(resultText);
       hasFrameProgressEvidence = typeof parsed?.frameHash === 'string' && parsed.frameHash.length > 0;
+      if (hasFrameProgressEvidence) progressHash = sha256Short(String(parsed.frameHash));
     } catch { /* ordinary text result */ }
 
-    this.history.push({ tool: toolName, argsHash, resultHash, isError: failed });
+    this.history.push({ tool: toolName, argsHash, resultHash, progressHash, isError: failed });
     // Keep a rolling window — only the last 20 calls matter for pattern matching
     if (this.history.length > 20) this.history.shift();
 
@@ -132,10 +144,12 @@ export class LoopDetector {
       }
     }
 
-    // No-progress poll — same (tool, argsHash, resultHash) SOFT_THRESHOLD times in a row
+    // No-progress poll — same (tool, argsHash, progressHash) SOFT_THRESHOLD times in a row.
+    // Compared on progressHash, not resultHash: see CallRecord.progressHash for why the full result
+    // is the wrong key for any tool that reports its own progress signal.
     if (this.history.length >= SOFT_THRESHOLD) {
       const tail = this.history.slice(-SOFT_THRESHOLD);
-      if (tail.every(c => c.tool === toolName && c.argsHash === argsHash && c.resultHash === resultHash)) {
+      if (tail.every(c => c.tool === toolName && c.argsHash === argsHash && c.progressHash === progressHash)) {
         return {
           type: 'no_progress_poll',
           tool: toolName,

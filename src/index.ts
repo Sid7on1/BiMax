@@ -19,6 +19,11 @@ import dotenv from 'dotenv';
 import { loadGlobalEnv } from './cli/env.loader';
 loadGlobalEnv();
 dotenv.config();
+// The egress perimeter goes up the instant the environment is readable and before any other module
+// gets a chance to open a socket. It is what makes "nothing leaves the premises" a property of the
+// process rather than a promise about sixteen call sites. See security/egress.perimeter.ts.
+import { installEgressPerimeter } from './security/egress.perimeter';
+installEgressPerimeter();
 import { Command } from 'commander';
 import { createContainer } from './core/container';
 import { readPackageVersion } from './core/self.update';
@@ -54,12 +59,37 @@ program
   // so `bimax --headless` died in the argument parser ("unknown option") and only BIMAX_HEADLESS=1
   // worked. The flag the launcher documents has to exist.
   .option('--headless', 'Run the engine over the NDJSON stdio protocol for an embedded front-end')
-  .option('--dangerously-skip-permissions', 'Skip all permission prompts');
+  .option('--dangerously-skip-permissions', 'Skip all permission prompts')
+  .option('--sovereign', 'Air-gap mode: external egress fails closed and the shell is denied the network')
+  .option('--sovereign-allow <hosts>', 'Comma-separated on-premises hosts to treat as local under --sovereign');
 
 program.parse(process.argv);
 
 const cliFlags = program.opts();
 const prompt = program.args[0];
+
+// Sovereign mode is resolved BEFORE the container boots, so the very first request any subsystem
+// makes is already governed. Resolving it later would leave a window in which a start-up probe
+// (an update check, a telemetry handshake) leaves the premises before the mode is on — and a
+// window is exactly what an air-gap claim cannot have.
+if (cliFlags.sovereign) {
+  const { setSovereignMode, setSovereignAllowlist } = require('./security/sovereign');
+  setSovereignMode(true);
+  if (typeof cliFlags.sovereignAllow === 'string' && cliFlags.sovereignAllow.trim()) {
+    setSovereignAllowlist(cliFlags.sovereignAllow.split(/[,\s]+/).filter(Boolean));
+  }
+  const { sovereignAllowlist } = require('./security/sovereign');
+  const { ledgerPath } = require('./security/egress.ledger');
+  const allow = sovereignAllowlist();
+  // Printed, not logged: an operator who asked for air-gap mode must be able to SEE that it took
+  // effect, and the boot-log buffer is replayed too late to serve as confirmation.
+  originalConsoleLog(
+    `\n  SOVEREIGN MODE — external egress fails closed.\n` +
+    `  Local: loopback + private LAN${allow.length ? ` + allowlist (${allow.join(', ')})` : ' (no allowlist)'}\n` +
+    `  Shell: network denied at the kernel; refused outright where the OS cannot enforce it\n` +
+    `  Ledger: ${ledgerPath()}   ·   /sovereign report for the audit trail\n`
+  );
+}
 
 // Boot log capture moved to top of file
 

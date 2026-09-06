@@ -12,7 +12,18 @@ export interface ToolDef<TArgs = any> {
   description: string;
   schema: any;
   isDestructive?: boolean;
-  isConcurrencySafe?: boolean;
+  /**
+   * Whether a call may overlap with its siblings in one turn. A boolean declares it for the whole
+   * tool; a PREDICATE decides per call, from the arguments the model actually sent.
+   *
+   * The per-call form is deepseek-harness's `isConcurrencySafe(args)`
+   * (`packages/core/tools/src/schema.ts`) and it exists because the static form is wrong for every
+   * tool with a verb argument: `BashTool` is a barrier as a whole, yet `git status` and `rg foo` are
+   * as safe as `ReadFileTool`, and declaring the tool exclusive makes a turn of five lookups run
+   * five times slower than it needs to. Fail-closed: an omitted predicate, a thrown predicate, or a
+   * non-`true` return all mean exclusive.
+   */
+  isConcurrencySafe?: boolean | ((args: any) => boolean);
   /** The implementation performs a richer, resolved-target Governor check before mutation. */
   approvalHandledInternally?: boolean;
   execute: (args: TArgs, context?: any) => Promise<any>;
@@ -23,7 +34,15 @@ export interface BuiltTool {
   description: string;
   schema: any;
   isDestructive: boolean;
+  /** True only when EVERY call of this tool may overlap; a per-call tool reports false here. */
   isConcurrencySafe: boolean;
+  /**
+   * Whether THIS call may overlap with its siblings. Always prefer it over the static flag.
+   * Optional because `BuiltTool` is a structural type outside callers (bridges, test doubles) also
+   * construct; every tool from {@link buildTool} supplies it, and an absent one means "use the
+   * static flag", which is the pre-existing behaviour.
+   */
+  concurrencySafeFor?: (args: any) => boolean;
   execute: (args: any, context?: any) => Promise<any>;
 }
 
@@ -51,7 +70,16 @@ const TASK_TYPE_MAP: Record<string, string> = {
  */
 export function buildTool(def: ToolDef, governor: IGovernor): BuiltTool {
   const isDestructive = def.isDestructive ?? true;
-  const isConcurrencySafe = def.isConcurrencySafe ?? false;
+  const declaredConcurrency = def.isConcurrencySafe ?? false;
+  // The static flag stays the whole-tool answer (used where no arguments exist yet, e.g. schema
+  // assembly); a predicate tool is only ever safe for a specific call, so it reports false here.
+  const isConcurrencySafe = declaredConcurrency === true;
+  const concurrencySafeFor = (args: any): boolean => {
+    if (typeof declaredConcurrency !== 'function') return declaredConcurrency === true;
+    // Fail closed: a classifier that throws on a malformed argument object must not upgrade the
+    // call to parallel — an exclusive call is always a correct (just slower) answer.
+    try { return declaredConcurrency(args ?? {}) === true; } catch { return false; }
+  };
   const taskType = TASK_TYPE_MAP[def.name] || 'TOOL_EXECUTION';
 
   return {
@@ -60,6 +88,7 @@ export function buildTool(def: ToolDef, governor: IGovernor): BuiltTool {
     schema: def.schema,
     isDestructive,
     isConcurrencySafe,
+    concurrencySafeFor,
     execute: async (args: any, context?: any) => {
       const payload = taskType === 'OS_COMMAND'
         ? { tool: def.name, command: args.command, context, isDestructive }

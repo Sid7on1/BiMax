@@ -219,6 +219,24 @@ export interface UiSnapshot {
     mcp: number;
     graphReady: boolean;
   };
+  /**
+   * The Composer's document corpus. Mirrors `UiSnapshotComposer` in src/protocol/ui.snapshot.ts.
+   *
+   * `lastIngest.skipped` is the field that earns its place in the UI: a user who drops 200 reports
+   * and sees only "191 ingested" proceeds as though all 200 were read, and the unreadable scans are
+   * exactly the ones that change an assessment.
+   */
+  composer?: {
+    session: number;
+    library: number;
+    passages: number;
+    facts: number;
+    lastIngest?: {
+      ingested: number;
+      chunks: number;
+      skipped: { name: string; reason: string }[];
+    };
+  };
 }
 
 // Phase 4 moved every Computer Use owner out of the engine, so `ui_snapshot` no longer carries a

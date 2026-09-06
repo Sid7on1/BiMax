@@ -1,3 +1,6 @@
+// RETIRED — this draws the old procedural two-orbits mark, NOT the current brand icon.
+// It writes the same buildResources/icon.png that app/scripts/make-icon.py now owns, so running
+// it reverts the brand icon. Kept only as the source of the old mark. Use make-icon.py.
 // Render the Bimax app icon (1024×1024 PNG) via system Chrome — a macOS-safe graphite tile with
 // the product's two-orbits/one-core mark. Resolves puppeteer from the repo root's node_modules.
 // Usage: node app/scripts/make-icon.mjs   (from anywhere; paths are script-relative)

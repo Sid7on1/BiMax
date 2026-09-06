@@ -25,6 +25,8 @@ import { requiresBuildVerification } from '../review/verification.scope';
 import { applyImplicitWriteConstraints } from '../tools/write.constraints';
 import { screenshotFromToolResult, buildScreenshotObservation, appendScreenshotObservation, pruneScreenshotObservations, contentToText, isScreenshotObservationMessage } from './multimodal';
 import { canonicalToolArgs } from './tool.args';
+import { checkToolArgs, argsViolationMessage } from '../tools/args.validate';
+import { planToolBatches, runWithConcurrencyLimit, maxParallelToolCalls } from './tool.schedule';
 
 /**
  * Capability verbs that only acquire or inspect a target.
@@ -844,9 +846,21 @@ export class AgentLoop {
 
         const executableCalls = toolCalls;
 
-        // Partition into parallel (safe) and sequential (destructive).
-        const parallel = executableCalls.filter(tc => this.tools.getTool(tc.name)?.isConcurrencySafe);
-        const sequential = executableCalls.filter(tc => !this.tools.getTool(tc.name)?.isConcurrencySafe);
+        // Group into MODEL-ORDERED batches: a maximal run of concurrency-safe calls overlaps inside
+        // a bounded pool, and every other call is its own barrier. This replaces the old
+        // "all safe calls first, then the rest", which reordered the model's intent — a turn of
+        // [EditFileTool(x), ReadFileTool(x)] ran the read FIRST and verified the pre-edit file.
+        // Safety is decided per CALL, so a read-only Bash joins the pool while a mutating one does not.
+        const batches = planToolBatches(executableCalls, tc => {
+          const tool = this.tools.getTool(tc.name);
+          if (!tool) return false; // an unknown tool is answered with an error; never overlap it
+          let parsed: any = {};
+          try { parsed = JSON.parse(tc.args || '{}'); } catch { return false; }
+          // `concurrencySafeFor` is the per-call answer; a registry entry that predates it (or a
+          // test double) still has the static flag, and either way an absent answer means exclusive.
+          if (typeof tool.concurrencySafeFor === 'function') return tool.concurrencySafeFor(parsed);
+          return tool.isConcurrencySafe === true;
+        });
 
         const executeTool = async (tc: { id: string, name: string, args: string, truncated?: boolean }) => {
           if (options?.requireTool && tc.name === options.requireTool) {
@@ -1017,6 +1031,21 @@ export class AgentLoop {
             return finish(`Tool ${tc.name} not found.`, true);
           }
 
+          // Validate the call against the tool's OWN declared schema before it runs. Without this a
+          // near-miss (a missing required property, `"12"` where a number is declared) reached the
+          // implementation and surfaced as an internal TypeError — a message naming our private
+          // variables, which the model cannot act on. Coerce the unambiguous near-misses small
+          // models actually emit, then refuse the rest with the exact violations.
+          const check = checkToolArgs(tool.schema, argsObj);
+          if (check.violations.length > 0) {
+            Logger.warn(`[AgentLoop] ${tc.name} rejected before execution: ${check.violations.join('; ')}`);
+            return finish(argsViolationMessage(tc.name, check.violations), true);
+          }
+          if (check.coercions.length > 0) {
+            Logger.warn(`[AgentLoop] Coerced ${tc.name} arguments: ${check.coercions.join('; ')}`);
+          }
+          argsObj = check.args;
+
           try {
             // Thread the interrupt signal into the tool so a long-running one (e.g. a 30s Bash)
             // is killed the instant esc is hit, rather than running to completion first.
@@ -1041,15 +1070,21 @@ export class AgentLoop {
         };
 
         const resultById = new Map<string, { result: string; isError: boolean }>();
-        const parallelResults = await Promise.all(parallel.map(tc => executeTool(tc)));
-        for (const res of parallelResults) resultById.set(res.id, { result: res.result, isError: res.isError });
         let interrupted = false;
-        for (const tc of sequential) {
-          // Interrupted mid-chain: stop before starting the next tool so esc halts a continuous
-          // run of tool calls promptly, instead of waiting out the whole batch + another model call.
+        const limit = maxParallelToolCalls();
+        for (const batch of batches) {
+          // Interrupted between batches: stop before starting the next one so esc halts a continuous
+          // run of tool calls promptly, instead of waiting out the whole turn + another model call.
           if (signal?.aborted) { interrupted = true; break; }
-          const res = await executeTool(tc);
-          resultById.set(res.id, { result: res.result, isError: res.isError });
+          // Calls already dispatched inside a batch are DRAINED rather than abandoned — an
+          // interrupt stops replenishment, and every un-run call still gets an explicit stub below.
+          const settled = await runWithConcurrencyLimit(
+            batch.calls, limit, tc => executeTool(tc), () => signal?.aborted === true,
+          );
+          for (const res of settled) {
+            if (res) resultById.set(res.id, { result: res.result, isError: res.isError });
+          }
+          if (signal?.aborted) { interrupted = true; break; }
         }
 
         // Push tool results in the SAME order the model emitted the calls, and answer EVERY

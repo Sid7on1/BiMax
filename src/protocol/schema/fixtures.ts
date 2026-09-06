@@ -233,6 +233,19 @@ export const UI_SNAPSHOT_FIXTURE: Required<UiSnapshot> = {
       canCancel: true,
     },
   ],
+  composer: {
+    session: 2,
+    library: 5,
+    passages: 340,
+    facts: 88,
+    lastIngest: {
+      ingested: 2,
+      chunks: 46,
+      // Populated on purpose: "what could not be read" is the field a front-end is most likely to
+      // drop, and the one whose absence lets a user act as though every dropped file was read.
+      skipped: [{ name: 'scan-blurred.tiff', reason: 'no readable text' }],
+    },
+  },
 };
 
 /** The committed artifact both sides test against. Regenerate with `npm run gen:protocol`. */

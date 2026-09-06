@@ -131,6 +131,64 @@ describe('CodeIndex sync', () => {
     expect(retried.pending).toBe(0);
   });
 
+  test('commits in slices and yields, so timer-driven liveness survives a big batch', async () => {
+    // A bounded batch is not a non-blocking one. Committing the whole budget in a single pass held
+    // the event loop for ~15s on a 200-file batch, which stops every timer in the process — and
+    // the engine's protocol heartbeat IS a timer, so the desktop supervisor killed the engine as
+    // "unresponsive" mid-boot and then did it again on every restart. Two properties, together:
+    // rows land WHILE the sync is still running, and a timer gets to run while it does.
+    fs.mkdirSync(path.join(tmp, 'src'));
+    for (let i = 0; i < 6; i += 1) {
+      fs.writeFileSync(path.join(tmp, 'src', `f${i}.ts`), `export const value${i} = ${i};\n`);
+    }
+    const index = new CodeIndex(null, null, {
+      root: tmp,
+      storePath: path.join(tmp, 'sliced.db'),
+      sliceBudgetMs: 0, // yield after every file — the boundary under test, not the 250ms default
+    });
+
+    const midFlight: number[] = [];
+    const ticker = setInterval(() => midFlight.push(index.stats().documents), 1);
+    let result: Awaited<ReturnType<typeof index.sync>>;
+    try {
+      result = await index.sync(100);
+    } finally {
+      clearInterval(ticker);
+    }
+
+    // The timer ran at all (the loop was never held for the whole sync) AND saw a partial index
+    // (the commit is incremental, not one write at the end).
+    expect(midFlight.length).toBeGreaterThan(0);
+    expect(midFlight.some((n) => n > 0 && n < index.stats().documents)).toBe(true);
+
+    // Slicing must not cost correctness: every file lands, and a re-sync is still a no-op.
+    expect(result).toMatchObject({ indexed: 6, pending: 0 });
+    expect((await index.search('value4', 3, undefined, 'lexical'))[0]?.path).toBe('src/f4.ts');
+    expect(await index.sync(100)).toMatchObject({ indexed: 0, pending: 0 });
+  });
+
+  test('a slice that fails to store leaves its files pending and keeps the old rows', async () => {
+    // Per-slice all-or-nothing. `rescanned` drives the stale-row sweep, so a file whose
+    // replacement never committed must not contribute its tag — otherwise the sweep deletes the
+    // rows the failed write was supposed to replace and the file is left indexed by nothing.
+    fs.mkdirSync(path.join(tmp, 'src'));
+    fs.writeFileSync(path.join(tmp, 'src', 'a.ts'), 'export const alpha = 1;\n');
+    const storePath = path.join(tmp, 'partial.db');
+
+    const seeded = new CodeIndex(null, null, { root: tmp, storePath, sliceBudgetMs: 0 });
+    expect(await seeded.sync(100)).toMatchObject({ indexed: 1 });
+    const before = seeded.stats().documents;
+    expect(before).toBeGreaterThan(0);
+
+    // Re-open at a capacity that refuses every write, and change the file so it is a candidate.
+    fs.writeFileSync(path.join(tmp, 'src', 'a.ts'), 'export const alpha = 2;\nexport const beta = 3;\n');
+    const refusing = new CodeIndex(null, null, { root: tmp, storePath, maxVectors: 1, sliceBudgetMs: 0 });
+    const refused = await refusing.sync(100);
+    expect(refused.indexed).toBe(0);
+    expect(refused.pending).toBe(1);
+    expect(refusing.stats().documents).toBe(before); // old rows intact, nothing swept
+  });
+
   test('indexes, then re-indexes only what changed, then forgets deletions', async () => {
     fs.mkdirSync(path.join(tmp, 'src'));
     fs.writeFileSync(path.join(tmp, 'src', 'a.ts'), 'export const keyPool = rotate(creds);\n');

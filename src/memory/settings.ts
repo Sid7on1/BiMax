@@ -34,10 +34,34 @@ export const NVIDIA_RERANK_URL = 'https://ai.api.nvidia.com/v1/retrieval/nvidia/
  * answers 404 page-not-found for /v1/ranking; a custom/self-hosted base keeps the conventional
  * `<base>/ranking` shape.
  */
+/**
+ * Where this provider's reranker lives.
+ *
+ * `<base>/ranking` is NVIDIA's path and NOBODY ELSE'S. Assuming it for every provider is why
+ * reranking was dead on every local deployment: a sovereign install points at Ollama or vLLM, the
+ * request 404s, and `vector.store.ts` swallows the failure and keeps the fused order. Measured on
+ * T2-RAGBench that silence costs Recall@5 0.816 -> 0.695 — reranking is the single most impactful
+ * stage in the pipeline, and it was the one stage an air-gapped site never got.
+ *
+ * vLLM (and Infinity, and TEI) serve the Cohere/Jina dialect at `/rerank`, `/v1/rerank` or
+ * `/v2/rerank`. `BIMAX_RERANK_URL` overrides everything for an endpoint we cannot guess.
+ */
 export function rerankURLFor(baseURL: string): string {
-  return baseURL.includes('integrate.api.nvidia.com')
-    ? NVIDIA_RERANK_URL
-    : `${baseURL.replace(/\/+$/, '')}/ranking`;
+  const explicit = (process.env.BIMAX_RERANK_URL || '').trim();
+  if (explicit) return explicit;
+  const base = baseURL.replace(/\/+$/, '');
+  if (baseURL.includes('integrate.api.nvidia.com')) return NVIDIA_RERANK_URL;
+  // An OpenAI-compatible local server: the rerank route sits beside the other v1 routes.
+  if (/\/v\d+$/.test(base)) return `${base}/rerank`;
+  return `${base}/v1/rerank`;
+}
+
+/**
+ * Which request/response dialect an endpoint speaks. Two exist in the wild and they are not
+ * compatible: sending one shape to the other returns a 422 that reads like a model error.
+ */
+export function rerankDialectFor(url: string): 'nvidia' | 'cohere' {
+  return url.includes('nvidia.com') || url.endsWith('/ranking') ? 'nvidia' : 'cohere';
 }
 
 const ALLOWED_DIMENSIONS = new Set([384, 512, 768, 1024, 2048]);

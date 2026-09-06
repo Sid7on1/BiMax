@@ -41,6 +41,17 @@ const IGNORED_DIRS = new Set([
   '.cache', '.venv', 'venv', '__pycache__', '.pytest_cache', '.mypy_cache', 'out',
 ]);
 
+/**
+ * How long one indexing slice may hold the event loop before yielding.
+ *
+ * Not a throughput tuning knob — a liveness floor. The engine's protocol heartbeat is a 3s timer,
+ * and the desktop supervisor kills an engine that goes 20s without one. 250ms leaves that beat an
+ * order of magnitude of headroom, so a slice cannot swallow one even when the next file costs far
+ * more than the average. The check runs after each file, so the true worst case is this budget
+ * plus one file.
+ */
+const SLICE_BUDGET_MS = 250;
+
 const SOURCE_EXTENSIONS = new Set([
   '.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.py', '.go', '.rs', '.java',
   '.c', '.h', '.cpp', '.hpp', '.cs', '.rb', '.php', '.swift', '.kt',
@@ -66,6 +77,8 @@ export interface CodeIndexOptions {
   expandHit?: HitExpander;
   /** Evaluation/test seam for excluding fixture definitions from the indexed corpus. */
   excludePath?: (relativePath: string) => boolean;
+  /** Override {@link SLICE_BUDGET_MS}. 0 commits and yields after every file. */
+  sliceBudgetMs?: number;
 }
 
 export interface CodeHit {
@@ -113,6 +126,7 @@ export class CodeIndex {
   private readonly contextualHeaders: boolean;
   private readonly expandHit?: HitExpander;
   private readonly excludePath?: (relativePath: string) => boolean;
+  private readonly sliceBudgetMs: number;
   private readonly manifestPath: string;
   private manifest: Manifest | null = null;
   private syncing = false;
@@ -122,6 +136,7 @@ export class CodeIndex {
     this.contextualHeaders = options.contextualHeaders ?? true;
     this.expandHit = options.expandHit;
     this.excludePath = options.excludePath;
+    this.sliceBudgetMs = Math.max(0, options.sliceBudgetMs ?? SLICE_BUDGET_MS);
     const storePath = options.storePath ?? path.join(this.root, '.breakglass/memory/code-index.db');
     // Per-STORE manifest: deriving it from the directory would make two indexes over the same
     // root (a benchmark's lexical/hybrid pair, or a future second space) share one manifest and
@@ -172,30 +187,64 @@ export class CodeIndex {
       let indexed = 0;
 
       if (batch.length) {
-        const docs: { id: string; text: string; tags: string[] }[] = [];
+        // Bounded is not the same as non-blocking. `await fs.readFile` yields; chunking and the
+        // FTS commit that follow it are synchronous CPU, so one pass over the whole budget held
+        // the event loop for ~15s on a 200-file batch (measured 2026-09-04: ~76ms/file). That
+        // stops every timer in the process, and the protocol heartbeat is a timer — 20s of
+        // silence is exactly what the desktop supervisor kills an engine for. The batch is still
+        // bounded by `budgetFiles`; it is now also SLICED, so the loop comes up for air on a
+        // wall-clock budget rather than a fixed file count, because per-file cost varies by an
+        // order of magnitude with file size and disk state.
         const rescanned = new Set<string>();
+        const currentIds = new Set<string>();
         const nextManifest: Manifest = {};
+        let sliceFiles: { rel: string; m: number; s: number }[] = [];
+        let sliceTags = new Set<string>();
+        let sliceDocs: { id: string; text: string; tags: string[] }[] = [];
+        let sliceStart = Date.now();
+
+        // Commit one slice, then hand the loop back so pending timers (the heartbeat) can run.
+        // A slice that fails to store contributes nothing — not its manifest entries and not its
+        // file tags, so the stale-row sweep below can never delete rows for a file whose
+        // replacement never committed. That is the same all-or-nothing rule the single-batch
+        // version had, applied per slice.
+        const flushSlice = async (): Promise<void> => {
+          if (sliceFiles.length) {
+            if (await this.store.storeDocuments(sliceDocs)) {
+              for (const d of sliceDocs) currentIds.add(d.id);
+              for (const t of sliceTags) rescanned.add(t);
+              for (const f of sliceFiles) nextManifest[f.rel] = { m: f.m, s: f.s };
+            }
+          }
+          sliceFiles = [];
+          sliceTags = new Set();
+          sliceDocs = [];
+          await new Promise<void>((resolve) => setImmediate(resolve));
+          sliceStart = Date.now();
+        };
+
         for (const file of batch) {
           try {
             const source = await fs.readFile(file.abs, 'utf-8');
-            rescanned.add(fileTag(file.rel));
+            sliceTags.add(fileTag(file.rel));
             for (const chunk of chunkSource(file.rel, source, this.contextualHeaders)) {
-              docs.push({
+              sliceDocs.push({
                 id: chunk.id,
                 text: chunk.text,
                 tags: ['code', fileTag(file.rel), `sym:${chunk.symbol}`, `lines:${chunk.startLine}-${chunk.endLine}`],
               });
             }
-            nextManifest[file.rel] = { m: file.mtimeMs, s: file.size };
+            sliceFiles.push({ rel: file.rel, m: file.mtimeMs, s: file.size });
           } catch {
             // Unreadable mid-sync (deleted, permissions): skip; next sync reconsiders it.
           }
+          if (Date.now() - sliceStart >= this.sliceBudgetMs) await flushSlice();
         }
-        const stored = await this.store.storeDocuments(docs);
-        if (stored) {
+        await flushSlice();
+
+        if (Object.keys(nextManifest).length) {
           // Only after the new rows commit, remove stale line windows from older file versions.
           // A disabled/full store therefore retains its last good index and leaves files pending.
-          const currentIds = new Set(docs.map((d) => d.id));
           await this.store.deleteWhere((d) => (
             d.tags.includes('code') && d.tags.some((t) => rescanned.has(t)) && !currentIds.has(d.id)
           ));

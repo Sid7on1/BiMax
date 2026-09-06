@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer, webUtils } from 'electron';
 import type { WindowChromeState } from '../shared/window.chrome';
 
 /**
@@ -52,6 +52,17 @@ const api = {
   },
   pickFolder: (): Promise<string | null> => ipcRenderer.invoke('app:pick-folder'),
   pickFiles: (): Promise<string[]> => ipcRenderer.invoke('app:pick-files'),
+  /**
+   * The absolute path of a dropped File.
+   *
+   * `File.path` was removed in Electron 32, so a drag-and-drop in the renderer yields a File object
+   * with no way back to disk. `webUtils.getPathForFile` is the replacement and it is main-world
+   * only, which is why it has to be bridged here rather than called from the composer. Without it a
+   * dropped inspection report cannot be located, let alone ingested.
+   */
+  pathForFile: (file: File): string => {
+    try { return webUtils.getPathForFile(file); } catch { return ''; }
+  },
   restartEngine: (): Promise<string> => ipcRenderer.invoke('engine:restart'),
   providers: {
     /** What this machine can run locally, and what is merely downloaded. */
@@ -104,6 +115,33 @@ const api = {
       const h = (): void => cb();
       ipcRenderer.on('files:changed', h);
       return () => ipcRenderer.removeListener('files:changed', h);
+    },
+  },
+  /**
+   * The embedded research browser. Every page lives in a BrowserView owned by main; the renderer
+   * only ever describes WHERE it should be painted and asks for navigation. It never receives a
+   * WebContents handle, so a compromised renderer cannot script an arbitrary page.
+   */
+  embeddedBrowser: {
+    state: (): Promise<unknown> => ipcRenderer.invoke('browser:state'),
+    newTab: (url?: string): Promise<unknown> => ipcRenderer.invoke('browser:newTab', url),
+    selectTab: (id: string): Promise<unknown> => ipcRenderer.invoke('browser:selectTab', id),
+    closeTab: (id: string): Promise<unknown> => ipcRenderer.invoke('browser:closeTab', id),
+    navigate: (url: string): Promise<unknown> => ipcRenderer.invoke('browser:navigate', url),
+    back: (): Promise<unknown> => ipcRenderer.invoke('browser:back'),
+    forward: (): Promise<unknown> => ipcRenderer.invoke('browser:forward'),
+    reload: (): Promise<unknown> => ipcRenderer.invoke('browser:reload'),
+    setBounds: (bounds: { x: number; y: number; width: number; height: number }): void =>
+      ipcRenderer.send('browser:bounds', bounds),
+    setVisible: (visible: boolean): void => ipcRenderer.send('browser:visible', visible),
+    /** Domain in, verdict out. The password itself never crosses into the renderer. */
+    credentials: {
+      has: (domain: string): Promise<{ exists: boolean; username?: string }> =>
+        ipcRenderer.invoke('browser:credentials:has', domain),
+      store: (domain: string, username: string, secret: string): Promise<boolean> =>
+        ipcRenderer.invoke('browser:credentials:store', domain, username, secret),
+      autofill: (domain: string): Promise<{ ok: boolean; summary: string }> =>
+        ipcRenderer.invoke('browser:credentials:autofill', domain),
     },
   },
   sessionsMeta: (): Promise<unknown> => ipcRenderer.invoke('sessions:meta'),

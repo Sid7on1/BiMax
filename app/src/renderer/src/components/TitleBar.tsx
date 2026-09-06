@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  PanelLeft, PanelRight, FolderOpen, GitBranch, Palette, Sun, Moon, Monitor,
+  PanelLeft, PanelRight, FolderOpen, GitBranch, Palette, Sun, Moon, Monitor, Globe,
 } from 'lucide-react';
 import { cn } from '../lib/cn';
 import type { GitStatusResult } from '../global';
@@ -18,7 +18,7 @@ import { APPEARANCES, Appearance } from '../appearance';
  */
 export function TitleBar({
   project, protocolMismatch, gitStatus, sidebarOpen, inspectorOpen,
-  onToggleSidebar, onPeekSidebar, onToggleInspector, onOpenChanges, appearance, onAppearance,
+  onToggleSidebar, onPeekSidebar, onToggleInspector, onOpenChanges, browserOpen, onToggleBrowser, appearance, onAppearance,
 }: {
   project: string;
   protocolMismatch: number | null;
@@ -30,6 +30,10 @@ export function TitleBar({
   onPeekSidebar?: () => void;
   onToggleInspector: () => void;
   onOpenChanges: () => void;
+  /** Whether the embedded research browser lane is the one on screen. */
+  browserOpen?: boolean;
+  /** Toggle the browser lane. Omitted in surfaces that do not host it (the design preview). */
+  onToggleBrowser?: () => void;
   appearance: Appearance;
   onAppearance: (appearance: Appearance) => void;
 }): React.ReactElement {
@@ -80,6 +84,19 @@ export function TitleBar({
         <FolderOpen size={13} />
         <span className="truncate">{projectName || 'Open Project…'}</span>
       </button>
+      {onToggleBrowser && (
+        <button
+          title={browserOpen ? 'Back to chat' : 'Open the research browser'}
+          aria-pressed={browserOpen}
+          onClick={onToggleBrowser}
+          className={`no-drag flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg px-2 py-1 focus-visible:outline-2 focus-visible:outline-ember ${
+            browserOpen ? 'bg-hover text-ink' : 'text-dim hover:bg-hover hover:text-ink'
+          }`}
+        >
+          <Globe size={13} />
+          <span>Browser</span>
+        </button>
+      )}
       {gitStatus && (
         <button
           title={gitStatus.files.length

@@ -36,6 +36,10 @@ const CORE_TOOLS = new Set<string>([
   // open. That is the exact failure DocumentTool was built to remove, and a tool the model never
   // sees removes nothing.
   'DocumentTool',
+  // ReadDocumentTool is the input half of DocumentTool and is deferred for the same reason it
+  // must not be: a model that cannot see a PDF reader reaches for ReadFileTool instead, which
+  // returns binary noise and then gets summarised as if it were the document.
+  'ReadDocumentTool',
 ]);
 
 /**

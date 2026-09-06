@@ -17,6 +17,7 @@ import {
   CrashJournal, redactSecrets, appendRecord, parseJournal, serializeJournal, MAX_RECORDS, MAX_LOG_TAIL_CHARS,
 } from '../main/supervisor/journal';
 import { CrashRecord, SupervisorStatus } from '../main/supervisor/types';
+import type { EnginePhase } from '../main/supervisor/types';
 
 // ---------------------------------------------------------------------------------------------
 // Harness: fake clock/timers/spawn — every test drives time explicitly.
@@ -92,7 +93,7 @@ interface Harness {
   notices: Array<{ level: string; text: string }>;
   journalText: () => string | null;
   lastChild: () => FakeChild;
-  phase: () => string;
+  phase: () => EnginePhase;
 }
 
 const FAST: SupervisorTimeouts = {
@@ -497,6 +498,53 @@ describe('message safety while the engine is down', () => {
     expect(child.written[0]).toContain('"ping"');
     expect(child.written.every((l) => !l.includes('dangerous mutation'))).toBe(true);
     expect(h.notices.filter((n) => n.level === 'warn')).toHaveLength(2);
+  });
+
+  test('a correlated read is answered with the real reason once no engine is coming', () => {
+    // Measured live 2026-09-04: with the engine dead at `failed`, `catalogGet` matched no branch
+    // and was dropped behind a main-process notice. The renderer sat on its promise for the full
+    // 30s, then rendered its own timeout copy — "check the provider key or endpoint" — while the
+    // supervisor knew the engine had been killed five times and that the key was never involved.
+    // A dropped request is the one outcome a correlated read must never get.
+    const h = makeHarness();
+    h.sup.openProject('/proj');
+    for (let i = 0; i < TIGHT_POLICY.maxAttempts; i++) {
+      h.lastChild().ready();
+      h.lastChild().exit(1);
+      h.clock.advance(TIGHT_POLICY.maxDelayMs + 100);
+    }
+    h.lastChild().ready();
+    h.lastChild().exit(1);
+    expect(h.phase()).toBe('failed');
+
+    h.messages.length = 0;
+    h.sup.sendFromRenderer({ t: 'catalogGet', id: 7, refresh: true });
+    h.sup.sendFromRenderer({ t: 'configGet', id: 8 });
+
+    const catalog = h.messages.find((m: any) => m.t === 'catalogResult') as any;
+    expect(catalog.id).toBe(7);
+    expect(catalog.models).toEqual([]);
+    expect(catalog.error).toContain('Engine failed to start');
+    expect(catalog.error).toMatch(/provider key/i); // says the key is NOT the cause
+    expect(h.messages.find((m: any) => m.t === 'configResult')).toMatchObject({ id: 8, config: {} });
+  });
+
+  test('a correlated read is still queued while an engine is on its way', () => {
+    // The rule is "answer when nothing will", not "stop queueing". During startup a real answer
+    // is seconds away and is strictly better than an immediate empty one, so configGet still
+    // rides the replay queue and catalogGet still waits for the child rather than being faked.
+    const h = makeHarness();
+    h.sup.openProject('/proj');
+    expect(isStartupPhase(h.phase())).toBe(true);
+
+    h.messages.length = 0;
+    h.sup.sendFromRenderer({ t: 'configGet', id: 3 });
+    h.sup.sendFromRenderer({ t: 'catalogGet', id: 4 });
+    expect(h.messages).toHaveLength(0);
+
+    const child = h.lastChild();
+    child.ready();
+    expect(child.written.some((l) => l.includes('"configGet"'))).toBe(true);
   });
 
   test('isSafeToReplay allows only side-effect-free reads', () => {

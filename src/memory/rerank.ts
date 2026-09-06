@@ -31,7 +31,7 @@
  */
 
 import { Logger } from '../utils';
-import { DEFAULT_RERANK_MODEL } from './settings';
+import { DEFAULT_RERANK_MODEL, rerankDialectFor } from './settings';
 
 /** `rerankURL` overrides the endpoint when the reranker lives elsewhere than <base>/ranking —
  * on NVIDIA it does: the retrieval host, not the chat host (see settings.rerankURLFor). */
@@ -114,46 +114,71 @@ export class RemoteReranker {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), this.timeoutMs);
     try {
-      const url = credentials.rerankURL ?? `${trimSlash(credentials.baseURL)}/ranking`;
+      const url = credentials.rerankURL ?? `${trimSlash(credentials.baseURL)}/v1/rerank`;
+      const dialect = rerankDialectFor(url);
+      // Two incompatible dialects exist. NVIDIA's `/ranking` takes {query:{text}, passages:[{text}]}
+      // and answers {rankings:[{index, logit}]}; everyone else (vLLM, Infinity, TEI, Cohere, Jina)
+      // takes {query, documents:[string]} and answers {results:[{index, relevance_score}]}. Sending
+      // the wrong one returns a 422 that reads like a bad model name, which is how this stayed
+      // broken: the error blamed the model rather than the shape.
+      const body = dialect === 'nvidia'
+        ? {
+            model: this.model,
+            query: { text: query },
+            passages: window.map((c) => ({ text: c.text || ' ' })),
+            // Default is NONE, which errors on an over-length passage rather than trimming it —
+            // and chunks are exactly the thing most likely to sit near the limit.
+            truncate: 'END',
+          }
+        : {
+            model: this.model,
+            query,
+            documents: window.map((c) => c.text || ' '),
+            top_n: window.length,
+          };
+
       const response = await this.transport(url, {
         headers: {
           'content-type': 'application/json',
           authorization: `Bearer ${credentials.apiKey}`,
         },
-        body: JSON.stringify({
-          model: this.model,
-          // Note the shape: `{ text }` objects, not bare strings. This endpoint is NOT the
-          // OpenAI-compatible one, and sending strings returns a 422 that reads like a model error.
-          query: { text: query },
-          passages: window.map((c) => ({ text: c.text || ' ' })),
-          // Default is NONE, which errors on an over-length passage rather than trimming it — and
-          // chunks are exactly the thing most likely to sit near the limit.
-          truncate: 'END',
-        }),
+        body: JSON.stringify(body),
         signal: controller.signal,
       });
 
       if (!response.ok) {
         if ([400, 401, 403, 404, 422].includes(response.status)) {
-          this.unavailable = `provider returned ${response.status} for ${this.model}`;
-          Logger.warn(`[rerank] disabled: ${this.unavailable}`);
+          this.unavailable = `${url} returned ${response.status} for ${this.model}`;
+          // Named loudly, with the URL. The previous message said only the status and the model,
+          // so an operator whose sovereign install was silently running WITHOUT its most impactful
+          // retrieval stage had no way to see which endpoint had been tried.
+          Logger.warn(
+            `[rerank] DISABLED — ${this.unavailable}. Retrieval keeps the fused order, which costs `
+            + `roughly Recall@5 0.82 -> 0.70. Set BIMAX_RERANK_URL to a reranking endpoint `
+            + `(vLLM/Infinity/TEI serve one at /v1/rerank) or BIMAX_RERANK_MODEL to a served model.`,
+          );
         }
         return null;
       }
 
-      const payload = (await response.json()) as { rankings?: { index?: number; logit?: number }[] };
-      const rankings = payload?.rankings;
-      if (!Array.isArray(rankings) || !rankings.length) return null;
+      const payload = (await response.json()) as {
+        rankings?: { index?: number; logit?: number }[];
+        results?: { index?: number; relevance_score?: number }[];
+      };
+      const rows: { index?: number; score?: number }[] = dialect === 'nvidia'
+        ? (payload?.rankings ?? []).map((r) => ({ index: r.index, score: r.logit }))
+        : (payload?.results ?? []).map((r) => ({ index: r.index, score: r.relevance_score }));
+      if (!Array.isArray(rows) || !rows.length) return null;
 
       const out: RerankedHit[] = [];
-      for (const row of rankings) {
+      for (const row of rows) {
         // `index` points into the passage array we sent. A row whose index is out of range means we
         // are misreading the response; dropping it silently would reorder by accident.
         const candidate = typeof row.index === 'number' ? window[row.index] : undefined;
-        if (!candidate || typeof row.logit !== 'number') return null;
-        out.push({ id: candidate.id, logit: row.logit });
+        if (!candidate || typeof row.score !== 'number') return null;
+        out.push({ id: candidate.id, logit: row.score });
       }
-      // The API documents descending order, but sorting locally costs nothing and makes this
+      // Both APIs document descending order, but sorting locally costs nothing and makes this
       // correct even if that ever changes — a silently mis-ordered rerank is worse than none.
       out.sort((a, b) => b.logit - a.logit);
       return out;

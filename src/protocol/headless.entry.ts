@@ -1,3 +1,7 @@
+// The egress perimeter must go up before any module here opens a socket — see
+// security/egress.perimeter.ts for why the guard lives beneath the code rather than beside it.
+import { installEgressPerimeter } from '../security/egress.perimeter';
+installEgressPerimeter();
 import { cliEvents, MessageEntry } from '../cli/events';
 import { goalEvents } from '../memory/goal.manager';
 import { buildPersonas } from '../cli/personas/factory';
@@ -563,15 +567,23 @@ export async function startHeadless(container: any, config: any): Promise<void> 
   // menu the front-end renders; selecting an option dispatches the matching slash command. Both are
   // gated on config.onboardingComplete so we never nag twice. Off entirely outside a codebase, so a
   // scratch dir (~ / Desktop) never indexes hundreds of thousands of junk nodes.
-  const uiMenu = (title: string, options: any[]): MessageEntry => ({
-    id: `ui-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-    role: 'system',
-    uiComponent: 'menu',
-    payload: { title, options },
-    content: '',
-    timestamp: new Date(),
-  });
+  // The payload carries the SAME id as the message so both front-ends correlate a selection the
+  // same way (the desktop replies with the message id, the TUI with payload.id). These onboarding
+  // menus have no engine-side onSelect: every option value is a slash command the front-end's
+  // menuSelect dispatches directly.
+  const uiMenu = (title: string, options: any[]): MessageEntry => {
+    const id = `ui-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    return {
+      id,
+      role: 'system',
+      uiComponent: 'menu',
+      payload: { id, title, options },
+      content: '',
+      timestamp: new Date(),
+    };
+  };
   let aiOffered = false;
+  let mapOffered = false;
   const onboardingDone = () => {
     try {
       return !!getConfig().onboardingComplete;
@@ -606,8 +618,8 @@ export async function startHeadless(container: any, config: any): Promise<void> 
       cliEvents.emit(
         'message',
         uiMenu('Add the AI graph? (semantic layer: purpose + risk per symbol)', [
-          { label: '[ Build AI graph ]', value: '/index-ai force', desc: 'Makes API calls — richer impact analysis' },
-          { label: '[ Skip ]', value: '', desc: 'You can run /index-ai later' },
+          { label: 'Build AI graph', value: '/index-ai force', desc: 'Makes API calls — richer impact analysis' },
+          { label: 'Skip', value: '', desc: 'You can run /index-ai later' },
         ]),
       );
     }
@@ -637,7 +649,23 @@ export async function startHeadless(container: any, config: any): Promise<void> 
     } else if (!onboardingDone()) {
       // autoIndex off → ask before building (the original onboarding menu).
       setTimeout(() => {
-        if (nodeCount() !== 0 || onboardingDone()) return;
+        if (mapOffered || nodeCount() !== 0 || onboardingDone()) return;
+        // Record that the question was ASKED, before asking it — exactly what the AI-graph offer
+        // above does. Without this the prompt had no memory at all: "Skip" carries `value: ''`,
+        // which sends nothing to the engine, so declining recorded nothing and the next engine
+        // process asked again. On a memory-constrained box that is every session, because
+        // `resources.ts` sets BIMAX_AUTO_INDEX=0 under the `minimal` profile and this branch is
+        // the one that runs. Reported live: the same repo, the same chat tab, asked over and over.
+        //
+        // The file comment two blocks up already states the intent — "gated on
+        // config.onboardingComplete so we never nag twice" — and it was true of the AI-graph offer
+        // and never of this one. `mapOffered` additionally covers repeats inside one process.
+        mapOffered = true;
+        try {
+          saveConfig({ onboardingComplete: true } as any);
+        } catch {
+          /* best-effort — an unwritable project dir must not block the prompt itself */
+        }
         cliEvents.emit(
           'message',
           // Labels are DATA, not presentation. These carried literal square brackets —

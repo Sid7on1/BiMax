@@ -1,3 +1,7 @@
+// The egress perimeter must go up before any module here opens a socket — see
+// security/egress.perimeter.ts for why the guard lives beneath the code rather than beside it.
+import { installEgressPerimeter } from '../security/egress.perimeter';
+installEgressPerimeter();
 import { workerData, parentPort } from 'worker_threads';
 import * as path from 'path';
 import * as os from 'os';

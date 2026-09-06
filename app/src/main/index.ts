@@ -18,6 +18,8 @@ import { discoverLocalModels } from './local.models';
 import { listDir, readFilePreview, writeFileContent, readSessionMeta, watchProject, searchFiles } from './files';
 import { createPty, writePty, resizePty, killPty, killAllPtys } from './pty';
 import { pickInitialProject, loadSettings, recordProject, recentProjects, isRealProject } from './settings';
+import { embeddedBrowserManager, type ViewBounds } from './embedded.browser.manager';
+import { CredentialVaultBridge } from './credential.vault.bridge';
 import {
   REQUIRED_WEB_PREFERENCES, RENDERER_CSP, InvalidPayloadError,
   isTrustedSender, isAllowedNavigation, isAllowedPermission,
@@ -469,6 +471,10 @@ app.whenReady().then(async () => {
   }
   supervisor = createSupervisor();
   createWindow();
+  // The embedded browser attaches its BrowserViews to this window. A BrowserView is an OS-level
+  // overlay painted ABOVE the renderer, not a DOM node, so it needs the real BrowserWindow and it
+  // needs to be told where the React layout wants it (see 'browser:bounds' below).
+  if (win) embeddedBrowserManager.setWindow(win);
 
   // Launch project: an env override or the last valid saved project — NEVER $HOME. When null, the
   // renderer shows the project-first welcome and we don't boot an engine in the wrong place (P0.1).
@@ -477,6 +483,79 @@ app.whenReady().then(async () => {
   // Protocol messages from the renderer flow through the supervisor: delivered when the engine is
   // interactive, queued when safe to replay, rejected with a visible notice otherwise. The frame
   // shape is checked here so malformed junk never reaches the engine's parser.
+  // ---- Embedded research browser -------------------------------------------------------------
+  // Every channel goes through secureHandle/secureOn, so an untrusted frame gets the fallback
+  // rather than a live browser. Payloads are validated here because the manager trusts its caller.
+  const asString = (value: unknown, field: string): string => {
+    if (typeof value !== 'string' || !value) throw new InvalidPayloadError(`${field} must be text`);
+    return value;
+  };
+  const asBounds = (value: unknown): ViewBounds => {
+    const b = value as Record<string, unknown> | null;
+    if (!b || typeof b !== 'object') throw new InvalidPayloadError('bounds must be an object');
+    for (const key of ['x', 'y', 'width', 'height']) {
+      if (!Number.isFinite(b[key] as number)) throw new InvalidPayloadError(`bounds.${key} must be a number`);
+    }
+    return { x: Math.round(b.x as number), y: Math.round(b.y as number),
+             width: Math.round(b.width as number), height: Math.round(b.height as number) };
+  };
+  const browserState = (): { tabs: unknown[]; activeTabId: string | null } =>
+    ({ tabs: embeddedBrowserManager.getTabs(), activeTabId: embeddedBrowserManager.getActiveTabId() });
+
+  secureHandle('browser:state', { tabs: [], activeTabId: null }, () => browserState());
+  secureHandle('browser:newTab', { tabs: [], activeTabId: null }, (_e, url: unknown) => {
+    embeddedBrowserManager.createTab(typeof url === 'string' && url ? url : undefined);
+    return browserState();
+  });
+  secureHandle('browser:selectTab', { tabs: [], activeTabId: null }, (_e, id: unknown) => {
+    embeddedBrowserManager.selectTab(asString(id, 'tab id'));
+    return browserState();
+  });
+  secureHandle('browser:closeTab', { tabs: [], activeTabId: null }, (_e, id: unknown) => {
+    embeddedBrowserManager.closeTab(asString(id, 'tab id'));
+    return browserState();
+  });
+  secureHandle('browser:navigate', { tabs: [], activeTabId: null }, (_e, url: unknown) => {
+    embeddedBrowserManager.navigate(asString(url, 'url'));
+    return browserState();
+  });
+  for (const verb of ['back', 'forward', 'reload'] as const) {
+    secureHandle(`browser:${verb}`, { tabs: [], activeTabId: null }, () => {
+      if (verb === 'back') embeddedBrowserManager.goBack();
+      else if (verb === 'forward') embeddedBrowserManager.goForward();
+      else embeddedBrowserManager.reload();
+      return browserState();
+    });
+  }
+  // Layout is renderer-owned: React measures the container and tells main where to paint. Sending
+  // bounds and visibility separately is what lets the lane hide the view instantly on a tab switch
+  // without tearing down the page.
+  /**
+   * Zero-knowledge autofill for the browser lane.
+   *
+   * The secret never crosses this boundary in either direction: the renderer sends a DOMAIN and
+   * main types the stored password straight into the page with CDP `Input.insertText`. `has` is the
+   * only read, and it answers with the username and a boolean — never the secret — so a UI can show
+   * "signed in as …" without the value ever entering the renderer, the model's context, or a
+   * transcript. That property is the entire reason this bridge exists, so the channels are shaped
+   * to make leaking it impossible rather than merely discouraged.
+   */
+  secureHandle('browser:credentials:has', { exists: false }, (_e, domain: unknown) =>
+    CredentialVaultBridge.hasCredentials(asString(domain, 'domain')));
+  secureHandle('browser:credentials:store', false, (_e, domain: unknown, username: unknown, secret: unknown) => {
+    CredentialVaultBridge.storeCredential(asString(domain, 'domain'), asString(username, 'username'), asString(secret, 'secret'));
+    return true;
+  });
+  secureHandle('browser:credentials:autofill', { ok: false, summary: 'no active page' },
+    async (_e, domain: unknown) => {
+      const contents = embeddedBrowserManager.getActiveWebContents();
+      if (!contents) return { ok: false, summary: 'no active page' };
+      return CredentialVaultBridge.autofill(contents, asString(domain, 'domain'));
+    });
+
+  secureOn('browser:bounds', (_e, bounds: unknown) => embeddedBrowserManager.setBounds(asBounds(bounds)));
+  secureOn('browser:visible', (_e, visible: unknown) => embeddedBrowserManager.setVisible(visible === true));
+
   secureOn('engine:send', (_e, msg: unknown) => {
     if (!isProtocolFrame(msg)) throw new InvalidPayloadError('not a protocol frame');
     supervisor?.sendFromRenderer(msg);

@@ -9,7 +9,7 @@ const CODEBASE_MARKERS = ['.git', 'package.json', 'Cargo.toml', 'go.mod', 'pypro
 
 export const createCdTool = (governor: IGovernor) => buildTool({
   name: 'ChangeDirectoryTool',
-  description: `Changes the working directory for this session. Use when the user says "cd" or when you need to work from a different location. After changing, the new CWD persists for all subsequent tool calls.`,
+  description: `Changes the working directory for this session. Use ONLY when the user asks to move to a different location. You already start in the project directory (see CWD in the environment section) and every other tool takes relative or absolute paths — never cd into the current directory, into "." or into a subdirectory just to work there.`,
   isDestructive: false,
   isConcurrencySafe: false,
   schema: {
@@ -31,6 +31,13 @@ export const createCdTool = (governor: IGovernor) => buildTool({
     const stats = fs.statSync(absolutePath);
     if (!stats.isDirectory()) {
       throw new Error(`Path is not a directory: ${absolutePath}`);
+    }
+
+    // Already there: answer and stop. The engine chdir()s to the user's project at boot (BIMAX_CWD),
+    // so a model that opens a task with `cd <the project>` was burning a turn AND re-emitting
+    // cwd_changed, which makes the front-end reload the project graph / map panel for no change.
+    if (absolutePath === path.resolve(currentCwd)) {
+      return `Already in ${absolutePath} — no change. Use paths directly; you do not need to cd first.`;
     }
 
     // Isolate state by mutating the agent context, not the global process

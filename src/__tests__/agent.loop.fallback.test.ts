@@ -142,7 +142,12 @@ describe('AgentLoop — fallback model chain', () => {
       expect(applied.map(a => a.model)).not.toContain('known-dead-model');
     });
 
-    it('skips a fallback the catalog bars from automatic selection', async () => {
+    it('HONORS a configured fallback the catalog bars from automatic selection', async () => {
+      // This asserted the opposite until 2026-09-02, and the assertion was the bug. `avoidAutoSelect`
+      // gates the models the machine may pick BY ITSELF; BIMAX_FALLBACK_MODEL is a value the user
+      // set. Letting the flag override it discarded a configured `nemotron-3.5-lightning-30b-a3b`
+      // (6.7s, calls tools) for carrying the note "task probe pending", and derived a replacement
+      // the provider does not serve — turning a working fallback into a dead turn.
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { MODEL_CATALOG } = require('../cli/models') as typeof import('../cli/models');
       const avoided = MODEL_CATALOG.find(m => m.avoidAutoSelect)!.value;
@@ -153,16 +158,21 @@ describe('AgentLoop — fallback model chain', () => {
       const loop = new AgentLoop(llm, new ToolRegistry(), null as any);
       for await (const _ of loop.execute([{ role: 'user', content: 'go' }], 'sys', { maxIterations: 10 })) { /* drain */ }
 
-      expect(applied.map(a => a.model)).not.toContain(avoided);
+      expect(applied.map(a => a.model)).toContain(avoided);
     });
 
-    it('derives a served model when the configured fallback is unusable', async () => {
+    it('derives a served model when the configured fallback is disqualified BY EVIDENCE', async () => {
+      // The other half of the split: once the provider has actually rejected the configured value,
+      // it is disqualified and derivation takes over — and derivation DOES respect the catalogue
+      // bar, so it must not land on the avoided model even though the provider serves it.
       // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const { MODEL_CATALOG } = require('../cli/models') as typeof import('../cli/models');
+      const { MODEL_CATALOG, autoSelectCandidates } = require('../cli/models') as typeof import('../cli/models');
       const avoided = MODEL_CATALOG.find(m => m.avoidAutoSelect)!.value;
-      const good = MODEL_CATALOG.find(m => m.tier === 'coding' && !m.avoidAutoSelect)!.value;
+      // Ask the policy which model it would pick, rather than restating the rule with a different one.
+      const good = autoSelectCandidates('coding', MODEL_CATALOG.map(m => m.value))[0];
       process.env.BIMAX_FALLBACK_MODEL = avoided;
       const { llm, applied } = makeFailoverLlm(hardFail);
+      (llm as any).isUnservable = (id: string) => id === avoided;
       (llm as any).listProviderModels = async () => [avoided, good];
 
       const loop = new AgentLoop(llm, new ToolRegistry(), null as any);

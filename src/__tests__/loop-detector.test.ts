@@ -82,4 +82,32 @@ describe('LoopDetector — visual provider progress', () => {
     expect(d.record('HostVisionTool', args, result('same-frame'))).toBeNull();
     expect(d.record('HostVisionTool', args, result('same-frame'))?.type).toBe('no_progress_poll');
   });
+
+  it('is not defeated by a volatile field in an otherwise identical result', () => {
+    // The screenshot path changes every call while the frame does not — which is what a real visual
+    // tool emits. Hashing the WHOLE result made this poll invisible: the two guards cancelled out
+    // (frameHash suppresses generic_repeat, and no_progress_poll never matched because the path
+    // differed), so a vision tool stuck on one frame was caught by nothing. Explicit counters here
+    // rather than Date.now(), which made the test above pass or fail on millisecond boundaries.
+    const d = new LoopDetector();
+    const args = '{"action":"observe"}';
+    const withPath = (n: number) =>
+      JSON.stringify({ ok: true, action: 'click', frameHash: 'frozen', screenshot: `/tmp/frame-${n}.png` });
+
+    expect(d.record('HostVisionTool', args, withPath(1))).toBeNull();
+    expect(d.record('HostVisionTool', args, withPath(2))).toBeNull();
+    expect(d.record('HostVisionTool', args, withPath(3))?.type).toBe('no_progress_poll');
+  });
+
+  it('still allows progress when the frame changes but the path does not', () => {
+    // The mirror image: identical result envelope, moving frame. Must stay silent.
+    const d = new LoopDetector();
+    const args = '{"action":"observe"}';
+    const withFrame = (n: number) =>
+      JSON.stringify({ ok: true, action: 'click', frameHash: `frame-${n}`, screenshot: '/tmp/fixed.png' });
+
+    for (let i = 0; i < 20; i++) {
+      expect(d.record('HostVisionTool', args, withFrame(i))).toBeNull();
+    }
+  });
 });

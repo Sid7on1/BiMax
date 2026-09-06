@@ -25,6 +25,8 @@ import './speculate';
 import './evolve';
 import './plugins';
 import './security';
+import './sovereign';
+import './route';
 import './diagnostics';
 import './retrieval';
 import './output';

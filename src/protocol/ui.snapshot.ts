@@ -122,6 +122,31 @@ export interface UiSnapshotTask {
   canCancel: boolean;
 }
 
+/**
+ * The Composer's corpus, mirrored so a front-end can show what it is actually working from.
+ *
+ * `skipped` is the field that earns its place: a user who drops 200 inspection reports and is told
+ * only "191 ingested" will proceed as though all 200 were read, and the nine unreadable scans are
+ * precisely the ones that change an assessment. Silence about a failed attachment is the worst
+ * available outcome, so the reasons ride all the way to the UI.
+ */
+export interface UiSnapshotComposer {
+  /** Documents dropped for the task at hand. */
+  session: number;
+  /** Documents promoted into the standing knowledge library. */
+  library: number;
+  /** Indexed passages across both corpora. */
+  passages: number;
+  /** Measured values extracted from tables, queryable numerically. */
+  facts: number;
+  /** Outcome of the most recent ingest, including what could not be read and why. */
+  lastIngest?: {
+    ingested: number;
+    chunks: number;
+    skipped: { name: string; reason: string }[];
+  };
+}
+
 export interface UiSnapshot {
   models: { coding: string; lite: string; vision?: string };
   goalCount: number;
@@ -153,6 +178,8 @@ export interface UiSnapshot {
   tools?: UiSnapshotTools;
   // v3 additive: task workspaces (live + recent terminal tasks awaiting close) for the task panel.
   tasks?: UiSnapshotTask[];
+  // v3 additive: the Composer's document corpus and extracted facts.
+  composer?: UiSnapshotComposer;
   // NOTE: the Grok-port power/update footer chips were removed — no front-end ever consumed them
   // (silent TS→Go drift). Power posture is read via /power and update posture via /update.
 }
@@ -297,6 +324,26 @@ export function buildUiSnapshot(graphStore?: IGraphStore, toolRegistry?: ToolReg
     }
   } catch { /* git best-effort */ }
 
+  let composer: UiSnapshotComposer | undefined;
+  try {
+    const { getComposerCorpus } = require('../memory/corpus') as typeof import('../memory/corpus');
+    const { getFactStore } = require('../memory/facts') as typeof import('../memory/facts');
+    const corpus = getComposerCorpus();
+    if (corpus) {
+      // Synchronous by design: the snapshot is built on a debounce and must not await disk. The
+      // manifest is already resident once anything has been ingested; before that the counts are
+      // zero, which is the truth.
+      const snap = corpus.snapshot();
+      composer = {
+        session: snap.session,
+        library: snap.library,
+        passages: snap.chunks,
+        facts: getFactStore()?.count() ?? 0,
+        lastIngest: snap.lastIngest ?? undefined,
+      };
+    }
+  } catch { /* composer best-effort — a front-end without it simply shows no corpus chip */ }
+
   let tools: UiSnapshotTools | undefined;
   try {
     if (toolRegistry) {
@@ -327,7 +374,7 @@ export function buildUiSnapshot(graphStore?: IGraphStore, toolRegistry?: ToolReg
     }
   } catch { /* task registry best-effort */ }
 
-  return { models, goalCount, mind, graph, contextWindow, tokensBaseline, compressionSaved, workspace, sessions, checkpoints, git, tools, tasks };
+  return { models, goalCount, mind, graph, contextWindow, tokensBaseline, compressionSaved, workspace, sessions, checkpoints, git, tools, tasks, composer };
 }
 
 /** Begin emitting `ui_snapshot` (immediately + on config/goal/graph changes). Call after the host attaches. */
@@ -365,4 +412,7 @@ export function startUiSnapshot(graphStore?: IGraphStore, toolRegistry?: ToolReg
   cliEvents.on('session_changed', emit);
   // Task workspaces: create / transition / output activity → task panel updates.
   cliEvents.on('tasks_changed', emit);
+  // Composer: a drop finished ingesting → the corpus chip updates without waiting for a config or
+  // graph event that may never come during a document-only session.
+  cliEvents.on('composer_changed', emit);
 }

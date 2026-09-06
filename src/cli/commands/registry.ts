@@ -62,8 +62,9 @@ export const PALETTE_HIDDEN = new Set<string>([
   'speculate', 'evolve', 'council', 'orchestrate', 'heal', 'scout',
   // Time-travel → /rewind.
   'undo', 'checkpoint', 'backups', 'tx',
-  // Model / routing internals → /model.
-  'provider', 'tier', 'reasoning', 'routes', 'arms',
+  // Model / routing internals → /model. ('route' explains a routing decision — a diagnostic
+  // readout, not a verb you reach for; it stays runnable when typed in full.)
+  'provider', 'tier', 'reasoning', 'routes', 'arms', 'route', 'slot',
   // Variants of a primary verb → the primary (e.g. /context, /diff, /index).
   'context-mode', 'context-window', 'diff-approval', 'diff-file', 'self-critic',
   'a11y', 'agent-decisions', 'index-ai', // 'index-ai' → /index (semantic variant)

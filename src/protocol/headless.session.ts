@@ -34,6 +34,19 @@ export function ledgerTurnSummary(
   return null;
 }
 
+/**
+ * Menu labels are DATA, not presentation. Commands historically wrote terminal decoration into the
+ * label itself — "[ Start Indexing ]", "[ Cancel ]" — which the desktop app renders verbatim into a
+ * button, so a GUI card looked like a TUI prompt. Strip the wrapper once at the protocol boundary:
+ * a front-end that wants brackets can add them, one that doesn't cannot remove them. (The TUI draws
+ * its own "❯ " cursor and colour, and the brackets were eating 4 of its 24-char label budget.)
+ */
+function undecorate(opt: any): any {
+  if (!opt || typeof opt.label !== 'string') return opt;
+  const label = opt.label.trim().replace(/^\[\s*(.*?)\s*\]$/, '$1').trim();
+  return label === opt.label ? opt : { ...opt, label };
+}
+
 export interface HeadlessDeps {
   personas: Record<string, AgentPersona>;
   options: any;           // the same `options` bag FullScreen receives (governor, llmAdapter, toolRegistry, …)
@@ -366,13 +379,20 @@ export class HeadlessSession {
       const oldest = this.menus.keys().next().value;
       if (oldest) this.menus.delete(oldest);
     }
-    cliEvents.emit('message', this.uiMsg('menu', {
+    // The MessageEntry carries the SAME id as the registry key. A front-end that replies with the
+    // message's id (the desktop app does; the TUI reads payload.id) then hits the real entry — with
+    // two different ids, every `onSelect` menu fell through to `dispatch(value)` and options whose
+    // value is not a command (a model id, a rule index, `__custom__`) silently did nothing.
+    cliEvents.emit('message', {
+      ...this.uiMsg('menu', {
+        id,
+        title: menu.title,
+        subtitle: menu.subtitle,
+        options: (menu.options || []).map(undecorate),
+        initialIndex: menu.initialIndex,
+      }),
       id,
-      title: menu.title,
-      subtitle: menu.subtitle,
-      options: menu.options,
-      initialIndex: menu.initialIndex,
-    }));
+    });
   }
 
   /** Run a menu option's onSelect (or dispatch its value as a command if the menu had none). */

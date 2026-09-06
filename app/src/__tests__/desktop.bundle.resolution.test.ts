@@ -220,8 +220,19 @@ describe('the engine child receives one generic local-provider contract', () => 
     UNRELATED: 'keep-me',
   };
 
-  test('native paths are scoped to the Desktop provider and never exposed directly to the engine', () => {
+  // Five tests stood here, each asserting the shape of `BIMAX_HOST_CAPABILITIES_JSON` — the
+  // `bimax-mac` capability descriptor carrying the CU service, bridge, helper, focus-broker pair
+  // and native-route flags. The 2026-09-02 code-only reset stopped emitting that descriptor
+  // entirely, so all five died on `JSON.parse(undefined)`. They had never run: app/src was missing
+  // from jest `roots`, so this suite was green without executing.
+  //
+  // They are replaced by the property the reset actually established, which is stronger than the
+  // five it removes: not "native paths are scoped to the provider" but "there is no provider, and
+  // no native path reaches the child by ANY route". The six tests below this point were always
+  // CU-independent and are untouched.
+  test('no capability descriptor is emitted, even when every native component resolves', () => {
     const env = buildEngineChildEnv({
+      packaged: true,
       parentEnv: { ...hostile },
       extraEnv: {},
       path: '/usr/bin',
@@ -234,109 +245,16 @@ describe('the engine child receives one generic local-provider contract', () => 
         desktopHelper: BUNDLE.desktopHelper,
       },
     });
+
+    // The descriptor is the only channel those paths ever travelled on.
+    expect(env.BIMAX_HOST_CAPABILITIES_JSON).toBeUndefined();
+    // And they are absent from the environment directly, which the old tests also required.
     for (const variable of NATIVE_COMPONENT_ENV) expect(env[variable]).toBeUndefined();
-    const contract = JSON.parse(String(env.BIMAX_HOST_CAPABILITIES_JSON));
-    expect(contract).toMatchObject({
-      version: 1,
-      transport: 'stdio',
-      servers: [{ name: 'bimax-mac', command: BUNDLE.macCapability, args: [] }],
-    });
-    expect(contract.servers[0].env).toMatchObject({
-      BIMAX_CU_SERVICE_BINARY: BUNDLE.cuService,
-      BIMAX_CU_BRIDGE_BINARY: BUNDLE.cuBridge,
-      BIMAX_DESKTOP_HELPER: BUNDLE.desktopHelper,
-      BIMAX_LIVE_PIP_HELPER: `${APP}/Contents/MacOS/bimax-live-pip`,
-      BIMAX_MAC_PROVIDER_AUTHORITY: 'electron-main',
-      BIMAX_MAC_CONSENT_CHANNEL: 'engine-governor',
-      BIMAX_CU_DESKTOP_DATA_DIR: '/Users/fixture/Library/Application Support/Bimax/Desktop',
-      [TRUSTED_PLAN_REQUIRED_ENV]: '1',
-      BIMAX_HOST_ARCH: expect.stringMatching(/^(arm64|x64)$/),
-    });
-    expect(env[TRUSTED_PLAN_REQUIRED_ENV]).toBe('1');
-    expect(env[TRUSTED_PLAN_SECRET_ENV]).toHaveLength(43);
-    expect(env.BIMAX_CU_DESKTOP_DATA_DIR).toBeUndefined();
-    expect(contract.servers[0].env[TRUSTED_PLAN_SECRET_ENV]).toBe(env[TRUSTED_PLAN_SECRET_ENV]);
-  });
-
-  test('only the provider receives release mode derived from Electron package identity', () => {
-    const providerMode = (packaged: boolean) => {
-      const env = buildEngineChildEnv({
-        parentEnv: { BIMAX_DESKTOP_RELEASE_MODE: packaged ? 'development' : 'packaged' },
-        extraEnv: {},
-        packaged,
-        path: '/usr/bin',
-        projectDir: '/proj',
-        resolved: { macCapability: BUNDLE.macCapability },
-      });
-      expect(env.BIMAX_DESKTOP_RELEASE_MODE).toBeUndefined();
-      const contract = JSON.parse(String(env.BIMAX_HOST_CAPABILITIES_JSON));
-      return contract.servers[0].env.BIMAX_DESKTOP_RELEASE_MODE;
-    };
-
-    expect(providerMode(false)).toBe('development');
-    expect(providerMode(true)).toBe('packaged');
-  });
-
-  test('the authenticated focus broker pair reaches the Desktop capability provider', () => {
-    const endpoint = 'http://127.0.0.1:43210/v1/focus/activate';
-    const token = 'a'.repeat(64);
-    const env = buildEngineChildEnv({
-      parentEnv: {
-        BIMAX_CU_FOCUS_BROKER_ENDPOINT: endpoint,
-        BIMAX_CU_FOCUS_BROKER_TOKEN: token,
-      },
-      extraEnv: {},
-      packaged: true,
-      path: '/usr/bin',
-      projectDir: '/proj',
-      resolved: { macCapability: BUNDLE.macCapability },
-    });
-    const contract = JSON.parse(String(env.BIMAX_HOST_CAPABILITIES_JSON));
-    expect(contract.servers[0].env).toMatchObject({
-      BIMAX_CU_FOCUS_BROKER_ENDPOINT: endpoint,
-      BIMAX_CU_FOCUS_BROKER_TOKEN: token,
-    });
-  });
-
-  test('packaged Electron enables the verified native route only inside its provider descriptor', () => {
-    const env = buildEngineChildEnv({
-      parentEnv: {
-        [NATIVE_ROUTING_ENV]: '0',
-        [NATIVE_SEMANTIC_ROUTING_ENV]: '1',
-      },
-      extraEnv: {},
-      packaged: true,
-      path: '/usr/bin',
-      projectDir: '/proj',
-      resolved: {
-        macCapability: BUNDLE.macCapability,
-        cuService: BUNDLE.cuService,
-        cuBridge: BUNDLE.cuBridge,
-      },
-    });
-    const contract = JSON.parse(String(env.BIMAX_HOST_CAPABILITIES_JSON));
-
-    expect(env[NATIVE_ROUTING_ENV]).toBeUndefined();
-    expect(env[NATIVE_SEMANTIC_ROUTING_ENV]).toBeUndefined();
-    expect(contract.servers[0].env[NATIVE_ROUTING_ENV]).toBe('1');
-    expect(contract.servers[0].env[NATIVE_SEMANTIC_ROUTING_ENV]).toBeUndefined();
-  });
-
-  test('development forwards only explicit native-route opt-ins to the provider', () => {
-    const env = buildEngineChildEnv({
-      parentEnv: { [NATIVE_SEMANTIC_ROUTING_ENV]: '1' },
-      extraEnv: {},
-      packaged: false,
-      path: '/usr/bin',
-      projectDir: '/proj',
-      resolved: { macCapability: DEV.macCapability },
-    });
-    const contract = JSON.parse(String(env.BIMAX_HOST_CAPABILITIES_JSON));
-
-    expect(env[NATIVE_ROUTING_ENV]).toBeUndefined();
-    expect(env[NATIVE_SEMANTIC_ROUTING_ENV]).toBeUndefined();
-    expect(contract.servers[0].env[NATIVE_ROUTING_ENV]).toBeUndefined();
-    expect(contract.servers[0].env[NATIVE_SEMANTIC_ROUTING_ENV]).toBe('1');
+    // Strongest form: no resolved native path appears anywhere in the child env, under any key.
+    const serialized = JSON.stringify(env);
+    for (const binary of [BUNDLE.macCapability, BUNDLE.cuService, BUNDLE.cuBridge, BUNDLE.desktopHelper]) {
+      expect(serialized).not.toContain(binary);
+    }
   });
 
   test('an UNRESOLVED component is stripped, not left as the inherited hostile value', () => {

@@ -81,10 +81,12 @@ else
   bash scripts/prepare-engine.sh "$target"
 fi
 
-echo "→ native service + XPC bridge + helpers + Mac provider"
-# One invocation owns the entire staging directory. Every DMG therefore contains one source
-# generation instead of silently mixing retained Swift binaries with a freshly compiled provider.
-bash scripts/prepare-native.sh "$target"
+# Computer Use staging removed 2026-09-04. Bimax has shipped code-only since the 2026-09-02 reset,
+# and electron-builder.yml declares no `mac.extraFiles`, so the four binaries prepare-native.sh
+# built (BimaxCuService.xpc, bimax-cu-bridge, bimax-desktop-helper, bimax-mac-capability) were
+# compiled and then never packaged. The script also `rm -rf`s native-service/ BEFORE compiling, so a
+# CU build failure destroyed the staged directory on the release path — a failure mode the product
+# no longer has any reason to carry. scripts/prepare-native.sh remains on disk, unreferenced.
 
 echo "→ package app directory (unhardened, outside iCloud)"
 [ ! -e "$OUT" ] || { echo "error: refusing to overwrite existing local build output: $OUT" >&2; exit 1; }

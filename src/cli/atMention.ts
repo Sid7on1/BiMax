@@ -229,12 +229,63 @@ export async function expandFileAtMentions(text: string, cwd: string): Promise<F
           injected.push(`@${token}`);
           replacedText = replacedText.replace(full, `[dir:${path.basename(absPath)}/]`);
         } else {
-          // File — read up to 100KB
+          const rel = path.relative(cwd, absPath) || path.basename(absPath);
           const MAX = 100 * 1024;
-          if (stat.size > MAX) continue;
+          const extension = path.extname(absPath).toLowerCase();
+
+          // Documents go to the Composer, not into the prompt.
+          //
+          // Two things were wrong with inlining every attachment. A file over 100 KB was silently
+          // SKIPPED — a user who attached a 5 MB inspection report got no error and no content, and
+          // the model answered confidently from nothing. And a binary document that squeaked under
+          // the limit was read as UTF-8, so a PDF arrived as mojibake that looked like corrupt text
+          // rather than an unread file.
+          //
+          // Neither is a size-limit problem; both are a *routing* problem. A 200-page P&ID or a
+          // shutdown punch list should never be pasted into a context window whole — it should be
+          // chunked, embedded and retrieved by the passage that answers the question, with its page
+          // number attached. So anything that is a document format, or too large to inline, is
+          // ingested into the session corpus and the model is told to search it.
+          const DOCUMENT = new Set([
+            '.pdf', '.docx', '.docm', '.xlsx', '.xlsm', '.pptx', '.pptm', '.csv', '.tsv',
+            '.png', '.jpg', '.jpeg', '.tif', '.tiff', '.bmp', '.webp', '.gif', '.heic',
+          ]);
+          const routeToCorpus = DOCUMENT.has(extension) || stat.size > MAX;
+
+          if (routeToCorpus) {
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            const { getComposerCorpus } = require('../memory/corpus') as typeof import('../memory/corpus');
+            const corpus = getComposerCorpus();
+            if (!corpus) {
+              // No corpus wired (a worker, a bare embed). Say so rather than pretending it was read.
+              blocks.push(`--- @${token} (${rel}) ---\n[not attached: this file needs the Composer, which is not available in this context]`);
+              injected.push(`@${token}`);
+              replacedText = replacedText.replace(full, `[file:${path.basename(absPath)} — unavailable]`);
+              continue;
+            }
+            const report = await corpus.ingest([absPath], 'session');
+            const entry = report.ingested[0];
+            if (entry) {
+              blocks.push(
+                `--- @${token} (${rel}) ---\n`
+                + `Ingested into the Composer as ${entry.chunks} searchable passage(s)`
+                + `${entry.ocr ? ', read by OCR' : ''}. It is NOT reproduced here.\n`
+                + `Use ComposerSearchTool to retrieve the parts you need; results carry the page or sheet `
+                + `so you can cite them.`,
+              );
+            } else {
+              const reason = report.skipped[0]?.reason
+                ?? (report.unchanged ? 'already ingested — search the Composer for it' : 'produced no readable text');
+              // A failed attachment is reported, never silent: the user believes this file was read.
+              blocks.push(`--- @${token} (${rel}) ---\n[not ingested: ${reason}]`);
+            }
+            injected.push(`@${token}`);
+            replacedText = replacedText.replace(full, `[document:${path.basename(absPath)}]`);
+            continue;
+          }
+
           const content = await fsAsync.readFile(absPath, 'utf8').catch(() => null);
           if (content === null) continue;
-          const rel = path.relative(cwd, absPath) || path.basename(absPath);
           blocks.push(`--- @${token} (${rel}) ---\n${content}`);
           injected.push(`@${token}`);
           replacedText = replacedText.replace(full, `[file:${path.basename(absPath)}]`);

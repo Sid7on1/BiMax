@@ -84,3 +84,50 @@ describe('HeadlessSession — set_tier routing parity', () => {
     expect(execute).toHaveBeenCalledTimes(1);
   });
 });
+
+// A menu crosses the wire as a MessageEntry whose payload carries the id the engine keyed its
+// registry on. Both ids used to differ (`ui-…` on the entry, `menu-N` in the registry), so a
+// front-end replying with the message id matched nothing: `selectMenu` fell through to
+// "dispatch the value as a command", and every option whose value is NOT a command (a model id,
+// a rule index, `__custom__`) silently did nothing.
+describe('HeadlessSession — menu id + label contract', () => {
+  function emitAndCapture(menu: any): { entry: any; session: HeadlessSession } {
+    const session = new HeadlessSession({ personas: {}, options: {}, graphStore: {} as any });
+    const seen: any[] = [];
+    const onMessage = (m: any) => { if (m.uiComponent === 'menu') seen.push(m); };
+    cliEvents.on('message', onMessage);
+    try {
+      (session as any).emitMenu(menu);
+    } finally {
+      cliEvents.off('message', onMessage);
+    }
+    return { entry: seen[0], session };
+  }
+
+  it('emits one id on both the message and its payload, and that id runs onSelect', () => {
+    const onSelect = jest.fn();
+    const { entry, session } = emitAndCapture({
+      title: 'Pick a model',
+      options: [{ label: 'Fast', value: 'vendor/fast-model' }],
+      onSelect,
+    });
+
+    expect(entry.payload.id).toBe(entry.id);
+
+    // Replying with the MESSAGE id (what the desktop renderer has) must reach the real handler.
+    session.selectMenu(entry.id, 'vendor/fast-model');
+    expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ value: 'vendor/fast-model' }));
+  });
+
+  it('strips terminal bracket decoration from option labels but never from values', () => {
+    const { entry } = emitAndCapture({
+      title: 'Codebase Map',
+      options: [
+        { label: '[ Start Indexing ]', value: '/index force' },
+        { label: 'Skip', value: '' },
+      ],
+    });
+    expect(entry.payload.options.map((o: any) => o.label)).toEqual(['Start Indexing', 'Skip']);
+    expect(entry.payload.options[0].value).toBe('/index force');
+  });
+});

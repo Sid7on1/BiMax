@@ -28,6 +28,7 @@ import { ToolRegistry } from '../tools/tool.registry';
 import { createBashTool } from '../tools/implementations/bash.tool';
 import { createCdTool } from '../tools/implementations/cd.tool';
 import { createReadFileTool, createWriteFileTool, createDeleteTool, createMakeDirTool } from '../tools/implementations/file.tool';
+import { createReadDocumentTool } from '../tools/implementations/readdoc.tool';
 import { createEditFileTool } from '../tools/implementations/edit.tool';
 import { createMultiEditTool } from '../tools/implementations/multiedit.tool';
 import { createSymbolEditTool } from '../tools/implementations/symboledit.tool';
@@ -54,6 +55,12 @@ import { createMemoryQueryTool } from '../tools/implementations/memory.tool';
 import { createRememberTool } from '../tools/implementations/remember.tool';
 import { globalProjectMemory } from '../memory/project.memory';
 import { VectorStore } from '../memory';
+import { ComposerCorpus, setComposerCorpus, createComposerStore } from '../memory/corpus';
+import { FactStore, setFactStore } from '../memory/facts';
+import { createFactQueryTool } from '../tools/implementations/facts.tool';
+import { createComposerSearchTool, createComposerIngestTool } from '../tools/implementations/composer.tool';
+import { SocketRegistry, setSocketRegistry } from '../sockets/registry';
+import { createSocketQueryTool } from '../tools/implementations/socket.tool';
 import { RemoteEmbeddingBackend } from '../memory/embeddings';
 import { RemoteReranker } from '../memory/rerank';
 import { resolveMemorySettings, rerankURLFor } from '../memory/settings';
@@ -185,6 +192,7 @@ export async function createContainer(config?: Partial<CliConfig>): Promise<{
   // under token pressure — see context.manager.ts (guarded by a cross-process singleton lock). Opt out
   // entirely with BIMAX_DISABLE_HEADROOM=1 / BIMAX_DISABLE_COMPRESSION=1.
   toolRegistry.register(createReadFileTool(governor));
+  toolRegistry.register(createReadDocumentTool(governor));
   toolRegistry.register(createWriteFileTool(governor));
   toolRegistry.register(createEditFileTool(governor));
   toolRegistry.register(createMultiEditTool(governor));
@@ -244,6 +252,40 @@ export async function createContainer(config?: Partial<CliConfig>): Promise<{
   // tool, persona-level recallBlock, and AgentLoop auto-recall all share the hybrid store.
   globalProjectMemory.useStore(vectorStore);
   toolRegistry.register(createMemoryQueryTool(governor, vectorStore));
+
+  // The Composer: documents the user drops, and the standing knowledge library, retrieved with
+  // citations. Session and library live in ONE store separated by tag, because "check this report
+  // against our SOP and the equipment history" is a single query that must rank a file ingested a
+  // minute ago against one promoted last year.
+  //
+  // It is a SEPARATE store from project memory, for two reasons that are not stylistic:
+  //   • `dedup` must be OFF. Memory dedups because two phrasings of one fact are one fact; a
+  //     document corpus must not, because page 4 of a repetitive inspection form is a near-duplicate
+  //     of page 3 and merging them puts the WRONG PAGE NUMBER on a citation. A wrong citation in an
+  //     engineering assessment is worse than no citation.
+  //   • the document cap. Memory's 500 is tuned for hand-written notes; one shutdown's inspection
+  //     reports exceed that alone, and sharing the cap would evict the agent's learned facts to
+  //     make room for a vendor quote.
+  // createComposerStore owns the options that make a citation true (see its header) — they are
+  // correctness, not tuning, so they are not restated here where they could drift.
+  // Measured values, extracted from tables at ingest and queryable as data. This is the lane that
+  // answers "which vessels are below minimum thickness" — a comparison a vector index cannot make,
+  // because to it 7.8 is a token and not a quantity.
+  const factStore = new FactStore(path.join(process.cwd(), '.breakglass', 'memory', 'composer.facts.sqlite'));
+  setFactStore(factStore);
+  const composerCorpus = new ComposerCorpus(createComposerStore(embeddings, reranker), { facts: factStore });
+  setComposerCorpus(composerCorpus);
+  toolRegistry.register(createComposerSearchTool(governor, composerCorpus));
+  toolRegistry.register(createComposerIngestTool(governor, composerCorpus));
+  toolRegistry.register(createFactQueryTool(governor, factStore));
+
+  // The Open Socket: read-only, template-gated windows onto operator-declared datastores. The
+  // registry is always constructed; with no `.breakglass/sockets.json` it reports that none is
+  // configured. Registering the tool unconditionally means the model can SAY "no socket is
+  // configured on this deployment" instead of hallucinating a database it cannot see.
+  const socketRegistry = new SocketRegistry();
+  setSocketRegistry(socketRegistry);
+  toolRegistry.register(createSocketQueryTool(governor, socketRegistry));
   // The semantic code index: the same four-stage pipeline pointed at the repo's own source.
   // Separate store file (a codebase is ~10x the memory cap), dedup off (two similar files are
   // two files), incremental sync bounded per run so a first index trickles in over several

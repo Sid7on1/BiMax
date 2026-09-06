@@ -11,15 +11,25 @@ import { loadGlobalEnv, saveApiKeyToEnv } from '../cli/env.loader';
 
 describe('global provider credential permissions', () => {
   let home: string;
+  let breakglassOverride: string | undefined;
 
   beforeEach(() => {
     home = fs.mkdtempSync(path.join(os.tmpdir(), 'bimax-credentials-'));
     mockTestHome = home;
+    // This suite isolates by mocking `os.homedir()`, so it must own the resolved credential path.
+    // `BIMAX_BREAKGLASS_DIR` (set for every worker by jest.setup.ts, to keep tests off the real
+    // ~/.breakglass) takes precedence over homedir and would send loadGlobalEnv/saveApiKeyToEnv to
+    // that directory instead — leaving this test's own mode assertions looking at a directory
+    // nothing ever touched. Drop it here and restore it after.
+    breakglassOverride = process.env.BIMAX_BREAKGLASS_DIR;
+    delete process.env.BIMAX_BREAKGLASS_DIR;
   });
 
   afterEach(() => {
     delete process.env.TEST_PROVIDER_API_KEY;
     delete process.env.SECOND_PROVIDER_API_KEY;
+    if (breakglassOverride === undefined) delete process.env.BIMAX_BREAKGLASS_DIR;
+    else process.env.BIMAX_BREAKGLASS_DIR = breakglassOverride;
     mockTestHome = '';
     fs.rmSync(home, { recursive: true, force: true });
   });

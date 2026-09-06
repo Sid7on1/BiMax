@@ -439,20 +439,44 @@ function MenuCard({
   chosen?: string;
   onSelect: (id: string, value: string) => void;
 }): React.ReactElement {
-  const { title, options } = msg.payload as { title: string; options: { label: string; value: string; desc?: string }[] };
+  const { id, title, options } = msg.payload as {
+    id?: string; title: string; options: { label: string; value: string; desc?: string }[];
+  };
+  // Reply with the id the ENGINE keyed its menu registry on. That lives in the payload; `msg.id` is
+  // only a transcript key and matched nothing engine-side, so every menu with a real `onSelect`
+  // (model picker, /undo, rule delete, goals) fell through to "dispatch the value as a command" and
+  // an option whose value isn't a command silently did nothing. Fall back for older payloads.
+  const replyId = id ?? msg.id;
+
+  // Once answered, a menu is history, not a control surface. Collapse it to the one line that still
+  // carries meaning — leaving the full list of dead buttons on screen is the terminal's behaviour,
+  // where nothing can be redrawn after it is printed.
+  if (chosen !== undefined) {
+    const picked = (options || []).find((o) => o.value === chosen);
+    return (
+      <div className="reading-column mx-auto flex items-center gap-2 text-[12.5px] text-dim">
+        <Check size={13} className="shrink-0 text-moss" />
+        <span className="truncate">
+          {title}
+          <span className="text-faint"> · </span>
+          <span className="text-ink/80">
+            {picked ? picked.label : chosen === '__replayed__' ? 'no longer active' : 'dismissed'}
+          </span>
+        </span>
+      </div>
+    );
+  }
+
   return (
     <div className="reading-column mx-auto rounded-[10px] border border-line bg-raise p-3">
       <div className="mb-2.5 font-semibold">{title}</div>
       {(options || []).map((o, i) => (
         <button
           key={i}
-          disabled={chosen !== undefined}
-          onClick={() => onSelect(msg.id, o.value)}
+          onClick={() => onSelect(replyId, o.value)}
           className={cn(
             'mb-1.5 flex w-full cursor-pointer flex-col items-start gap-0.5 rounded-lg border border-line px-3 py-2 text-left',
-            'enabled:hover:border-ember enabled:hover:bg-ember/15',
-            chosen !== undefined && 'cursor-default opacity-45',
-            chosen === o.value && 'border-ember opacity-100',
+            'hover:border-ember hover:bg-ember/15',
           )}
         >
           <span className="font-medium">{o.label}</span>

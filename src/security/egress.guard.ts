@@ -15,18 +15,28 @@
 import { classifyDestination, hostOf, isSovereign, refusalFor, EgressRequest } from './sovereign';
 import { recordEgress } from './egress.ledger';
 
+export interface EgressCheckOptions {
+  /**
+   * Whether this check writes a ledger entry (default true). The perimeter
+   * (`egress.perimeter.ts`) sets it false on the inner layers of one logical request, so a single
+   * `fetch` does not appear in the audit four times over. The VERDICT is always computed and always
+   * enforced — only the record is suppressed, so a suppressed layer can still refuse.
+   */
+  record?: boolean;
+}
+
 /**
  * Decide, record, and return either `null` (proceed) or a refusal string for the caller to hand
  * back to the model. Returning a string rather than throwing is the repo's existing convention for
  * tool-visible refusals (`network.consent.ts`), and it keeps a refusal from unwinding a turn.
  */
-export function checkEgress(request: EgressRequest): string | null {
+export function checkEgress(request: EgressRequest, options?: EgressCheckOptions): string | null {
   const host = hostOf(request.target);
   const destination = classifyDestination(request.target);
   const sovereign = isSovereign();
   const refused = sovereign && destination === 'external';
 
-  recordEgress({
+  if (options?.record !== false) recordEgress({
     at: new Date().toISOString(),
     host: host || request.target,
     destination,
@@ -50,7 +60,7 @@ export class EgressRefused extends Error {
   }
 }
 
-export function assertEgressAllowed(request: EgressRequest): void {
-  const refusal = checkEgress(request);
+export function assertEgressAllowed(request: EgressRequest, options?: EgressCheckOptions): void {
+  const refusal = checkEgress(request, options);
   if (refusal) throw new EgressRefused(hostOf(request.target), refusal);
 }

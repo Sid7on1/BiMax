@@ -159,13 +159,53 @@ export function Composer({
     taRef.current?.focus();
   };
 
+  /**
+   * Add file paths to the prompt as `@` references.
+   *
+   * `@path` is the Composer's front door: the engine expands it, and a document format or an
+   * oversized file is ingested into the searchable corpus instead of being pasted into the prompt.
+   * So attaching and dropping are the same gesture, and neither needs to know about RAG.
+   */
+  const addPaths = (paths: string[]): void => {
+    const usable = paths.filter(Boolean);
+    if (!usable.length) return;
+    const refs = usable.map((p) => `@${p}`).join(' ');
+    setText((t) => (t ? `${t.replace(/\s+$/, '')} ${refs} ` : `${refs} `));
+    taRef.current?.focus();
+  };
+
   const attach = (): void => {
-    void window.bimax.pickFiles().then((paths) => {
-      if (!paths.length) return;
-      const refs = paths.map((p) => `@${p}`).join(' ');
-      setText((t) => (t ? `${t.replace(/\s+$/, '')} ${refs} ` : `${refs} `));
-      taRef.current?.focus();
-    });
+    void window.bimax.pickFiles().then(addPaths);
+  };
+
+  /**
+   * Drag-and-drop.
+   *
+   * `depth` rather than a boolean: dragenter/dragleave fire for every child element the pointer
+   * crosses, so a boolean flickers the highlight off as soon as the cursor moves over the textarea
+   * inside the drop zone. Counting enter/leave pairs is what makes the affordance stable.
+   */
+  const [dropDepth, setDropDepth] = useState(0);
+
+  const onDragOver = (e: React.DragEvent): void => {
+    if (!e.dataTransfer.types.includes('Files')) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+  };
+  const onDragEnter = (e: React.DragEvent): void => {
+    if (!e.dataTransfer.types.includes('Files')) return;
+    e.preventDefault();
+    setDropDepth((d) => d + 1);
+  };
+  const onDragLeave = (): void => setDropDepth((d) => Math.max(0, d - 1));
+  const onDrop = (e: React.DragEvent): void => {
+    if (!e.dataTransfer.types.includes('Files')) return;
+    e.preventDefault();
+    setDropDepth(0);
+    // Electron 32 removed `File.path`; `webUtils.getPathForFile` in the preload is the replacement.
+    // Files with no resolvable path (a drag from a browser, say) are dropped rather than passed on
+    // as empty strings, which would become a meaningless `@` reference.
+    addPaths(Array.from(e.dataTransfer.files).map((file) => window.bimax.pathForFile(file)));
   };
 
   const keyDown = (e: React.KeyboardEvent): void => {
@@ -230,7 +270,59 @@ export function Composer({
       )}
 
       <div className="composer-column mx-auto">
-      <div className="launch-console relative rounded-[22px] border border-line bg-raise shadow-[0_18px_50px_rgba(0,0,0,0.12)] transition-[border-color,box-shadow] focus-within:border-ember/45 focus-within:shadow-[0_20px_56px_rgba(0,0,0,0.16)]">
+      <div
+        onDragOver={onDragOver}
+        onDragEnter={onDragEnter}
+        onDragLeave={onDragLeave}
+        onDrop={onDrop}
+        className={cn(
+          'launch-console relative rounded-[22px] border bg-raise shadow-[0_18px_50px_rgba(0,0,0,0.12)] transition-[border-color,box-shadow] focus-within:border-ember/45 focus-within:shadow-[0_20px_56px_rgba(0,0,0,0.16)]',
+          dropDepth > 0 ? 'border-ember/70 shadow-[0_20px_56px_rgba(0,0,0,0.16)]' : 'border-line',
+        )}
+      >
+        {/*
+          * The corpus readout. Two jobs: tell the user what the agent is actually working from, and
+          * — the important one — surface what could NOT be read. Silence about a failed attachment
+          * is the worst outcome available: the user believes the file was read and acts on an answer
+          * that never saw it.
+          */}
+        {snapshot?.composer && (snapshot.composer.session + snapshot.composer.library) > 0 && (
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-5 pt-2 text-[11px] text-faint">
+            <span className="inline-flex items-center gap-1.5">
+              <FileText size={11} />
+              {snapshot.composer.session + snapshot.composer.library} document
+              {snapshot.composer.session + snapshot.composer.library === 1 ? '' : 's'}
+              {' · '}
+              {snapshot.composer.passages} passage{snapshot.composer.passages === 1 ? '' : 's'}
+              {snapshot.composer.facts > 0 && ` · ${snapshot.composer.facts} measurement${snapshot.composer.facts === 1 ? '' : 's'}`}
+            </span>
+            {snapshot.composer.library > 0 && (
+              <span className="text-faint/80">{snapshot.composer.library} in library</span>
+            )}
+            {!!snapshot.composer.lastIngest?.skipped.length && (
+              <span
+                className="text-ember"
+                title={snapshot.composer.lastIngest.skipped
+                  .map((skip) => `${skip.name} — ${skip.reason}`)
+                  .join('\n')}
+              >
+                {snapshot.composer.lastIngest.skipped.length} could not be read
+              </span>
+            )}
+          </div>
+        )}
+
+        {dropDepth > 0 && (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-[22px] bg-raise/85 backdrop-blur-[1px]"
+          >
+            <span className="flex items-center gap-2 font-display text-[13px] text-ember">
+              <FileText size={14} />
+              Drop to read — PDFs, scans, Office files, anything text
+            </span>
+          </div>
+        )}
         <div className="flex items-end gap-3 px-5 pt-4 pb-3">
           <textarea
             ref={taRef}
