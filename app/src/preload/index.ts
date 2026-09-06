@@ -60,9 +60,6 @@ const api = {
    * only, which is why it has to be bridged here rather than called from the composer. Without it a
    * dropped inspection report cannot be located, let alone ingested.
    */
-  /** The real Finder icon for a file, plus its size. See main/index.ts `app:file-icon`. */
-  fileIcon: (filePath: string): Promise<{ path: string; icon: string; size: number }> =>
-    ipcRenderer.invoke('app:file-icon', filePath),
   pathForFile: (file: File): string => {
     try { return webUtils.getPathForFile(file); } catch { return ''; }
   },

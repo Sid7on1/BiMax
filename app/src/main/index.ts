@@ -720,23 +720,16 @@ app.whenReady().then(async () => {
    * Resolved per file and cached by the renderer. A failure returns '' rather than throwing, so one
    * unreadable file cannot take down the whole attachment tray.
    */
-  secureHandle<{ path: string; icon: string; size: number }>(
-    'app:file-icon', { path: '', icon: '', size: 0 },
-    async (_e, raw) => {
-      const requested = typeof raw === 'string' ? raw : '';
-      if (!requested) return { path: '', icon: '', size: 0 };
-      // Attachments may be project-relative (pick-files strips the root) or absolute.
-      const absolute = path.isAbsolute(requested) ? requested : path.join(projectDir(), requested);
-      let size = 0;
-      try { size = (await import('node:fs')).statSync(absolute).size; } catch { /* size is cosmetic */ }
-      try {
-        const image = await app.getFileIcon(absolute, { size: 'large' });
-        return { path: requested, icon: image.toDataURL(), size };
-      } catch {
-        return { path: requested, icon: '', size };
-      }
-    },
-  );
+  // NOTE: there is deliberately NO `app:file-icon` handler here.
+  //
+  // Attachment tiles used to show the real Finder icon via `app.getFileIcon`. That API is backed by
+  // NSWorkspace, and AppKit is main-thread-only on macOS. Called immediately after the native Open
+  // panel dismisses, it crashed the WHOLE APP — EXC_BREAKPOINT/SIGTRAP with faultingThread 4, i.e. a
+  // spawned thread, no stderr and no JS stack. An uncaught fault in main takes the window with it.
+  //
+  // A cosmetic icon is not worth a crash on the primary attach flow, so tiles are drawn in the
+  // renderer from the file extension instead. If real Finder icons are wanted later, they must be
+  // fetched off the modal-dismiss path and proven not to fault before shipping.
 
   // Review panel — native git reads (writes go through the engine's /git for attribution).
   secureHandle<unknown>('git:status', null, () => gitStatus(projectDir()));

@@ -215,8 +215,6 @@ declare global {
       };
       pickFolder: () => Promise<string | null>;
       pickFiles: () => Promise<string[]>;
-      /** The real Finder icon for a file, as a data URL, plus its byte size. */
-      fileIcon: (filePath: string) => Promise<{ path: string; icon: string; size: number }>;
       /** Absolute path of a dropped File (Electron 32+ removed File.path). */
       pathForFile: (file: File) => string;
       restartEngine: () => Promise<string>;

@@ -183,19 +183,9 @@ export function Composer({
     setAttachments((current) => {
       const seen = new Set(current.map((a) => a.path));
       const added = usable.filter((p) => !seen.has(p))
-        .map((p) => ({ path: p, name: p.split('/').pop() || p, icon: '', size: 0 }));
+        .map((p) => ({ path: p, name: p.split('/').pop() || p, size: 0 }));
       return added.length ? [...current, ...added] : current;
     });
-    // The real Finder icon is resolved after the tile exists, so a slow lookup never delays the
-    // feedback that the file landed.
-    for (const p of usable) {
-      void window.bimax.fileIcon(p).then((resolved) => {
-        if (!resolved?.icon && !resolved?.size) return;
-        setAttachments((current) => current.map(
-          (a) => (a.path === p ? { ...a, icon: resolved.icon || a.icon, size: resolved.size || a.size } : a),
-        ));
-      }).catch(() => undefined);
-    }
   };
 
   const removeAttachment = (path: string): void =>
@@ -240,7 +230,14 @@ export function Composer({
     // Electron 32 removed `File.path`; `webUtils.getPathForFile` in the preload is the replacement.
     // Files with no resolvable path (a drag from a browser, say) are dropped rather than passed on
     // as empty strings, which would become a meaningless `@` reference.
-    addPaths(Array.from(e.dataTransfer.files).map((file) => window.bimax.pathForFile(file)));
+    const dropped = Array.from(e.dataTransfer.files);
+    addPaths(dropped.map((file) => window.bimax.pathForFile(file)));
+    // A drop already knows each file's size; the picker does not, and asking the main process for
+    // one is what crashed the app. Free information only.
+    const sizes = new Map(dropped.map((file) => [window.bimax.pathForFile(file), file.size]));
+    setAttachments((current) => current.map(
+      (a) => (sizes.get(a.path) ? { ...a, size: sizes.get(a.path)! } : a),
+    ));
   };
 
   const keyDown = (e: React.KeyboardEvent): void => {

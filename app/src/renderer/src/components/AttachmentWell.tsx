@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
 import { cn } from '../lib/cn';
 
@@ -9,13 +9,18 @@ import { cn } from '../lib/cn';
  * the file picker wherever you click, "Click or Drop" beneath it, and the files you have added
  * sitting along the top. Enter closes it and the attachments move above the prompt.
  *
- * ## Why real Finder icons and not filenames
+ * ## Why a drawn tile and not the real Finder icon
  *
- * An attachment should look like the document the person recognises. `app.getFileIcon` returns the
- * exact icon Finder draws — the red Acrobat sheet, the green spreadsheet grid — so a tray of four
- * files is scannable at a glance. The previous behaviour pasted `/Users/<name>/Desktop/<file>.pdf`
- * into the textarea as raw characters: it took the full width, buried the prompt the user was
- * writing, and could only be removed with backspace.
+ * The first version fetched the actual macOS icon through `app.getFileIcon`. That API is backed by
+ * NSWorkspace, AppKit is main-thread-only, and calling it the instant the native Open panel
+ * dismissed crashed the ENTIRE APP — EXC_BREAKPOINT on a spawned thread, no stderr, no JS stack.
+ * A prettier icon is not worth a crash on the primary attach flow, so the tile is drawn here from
+ * the file extension: same job (a file that looks like a document, not a path), zero risk to the
+ * process.
+ *
+ * The behaviour this replaces pasted `/Users/<name>/Desktop/<file>.pdf` into the textarea as raw
+ * characters: it took the full width, buried the prompt being written, and could only be removed
+ * with backspace.
  *
  * The absolute path is never shown. It is an implementation detail of how the engine resolves the
  * file, not something a person should have to read.
@@ -25,10 +30,39 @@ export interface Attachment {
   /** Path as the engine will resolve it: project-relative when inside the project, else absolute. */
   path: string;
   name: string;
-  /** Data URL of the real Finder icon; empty until resolved, or if the lookup failed. */
-  icon: string;
-  /** Bytes, 0 when unknown. Cosmetic. */
+  /** Bytes; 0 when unknown (the picker gives no size, a drop does). Cosmetic. */
   size: number;
+}
+
+/** Extension → the family a person recognises, and the colour it is drawn in. */
+const KINDS: { match: RegExp; label: string; tint: string }[] = [
+  { match: /\.(pdf)$/i,                          label: 'PDF',   tint: '#e5534b' },
+  { match: /\.(xlsx?|xlsm|csv|tsv|numbers)$/i,    label: 'SHEET', tint: '#3fa46a' },
+  { match: /\.(docx?|rtf|odt|pages)$/i,           label: 'DOC',   tint: '#3b82c4' },
+  { match: /\.(pptx?|key)$/i,                     label: 'SLIDE', tint: '#d98324' },
+  { match: /\.(png|jpe?g|gif|webp|bmp|tiff?|heic)$/i, label: 'IMG', tint: '#8b7fd4' },
+  { match: /\.(md|markdown|txt|log)$/i,           label: 'TEXT',  tint: '#7a8794' },
+  { match: /\.(json|ya?ml|toml|xml|ini)$/i,       label: 'DATA',  tint: '#c2a33d' },
+  { match: /\.(ts|tsx|js|jsx|py|go|rs|java|c|h|cpp|rb|php|swift|kt|sh)$/i, label: 'CODE', tint: '#59a5b8' },
+];
+
+function kindOf(name: string): { label: string; tint: string } {
+  for (const kind of KINDS) if (kind.match.test(name)) return { label: kind.label, tint: kind.tint };
+  const ext = name.includes('.') ? name.split('.').pop()!.slice(0, 4).toUpperCase() : 'FILE';
+  return { label: ext, tint: '#7a8794' };
+}
+
+/** A document tile: a page with a folded corner and the family printed on it. */
+function FileGlyph({ name, size }: { name: string; size: number }): React.ReactElement {
+  const { label, tint } = kindOf(name);
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden className="shrink-0">
+      <path d="M7 2h13l6 6v22a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z" fill={tint} opacity="0.16" />
+      <path d="M7 2h13l6 6v22a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z" fill="none" stroke={tint} strokeOpacity="0.75" strokeWidth="1.4" />
+      <path d="M20 2v6h6" fill="none" stroke={tint} strokeOpacity="0.75" strokeWidth="1.4" strokeLinejoin="round" />
+      <text x="16" y="24" textAnchor="middle" fill={tint} style={{ font: '700 7px ui-sans-serif, system-ui' }}>{label}</text>
+    </svg>
+  );
 }
 
 export function formatBytes(bytes: number): string {
@@ -162,7 +196,6 @@ export function AttachmentWell({
 export function FileTile({
   file, onRemove, compact = false,
 }: { file: Attachment; onRemove: () => void; compact?: boolean }): React.ReactElement {
-  const [broken, setBroken] = useState(false);
   return (
     <span
       className={cn(
@@ -171,20 +204,7 @@ export function FileTile({
       )}
       title={file.name}
     >
-      {file.icon && !broken ? (
-        // The real Finder icon. Decorative: the filename beside it carries the meaning.
-        <img
-          src={file.icon}
-          alt=""
-          aria-hidden
-          onError={() => setBroken(true)}
-          className={compact ? 'h-6 w-6 shrink-0' : 'h-8 w-8 shrink-0'}
-        />
-      ) : (
-        // Only reached when Launch Services has no icon for the type — a neutral placeholder, never
-        // a guessed glyph that would claim the wrong file type.
-        <span className={cn('shrink-0 rounded bg-line/60', compact ? 'h-6 w-6' : 'h-8 w-8')} />
-      )}
+      <FileGlyph name={file.name} size={compact ? 24 : 32} />
       <span className="min-w-0 leading-tight">
         <span className="block truncate text-[12px] text-ink">{file.name}</span>
         {!compact && !!file.size && (
