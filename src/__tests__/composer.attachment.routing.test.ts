@@ -56,7 +56,7 @@ describe('attachments route by kind and size, not by hope', () => {
     expect((await fs.promises.stat(file)).size).toBeGreaterThan(100 * 1024);
 
     const result = await expandFileAtMentions(`review @${file}`, workdir);
-    expect(result.text).toMatch(/Ingested into the Composer as \d+ searchable passage/);
+    expect(result.text).toMatch(/Read into the Composer as \d+ searchable passage/);
     expect(result.text).toContain('ComposerSearchTool');
     // And it is genuinely retrievable, not merely announced.
     const hits = await corpus.search('nozzle N2 corrosion exchanger', 5);
@@ -64,13 +64,17 @@ describe('attachments route by kind and size, not by hope', () => {
     expect(hits[0].name).toBe('long-report.txt');
   });
 
-  it('does not paste a large document into the prompt', async () => {
-    const big = `UNIQUE-MARKER-9F2A\n${'x'.repeat(200_000)}`;
+  it('injects relevant passages but never the whole document', async () => {
+    // The property is BOUNDED, not absent. Retrieved passages are the point — a pointer with no
+    // content is what made a small model go poking at the file with shell commands. What must never
+    // happen is the 200 KB arriving whole.
+    const big = `UNIQUE-MARKER-9F2A\n${'filler sentence about nothing in particular.\n'.repeat(6_000)}`;
     const file = await write('bulk.txt', big);
-    const result = await expandFileAtMentions(`@${file}`, workdir);
-    // The whole point: the context window sees a pointer, not 200 KB.
-    expect(result.text).not.toContain('UNIQUE-MARKER-9F2A');
-    expect(result.text.length).toBeLessThan(2_000);
+    const result = await expandFileAtMentions(`what does this say @${file}`, workdir);
+    expect(result.text).toMatch(/Most relevant passages/);
+    // Orders of magnitude smaller than the source, and a hard ceiling either way.
+    expect(result.text.length).toBeLessThan(big.length / 10);
+    expect(result.text.length).toBeLessThan(20_000);
   });
 
   it('routes a document FORMAT to the corpus even when it is small', async () => {
@@ -85,7 +89,7 @@ describe('attachments route by kind and size, not by hope', () => {
     await workbook.xlsx.writeFile(file);
 
     const result = await expandFileAtMentions(`check @${file}`, workdir);
-    expect(result.text).toContain('Ingested into the Composer');
+    expect(result.text).toContain('Read into the Composer');
     const hits = await corpus.search('E-204 measured', 5);
     expect(hits.some((hit) => hit.text.includes('7.8'))).toBe(true);
     expect(hits[0].locator).toContain('Readings');
@@ -105,6 +109,17 @@ describe('attachments route by kind and size, not by hope', () => {
     const file = await write('report.pdf', 'x'.repeat(150_000));
     const result = await expandFileAtMentions(`@${file}`, workdir);
     expect(result.text).toMatch(/not attached/);
+  });
+
+  it('tells the model NOT to inspect an already-parsed file with the shell', async () => {
+    // Measured failure on a small local model: given only a pointer, it tried ReadDocumentTool
+    // (PDFs and images only), then `ls -la`, then a python zipfile script — reinventing extraction
+    // badly while a parsed copy sat in the corpus.
+    // A document FORMAT, so it routes to the corpus. A small .txt is deliberately still inlined —
+    // RAG must not tax the ordinary case.
+    const file = await write('slides.csv', 'Slide,Topic\n1,Biological limitations of human flight\n');
+    const result = await expandFileAtMentions(`what is this about @${file}`, workdir);
+    expect(result.text).toMatch(/Do NOT inspect this file with shell commands/);
   });
 
   it('MUTANT — the old size check would have returned nothing at all', async () => {

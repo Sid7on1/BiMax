@@ -266,12 +266,50 @@ export async function expandFileAtMentions(text: string, cwd: string): Promise<F
             const report = await corpus.ingest([absPath], 'session');
             const entry = report.ingested[0];
             if (entry) {
+              // Retrieve NOW, against the user's own question, and inline the passages.
+              //
+              // Telling the model to "use ComposerSearchTool" is advice, and advice is the thing
+              // small local models drop. Observed on nemotron-3.5-lightning with a .pptx attached:
+              // it ignored the instruction, tried ReadDocumentTool (which handles only PDFs and
+              // images), and then went spelunking with `ls -la` and a python zipfile script —
+              // reinventing extraction badly while a parsed copy sat in the corpus.
+              //
+              // So the retrieval happens here instead of being requested. The context window still
+              // never sees the whole file: it sees the handful of passages that answer THIS
+              // question, each carrying its slide/page so the answer can cite it. The tool stays
+              // available for a model that wants to look further.
+              const question = text
+                .replace(FILE_AT_RE, ' ')
+                .replace(URL_AT_RE, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+              // The query is the question PLUS the file's own name. Every stored chunk is headed
+              // with its filename, so the name reliably selects this document's passages — which is
+              // what makes a generic question work at all. "what is this about?" carries no
+              // distinctive term for BM25 to match and retrieved NOTHING on its own; the model then
+              // had a pointer to a corpus and no content, which is how it ended up running `ls`.
+              const scoped = `${question} ${entry.name}`.trim();
+              let passages = '';
+              {
+                const hits = await corpus.search(scoped, 6, ['session', 'library']).catch(() => []);
+                if (hits.length) {
+                  // `hit.text` already opens with its own `[file · locator]` header — that header is
+                  // what makes the passage citable to the model — so nothing is prefixed here. Only
+                  // the OCR caveat is added, and only where it applies.
+                  passages = '\n\nMost relevant passages for this question:\n\n'
+                    + hits.map((hit) => (hit.ocr
+                      ? `${hit.text}\n(read by OCR — verify any figure against the source)`
+                      : hit.text)).join('\n\n');
+                }
+              }
               blocks.push(
                 `--- @${token} (${rel}) ---\n`
-                + `Ingested into the Composer as ${entry.chunks} searchable passage(s)`
-                + `${entry.ocr ? ', read by OCR' : ''}. It is NOT reproduced here.\n`
-                + `Use ComposerSearchTool to retrieve the parts you need; results carry the page or sheet `
-                + `so you can cite them.`,
+                + `Read into the Composer as ${entry.chunks} searchable passage(s)`
+                + `${entry.ocr ? ', via OCR' : ''}. The full file is not reproduced here.`
+                + `${passages}`
+                + `\n\nAnswer from these passages and cite the file and page/slide. Do NOT inspect this `
+                + `file with shell commands — it is already parsed. Call ComposerSearchTool if you `
+                + `need passages beyond the ones above.`,
               );
             } else {
               const reason = report.skipped[0]?.reason
