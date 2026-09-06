@@ -39,6 +39,15 @@ import { Logger } from '../utils';
 const IGNORED_DIRS = new Set([
   '.git', '.hg', '.svn', '.breakglass', 'node_modules', 'dist', 'build', 'coverage',
   '.cache', '.venv', 'venv', '__pycache__', '.pytest_cache', '.mypy_cache', 'out',
+  // Build output for the ecosystems the set above missed. `target` is the expensive one: Rust puts
+  // its entire build tree there and fills it with .rs files, which ARE in SOURCE_EXTENSIONS. On a
+  // real Rust project (measured: 14,286 files under target/ against 2,279 real sources) the walk
+  // spends its whole budget on artifacts, the event loop starves, the protocol heartbeat stops, and
+  // the desktop supervisor SIGKILLs the engine as "unresponsive" — forever, because the index never
+  // gets far enough to finish. Indexing generated code was never useful; here it was fatal.
+  'target', '.next', '.nuxt', '.svelte-kit', '.parcel-cache', '.turbo', '.angular',
+  'Pods', 'DerivedData', '.build', '.gradle', 'obj', 'bin',
+  'vendor', '.terraform', '.tox', 'site-packages', '.egg-info',
 ]);
 
 /**
@@ -51,6 +60,23 @@ const IGNORED_DIRS = new Set([
  * plus one file.
  */
 const SLICE_BUDGET_MS = 250;
+
+/**
+ * Above this many indexable source files, the semantic index does not run at all.
+ *
+ * MEASURED 2026-09-06 on a 39,628-source-file repo: the first `sync()` left the engine silent for
+ * **38.4 seconds** in one stretch. The desktop supervisor kills an engine after 20s without a
+ * protocol heartbeat, so it was SIGKILLed at 25s, restarted, and blocked again — 30 crash records
+ * over three days, every one at the same 25s mark. The index could never finish, so it never got
+ * cheaper, so the loop never ended. The app was unusable on the repo, and the reported symptom was
+ * "Bimax hit a problem", which names nothing.
+ *
+ * A cap is the honest fix for a first pass that cannot fit inside the liveness budget. Refusing to
+ * start is recoverable and legible; being killed mid-write forever is neither. Raise it with
+ * BIMAX_CODE_INDEX_MAX_FILES once indexing can be interrupted, or set BIMAX_CODE_INDEX=0 to opt out
+ * entirely.
+ */
+const MAX_INDEXABLE_FILES = Math.max(0, Number(process.env.BIMAX_CODE_INDEX_MAX_FILES ?? 12_000));
 
 const SOURCE_EXTENSIONS = new Set([
   '.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.py', '.go', '.rs', '.java',
@@ -161,12 +187,34 @@ export class CodeIndex {
    * Bring the index up to date, bounded. Returns { indexed, pending } so a caller can report
    * progress; run repeatedly (boot, or /retrieval-style commands) to drain a large backlog.
    */
+  /** Set when the repo was too large to index; surfaced so a UI can explain the absence. */
+  oversized = 0;
+
   async sync(budgetFiles: number = 200): Promise<{ indexed: number; removed: number; pending: number }> {
     if (this.syncing) return { indexed: 0, removed: 0, pending: 0 }; // one flight at a time
     this.syncing = true;
     try {
       await this.loadManifest();
       const files = await this.walkSources();
+
+      // Refuse loudly rather than start something that cannot finish. Reported, never silent: a
+      // user whose code search is quietly absent will read every "I could not find it" as fact.
+      // Applies whenever the repo is oversized, NOT only on a cold index. Gating on an empty
+      // manifest made the cap unreachable in exactly the situation it exists for: the crash loop had
+      // already written a couple of hundred entries before each kill, so on every subsequent boot
+      // the manifest was non-empty and the cap was skipped.
+      if (MAX_INDEXABLE_FILES > 0 && files.length > MAX_INDEXABLE_FILES) {
+        this.oversized = files.length;
+        Logger.warn(
+          `[CodeIndex] SKIPPED — ${files.length} indexable source files exceeds the ${MAX_INDEXABLE_FILES} `
+          + `limit. Indexing this repo would hold the event loop past the supervisor's liveness `
+          + `budget and the engine would be restarted before it finished. Semantic code search is `
+          + `unavailable for this project; every other tool works. Raise `
+          + `BIMAX_CODE_INDEX_MAX_FILES to override, or narrow the project root.`,
+        );
+        return { indexed: 0, removed: 0, pending: files.length };
+      }
+
       let removed = 0;
 
       // Deleted/renamed files first: their chunks are pure noise in every future search.
@@ -322,6 +370,18 @@ export class CodeIndex {
 
   private async walkSources(): Promise<{ abs: string; rel: string; mtimeMs: number; size: number }[]> {
     const out: { abs: string; rel: string; mtimeMs: number; size: number }[] = [];
+    // The walk gets the same liveness floor as the indexing phase. SLICE_BUDGET_MS used to guard
+    // only the indexing loop, so a repo large enough to make the WALK take tens of seconds starved
+    // the heartbeat before a single file was indexed — the supervisor then killed the engine during
+    // discovery, every time, and the index could never complete. A budget that protects the second
+    // phase but not the first protects nothing on the repos that actually need it.
+    let sliceStart = Date.now();
+    const yieldIfDue = async (): Promise<void> => {
+      if (Date.now() - sliceStart < SLICE_BUDGET_MS) return;
+      await new Promise<void>((resolve) => setImmediate(resolve));
+      sliceStart = Date.now();
+    };
+
     const walk = async (dir: string): Promise<void> => {
       let entries: import('fs').Dirent[];
       try {
@@ -330,6 +390,7 @@ export class CodeIndex {
         return;
       }
       for (const entry of entries) {
+        await yieldIfDue();
         const abs = path.join(dir, entry.name);
         if (entry.isDirectory()) {
           if (!IGNORED_DIRS.has(entry.name)) await walk(abs);
