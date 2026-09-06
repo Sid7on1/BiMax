@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { CompletionItem, ControlsMsg, UiSnapshot } from '../protocol';
 import { cn } from '../lib/cn';
+import { AttachmentWell, FileTile, type Attachment } from './AttachmentWell';
 import { Button } from './ui/button';
 import { SeedMenu, SeedMenuItem, SeedMenuLabel, SeedMenuReadout, SeedMenuSeparator } from './ui/morph/SeedMenu';
 import type { SupervisorStatus } from '../global';
@@ -142,13 +143,19 @@ export function Composer({
     if (!text.trim() || busy || queued) return;
     historyRef.current.push(text);
     histIdxRef.current = -1;
+    // The engine resolves attachments from `@path` tokens; the person never sees them. Appended at
+    // SUBMIT rather than typed into the box, so the prompt stays the prompt.
+    const refs = attachments.map((a) => `@${a.path}`).join(' ');
+    const message = refs ? `${text.trim()} ${refs}`.trim() : text;
     if (!available) {
-      setQueued(text);
+      setQueued(message);
       setText('');
+      setAttachments([]);
       return;
     }
-    onSubmit(text);
+    onSubmit(message);
     setText('');
+    setAttachments([]);
   };
 
   const accept = (item: CompletionItem): void => {
@@ -160,22 +167,48 @@ export function Composer({
   };
 
   /**
-   * Add file paths to the prompt as `@` references.
+   * Attachments are STATE, not text.
    *
-   * `@path` is the Composer's front door: the engine expands it, and a document format or an
-   * oversized file is ingested into the searchable corpus instead of being pasted into the prompt.
-   * So attaching and dropping are the same gesture, and neither needs to know about RAG.
+   * They used to be appended to the textarea as `@/Users/<name>/Desktop/<file>.pdf` — the absolute
+   * path became the UI, it consumed the full width, it buried the prompt being written, and the only
+   * way to remove one was backspace. They are now a list the person can see and dismiss, and the
+   * path is appended to the message only at submit, where the engine reads it.
    */
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [wellOpen, setWellOpen] = useState(false);
+
   const addPaths = (paths: string[]): void => {
     const usable = paths.filter(Boolean);
     if (!usable.length) return;
-    const refs = usable.map((p) => `@${p}`).join(' ');
-    setText((t) => (t ? `${t.replace(/\s+$/, '')} ${refs} ` : `${refs} `));
-    taRef.current?.focus();
+    setAttachments((current) => {
+      const seen = new Set(current.map((a) => a.path));
+      const added = usable.filter((p) => !seen.has(p))
+        .map((p) => ({ path: p, name: p.split('/').pop() || p, icon: '', size: 0 }));
+      return added.length ? [...current, ...added] : current;
+    });
+    // The real Finder icon is resolved after the tile exists, so a slow lookup never delays the
+    // feedback that the file landed.
+    for (const p of usable) {
+      void window.bimax.fileIcon(p).then((resolved) => {
+        if (!resolved?.icon && !resolved?.size) return;
+        setAttachments((current) => current.map(
+          (a) => (a.path === p ? { ...a, icon: resolved.icon || a.icon, size: resolved.size || a.size } : a),
+        ));
+      }).catch(() => undefined);
+    }
   };
+
+  const removeAttachment = (path: string): void =>
+    setAttachments((current) => current.filter((a) => a.path !== path));
 
   const attach = (): void => {
     void window.bimax.pickFiles().then(addPaths);
+  };
+
+  const openWell = (): void => setWellOpen(true);
+  const closeWell = (): void => {
+    setWellOpen(false);
+    taRef.current?.focus();
   };
 
   /**
@@ -195,6 +228,8 @@ export function Composer({
   const onDragEnter = (e: React.DragEvent): void => {
     if (!e.dataTransfer.types.includes('Files')) return;
     e.preventDefault();
+    // A drag anywhere over the composer opens the well, so the hole is what you drop onto.
+    setWellOpen(true);
     setDropDepth((d) => d + 1);
   };
   const onDragLeave = (): void => setDropDepth((d) => Math.max(0, d - 1));
@@ -323,17 +358,25 @@ export function Composer({
           </div>
         )}
 
-        {dropDepth > 0 && (
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-[22px] bg-raise/85 backdrop-blur-[1px]"
-          >
-            <span className="flex items-center gap-2 font-display text-[13px] text-ember">
-              <FileText size={14} />
-              Drop to read — PDFs, scans, Office files, anything text
-            </span>
+        {wellOpen && (
+          <AttachmentWell
+            attachments={attachments}
+            dragging={dropDepth > 0}
+            onPick={attach}
+            onRemove={removeAttachment}
+            onClose={closeWell}
+          />
+        )}
+
+        {/* Once the well is closed the files ride ABOVE the prompt, still removable. */}
+        {!wellOpen && attachments.length > 0 && (
+          <div className="flex flex-wrap gap-2 px-5 pt-3">
+            {attachments.map((file) => (
+              <FileTile key={file.path} file={file} compact onRemove={() => removeAttachment(file.path)} />
+            ))}
           </div>
         )}
+
         <div className="flex items-end gap-3 px-5 pt-4 pb-3">
           <textarea
             ref={taRef}
@@ -352,7 +395,7 @@ export function Composer({
           <button
             type="button"
             title="Attach files as @references"
-            onClick={attach}
+            onClick={openWell}
             className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-line text-dim transition-colors hover:border-ember/50 hover:bg-hover hover:text-ink"
           >
             <Plus size={16} />

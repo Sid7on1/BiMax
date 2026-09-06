@@ -709,6 +709,35 @@ app.whenReady().then(async () => {
     return res.filePaths.map((p) => (p.startsWith(root + '/') ? p.slice(root.length + 1) : p));
   });
 
+  /**
+   * The real macOS icon for a file, as a data URL.
+   *
+   * `app.getFileIcon` asks Launch Services for the SAME icon Finder draws — a red Acrobat sheet for
+   * a PDF, the green grid for a spreadsheet. That is the point: an attachment should look like the
+   * document the user recognises, not like a filename in a monospace font. Generic per-extension
+   * glyphs would be a different, worse thing that only resembles this.
+   *
+   * Resolved per file and cached by the renderer. A failure returns '' rather than throwing, so one
+   * unreadable file cannot take down the whole attachment tray.
+   */
+  secureHandle<{ path: string; icon: string; size: number }>(
+    'app:file-icon', { path: '', icon: '', size: 0 },
+    async (_e, raw) => {
+      const requested = typeof raw === 'string' ? raw : '';
+      if (!requested) return { path: '', icon: '', size: 0 };
+      // Attachments may be project-relative (pick-files strips the root) or absolute.
+      const absolute = path.isAbsolute(requested) ? requested : path.join(projectDir(), requested);
+      let size = 0;
+      try { size = (await import('node:fs')).statSync(absolute).size; } catch { /* size is cosmetic */ }
+      try {
+        const image = await app.getFileIcon(absolute, { size: 'large' });
+        return { path: requested, icon: image.toDataURL(), size };
+      } catch {
+        return { path: requested, icon: '', size };
+      }
+    },
+  );
+
   // Review panel — native git reads (writes go through the engine's /git for attribution).
   secureHandle<unknown>('git:status', null, () => gitStatus(projectDir()));
   // gitDiff contains the pathspec against the project itself — see its doc comment.
