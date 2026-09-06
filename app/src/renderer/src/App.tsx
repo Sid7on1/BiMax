@@ -44,7 +44,7 @@ import { usePhase9 } from './usePhase9';
 
 export function App(): React.ReactElement {
   const {
-    state, submit, interrupt, setControls, sendCommand, query, reply, menuSelect,
+    state, submit, interrupt, setControls, sendCommand, query, ingestAttachment, reply, menuSelect,
     clearCompletions, configGet, configSet, catalogGet,
   } = useEngine();
   const { status: supervisorStatus, act: supervisorAct } = useSupervisor();
@@ -389,6 +389,7 @@ export function App(): React.ReactElement {
                     onControls={setControls}
                     onCommand={sendCommand}
                     onQuery={query}
+                    onIngest={ingestAttachment}
                     onClearCompletions={clearCompletions}
                     onOpenModels={() => setModelsOpen(true)}
                     runtime={supervisorStatus}

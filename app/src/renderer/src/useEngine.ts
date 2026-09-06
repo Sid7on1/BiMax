@@ -98,6 +98,37 @@ export function useEngine() {
     window.bimax.send({ t: 'query', id, text });
   }, []);
 
+  /**
+   * Read an attached file into the Composer NOW, and resolve with what came back.
+   *
+   * Rides the `query` request/response channel with a reserved prefix, so attaching a file needs no
+   * new protocol message and no version bump. The point is timing: a file must be read the moment it
+   * is attached, the way every assistant people already use behaves. Deferring to send time is what
+   * made the model appear to go and find the file — the path travelled in the prompt and the reading
+   * happened as visible work inside the turn.
+   */
+  const ingestAttachment = useCallback((filePath: string): Promise<{ ok: boolean; chunks: number; reason: string }> => {
+    const id = ++queryId.current;
+    return new Promise((resolve) => {
+      // Never leave a tile spinning forever: a wedged or restarting engine resolves as a failure the
+      // tile can show, rather than as silence the user has to interpret.
+      const timer = setTimeout(() => { stop(); resolve({ ok: false, chunks: 0, reason: 'engine did not answer' }); }, 120_000);
+      const stop = window.bimax.onMessage((raw) => {
+        const msg = raw as { t?: string; id?: number; items?: { label?: string; value?: string; desc?: string }[] };
+        if (msg?.t !== 'queryResult' || msg.id !== id) return;
+        clearTimeout(timer);
+        stop();
+        const item = msg.items?.[0];
+        resolve({
+          ok: item?.label === 'read',
+          chunks: Number(item?.value || 0),
+          reason: item?.desc || (item?.label === 'read' ? '' : 'could not be read'),
+        });
+      });
+      window.bimax.send({ t: 'query', id, text: `\u0000composer:ingest:${filePath}` });
+    });
+  }, []);
+
   const reply = useCallback((id: number, value: string) => {
     window.bimax.send({ t: 'reply', id, value });
     dispatch({ type: 'closeRequest' });
@@ -178,7 +209,7 @@ export function useEngine() {
   );
 
   return {
-    state, submit, interrupt, setControls, sendCommand, query, reply, menuSelect, clearCompletions,
+    state, submit, interrupt, setControls, sendCommand, query, ingestAttachment, reply, menuSelect, clearCompletions,
     configGet, configSet, catalogGet, providerSet,
   };
 }

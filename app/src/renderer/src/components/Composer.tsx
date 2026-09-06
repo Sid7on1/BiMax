@@ -56,7 +56,7 @@ const TIERS = [
 
 export function Composer({
   busy, mode, tier, snapshot, streamedChars, completions, project, branch,
-  onSubmit, onInterrupt, onControls, onCommand, onQuery, onClearCompletions, onOpenModels, runtime,
+  onSubmit, onInterrupt, onControls, onCommand, onQuery, onIngest, onClearCompletions, onOpenModels, runtime,
 }: {
   busy: boolean;
   mode: string;
@@ -72,6 +72,8 @@ export function Composer({
   onControls: (controls: Omit<ControlsMsg, 't'>) => void;
   onCommand: (cmd: string) => void;
   onQuery: (text: string) => void;
+  /** Read an attached file into the Composer immediately. */
+  onIngest: (filePath: string) => Promise<{ ok: boolean; chunks: number; reason: string }>;
   onClearCompletions: () => void;
   /** Opens the model window. Configuration never goes through the transcript. */
   onOpenModels: () => void;
@@ -183,9 +185,22 @@ export function Composer({
     setAttachments((current) => {
       const seen = new Set(current.map((a) => a.path));
       const added = usable.filter((p) => !seen.has(p))
-        .map((p) => ({ path: p, name: p.split('/').pop() || p, size: 0 }));
+        .map((p) => ({ path: p, name: p.split('/').pop() || p, size: 0, state: 'reading' as const }));
       return added.length ? [...current, ...added] : current;
     });
+
+    // Read it NOW. Not at send: a file must be read the moment it is attached, which is what makes
+    // the model answer from the document instead of appearing to go and find it.
+    for (const p of usable) {
+      void onIngest(p).then((result) => {
+        setAttachments((current) => current.map((a) => (a.path === p
+          ? { ...a, state: result.ok ? 'read' : 'failed', chunks: result.chunks, reason: result.reason }
+          : a)));
+      }).catch(() => {
+        setAttachments((current) => current.map(
+          (a) => (a.path === p ? { ...a, state: 'failed', reason: 'could not be read' } : a)));
+      });
+    }
   };
 
   const removeAttachment = (path: string): void =>

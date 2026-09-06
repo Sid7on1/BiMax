@@ -32,6 +32,18 @@ export interface Attachment {
   name: string;
   /** Bytes; 0 when unknown (the picker gives no size, a drop does). Cosmetic. */
   size: number;
+  /**
+   * Whether the engine has actually READ this file yet.
+   *
+   * Shown on the tile because "attached" and "read" are different claims, and only the second one
+   * means the model can answer from it. A file that failed to parse must say so at attach time, not
+   * silently produce an answer sourced from nothing.
+   */
+  state: 'reading' | 'read' | 'failed';
+  /** Passages the document became, once read. */
+  chunks?: number;
+  /** Why it could not be read. */
+  reason?: string;
 }
 
 /** Extension → the family a person recognises, and the colour it is drawn in. */
@@ -207,9 +219,13 @@ export function FileTile({
       <FileGlyph name={file.name} size={compact ? 24 : 32} />
       <span className="min-w-0 leading-tight">
         <span className="block truncate text-[12px] text-ink">{file.name}</span>
-        {!compact && !!file.size && (
-          <span className="block text-[10px] text-faint">{formatBytes(file.size)}</span>
-        )}
+        <span className={cn('block text-[10px]',
+          file.state === 'failed' ? 'text-ember' : 'text-faint')}>
+          {file.state === 'reading' && 'reading…'}
+          {file.state === 'read' && (file.chunks ? `read · ${file.chunks} passage${file.chunks === 1 ? '' : 's'}` : 'read')}
+          {file.state === 'failed' && (file.reason || 'could not be read')}
+          {file.state === 'read' && !compact && !!file.size && ` · ${formatBytes(file.size)}`}
+        </span>
       </span>
       <button
         type="button"

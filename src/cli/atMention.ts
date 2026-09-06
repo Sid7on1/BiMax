@@ -265,7 +265,12 @@ export async function expandFileAtMentions(text: string, cwd: string): Promise<F
             }
             const report = await corpus.ingest([absPath], 'session');
             const entry = report.ingested[0];
-            if (entry) {
+            // `unchanged` means this exact file is ALREADY in the corpus — which is now the normal
+            // case, because the Composer reads a file the moment it is attached. Treating it as a
+            // failure would send the model "[not ingested]" and no passages for a document that is
+            // fully indexed: strictly worse than before the attach-time read existed.
+            const present = Boolean(entry) || report.unchanged > 0;
+            if (present) {
               // Retrieve NOW, against the user's own question, and inline the passages.
               //
               // Telling the model to "use ComposerSearchTool" is advice, and advice is the thing
@@ -288,7 +293,7 @@ export async function expandFileAtMentions(text: string, cwd: string): Promise<F
               // what makes a generic question work at all. "what is this about?" carries no
               // distinctive term for BM25 to match and retrieved NOTHING on its own; the model then
               // had a pointer to a corpus and no content, which is how it ended up running `ls`.
-              const scoped = `${question} ${entry.name}`.trim();
+              const scoped = `${question} ${entry?.name ?? path.basename(absPath)}`.trim();
               let passages = '';
               {
                 const hits = await corpus.search(scoped, 6, ['session', 'library']).catch(() => []);
@@ -304,16 +309,17 @@ export async function expandFileAtMentions(text: string, cwd: string): Promise<F
               }
               blocks.push(
                 `--- @${token} (${rel}) ---\n`
-                + `Read into the Composer as ${entry.chunks} searchable passage(s)`
-                + `${entry.ocr ? ', via OCR' : ''}. The full file is not reproduced here.`
+                + (entry
+                  ? `Read into the Composer as ${entry.chunks} searchable passage(s)${entry.ocr ? ', via OCR' : ''}.`
+                  : 'Already read into the Composer.')
+                + ' The full file is not reproduced here.'
                 + `${passages}`
                 + `\n\nAnswer from these passages and cite the file and page/slide. Do NOT inspect this `
                 + `file with shell commands — it is already parsed. Call ComposerSearchTool if you `
                 + `need passages beyond the ones above.`,
               );
             } else {
-              const reason = report.skipped[0]?.reason
-                ?? (report.unchanged ? 'already ingested — search the Composer for it' : 'produced no readable text');
+              const reason = report.skipped[0]?.reason ?? 'produced no readable text';
               // A failed attachment is reported, never silent: the user believes this file was read.
               blocks.push(`--- @${token} (${rel}) ---\n[not ingested: ${reason}]`);
             }

@@ -325,7 +325,46 @@ export async function startHeadless(container: any, config: any): Promise<void> 
       void session.dispatch(text);
     },
     onInterrupt: () => session.interrupt(),
-    onQuery: (text) => completeInput(text, graphStore, process.cwd()),
+    onQuery: async (text) => {
+      // The completions channel doubles as the Composer's ingest channel.
+      //
+      // Attaching a file must READ IT THERE AND THEN, the way every assistant people already use
+      // does. Deferring to send time is what made the model appear to "go find the file and read
+      // it": the path travelled in the prompt, and the reading was visible work inside the turn.
+      // Ingesting at attach means that by the time a turn runs, the document is already parsed and
+      // only its passages travel.
+      //
+      // Carried on `query` deliberately: it is already a request/response channel with an id, so
+      // this needs no new message type, no protocol version bump, and no regenerated mirror. The
+      // reserved prefix cannot collide with a completion — completions are what the user typed.
+      const INGEST = '\u0000composer:ingest:';
+      if (text.startsWith(INGEST)) {
+        const file = text.slice(INGEST.length);
+        try {
+          const { getComposerCorpus } = require('../memory/corpus') as typeof import('../memory/corpus');
+          const corpus = getComposerCorpus();
+          if (!corpus) return [{ label: 'unavailable', value: '', kind: 'path' as const, desc: 'no corpus' }];
+          const report = await corpus.ingest([file], 'session');
+          const entry = report.ingested[0];
+          if (entry) {
+            return [{
+              label: 'read', value: String(entry.chunks), kind: 'path' as const,
+              desc: entry.ocr ? 'ocr' : '',
+            }];
+          }
+          // Unchanged means an identical file is already indexed — still "read" from the user's
+          // point of view, and reporting it as a failure would be a lie about the corpus.
+          if (report.unchanged) return [{ label: 'read', value: '0', kind: 'path' as const, desc: '' }];
+          return [{
+            label: 'failed', value: '0', kind: 'path' as const,
+            desc: report.skipped[0]?.reason || 'no readable text',
+          }];
+        } catch (error) {
+          return [{ label: 'failed', value: '0', kind: 'path' as const, desc: String((error as Error)?.message || error) }];
+        }
+      }
+      return completeInput(text, graphStore, process.cwd());
+    },
     onMenuSelect: (id, value) => session.selectMenu(id, value),
     // Typed recovery resume (protocol v3 additive): same code path as the user's /resume, but
     // requested as a structured message so front-ends never fabricate slash-command text.
