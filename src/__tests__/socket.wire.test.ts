@@ -224,16 +224,22 @@ describe('Postgres: the parts that are ours, not the driver’s', () => {
   };
 
   beforeEach(() => {
-    jest.resetModules();
     FakeClient.lastOptions = null; FakeClient.lastQuery = null;
     FakeClient.rows = []; FakeClient.failWith = null;
-    jest.doMock('pg', () => ({ Client: FakeClient }), { virtual: true });
   });
-  afterEach(() => { jest.dontMock('pg'); });
+
+  /**
+   * Injected, not module-mocked. `jest.doMock('pg', …)` stops working the moment anything else in
+   * the worker has loaded the real driver — which socket.live.test.ts does — so the mock silently
+   * fell through to a REAL connection and these tests began failing for a reason that had nothing
+   * to do with the code under test.
+   */
+  const withFake = (config: ConnectorConfig): PostgresAdapter =>
+    new PostgresAdapter(config, (options) => new FakeClient(options) as never);
 
   it('opens the connection READ-ONLY at the server, not merely by our own checking', async () => {
     FakeClient.rows = [{ tag: 'E-204', thickness_mm: 7.8 }];
-    await new PostgresAdapter(pgConnector).query(pgTemplate(), ['E-204']);
+    await withFake(pgConnector).query(pgTemplate(), ['E-204']);
     // This is the layer that still holds when our statement linter is wrong.
     expect(String(FakeClient.lastOptions?.options)).toContain('default_transaction_read_only=on');
     expect(FakeClient.lastOptions?.statement_timeout).toBe(7_000);
@@ -242,7 +248,7 @@ describe('Postgres: the parts that are ours, not the driver’s', () => {
 
   it('passes parameters through the driver’s bind path, never concatenated into SQL', async () => {
     FakeClient.rows = [];
-    await new PostgresAdapter(pgConnector).query(pgTemplate(), ['E-204']);
+    await withFake(pgConnector).query(pgTemplate(), ['E-204']);
     expect(FakeClient.lastQuery?.text).toBe('SELECT tag, thickness_mm FROM inspections WHERE tag = $1');
     expect(FakeClient.lastQuery?.values).toEqual(['E-204']);
     // The value must not appear in the statement text — that would mean interpolation.
@@ -251,14 +257,14 @@ describe('Postgres: the parts that are ours, not the driver’s', () => {
 
   it('caps rows and reports truncation', async () => {
     FakeClient.rows = Array.from({ length: 10 }, (_, i) => ({ n: i }));
-    const result = await new PostgresAdapter(pgConnector).query(pgTemplate({ maxRows: 3 }), ['E-204']);
+    const result = await withFake(pgConnector).query(pgTemplate({ maxRows: 3 }), ['E-204']);
     expect(result.rowCount).toBe(3);
     expect(result.truncated).toBe(true);
   });
 
   it('maps a driver error to a socket refusal that names the cause', async () => {
     FakeClient.failWith = 'permission denied for table inspections';
-    await expect(new PostgresAdapter(pgConnector).query(pgTemplate(), ['E-204']))
+    await expect(withFake(pgConnector).query(pgTemplate(), ['E-204']))
       .rejects.toThrow(/permission denied for table inspections/);
   });
 });

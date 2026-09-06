@@ -178,6 +178,22 @@ measure the wrong thing.
 
 ---
 
+## Status
+
+Phase 1 and Phase 2 shipped 2026-09-06 (commit b8302b9). Deferred by decision, not oversight:
+
+- ~~Live Redis/Postgres integration test.~~ **DONE 2026-09-07** —
+  `src/__tests__/socket.live.test.ts`, 10 tests against a real Redis 8 and PostgreSQL 16 (Homebrew,
+  no Docker). Seeded by `scripts/seed-socket-fixtures.sh`; the tests SKIP by name when nothing is
+  listening, so CI stays green without them. It immediately found a bug the scripted tests could
+  not: `ConnectorConfig.database` was honoured by Postgres and silently ignored by Redis, so a
+  connector on any non-zero logical database read from the wrong one and returned "no such key" —
+  indistinguishable from a genuinely absent record.
+- **Local reranker model.** The endpoint and both dialects are fixed, but the +17.4% needs a
+  reranker actually served (e.g. vLLM with `BAAI/bge-reranker-v2-m3` and `BIMAX_RERANK_MODEL` set).
+  Until then the degradation is reported rather than silent, which was the real bug.
+- **Citation chips** in the transcript: passages carry `file · page N` but render as plain text.
+
 ## Sources
 
 - [From BM25 to Corrective RAG: Benchmarking Retrieval Strategies for Text-and-Table Documents](https://arxiv.org/html/2604.01733v1)

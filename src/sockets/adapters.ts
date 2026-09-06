@@ -98,17 +98,32 @@ function password(config: ConnectorConfig): string | undefined {
 
 /* ------------------------------------------------------------------ Postgres */
 
+/**
+ * How a Postgres client is constructed. Injectable so a test can drive the adapter without a server
+ * AND without module mocking — `jest.doMock('pg', …)` is defeated as soon as anything else in the
+ * same worker has already loaded the real driver, which is exactly what happens once the live
+ * integration tests run alongside these. A seam is deterministic where a mock is order-dependent.
+ */
+export type PgClientFactory = (options: Record<string, unknown>) => {
+  connect(): Promise<void>;
+  query(config: { text: string; values: unknown[] }): Promise<{ rows: Record<string, unknown>[] }>;
+  end(): Promise<void>;
+};
+
 export class PostgresAdapter implements Adapter {
   readonly kind = 'postgres';
   private client: any = null;
 
-  constructor(private readonly config: ConnectorConfig) {}
+  constructor(
+    private readonly config: ConnectorConfig,
+    private readonly clientFactory?: PgClientFactory,
+  ) {}
 
   private async connect(): Promise<any> {
     if (this.client) return this.client;
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { Client } = require('pg');
-    const client = new Client({
+    const Client = this.clientFactory ?? ((options: Record<string, unknown>) => new (require('pg').Client)(options));
+    const client = Client({
       host: this.config.host,
       port: this.config.port,
       database: this.config.database,
@@ -263,11 +278,24 @@ export class RedisAdapter implements Adapter {
       return String(bound[index]);
     }));
 
-    const auth: string[][] = [];
+    const preamble: string[][] = [];
     const secret = password(this.config);
-    if (secret) auth.push(this.config.user ? ['AUTH', this.config.user, secret] : ['AUTH', secret]);
+    if (secret) preamble.push(this.config.user ? ['AUTH', this.config.user, secret] : ['AUTH', secret]);
+    // `database` was honoured by the Postgres adapter and silently IGNORED here, so a connector
+    // pointing at any Redis logical database other than 0 read from the wrong one and returned
+    // "no such key" — indistinguishable from a genuinely absent record, which is the worst way for
+    // a retrieval surface to be wrong. Found by running against a real server rather than a script.
+    const database = (this.config.database ?? '').trim();
+    if (database) {
+      if (!/^\d{1,3}$/.test(database)) {
+        throw new SocketQueryError(
+          `connector "${this.config.name}": Redis database must be a number, got "${database}"`,
+        );
+      }
+      preamble.push(['SELECT', database]);
+    }
 
-    const { replies, bytesOut } = await this.send([...auth, argv]);
+    const { replies, bytesOut } = await this.send([...preamble, argv]);
     const reply = replies[replies.length - 1];
     const limit = Math.min(template.maxRows ?? MAX_ROWS, MAX_ROWS);
 
