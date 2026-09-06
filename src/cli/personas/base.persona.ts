@@ -27,83 +27,7 @@ import { getEventLedger } from '../../mind/event.ledger';
 import { getExemplarStore } from '../../mind/exemplar.store';
 import { getPolicyArms } from '../../mind/policy.arms';
 import { getHarnessTuner } from '../../mind/harness.tuner';
-import { buildComputerUseModelPrompt } from './computer.playbook';
-import { runWithTrustedComputerPlan } from '../../mind/computer.trusted.plan';
 
-/**
- * Conservative app-owned Computer Use intent check.
- *
- * The second half deliberately requires a GUI verb and a macOS surface. A coding request that
- * merely mentions "the app" must stay in the coding lane. Explicit Computer Use vocabulary is
- * enough on its own because the user has already selected the capability in their words.
- */
-export function explicitlyRequiresComputerUse(prompt: string): boolean {
-  const text = String(prompt || '');
-  if (/\b(?:computer[ -]?use|control (?:my |the )?mac|use (?:my |the )?(?:mac|computer)|mac[_ -]?control)\b/i.test(text)) {
-    return true;
-  }
-  // Transport verbs are desktop control on their own. Nothing in a coding task asks to play, pause
-  // or mute something, so these need no surface noun — which matters because the surface list below
-  // cannot name every app. Measured 2026-08-18: "play Heaven's Eyes on Spotify" matched neither
-  // half, stayed in the coding lane with BashTool on the wire, and the model drove the Mac with
-  // `osascript -e 'tell application "Spotify" ...'`, passing none of the Computer Use gates.
-  // (\bplay\b does not match "playbook" or "player", so the repo's own vocabulary is unaffected.)
-  // Two exclusions, both measured against real phrasings rather than guessed:
-  //   • a transport word directly modifying a UI/code noun is a NAME, not a command
-  //     ("add a pause button" asked for a component, not for playback to stop);
-  //   • any authoring verb in the sentence means the user is building software that happens to be
-  //     about media ("implement shuffle", "write a track parser").
-  // Being conservative here is cheap now: the shell-side GUI-automation guard turns a missed
-  // request into a loud refusal naming the capability, never a silent osascript.
-  const transportAsUiNoun = /\b(?:play|pause|resume|skip|unmute|mute|shuffle|volume)\s+(?:button|toggle|control|icon|state|handler|method|component|prop|event|label|class|function|api|endpoint|flag|feature|support)\b/i;
-  const authoringVerb = /\b(?:add|create|implement|build|write|refactor|fix|test|debug|rename|delete|remove|design|document)\b/i;
-  const transportAction = /\b(?:play|pause|resume|skip|unmute|mute|shuffle)\b|\b(?:next|previous|last) (?:track|song|episode)\b|\bvolume\b/i;
-  if (transportAction.test(text) && !transportAsUiNoun.test(text) && !authoringVerb.test(text)) {
-    return true;
-  }
-
-  const guiAction = /\b(?:open|launch|focus|switch to|click|double[- ]click|press|type|enter|select|choose|drag|drop|scroll|close|quit|arrange|maximi[sz]e|minimi[sz]e|read|check|inspect|look at|send|compose|reply|take (?:a )?screenshot)\b/i;
-  // Surfaces, deliberately NOT an app allowlist: named apps are examples that happen to be common,
-  // and the generic half (app, window, dialog, song, playlist) is what keeps this app-agnostic when
-  // the user names something that was never listed.
-  const macSurface = /\b(?:system settings|calculator|finder|safari|messages|mail|notes|calendar|preview|textedit|activity monitor|keychain access|menu bar|dock|desktop|window|dialog|popover|checkbox|button|app|application|song|track|playlist|album|music)\b/i;
-  return guiAction.test(text) && macSurface.test(text);
-}
-
-/** Return the one Desktop-owned compatibility tool name, never a generic third-party CU tool. */
-export function appOwnedComputerUseToolName(toolNames: readonly string[]): string | undefined {
-  return toolNames.find(name => name === 'mcp__bimax-mac__mac_control' || name === 'mac_control');
-}
-
-/**
- * Narrow an explicitly requested Desktop Computer Use turn to the app-owned native capability.
- *
- * The prompt alone is only advice. AgentLoop's `requireTool` option is the actual activation gate:
- * it withholds pre-tool narration, forces the named function after a missed first sample, and
- * terminates honestly when the active model cannot call it. Keep this pure so the Desktop wiring
- * cannot silently regress back to a generic coding pass.
- */
-export function appOwnedComputerUseLoopOptions(
-  prompt: string,
-  toolNames: readonly string[],
-): { requireTool?: string; toolNames?: readonly string[]; skipRepoMap?: boolean } {
-  const toolName = explicitlyRequiresComputerUse(prompt)
-    ? appOwnedComputerUseToolName(toolNames)
-    : undefined;
-  if (!toolName) return {};
-
-  // CU keeps one acting authority, but it may consult the engine's two bounded read-only RAG
-  // surfaces first. This is the context bridge: long-term memory and repository intent search can
-  // inform the native planner without reopening shell/file/edit/MCP authority on a Mac-control
-  // turn. AgentLoop still requires mac_control before the turn may finish.
-  const contextTools = ['MemoryQueryTool', 'CodeSearchTool']
-    .filter((name) => toolNames.includes(name));
-  return {
-    requireTool: toolName,
-    toolNames: [toolName, ...contextTools],
-    skipRepoMap: true,
-  };
-}
 
 type PersonaPromptOptions = {
   planMode?: boolean;
@@ -259,7 +183,7 @@ export abstract class AgentPersona {
       : '';
 
     const pathRules = insideCodebase
-      ? `You are inside a codebase project. ALWAYS confine file operations to this project directory.\nIf asked to add a file to a folder that does NOT exist locally, DO NOT silently create it. Use AskUserTool to ask whether to create the folder.\nNever search the system for missing folders when inside a codebase.`
+      ? `You are inside a codebase project. ALWAYS confine file operations to this project directory.\nYou ALREADY START in it (the CWD above) — never open a task by cd-ing into it, into \`.\`, or into one of its subdirectories. Every tool takes a path directly, relative to that CWD. Use ChangeDirectoryTool only when the user asks to work somewhere else entirely.\nIf asked to add a file to a folder that does NOT exist locally, DO NOT silently create it. Use AskUserTool to ask whether to create the folder.\nNever search the system for missing folders when inside a codebase.`
       : `You are in a general directory (not a codebase). If the user references a project folder that does not exist here, SEARCH for it first using \`find ${homedir} -maxdepth 3 -type d -name "FOLDER_NAME"\` before creating anything. Never blindly create project-like folders.\nIf creating a file or folder fails because it already exists, use AskUserTool with options: ["Overwrite", "Cancel", "Tell me what else to do"].`;
 
     const sections: Record<string, string> = {
@@ -486,14 +410,6 @@ export abstract class AgentPersona {
   }
 
   public async execute(prompt: string, onToken?: (token: string) => void, options?: { maxIterations?: number; planMode?: boolean; useLite?: boolean; images?: string[]; signal?: AbortSignal; internalTurn?: boolean; sessionId?: string }): Promise<string> {
-    if (explicitlyRequiresComputerUse(prompt)) {
-      // Bind authority before the model sees its first observation. Do not couple the signature to
-      // the provider already being present in ToolRegistry: Desktop can reconnect/register the MCP
-      // surface while a turn is in flight. The launch-scoped secret exists only in Bimax.app, so
-      // Terminal still gets the ordinary no-op path. AsyncLocalStorage keeps concurrent personas
-      // isolated while a later-appearing app-owned call inherits this turn's authenticated plan.
-      return runWithTrustedComputerPlan(prompt, () => this.executeTurn(prompt, onToken, options));
-    }
     return this.executeTurn(prompt, onToken, options);
   }
 
@@ -517,21 +433,6 @@ export abstract class AgentPersona {
       try { void getHarnessTuner().labPass().catch(() => { /* best-effort */ }); } catch { /* best-effort */ }
     }
 
-    // Bimax for Mac owns Computer Use. Terminal deliberately has no mac_control provider, so this
-    // branch is unreachable there and no CU prompt or ownership leaks back into the coding product.
-    // The helper used to exist without a production caller; Desktop therefore exposed the native
-    // tool but sent a generic coding prompt, which let small controllers narrate prospective tool
-    // JSON instead of completing the observe -> one action -> verify loop.
-    const computerUseLoopOptions = appOwnedComputerUseLoopOptions(
-      prompt,
-      this.toolRegistry.getToolNames(),
-    );
-    const computerToolName = computerUseLoopOptions.requireTool;
-    const activeModel = String((this.llmAdapter as any).userModel || (this.llmAdapter as any).defaultModel || '');
-    const modelPrompt = computerToolName && explicitlyRequiresComputerUse(prompt)
-      ? buildComputerUseModelPrompt(prompt, { model: activeModel, toolName: computerToolName })
-      : prompt;
-
     // Resolve the active model's capabilities once for this turn — drives both vision attachment
     // and the context-window fallback below. Best-effort: FLOOR (no caps) on any failure.
     let caps: ModelCapabilities | undefined;
@@ -544,11 +445,11 @@ export abstract class AgentPersona {
       // A configured vision slot counts: the adapter reroutes image turns to it when the primary
       // model is text-only, so the images should be attached rather than dropped.
       const canSee = (this.llmAdapter as any).canSeeImages?.() ?? !!caps?.visionInput;
-      const built = buildUserContent(modelPrompt, images, canSee);
+      const built = buildUserContent(prompt, images, canSee);
       if (built.notice && onToken) onToken(`_${built.notice}_\n`);
       this.messages.push({ role: 'user', content: built.content });
     } else {
-      this.messages.push({ role: 'user', content: modelPrompt });
+      this.messages.push({ role: 'user', content: prompt });
     }
     let executionLog = '';
 
@@ -610,9 +511,6 @@ export abstract class AgentPersona {
       memory,
       exemplars,
       contextMode,
-      // A specialized CU turn exposes only the native actor plus bounded read-only retrieval.
-      // Keep the textual tool map identical to the schemas AgentLoop puts on the wire.
-      toolNames: computerUseLoopOptions.toolNames,
     });
     const systemPrompt = [parts.staticPrefix, parts.dynamicSuffix].filter(Boolean).join('\n\n');
     AgentPersona.injectTurnContext(this.messages, parts.turnContext);
@@ -623,14 +521,13 @@ export abstract class AgentPersona {
       useLite: options?.useLite,
       signal: options?.signal,
       sessionId: options?.sessionId,
-      ...computerUseLoopOptions,
     };
     executionLog += await this.runPass(loop, systemPrompt, passOpts, onToken);
 
     // Self-critic loop: review the work and, if defects are found, take one more pass.
     // Skipped in plan mode (nothing was changed), for trivial replies, and when the turn was
     // interrupted (don't spend a model call reviewing work the user just cancelled).
-    if (!computerToolName && !options?.signal?.aborted && isSelfCriticEnabled() && !options?.planMode && executionLog.trim().length > 40) {
+    if (!options?.signal?.aborted && isSelfCriticEnabled() && !options?.planMode && executionLog.trim().length > 40) {
       try {
         let review = await this.critique(prompt, executionLog);
         // Assertion extraction rides the critic pass (v2 §3.5.2 — the lite model is

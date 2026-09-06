@@ -17,8 +17,17 @@ const config: Config = {
   //
   // A fraction rather than a fixed count, so a larger CI box still uses its cores.
   maxWorkers: '50%',
-  roots: ['<rootDir>/src'],
+  // `app/src` was NOT here, so all 14 suites in app/src/__tests__ — the Desktop pure-logic tests,
+  // including desktop.bundle.resolution.test.ts, the one that checks the PACKAGED bundle — never
+  // ran. There is no jest config under app/ and app/package.json has no test script either, so
+  // nothing anywhere executed them. They were green the way an unread file is green.
+  roots: ['<rootDir>/src', '<rootDir>/app/src'],
   testMatch: ['**/__tests__/**/*.test.ts', '**/__tests__/**/*.test.tsx'],
+  // Redirects the global config + secrets dir to a temp path so a test can never write to the
+  // developer's real ~/.breakglass. See jest.setup.ts — this is not hygiene, it is a fix for a
+  // measured incident where the suite blanked the user's configured model.
+  setupFiles: ['<rootDir>/jest.setup.ts'],
+  testPathIgnorePatterns: ['/node_modules/', '<rootDir>/archive/'],
   collectCoverage: true,
   coverageDirectory: 'coverage',
   coveragePathIgnorePatterns: [

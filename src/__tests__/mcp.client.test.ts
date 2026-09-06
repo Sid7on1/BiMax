@@ -8,7 +8,6 @@ import {
   mcpToolCallRequest,
   registerMcpTools,
 } from '../mcp/client';
-import { runWithTrustedComputerPlan } from '../mind/computer.trusted.plan';
 import { ToolRegistry } from '../tools/tool.registry';
 import { IGovernor } from '../core/interfaces';
 
@@ -96,20 +95,11 @@ describe('host-provider catalog contract', () => {
     expect(approvalHandledByAppOwnedProvider('third-party', 'mac_control')).toBe(false);
   });
 
-  test('attaches the authenticated task plan only to the app-owned Mac call', async () => {
-    const previous = process.env.BIMAX_CU_TRUSTED_PLAN_SECRET;
-    process.env.BIMAX_CU_TRUSTED_PLAN_SECRET = 'mcp-plan-test';
-    try {
-      await runWithTrustedComputerPlan('open Fixture', async () => {
-        expect(mcpToolCallRequest('bimax-mac', 'mac_control', { action: 'open' }))
-          .toHaveProperty('_meta.bimaxTrustedPlan.plan.normalizedInstruction', 'open fixture');
-        expect(mcpToolCallRequest('other', 'mac_control', { action: 'open' })).not.toHaveProperty('_meta');
-        expect(mcpToolCallRequest('bimax-mac', 'other_tool', {})).not.toHaveProperty('_meta');
-      });
-    } finally {
-      if (previous === undefined) delete process.env.BIMAX_CU_TRUSTED_PLAN_SECRET;
-      else process.env.BIMAX_CU_TRUSTED_PLAN_SECRET = previous;
-    }
+  test('a tool call request carries no Computer Use plan envelope', () => {
+    // The signed `_meta.bimaxTrustedPlan` envelope went with the code-only reset — see
+    // archive/computer-use/. A request is now name + arguments and nothing else.
+    expect(mcpToolCallRequest('bimax-mac', 'mac_control', { action: 'open' }))
+      .toEqual({ name: 'mac_control', arguments: { action: 'open' } });
   });
 
   test('collects every page and returns a deterministic tool order', async () => {

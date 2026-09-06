@@ -11,21 +11,12 @@
  * `receipt.inspector.test.ts`, which is where the existing Desktop pure-logic tests already run.
  */
 import { deriveTaskState } from '../renderer/src/task.state';
-import {
-  deriveMacSession, describeEvidenceAge, describeMacAction, isMacToolCall, EVIDENCE_MAX_AGE_MS,
-  type MacToolCall,
-} from '../renderer/src/mac.session.model';
-import { DEFAULT_FRAME_MAX_AGE_MS } from '../capabilities/mac/frame';
 import { inspectorTabs, resolveActiveTab } from '../renderer/src/inspector.model';
-import { buildFinalReceipt } from '../renderer/src/final.receipt.model';
 import { deriveBrowserSession } from '../renderer/src/browser.session.model';
 import {
   normalizeUiSnapshot, normalizeReviewSnapshot, normalizeSubAgents, normalizeTodos,
 } from '../renderer/src/protocol.normalize';
 import type { ReviewSnapshot } from '../renderer/src/protocol';
-import { MAC_PROVIDER_SERVER_NAME, macToolIdentity } from '../shared/mac.provider';
-import { buildEngineChildEnv } from '../main/runtime.paths';
-import { inferLane, needsTrustCenterBeforeRun } from '../renderer/src/lane.inference';
 
 const NOW = 1_800_000_000_000;
 
@@ -43,30 +34,6 @@ const review = (overrides: Partial<ReviewSnapshot> = {}): ReviewSnapshot => ({
   updatedAt: NOW,
   ...overrides,
 });
-
-function macCall(overrides: Partial<MacToolCall> & { payload?: Record<string, unknown> } = {}): MacToolCall {
-  const { payload, ...rest } = overrides;
-  // Production shape by default: this is what the engine emits.
-  const body = {
-    ok: true, action: 'click', app: 'Notes', pid: 4211, windowId: 88, frameId: 'f7-4211-88',
-    targeting: { query: 'Save', label: 'Save' },
-    executor: { level: 'semantic', mechanism: 'accessibility' },
-    actionResult: { delivered: true, observed: 'changed', postcondition: { query: 'saved', matched: true } },
-    actionReceipt: {
-      kind: 'pointer', target: { app: 'Notes', pid: 4211, windowId: 88 },
-      preflight: { reason: 'matched' }, commit: { delivered: true },
-      postcondition: { query: 'saved', matched: true },
-    },
-    ...payload,
-  };
-  return {
-    id: 'm1', toolName: 'mcp__bimax-mac__mac_control', input: '{"action":"click"}',
-    output: JSON.stringify(body), status: 'success',
-    startTime: new Date(NOW - 3_000).toISOString(),
-    endTime: new Date(NOW - 2_000).toISOString(),
-    ...rest,
-  };
-}
 
 const idleTaskInput = {
   awaitingReply: false, busy: false, streaming: false, review: null,
@@ -229,51 +196,5 @@ describe('protocol normalization', () => {
     const passthrough = (raw: any): any => raw;
     expect(() => passthrough({ graph: null }).models.coding).toThrow();
     expect(normalizeUiSnapshot({ graph: null })!.models.coding).toBe('');
-  });
-});
-
-
-describe('composer lane inference', () => {
-  test('a named Mac surface is Control Mac', () => {
-    expect(inferLane('Open System Settings and turn on Night Shift').lane).toBe('mac');
-    expect(inferLane('take a screenshot of Finder').lane).toBe('mac');
-    expect(inferLane('send a message in Messages to my test contact').lane).toBe('mac');
-  });
-
-  test('ordinary coding work stays in the code lane', () => {
-    expect(inferLane('Add retry with backoff to the fetch client').lane).toBe('code');
-    expect(inferLane('why does the retry test fail?').lane).toBe('code');
-    // "click" appears constantly in front-end work that never leaves the editor.
-    expect(inferLane('fix the click handler in the checkout component test').lane).toBe('code');
-  });
-
-  test('an empty request defaults to code, never to Mac control', () => {
-    expect(inferLane('').lane).toBe('code');
-    expect(inferLane('   ').lane).toBe('code');
-  });
-
-  test('every inference explains itself so a wrong guess is visibly a guess', () => {
-    for (const request of ['Open System Settings', 'refactor the client', '']) {
-      expect(inferLane(request).why.length).toBeGreaterThan(20);
-    }
-  });
-
-  test('a code task NEVER waits for the Trust Center, whatever the permission state', () => {
-    expect(needsTrustCenterBeforeRun('code', null)).toBe(false);
-    expect(needsTrustCenterBeforeRun('code', { available: false })).toBe(false);
-  });
-
-  test('a Control Mac task waits only while Bimax cannot operate the Mac', () => {
-    expect(needsTrustCenterBeforeRun('mac', { available: true })).toBe(false);
-    expect(needsTrustCenterBeforeRun('mac', { available: false })).toBe(true);
-    // An unread report is not a grant.
-    expect(needsTrustCenterBeforeRun('mac', null)).toBe(true);
-  });
-
-  // Mutant: running a Mac task straight into a refusal.
-  test('MUTANT — skipping the permission flow would send the task into a refusal', () => {
-    const naive = (): boolean => false;
-    expect(naive()).toBe(false);
-    expect(needsTrustCenterBeforeRun('mac', { available: false })).toBe(true);
   });
 });

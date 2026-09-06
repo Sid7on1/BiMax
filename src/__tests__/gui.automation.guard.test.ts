@@ -1,5 +1,4 @@
 import { guiAutomationRefusal } from '../tools/gui.automation.guard';
-import { explicitlyRequiresComputerUse } from '../cli/personas/base.persona';
 
 const CAP = 'mcp__bimax-mac__mac_control';
 
@@ -38,25 +37,5 @@ describe('shell is not a Computer Use channel', () => {
     const command = `osascript -e 'tell application "Spotify" to play'`;
     expect(guiAutomationRefusal(command, undefined).refused).toBe(false);
     expect(guiAutomationRefusal(command, '').refused).toBe(false);
-  });
-});
-
-describe('desktop intent covers apps the surface list never named', () => {
-  it('routes media control to Computer Use', () => {
-    for (const prompt of [
-      "play Heaven's Eyes on Spotify", 'play some music', 'pause the music',
-      'increase the volume', 'skip to the next track', 'mute it',
-    ]) expect(explicitlyRequiresComputerUse(prompt)).toBe(true);
-  });
-
-  it('still leaves software work in the coding lane', () => {
-    for (const prompt of [
-      'add a pause button to the UI component',
-      'refactor the audio player module',
-      'write a track parser for the album metadata',
-      'run the playbook tests',
-      'fix the Messages permission tests',
-      'implement shuffle support',
-    ]) expect(explicitlyRequiresComputerUse(prompt)).toBe(false);
   });
 });

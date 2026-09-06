@@ -44,20 +44,10 @@ function codesignFacts(args) {
 // a release signature. Hardened runtime remains disabled because a local certificate has no Apple
 // Team ID and Electron's mapped frameworks otherwise fail library validation at launch.
 //
-// The XPC Computer Use service deliberately stays ad-hoc. Its existing manual-alpha trust gate is
-// an exact Code Directory hash approval; signing it with a local certificate would incorrectly
-// collapse that distinct service boundary into a generic non-ad-hoc signature. The staged service
-// is already ad-hoc sealed, so osx-sign skips that bundle while signing the containing host.
-const manualAlphaService = `${path.sep}Contents${path.sep}XPCServices${path.sep}BimaxCuService.xpc`;
-const manualAlphaServiceBundle = path.join(app, 'Contents', 'XPCServices', 'BimaxCuService.xpc');
-if (identity !== '-') {
-  // electron-builder copies the staged XPC bundle after its resources have changed, so its staged
-  // seal is not necessarily valid in the packaged location. The former all-ad-hoc sign pass
-  // repaired that incidentally. Make the ownership explicit before the host's certificate pass.
-  execFileSync('/usr/bin/codesign', [
-    '--force', '--deep', '--sign', '-', '--timestamp=none', manualAlphaServiceBundle,
-  ], { encoding: 'utf8', timeout: 30_000, stdio: ['ignore', 'pipe', 'pipe'] });
-}
+// There is no nested XPC service any more. Bimax has shipped code-only since the 2026-09-02
+// reset and electron-builder.yml packages exactly one extraResource (engine/). This file used to
+// codesign and then verify Contents/XPCServices/BimaxCuService.xpc, a path the packaged app no
+// longer contains, which made local signing fail as soon as a real identity was in the keychain.
 await signAsync({
   app,
   identity,
@@ -70,7 +60,6 @@ await signAsync({
   preAutoEntitlements: false,
   preEmbedProvisioningProfile: false,
   strictVerify: true,
-  ...(identity !== '-' ? { ignore: (file) => file.includes(manualAlphaService) } : {}),
   optionsForFile: () => ({
     hardenedRuntime: false,
     timestamp: 'none',
@@ -87,10 +76,6 @@ if (identity === '-') {
   const requirement = codesignFacts(['--display', '--requirements', '-', app]);
   if (/designated\s*=>\s*cdhash/i.test(requirement)) {
     throw new Error('stable local signing produced a cdhash-only designated requirement');
-  }
-  const serviceFacts = codesignFacts(['--display', '--verbose=4', manualAlphaServiceBundle]);
-  if (!/^Signature=adhoc$/m.test(serviceFacts) && !/flags=.*adhoc/i.test(serviceFacts)) {
-    throw new Error('manual-alpha Computer Use service did not retain its ad-hoc seal');
   }
 }
 

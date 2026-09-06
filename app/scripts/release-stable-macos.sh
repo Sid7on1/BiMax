@@ -16,7 +16,8 @@ cd "$root"
 
 npm run build
 BIMAX_RELEASE_BUILD=1 bash scripts/prepare-engine.sh "darwin-$arch"
-bash scripts/prepare-native.sh "darwin-$arch"
+# Computer Use staging removed 2026-09-04 — see build-local-mac.sh for the reasoning. Nothing in
+# electron-builder.yml ships what prepare-native.sh produced.
 
 # --dir creates the signed app first, allowing the notarization ticket to be stapled to the actual
 # app before the DMG is assembled. electron-builder imports/signs using CSC_LINK.
@@ -24,14 +25,12 @@ npx electron-builder --mac --"$arch" --dir
 if [ "$arch" = arm64 ]; then app_bundle="$root/release/mac-arm64/Bimax.app"; else app_bundle="$root/release/mac/Bimax.app"; fi
 [ -d "$app_bundle" ] || { echo "signed app missing: $app_bundle" >&2; exit 1; }
 
+# Every nested executable the code-only app actually ships. The five Computer Use binaries and
+# the XPC service that used to be listed here have not been packaged since the 2026-09-02 reset,
+# so this loop failed on "missing owned nested executable" before it could check anything real.
 owned=(
   "$app_bundle/Contents/MacOS/Bimax"
   "$app_bundle/Contents/Resources/engine/bimax-engine"
-  "$app_bundle/Contents/MacOS/bimax-mac-capability"
-  "$app_bundle/Contents/MacOS/bimax-cu-bridge"
-  "$app_bundle/Contents/MacOS/bimax-desktop-helper"
-  "$app_bundle/Contents/MacOS/bimax-live-pip"
-  "$app_bundle/Contents/XPCServices/BimaxCuService.xpc/Contents/MacOS/bimax-cu-service"
 )
 team=""
 for item in "${owned[@]}"; do

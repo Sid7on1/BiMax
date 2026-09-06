@@ -1,75 +1,79 @@
-# BiMax
+# Bimax
 
-**An autonomous AI coding agent for your terminal — the two-minded machine.**
+**An agentic coding IDE for project work — the two-minded machine.**
 
-Most AI CLIs show you one stream of consciousness. BiMax shows you a machine that thinks in
-two registers and is accountable for both: a fast intuition and a deep reasoner it routes
-between, and an epistemic ledger that verifies what it did and tells you *how sure it is*.
+Most AI coding tools show you one stream of consciousness. Bimax shows you a machine that thinks in
+two registers and is accountable for both: a fast intuition and a deep reasoner it routes between,
+and an epistemic ledger that verifies what it did and tells you *how sure it is*.
 
-BiMax ships as **one self-contained binary** — a Go / Bubble Tea TUI with the engine baked in.
-The machine you run it on needs no Node, no Bun, no `node_modules`.
+Bimax ships as a **macOS desktop app**. It is code-only: it reads and writes your project, runs your
+tools, and explains itself. It does not drive your Mac.
 
 ---
 
-## Install
+## Layout
 
-macOS (Apple Silicon or Intel):
+Two pieces, one product.
+
+| Path | What it is | Build output |
+|---|---|---|
+| `app/` | The Electron desktop app — main process, preload, React renderer | `app/release/` |
+| `src/` | The **engine**: the headless agent core the app spawns and drives over an NDJSON stdio protocol | `.engine-local/bimax-engine` |
+
+The engine is an **input** to the app's build, never a step of it — `app/scripts/prepare-engine.sh`
+takes a path to a compiled executable and stages it into the bundle. It does not care how that
+binary was produced.
+
+Removed code — Computer Use, the terminal TUI (`tui/`, `bin/bimax.js`) and the marketing website
+(`site/`) — was lifted out on 2026-09-06. A working copy lives outside this tree at
+`~/Developer/bimax-archive` (deliberately outside iCloud), and every file remains recoverable from
+git history at its original path:
 
 ```sh
-curl -fsSL https://bimax-liard.vercel.app/install | bash
+git log --diff-filter=D --  src/computer      # find the removing commit
+git checkout <commit>^ --   src/computer tui site
 ```
-
-The installer detects your platform, installs to `~/.local/bin/bimax`, wires `PATH`, and
-verifies with `bimax --version`. Inside a source checkout with `bun` + `go` installed, the same
-script builds locally instead of downloading. Full detail: [docs/INSTALL.md](docs/INSTALL.md).
-
-First run asks for a model API key (e.g. `NVIDIA_API_KEY`). BiMax is provider-agnostic — it
-talks to any OpenAI-compatible endpoint.
-
-## Use
-
-Run `bimax` in any project directory and describe a task:
-
-```
-❯ fix the failing test in src/auth and explain what was wrong
-```
-
-BiMax plans, runs tools (read/edit/write/bash/search/graph, MCP servers), and streams the work
-inline. Committed output goes to your terminal's native scrollback — the terminal owns
-scrolling and history.
-
-**Keys:** `Ctrl+G` command palette · `Ctrl+X` Mind HUD (the second mind: self-model, drives,
-ledger) · `Ctrl+F` search · `Ctrl+O` logs · `Esc` stash · `Shift+Tab` cycle modes. `/help`
-lists commands.
-
-## What makes it different
-
-- **Confidence in the margin** — the epistemic ledger surfaces per-turn verification, so an
-  edit reads as backed-by-tests or unverified, inline.
-- **Two-tier routing, made visible** — you see which mind (fast vs. deep) answered a turn.
-- **The Mind HUD** (`Ctrl+X`) — a live model of the agent's own reasoning: weak spots, drives,
-  ledger receipts.
-- **Real sandboxing** — Bash runs under an OS sandbox (macOS seatbelt) with write and network
-  floors.
 
 ## Development
 
 ```sh
-npm ci                       # engine deps
-npm run build                # typecheck + build the engine (tsc)
-npm run test:ci              # jest, no coverage
-cd tui && go test ./...      # TUI tests
-./install.sh                 # build the single binary + install to ~/.local/bin
+npm ci                     # engine deps
+npm run build              # typecheck + build the engine (tsc)
+npm run build:engine       # compile the standalone engine binary (bun --compile)
+npm run test:ci            # jest, no coverage — engine + app pure-logic suites
+
+npm --prefix app ci        # app deps
+npm run app:dev            # electron-vite dev server
 ```
 
-CI (`.github/workflows/ci.yml`) runs the engine typecheck/lint/test and the TUI build/test on
-macOS and Linux for every PR to `main`.
+To build a runnable `Bimax.app` on this machine:
+
+```sh
+npm run build:engine
+bash app/scripts/build-local-mac.sh arm64
+```
+
+It resolves the engine in this order: `BIMAX_ENGINE_LOCAL_OVERRIDE` → `.engine-local/bimax-engine` →
+the release pinned in `engine.lock.json`. It builds unhardened and outside the synced Desktop tree,
+both deliberately — see the comments at the top of that script.
+
+CI (`.github/workflows/ci.yml`) runs the engine typecheck/lint/test and the app
+typecheck/build/protocol-mirror check on every PR to `main`.
+
+## What makes it different
+
+- **Confidence in the margin** — the epistemic ledger surfaces per-turn verification, so an edit
+  reads as backed-by-tests or unverified, inline.
+- **Two-tier routing, made visible** — you see which mind (fast vs. deep) answered a turn.
+- **Real sandboxing** — Bash runs under an OS sandbox (macOS seatbelt) with write and network floors.
+- **Sovereign mode** — external egress fails closed at the process perimeter, not at sixteen call
+  sites.
 
 ## More
 
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — every subsystem, tool, and command.
 - [docs/FEATURES.md](docs/FEATURES.md) — the highlight reel.
-- [docs/INSTALL.md](docs/INSTALL.md) — install, build, and release.
-- [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md) — `NO_COLOR`, reduced motion, contrast, screen readers.
+- [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md) — reduced motion, contrast, screen readers.
 - [docs/CHANGELOG.md](docs/CHANGELOG.md) — notable changes.
-- [PRIVACY.md](PRIVACY.md) — what data BiMax collects (short answer: it stays on your machine).
+- [PRIVACY.md](PRIVACY.md) — what data Bimax collects (short answer: it stays on your machine).
+- `~/Developer/bimax-archive/README.md` — what was removed, what was measured, and how to restore it.

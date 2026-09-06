@@ -6,7 +6,6 @@ import { withTimeout } from '../utils/withTimeout'; // shared, leak-safe — a h
 import { recordMcpCall } from './stats';
 import { McpServerSpec } from './config';
 import { extractTaskRef, awaitTaskResult } from './tasks';
-import { getActiveTrustedComputerPlan } from '../mind/computer.trusted.plan';
 
 // The MCP SDK ships package "exports" maps that our classic TS moduleResolution can't follow
 // for types; the dual-published CJS build resolves fine at runtime, so we require() it at the
@@ -262,17 +261,15 @@ export function approvalHandledByAppOwnedProvider(serverName: string, toolName: 
 }
 
 export function mcpToolCallRequest(
-  serverName: string,
+  _serverName: string,
   toolName: string,
   args: Record<string, unknown>,
 ): Record<string, unknown> {
-  const trustedPlan = approvalHandledByAppOwnedProvider(serverName, toolName)
-    ? getActiveTrustedComputerPlan() : undefined;
-  return {
-    name: toolName,
-    arguments: args,
-    ...(trustedPlan ? { _meta: { bimaxTrustedPlan: trustedPlan } } : {}),
-  };
+  // This used to attach a signed `_meta.bimaxTrustedPlan` envelope for the app-owned `mac_control`
+  // entrypoint. Bimax is a code-only agentic IDE (see archive/computer-use/): no Computer Use
+  // provider is ever registered, and `isDisabledComputerUseToolName` above refuses `mac_control`
+  // at registration, so the envelope had no reachable consumer. Keep the request shape plain.
+  return { name: toolName, arguments: args };
 }
 
 /**

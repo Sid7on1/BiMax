@@ -34,15 +34,11 @@ describe('Phase 3 versioned client protocol', () => {
 });
 
 describe('Phase 3 engine release and Desktop consumption boundary', () => {
-  test('Terminal release publishes per-chip engines, manifest, checksums, schema, and fixtures', () => {
-    const release = read('release.sh');
-    const workflow = read('.github/workflows/release.yml');
-    expect(release).toContain('bimax-engine-${os}-${arch}');
-    expect(release).toContain('generate-engine-manifest.mjs');
-    for (const asset of ['bimax-engine-darwin-arm64', 'bimax-engine-darwin-x64', 'bimax-engine-manifest.json', 'ENGINE_SHA256SUMS', 'bimax-client-protocol-v']) {
-      expect(workflow).toContain(asset);
-    }
-  });
+  // The matching producer-side test ('Terminal release publishes per-chip engines, manifest,
+  // checksums, schema, and fixtures') read release.sh and .github/workflows/release.yml. Both went
+  // to archive/cli-tui/ on 2026-09-06 with the terminal product, so ENGINE PUBLISHING CURRENTLY HAS
+  // NO PIPELINE AND NO GUARD — the app resolves its engine from a local build. Restore a gate here
+  // when an app-owned release workflow exists. The consumer-side pins below still hold.
 
   test('Desktop pins an immutable manifest and never compiles Terminal engine source', () => {
     const lock = JSON.parse(read('app/engine.lock.json'));
