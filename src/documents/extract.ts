@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { readPdf } from './pdf.raster';
+import { readPdf, extractTextLayer, hasTextLayer } from './pdf.raster';
 import { ocrPages } from './ocr';
 
 /**
@@ -27,6 +27,15 @@ import { ocrPages } from './ocr';
  *
  * 3. **Nothing here reaches the network.** OCR is Apple Vision or Tesseract, both local; the Office
  *    formats are ZIP containers parsed in-process. This file is safe under `--sovereign`.
+ *
+ *    One qualification, because the claim above is load-bearing and the exception is real. When the
+ *    optional layout converter is installed, PDFs are routed through it first — a local Python
+ *    subprocess, not a network call. Its models are downloaded at INSTALL time (`/sidecars install
+ *    docling`) precisely so conversion needs no network. If that prefetch was skipped or failed,
+ *    Docling would try to fetch weights on first use; an air-gapped host denies that at the kernel
+ *    via the sandbox, the conversion fails, and `tryLayoutPdf` falls through to the built-in reader.
+ *    So the guarantee holds either way — the worst case is the older, structure-losing result, not
+ *    an escape.
  */
 
 /** Where a fragment came from, in the source's own coordinates. */
@@ -58,8 +67,12 @@ export interface Segment {
    * on an air-gapped box.
    */
   context?: string;
-  /** How the text was obtained. `ocr` means it was *read from an image* and may contain errors. */
-  via: 'text' | 'text-layer' | 'ocr' | 'cells' | 'xml';
+  /**
+   * How the text was obtained. `ocr` means it was *read from an image* and may contain errors;
+   * `layout` means a layout model recovered reading order and table structure, so the rows in it
+   * are rows rather than a run of numbers that happened to be adjacent on the page.
+   */
+  via: 'text' | 'text-layer' | 'ocr' | 'cells' | 'xml' | 'layout';
   /** Mean OCR confidence 0..1, when the segment came from a recognizer. */
   confidence?: number;
 }
@@ -166,7 +179,163 @@ function xmlToText(xml: string): string {
     .replace(/&#(\d+);/g, (_m, d) => String.fromCharCode(Number(d)));
 }
 
+/**
+ * Layout-aware conversion, when it happens to be installed.
+ *
+ * Returns null — never a partial result — whenever the layout path cannot be used, so the caller
+ * falls through to the built-in reader. That includes: not installed, disabled, the helper failing,
+ * the conversion timing out, and the conversion "succeeding" while producing nothing. An optional
+ * upgrade that turns a readable PDF into an empty one would be worse than not having it.
+ *
+ * Why PDF and not every format: this is the only route where the built-in reader genuinely loses
+ * structure. Spreadsheets already arrive as exact cells through ExcelJS (with formula *results*,
+ * which a layout model would have to read off a rendering), and Office XML already carries real
+ * paragraph and cell boundaries. A PDF is where a table becomes a run of adjacent words and where a
+ * scan becomes whatever the recognizer thought it saw.
+ */
+interface LayoutRead {
+  /** False when the converter could not report page provenance — no per-page merge is possible. */
+  paged: boolean;
+  segments: Segment[];
+  byPage: Map<number, Segment>;
+}
+
+async function tryLayoutPdf(file: string): Promise<LayoutRead | null> {
+  try {
+    // Lazy require, exactly as jszip and exceljs are loaded in this file: the layout path is
+    // optional, and a static import would pull the sidecar machinery into every extraction.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const docling = require('./docling') as typeof import('./docling');
+    if (!(await docling.doclingAvailable())) return null;
+    const [converted] = await docling.doclingConvert([file]);
+    if (!converted?.ok) return null;
+    const segments = docling.toSegments(converted);
+    if (segments.length === 0) return null;
+    const byPage = new Map<number, Segment>();
+    for (const segment of segments) {
+      if (segment.locator.page !== undefined) byPage.set(segment.locator.page, segment);
+    }
+    return { paged: converted.paged, segments, byPage };
+  } catch {
+    // Deliberately silent at this level. `doclingConvert` already logs the specific failure, and a
+    // second warning on every PDF would train people to ignore it.
+    return null;
+  }
+}
+
+/** Letters and digits only — the same measure `hasTextLayer` uses, for the same reason. */
+function meaningfulLength(value: string | undefined): number {
+  if (!value) return 0;
+  return value.replace(/[^\p{L}\p{N}]/gu, '').length;
+}
+
+/**
+ * How much of the text layer a layout page must recover to be trusted for that page.
+ *
+ * A layout model legitimately returns LESS than `pdftotext` does: it drops running headers, footers
+ * and page numbers, and it reorders columns into reading order. So the floor is not "as much as the
+ * text layer" — it is "enough that it plainly read the page". Half is far below any healthy
+ * conversion and far above the failure being caught, which is a page that came back empty or with a
+ * single stray caption.
+ *
+ * Compared on letters and digits, so the markdown pipes and dashes a recovered table adds cannot
+ * inflate the layout side into passing a page it actually lost.
+ */
+const LAYOUT_FLOOR = 0.5;
+
+/**
+ * Merge a paged layout conversion with the built-in reader, deciding PER PAGE.
+ *
+ * The all-or-nothing version of this shipped first and had a real hole: a 40-page report where the
+ * converter silently produced nothing for six pages kept the 34 good pages and lost the other six,
+ * because the fallback only triggered when the whole document came back empty. Six missing pages in
+ * an otherwise healthy extraction is exactly the kind of loss nobody notices until a citation cannot
+ * be found.
+ *
+ * The text layer is the floor because it is nearly free — `extractTextLayer` is one `pdftotext` call
+ * and no rasterisation — and because it is the ground truth for what characters are actually on a
+ * born-digital page. Rasterising is only paid for pages that end up needing OCR, which keeps the
+ * cost of a healthy conversion identical to before.
+ */
+async function mergeLayoutPages(file: string, byPage: Map<number, Segment>): Promise<Segment[]> {
+  let layers: string[];
+  try {
+    layers = await extractTextLayer(file);
+  } catch {
+    // No poppler, or an unreadable PDF. There is no floor to compare against, so the layout result
+    // stands on its own rather than being discarded over a missing comparison.
+    return [...byPage.values()].sort((a, b) => (a.locator.page ?? 0) - (b.locator.page ?? 0));
+  }
+
+  const lastPage = Math.max(layers.length, ...(byPage.size ? [...byPage.keys()] : [0]));
+  const segments: Segment[] = [];
+  const needOcr: number[] = [];
+
+  for (let page = 1; page <= lastPage; page++) {
+    const layout = byPage.get(page);
+    const layerText = layers[page - 1];
+    const layerSize = meaningfulLength(layerText);
+
+    // A page the layout model read to the floor wins: it is the only source that recovered rows.
+    //
+    // `layoutSize > 0` is not redundant. On a scanned page the text layer is empty, so the floor is
+    // zero and an EMPTY layout result satisfies `>= 0` — which accepted a page the converter had
+    // plainly dropped and skipped the OCR that would have read it. A floor of nothing is not a
+    // floor, so the layout side has to clear an absolute bar as well as a relative one.
+    const layoutSize = meaningfulLength(layout?.text);
+    if (layout && layoutSize > 0 && layoutSize >= layerSize * LAYOUT_FLOOR) {
+      segments.push(layout);
+      continue;
+    }
+    // It did not, so prefer real characters over a thin conversion.
+    if (hasTextLayer(layerText)) {
+      const cleaned = clean(layerText!);
+      segments.push({ text: cleaned, locator: { page }, via: 'text-layer', context: leadingContext(cleaned) });
+      continue;
+    }
+    // No text layer either. A scanned page the converter DID read is still better than nothing —
+    // Docling runs its own recognizer — so only a page nobody read goes to OCR.
+    if (layout && layout.text.trim()) {
+      segments.push(layout);
+      continue;
+    }
+    needOcr.push(page);
+  }
+
+  if (needOcr.length === 0) return segments;
+
+  // Only now is rasterising justified, and only these pages are recognised.
+  const wanted = new Set(needOcr);
+  const result = await readPdf(file);
+  const images = result.pages.filter((p) => wanted.has(p.page) && p.imagePath);
+  if (images.length === 0) return segments.sort((a, b) => (a.locator.page ?? 0) - (b.locator.page ?? 0));
+
+  const { pages: recognised } = await ocrPages(images.map((p) => p.imagePath!));
+  const byImage = new Map(recognised.map((p) => [p.imagePath, p]));
+  for (const page of images) {
+    const hit = byImage.get(page.imagePath!);
+    if (!hit || !hit.text.trim()) continue;
+    const cleaned = clean(hit.text);
+    segments.push({
+      text: cleaned, locator: { page: page.page }, via: 'ocr',
+      confidence: hit.confidence, context: leadingContext(cleaned),
+    });
+  }
+  return segments.sort((a, b) => (a.locator.page ?? 0) - (b.locator.page ?? 0));
+}
+
 async function extractPdf(file: string): Promise<Segment[]> {
+  // Preference order, decided per page: layout model, then the text layer, then OCR. The first is
+  // optional and the other two always work, so this only ever adds structure — it can never lose a
+  // page that one of the other two could have read.
+  const layout = await tryLayoutPdf(file);
+  if (layout) {
+    // Unpaged conversions cannot be aligned against the text layer page by page, so they stay
+    // all-or-nothing. Inventing an alignment would attach one page's floor to another page's text.
+    if (!layout.paged) return layout.segments;
+    return mergeLayoutPages(file, layout.byPage);
+  }
+
   // readPdf already does the right thing: embedded text layer FIRST, rasterise + OCR only the pages
   // that have none. A born-digital report costs no OCR; a scanned one is recognised page by page.
   const result = await readPdf(file);

@@ -29,6 +29,7 @@ import './sovereign';
 import './route';
 import './diagnostics';
 import './retrieval';
+import './sidecars';
 import './output';
 import './a11y';
 import './orchestrate';

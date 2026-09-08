@@ -35,7 +35,9 @@
  */
 
 import { Logger } from '../utils';
-import { DEFAULT_EMBEDDING_DIMENSIONS, DEFAULT_EMBEDDING_MODEL } from './settings';
+import {
+  DEFAULT_EMBEDDING_DIMENSIONS, DEFAULT_EMBEDDING_MODEL, embeddingDialectFor, queryInstruction,
+} from './settings';
 
 /** Identifies the vector space. Change the model or the dimensions and this must change with it. */
 export type EmbeddingSpaceId = string;
@@ -104,8 +106,28 @@ export function dot(a: number[], b: number[]): number {
 }
 
 export class RemoteEmbeddingBackend implements EmbeddingBackend {
-  readonly id: EmbeddingSpaceId;
-  readonly dimensions: number;
+  /**
+   * The size we ASKED for. Only meaningful on the dialect that accepts `dimensions`; a local
+   * OpenAI-compatible server emits whatever its model emits and is never told to truncate.
+   */
+  private readonly declaredDimensions: number;
+  /**
+   * The size the server actually returned, learned on the first successful batch.
+   *
+   * This is not bookkeeping. `id` stamps every stored vector and `vector.store.ts` re-embeds when a
+   * chunk's stamp differs, so an id that claims 768 while the model emits 1024 silently mixes two
+   * spaces — and `dot()` walks only the shorter of the two, producing similarity scores that look
+   * plausible and mean nothing. Whatever the model emitted IS the space, so the observation wins.
+   */
+  private observedDimensions: number | null = null;
+
+  get dimensions(): number {
+    return this.observedDimensions ?? this.declaredDimensions;
+  }
+
+  get id(): EmbeddingSpaceId {
+    return `${this.model}@${this.dimensions}`;
+  }
 
   private readonly resolve: () => Promise<EmbeddingCredentials | null>;
   private readonly model: string;
@@ -122,11 +144,10 @@ export class RemoteEmbeddingBackend implements EmbeddingBackend {
   constructor(options: RemoteEmbeddingOptions) {
     this.resolve = options.resolve;
     this.model = options.model ?? DEFAULT_EMBEDDING_MODEL;
-    this.dimensions = options.dimensions ?? DEFAULT_EMBEDDING_DIMENSIONS;
+    this.declaredDimensions = options.dimensions ?? DEFAULT_EMBEDDING_DIMENSIONS;
     this.batchSize = Math.max(1, options.batchSize ?? DEFAULT_BATCH);
     this.timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
     this.transport = options.transport ?? defaultTransport;
-    this.id = `${this.model}@${this.dimensions}`;
   }
 
   /** Why embeddings are off, for a UI that would otherwise just show worse results silently. */
@@ -161,24 +182,40 @@ export class RemoteEmbeddingBackend implements EmbeddingBackend {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), this.timeoutMs);
     try {
+      const dialect = embeddingDialectFor(credentials.baseURL);
+      // Empty strings are rejected by the provider and would fail the whole batch for one bad
+      // record. A single space embeds to something meaningless, which is the correct outcome
+      // for an empty document and costs nothing.
+      const input = batch.map((t) => (t.trim() ? t : ' '));
+      // Two incompatible bodies exist, for the same reason two rerank dialects do. NVIDIA/Cohere
+      // take `input_type`/`truncate`/`dimensions`; the OpenAI embeddings schema has none of them,
+      // so a local vLLM or Ollama answers 400 — which this module treats as terminal and latches.
+      const body = dialect === 'nvidia'
+        ? {
+            model: this.model,
+            input,
+            // The asymmetric half. See the header — getting this wrong is silent.
+            input_type: role,
+            // Without this, one long document is a 400 for the entire batch.
+            truncate: 'END',
+            dimensions: this.declaredDimensions,
+            encoding_format: 'float',
+          }
+        : {
+            model: this.model,
+            // Asymmetry with no `input_type` to carry it: the instruction rides on the query text
+            // itself, and the passage side stays bare so the corpus never needs re-indexing when
+            // the instruction changes.
+            input: role === 'query' ? input.map((t) => withInstruction(t)) : input,
+            encoding_format: 'float',
+          };
+
       const response = await this.transport(`${trimSlash(credentials.baseURL)}/embeddings`, {
         headers: {
           'content-type': 'application/json',
           authorization: `Bearer ${credentials.apiKey}`,
         },
-        body: JSON.stringify({
-          model: this.model,
-          // Empty strings are rejected by the provider and would fail the whole batch for one bad
-          // record. A single space embeds to something meaningless, which is the correct outcome
-          // for an empty document and costs nothing.
-          input: batch.map((t) => (t.trim() ? t : ' ')),
-          // The asymmetric half. See the header — getting this wrong is silent.
-          input_type: role,
-          // Without this, one long document is a 400 for the entire batch.
-          truncate: 'END',
-          dimensions: this.dimensions,
-          encoding_format: 'float',
-        }),
+        body: JSON.stringify(body),
         signal: controller.signal,
       });
 
@@ -190,8 +227,21 @@ export class RemoteEmbeddingBackend implements EmbeddingBackend {
         // Everything else (429, 5xx, network) is transient: stay available so the next search
         // tries again.
         if ([400, 401, 403, 404, 410].includes(response.status)) {
-          this.unavailable = `provider returned ${response.status} for ${this.model}`;
-          Logger.warn(`[embeddings] disabled: ${this.unavailable}`);
+          // Name the body we sent, not just the status. A 400 from a local server almost always
+          // means the extension fields were rejected, and the old message ("provider returned 400")
+          // sent operators hunting for a bad model name instead — the same misdirection that kept
+          // reranking dead on every sovereign install for months.
+          this.unavailable =
+            `${trimSlash(credentials.baseURL)}/embeddings returned ${response.status} for `
+            + `${this.model} (${dialect} body)`;
+          Logger.warn(
+            `[embeddings] DISABLED — ${this.unavailable}. Retrieval falls back to BM25 alone. `
+            + (dialect === 'nvidia'
+              ? 'If this endpoint is an OpenAI-compatible server, set BIMAX_EMBED_DIALECT=openai '
+                + 'to drop the input_type/truncate/dimensions fields it does not accept.'
+              : 'Check that BIMAX_EMBED_MODEL names a model this server actually serves '
+                + '(GET /v1/models lists them).'),
+          );
         }
         return null;
       }
@@ -207,6 +257,25 @@ export class RemoteEmbeddingBackend implements EmbeddingBackend {
       const vectors: number[][] = [];
       for (const row of ordered) {
         if (!Array.isArray(row.embedding) || row.embedding.length === 0) return null;
+        // The space is defined by what the model emits, and every vector in one space must be the
+        // same length. A server that changes width mid-corpus (a reload onto a different model
+        // behind the same id) would otherwise be scored by `dot()` over the shorter prefix — a
+        // plausible-looking number computed from two unrelated spaces.
+        if (this.observedDimensions === null) {
+          this.observedDimensions = row.embedding.length;
+          if (row.embedding.length !== this.declaredDimensions) {
+            Logger.info(
+              `[embeddings] space is ${this.id} — server returned ${row.embedding.length} dims, `
+              + `settings asked for ${this.declaredDimensions}. Stamping the observed size.`,
+            );
+          }
+        } else if (row.embedding.length !== this.observedDimensions) {
+          this.unavailable =
+            `server changed embedding width mid-session (${this.observedDimensions} -> `
+            + `${row.embedding.length}) for ${this.model}`;
+          Logger.warn(`[embeddings] disabled: ${this.unavailable}`);
+          return null;
+        }
         vectors.push(normalize(row.embedding));
       }
       return vectors;
@@ -226,4 +295,17 @@ const defaultTransport: EmbeddingTransport = async (url, init) => {
 
 function trimSlash(url: string): string {
   return url.endsWith('/') ? url.slice(0, -1) : url;
+}
+
+/**
+ * Wrap a query in the instruction form open-weight retrieval models are trained to read.
+ *
+ * `Instruct: <task>\nQuery:<text>` is Qwen3-Embedding's documented shape, reproduced exactly —
+ * including the absent space after `Query:`, which is how the model card writes it. An empty
+ * instruction (BIMAX_EMBED_QUERY_INSTRUCTION="") returns the text untouched, which is what a
+ * symmetric model such as BGE-M3 wants.
+ */
+export function withInstruction(text: string, env: NodeJS.ProcessEnv = process.env): string {
+  const task = queryInstruction(env);
+  return task ? `Instruct: ${task}\nQuery:${text}` : text;
 }

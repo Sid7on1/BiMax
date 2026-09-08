@@ -64,6 +64,54 @@ export function rerankDialectFor(url: string): 'nvidia' | 'cohere' {
   return url.includes('nvidia.com') || url.endsWith('/ranking') ? 'nvidia' : 'cohere';
 }
 
+/**
+ * Which request body an `/embeddings` endpoint will accept.
+ *
+ * The same bug `rerankURLFor` exists to fix was never fixed on the embeddings half. We send
+ * `input_type`, `truncate` and `dimensions` on every call — three fields that are NVIDIA/Cohere
+ * extensions and are NOT in the OpenAI embeddings schema. vLLM, Ollama, LM Studio and llama.cpp
+ * reject the unknown fields with a 400, and 400 is in this module's terminal list, so the backend
+ * latches `unavailable` on the FIRST query and never asks again. A sovereign install therefore ran
+ * BM25-only for the rest of the session while reporting nothing worse than "no matches" — the exact
+ * silent-degradation failure the embeddings header says it exists to prevent.
+ *
+ * Locality is the discriminator, not the vendor string: an on-premises server is the case that
+ * cannot take the extensions, and `classifyDestination` already resolves that question with the
+ * spoofing traps (octal, hex, userinfo) handled. Remote hosts keep the existing body byte for byte,
+ * so this is strictly a repair of the broken path.
+ */
+export function embeddingDialectFor(baseURL: string): 'nvidia' | 'openai' {
+  const forced = (process.env.BIMAX_EMBED_DIALECT || '').trim().toLowerCase();
+  if (forced === 'openai' || forced === 'nvidia') return forced;
+  // Late require: `settings` is imported from the container before boot completes, and sovereign.ts
+  // is dependency-free so this can never cycle.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { classifyDestination } = require('../security/sovereign') as typeof import('../security/sovereign');
+  const where = classifyDestination(baseURL);
+  return where === 'loopback' || where === 'private-lan' ? 'openai' : 'nvidia';
+}
+
+/**
+ * The instruction prefix an asymmetric local model wants on the QUERY side only.
+ *
+ * `input_type` is how the hosted providers are told which side they are embedding. Open-weight
+ * retrieval models have no such field: Qwen3-Embedding is trained to read `Instruct: <task>\nQuery:`
+ * on the query and nothing at all on the passage, which is what keeps the two sides asymmetric
+ * without re-indexing when the task text changes. Dropping it is not an error — it is a measured
+ * 1-5% recall loss that nothing reports.
+ *
+ * Set `BIMAX_EMBED_QUERY_INSTRUCTION` to retune it, or to empty to disable it for a symmetric model
+ * (BGE-M3 wants no prefix). The value never touches the passage side.
+ */
+export const DEFAULT_QUERY_INSTRUCTION =
+  'Given a web search query, retrieve relevant passages that answer the query';
+
+export function queryInstruction(env: NodeJS.ProcessEnv = process.env): string {
+  const raw = env.BIMAX_EMBED_QUERY_INSTRUCTION;
+  // Undefined means "unset, use the default"; an explicitly empty value means "disable".
+  return raw === undefined ? DEFAULT_QUERY_INSTRUCTION : raw.trim();
+}
+
 const ALLOWED_DIMENSIONS = new Set([384, 512, 768, 1024, 2048]);
 
 /** Overridable so tests can pin config precedence without touching module state. */

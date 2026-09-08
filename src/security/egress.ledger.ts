@@ -18,20 +18,33 @@
  * ## Append-only, and what that does and does not mean
  *
  * Entries are appended as NDJSON and never rewritten in place: one line per attempt, so a truncated
- * write costs the last line and not the file. This is tamper-EVIDENT at the application level, not
- * tamper-PROOF — anything with write access to the file can edit it, and claiming otherwise would
- * be the same species of overstatement this module exists to prevent. Making it genuinely
- * append-only is the operating system's job (`chattr +a`, a log shipper, an audit mount), and the
- * deployment guide is where that belongs.
+ * write costs the last line and not the file.
+ *
+ * Each entry also carries the digest of the entry before it. That is what makes "append-only" a
+ * property a READER can check rather than a description of how we happen to write: editing a line,
+ * deleting one, or inserting one breaks every digest after it, and {@link verifyLedger} names the
+ * first position that failed. Without the chain the file was tamper-evident in name only — the
+ * lines were independent, so removing the one that recorded a leak left a file that still parsed
+ * and still verified against nothing.
+ *
+ * It is tamper-EVIDENT, not tamper-PROOF, and the distinction is not pedantry. Anything with write
+ * access can rewrite the whole file and recompute every digest, and that forgery verifies clean.
+ * The chain raises the cost from "edit one line" to "rewrite the entire history consistently"; the
+ * only thing that closes the rest of the gap is the head digest recorded somewhere this process
+ * cannot reach, which is why {@link ledgerHead} is printed by `/sovereign verify` for an evaluator
+ * to write down. Making the file genuinely append-only is the operating system's job (`chattr +a`,
+ * a log shipper, an audit mount), and the deployment guide is where that belongs.
  *
  * The file lives beside the existing logs (`.breakglass/` in the workspace, per `utils/logger.ts`)
  * and is created 0600 inside a 0700 directory, because it records hostnames and purposes from
  * confidential work.
  */
 
+import { createHash } from 'node:crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Destination } from './sovereign';
+import { canonicalJson } from '../evidence/schema';
 
 export interface EgressEntry {
   /** ISO-8601, UTC. */
@@ -44,6 +57,28 @@ export interface EgressEntry {
   purpose?: string;
   /** True when sovereign mode was active for this attempt. A verdict is only meaningful with it. */
   sovereign: boolean;
+  /**
+   * The digest of the entry before this one — `null` at the head of a chain.
+   *
+   * This is what makes the file's "append-only" claim checkable. Without it, deleting the one line
+   * that records a leak, or rewriting a host, leaves no trace: the remaining lines are individually
+   * well-formed and the file still parses. Linking each entry to its predecessor means any edit,
+   * deletion or insertion breaks every digest after it, and {@link verifyLedger} names the first
+   * position that failed.
+   */
+  prev?: string | null;
+  /** sha256 over this entry's canonical form excluding `digest` itself. */
+  digest?: string;
+}
+
+/** The bytes an entry's digest is computed over: the entry without its own `digest`. */
+function digestPayload(entry: EgressEntry): string {
+  const { digest: _ignored, ...rest } = entry;
+  return canonicalJson(rest);
+}
+
+export function entryDigest(entry: EgressEntry): string {
+  return createHash('sha256').update(digestPayload(entry)).digest('hex');
 }
 
 /** In-memory mirror of what this process appended, so `/sovereign` can report without re-reading. */
@@ -66,14 +101,45 @@ export function ledgerPath(): string {
  */
 let writeFailures = 0;
 
+/**
+ * The digest of the last entry appended, which the next one links to.
+ *
+ * `undefined` means "not yet established": the first write of a process reads the tail of the file
+ * so a restart continues the existing chain instead of starting a second one. `null` means the
+ * chain genuinely starts here (no file, or a file whose entries predate chaining).
+ */
+let head: string | null | undefined = undefined;
+
+function seedHead(): void {
+  const { entries } = readLedger();
+  for (let i = entries.length - 1; i >= 0; i--) {
+    if (entries[i].digest) { head = entries[i].digest as string; return; }
+  }
+  head = null;
+}
+
+/** The current chain head — the value an evaluator records to detect a later wholesale rewrite. */
+export function ledgerHead(): string | null {
+  if (head === undefined) seedHead();
+  return head ?? null;
+}
+
 export function recordEgress(entry: EgressEntry): void {
-  session.push(entry);
+  if (head === undefined) seedHead();
+  // Any prev/digest a caller supplied is discarded: the chain is this module's to compute, and
+  // accepting one from outside would let a caller forge a link.
+  const { prev: _p, digest: _d, ...clean } = entry;
+  const linked: EgressEntry = { ...clean, prev: head ?? null };
+  linked.digest = entryDigest(linked);
+  head = linked.digest;
+
+  session.push(linked);
   if (session.length > SESSION_CAP) session.splice(0, session.length - SESSION_CAP);
   try {
     const file = ledgerPath();
     const dir = path.dirname(file);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
-    fs.appendFileSync(file, `${JSON.stringify(entry)}\n`, { mode: 0o600 });
+    fs.appendFileSync(file, `${JSON.stringify(linked)}\n`, { mode: 0o600 });
   } catch {
     writeFailures += 1;
   }
@@ -92,6 +158,10 @@ export function sessionEgress(): readonly EgressEntry[] {
 export function resetSessionEgress(): void {
   session.length = 0;
   writeFailures = 0;
+  // Forget the head too, so the next write re-seeds from whatever file is now in play. Without
+  // this a test that repoints BIMAX_EGRESS_LEDGER would chain the new file's first entry onto the
+  // old file's last digest, and the new chain would verify as broken at position 0.
+  head = undefined;
 }
 
 export interface EgressSummary {
@@ -151,4 +221,77 @@ export function readLedger(file = ledgerPath()): { entries: EgressEntry[]; skipp
     }
   }
   return { entries, skipped };
+}
+
+export interface ChainVerification {
+  /** True when every chained entry recomputes and links to the one before it. */
+  intact: boolean;
+  /** Entries carrying no digest because they predate chaining. Not a failure — an unproven prefix. */
+  unchained: number;
+  /** How many entries were actually checked. `0 checked` is not a pass; the report must say so. */
+  checked: number;
+  /** Position of the first entry that failed, as an index into `entries`. */
+  brokenAt?: number;
+  /** What specifically failed, in the terms an operator can act on. */
+  reason?: string;
+  /** Digest of the last verified entry. Compare against a head recorded elsewhere. */
+  head: string | null;
+}
+
+/**
+ * Walk the chain and report the first break.
+ *
+ * What this catches: editing an entry (its digest stops matching its content), deleting one (the
+ * next entry's `prev` no longer names its predecessor), inserting one, and truncating the middle.
+ *
+ * What it does NOT catch, and the report must never imply otherwise: someone who rewrites the whole
+ * file can recompute every digest, and the result verifies perfectly. The chain reduces tampering
+ * from "edit one line" to "rewrite the entire file consistently", and the only thing that closes
+ * the remaining gap is a head digest recorded somewhere this process cannot reach — which is why
+ * {@link ledgerHead} is surfaced for an evaluator to write down.
+ */
+export function verifyLedger(entries: EgressEntry[] = readLedger().entries): ChainVerification {
+  let unchained = 0;
+  let checked = 0;
+  let expectedPrev: string | null = null;
+  let started = false;
+
+  for (let i = 0; i < entries.length; i++) {
+    const entry = entries[i];
+
+    if (!entry.digest) {
+      // A digest-less entry is only innocent while it is still the unchained prefix. Once chaining
+      // has begun, one appearing again means a digest was stripped or raw lines were appended.
+      if (started) {
+        return {
+          intact: false, unchained, checked, brokenAt: i, head: expectedPrev,
+          reason: `has no digest, but the chain had already started — a digest was `
+            + 'stripped, or unchained lines were appended by something other than this process',
+        };
+      }
+      unchained += 1;
+      continue;
+    }
+
+    if (entryDigest(entry) !== entry.digest) {
+      return {
+        intact: false, unchained, checked, brokenAt: i, head: expectedPrev,
+        reason: `does not match its own digest — its contents were changed after it `
+          + 'was written',
+      };
+    }
+    if ((entry.prev ?? null) !== expectedPrev) {
+      return {
+        intact: false, unchained, checked, brokenAt: i, head: expectedPrev,
+        reason: `links to ${entry.prev ?? 'nothing'}, but the entry before it digests to `
+          + `${expectedPrev ?? 'nothing'} — an entry was removed or inserted here`,
+      };
+    }
+
+    started = true;
+    checked += 1;
+    expectedPrev = entry.digest;
+  }
+
+  return { intact: true, unchained, checked, head: expectedPrev };
 }

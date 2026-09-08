@@ -1,10 +1,15 @@
+import { createHash } from 'node:crypto';
+import * as fs from 'fs';
+import * as path from 'path';
 import { globalCommandRegistry } from './registry';
 import {
   isSovereign, setSovereignMode, sovereignAllowlist, setSovereignAllowlist, classifyDestination, hostOf,
 } from '../../security/sovereign';
 import {
   sessionEgress, summarize, readLedger, ledgerPath, ledgerWriteFailures, EgressSummary,
+  verifyLedger, ledgerHead, ChainVerification,
 } from '../../security/egress.ledger';
+import { canonicalJson } from '../../evidence/schema';
 import { isEgressPerimeterInstalled, unpatchableEgressSurfaces } from '../../security/egress.perimeter';
 import { isSandboxEnabled, sandboxAvailable, sandboxBackend } from '../../sandbox/exec.sandbox';
 
@@ -55,6 +60,35 @@ function completeness(): string[] {
   return out;
 }
 
+/**
+ * The chain verdict, phrased so it cannot be read as more than it is.
+ *
+ * "intact" means nothing edited a line in place or removed one. It does NOT mean the file is
+ * authentic — a wholesale rewrite recomputes every digest and verifies clean. The only defence
+ * against that is a head recorded outside this process, so the head is always printed.
+ */
+function chainReport(v: ChainVerification): string[] {
+  const out: string[] = [];
+  if (v.checked === 0) {
+    out.push(v.unchained > 0
+      ? `Chain: NOT VERIFIABLE — all ${v.unchained} entries predate chaining and carry no digest.`
+      : 'Chain: nothing to verify — the ledger is empty.');
+  } else if (v.intact) {
+    out.push(`Chain: intact — ${v.checked} entr${v.checked === 1 ? 'y' : 'ies'} verified`
+      + `${v.unchained ? `, ${v.unchained} earlier entr${v.unchained === 1 ? 'y' : 'ies'} unchained` : ''}.`);
+  } else {
+    out.push(`Chain: BROKEN at entry ${v.brokenAt} — ${v.reason}`);
+    out.push(`  ${v.checked} entr${v.checked === 1 ? 'y' : 'ies'} before it verified; everything after is unproven.`);
+  }
+  if (v.head) {
+    out.push(`Head:  ${v.head}`);
+    out.push('  Record this digest somewhere Bimax cannot write. A later report that presents a');
+    out.push('  different head for the same history has been rewritten, which the chain alone');
+    out.push('  cannot detect.');
+  }
+  return out;
+}
+
 /** How the shell is governed — the half of the claim the in-process perimeter cannot make. */
 function shellPosture(): string {
   if (!isSovereign()) {
@@ -82,6 +116,8 @@ function statusReport(): string {
     lines.push(`External hosts:   ${session.externalHosts.join(', ')}`);
   }
   lines.push('', `Ledger: ${ledgerPath()}`);
+  const currentHead = ledgerHead();
+  if (currentHead) lines.push(`Head:   ${currentHead}  (/sovereign verify to check the chain)`);
   lines.push(...completeness());
   return lines.join('\n');
 }
@@ -122,10 +158,46 @@ function fullReport(): string {
   }
 
   lines.push('');
+  lines.push(...chainReport(verifyLedger(entries)));
+
+  lines.push('');
   lines.push('Scope: this records what the APPLICATION attempted. A child process has its own network');
   lines.push('stack and is governed by the sandbox, not by this ledger — see /sovereign status.');
   lines.push(...completeness());
   return lines.join('\n');
+}
+
+/**
+ * A self-contained proof bundle an evaluator can carry away and re-check.
+ *
+ * The bundle digests itself over its canonical form, so the summary and the entries it claims to
+ * summarise cannot be separated: change a count and the bundle digest stops matching; change an
+ * entry and the chain inside it breaks as well.
+ */
+function buildBundle(): { bundle: Record<string, unknown>; verification: ChainVerification } {
+  const { entries, skipped } = readLedger();
+  const verification = verifyLedger(entries);
+  const body = {
+    kind: 'bimax.egress-proof/v1',
+    generatedAt: new Date().toISOString(),
+    posture: {
+      sovereign: isSovereign(),
+      perimeterInstalled: isEgressPerimeterInstalled(),
+      unpatchableSurfaces: unpatchableEgressSurfaces(),
+      shell: shellPosture(),
+      allowlist: sovereignAllowlist(),
+    },
+    ledger: {
+      path: ledgerPath(),
+      writeFailures: ledgerWriteFailures(),
+      unreadableLines: skipped,
+    },
+    chain: verification,
+    summary: { session: summarize(sessionEgress()), disk: summarize(entries) },
+    entries,
+  };
+  const bundleDigest = createHash('sha256').update(canonicalJson(body)).digest('hex');
+  return { bundle: { ...body, bundleDigest }, verification };
 }
 
 globalCommandRegistry.register({
@@ -152,6 +224,53 @@ globalCommandRegistry.register({
       return { type: 'message', level: 'info', content: fullReport() };
     }
 
+    if (sub === 'verify') {
+      const v = verifyLedger();
+      return {
+        type: 'message',
+        // Three states, not two. A chain with nothing in it to check is neither a pass nor a
+        // failure, and reading green because there was nothing to verify is the exact failure mode
+        // this command exists to remove — so it resolves to `info`, never `success`.
+        level: !v.intact ? 'error' : v.checked === 0 ? 'info' : 'success',
+        content: [`Ledger: ${ledgerPath()}`, '', ...chainReport(v)].join('\n'),
+      };
+    }
+
+    if (sub === 'export') {
+      const target = (args[1] || '').trim();
+      if (!target) {
+        return {
+          type: 'message', level: 'error',
+          content: 'Usage: /sovereign export <path>\n\nWrites a self-contained proof bundle — the '
+            + 'posture, the summary, the chain verdict and every recorded attempt — digested over '
+            + 'its own canonical form so the summary cannot be separated from the entries it '
+            + 'summarises.',
+        };
+      }
+      const { bundle, verification } = buildBundle();
+      const out = path.resolve(target);
+      try {
+        fs.mkdirSync(path.dirname(out), { recursive: true });
+        // 0600: the bundle carries every hostname and purpose the ledger does.
+        fs.writeFileSync(out, `${JSON.stringify(bundle, null, 2)}\n`, { mode: 0o600 });
+      } catch (error) {
+        return {
+          type: 'message', level: 'error',
+          content: `Could not write ${out}: ${error instanceof Error ? error.message : String(error)}`,
+        };
+      }
+      return {
+        type: 'message',
+        level: verification.intact ? 'success' : 'error',
+        content: [
+          `Wrote ${out}`,
+          `Bundle digest: ${bundle.bundleDigest}`,
+          '',
+          ...chainReport(verification),
+        ].join('\n'),
+      };
+    }
+
     if (sub === 'json') {
       const { entries, skipped } = readLedger();
       return {
@@ -166,6 +285,7 @@ globalCommandRegistry.register({
           ledgerPath: ledgerPath(),
           ledgerWriteFailures: ledgerWriteFailures(),
           unreadableLines: skipped,
+          chain: verifyLedger(entries),
           session: summarize(sessionEgress()),
           disk: summarize(entries),
         }, null, 2),
@@ -215,7 +335,8 @@ globalCommandRegistry.register({
 
     return {
       type: 'message', level: 'error',
-      content: 'Usage: /sovereign [status | on | off | report | json | allow <host> | check <host>]',
+      content: 'Usage: /sovereign [status | on | off | report | verify | export <path> | json '
+        + '| allow <host> | check <host>]',
     };
   },
 });
