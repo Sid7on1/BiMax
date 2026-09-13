@@ -29,6 +29,8 @@ interface Dependencies {
   message(id: string, msg: Outbound): void;
   approval(value: ThreadApproval): void;
   save(value: SavedThread): void;
+  /** A turn ended (working → idle). The app notifies when the thread is not on screen. */
+  finished?(id: string): void;
 }
 
 /**
@@ -152,12 +154,15 @@ export class ThreadManager {
     if (msg.t === 'event' && msg.name === 'session_restore' && (msg.args[0] as any)?.id === r.resumeWanted) {
       r.summary.sessionId = r.resumeWanted; r.resumeWanted = undefined; r.ready = true; r.summary.status = 'idle';
     }
+    let finishedTurn = false;
     if (msg.t === 'event' && msg.name === 'spinner_state' && msg.args[0] === 'idle') {
+      finishedTurn = r.summary.status === 'working' || r.summary.status === 'needs-you';
       r.pending.clear();
       r.state = { ...r.state, request: null };
       r.summary.status = 'idle';
     }
     this.deps.message(id, msg);
+    if (finishedTurn) this.deps.finished?.(id);
     // Only dispatch queued inputs after the current protocol event has been delivered.
     if (r.ready && r.summary.status === 'idle') for (const next of this.records.values()) this.pump(next);
     this.persist(r);

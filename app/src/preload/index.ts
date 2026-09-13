@@ -26,7 +26,7 @@ const api = {
     context: () => ipcRenderer.invoke('threads:context'),
     onContext: (cb: (value: any) => void) => subscribe('threads:context', cb),
     pickFolder: () => ipcRenderer.invoke('threads:pick-folder'),
-    quickSubmit: (prompt: string) => ipcRenderer.invoke('threads:quick-submit', prompt),
+    quickSubmit: (prompt: string, options?: { attachments?: unknown[]; root?: string }) => ipcRenderer.invoke('threads:quick-submit', prompt, options),
     hide: () => ipcRenderer.send('threads:hide'),
     approvals: () => ipcRenderer.invoke('threads:approvals'),
     onApprovals: (cb: (value: any) => void) => subscribe('threads:approvals', cb),
@@ -42,6 +42,10 @@ const api = {
     // Undo the newest change a thread made to files (main/thread.undo.ts).
     undoInfo: (id: string) => ipcRenderer.invoke('threads:undo-info', id),
     undo: (id: string) => ipcRenderer.invoke('threads:undo', id),
+    // Files dropped on the bar, paths in answers, and stepping through recent bar tasks.
+    pathForFile: (file: File): string => webUtils.getPathForFile(file),
+    openPath: (raw: string, mode: 'preview' | 'reveal') => ipcRenderer.invoke('threads:open-path', raw, mode),
+    quickSwitch: (direction: 'older' | 'newer') => ipcRenderer.invoke('threads:quick-switch', direction),
   },
   send: (msg: unknown): void => ipcRenderer.send('engine:send', msg, activeThreadId),
   onMessage: (cb: (msg: unknown) => void): (() => void) => {

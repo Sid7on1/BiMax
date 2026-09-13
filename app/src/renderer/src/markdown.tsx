@@ -1,3 +1,5 @@
+import { useContext } from 'react';
+import { PathLinkContext, looksLikePath } from './path.links';
 import React, { useState } from 'react';
 import { marked, Token, Tokens } from 'marked';
 import hljs from 'highlight.js/lib/common';
@@ -98,6 +100,19 @@ function Block({ token }: { token: Token }): React.ReactElement | null {
   }
 }
 
+/** Inline code. On a surface that provides path links (the ⌘2 bar), a path becomes a link: Quick Look, or ⌘-click for Finder. */
+function InlineCode({ code }: { code: string }): React.ReactElement {
+  const links = useContext(PathLinkContext);
+  if (links && looksLikePath(code)) {
+    return (
+      <button type="button" className="md-path rounded border border-line bg-raise px-1 font-mono text-[0.92em]" title="Open with Quick Look · ⌘-click to show in Finder" onClick={(e) => links.open(code, e.metaKey ? 'reveal' : 'preview')}>
+        {code}
+      </button>
+    );
+  }
+  return <code className="rounded border border-line bg-raise px-1 font-mono text-[0.92em]">{code}</code>;
+}
+
 function Inline({ tokens }: { tokens?: Token[] }): React.ReactElement | null {
   if (!tokens) return null;
   return (
@@ -115,11 +130,7 @@ function Inline({ tokens }: { tokens?: Token[] }): React.ReactElement | null {
           case 'del':
             return <del key={i}><Inline tokens={(t as Tokens.Del).tokens} /></del>;
           case 'codespan':
-            return (
-              <code key={i} className="rounded border border-line bg-raise px-1 font-mono text-[0.92em]">
-                {(t as Tokens.Codespan).text.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'")}
-              </code>
-            );
+            return <InlineCode key={i} code={(t as Tokens.Codespan).text.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'")} />;
           case 'link': {
             const lt = t as Tokens.Link;
             const safe = /^https?:\/\//i.test(lt.href);

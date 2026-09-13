@@ -126,3 +126,18 @@ test('an undo from the app shows in the thread, and reaches the engine with the 
   expect(sent.text).toContain('what now?');
   expect(f.manager.get(a).state.items.at(-1)).toMatchObject({ kind:'msg', msg:{ role:'user', content:'what now?' } });
 });
+
+test('a turn that ends tells the app once; an idle engine repeating idle does not',()=> {
+  const finished=jest.fn();
+  const manager=new ThreadManager({
+    engine:() => ({ sendFromRenderer:jest.fn(), dispose:jest.fn(), openProject:jest.fn() }),
+    selected:jest.fn(), message:jest.fn(), approval:jest.fn(), save:jest.fn(), changed:jest.fn(), finished,
+  });
+  const a=manager.create('/fixture/Desktop','list files');
+  manager.receive(a,{ t:'ready',protocol:3 } as any);
+  expect(manager.get(a).summary.status).toBe('working');
+  manager.receive(a,{ t:'event',name:'spinner_state',args:['idle',''] } as any);
+  manager.receive(a,{ t:'event',name:'spinner_state',args:['idle',''] } as any);
+  expect(finished).toHaveBeenCalledTimes(1);
+  expect(finished).toHaveBeenCalledWith(a);
+});

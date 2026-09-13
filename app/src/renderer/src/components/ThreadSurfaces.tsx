@@ -1,6 +1,6 @@
-import React, { useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react';
-import { ArrowUp, Check, ChevronRight, ExternalLink, Folder, PenLine, Search, Square, Undo2, X } from 'lucide-react';
-import { QUICK_BAR_MAX_HEIGHT_SHARE, type QuickContext, type QuickThread, type ThreadApproval } from '../../../shared/threads';
+import React, { useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { ArrowUp, Check, ChevronRight, ExternalLink, FileText, Folder, Globe, PenLine, Search, Square, Undo2, X } from 'lucide-react';
+import { QUICK_BAR_MAX_HEIGHT_SHARE, type QuickAttachment, type QuickContext, type QuickThread, type ThreadApproval } from '../../../shared/threads';
 import { engineReducer, initialEngineState, type TranscriptItem } from '../engine.state';
 import type { Outbound, RequestMsg, ToolCallEntry } from '../protocol';
 import { DiffView, Markdown } from '../markdown';
@@ -9,6 +9,8 @@ import { cn } from '../lib/cn';
 import { ThinkingIndicator } from './ThinkingIndicator';
 import { StreamCoalescer } from '../stream.coalescer';
 import { approvalShortcut, denyOption } from '../approval.keys';
+import { PathLinkContext } from '../path.links';
+import { loadHistory, remember, stepHistory } from '../quick.history';
 
 /**
  * The two floating surfaces of Bimax Threads: the ⌘2 bar and the approval popup.
@@ -25,6 +27,8 @@ const folderName = (root: string | null | undefined): string => root?.split('/')
 const GROW_STEP_PX = 44;
 /** How long text may stop arriving mid-turn before the bar shows that the turn is still working. */
 const STALL_MS = 900;
+/** A turn's length for the footer: seconds, then minutes and seconds. */
+const formatDuration = (ms: number): string => (ms < 60_000 ? `${Math.max(1, Math.round(ms / 1000))}s` : `${Math.floor(ms / 60_000)}m ${Math.round((ms % 60_000) / 1000)}s`);
 
 function useSurface(kind: 'quick' | 'approval'): 'native' | 'vibrancy' {
   const glass = new URLSearchParams(location.search).get('glass') === 'native' ? 'native' : 'vibrancy';
@@ -48,6 +52,14 @@ export function ThreadQuickBar(): React.ReactElement {
   const [prompt, setPrompt] = useState('');
   const [error, setError] = useState('');
   const [sending, setSending] = useState(false);
+  // What the task gets as context: what was open when ⌘2 was pressed, plus anything dropped on the bar.
+  const [attachments, setAttachments] = useState<QuickAttachment[]>([]);
+  const [dropping, setDropping] = useState(false);
+  const attachRow = useRef<HTMLDivElement>(null);
+  // ↑ / ↓ through earlier prompts (quick.history.ts); what was being typed is kept while stepping.
+  const history = useRef<string[]>(loadHistory());
+  const historyCursor = useRef<number | null>(null);
+  const draft = useRef('');
   const input = useRef<HTMLTextAreaElement>(null);
   const header = useRef<HTMLDivElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
@@ -72,15 +84,16 @@ export function ThreadQuickBar(): React.ReactElement {
     const adopt = (value: QuickThread | null): void => {
       batcher.retire(); // the snapshot already holds everything the batcher was waiting to send
       setThread(value ? { id: value.id, title: value.title, root: value.root } : null);
+      if (value) setAttachments([]);
       dispatch({ type: 'restoreThread', state: value ? value.state : initialEngineState });
     };
-    const offContext = window.bimax.threads.onContext((value: QuickContext) => { setContext(value); setError(''); input.current?.focus(); });
+    const offContext = window.bimax.threads.onContext((value: QuickContext) => { setContext(value); setAttachments(value.attachments ?? []); setError(''); input.current?.focus(); });
     const offThread = window.bimax.threads.onQuickThread(adopt);
     const offMsg = window.bimax.threads.onQuickMsg((msg: Outbound) => {
       noteOutputKind(msg);
       batcher.push(msg);
     });
-    void window.bimax.threads.context().then(setContext);
+    void window.bimax.threads.context().then((value: QuickContext) => { setContext(value); setAttachments(value.attachments ?? []); });
     void window.bimax.threads.quickCurrent().then(adopt);
     return () => { offContext(); offThread(); offMsg(); batcher.dispose(); };
   }, []);
@@ -108,6 +121,31 @@ export function ThreadQuickBar(): React.ReactElement {
     void window.bimax.threads.undoInfo(thread.id).then((value: { id: string; title: string } | null) => { if (live) setUndo(value); });
     return () => { live = false; };
   }, [thread?.id, busy]);
+  // Footer timing: how long the current turn has run, or the last one took, and which model is answering.
+  const turnStart = useRef<number | null>(null);
+  const [lastTurnMs, setLastTurnMs] = useState<number | null>(null);
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    if (busy) {
+      if (turnStart.current === null) turnStart.current = Date.now();
+      const timer = setInterval(() => setTick((n) => n + 1), 1000);
+      return () => clearInterval(timer);
+    }
+    if (turnStart.current !== null) { setLastTurnMs(Date.now() - turnStart.current); turnStart.current = null; }
+    return undefined;
+  }, [busy]);
+  useEffect(() => { setLastTurnMs(null); }, [thread?.id]);
+  const models = (state.snapshot as { models?: { coding?: string; lite?: string } } | null)?.models;
+  const modelId = state.tier === 'lite' ? models?.lite || models?.coding : models?.coding;
+  const elapsed = busy && turnStart.current !== null ? Date.now() - turnStart.current : lastTurnMs;
+  const timing = [elapsed !== null ? formatDuration(elapsed) : '', modelId ? modelId.split('/').pop() : ''].filter(Boolean).join(' · ');
+  const pathLinks = useMemo(() => ({
+    open: (raw: string, mode: 'preview' | 'reveal') => {
+      void window.bimax.threads.openPath(raw, mode).then((result: { ok: boolean; error?: string } | undefined) => {
+        if (!result?.ok) setError(result?.error || `Could not find “${raw}”.`);
+      });
+    },
+  }), []);
   // Like Spotlight, the empty bar is only the pill. A missing Finder folder is already said by the folder chip,
   // so its explanation appears only when someone tries to send without one.
   const status = error;
@@ -123,7 +161,7 @@ export function ThreadQuickBar(): React.ReactElement {
     const report = (): void => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        const natural = (header.current?.offsetHeight ?? 0) + (body.current ? body.current.offsetHeight + 1 : 0) + (footer.current?.offsetHeight ?? 0);
+        const natural = (header.current?.offsetHeight ?? 0) + (attachRow.current?.offsetHeight ?? 0) + (body.current ? body.current.offsetHeight + 1 : 0) + (footer.current?.offsetHeight ?? 0);
         // While a reply is being written, grow two lines at a time and never shrink: resizing the window on
         // every line, and shrinking whenever half-written markdown reflowed, is what made the text jump.
         const height = busyRef.current
@@ -136,9 +174,9 @@ export function ThreadQuickBar(): React.ReactElement {
     };
     report();
     const observer = new ResizeObserver(report);
-    for (const el of [header.current, body.current, footer.current]) if (el) observer.observe(el);
+    for (const el of [header.current, attachRow.current, body.current, footer.current]) if (el) observer.observe(el);
     return () => { observer.disconnect(); cancelAnimationFrame(frame); };
-  }, [hasConversation, showFooter, busy]);
+  }, [hasConversation, showFooter, busy, attachments.length]);
 
   // Follow the newest text only once the bar is as tall as it may get. Below that the window grows to fit,
   // and scrolling ahead of the resize is what made lines jump. A reader who scrolled up stays where they are.
@@ -154,11 +192,15 @@ export function ThreadQuickBar(): React.ReactElement {
     if (!text || sending) return;
     if (!thread && !context.root) { setError(context.error || 'Choose a folder for this task first.'); return; }
     setSending(true); setError('');
+    history.current = remember(history.current, text);
+    historyCursor.current = null;
+    draft.current = '';
     dispatch({ type: 'localUser', text });
     setPrompt('');
     try {
-      const result = await window.bimax.threads.quickSubmit(text);
+      const result = await window.bimax.threads.quickSubmit(text, { attachments, root: thread ? undefined : context.root ?? undefined });
       if (!result?.ok) setError(result?.error || 'Could not start the task.');
+      else setAttachments([]);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -181,6 +223,26 @@ export function ThreadQuickBar(): React.ReactElement {
     setUndo(await window.bimax.threads.undoInfo(thread.id));
   }
 
+  /** Files dropped on the bar become context. A new task works in their folder; an existing one keeps its own. */
+  function addDropped(files: FileList): void {
+    const paths = [...files].map((file) => window.bimax.threads.pathForFile(file)).filter((p: string | undefined): p is string => Boolean(p));
+    if (!paths.length) return;
+    const folder = thread?.root ?? context.root;
+    const within = (p: string): boolean => !!folder && (p === folder || p.startsWith(folder.endsWith('/') ? folder : `${folder}/`));
+    const outside = paths.filter((p) => !within(p));
+    if (thread && outside.length) {
+      setError(`${outside.length === 1 ? 'That file is' : 'Those files are'} outside ${folderName(folder)}. Start a New task to use ${outside.length === 1 ? 'it' : 'them'}.`);
+      return;
+    }
+    if (!thread && outside.length === paths.length) setContext({ root: paths[0].replace(/\/[^/]+\/?$/, '') || '/', source: 'Dropped files' });
+    setAttachments((current) => [
+      ...current.filter((a) => !a.path || !paths.includes(a.path)),
+      ...paths.map((p): QuickAttachment => ({ kind: 'file', label: p.split('/').filter(Boolean).pop() ?? p, path: p })),
+    ].slice(0, 50));
+    setError('');
+    input.current?.focus();
+  }
+
   async function chooseFolder(): Promise<void> {
     const picked = await window.bimax.threads.pickFolder();
     if (picked) { setContext({ root: picked, source: 'Selected folder' }); setError(''); input.current?.focus(); }
@@ -191,10 +253,16 @@ export function ThreadQuickBar(): React.ReactElement {
       className="quick-root"
       data-glass={glass}
       data-expanded={hasConversation || undefined}
+      data-dropping={dropping || undefined}
+      onDragOver={(e) => { if (e.dataTransfer.types.includes('Files')) { e.preventDefault(); setDropping(true); } }}
+      onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setDropping(false); }}
+      onDrop={(e) => { e.preventDefault(); setDropping(false); addDropped(e.dataTransfer.files); }}
       onKeyDown={(e) => {
         // An approval card on screen owns ⌘↩ (allow) and Esc (deny); otherwise Esc hides the bar.
         const pick = request ? approvalShortcut(e.nativeEvent, request) : undefined;
         if (pick) { e.preventDefault(); void reply(pick); return; }
+        // ⌘[ and ⌘] step through this bar's recent tasks.
+        if (e.metaKey && (e.key === '[' || e.key === ']')) { e.preventDefault(); void window.bimax.threads.quickSwitch(e.key === '[' ? 'older' : 'newer'); return; }
         if (e.key === 'Escape') { e.preventDefault(); window.bimax.threads.hide(); }
         if (e.key.toLowerCase() === 'n' && e.metaKey) { e.preventDefault(); window.bimax.threads.quickReset(); input.current?.focus(); }
       }}
@@ -208,9 +276,17 @@ export function ThreadQuickBar(): React.ReactElement {
           aria-label="Ask Bimax"
           placeholder={thread ? 'Follow up…' : 'Ask Bimax anything…'}
           value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
+          onChange={(e) => { historyCursor.current = null; setPrompt(e.target.value); }}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey && !e.metaKey && !e.ctrlKey && !e.nativeEvent.isComposing) { e.preventDefault(); void submit(); }
+            // ↑ at the start (or in an empty field) recalls earlier prompts; ↓ walks back to what was being typed.
+            const field = e.currentTarget;
+            const atStart = field.selectionStart === 0 && field.selectionEnd === 0;
+            if ((e.key === 'ArrowUp' && (atStart || !prompt)) || (e.key === 'ArrowDown' && historyCursor.current !== null && field.selectionStart === field.value.length)) {
+              if (historyCursor.current === null) draft.current = prompt;
+              const step = stepHistory(history.current, historyCursor.current, e.key === 'ArrowUp' ? 'back' : 'forward', draft.current);
+              if (step.text !== prompt || step.cursor !== historyCursor.current) { e.preventDefault(); historyCursor.current = step.cursor; setPrompt(step.text); }
+            }
           }}
           className="quick-input"
         />
@@ -235,21 +311,35 @@ export function ThreadQuickBar(): React.ReactElement {
         ) : null}
       </div>
 
+      {attachments.length ? (
+        <div ref={attachRow} className="quick-attachments">
+          {attachments.map((a, index) => (
+            <span key={`${a.kind}:${a.path ?? a.url}:${index}`} className="quick-chip" title={a.path ?? a.url}>
+              {a.kind === 'page' ? <Globe size={11} aria-hidden /> : <FileText size={11} aria-hidden />}
+              <span>{a.label}</span>
+              <button type="button" aria-label={`Remove ${a.label}`} onClick={() => setAttachments((current) => current.filter((_, i) => i !== index))}><X size={10} /></button>
+            </span>
+          ))}
+        </div>
+      ) : null}
+
       {hasConversation ? (
         <div ref={scroller} className="quick-scroll">
+          <PathLinkContext.Provider value={pathLinks}>
           <div ref={body} className="quick-body">
             <QuickConversation items={state.items} />
             {state.streaming ? <div className="quick-answer"><Markdown text={state.streaming} /></div> : null}
             {showActivity ? <ThinkingIndicator thinking={state.thinking} /> : null}
             {request ? <QuickRequest key={request.id} req={request} onReply={(value) => void reply(value)} /> : null}
           </div>
+          </PathLinkContext.Provider>
         </div>
       ) : null}
 
       {showFooter ? (
         <div ref={footer} className="quick-footer quick-drag">
           <span className={cn('quick-status', status && 'quick-error')} role="status">
-            {status || (busy ? `Working in ${folderName(root)}` : thread ? folderName(root) : '')}
+            {status || [busy ? `Working in ${folderName(root)}` : thread ? folderName(root) : '', timing].filter(Boolean).join(' · ')}
           </span>
           {thread ? (
             <>

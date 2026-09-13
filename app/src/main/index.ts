@@ -1,5 +1,5 @@
 import { CapabilityReplay } from './capability.replay';
-import { app, BrowserWindow, ipcMain, dialog, shell, session, systemPreferences, powerMonitor, net, nativeTheme, globalShortcut, screen } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, shell, session, systemPreferences, powerMonitor, net, nativeTheme, globalShortcut, screen, Menu, Notification, Tray, nativeImage } from 'electron';
 import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron';
 import path from 'node:path';
 import { ThreadManager, threadIndexEnvironment } from './thread.manager';
@@ -9,6 +9,8 @@ import { finderContext } from './finder.context';
 import type { QuickContext, QuickThread } from '../shared/threads';
 import { QUICK_BAR, quickBarBounds, quickBarOrigin } from './quick.bar';
 import { lastUndoable, threadStateEnvironment, threadStateRoot, undoLast } from './thread.undo';
+import { insideFolder, validAttachments, withContext } from './quick.context';
+import { nextQuickThread, trayEntries, trayTitle, trayTooltip } from './thread.tray';
 import { macBin } from './bin';
 import os from 'node:os';
 import { readFileSync, writeFileSync, renameSync, mkdirSync, realpathSync } from 'node:fs';
@@ -87,6 +89,7 @@ function threadChanged(): void {
   listTimer = setTimeout(() => {
     listTimer = undefined;
     broadcast('threads:list', threadList());
+    updateTray();
     if (approvalWindow && !approvalWindow.isDestroyed()) {
       approvalWindow.webContents.send('threads:approvals', threads.approvals());
       if (!threads.approvals().length) approvalWindow.hide();
@@ -205,6 +208,49 @@ async function showQuickBar(): Promise<void> {
   quickWindow.webContents.send('threads:context', quickContext);
   sendQuickThread();
   quickWindow.show(); quickWindow.focus();
+}
+/** Bring a ⌘2 task back into the bar — from the menu bar, a notification, or ⌘[ / ⌘]. */
+function showQuickThread(id: string): void {
+  quickThreadId = id;
+  if (quickWindow?.isVisible()) { sendQuickThread(); quickWindow.focus(); return; }
+  void showQuickBar();
+}
+/** Open a thread where it lives: a ⌘2 task in the bar, a project in the main window. */
+function openThread(id: string): void {
+  if (threads.get(id).summary.origin === 'project') { selectThread(id); revealMainWindow(); }
+  else showQuickThread(id);
+}
+/** A task finished while it was not on screen: say so, with the start of its answer. */
+function notifyFinished(id: string): void {
+  if (!Notification.isSupported()) return;
+  const { summary, state } = threads.get(id);
+  const onScreen = (id === quickThreadId && quickWindow?.isVisible()) || (id === threads.activeId && win?.isFocused());
+  if (onScreen) return;
+  const answer = [...state.items].reverse().find((item) => item.kind === 'msg' && item.msg.role === 'assistant');
+  const body = answer && answer.kind === 'msg' ? answer.msg.content.replace(/\s+/g, ' ').trim().slice(0, 160) : 'Finished.';
+  const note = new Notification({ title: summary.title, subtitle: `Done in ${path.basename(summary.root)}`, body: body || 'Finished.' });
+  note.on('click', () => openThread(id));
+  note.show();
+}
+let tray: Tray | null = null;
+/** The menu bar item: running and waiting tasks at a glance, and a menu of recent ones (thread.tray.ts). */
+function updateTray(): void {
+  if (process.platform !== 'darwin' || !threads) return;
+  const list = threads.list();
+  if (!tray) tray = new Tray(nativeImage.createEmpty());
+  tray.setTitle(trayTitle(list));
+  tray.setToolTip(trayTooltip(list));
+  const entries = trayEntries(list);
+  const template: Electron.MenuItemConstructorOptions[] = [
+    { label: 'Bimax tasks', enabled: false },
+    ...(entries.length ? entries.map((entry) => ({ label: entry.label, click: () => openThread(entry.id) })) : [{ label: 'No tasks yet', enabled: false }]),
+    { type: 'separator' },
+    { label: 'New ⌘2 Task', click: () => { quickThreadId = null; if (quickWindow?.isVisible()) sendQuickThread(); else void showQuickBar(); } },
+    { label: 'Open Bimax', click: () => revealMainWindow() },
+    { type: 'separator' },
+    { label: 'Quit Bimax', role: 'quit' },
+  ];
+  tray.setContextMenu(Menu.buildFromTemplate(template));
 }
 function showThreadApproval(): void {
   if (!approvalWindow || approvalWindow.isDestroyed()) approvalWindow = auxiliaryWindow('approval');
@@ -371,7 +417,7 @@ function auxiliaryChannelAllowed(event: IpcMainEvent | IpcMainInvokeEvent, chann
   const allowed = event.sender.id === quickWindow?.webContents.id
     ? ['threads:context', 'threads:pick-folder', 'threads:quick-submit', 'threads:hide', 'threads:list', 'threads:reply',
       'threads:quick-current', 'threads:quick-reset', 'threads:quick-interrupt', 'threads:quick-resize', 'threads:quick-open',
-      'threads:undo-info', 'threads:undo']
+      'threads:undo-info', 'threads:undo', 'threads:open-path', 'threads:quick-switch']
     : ['threads:approvals', 'threads:reply', 'threads:hide', 'threads:stop'];
   return allowed.includes(channel);
 }
@@ -686,8 +732,18 @@ app.whenReady().then(async () => {
       if (id === quickThreadId && quickWindow && !quickWindow.isDestroyed()) quickWindow.webContents.send('threads:quick-msg', msg);
     },
     // The ⌘2 bar answers its own task's questions inline while it is on screen; everything else gets the popup.
-    approval: (value) => { if (value.threadId === quickThreadId && quickWindow?.isVisible()) return; showThreadApproval(); },
+    approval: (value) => {
+      if (value.threadId === quickThreadId && quickWindow?.isVisible()) return;
+      showThreadApproval();
+      // Away from Bimax: say so where the person will see it; the popup is already waiting when they come back.
+      if (Notification.isSupported() && !BrowserWindow.getFocusedWindow()) {
+        const note = new Notification({ title: `${value.title} needs your decision`, body: value.request.question.slice(0, 160) });
+        note.on('click', () => { showThreadApproval(); approvalWindow?.focus(); });
+        note.show();
+      }
+    },
     save: value => threadStorage.save(value),
+    finished: (id) => notifyFinished(id),
   }, threadStorage.load());
   threadBroker = await createThreadBroker(threads, async (from, to) => {
     const a = threads.get(from).summary, b = threads.get(to).summary;
@@ -717,6 +773,7 @@ app.whenReady().then(async () => {
     },
   });
   createWindow();
+  updateTray();
   shortcutAvailable = globalShortcut.register('CommandOrControl+2', () => { void showQuickBar(); });
   if (!shortcutAvailable) console.warn('[threads] Cmd+2 is already registered by another application.');
   // The embedded browser attaches its BrowserViews to this window. A BrowserView is an OS-level
@@ -815,24 +872,58 @@ app.whenReady().then(async () => {
     const root = await fsp.realpath(result.filePaths[0]);
     quickContext = { root, source: 'Selected folder' }; return root;
   });
-  secureHandle('threads:quick-submit', { ok: false } as any, async (_e, prompt: unknown) => {
+  secureHandle('threads:quick-submit', { ok: false } as any, async (_e, prompt: unknown, options: unknown) => {
     if (typeof prompt !== 'string' || !prompt.trim() || prompt.length > 200000) return { ok: false, error: 'Enter a prompt.' };
+    const opts = (options && typeof options === 'object' ? options : {}) as { attachments?: unknown; root?: unknown };
     try {
-      // A follow-up continues the bar's thread; a first prompt starts one in the captured folder. The bar has
-      // already painted the turn, so the thread records it without echoing it back (thread.manager.ts).
+      // What was open or dropped reaches the engine ahead of the words (quick.context.ts); the bar has already
+      // painted the words alone, so the thread records them without echoing them back (thread.manager.ts).
+      const attachments = await validAttachments(opts.attachments);
       if (quickThreadId && quickThreadSnapshot()) {
-        threads.submit(quickThreadId, prompt, prompt, false);
+        const { root } = threads.get(quickThreadId).summary;
+        const outside = attachments.find((item) => item.path && !insideFolder(root, item.path));
+        if (outside) return { ok: false, error: `“${outside.label}” is outside this task’s folder. Start a New task to use it.` };
+        threads.submit(quickThreadId, withContext(prompt, attachments), prompt, false);
         return { ok: true, id: quickThreadId };
       }
-      if (!quickContext.root) return { ok: false, error: 'Choose a folder for this task.' };
-      const root = await fsp.realpath(quickContext.root);
+      const chosen = typeof opts.root === 'string' && opts.root ? opts.root : quickContext.root;
+      if (!chosen) return { ok: false, error: 'Choose a folder for this task.' };
+      const root = await fsp.realpath(chosen);
       if (!(await fsp.stat(root)).isDirectory()) throw new Error('Workspace folder is unavailable');
+      if (root === '/' || root === os.homedir()) return { ok: false, error: 'Choose a specific folder rather than your whole home folder.' };
+      const outside = attachments.find((item) => item.path && !insideFolder(root, item.path));
+      if (outside) return { ok: false, error: `“${outside.label}” is outside ${path.basename(root)}. Choose its folder instead.` };
       const id = threads.create(root, '', 'quick');
       quickThreadId = id;
-      threads.submit(id, prompt, prompt, false);
+      threads.submit(id, withContext(prompt, attachments), prompt, false);
       sendQuickThread();
       return { ok: true, id };
     } catch (error) { return { ok: false, error: (error as Error).message }; }
+  });
+  // A path in an answer: Quick Look, or ⌘-click to show it in Finder. Relative paths resolve in the task's folder.
+  secureHandle('threads:open-path', { ok: false } as { ok: boolean; error?: string }, async (_e, raw: unknown, mode: unknown) => {
+    if (typeof raw !== 'string' || !raw.trim() || raw.length > 1000) return { ok: false, error: 'No path was given.' };
+    const base = quickThreadSnapshot()?.root ?? quickContext.root ?? os.homedir();
+    const text = raw.trim();
+    const target = text === '~' || text.startsWith('~/') ? path.join(os.homedir(), text.slice(1)) : path.resolve(base, text);
+    try {
+      const stat = await fsp.stat(target);
+      if (mode === 'reveal') shell.showItemInFolder(target);
+      else if (stat.isDirectory()) await shell.openPath(target);
+      else quickWindow?.previewFile(target);
+      return { ok: true };
+    } catch {
+      return { ok: false, error: `Could not find “${text}” in ${path.basename(base)}.` };
+    }
+  });
+  // ⌘[ / ⌘] in the bar: the previous or next of its recent tasks (thread.tray.ts nextQuickThread).
+  secureHandle('threads:quick-switch', null as string | null, (_e, direction: unknown) => {
+    if (direction !== 'older' && direction !== 'newer') return null;
+    const next = nextQuickThread(threads.list(), quickThreadId, direction);
+    if (!next) return null;
+    quickThreadId = next;
+    sendQuickThread();
+    return next;
   });
   secureHandle('threads:quick-current', null as QuickThread | null, () => quickThreadSnapshot());
   // "↶ Undo" in the ⌘2 bar: the newest change a thread made that can still be reversed, and reversing it.
