@@ -37,8 +37,11 @@ export function folderRulesSection(root = process.env.BIMAX_THREAD_ROOT || proce
   return lines.join('\n\n');
 }
 
+// Mac (and Windows) folders are case-insensitive by default, so "dev" there is the protected "DEV".
+const caseInsensitive = process.platform === 'darwin' || process.platform === 'win32';
+const fold = (text: string): string => (caseInsensitive ? text.toLowerCase() : text);
 const inside = (parent: string, child: string): boolean => {
-  const rel = path.relative(parent, child);
+  const rel = path.relative(fold(parent), fold(child));
   return rel === '' || (!rel.startsWith('..') && !path.isAbsolute(rel));
 };
 const escapeRegex = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -55,9 +58,9 @@ export function protectedTouchedBy(plan: ChangePlan | null, command: string, gua
     return guarded.find((g) => touched.some((t) => inside(g, t) || inside(t, g))) ?? null;
   }
   return guarded.find((g) => {
-    if (command.includes(g)) return true;
+    if (fold(command).includes(fold(g))) return true;
     const rel = path.relative(root, g);
-    return !!rel && !rel.startsWith('..') && new RegExp(`(^|[\\s'"=/])${escapeRegex(rel)}(?=$|[\\s'"/])`).test(command);
+    return !!rel && !rel.startsWith('..') && new RegExp(`(^|[\\s'"=/])${escapeRegex(rel)}(?=$|[\\s'"/])`, caseInsensitive ? 'i' : '').test(command);
   }) ?? null;
 }
 

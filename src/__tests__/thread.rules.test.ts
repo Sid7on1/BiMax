@@ -36,4 +36,8 @@ test('a change touching a protected item, or the folder holding one, is caught; 
   expect(protectedTouchedBy(planFileChange('FILE_WRITE', { tool: 'WriteFileTool', targetPath: path.join(root, 'api keys', 'new.txt') }, root, root), '', guarded, root)).toBe(path.join(root, 'api keys'));
   expect(shell('mv notes.txt notes-old.txt')).toBeNull();
   expect(shell('ls DEV')).toBeNull();
+  if (process.platform === 'darwin') {
+    expect(shell('mv dev old-dev')).toBe(path.join(root, 'DEV'));
+    expect(shell("sed -i '' s/a/b/ Dev/app.ts")).toBe(path.join(root, 'DEV'));
+  }
 });
