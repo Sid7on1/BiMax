@@ -238,4 +238,17 @@ describe('config scopes — deprecated/legacy value migration', () => {
     });
     expect((await disk()).liteModel).toBe('stepfun-ai/step-3.7-flash'); // disk untouched until the user saves
   });
+
+  it('a reasoning model the user put in both slots stays theirs, never a model they did not choose', async () => {
+    // Measured 2026-09-13: this exact config was swapped in memory to mistral-7b-instruct-v0.3, which
+    // NVIDIA 404s for the account, so every greeting and short question failed.
+    await fs.writeFile(
+      cfgPath,
+      JSON.stringify({ model: 'nvidia/nemotron-3.5-lightning-30b-a3b', liteModel: 'nvidia/nemotron-3.5-lightning-30b-a3b' }),
+    );
+    const { loadConfig } = freshConfigModule();
+    const cfg = await loadConfig();
+    expect(cfg.model).toBe('nvidia/nemotron-3.5-lightning-30b-a3b');
+    expect(cfg.liteModel).toBe('nvidia/nemotron-3.5-lightning-30b-a3b');
+  });
 });

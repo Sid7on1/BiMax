@@ -339,11 +339,8 @@ export async function loadConfig(): Promise<CliConfig> {
   }
   cached = merged;
   cached.workspaceRoot = path.resolve(projectCfg.workspaceRoot || globalCfg.workspaceRoot || DEFAULTS.workspaceRoot);
-  // Migration: earlier builds saved "one model everywhere" by literally copying the coding model
-  // into the lite slot. With a reasoning model that meant every small task (greeting, summary,
-  // routing) sat behind an unhidable 20-30s think phase. Split it back apart in memory — the
-  // coding slot keeps the user's pick; quick replies go to the plain lite default. Non-reasoning
-  // picks are untouched (true single-model setups stay unified).
+  // Migration: only retired routes are moved to current defaults (below). A model the user put in
+  // the quick slot stays theirs, even when it is the same reasoning model as the work slot.
   const strictModel = desktopStrictModel();
   if (strictModel) {
     cached.model = strictModel;
@@ -354,7 +351,6 @@ export async function loadConfig(): Promise<CliConfig> {
     for (const key of STRICT_MODEL_KEYS) sources[key] = 'env';
   } else
     try {
-      const { isReasoningModel, LEGACY_SAFE_LITE_MODEL } = require('./models');
       const retiredStep = (value: string): boolean => /(?:stepfun-ai\/)?step-3\.7-flash/i.test(value);
       // The former Desktop build persisted Step 3.7 into every role. NVIDIA retired that route, so
       // migrate the effective session to current defaults without silently rewriting the user's
@@ -365,9 +361,9 @@ export async function loadConfig(): Promise<CliConfig> {
       if (retiredStep(cached.subagentModel)) cached.subagentModel = DEFAULTS.subagentModel;
       if (retiredStep(cached.fallbackModel)) cached.fallbackModel = DEFAULTS.fallbackModel;
       if (cached.provider.trim().toLowerCase() === 'stepfun') cached.provider = 'nvidia';
-      if (cached.liteModel && cached.liteModel === cached.model && isReasoningModel(cached.liteModel)) {
-        cached.liteModel = LEGACY_SAFE_LITE_MODEL;
-      }
+      // A reasoning model in both slots used to be swapped here for LEGACY_SAFE_LITE_MODEL, a model the
+      // user never chose. NVIDIA 404s mistral-7b-instruct-v0.3 for some accounts, so every greeting and
+      // short question failed while the configured model answered fine. The user's pick now stands.
     } catch {
       /* models module unavailable in some test harnesses — defaults already sane */
     }

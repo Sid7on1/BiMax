@@ -336,6 +336,16 @@ export class LlmAdapter implements LLMProvider {
   /** True when the provider has rejected this id during this session. */
   public isUnservable(model: string): boolean { return this.unservable.has(model); }
 
+  /**
+   * The quick slot, unless the provider has rejected it this session. A rejected quick model used to stay
+   * selected: every short question re-sent the id NVIDIA had just 404'd, and the turn failed with "the
+   * provider rejected the current model id" while the work model was healthy. Quick calls now fall back
+   * to the work model once that happens.
+   */
+  private quickModel(): string | undefined {
+    return this.liteModel && !this.unservable.has(this.liteModel) ? this.liteModel : undefined;
+  }
+
   // If a configured model isn't one the provider actually serves, switch it to a valid one so turns
   // don't 400/404/410 forever (the classic symptom: a config.json pinned to a model from a different
   // provider — e.g. an NVIDIA id while the key is OpenRouter).
@@ -471,8 +481,9 @@ export class LlmAdapter implements LLMProvider {
 
   private pickModel(keyResult: KeyResult, lite?: boolean, hasImages?: boolean): string {
     if (this.strictModel) return this.strictModel;
-    const chosen = (lite && this.liteModel)
-      ? this.liteModel
+    const quick = lite ? this.quickModel() : undefined;
+    const chosen = quick
+      ? quick
       // The user's explicit choice (set via /model → applyConfig) must win. Previously the key's
       // baked-in provider default (keyResult.model) shadowed it, so /model appeared to do nothing.
       : (this.userModel || keyResult.model || this.defaultModel);
@@ -511,7 +522,8 @@ export class LlmAdapter implements LLMProvider {
   /** Best-effort capabilities for the currently-configured model — for UI/status surfacing. */
   public async activeCapabilities(lite?: boolean): Promise<ModelCapabilities> {
     const model = this.userModel || this.defaultModel;
-    if (lite && this.liteModel) return capabilitiesFor(undefined, this.liteModel);
+    const quick = lite ? this.quickModel() : undefined;
+    if (quick) return capabilitiesFor(undefined, quick);
     return capabilitiesFor(undefined, model);
   }
 
@@ -906,7 +918,7 @@ export class LlmAdapter implements LLMProvider {
       const model = this.pickModel(kr, options.lite, LlmAdapter.messagesHaveImages(finalMessages));
       attemptedModel = model;
       const caps = capabilitiesFor(kr.provider, model);
-      const primary = (options.lite && this.liteModel) ? this.liteModel : (this.userModel || kr.model || this.defaultModel);
+      const primary = (options.lite && this.quickModel()) || this.userModel || kr.model || this.defaultModel;
       if (LlmAdapter.messagesHaveImages(finalMessages) && model !== primary) {
         cliEvents.emit('status', `Vision → ${model}`);
       }

@@ -74,3 +74,16 @@ describe('failover obeys the same rule as healing', () => {
     expect(loop()).toMatch(/applyConfig\?\.\(\{ model: fb \}\)/);
   });
 });
+
+describe('a quick model the provider rejected is not sent again', () => {
+  test('quick calls fall back to the work model once the quick slot is rejected', () => {
+    const a: any = new LlmAdapter({ getNextKey: async () => ({}) } as any);
+    a.userModel = 'nvidia/nemotron-3.5-lightning-30b-a3b';
+    a.liteModel = 'mistralai/mistral-7b-instruct-v0.3';
+    const kr = { provider: 'nvidia' };
+    expect(a.pickModel(kr, true)).toBe('mistralai/mistral-7b-instruct-v0.3');
+    a.markUnservable('mistralai/mistral-7b-instruct-v0.3');
+    expect(a.pickModel(kr, true)).toBe('nvidia/nemotron-3.5-lightning-30b-a3b');
+    expect(a.pickModel(kr, false)).toBe('nvidia/nemotron-3.5-lightning-30b-a3b');
+  });
+});
