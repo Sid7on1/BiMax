@@ -86,6 +86,8 @@ export class TalkSession {
   /** A question the task asked; the next utterance answers it. */
   private ask: number | null = null;
   private quiet: unknown = null;
+  /** Which helper is current. One that has ended may still print (its own shutdown) and is not listened to. */
+  private generation = 0;
 
   constructor(private readonly deps: TalkDeps) {}
 
@@ -96,13 +98,18 @@ export class TalkSession {
   start(): void {
     if (this.active) return;
     this.set({ state: 'starting', heard: '', level: 0, error: null, threadId: null });
-    this.helper = this.deps.spawn((event) => this.onHelper(event), () => this.onExit());
+    const generation = ++this.generation;
+    this.helper = this.deps.spawn(
+      (event) => { if (generation === this.generation) this.onHelper(event); },
+      () => { if (generation === this.generation) this.onExit(); },
+    );
   }
 
   end(): void {
     if (!this.active) return;
     const helper = this.helper;
     const { threadId } = this.view;
+    this.generation++;
     this.helper = null;
     this.disarmQuiet();
     this.forgetTurn();

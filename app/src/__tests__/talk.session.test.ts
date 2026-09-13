@@ -161,6 +161,15 @@ test('a thread that cannot open, or a helper that dies, ends talk mode with a re
   expect(g.deps.closed).toHaveBeenCalledWith(null);
 });
 
+test('what a helper prints after talk has ended, such as its own shutdown, is not shown as an error', () => {
+  const f = listening();
+  f.talk.end();
+  f.helper({ event: 'error', code: 'transcription', message: 'The operation couldn’t be completed. (Swift.CancellationError error 1.)' });
+  f.crash();
+  expect(f.last()).toMatchObject({ state: 'off', error: null });
+  expect(f.deps.closed).toHaveBeenCalledTimes(1);
+});
+
 test('talk mode answers with the quick model when the provider serves it, else the ⌘2 default', () => {
   expect(talkModel([], 'x/quick')).toBe(DEFAULT_TALK_MODEL);
   expect(talkModel([{ id: DEFAULT_TALK_MODEL, served: true }], 'x/quick')).toBe(DEFAULT_TALK_MODEL);

@@ -404,9 +404,16 @@ func talk() async {
   let voice = bestVoice(for: locale)
   let silence = (Double(argument("--silence") ?? "") ?? 900) / 1000
   let loop = TalkLoop(analyzer: analyzer, voice: voice, muted: CommandLine.arguments.contains("--mute-output"), silence: silence)
+  // Transcripts stop only when the session does. Stopping any other time would leave talk mode deaf, so the helper exits
+  // with the reason; the cancellation that ending the session itself causes is not an error and is never reported.
+  let stopping = Flag()
   let results = Task {
-    do { for try await result in transcriber.results { loop.heard(String(result.text.characters), final: result.isFinal) } }
-    catch { Out.send(["event": "error", "code": "transcription", "message": error.localizedDescription]) }
+    do {
+      for try await result in transcriber.results { loop.heard(String(result.text.characters), final: result.isFinal) }
+      if !stopping.get() { Out.fail("transcription", "Speech recognition stopped unexpectedly.") }
+    } catch {
+      if !stopping.get() { Out.fail("transcription", "Speech recognition stopped: \(error.localizedDescription)") }
+    }
   }
 
   var engine: AVAudioEngine?
@@ -452,6 +459,7 @@ func talk() async {
       done.resume()
     }
   }
+  stopping.set(true)
   ticker.cancel()
   engine?.inputNode.removeTap(onBus: 0)
   engine?.stop()

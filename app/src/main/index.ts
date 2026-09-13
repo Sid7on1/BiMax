@@ -20,7 +20,7 @@ import { randomUUID } from 'node:crypto';
 import { macBin } from './bin';
 import os from 'node:os';
 import { spawn } from 'node:child_process';
-import { readFileSync, writeFileSync, renameSync, mkdirSync, realpathSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, renameSync, mkdirSync, realpathSync, existsSync, appendFileSync, statSync } from 'node:fs';
 import fsp from 'node:fs/promises';
 import {
   spawnEngineProcess, recentEngineLog, engineProcessProvenance,
@@ -168,7 +168,7 @@ function auxiliaryWindow(kind: 'quick' | 'approval'): BrowserWindow {
     // Hiding the bar must not strand a question its task is waiting on: it moves to the approval popup.
     window.on('hide', () => {
       voice.stop(window.webContents.id);
-      if (talkOwner === 'quick') talk.end();
+      if (talkOwner === 'quick' && talk.active) { talkLog('ending: the ⌘2 bar was hidden'); talk.end(); }
       if (quickThreadId && threads.approvals().some(a => a.threadId === quickThreadId)) showThreadApproval();
     });
   }
@@ -320,6 +320,15 @@ const voice = new VoiceSessions({
 let talkRoot: string | null = null;
 let talkModelChoice: string | undefined;
 let talkOwner: 'quick' | 'main' = 'quick';
+let talkShown: { state: string; error: string | null } = { state: 'off', error: null };
+/** Talk mode's own trail (userData/talk.log): its states, errors and why it ended. Never what was said. */
+function talkLog(line: string): void {
+  try {
+    const file = path.join(app.getPath('userData'), 'talk.log');
+    if (existsSync(file) && statSync(file).size > 512_000) renameSync(file, `${file}.1`);
+    appendFileSync(file, `${new Date().toISOString()} ${line}\n`);
+  } catch { /* the trail must never get in the way of talking */ }
+}
 const talkWindow = (): BrowserWindow | null => (talkOwner === 'main' ? win : quickWindow);
 const talk = new TalkSession({
   spawn: (onEvent, onExit) => {
@@ -328,7 +337,17 @@ const talk = new TalkSession({
     child.stdout.setEncoding('utf8');
     // A command written just as the helper exits must not become an uncaught EPIPE in the main process.
     child.stdin.on('error', () => {});
-    return talkHelper(child, onEvent, onExit);
+    child.on('exit', (code, signal) => talkLog(`helper exited code=${code} signal=${signal ?? '-'}`));
+    talkLog(`helper starts for the ${talkOwner === 'main' ? 'main window' : '⌘2 bar'}`);
+    return talkHelper(child, (event) => {
+      if (event.event !== 'partial' && event.event !== 'level') {
+        const detail = event.event === 'utterance' ? ` (${String(event.text ?? '').length} chars)`
+          : event.event === 'error' ? `: ${event.message}`
+          : event.event === 'ready' ? ` voice=${event.voice} quality=${event.quality} locale=${event.locale}` : '';
+        talkLog(`helper ${event.event}${detail}`);
+      }
+      onEvent(event);
+    }, onExit);
   },
   openThread: () => {
     if (talkOwner === 'main') {
@@ -359,9 +378,15 @@ const talk = new TalkSession({
     else if (id === quickThreadId) sendQuickThread();
   },
   interrupt: (id) => threads.send(id, { t: 'interrupt' }),
-  show: (view) => { const target = talkWindow(); if (target && !target.isDestroyed()) target.webContents.send('talk:state', view); },
+  show: (view) => {
+    if (view.state !== talkShown.state || view.error !== talkShown.error) talkLog(`state ${view.state}${view.error ? ` (${view.error})` : ''}`);
+    talkShown = { state: view.state, error: view.error };
+    const target = talkWindow();
+    if (target && !target.isDestroyed()) target.webContents.send('talk:state', view);
+  },
   // A project goes back to its own model and style once the talking is over.
   closed: (id) => {
+    talkLog(`ended${id ? ` in thread ${id}` : ''}`);
     if (!id || talkOwner !== 'main') return;
     try { threads.setTalk(id, false); } catch { /* the thread is gone */ }
   },
@@ -804,7 +829,7 @@ function createSupervisor(threadId?: string): EngineSupervisor {
 
 function selectThread(id: string): void {
   // Talking in the main window follows the conversation on screen: moving to another one ends it.
-  if (talkOwner === 'main' && talk.threadId && talk.threadId !== id) talk.end();
+  if (talkOwner === 'main' && talk.threadId && talk.threadId !== id) { talkLog('ending: the main window moved to another conversation'); talk.end(); }
   const root = threads.get(id).summary.root;
   capabilityReplay.clear();
   latestUiSnapshot = null;
@@ -936,7 +961,7 @@ function createWindow(): void {
     void win.loadFile(path.join(__dirname, '../renderer/index.html'));
   }
 
-  win.on('closed', () => { if (talkOwner === 'main') talk.end(); win = null; });
+  win.on('closed', () => { if (talkOwner === 'main' && talk.active) { talkLog('ending: the main window closed'); talk.end(); } win = null; });
 }
 
 /**
@@ -1236,9 +1261,13 @@ app.whenReady().then(async () => {
   // ends any dictation, and talking in one window ends talking in the other.
   const talkSurface = (sender: Electron.WebContents): 'quick' | 'main' | null =>
     sender.id === quickWindow?.webContents.id ? 'quick' : sender.id === win?.webContents.id ? 'main' : null;
+  // A start still waiting (on the microphone prompt) can be called off by End before any helper runs.
+  let talkStarting: 'quick' | 'main' | null = null;
+  let talkStartCancelled = false;
   secureHandle('talk:start', { ok: false } as { ok: boolean; error?: string; code?: string }, async (event) => {
     const surface = talkSurface(event.sender);
     if (!surface) return { ok: false, error: 'Talk mode runs in the ⌘2 bar or the main window.' };
+    talkLog(`start requested in the ${surface === 'main' ? 'main window' : '⌘2 bar'}`);
     if (!voiceAvailable()) return { ok: false, code: 'unsupported', error: 'Talk mode needs macOS 26 or later.' };
     if (talk.active && talkOwner === surface) return { ok: true };
     let root: string | null = null;
@@ -1256,22 +1285,38 @@ app.whenReady().then(async () => {
         if (root === '/' || root === os.homedir()) return { ok: false, error: 'Choose a specific folder rather than your whole home folder.' };
       }
     }
-    if (!(await microphoneAllowed(event.sender))) return { ok: false, code: 'microphone-denied', error: MICROPHONE_OFF };
-    const models = await refreshModelCatalog();
-    const visible = surface === 'main' ? win?.isVisible() : quickWindow?.isVisible();
-    if (!visible) return { ok: false, error: surface === 'main' ? 'The Bimax window was closed.' : 'The ⌘2 bar was closed.' };
-    if (talk.active) {
-      if (talkOwner === surface) return { ok: true };
-      talk.end();
+    talkStarting = surface;
+    talkStartCancelled = false;
+    try {
+      if (!(await microphoneAllowed(event.sender))) { talkLog('refused: microphone access is off'); return { ok: false, code: 'microphone-denied', error: MICROPHONE_OFF }; }
+      if (talkStartCancelled) { talkLog('start called off before the helper ran'); return { ok: false }; }
+      const visible = surface === 'main' ? win?.isVisible() : quickWindow?.isVisible();
+      if (!visible) return { ok: false, error: surface === 'main' ? 'The Bimax window was closed.' : 'The ⌘2 bar was closed.' };
+      if (talk.active) {
+        if (talkOwner === surface) return { ok: true };
+        talkLog('ending: talking moved to the other window');
+        talk.end();
+      }
+      voice.cancel(event.sender.id);
+      talkOwner = surface;
+      talkRoot = root;
+      // Talking starts at once, so the model list is never waited for: the list already known decides (none known yet
+      // means the talk model), and a fresh one is fetched for next time. Waiting on a booting engine took up to 8s.
+      talkModelChoice = talkModel(modelCatalog, loadSettings().quickModel);
+      void refreshModelCatalog();
+      talk.start();
+      return { ok: true };
+    } finally {
+      talkStarting = null;
     }
-    voice.cancel(event.sender.id);
-    talkOwner = surface;
-    talkRoot = root;
-    talkModelChoice = talkModel(models, loadSettings().quickModel);
-    talk.start();
-    return { ok: true };
   });
-  secureOn('talk:end', (event) => { if (talkSurface(event.sender) === talkOwner) talk.end(); });
+  secureOn('talk:end', (event) => {
+    const surface = talkSurface(event.sender);
+    if (surface && talkStarting === surface) talkStartCancelled = true;
+    if (!surface || surface !== talkOwner || !talk.active) return;
+    talkLog(`ending: End pressed in the ${surface === 'main' ? 'main window' : '⌘2 bar'}`);
+    talk.end();
+  });
   secureOn('talk:interrupt', (event) => { if (talkSurface(event.sender) === talkOwner) talk.interrupt(); });
   // Only the window that is talking sees the conversation's state; the other one's Talk button stays ready.
   secureHandle('talk:current', null as TalkView | null, (event) => (talkSurface(event.sender) === talkOwner ? talk.current : null));

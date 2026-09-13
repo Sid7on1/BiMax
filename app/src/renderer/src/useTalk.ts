@@ -38,6 +38,8 @@ export function useTalk(): Talk {
   const api = typeof window === 'undefined' ? undefined : window.bimax?.talk;
   const [view, setView] = useState<TalkView>(OFF);
   const [error, setError] = useState<string | null>(null);
+  // Clicked, not yet started: shown as starting at once, so the button never looks as if it ignored the click.
+  const [pending, setPending] = useState(false);
 
   useEffect(() => {
     if (!api) return;
@@ -59,12 +61,15 @@ export function useTalk(): Talk {
   const start = useCallback((): void => {
     if (!api) return;
     setError(null);
+    setPending(true);
     void api.start()
       .then((result: { ok?: boolean; error?: string } | null) => { if (!result?.ok && result?.error) setError(result.error); })
-      .catch((err: Error) => setError(err.message));
+      .catch((err: Error) => setError(err.message))
+      .finally(() => setPending(false));
   }, [api]);
-  const end = useCallback((): void => { api?.end(); }, [api]);
+  const end = useCallback((): void => { setPending(false); api?.end(); }, [api]);
   const interrupt = useCallback((): void => { api?.interrupt(); }, [api]);
 
-  return { view, active: view.state !== 'off', error, start, end, interrupt };
+  const shown: TalkView = pending && view.state === 'off' ? { ...OFF, state: 'starting' } : view;
+  return { view: shown, active: shown.state !== 'off', error, start, end, interrupt };
 }
