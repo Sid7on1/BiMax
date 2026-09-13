@@ -103,5 +103,16 @@ export function buildEngineChildEnv(input: {
     'BGW_VISION_MODEL',
     'BIMAX_FALLBACK_MODEL',
   ]) delete env[variable];
+  // One task may answer with a different model than Bimax's saved slots (the ⌘2 model menu, "Retry with…", talk mode).
+  // It arrives as BIMAX_THREAD_MODEL and becomes the engine's volatile overrides, applied after the clearing above and
+  // never written back to the user's configuration.
+  const threadModel = String(input.extraEnv?.BIMAX_THREAD_MODEL ?? '').trim();
+  delete env.BIMAX_THREAD_MODEL;
+  if (threadModel) { env.BGW_MODEL = threadModel; env.BGW_LITE_MODEL = threadModel; }
+  // Talk mode (BIMAX_THREAD_VOICE) makes every reply short and markdown-free, so only a talk-mode engine gets it, never one
+  // that merely inherited it from the shell that started Bimax.
+  const spoken = input.extraEnv?.BIMAX_THREAD_VOICE === '1';
+  delete env.BIMAX_THREAD_VOICE;
+  if (spoken) env.BIMAX_THREAD_VOICE = '1';
   return env;
 }

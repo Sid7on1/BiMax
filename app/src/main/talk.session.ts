@@ -1,8 +1,9 @@
-import type { TalkView } from '../shared/talk';
+import { TALK_TURN_HINT, type TalkView } from '../shared/talk';
 import { SpokenReply, speakable } from './speech.text';
 import type { VoiceEvent } from './voice';
 
 export type { TalkState, TalkView } from '../shared/talk';
+export { TALK_TURN_HINT } from '../shared/talk';
 
 /**
  * Talk mode in the ⌘2 bar: listen → the words go to a spoken-style thread → its reply is read aloud sentence by
@@ -14,12 +15,6 @@ export type { TalkState, TalkView } from '../shared/talk';
  * secret or a checklist.
  */
 export const DEFAULT_TALK_MODEL = 'openai/gpt-oss-20b';
-/**
- * Goes to the engine with every spoken turn, never onto the screen. With the system prompt's spoken section alone,
- * gpt-oss-20b answered "What files are in this folder?" with a bare list; with this line it said "You have budget.csv
- * and notes.txt in this folder." (one run each through the real engine, 2026-09-14).
- */
-export const TALK_TURN_HINT = '[Said out loud; your reply is read aloud. Answer in one to three short spoken sentences, no lists.]';
 /** Listening this long with nothing heard ends talk mode, so a forgotten conversation does not keep the microphone on. */
 export const QUIET_END_MS = 120_000;
 

@@ -3,6 +3,7 @@ import {
   ReviewSnapshot,
 } from './protocol';
 import { supportsProtocolMajor } from '../../shared/protocol.compat.gen';
+import { withoutTalkHint } from '../../shared/talk';
 import {
   normalizeUiSnapshot, normalizeReviewSnapshot, normalizeSubAgents, normalizeTodos,
 } from './protocol.normalize';
@@ -162,7 +163,11 @@ function onEvent(state: EngineUiState, name: string, args: any[]): EngineUiState
     case 'message': {
       const incoming = args[0] as MessageEntry;
       if (!incoming) return state;
-      const msg = incoming;
+      // A spoken turn is echoed with talk mode's hint for the model; only what was said is shown, so it also adopts
+      // the bubble already on screen instead of adding a second one.
+      const msg = incoming.role === 'user' && typeof incoming.content === 'string'
+        ? { ...incoming, content: withoutTalkHint(incoming.content) }
+        : incoming;
       const notice = msg.role === 'system' ? msg.payload?.capabilityStatus : undefined;
       if (notice && typeof notice.id === 'string' && ['degraded', 'unavailable', 'ready'].includes(notice.state)
         && ['label', 'reason', 'impact', 'action', 'observedAt'].every(key => typeof notice[key] === 'string')) {
@@ -249,7 +254,10 @@ function onEvent(state: EngineUiState, name: string, args: any[]): EngineUiState
         } else if (e.role === 'user' || e.role === 'assistant' || e.role === 'system') {
           // Replayed menus are inert (their engine-side handlers died with the original process).
           // The sentinel must not equal any option's value — '' would light up "Skip"-style options.
-          items.push({ kind: 'msg', msg: e as MessageEntry, menuChosen: e.uiComponent === 'menu' ? '__replayed__' : undefined });
+          // A spoken turn was saved with talk mode's hint for the model; the transcript shows only what was said.
+          const entry = e as MessageEntry;
+          const shown = entry.role === 'user' && typeof entry.content === 'string' ? { ...entry, content: withoutTalkHint(entry.content) } : entry;
+          items.push({ kind: 'msg', msg: shown, menuChosen: e.uiComponent === 'menu' ? '__replayed__' : undefined });
         }
       }
       return { ...state, items, streaming: '', thinking: '', awaitingNewTurn: false };

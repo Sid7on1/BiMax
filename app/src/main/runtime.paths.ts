@@ -276,11 +276,6 @@ export function buildEngineChildEnv(input: ChildEnvInput): Record<string, string
   const threadModel = String(input.extraEnv?.BIMAX_THREAD_MODEL ?? '').trim();
   delete env.BIMAX_THREAD_MODEL;
   if (threadModel) { env.BGW_MODEL = threadModel; env.BGW_LITE_MODEL = threadModel; }
-  // Talk mode (BIMAX_THREAD_VOICE) makes every reply short and markdown-free, so only a talk-mode task's own engine gets it,
-  // never one that merely inherited it from the shell that started Bimax.
-  const spoken = input.extraEnv?.BIMAX_THREAD_VOICE === '1';
-  delete env.BIMAX_THREAD_VOICE;
-  if (spoken) env.BIMAX_THREAD_VOICE = '1';
   // Code-only product boundary: resolved native components and inherited CU variables are ignored.
   // The only capabilities the child can load are ordinary coding tools and user-configured MCP.
   return env;
