@@ -104,6 +104,26 @@ export function sanitizeToolArgs(raw: any): string {
 }
 
 
+/** The longest opening a round holds back while it could still turn out to be a stray fragment. */
+const FRAGMENT_HOLD_CHARS = 12;
+/** One-word replies people genuinely answer with; these are never re-asked. */
+const SHORT_ANSWERS = new Set([
+  'yes', 'no', 'ok', 'okay', 'done', 'sure', 'hi', 'hello', 'hey', 'thanks', 'correct', 'true', 'false',
+  'none', 'nothing', 'maybe', 'yep', 'nope', 'fine', 'ready', 'agreed', 'understood', 'noted',
+]);
+
+/**
+ * A whole reply that is one short run of letters and not a word people answer with is not an answer.
+ * Measured 2026-09-13: nemotron-3.5-lightning on NVIDIA ended a full turn ("what files do you see ?") with
+ * the five characters "Thead" — no tool call, no truncation — and the loop presented it as the answer.
+ * Numbers, punctuation ("Done.") and real one-word replies are answers. A genuine one-word answer such as
+ * "Paris" costs one extra round and is then shown.
+ */
+export function isStrayFragment(text: string): boolean {
+  const t = text.trim();
+  return /^[A-Za-z]{1,12}$/.test(t) && !SHORT_ANSWERS.has(t.toLowerCase());
+}
+
 export class AgentLoop {
   private contextManager: ContextManager;
   public messages: Message[] = [];
@@ -272,6 +292,8 @@ export class AgentLoop {
     // this the loop would `return` on the empty turn and the user would see a stopped
     // spinner and no answer. Single retry so a persistently-empty model can't spin.
     let emptyTurnRetried = false;
+    // Bounds the re-ask for a reply that was only a stray fragment (isStrayFragment) to one per call.
+    let strayFragmentRetried = false;
     // Whether any visible text has been streamed to the user across the whole call. If the
     // loop is about to end having shown nothing, we surface a note instead of silent silence.
     let anyTextYielded = false;
@@ -426,6 +448,10 @@ export class AgentLoop {
       // Set when the model hit the output-token ceiling this round (finish_reason: length);
       // handled after the stream ends — auto-continue, or surface the cutoff if capped.
       let turnTruncated = false;
+      // The opening of this round's reply, held until it contains a space or outgrows a word, so a stray
+      // fragment never reaches the UI (decided after the stream, below).
+      let heldFragment = '';
+      let releasedText = false;
 
       llmRounds++;
       taskMetrics.recordTurn();
@@ -445,7 +471,11 @@ export class AgentLoop {
       for await (const event of generator) {
         // Interrupted mid-stream: stop pulling tokens. Returning here runs the generator's
         // cleanup (.return()), which closes the underlying LLM stream.
-        if (signal?.aborted) return;
+        if (signal?.aborted) {
+          // Text that already arrived is kept for the user, even while it was still held as a possible fragment.
+          if (heldFragment) { anyTextYielded = true; yield heldFragment; heldFragment = ''; }
+          return;
+        }
         if (event.type === 'token') {
           currentContent += event.text;
           // On an operation turn, prose before the first required tool call is not an answer: it is
@@ -453,8 +483,18 @@ export class AgentLoop {
           // schema. Hold it back until the activation gate below can decide whether the tool was
           // actually called, so a bad first sample never leaks a false capability claim to the UI.
           if (!options?.requireTool || requiredToolUsed) {
-            if (event.text) anyTextYielded = true;
-            yield event.text;
+            if (!releasedText) {
+              heldFragment += event.text;
+              if (heldFragment.length <= FRAGMENT_HOLD_CHARS && !/\s/.test(heldFragment)) continue;
+              releasedText = true;
+              const opening = heldFragment;
+              heldFragment = '';
+              if (opening) anyTextYielded = true;
+              yield opening;
+            } else {
+              if (event.text) anyTextYielded = true;
+              yield event.text;
+            }
           }
         } else if (event.type === 'truncated') {
           // The model hit the output-token ceiling mid-answer (finish_reason: length), so this reply
@@ -488,6 +528,9 @@ export class AgentLoop {
             'gen_ai.usage.output_tokens': event.completion,
           });
         } else if (event.type === 'error') {
+          // An error ends or discards this round here; show a held opening exactly as it would have been shown
+          // before fragments were held back.
+          if (heldFragment) { anyTextYielded = true; yield heldFragment; heldFragment = ''; releasedText = true; }
           chatErrorMsg = event.message;
           if (event.recoverable && event.kind === 'context') {
             // Tag the error as a context overflow explicitly: the classifier already decided this
@@ -617,6 +660,25 @@ export class AgentLoop {
       // transient retry). Any tokens already streamed to stdout are intentionally not
       // persisted to history, so the message log stays well-formed.
       if (discardTurn) continue;
+
+      // A reply still held back is decided now that the whole round is in: show it, or — when it is the
+      // entire answer, with no tool call and no cutoff, and only a stray fragment — ask once more.
+      if (heldFragment) {
+        const fragment = heldFragment;
+        heldFragment = '';
+        if (toolCalls.length === 0 && !turnTruncated && !strayFragmentRetried && isStrayFragment(fragment)) {
+          strayFragmentRetried = true;
+          Logger.warn(`[AgentLoop] Reply was only the fragment ${JSON.stringify(fragment)}; asking the model once more.`);
+          this.messages.push({
+            role: 'user',
+            content: `[INCOMPLETE REPLY] Your last reply was only "${fragment}", which does not answer the request. ` +
+              `Answer my last message fully, or call the tool you need.`,
+          });
+          continue;
+        }
+        anyTextYielded = true;
+        yield fragment;
+      }
 
       // Enforce the output contract: strip leaked tool-meta filler before it can
       // land in the reply or the history, and learn whether the turn was nothing but.

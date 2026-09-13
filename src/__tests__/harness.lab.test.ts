@@ -114,7 +114,9 @@ describe('Counterfactual Harness Lab', () => {
     // Too-short episode (1 call).
     const w = new EpisodeWriter(dir);
     const shortLoop = new AgentLoop(
-      new RecordingProvider(scripted([[{ type: 'token', text: 'short' }, { type: 'done' }]]), w),
+      // A sentence, not a lone word: a one-word reply is re-asked once as a stray fragment (agent.loop
+      // isStrayFragment), which would make this a 2-call episode.
+      new RecordingProvider(scripted([[{ type: 'token', text: 'short answer.' }, { type: 'done' }]]), w),
       liveRegistry() as any
     );
     for await (const _ of shortLoop.execute([{ role: 'user', content: 'short task' }], SYSTEM, { maxIterations: 2 })) { /* drain */ }
