@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as crypto from 'crypto';
@@ -45,7 +46,7 @@ export class GoalManager {
   private goalsPath: string;
 
   constructor(projectRoot: string) {
-    this.goalsPath = path.join(projectRoot, '.bimax', 'goals.json');
+    this.goalsPath = path.join(stateDir('.bimax', projectRoot), 'goals.json');
   }
 
   async init(): Promise<void> {

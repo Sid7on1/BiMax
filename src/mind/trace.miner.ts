@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
@@ -9,7 +10,7 @@ import { expectedCalibrationError, isotonicFit } from './stats';
 
 /** Streaming reader for observational episodes; these must never enter ReplayProvider. */
 export async function* readTraceEpisodes(root: string): AsyncGenerator<TraceEpisode> {
-  const file = path.join(root, '.bimax', 'episodes', 'mined', 'trace-outcomes.jsonl');
+  const file = path.join(stateDir('.bimax', root), 'episodes', 'mined', 'trace-outcomes.jsonl');
   const lines = readline.createInterface({ input: fs.createReadStream(file), crlfDelay: Infinity });
   for await (const line of lines) {
     if (!line.trim()) continue;
@@ -39,7 +40,7 @@ function validSpan(value: unknown): value is TraceSpan {
  */
 export async function mineTraces(root: string, opts: { asOfMs: number; maxTraceSpans: number }) {
   if (!Number.isSafeInteger(opts.maxTraceSpans) || opts.maxTraceSpans < 1 || !Number.isFinite(opts.asOfMs)) throw new Error('invalid mining bounds');
-  const dir = path.join(root, '.bimax', 'episodes', 'mined');
+  const dir = path.join(stateDir('.bimax', root), 'episodes', 'mined');
   fs.mkdirSync(dir, { recursive: true });
   // Exclusive lock prevents two miners publishing mismatched snapshots.
   const lock = path.join(dir, '.trace-miner.lock');
@@ -77,7 +78,7 @@ export async function mineTraces(root: string, opts: { asOfMs: number; maxTraceS
     const insert = db.prepare('INSERT INTO spans VALUES (?,?,?)');
     const lookup = db.prepare('SELECT body FROM spans WHERE trace=? AND id=?');
     const conflict = db.prepare('INSERT OR IGNORE INTO conflicts VALUES (?)');
-    const traceDir = path.join(root, '.bimax', 'traces');
+    const traceDir = path.join(stateDir('.bimax', root), 'traces');
     for (const file of fs.readdirSync(traceDir).filter(f => f.endsWith('.jsonl')).sort()) {
       const input = fs.createReadStream(path.join(traceDir, file));
       const hash = crypto.createHash('sha256');

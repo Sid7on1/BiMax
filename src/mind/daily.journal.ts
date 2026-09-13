@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import { getEventLedger, EventLedger, LedgerEvent } from './event.ledger';
@@ -116,7 +117,7 @@ export function renderDayMarkdown(d: DayDigest): string {
 /** Write one day's markdown artifact under .bimax/journal/. Best-effort; returns the path or ''. */
 export function writeDayArtifact(dateKey: string, root: string = mindSingletonRoot()): string {
   try {
-    const dir = path.join(root, '.bimax', 'journal');
+    const dir = path.join(stateDir('.bimax', root), 'journal');
     fs.mkdirSync(dir, { recursive: true });
     const file = path.join(dir, `${dateKey}.md`);
     fs.writeFileSync(file, renderDayMarkdown(journalDigest(dateKey)), 'utf-8');

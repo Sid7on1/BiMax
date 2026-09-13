@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
@@ -210,7 +211,7 @@ export const COMPOSER_STORE_OPTIONS = {
 } as const;
 
 export function composerStorePath(root: string = process.cwd()): string {
-  return path.join(root, '.breakglass', 'memory', 'composer.index.sqlite');
+  return path.join(stateDir('.breakglass', root), 'memory', 'composer.index.sqlite');
 }
 
 export function createComposerStore(
@@ -240,7 +241,7 @@ export class ComposerCorpus {
 
   private manifestPath(): string {
     return this.options.manifestPath
-      ?? path.join(process.cwd(), '.breakglass', 'composer.json');
+      ?? path.join(stateDir('.breakglass'), 'composer.json');
   }
 
   private async load(): Promise<void> {

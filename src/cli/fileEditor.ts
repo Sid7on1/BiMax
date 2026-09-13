@@ -1,9 +1,10 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { execSync } from 'child_process';
 import { structuredPatch } from 'diff';
 
-const BACKUP_DIR = path.join(process.cwd(), '.breakglass', 'backups');
+const BACKUP_DIR = path.join(stateDir('.breakglass'), 'backups');
 
 /**
  * A compact, context-limited unified diff (git-style: 3 lines of context around each change) with

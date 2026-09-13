@@ -113,3 +113,16 @@ test('a ⌘2 thread runs no code index; a project opened in the main window keep
   // Threads saved before origins existed were all started from ⌘2 or a Finder folder.
   expect(threadIndexEnvironment(undefined)).toEqual({ BIMAX_CODE_INDEX:'0' });
 });
+
+test('an undo from the app shows in the thread, and reaches the engine with the next message rather than on its own',()=> {
+  const f=fixture(), a=f.manager.create('/fixture/Desktop','sort by date'); f.ready(a); f.idle(a);
+  f.manager.noteUndo(a,'Rename folder “DEV” to “2026-09-13_DEV”');
+  expect(f.manager.get(a).state.items.at(-1)).toMatchObject({ kind:'msg', msg:{ role:'system', content:'Undid: Rename folder “DEV” to “2026-09-13_DEV”' } });
+  expect(f.message).toHaveBeenLastCalledWith(a, expect.objectContaining({ name:'message' }));
+  const before=f.engines.get(a)!.sendFromRenderer.mock.calls.length;
+  f.manager.submit(a,'what now?');
+  const sent=f.engines.get(a)!.sendFromRenderer.mock.calls.slice(before).map(c => c[0]).find(m => m.t==='input');
+  expect(sent.text).toContain('undid these file changes');
+  expect(sent.text).toContain('what now?');
+  expect(f.manager.get(a).state.items.at(-1)).toMatchObject({ kind:'msg', msg:{ role:'user', content:'what now?' } });
+});

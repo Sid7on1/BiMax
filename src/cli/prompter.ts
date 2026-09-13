@@ -13,7 +13,7 @@ export class GlobalPrompter {
     // No longer needs readline interface, React manages UI.
   }
 
-  public static async ask(question: string, options: string[] = ['Yes', 'No', 'Always']): Promise<string> {
+  public static async ask(question: string, options: string[] = ['Yes', 'No', 'Always'], extra?: { body?: string }): Promise<string> {
     if (this.isPrompting) {
       throw new Error('[GlobalPrompter] Cannot prompt while another prompt is active.');
     }
@@ -37,7 +37,7 @@ export class GlobalPrompter {
           this.isPrompting = false;
           cliEvents.emit('spinner_state', resume.state, resume.message);
           resolve(answer.trim());
-        });
+        }, false, false, extra?.body);
       } catch (e) {
         this.isPrompting = false;
         cliEvents.emit('spinner_state', resume.state, resume.message);

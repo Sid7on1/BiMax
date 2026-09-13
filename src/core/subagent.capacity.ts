@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -49,7 +50,7 @@ function wait(ms: number): void {
 /** One inherited path/run id keeps nested workers and worktrees on the same capacity ledger. */
 export function resolveCapacityContext(cwd: string, capacityPath?: string, runId?: string): { path: string; runId: string } {
   const resolvedPath = capacityPath || process.env[CAPACITY_PATH_ENV]
-    || path.join(path.resolve(cwd || process.cwd()), '.bimax', 'subagent-capacity.json');
+    || path.join(stateDir('.bimax', cwd || process.cwd()), 'subagent-capacity.json');
   const resolvedRun = runId || process.env[CAPACITY_RUN_ENV]
     || `run-${process.pid}-${crypto.randomBytes(6).toString('hex')}`;
   return { path: resolvedPath, runId: resolvedRun };

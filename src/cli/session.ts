@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { MessageEntry } from './events';
@@ -52,7 +53,7 @@ export function messageEntriesToLLM(entries: MessageEntry[]): Message[] {
 // Lazy (not module-load) cwd resolution: the engine chdir()s to BIMAX_CWD during boot and tests
 // chdir to tmpdirs — a captured-at-import path would point sessions at the wrong project.
 export function sessionDir(): string {
-  return path.join(process.cwd(), '.breakglass', 'sessions');
+  return path.join(stateDir('.breakglass'), 'sessions');
 }
 function branchDir(): string {
   return path.join(sessionDir(), 'branches');

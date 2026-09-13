@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import { execFileSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -23,7 +24,7 @@ export interface Checkpoint {
  * object database (never on a branch), so history stays clean.
  */
 export class CheckpointManager {
-  private readonly dir = path.join(process.cwd(), '.breakglass');
+  private readonly dir = stateDir('.breakglass');
   private readonly metaFile = path.join(this.dir, 'checkpoints.json');
   private readonly tmpIndex = path.join(this.dir, 'checkpoint-index');
   private readonly maxAuto = 20;

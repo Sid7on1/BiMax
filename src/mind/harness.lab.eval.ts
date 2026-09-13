@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import { loadEpisode } from './episode.recorder';
@@ -80,7 +81,7 @@ export function selectCohort(
     limit: criteria?.limit ?? LAB_GATES.DEFAULT_COHORT_LIMIT,
     minCalls: criteria?.minCalls ?? LAB_GATES.MIN_EPISODE_CALLS,
   };
-  const dir = path.join(root, '.bimax', 'episodes');
+  const dir = path.join(stateDir('.bimax', root), 'episodes');
   let files: string[] = [];
   try { files = fs.readdirSync(dir).filter(f => f.endsWith('.jsonl')).sort(); } catch { /* no episodes yet */ }
 

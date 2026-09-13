@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react';
-import { ArrowUp, Check, ChevronRight, ExternalLink, Folder, PenLine, Search, Square, X } from 'lucide-react';
+import { ArrowUp, Check, ChevronRight, ExternalLink, Folder, PenLine, Search, Square, Undo2, X } from 'lucide-react';
 import { QUICK_BAR_MAX_HEIGHT_SHARE, type QuickContext, type QuickThread, type ThreadApproval } from '../../../shared/threads';
 import { engineReducer, initialEngineState, type TranscriptItem } from '../engine.state';
 import type { Outbound, RequestMsg, ToolCallEntry } from '../protocol';
@@ -8,6 +8,7 @@ import { applyAppearance, savedAppearance } from '../appearance';
 import { cn } from '../lib/cn';
 import { ThinkingIndicator } from './ThinkingIndicator';
 import { StreamCoalescer } from '../stream.coalescer';
+import { approvalShortcut, denyOption } from '../approval.keys';
 
 /**
  * The two floating surfaces of Bimax Threads: the ⌘2 bar and the approval popup.
@@ -98,6 +99,15 @@ export function ThreadQuickBar(): React.ReactElement {
     return () => clearTimeout(timer);
   }, [busy, state.streaming]);
   const showActivity = busy && !request && (!state.streaming || afterTool || stalled);
+  // The newest change this thread made that can still be undone ("↶ Undo" in the footer). Looked up when the thread
+  // changes and whenever a turn ends; hidden while a turn is running.
+  const [undo, setUndo] = useState<{ id: string; title: string } | null>(null);
+  useEffect(() => {
+    let live = true;
+    if (!thread || busy) { setUndo(null); return; }
+    void window.bimax.threads.undoInfo(thread.id).then((value: { id: string; title: string } | null) => { if (live) setUndo(value); });
+    return () => { live = false; };
+  }, [thread?.id, busy]);
   // Like Spotlight, the empty bar is only the pill. A missing Finder folder is already said by the folder chip,
   // so its explanation appears only when someone tries to send without one.
   const status = error;
@@ -163,6 +173,14 @@ export function ThreadQuickBar(): React.ReactElement {
     else setError('That request has expired. Nothing was sent.');
   }
 
+  async function undoLastChange(): Promise<void> {
+    if (!thread || !undo) return;
+    setUndo(null);
+    const result = await window.bimax.threads.undo(thread.id);
+    setError(result?.ok ? '' : result?.error || 'That change could not be undone.');
+    setUndo(await window.bimax.threads.undoInfo(thread.id));
+  }
+
   async function chooseFolder(): Promise<void> {
     const picked = await window.bimax.threads.pickFolder();
     if (picked) { setContext({ root: picked, source: 'Selected folder' }); setError(''); input.current?.focus(); }
@@ -174,6 +192,9 @@ export function ThreadQuickBar(): React.ReactElement {
       data-glass={glass}
       data-expanded={hasConversation || undefined}
       onKeyDown={(e) => {
+        // An approval card on screen owns ⌘↩ (allow) and Esc (deny); otherwise Esc hides the bar.
+        const pick = request ? approvalShortcut(e.nativeEvent, request) : undefined;
+        if (pick) { e.preventDefault(); void reply(pick); return; }
         if (e.key === 'Escape') { e.preventDefault(); window.bimax.threads.hide(); }
         if (e.key.toLowerCase() === 'n' && e.metaKey) { e.preventDefault(); window.bimax.threads.quickReset(); input.current?.focus(); }
       }}
@@ -189,7 +210,7 @@ export function ThreadQuickBar(): React.ReactElement {
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); void submit(); }
+            if (e.key === 'Enter' && !e.shiftKey && !e.metaKey && !e.ctrlKey && !e.nativeEvent.isComposing) { e.preventDefault(); void submit(); }
           }}
           className="quick-input"
         />
@@ -232,6 +253,11 @@ export function ThreadQuickBar(): React.ReactElement {
           </span>
           {thread ? (
             <>
+              {undo && !busy ? (
+                <button type="button" className="quick-link quick-undo" title={`Undo: ${undo.title}`} onClick={() => void undoLastChange()}>
+                  <Undo2 size={12} aria-hidden /><span>Undo: {undo.title}</span>
+                </button>
+              ) : null}
               <button type="button" className="quick-link" onClick={() => window.bimax.threads.quickOpen()}>
                 <ExternalLink size={12} aria-hidden />Open in Bimax
               </button>
@@ -261,7 +287,7 @@ function QuickConversation({ items }: { items: TranscriptItem[] }): React.ReactE
     const { msg } = item;
     if (msg.role === 'user') blocks.push(<p key={msg.id} className="quick-prompt">{msg.content}</p>);
     else if (msg.role === 'assistant') blocks.push(<div key={msg.id} className="quick-answer"><Markdown text={msg.content} /></div>);
-    else if ((msg.level === 'error' || msg.level === 'warn') && !msg.payload?.capabilityStatus) blocks.push(<p key={msg.id} className="quick-note">{msg.content}</p>);
+    else if ((msg.level === 'error' || msg.level === 'warn' || msg.level === 'success') && !msg.payload?.capabilityStatus) blocks.push(<p key={msg.id} className="quick-note">{msg.content}</p>);
   });
   flush('steps-end');
   return <>{blocks}</>;
@@ -306,6 +332,7 @@ function QuickRequest({ req, onReply }: { req: RequestMsg; onReply: (value: stri
     <section className="quick-request" aria-label="Bimax needs your answer">
       <p className="quick-request-question">{req.question}</p>
       {req.kind === 'diff' && req.body ? <div className="quick-request-diff"><DiffView diff={req.body} /></div> : null}
+      {req.kind !== 'diff' && req.body ? <pre className="quick-request-body">{req.body}</pre> : null}
       {freeForm ? (
         <form className="quick-request-form" onSubmit={(e) => { e.preventDefault(); onReply(text); }}>
           <input
@@ -346,6 +373,7 @@ function QuickRequest({ req, onReply }: { req: RequestMsg; onReply: (value: stri
               {option}
             </button>
           ))}
+          {denyOption(req.options) ? <span className="quick-request-keys">⌘↩ {req.options[0]} · Esc {denyOption(req.options)}</span> : null}
         </div>
       )}
     </section>
@@ -364,6 +392,17 @@ export function ThreadApprovals(): React.ReactElement {
   }, []);
   const current = requests[0];
   useEffect(() => { setError(''); }, [current?.threadId, current?.request.id]);
+
+  // ⌘↩ allows and Esc denies, like the card in the bar (approval.keys.ts).
+  useEffect(() => {
+    if (!current) return;
+    const onKey = (e: KeyboardEvent): void => {
+      const pick = approvalShortcut(e, current.request);
+      if (pick) { e.preventDefault(); void reply(pick); }
+    };
+    window.addEventListener('keydown', onKey, true);
+    return () => window.removeEventListener('keydown', onKey, true);
+  });
 
   async function reply(answer: string): Promise<void> {
     if (!current) return;

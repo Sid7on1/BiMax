@@ -1,8 +1,9 @@
+import { stateDir } from './state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import { getCorrelationId } from '../core/correlation';
 
-const LOG_DIR = path.join(process.cwd(), '.breakglass/logs');
+const LOG_DIR = path.join(stateDir('.breakglass'), 'logs');
 const LOG_FILE = path.join(LOG_DIR, 'agent.log');
 
 // Ensure log directory exists synchronously to prevent early crash

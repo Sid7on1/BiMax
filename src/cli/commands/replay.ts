@@ -1,3 +1,4 @@
+import { stateDir } from '../../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import { globalCommandRegistry } from './registry';
@@ -35,7 +36,7 @@ globalCommandRegistry.register({
       lines.push(`### ${who}${ts ? ` · ${ts}` : ''}`, ``, text || '_(empty)_', ``);
     }
 
-    const outDir = path.join(context.cwd, '.breakglass', 'replays');
+    const outDir = path.join(stateDir('.breakglass', context.cwd), 'replays');
     fs.mkdirSync(outDir, { recursive: true });
     const stamp = new Date().toISOString().replace(/[:.]/g, '-');
     const outPath = path.join(outDir, `replay-${stamp}.md`);

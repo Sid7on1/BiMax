@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import { randomBytes } from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -175,7 +176,7 @@ export class Tracer {
   recentSpans(): EndedSpan[] { return [...this.recent]; }
 
   private jsonlDir(): string {
-    return process.env.BIMAX_TRACE_DIR || path.join(process.cwd(), '.bimax', 'traces');
+    return process.env.BIMAX_TRACE_DIR || path.join(stateDir('.bimax'), 'traces');
   }
 
   /** Today's JSONL export file (for surfacing the path to the user). */

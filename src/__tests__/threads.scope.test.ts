@@ -15,8 +15,8 @@ import { SafetyPolicy } from '../governor/policy.engine';
 // governor's workspace floor refuses as a forbidden system path (capability.silence.test does the same).
 let dir:string, root:string;
 const originalWorkspace = SafetyPolicy.allowedWorkspace;
-beforeEach(()=> { dir=fs.mkdtempSync(path.join(process.cwd(),'.thread-scope-test-'));root=path.join(dir,'work');fs.mkdirSync(root);process.env.BIMAX_THREAD_ROOT=root;SafetyPolicy.allowedWorkspace=root; });
-afterEach(()=> { delete process.env.BIMAX_THREAD_ROOT;SafetyPolicy.allowedWorkspace=originalWorkspace; jest.restoreAllMocks();fs.rmSync(dir,{ recursive:true,force:true }); });
+beforeEach(()=> { dir=fs.mkdtempSync(path.join(process.cwd(),'.thread-scope-test-'));root=path.join(dir,'work');fs.mkdirSync(root);process.env.BIMAX_THREAD_ROOT=root;process.env.BIMAX_STATE_DIR=dir;SafetyPolicy.allowedWorkspace=root; });
+afterEach(()=> { delete process.env.BIMAX_THREAD_ROOT;delete process.env.BIMAX_STATE_DIR;SafetyPolicy.allowedWorkspace=originalWorkspace; jest.restoreAllMocks();fs.rmSync(dir,{ recursive:true,force:true }); });
 
 test('deep missing parents under an escaping symlink cannot widen the thread folder',async()=> {
   fs.symlinkSync(dir,path.join(root,'escape'));
@@ -75,4 +75,17 @@ test('underlength PDF retains a draft; append, duplicate rejection, replace and 
 test('PDF receives the same explicit word target as prose output',()=> {
   const args=JSON.parse(applyImplicitDocumentConstraints('{"format":"pdf","path":"story.pdf"}',[{ role:'user',content:'i want a 2000 word long horror story' }]));
   expect(args.expectedWords).toBe(2000);
+});
+
+test('a thread asks in plain words, refuses deletes it cannot send to the Bin, and journals what it allows',async()=> {
+  const gov=new Governor({ emit:jest.fn() } as any);
+  fs.mkdirSync(path.join(root,'DEV'));
+  const ask=jest.spyOn(GlobalPrompter,'ask').mockResolvedValue('Allow');
+  await gov.approveTaskExecution('OS_COMMAND',{ command:'mv DEV 2026-09-13_DEV',context:{ cwd:root },isDestructive:true });
+  expect(ask).toHaveBeenCalledWith('Rename folder “DEV” to “2026-09-13_DEV”',['Allow','Deny'],expect.objectContaining({ body:expect.stringContaining('DEV/ → 2026-09-13_DEV') }));
+  expect(fs.readFileSync(path.join(dir,'.bimax','undo','journal.jsonl'),'utf8')).toContain('"op":"move"');
+  await expect(gov.approveTaskExecution('OS_COMMAND',{ command:'find . -delete',context:{ cwd:root },isDestructive:true })).rejects.toThrow('Bin');
+  expect(ask).toHaveBeenCalledTimes(1);
+  ask.mockResolvedValue('Deny');
+  await expect(gov.approveTaskExecution('OS_COMMAND',{ command:'mv DEV elsewhere',context:{ cwd:root },isDestructive:true })).rejects.toThrow('declined');
 });

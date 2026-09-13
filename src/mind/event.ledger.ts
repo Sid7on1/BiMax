@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
@@ -44,7 +45,7 @@ export class EventLedger {
     try {
       // Tolerant open: node:sqlite (dev/CI) OR bun:sqlite (the packaged bun --compile engine).
       // Absence of both must leave a working (no-op) ledger, never a crashed agent.
-      const dir = path.join(projectRoot, '.bimax');
+      const dir = stateDir('.bimax', projectRoot);
       fs.mkdirSync(dir, { recursive: true });
       this.db = openSqlite(path.join(dir, 'ledger.db'));
       if (!this.db) throw new Error('no SQLite backend (node:sqlite / bun:sqlite) on this runtime');

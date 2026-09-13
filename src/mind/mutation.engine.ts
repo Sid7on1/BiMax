@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import { execFileSync } from 'child_process';
@@ -579,7 +580,7 @@ export class MutationEngine {
   /** Verified-outcome exemplars — retrieval-augmented prompting's corpus (embeddings later). */
   private appendExemplar(ex: Record<string, any>): void {
     try {
-      const file = path.join(this.projectRoot, '.bimax', 'exemplars.json');
+      const file = path.join(stateDir('.bimax', this.projectRoot), 'exemplars.json');
       let all: any[] = [];
       try { const parsed = JSON.parse(fs.readFileSync(file, 'utf-8')); if (Array.isArray(parsed)) all = parsed; } catch { /* first exemplar */ }
       all.push(ex);
@@ -591,7 +592,7 @@ export class MutationEngine {
 
   exemplars(): any[] {
     try {
-      const parsed = JSON.parse(fs.readFileSync(path.join(this.projectRoot, '.bimax', 'exemplars.json'), 'utf-8'));
+      const parsed = JSON.parse(fs.readFileSync(path.join(stateDir('.bimax', this.projectRoot), 'exemplars.json'), 'utf-8'));
       return Array.isArray(parsed) ? parsed : [];
     } catch { return []; }
   }

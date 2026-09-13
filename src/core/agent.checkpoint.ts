@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Logger } from '../utils/logger';
@@ -34,7 +35,7 @@ export interface AutomaticRecoveryPlan {
 
 function checkpointPath(): string {
   return process.env.BIMAX_AGENT_TREE_PATH
-    || path.join(process.cwd(), '.bimax', 'agent-tree.json');
+    || path.join(stateDir('.bimax'), 'agent-tree.json');
 }
 
 /** Persist the current agent tree. Never throws — checkpointing must not break spawning. */

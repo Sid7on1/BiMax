@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import { IGraphStore } from './models';
@@ -42,7 +43,7 @@ export function resetCrossRepoCache(): void { _secondaryCache.clear(); _warming.
  *  read-only reference repo (the store constructor would otherwise mkdir+create the db file). */
 function indexExists(root: string): boolean {
   try {
-    const dir = path.join(root, '.breakglass', 'graph');
+    const dir = path.join(stateDir('.breakglass', root), 'graph');
     return fs.existsSync(path.join(dir, 'graph.db')) || fs.existsSync(path.join(dir, 'playground.json'));
   } catch { return false; }
 }

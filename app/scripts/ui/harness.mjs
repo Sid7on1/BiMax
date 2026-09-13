@@ -174,6 +174,8 @@ function installBridge(fixture) {
       quickInterrupt: () => record('threads.quickInterrupt'),
       quickResize: () => {},
       quickOpen: () => record('threads.quickOpen'),
+      undoInfo: async () => null,
+      undo: async (id) => { record('threads.undo', id); return { ok: false, error: 'No main process in the harness' }; },
     },
     windowChrome: {
       get: async () => ({ fullScreen: false, maximized: false }),

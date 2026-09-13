@@ -10,6 +10,7 @@
  *   - ContextEngine / ShortTermMemory / LongTermMemory (only needed by above workers)
  */
 
+import { stateDir } from '../utils/state.dir';
 import { EventBus } from './event.bus';
 import { Logger } from '../utils/logger';
 import { cliEvents } from '../cli/events';
@@ -277,7 +278,7 @@ export async function createContainer(config?: Partial<CliConfig>): Promise<{
   // Measured values, extracted from tables at ingest and queryable as data. This is the lane that
   // answers "which vessels are below minimum thickness" — a comparison a vector index cannot make,
   // because to it 7.8 is a token and not a quantity.
-  const factStore = new FactStore(path.join(process.cwd(), '.breakglass', 'memory', 'composer.facts.sqlite'));
+  const factStore = new FactStore(path.join(stateDir('.breakglass'), 'memory', 'composer.facts.sqlite'));
   setFactStore(factStore);
   const composerCorpus = new ComposerCorpus(createComposerStore(embeddings, reranker), { facts: factStore });
   setComposerCorpus(composerCorpus);

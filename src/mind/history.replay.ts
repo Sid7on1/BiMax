@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import { execSync, execFileSync } from 'child_process';
@@ -173,7 +174,7 @@ export async function replayHistoryTask(
     // Exemplar on success — a real task, re-solved and re-verified in this repo.
     if (grade.ok) {
       try {
-        const file = path.join(root, '.bimax', 'exemplars.json');
+        const file = path.join(stateDir('.bimax', root), 'exemplars.json');
         let all: any[] = [];
         try { const parsed = JSON.parse(fs.readFileSync(file, 'utf-8')); if (Array.isArray(parsed)) all = parsed; } catch { /* first */ }
         all.push({

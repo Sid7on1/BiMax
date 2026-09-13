@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -98,7 +99,7 @@ export class ExecutionLedger {
   private file: string;
 
   constructor(dir?: string) {
-    const base = dir || process.env.BIMAX_EXECUTION_DIR || path.join(process.cwd(), '.bimax', 'execution');
+    const base = dir || process.env.BIMAX_EXECUTION_DIR || path.join(stateDir('.bimax'), 'execution');
     this.file = path.join(base, 'ledger.ndjson');
   }
 

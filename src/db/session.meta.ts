@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -13,12 +14,11 @@ export interface SessionMeta {
   goalTitle?: string;
 }
 
-const META_FILE = '.breakglass/sessions/sessions-meta.jsonl';
 
 // Resolved lazily: the engine chdir()s to BIMAX_CWD during boot (after some modules load) and
 // tests chdir to tmpdirs — a captured-at-import path would write meta into the wrong project.
 function metaPath(): string {
-  return path.join(process.cwd(), META_FILE);
+  return path.join(stateDir('.breakglass'), 'sessions', 'sessions-meta.jsonl');
 }
 
 function readAllMeta(): SessionMeta[] {

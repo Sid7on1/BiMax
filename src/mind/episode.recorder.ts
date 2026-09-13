@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
@@ -112,7 +113,7 @@ export function isReplayActive(): boolean { return replayActive; }
 const SESSION_ID = `${process.pid}-${Date.now().toString(36)}`;
 
 function episodesDir(root: string): string {
-  return path.join(root, '.bimax', 'episodes');
+  return path.join(stateDir('.bimax', root), 'episodes');
 }
 
 /**

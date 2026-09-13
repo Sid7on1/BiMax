@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import { randomUUID } from 'crypto';
@@ -178,7 +179,7 @@ export class EpistemicLedger {
   private tdm: TestDependencyMap;
 
   constructor(projectRoot: string = process.cwd()) {
-    this.filePath = path.join(projectRoot, '.bimax', 'epistemic.json');
+    this.filePath = path.join(stateDir('.bimax', projectRoot), 'epistemic.json');
     this.tdm = new TestDependencyMap(projectRoot);
   }
 

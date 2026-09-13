@@ -7,6 +7,9 @@ import { sandboxArgv, sandboxBin, floorRoot, floorArgv, floorChildEnv, floorBloc
 import { outcomeOk, classifiedError } from '../outcome';
 import { guiAutomationRefusal } from '../gui.automation.guard';
 import { isReadOnlyShellCommand } from '../shell.readonly';
+import { planShellChange } from '../thread.changes';
+import { moveToBin } from '../thread.bin';
+import { recordTrash } from '../thread.journal';
 
 const execAsync = promisify(exec);
 const execFileAsync = promisify(execFile);
@@ -80,6 +83,17 @@ Reserve BashTool for actual shell operations (installs, builds, git, processes, 
     const guiRefusal = guiAutomationRefusal(args.command, desktopCapabilityToolName(resolveToolNames));
     if (guiRefusal.refused) {
       throw classifiedError(`Command blocked: ${guiRefusal.reason}`, 'permission', 'blocked');
+    }
+    // In a desktop thread a plain `rm`/`rmdir` sends the items to the Bin through the Bimax app instead of deleting
+    // them, and records where each one went so the thread can undo it (thread.changes.ts, thread.journal.ts).
+    if (process.env.BIMAX_THREAD_ROOT) {
+      const change = planShellChange(args.command, context?.cwd || process.cwd());
+      if (change?.kind === 'trash') {
+        const { moved, error } = await moveToBin(change.trash, context?.signal);
+        await recordTrash(change.title, 'BashTool', moved);
+        if (error) throw classifiedError(`Moved ${moved.length} of ${change.trash.length} item(s) to the Bin, then stopped: ${error}`, 'external');
+        return outcomeOk(`Moved to the Bin (the user can undo this from the thread in Bimax):\n${moved.map((m) => m.path).join('\n')}`, { exitCode: 0 });
+      }
     }
     const rawTimeout = Number(args.timeout);
     const timeoutMs = Number.isFinite(rawTimeout)

@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -120,7 +121,7 @@ export class TestDependencyMap {
   private filePath: string;
 
   constructor(private projectRoot: string = process.cwd()) {
-    this.filePath = path.join(projectRoot, '.bimax', 'tdm.json');
+    this.filePath = path.join(stateDir('.bimax', projectRoot), 'tdm.json');
   }
 
   private load(): void {

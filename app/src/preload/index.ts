@@ -39,6 +39,9 @@ const api = {
     quickInterrupt: () => ipcRenderer.send('threads:quick-interrupt'),
     quickResize: (height: number) => ipcRenderer.send('threads:quick-resize', height),
     quickOpen: () => ipcRenderer.send('threads:quick-open'),
+    // Undo the newest change a thread made to files (main/thread.undo.ts).
+    undoInfo: (id: string) => ipcRenderer.invoke('threads:undo-info', id),
+    undo: (id: string) => ipcRenderer.invoke('threads:undo', id),
   },
   send: (msg: unknown): void => ipcRenderer.send('engine:send', msg, activeThreadId),
   onMessage: (cb: (msg: unknown) => void): (() => void) => {

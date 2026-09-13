@@ -16,6 +16,8 @@ interface LiveThread extends SavedThread {
   resumeWanted?: string;
   queue: Array<{ text: string; display: string }>;
   pending: Map<number, ThreadApproval>;
+  /** File changes the user undid from the app since the engine's last turn; told to it with the next message. */
+  notes: string[];
   /** What was last handed to storage, so an event that changed nothing is not written again. */
   savedState?: EngineUiState;
   savedSummary?: string;
@@ -50,7 +52,7 @@ export class ThreadManager {
       this.records.set(item.summary.id, {
         summary: { ...item.summary, peers: [], status: 'stopped' },
         state: { ...initialEngineState, ...item.state, threadId: item.summary.id, request: null, streaming: '', thinking: '', spinner: { state: 'idle', message: '' }, engine: { state: 'exited', detail: 'Saved thread. Send a message to resume.' } },
-        ready: false, queue: [], pending: new Map(),
+        ready: false, queue: [], pending: new Map(), notes: [],
       });
     }
   }
@@ -66,7 +68,7 @@ export class ThreadManager {
     const id = randomUUID();
     const r: LiveThread = {
       summary: { id, root, title: prompt.trim().slice(0, 80) || `New thread in ${path.basename(root)}`, updatedAt: Date.now(), status: 'idle', peers: [], origin },
-      state: { ...initialEngineState, project: root, threadId: id }, ready: false, queue: [], pending: new Map(),
+      state: { ...initialEngineState, project: root, threadId: id }, ready: false, queue: [], pending: new Map(), notes: [],
     };
     this.records.set(id, r);
     this.persist(r);
@@ -106,7 +108,13 @@ export class ThreadManager {
     // Recorded when submitted, not when dispatched: a queued or not-yet-started thread still shows the turn.
     r.state = engineReducer(r.state, { type: 'localUser', text: display });
     if (echo) this.deps.message(r.summary.id, { t: 'event', name: 'thread_user', args: [display] } as Outbound);
-    r.queue.push({ text, display });
+    // Undos the user made from the app since the engine's last turn go in front of this message, so the engine does
+    // not act on a folder that is no longer the way it left it. The person's own words are shown unchanged.
+    const engineText = r.notes.length
+      ? `[Before this message, the user undid these file changes from the Bimax app, so the files are back as they were: ${r.notes.join('; ')}]\n\n${text}`
+      : text;
+    r.notes = [];
+    r.queue.push({ text: engineText, display });
     this.pump(r);
     this.persist(r);
   }
@@ -181,6 +189,16 @@ export class ThreadManager {
       r.state = { ...r.state, request: null };
     }
     r.engine?.sendFromRenderer(msg);
+    this.persist(r);
+  }
+  /** A change was undone from the app: show it in the thread, and tell the engine with the next message. */
+  noteUndo(id: string, title: string): void {
+    const r = this.records.get(id);
+    if (!r) throw new Error('Thread not found');
+    const msg = { t: 'event', name: 'message', args: [{ id: randomUUID(), role: 'system', level: 'success', content: `Undid: ${title}`, timestamp: new Date().toISOString() }] } as Outbound;
+    r.state = engineReducer(r.state, { type: 'outbound', msg });
+    r.notes.push(title);
+    this.deps.message(id, msg);
     this.persist(r);
   }
   approvals(): ThreadApproval[] { return [...this.records.values()].flatMap(r => [...r.pending.values()]); }

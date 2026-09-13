@@ -5,8 +5,13 @@ import path from 'node:path';
 import os from 'node:os';
 import type { ThreadManager } from './thread.manager';
 
+export interface ThreadBrokerOptions {
+  /** Move items inside a thread's folder to the Bin (main/bin.ts); returns where each landed, stopping at the first failure. */
+  moveToBin?: (paths: string[], root: string) => Promise<{ moved: Array<{ path: string; trashPath: string | null }>; error: string | null }>;
+}
+
 /** Private local socket. An engine token identifies the sender; arguments cannot impersonate it. */
-export async function createThreadBroker(manager: ThreadManager, authorizeLink: (from:string,to:string) => Promise<boolean> = async () => false) {
+export async function createThreadBroker(manager: ThreadManager, authorizeLink: (from:string,to:string) => Promise<boolean> = async () => false, options: ThreadBrokerOptions = {}) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'bimax-threads-'));
   await fs.chmod(dir, 0o700);
   const socketPath = path.join(dir, 'broker.sock');
@@ -18,13 +23,23 @@ export async function createThreadBroker(manager: ThreadManager, authorizeLink: 
     socket.on('data', async data => {
       if (handled) return;
       raw += data.toString('utf8');
-      if (raw.length > 16000) return socket.destroy();
+      if (raw.length > 256_000) return socket.destroy();
       if (!raw.includes('\n')) return;
       handled = true;
       try {
         const request = JSON.parse(raw.slice(0,raw.indexOf('\n')));
         const sender = tokens.get(request.token);
         if (!sender) throw new Error('Thread capability expired');
+        // A thread's `rm` and DeleteTool: the app moves the items to the Bin — only inside that thread's folder.
+        if (request.action === 'trash') {
+          if (!options.moveToBin) throw new Error('Moving items to the Bin is not available.');
+          const paths = Array.isArray(request.paths) ? request.paths.filter((p: unknown): p is string => typeof p === 'string') : [];
+          if (!paths.length || paths.length > 2000) throw new Error('Give between 1 and 2000 paths to move to the Bin.');
+          socket.setTimeout(120_000, () => socket.destroy());
+          const result = await options.moveToBin(paths, manager.get(sender).summary.root);
+          socket.end(JSON.stringify({ ok: true, result }) + '\n');
+          return;
+        }
         if (request.action === 'link') {
           manager.get(request.to);
           socket.setTimeout(120_000,() => socket.destroy());

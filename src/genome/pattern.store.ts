@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -36,7 +37,7 @@ export class GenomePatternStore {
   private logPath: string;
 
   constructor(projectRoot: string) {
-    this.logPath = path.join(projectRoot, '.bimax', 'genome-patterns.jsonl');
+    this.logPath = path.join(stateDir('.bimax', projectRoot), 'genome-patterns.jsonl');
   }
 
   private write(record: GenomePattern): void {

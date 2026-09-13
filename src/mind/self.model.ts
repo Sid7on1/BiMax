@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
@@ -186,7 +187,7 @@ export class SelfModel {
   private saveTimer: NodeJS.Timeout | null = null;
 
   constructor(projectRoot: string = process.cwd()) {
-    this.filePath = path.join(projectRoot, '.bimax', 'self-model.json');
+    this.filePath = path.join(stateDir('.bimax', projectRoot), 'self-model.json');
   }
 
   /** Synchronous lazy load — prompt building is sync, so the model must be too. */

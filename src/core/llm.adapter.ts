@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import OpenAI from 'openai';
 import { Logger } from '../utils';
 import { ApiKeyManager, KeyResult } from '../credits/api.key.manager';
@@ -1261,7 +1262,7 @@ export class LlmAdapter implements LLMProvider {
         try {
           const fs = require('fs');
           const path = require('path');
-          const dir = path.join(process.cwd(), '.breakglass', 'logs');
+          const dir = path.join(stateDir('.breakglass'), 'logs');
           fs.mkdirSync(dir, { recursive: true });
           const rec = {
             ts: new Date().toISOString(),

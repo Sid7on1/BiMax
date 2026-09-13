@@ -8,6 +8,8 @@ import { createThreadBroker } from './thread.broker';
 import { finderContext } from './finder.context';
 import type { QuickContext, QuickThread } from '../shared/threads';
 import { QUICK_BAR, quickBarBounds, quickBarOrigin } from './quick.bar';
+import { lastUndoable, threadStateEnvironment, threadStateRoot, undoLast } from './thread.undo';
+import { macBin } from './bin';
 import os from 'node:os';
 import { readFileSync, writeFileSync, renameSync, mkdirSync, realpathSync } from 'node:fs';
 import fsp from 'node:fs/promises';
@@ -368,7 +370,8 @@ function auxiliaryChannelAllowed(event: IpcMainEvent | IpcMainInvokeEvent, chann
   if (event.sender.id === win?.webContents.id) return true;
   const allowed = event.sender.id === quickWindow?.webContents.id
     ? ['threads:context', 'threads:pick-folder', 'threads:quick-submit', 'threads:hide', 'threads:list', 'threads:reply',
-      'threads:quick-current', 'threads:quick-reset', 'threads:quick-interrupt', 'threads:quick-resize', 'threads:quick-open']
+      'threads:quick-current', 'threads:quick-reset', 'threads:quick-interrupt', 'threads:quick-resize', 'threads:quick-open',
+      'threads:undo-info', 'threads:undo']
     : ['threads:approvals', 'threads:reply', 'threads:hide', 'threads:stop'];
   return allowed.includes(channel);
 }
@@ -463,7 +466,8 @@ function createSupervisor(threadId?: string): EngineSupervisor {
         ...providerCredentialEnvironment(),
         ...(threadId ? { ...threadBroker.environment(threadId), BIMAX_THREAD_ROOT: project, WORKSPACE_ROOT: project,
           BIMAX_AUTO_INDEX: '0', BIMAX_DISABLE_CODEMEM: '1', BIMAX_DISABLE_CODEBASE_MEMORY: '1', BIMAX_DRIVES_BOOT: '0',
-          ...threadIndexEnvironment(threads.get(threadId).summary.origin) } : {}),
+          ...threadIndexEnvironment(threads.get(threadId).summary.origin),
+          ...threadStateEnvironment(app.getPath('userData'), project, threads.get(threadId).summary.origin) } : {}),
       }, callbacks);
     },
     now: () => Date.now(),
@@ -692,6 +696,25 @@ app.whenReady().then(async () => {
       detail: `${a.root}\n${b.root}\n\nThey can exchange task messages. Their folders and action permissions stay separate.`,
       buttons: ['Cancel', 'Link threads'], defaultId: 0, cancelId: 0 });
     return result.response === 1;
+  }, {
+    // A thread's `rm` and DeleteTool end up here: only items inside that thread's own folder, only ones that exist,
+    // each through Finder so the thread's undo knows its place in the Bin (main/bin.ts).
+    moveToBin: async (paths, root) => {
+      const realRoot = await fsp.realpath(root);
+      const moved: Array<{ path: string; trashPath: string | null }> = [];
+      for (const requested of paths) {
+        try {
+          const target = path.join(await fsp.realpath(path.dirname(path.resolve(requested))), path.basename(requested));
+          const rel = path.relative(realRoot, target);
+          if (!rel || rel.startsWith('..') || path.isAbsolute(rel)) throw new Error(`${requested} is outside this thread’s folder`);
+          await fsp.lstat(target);
+          moved.push({ path: target, trashPath: await macBin.moveToBin(target) });
+        } catch (error) {
+          return { moved, error: (error as Error).message };
+        }
+      }
+      return { moved, error: null };
+    },
   });
   createWindow();
   shortcutAvailable = globalShortcut.register('CommandOrControl+2', () => { void showQuickBar(); });
@@ -812,6 +835,30 @@ app.whenReady().then(async () => {
     } catch (error) { return { ok: false, error: (error as Error).message }; }
   });
   secureHandle('threads:quick-current', null as QuickThread | null, () => quickThreadSnapshot());
+  // "↶ Undo" in the ⌘2 bar: the newest change a thread made that can still be reversed, and reversing it.
+  const threadUndoPaths = (id: string): { state: string; root: string } => {
+    const { summary } = threads.get(id);
+    return { state: threadStateRoot(app.getPath('userData'), summary.root, summary.origin), root: summary.root };
+  };
+  secureHandle('threads:undo-info', null as { id: string; title: string; at: number } | null, (_e, id: unknown) => {
+    if (typeof id !== 'string') return null;
+    try { return lastUndoable(threadUndoPaths(id).state); } catch { return null; }
+  });
+  secureHandle('threads:undo', { ok: false } as { ok: boolean; title?: string; error?: string }, async (_e, id: unknown) => {
+    if (typeof id !== 'string') return { ok: false, error: 'No thread was given.' };
+    try {
+      const { status } = threads.get(id).summary;
+      if (status === 'working' || status === 'needs-you' || status === 'starting') {
+        return { ok: false, error: 'Wait for this thread to finish before undoing a change.' };
+      }
+      const { state, root } = threadUndoPaths(id);
+      const { title } = await undoLast(state, root, macBin);
+      threads.noteUndo(id, title);
+      return { ok: true, title };
+    } catch (error) {
+      return { ok: false, error: (error as Error).message };
+    }
+  });
   secureOn('threads:quick-resize', (_e, height: unknown) => { if (typeof height === 'number') applyQuickBounds(height); });
   secureOn('threads:quick-reset', () => { quickThreadId = null; sendQuickThread(); });
   secureOn('threads:quick-interrupt', () => { if (quickThreadId) threads.send(quickThreadId, { t: 'interrupt' }); });

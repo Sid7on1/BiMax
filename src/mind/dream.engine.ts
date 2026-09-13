@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import { getSelfModel, mindSingletonRoot } from './self.model';
@@ -55,7 +56,7 @@ export class DreamEngine {
   private journalPath: string;
 
   constructor(private projectRoot: string = process.cwd()) {
-    this.journalPath = path.join(projectRoot, '.bimax', 'dreams.json');
+    this.journalPath = path.join(stateDir('.bimax', projectRoot), 'dreams.json');
   }
 
   private appendJournal(report: DreamReport): void {

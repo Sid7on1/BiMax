@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import { spawn, exec } from 'child_process';
@@ -45,7 +46,7 @@ export class DogfoodEngine {
   private outDir: string;
 
   constructor(private projectRoot: string = process.cwd()) {
-    this.outDir = path.join(projectRoot, '.bimax', 'dogfood');
+    this.outDir = path.join(stateDir('.bimax', projectRoot), 'dogfood');
   }
 
   private has(p: string): boolean {

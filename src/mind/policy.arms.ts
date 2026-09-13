@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import { mindSingletonRoot } from './self.model';
@@ -63,7 +64,7 @@ export class PolicyArms {
   private holdout: number;
 
   constructor(projectRoot: string = mindSingletonRoot(), opts?: { rng?: () => number; holdout?: number }) {
-    this.filePath = path.join(projectRoot, '.bimax', 'policy-arms.json');
+    this.filePath = path.join(stateDir('.bimax', projectRoot), 'policy-arms.json');
     this.rng = opts?.rng ?? Math.random;
     const env = Number(process.env.BIMAX_POLICY_HOLDOUT);
     this.holdout = opts?.holdout ?? (Number.isFinite(env) && env >= 0 && env < 1 ? env : DEFAULT_HOLDOUT);

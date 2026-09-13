@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import { mindSingletonRoot } from './self.model';
@@ -43,7 +44,7 @@ export class ExemplarStore {
   private filePath: string;
 
   constructor(projectRoot: string = mindSingletonRoot()) {
-    this.filePath = path.join(projectRoot, '.bimax', 'exemplars.json');
+    this.filePath = path.join(stateDir('.bimax', projectRoot), 'exemplars.json');
   }
 
   all(): Exemplar[] {

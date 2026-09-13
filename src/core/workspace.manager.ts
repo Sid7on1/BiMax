@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import { execFileSync } from 'child_process';
@@ -44,7 +45,7 @@ export class WorkspaceManager {
   private candidates: string[] = [];
 
   constructor(private primaryRoot: string) {
-    this.manifestPath = path.join(primaryRoot, '.bimax', 'workspace.json');
+    this.manifestPath = path.join(stateDir('.bimax', primaryRoot), 'workspace.json');
     this.load();
   }
 

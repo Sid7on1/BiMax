@@ -10,7 +10,12 @@ import { BashStaticAnalyzer } from './bash.analyzer';
 import * as fsp from 'fs/promises';
 import { isReadOnlyShellCommand } from '../tools/shell.readonly';
 import { enforceThreadScope } from '../tools/thread.scope';
+import { approvalCard, deletesOutsideBin, planFileChange } from '../tools/thread.changes';
+import { recordBeforeChange } from '../tools/thread.journal';
 import { taintRestriction } from '../mind/taint';
+
+/** Why a thread refuses a delete it cannot send to the Bin, and how to delete so the user can undo it. */
+const THREAD_DELETE_GUIDANCE = 'In a Bimax thread, deletes go to the Bin so the user can undo them. Delete with a plain `rm <path>…` (optionally after `cd <folder> &&`; same-folder wildcards are fine) or DeleteTool — not find -delete, a pipeline or a chain of commands. Nothing was deleted.';
 
 /**
  * REPAIR NOTE (2026-08-18): the 2026-08-15 corruption-recovery commit (f7caa05) silently
@@ -121,16 +126,31 @@ export class Governor implements IGovernor {
         await this.fs.checkVeto(payload.targetPath);
       }
       if (this.mode === 'plan' && payload.isDestructive !== false) throw new GovernorVetoError('Plan mode: approve the plan before changing files.');
+      const threadCwd = payload.context?.cwd || process.cwd();
+      // A delete the thread cannot send to the Bin would be permanent and impossible to undo: refuse it before
+      // asking, and say how to delete so it can be undone.
+      if (taskType === 'OS_COMMAND' && deletesOutsideBin(String(payload.command || ''), threadCwd)) {
+        throw new GovernorVetoError(THREAD_DELETE_GUIDANCE);
+      }
       let routine = payload.isDestructive === false;
       if (taskType === 'OS_COMMAND') routine = isReadOnlyShellCommand(payload.command);
       if (taskType === 'FILE_WRITE' && typeof payload.targetPath === 'string') {
         try { await fsp.lstat(payload.targetPath); routine = false; }
         catch (error: any) { if (error.code === 'ENOENT') routine = true; else throw error; }
       }
+      // Say what will happen in words, list every affected item, and say whether it can be undone. The raw
+      // command is still on the card, but it is no longer the whole question.
+      const change = planFileChange(taskType, payload, threadCwd);
       if (!routine) {
-        const detail = taskType === 'OS_COMMAND' ? String(payload.command || '') : `${payload.tool || taskType}: ${payload.targetPath || payload.path || 'external action'}`;
-        const answer = await GlobalPrompter.ask(`Allow this action in ${process.env.BIMAX_THREAD_ROOT}?\n${detail}`, ['Yes', 'No']);
-        if (answer !== 'Yes') throw new GovernorVetoError('Action declined. No permission was granted.');
+        const card = approvalCard(change, taskType, payload);
+        const answer = await GlobalPrompter.ask(card.question, ['Allow', 'Deny'], { body: card.body });
+        if (answer !== 'Allow') throw new GovernorVetoError('Action declined. No permission was granted.');
+      }
+      // Recorded once the change is allowed (or routine) and before it runs, so "↶ Undo" can reverse it.
+      if (change) {
+        await recordBeforeChange(change, String(payload.tool || taskType)).catch((error: any) => {
+          Logger.warn(`[Governor] Could not record undo for "${change.title}": ${error?.message ?? error}`);
+        });
       }
       return;
     }

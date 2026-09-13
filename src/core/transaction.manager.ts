@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { createHash, randomBytes } from 'crypto';
@@ -476,7 +477,7 @@ export class TransactionManager {
    * where its copy went. Best-effort: a read-only workspace must not turn into a thrown rollback.
    */
   private async retainBaselines(id: string, keep: EditRecord[], entries: RestoreEntry[]): Promise<string | null> {
-    const dir = path.join(this.recoveryRoot ?? process.cwd(), '.breakglass', 'transactions', id);
+    const dir = path.join(stateDir('.breakglass', this.recoveryRoot ?? process.cwd()), 'transactions', id);
     try {
       await fs.mkdir(dir, { recursive: true });
       const manifest: object[] = [];

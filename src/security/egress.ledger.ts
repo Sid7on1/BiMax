@@ -40,6 +40,7 @@
  * confidential work.
  */
 
+import { stateDir } from '../utils/state.dir';
 import { createHash } from 'node:crypto';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -90,7 +91,7 @@ const SESSION_CAP = 5_000;
 export function ledgerPath(): string {
   const override = process.env.BIMAX_EGRESS_LEDGER;
   if (override) return override;
-  return path.join(process.cwd(), '.breakglass', 'egress.ledger');
+  return path.join(stateDir('.breakglass'), 'egress.ledger');
 }
 
 /**

@@ -14,6 +14,8 @@ import { detectCorruptWrite } from '../write-guard';
 import { fileStateCache } from '../../memory/file-state-cache';
 import { globalTransactionManager } from '../../core/transaction.manager';
 import { outcomeOk, outcomeError, outcomeRejected } from '../outcome';
+import { moveToBin } from '../thread.bin';
+import { recordTrash } from '../thread.journal';
 
 // Files larger than this get truncated with a note. The full file content is written to
 // a temp path for reference when the file is very large (>1MB).
@@ -307,6 +309,18 @@ Use this tool whenever the user explicitly asks you to delete, remove, or trash 
     const exists = await fs.access(fullPath).then(() => true).catch(() => false);
     if (!exists) {
       return outcomeError('not_found', `Error: Nothing to delete — no file or directory found at ${fullPath} (resolved from "${args.path}" relative to ${currentCwd}). Nothing was changed. If the target lives elsewhere, pass its absolute path.`);
+    }
+    // In a desktop thread the item goes to the Bin through the Bimax app, and the thread can undo it.
+    if (process.env.BIMAX_THREAD_ROOT) {
+      const kind = (await fs.stat(fullPath)).isDirectory() ? 'folder' : 'file';
+      try {
+        const { moved, error } = await moveToBin([fullPath], context?.signal);
+        await recordTrash(`Move ${kind} “${path.basename(fullPath)}” to the Bin`, 'DeleteTool', moved);
+        if (error || !moved.length) return outcomeError('io', `Could not move ${args.path} to the Bin: ${error || 'nothing was moved'}. Nothing was deleted.`);
+        return outcomeOk(`Moved ${fullPath} to the Bin (the user can undo this from the thread in Bimax)`);
+      } catch (e: any) {
+        return outcomeError('io', `Could not move ${args.path} to the Bin: ${e.message}. Nothing was deleted.`);
+      }
     }
     // Back up a file before deleting so /undo and /rewind can bring it back (parity with edit/write,
     // which always back up first). Best-effort: a directory can't be content-backed-up, and a failed

@@ -1,3 +1,4 @@
+import { stateDir, stateRoot } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import { exec } from 'child_process';
@@ -102,7 +103,7 @@ const DRIVE_DEFS: DriveDef[] = [
     id: 'verify-coverage',
     label: 'edits actually get verified',
     heavy: false,
-    applies: root => hasFile(root, path.join('.bimax', 'epistemic.json')),
+    applies: root => hasFile(stateRoot(root), path.join('.bimax', 'epistemic.json')),
     measure: async root => {
       const { EpistemicLedger } = await import('./epistemic.ledger');
       const s = new EpistemicLedger(root).stats();
@@ -160,7 +161,7 @@ export class DrivesEngine {
 
   constructor(projectRoot: string = process.cwd()) {
     this.root = projectRoot;
-    this.filePath = path.join(projectRoot, '.bimax', 'drives.json');
+    this.filePath = path.join(stateDir('.bimax', projectRoot), 'drives.json');
   }
 
   private load(): void {
