@@ -1,4 +1,4 @@
-import { ThreadManager, type SavedThread } from '../main/thread.manager';
+import { ThreadManager, threadIndexEnvironment, type SavedThread } from '../main/thread.manager';
 import { ThreadStorage } from '../main/thread.storage';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -102,4 +102,14 @@ test('an idle engine heartbeat neither rewrites the thread nor floats it up the 
   expect(f.manager.get(a).summary.updatedAt).toBe(updatedAt);
   f.manager.receive(a,{ t:'event',name:'stream_token',args:['real output'] });
   expect(f.save.mock.calls.length).toBe(saves+1);
+});
+
+test('a ⌘2 thread runs no code index; a project opened in the main window keeps code search',()=> {
+  const f=fixture();
+  const quick=f.manager.create('/fixture/Desktop'), project=f.manager.create('/fixture/repo','','project');
+  expect(f.manager.get(quick).summary.origin).toBe('quick');
+  expect(threadIndexEnvironment(f.manager.get(quick).summary.origin)).toEqual({ BIMAX_CODE_INDEX:'0' });
+  expect(threadIndexEnvironment(f.manager.get(project).summary.origin)).toEqual({});
+  // Threads saved before origins existed were all started from ⌘2 or a Finder folder.
+  expect(threadIndexEnvironment(undefined)).toEqual({ BIMAX_CODE_INDEX:'0' });
 });

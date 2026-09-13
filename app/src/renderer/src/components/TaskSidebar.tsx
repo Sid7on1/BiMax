@@ -143,7 +143,10 @@ export function TaskSidebar({
 
       {/* --- Everything else, grouped ------------------------------------------------------- */}
       <div className="quiet-scrollbar min-h-0 flex-1 space-y-0.5 overflow-y-auto px-3 py-2">
-        <ThreadsList />
+        {/* Collapsible like Recents; the open/closed choice is remembered (useCollapsed). */}
+        <Section id="threads" label="Threads" defaultOpen>
+          <ThreadsList />
+        </Section>
         <Section id="recents" label="Recents" defaultOpen>
           {ordered.length === 0 ? (
             <p className="px-2.5 py-1.5 text-[12px] text-faint">Nothing yet</p>

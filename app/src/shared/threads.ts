@@ -9,6 +9,8 @@ export interface ThreadSummary {
   status: 'idle' | 'starting' | 'working' | 'needs-you' | 'stopped';
   peers: string[];
   sessionId?: string;
+  /** Where the thread came from: the ⌘2 bar, or a project opened in the main window. Absent on threads saved before origins existed. */
+  origin?: 'quick' | 'project';
 }
 export interface ThreadSelection { id: string; state: EngineUiState }
 export interface ThreadList { activeId: string | null; threads: ThreadSummary[]; shortcutAvailable: boolean }

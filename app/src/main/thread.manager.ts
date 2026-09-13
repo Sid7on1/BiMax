@@ -29,6 +29,16 @@ interface Dependencies {
   save(value: SavedThread): void;
 }
 
+/**
+ * What a thread engine starts with on top of the broker's environment. A ⌘2 thread works in whatever folder
+ * Finder showed — often ~/Desktop or ~/Downloads, with tens of thousands of files — so it runs no code index:
+ * on the Desktop the index skipped 96,155 files and flagged every reply "degraded". A project opened in the
+ * main window keeps code search. A thread saved before origins existed is treated as a ⌘2 thread.
+ */
+export function threadIndexEnvironment(origin: ThreadSummary['origin']): Record<string, string> {
+  return origin === 'project' ? {} : { BIMAX_CODE_INDEX: '0' };
+}
+
 /** One process, state, queue and approval namespace per folder-bound conversation. */
 export class ThreadManager {
   private records = new Map<string, LiveThread>();
@@ -51,11 +61,11 @@ export class ThreadManager {
     return r;
   }
   engine(id: string): ThreadEngine | undefined { return this.records.get(id)?.engine; }
-  create(root: string, prompt = ''): string {
+  create(root: string, prompt = '', origin: 'quick' | 'project' = 'quick'): string {
     if (this.records.size >= 200) throw new Error('Thread history is full. Remove an old stopped thread first.');
     const id = randomUUID();
     const r: LiveThread = {
-      summary: { id, root, title: prompt.trim().slice(0, 80) || `New thread in ${path.basename(root)}`, updatedAt: Date.now(), status: 'idle', peers: [] },
+      summary: { id, root, title: prompt.trim().slice(0, 80) || `New thread in ${path.basename(root)}`, updatedAt: Date.now(), status: 'idle', peers: [], origin },
       state: { ...initialEngineState, project: root, threadId: id }, ready: false, queue: [], pending: new Map(),
     };
     this.records.set(id, r);

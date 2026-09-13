@@ -2,7 +2,7 @@ import { CapabilityReplay } from './capability.replay';
 import { app, BrowserWindow, ipcMain, dialog, shell, session, systemPreferences, powerMonitor, net, nativeTheme, globalShortcut, screen } from 'electron';
 import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron';
 import path from 'node:path';
-import { ThreadManager } from './thread.manager';
+import { ThreadManager, threadIndexEnvironment } from './thread.manager';
 import { ThreadStorage } from './thread.storage';
 import { createThreadBroker } from './thread.broker';
 import { finderContext } from './finder.context';
@@ -462,7 +462,8 @@ function createSupervisor(threadId?: string): EngineSupervisor {
         // renderer or the engine protocol and are not written to diagnostics.
         ...providerCredentialEnvironment(),
         ...(threadId ? { ...threadBroker.environment(threadId), BIMAX_THREAD_ROOT: project, WORKSPACE_ROOT: project,
-          BIMAX_AUTO_INDEX: '0', BIMAX_DISABLE_CODEMEM: '1', BIMAX_DISABLE_CODEBASE_MEMORY: '1', BIMAX_DRIVES_BOOT: '0' } : {}),
+          BIMAX_AUTO_INDEX: '0', BIMAX_DISABLE_CODEMEM: '1', BIMAX_DISABLE_CODEBASE_MEMORY: '1', BIMAX_DRIVES_BOOT: '0',
+          ...threadIndexEnvironment(threads.get(threadId).summary.origin) } : {}),
       }, callbacks);
     },
     now: () => Date.now(),
@@ -525,7 +526,7 @@ function selectThread(id: string): void {
 
 /** Opening a folder starts a thread for it: its own engine, history and approvals (thread.manager.ts). */
 function startEngine(projectDir: string): void {
-  const id = threads.create(realpathSync(projectDir));
+  const id = threads.create(realpathSync(projectDir), '', 'project');
   threads.start(id);
   selectThread(id);
 }
@@ -803,7 +804,7 @@ app.whenReady().then(async () => {
       if (!quickContext.root) return { ok: false, error: 'Choose a folder for this task.' };
       const root = await fsp.realpath(quickContext.root);
       if (!(await fsp.stat(root)).isDirectory()) throw new Error('Workspace folder is unavailable');
-      const id = threads.create(root);
+      const id = threads.create(root, '', 'quick');
       quickThreadId = id;
       threads.submit(id, prompt, prompt, false);
       sendQuickThread();
@@ -822,7 +823,8 @@ app.whenReady().then(async () => {
   });
   secureHandle('threads:new', null as string | null, () => {
     const root = projectDir(); if (!root) return null;
-    const id = threads.create(root); threads.start(id); selectThread(id); return id;
+    const origin = threads.activeId ? threads.get(threads.activeId).summary.origin : undefined;
+    const id = threads.create(root, '', origin === 'project' ? 'project' : 'quick'); threads.start(id); selectThread(id); return id;
   });
   secureHandle('threads:select', false, (_e, id: unknown) => { if (typeof id !== 'string') return false; selectThread(id); return true; });
   secureHandle('threads:start', false, (_e, id: unknown) => { if (typeof id !== 'string') return false; threads.start(id); selectThread(id); return true; });

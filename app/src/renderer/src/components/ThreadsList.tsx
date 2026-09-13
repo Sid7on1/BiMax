@@ -14,8 +14,8 @@ export function ThreadsList(): React.ReactElement {
   async function action(run: () => Promise<unknown>) {
     try { setError(''); await run(); } catch(e) { setError(String((e as Error).message)); }
   }
-  return <section aria-label="Bimax threads" className="space-y-1 py-2">
-    <div className="flex items-center justify-between px-2 py-1 text-[11px] text-faint"><span>THREADS</span><span title="Start a thread from Finder">⌘2 anywhere</span></div>
+  return <div className="space-y-1 pb-1">
+    {data.threads.length === 0 && <p className="px-2.5 py-1.5 text-[12px] text-faint">No threads yet. Press ⌘2 anywhere to start one.</p>}
     {!data.shortcutAvailable && <p className="px-2 text-xs text-rust">⌘2 is in use by another app.</p>}
     {data.threads.map(thread => <div key={thread.id} className={`group rounded-lg ${thread.id === data.activeId ? 'bg-hover' : ''}`}>
       <button className="w-full cursor-pointer px-2 py-2 text-left" onClick={() => void action(() => window.bimax.threads.select(thread.id))}>
@@ -31,5 +31,5 @@ export function ThreadsList(): React.ReactElement {
     </div>)}
     {data.threads.length > 1 && <p className="px-2 py-1 text-[10px] text-faint">Link threads to let them exchange messages. Each keeps its own folder and permissions.</p>}
     {error && <p role="alert" className="px-2 text-xs text-rust">{error}</p>}
-  </section>;
+  </div>;
 }
