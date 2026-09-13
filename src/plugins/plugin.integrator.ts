@@ -1,10 +1,11 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { PluginRegistry } from './registry';
 import { Logger } from '../utils';
 
 export class PluginIntegrator {
-  private readonly INSTALLED_DIR = path.join(process.cwd(), '.breakglass/plugins', 'installed');
+  private readonly INSTALLED_DIR = path.join(stateDir('.breakglass'), 'plugins', 'installed');
 
   constructor(private registry: PluginRegistry) {}
 

@@ -25,6 +25,7 @@
  * user having planned ahead to enable anything.
  */
 
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Logger } from '../utils/logger';
@@ -267,7 +268,7 @@ class TaskMetricsStore {
     if (process.env.BIMAX_TASK_METRICS !== '1') return;
     try {
       const dir = process.env.BIMAX_TASK_METRICS_DIR
-        || path.join(process.cwd(), '.breakglass', 'metrics');
+        || path.join(stateDir('.breakglass'), 'metrics');
       fs.mkdirSync(dir, { recursive: true });
       fs.appendFileSync(path.join(dir, 'task-runs.jsonl'), JSON.stringify(run) + '\n');
     } catch (e: any) {

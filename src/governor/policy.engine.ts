@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Logger } from '../utils';
@@ -37,7 +38,7 @@ export const SafetyPolicy = {
   forbiddenRegex: [/id_rsa/i]
 };
 
-const POLICY_FILE = path.join(process.cwd(), '.breakglass/policy.json');
+const POLICY_FILE = path.join(stateDir('.breakglass'), 'policy.json');
 
 let policyWatcher: fs.FSWatcher | null = null;
 

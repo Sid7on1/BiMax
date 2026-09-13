@@ -29,6 +29,7 @@
  * only the plumbing is new.
  */
 
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import { openSqlite, type SqliteDB } from '../core/sqlite';
@@ -70,7 +71,7 @@ export class SqliteCodeVectorStore {
     private readonly reranker: RemoteReranker | null,
     options: SqliteStoreOptions = {},
   ) {
-    this.storePath = options.storePath ?? path.join(process.cwd(), '.breakglass/memory/code-index.db');
+    this.storePath = options.storePath ?? path.join(stateDir('.breakglass'), 'memory', 'code-index.db');
     this.maxVectors = Math.max(1, options.maxVectors ?? DEFAULT_MAX_VECTORS);
     this.maxIndexBytes = options.maxIndexBytes ?? DEFAULT_MAX_INDEX_BYTES;
     this.minDenseScore = options.minDenseScore ?? DEFAULT_MIN_DENSE_SCORE;

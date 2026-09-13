@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
@@ -211,7 +212,7 @@ export class SqliteGraphStore extends GraphStore implements IGraphStore {
  * JSON store otherwise. Same directory family, same IGraphStore, zero caller changes.
  */
 export function createGraphStore(projectRoot: string): GraphStore {
-  const dir = path.join(projectRoot, '.breakglass/graph');
+  const dir = path.join(stateDir('.breakglass', projectRoot), 'graph');
   const sq = new SqliteGraphStore(path.join(dir, 'graph.db'));
   if (sq.isAvailable()) return sq;
   return new GraphStore(path.join(dir, 'playground.json'));

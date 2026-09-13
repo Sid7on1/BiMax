@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 import * as path from 'path';
@@ -19,7 +20,7 @@ export class GithubReader {
       throw new Error(`[GithubReader] Refusing to clone — "${url}" is not a valid https/git/ssh repository URL.`);
     }
 
-    const rootDir = path.join(process.cwd(), '.breakglass/plugins_staging');
+    const rootDir = path.join(stateDir('.breakglass'), 'plugins_staging');
     await fs.mkdir(rootDir, { recursive: true });
 
     const pluginId = `plugin_${Date.now()}`;

@@ -1,10 +1,11 @@
+import { stateDir } from '../utils/state.dir';
 import { Logger } from '../utils/logger';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
 export class TelemetryEngine {
   private bootTime: number;
-  private readonly STORAGE_DIR = path.join(process.cwd(), '.breakglass/telemetry');
+  private readonly STORAGE_DIR = path.join(stateDir('.breakglass'), 'telemetry');
   private readonly METRICS_FILE = path.join(this.STORAGE_DIR, 'metrics.json');
 
   constructor() {

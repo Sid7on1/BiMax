@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import { Logger } from '../utils';
 import { SafetyPolicy } from './policy.engine';
 import { GovernorVetoError } from '../core/errors';
@@ -29,7 +30,7 @@ export class BudgetVeto {
   private warnedOn: string | null = null;
 
   constructor() {
-    const creditsDir = path.join(process.cwd(), '.breakglass/credits');
+    const creditsDir = path.join(stateDir('.breakglass'), 'credits');
     this.spendFilePath = path.join(creditsDir, 'spend.json');
 
     // Use sync fs here because constructor cannot be async easily

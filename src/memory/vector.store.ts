@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import { reportCapability } from '../core/capability.status';
 import * as fs from 'fs/promises';
 import * as path from 'path';
@@ -217,7 +218,7 @@ export class VectorStore {
   ) {
     this.embeddings = embeddings;
     this.reranker = reranker;
-    this.STORE_PATH = options.storePath ?? path.join(process.cwd(), '.breakglass/memory', 'vectors.json');
+    this.STORE_PATH = options.storePath ?? path.join(stateDir('.breakglass'), 'memory', 'vectors.json');
     this.MAX_VECTORS = Math.max(1, options.maxVectors ?? 500);
     this.chunk = options.chunker ?? ((id, text) => chunkDocument(id, text));
     this.dedup = options.dedup ?? true;

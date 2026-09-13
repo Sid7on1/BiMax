@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import { reportCapability } from '../core/capability.status';
 /**
  * The semantic code index — retrieval over the repository's own source.
@@ -173,7 +174,7 @@ export class CodeIndex {
     this.expandHit = options.expandHit;
     this.excludePath = options.excludePath;
     this.sliceBudgetMs = Math.max(0, options.sliceBudgetMs ?? SLICE_BUDGET_MS);
-    const storePath = options.storePath ?? path.join(this.root, '.breakglass/memory/code-index.db');
+    const storePath = options.storePath ?? path.join(stateDir('.breakglass', this.root), 'memory', 'code-index.db');
     // Per-STORE manifest: deriving it from the directory would make two indexes over the same
     // root (a benchmark's lexical/hybrid pair, or a future second space) share one manifest and
     // silently skip each other's files.

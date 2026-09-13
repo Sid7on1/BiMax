@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { Logger } from '../utils';
@@ -10,7 +11,7 @@ export interface PluginManifest {
 
 export class PluginRegistry {
   private plugins: Map<string, PluginManifest> = new Map();
-  private readonly REGISTRY_PATH = path.join(process.cwd(), '.breakglass/plugins', 'registry.json');
+  private readonly REGISTRY_PATH = path.join(stateDir('.breakglass'), 'plugins', 'registry.json');
 
   constructor() {
     this.loadRegistry().catch(console.error);
