@@ -1,4 +1,6 @@
 import { spawn } from 'child_process';
+import type { SpanContext } from '../telemetry/trace';
+import { beginBackgroundEvidence } from '../mind/background.evidence';
 import { cliEvents } from '../cli/events';
 import { getTaskRegistry, WorkspaceTask } from './task.registry';
 
@@ -15,10 +17,12 @@ export interface ShellTaskResult {
   summary: string;
 }
 
-export function startShellTask(command: string, opts: { cwd?: string; title?: string; timeoutMs?: number } = {}): ShellTaskResult {
+export function startShellTask(command: string, opts: { cwd?: string; title?: string; timeoutMs?: number; learningOrigin?: SpanContext } = {}): ShellTaskResult {
   const registry = getTaskRegistry();
   const cwd = opts.cwd || process.cwd();
   const title = (opts.title || command).slice(0, 60);
+  let evidence: ReturnType<typeof beginBackgroundEvidence>;
+  try { evidence = beginBackgroundEvidence(command, cwd, opts.learningOrigin); } catch { /* optional observer */ }
 
   // A spawn that fails — sync throw (fork EAGAIN, injected fault) or async 'error' — must land
   // the task in failed-resumable with the command recorded, never wedge it or escape the caller.
@@ -31,6 +35,7 @@ export function startShellTask(command: string, opts: { cwd?: string; title?: st
     const task = registry.create({ kind: 'shell', title, command, cwd });
     registry.transition(task.id, 'starting', 'spawning');
     registry.transition(task.id, 'failed-resumable', `spawn error: ${e?.message || e}`);
+    try { evidence?.finish(task.id, null, false); } catch { /* observer */ }
     notifyDone(task.id);
     return { task, summary: `Background task ${task.id} failed to start: ${e?.message || e}. Retry with /tasks retry ${task.id}.` };
   }
@@ -48,10 +53,12 @@ export function startShellTask(command: string, opts: { cwd?: string; title?: st
   registry.transition(task.id, 'running');
 
   child.stdout?.on('data', (d: Buffer) => {
+    evidence?.append(d.toString(), 'stdout');
     registry.appendOutput(task.id, d.toString());
     registry.touch(task.id, { lastEvent: lastLine(d) });
   });
   child.stderr?.on('data', (d: Buffer) => {
+    evidence?.append(d.toString(), 'stderr');
     registry.appendOutput(task.id, d.toString());
     registry.touch(task.id, { lastEvent: lastLine(d) });
   });
@@ -69,18 +76,24 @@ export function startShellTask(command: string, opts: { cwd?: string; title?: st
     timer.unref?.();
   }
 
+  let spawnFailed = false;
   child.on('error', (e) => {
+    spawnFailed = true;
+    try { evidence?.finish(task.id, null, false); } catch { /* observer must not break lifecycle */ }
     if (timer) clearTimeout(timer);
     const t = registry.get(task.id);
     if (t && t.state !== 'failed') registry.transition(task.id, 'failed-resumable', `spawn error: ${e.message}`);
     notifyDone(task.id);
   });
 
-  child.on('exit', (code, signal) => {
+  // 'close' follows drained stdout/stderr; 'exit' alone is not complete evidence.
+  child.on('close', (code, signal) => {
+    if (spawnFailed) return;
     if (timer) clearTimeout(timer);
     const t = registry.get(task.id);
     if (!t) return;
     t.exitCode = code ?? undefined;
+    try { evidence?.finish(task.id, code, t.state !== 'cancelling' && signal === null); } catch { /* observer */ }
     if (t.state === 'cancelling') {
       registry.transition(task.id, 'cancelled', signal ? `terminated (${signal})` : `cancelled (exit ${code})`);
     } else if (code === 0) {

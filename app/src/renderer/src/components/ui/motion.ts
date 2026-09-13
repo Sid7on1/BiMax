@@ -62,10 +62,26 @@ export const SPRINGS: Record<SpringPreset, SpringCharacter> = {
   // config peaks near 26%, which is right for a 32px droplet flying out of a plus-menu and far too
   // much for a window. `bouncy` keeps the character at ~12% on a control, and the size grading
   // below takes it to ~5% on a full window.
-  snappy: { stiffness: 620, ratio: 0.78 },
-  bouncy: { stiffness: 380, ratio: 0.55 },
-  glass: { stiffness: 340, ratio: 0.70 },
-  calm: { stiffness: 380, ratio: 1.0 },
+  //
+  // 2026-09-12: every stiffness DOUBLED. Settling time goes as 1/√k while overshoot depends only on
+  // ζ, so this is a uniform ~30% cut in duration that leaves the physics — the peak of each preset,
+  // and the ladder between them — exactly where it was. It is the only knob that shortens motion
+  // without changing its character; tightening the settle band (the previous pass) had already
+  // plateaued, because what remained was real movement rather than an invisible tail.
+  //
+  //   snappy 283→209ms   bouncy 467→338ms   glass 379→271ms   calm 417→278ms
+  //
+  // (Measured with the corrected DT above. Overshoot is now invariant under stiffness — 1.94% at
+  // k=1240 and 1.88% at k=4960 — which is what makes this knob safe to reach for at all; under the
+  // old step the same sweep bled a third of the bounce away.)
+  //
+  // The target is the platform's, not ours: light interactions are conventionally ≤200ms, and the
+  // two reference apps we measured animate at 0ms and 367ms respectively. `snappy` carries by far
+  // the most events, so it is the one that had to clear 200.
+  snappy: { stiffness: 1240, ratio: 0.78 },
+  bouncy: { stiffness: 760, ratio: 0.55 },
+  glass: { stiffness: 680, ratio: 0.70 },
+  calm: { stiffness: 760, ratio: 1.0 },
 };
 
 /** Turn a character into an integrable spring. ζ = c / (2·√(k·m)) — this is that, solved for c. */
@@ -92,12 +108,75 @@ export interface ResolvedSpring {
   peak: number;
 }
 
-/** 240Hz. Fine enough that a stiff spring's first quarter-cycle is not aliased into a corner. */
-const DT = 1 / 240;
-/** Settled = within a tenth of a percent of target, and slow. Held for 64ms to reject a fly-through. */
+/**
+ * The integration step, 4800Hz.
+ *
+ * It was 1/240 ("fine enough that a stiff spring's first quarter-cycle is not aliased into a
+ * corner"), and that was measurably wrong — not in the sampling, which a later fix already
+ * addressed by putting a stop on the peak, but one level below it in the INTEGRATION. Semi-implicit
+ * Euler is only first-order accurate, and its error shows up as numerical damping: energy the
+ * scheme quietly removes from the spring. Measured against the closed form
+ * `Mp = exp(-πζ/√(1-ζ²))`, which depends on ζ alone:
+ *
+ *              analytic   at 1/240   at 1/4800
+ *   snappy       1.99%      1.22%       1.94%
+ *   bouncy      12.63%     11.79%      12.57%
+ *   glass        4.60%      3.85%       4.55%
+ *
+ * So 39% of `snappy`'s overshoot was being eaten by the integrator before any of it reached CSS.
+ * Worse, the error scales with stiffness — at k=1240 it took 53% — which silently punishes exactly
+ * the knob you reach for to make a preset faster, and made "raising stiffness preserves character"
+ * true only by accident.
+ *
+ * 1/4800 puts every preset within 3% of the closed form. It costs iterations and nothing else: the
+ * emitted `linear()` is resampled to `stops` (24-120) regardless of DT, so the stylesheet does not
+ * grow, and every result here is cached.
+ */
+const DT = 1 / 4800;
+/**
+ * Settled = close to target, and slow. Held for 64ms to reject a fly-through.
+ *
+ * These are the FLOOR, used when the caller cannot say how big the surface is. They are a
+ * displacement of 0.1% and a velocity of 0.02/s, which on a full window is about a pixel and a
+ * third of a pixel per frame — right for a window, and far below perception on a control. A 120pt
+ * control settling to 0.1% is settling to a *ninth* of a pixel, and every frame spent getting there
+ * is composited for nobody: measured, the appearance menu was still drawing 180ms after the last
+ * perceptible movement. `settleFor()` scales the pair by surface size so a small surface stops when
+ * it has stopped moving *visibly*, and clamps to these floors so nothing is ever LESS precise than
+ * it is today.
+ */
 const SETTLE_EPSILON = 0.001;
 const SETTLE_VELOCITY = 0.02;
 const SETTLE_HOLD = 0.064;
+/** The threshold everything here is derived from: half a device-independent pixel. */
+const HALF_PIXEL = 0.5;
+/** …and half a pixel per frame at 60fps, expressed as normalised units per second. */
+const HALF_PIXEL_PER_FRAME = HALF_PIXEL * 60;
+
+/**
+ * Settle thresholds for a surface of this diagonal, in normalised units.
+ *
+ * Never tighter than the floors above, so this can only remove invisible frames, never add them.
+ */
+export function settleFor(diagonal?: number): { epsilon: number; velocity: number } {
+  if (!diagonal || !Number.isFinite(diagonal) || diagonal <= 0) {
+    return { epsilon: SETTLE_EPSILON, velocity: SETTLE_VELOCITY };
+  }
+  // Clamped exactly like `sizeFactor`, and for two reasons that both bite.
+  //
+  // Above a window there is nothing more to gain, and letting the threshold keep shrinking makes
+  // two surfaces that are graded identically settle at different times — the scale-invariance the
+  // grading exists to provide.
+  //
+  // Below a control it is worse than useless: half a pixel of a 40pt button is 1.25% of its travel,
+  // which is WIDER than snappy's 1.2% overshoot, so the settle band swallows the bounce and the
+  // emitted curve loses the character this whole module exists to preserve.
+  const size = Math.min(WINDOW_DIAGONAL, Math.max(CONTROL_DIAGONAL, diagonal));
+  return {
+    epsilon: Math.max(SETTLE_EPSILON, HALF_PIXEL / size),
+    velocity: Math.max(SETTLE_VELOCITY, HALF_PIXEL_PER_FRAME / size),
+  };
+}
 
 /**
  * Integrate the spring and return its normalized displacement curve.
@@ -106,7 +185,11 @@ const SETTLE_HOLD = 0.064;
  * a perfectly smooth animation, so "did this actually overshoot?" is not answerable by looking at
  * it. The tests assert the physics directly.
  */
-export function simulateSpring(config: SpringConfig): { duration: number; values: number[]; peak: number } {
+export function simulateSpring(
+  config: SpringConfig,
+  diagonal?: number,
+): { duration: number; values: number[]; peak: number } {
+  const { epsilon, velocity } = settleFor(diagonal);
   let x = 0;
   let v = 0;
   let t = 0;
@@ -124,7 +207,7 @@ export function simulateSpring(config: SpringConfig): { duration: number; values
     t += DT;
     xs.push(x);
     if (x > peak) { peak = x; peakIndex = xs.length - 1; }
-    if (Math.abs(x - 1) < SETTLE_EPSILON && Math.abs(v) < SETTLE_VELOCITY) {
+    if (Math.abs(x - 1) < epsilon && Math.abs(v) < velocity) {
       if (settledAt < 0) settledAt = t;
       if (t - settledAt >= SETTLE_HOLD) break;
     } else {
@@ -178,12 +261,12 @@ function supportsLinearEasing(): boolean {
 const springCache = new Map<string, ResolvedSpring>();
 
 /** Compile a spring to a CSS easing. Cached — the solver is cheap but not free, and this is hot. */
-export function resolveSpring(config: SpringConfig): ResolvedSpring {
-  const key = `${config.stiffness}/${config.damping}/${config.mass}/${supportsLinearEasing()}`;
+export function resolveSpring(config: SpringConfig, diagonal?: number): ResolvedSpring {
+  const key = `${config.stiffness}/${config.damping}/${config.mass}/${diagonal ?? 0}/${supportsLinearEasing()}`;
   const hit = springCache.get(key);
   if (hit) return hit;
 
-  const sim = simulateSpring(config);
+  const sim = simulateSpring(config, diagonal);
   const resolved: ResolvedSpring = {
     duration: Math.round(sim.duration * 1000),
     easing: supportsLinearEasing()
@@ -238,7 +321,7 @@ export function springFor(preset: SpringPreset, diagonal: number): ResolvedSprin
   return resolveSpring(springFromCharacter({
     stiffness: base.stiffness * (1 - SIZE_SOFTENING * t),
     ratio: base.ratio + (1 - base.ratio) * (t * SIZE_DAMPING),
-  }));
+  }), diagonal);
 }
 
 /**

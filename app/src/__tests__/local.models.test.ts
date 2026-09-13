@@ -18,9 +18,14 @@ describe('local model discovery', () => {
     home = fs.mkdtempSync(path.join(os.tmpdir(), 'bimax-local-'));
     realHome = process.env.HOME;
     process.env.HOME = home;
+    // HOME fences the disk; this fences the network. Ollama and LM Studio are detected by asking
+    // localhost, so without a stub every assertion about `servable` depends on whether the machine
+    // running the suite has a local server up — the development machine serves two Ollama models.
+    jest.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('no local server in this test'));
     jest.resetModules();
   });
   afterEach(() => {
+    jest.restoreAllMocks();
     if (realHome === undefined) delete process.env.HOME; else process.env.HOME = realHome;
     fs.rmSync(home, { recursive: true, force: true });
   });
@@ -64,9 +69,22 @@ describe('local model discovery', () => {
   });
 
   test('servable collects only models a running server will accept', async () => {
+    // With the network fenced, `servable` is always empty and a loop over it asserts nothing. So a
+    // server is stood up for this one: Ollama answers, LM Studio does not, and a weightless cache
+    // entry sits beside them — only the listed Ollama model may come back.
     hubEntry('Org/Real', 2_000_000);
+    jest.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
+      if (String(input) !== 'http://localhost:11434/api/tags') throw new Error('connection refused');
+      return {
+        ok: true,
+        json: async () => ({ models: [{ name: 'qwen2.5:0.5b', size: 397_821_319 }, { size: 1 }] }),
+      } as unknown as Response;
+    });
     const { discoverLocalModels } = require('../main/local.models');
     const report = await discoverLocalModels();
-    for (const m of report.servable) expect(m.servable).toBe(true);
+    const ollama = report.runtimes.find((r: { id: string }) => r.id === 'ollama');
+    expect(ollama.running).toBe(true);
+    expect(ollama.baseURL).toBe('http://localhost:11434/v1');
+    expect(report.servable.map((m: { id: string }) => m.id)).toEqual(['qwen2.5:0.5b']);
   });
 });

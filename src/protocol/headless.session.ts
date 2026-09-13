@@ -226,7 +226,7 @@ export class HeadlessSession {
     } finally {
       this.busy = false;
       this.turnAbort = null;
-      recordTurn({ firstTokenMs, totalMs: Date.now() - turnStart, tokens: totalChars });
+      recordTurn({ firstTokenMs, totalMs: Date.now() - turnStart, streamedChars: totalChars });
       endTurnTimeline(); // close the phase timeline (persists the secret-free record for /perf)
       cliEvents.emit('thinking_clear');
       // Confidence-in-margin (turn-end form): report whether this turn's edits were checked. The

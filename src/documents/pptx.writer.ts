@@ -1,5 +1,6 @@
 import PptxGenJS from 'pptxgenjs';
-import { COLOR, DocumentSpec, FONT, Slide, TYPE, resolveDate } from './design';
+import { CHART, COLOR, DocumentSpec, FONT, Slide, TYPE, resolveDate } from './design';
+import { fitBox, loadImage } from './images';
 
 /**
  * Slides, not documents with a projector aimed at them.
@@ -29,7 +30,7 @@ function footer(slide: PptxGenJS.Slide, spec: DocumentSpec, index: number): void
   });
 }
 
-function contentSlide(pptx: PptxGenJS, spec: DocumentSpec, s: Slide, index: number): void {
+function contentSlide(pptx: PptxGenJS, spec: DocumentSpec, s: Slide, index: number, baseDir: string): void {
   const slide = pptx.addSlide();
   slide.background = { color: 'FFFFFF' };
 
@@ -70,6 +71,47 @@ function contentSlide(pptx: PptxGenJS, spec: DocumentSpec, s: Slide, index: numb
       rowH: 0.38,
       valign: 'middle',
     });
+  } else if (s.image) {
+    // Centred in the body box at its true aspect ratio. A slide-filling stretch is how a
+    // screenshot ends up unreadable, so the picture is fitted, never cropped or distorted.
+    const img = loadImage(s.image.path, baseDir);
+    const capH = s.image.caption ? 0.32 : 0;
+    const box = fitBox(img.width, img.height, W - M * 2, bodyHeight - capH);
+    slide.addImage({
+      data: `image/${img.type};base64,${img.data.toString('base64')}`,
+      x: M + (W - M * 2 - box.w) / 2, y: top, w: box.w, h: box.h,
+    });
+    if (s.image.caption) {
+      slide.addText(s.image.caption, {
+        x: M, y: top + box.h + 0.06, w: W - M * 2, h: capH,
+        fontSize: 11, color: hex(COLOR.muted), fontFace: FONT.sans, align: 'center',
+      });
+    }
+  } else if (s.chart) {
+    const c = s.chart;
+    const type = c.chart === 'line' ? pptx.ChartType.line : c.chart === 'pie' ? pptx.ChartType.pie : pptx.ChartType.bar;
+    // A real chart part, not a picture of one: the reader can click it and see the numbers.
+    const data = c.chart === 'pie'
+      ? [{ name: c.series[0].name, labels: c.labels, values: c.series[0].values }]
+      : c.series.map(ser => ({ name: ser.name, labels: c.labels, values: ser.values }));
+    const capH = c.caption ? 0.32 : 0;
+    slide.addChart(type, data, {
+      x: M, y: top, w: W - M * 2, h: bodyHeight - capH,
+      chartColors: [...CHART],
+      showLegend: c.chart === 'pie' || c.series.length > 1,
+      legendPos: 'b', legendFontFace: FONT.sans, legendFontSize: 11,
+      catAxisLabelFontFace: FONT.sans, catAxisLabelFontSize: 11, catAxisLabelColor: hex(COLOR.muted),
+      valAxisLabelFontFace: FONT.sans, valAxisLabelFontSize: 11, valAxisLabelColor: hex(COLOR.muted),
+      dataLabelFontFace: FONT.sans, dataLabelFontSize: 10,
+      showValue: c.chart === 'pie',
+      showPercent: false,
+    });
+    if (c.caption) {
+      slide.addText(c.caption, {
+        x: M, y: H - 1.05, w: W - M * 2, h: capH,
+        fontSize: 11, color: hex(COLOR.muted), fontFace: FONT.sans, align: 'center',
+      });
+    }
   } else if (s.bullets?.length) {
     slide.addText(
       s.bullets.map(b => ({ text: b, options: { bullet: { characterCode: '2022' }, breakLine: true } })),
@@ -87,7 +129,7 @@ function contentSlide(pptx: PptxGenJS, spec: DocumentSpec, s: Slide, index: numb
   footer(slide, spec, index);
 }
 
-export async function buildPptx(spec: DocumentSpec): Promise<Buffer> {
+export async function buildPptx(spec: DocumentSpec, baseDir: string = process.cwd()): Promise<Buffer> {
   const pptx = new PptxGenJS();
   pptx.layout = 'LAYOUT_16x9';
   pptx.author = spec.author || 'Bimax';
@@ -114,7 +156,7 @@ export async function buildPptx(spec: DocumentSpec): Promise<Buffer> {
     fontSize: 12, color: 'AFC4D9', fontFace: FONT.sans,
   });
 
-  (spec.slides ?? []).forEach((s, i) => contentSlide(pptx, spec, s, i + 1));
+  (spec.slides ?? []).forEach((s, i) => contentSlide(pptx, spec, s, i + 1, baseDir));
 
   const out = await pptx.write({ outputType: 'nodebuffer' });
   return out as Buffer;

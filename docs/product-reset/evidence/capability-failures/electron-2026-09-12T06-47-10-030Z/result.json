@@ -1,0 +1,70 @@
+{
+  "status": "pass",
+  "boundary": "Electron main + real preload + staged compiled engine + loopback provider",
+  "binarySha256": "6b9fe90ac616fc7638c1fe4a34d266d76b33d4b22c3561477df458a72bc1e86b",
+  "scriptSha256": "3eee0385115b7b2a7dcf220a37afb69e104f9af68de52016af239e75c5a40bb7",
+  "configBefore": "af83aabc04fa93cb02a459b913e8722e8457d52f3e5b577228a749e8e839316d",
+  "failureAt": 4046.0724579999996,
+  "visibleAt": 4174.231333,
+  "reloadedWarning": true,
+  "pageURLs": [
+    "file:///Users/vishsiddharth/Bimax/app/out/renderer/index.html"
+  ],
+  "supervisor": {
+    "phase": "degraded",
+    "enteredAt": 1789195634138,
+    "attempt": 1,
+    "generation": 1,
+    "message": "Engine ready (some services disabled)",
+    "reason": "capabilities_shed",
+    "pid": 70352,
+    "profile": "minimal",
+    "capabilities": [
+      {
+        "id": "nativeCompression",
+        "enabled": true,
+        "reason": "built-in (works without the Headroom sidecar)"
+      },
+      {
+        "id": "persistentGraph",
+        "enabled": true,
+        "reason": "core storage"
+      },
+      {
+        "id": "headroomProxy",
+        "enabled": false,
+        "reason": "off by default on desktop (set BIMAX_DISABLE_HEADROOM=0 to enable)"
+      },
+      {
+        "id": "codebaseMemory",
+        "enabled": false,
+        "reason": "deferred (profile minimal)"
+      },
+      {
+        "id": "autoIndex",
+        "enabled": false,
+        "reason": "env override"
+      },
+      {
+        "id": "drivesBoot",
+        "enabled": false,
+        "reason": "deferred (profile minimal)"
+      }
+    ],
+    "degradedCapabilities": [
+      "codebaseMemory",
+      "autoIndex",
+      "drivesBoot"
+    ],
+    "lastHeartbeat": {
+      "at": 1789195634139,
+      "uptimeMs": 1471,
+      "rssMb": 267,
+      "heapMb": 52,
+      "eventLoopDelayMs": 0,
+      "activeTurn": false
+    }
+  },
+  "warning": "Code index: degraded 0 files and 2 embedding chunks remain pending. Search results are incomplete; absence from results does not prove absence from the project. Use file search for exact tokens. Further searches retry indexing.\nSemantic retrieval: degraded Embedding service http://127.0.0.1:63611/v1/embeddings returned HTTP 410 (openai body). Search is using keywords only; paraphrase matches may be missed. Check the embedding service and model settings. A later use retries automatically.",
+  "configAfter": "af83aabc04fa93cb02a459b913e8722e8457d52f3e5b577228a749e8e839316d"
+}

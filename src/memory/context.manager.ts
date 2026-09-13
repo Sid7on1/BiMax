@@ -1,12 +1,13 @@
 import { LLMProvider, Message } from '../core/llm.provider';
 import { contentToText, isScreenshotObservationMessage } from '../core/multimodal';
-import { encode } from 'gpt-tokenizer';
 import { Logger } from '../utils/logger';
 import { fileStateCache } from './file-state-cache';
 import { IGraphStore } from '../graph/models';
 import { crossRepoMapSync } from '../graph/cross.repo';
 import { compressBacklog, proxyCompress, recordCompression, looksLikeCode } from './headroom.compress';
 import { cliEvents } from '../cli/events';
+import { encode } from 'gpt-tokenizer';
+
 
 export type ContextMode = 'smart' | 'full';
 

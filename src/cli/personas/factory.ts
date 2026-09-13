@@ -1,4 +1,5 @@
-import { SkillLoader, DynamicPersona } from '../skills.loader';
+import { SkillLoader } from '../skills.loader';
+import { DynamicPersona } from './dynamic.persona';
 import { BiMaxPersona, HermesPersona, OpenCodePersona, OpenClawPersona } from './implementations';
 import { AgentPersona } from './base.persona';
 import { ToolRegistry } from '../../tools/tool.registry';

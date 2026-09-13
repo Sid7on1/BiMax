@@ -193,6 +193,45 @@ export function resolveWithinRoot(root: string, rel: unknown, label = 'path'): s
 }
 
 /**
+ * A filename for pasted clipboard content.
+ *
+ * The renderer proposes the name (see `pastedFileName` in composer.model.ts) and this refuses
+ * anything that is not a plain basename: a separator, a NUL, a `..`, or a dotfile would let a
+ * paste choose where in the filesystem it lands rather than only what it is called. The extension
+ * is checked against what the clipboard can actually produce, so a paste cannot write a `.command`
+ * or a `.dylib` into a directory something else might later execute from.
+ */
+const PASTED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.txt', '.md', '.csv', '.json', '.log'];
+
+export function asPastedFileName(value: unknown): string {
+  const name = asBoundedString(value, 200, 'pasted file name');
+  if (!name || name.includes('/') || name.includes('\\') || name.includes('\0') || name.startsWith('.')) {
+    throw new InvalidPayloadError(`pasted file name must be a plain filename: ${name}`);
+  }
+  if (name === '.' || name === '..') throw new InvalidPayloadError('pasted file name must be a plain filename');
+  const extension = path.extname(name).toLowerCase();
+  if (!PASTED_EXTENSIONS.includes(extension)) {
+    throw new InvalidPayloadError(`pasted file type not accepted: ${extension || '(none)'}`);
+  }
+  return name;
+}
+
+/** The clipboard payload itself. Structured-cloned across the bridge, so it arrives as bytes. */
+const MAX_PASTE_BYTES = 25 * 1024 * 1024;
+
+export function asPastedBytes(value: unknown): Uint8Array {
+  const bytes = value instanceof Uint8Array ? value
+    : value instanceof ArrayBuffer ? new Uint8Array(value)
+      : null;
+  if (!bytes) throw new InvalidPayloadError('pasted content must be bytes');
+  if (bytes.byteLength === 0) throw new InvalidPayloadError('pasted content is empty');
+  if (bytes.byteLength > MAX_PASTE_BYTES) {
+    throw new InvalidPayloadError(`pasted content exceeds ${MAX_PASTE_BYTES} bytes`);
+  }
+  return bytes;
+}
+
+/**
  * A pathspec for `git diff`. Git resolves pathspecs against the repository itself, but
  * `diff --no-index` does not — it reads whatever file it is handed, including an absolute path
  * outside the project — so the same containment applies before git ever runs. The value returned is

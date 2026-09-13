@@ -23,6 +23,7 @@ import {
   isTrustedSender, isTrustedRendererUrl, isAllowedNavigation, isAllowedPermission,
   asBoundedInt, asBoundedString, asFileContent, asPtyInput,
   asGitPathspec, asSupervisorAction, isProtocolFrame, resolveWithinRoot,
+  asPastedFileName, asPastedBytes,
   SUPERVISOR_ACTIONS,
 } from '../main/security';
 import { listDir, readFilePreview, writeFileContent } from '../main/files';
@@ -67,10 +68,19 @@ describe('Desktop runtime is on a supported line', () => {
     expect(String(config.mac.minimumSystemVersion)).toBe(MINIMUM_MACOS);
   });
 
-  test('the native Swift target declares the same floor as the package', () => {
-    const manifest = read('native/BimaxComputerUseKit/Package.swift');
-    const declared = /platforms:\s*\[\.macOS\(\.v(\d+)\)\]/.exec(manifest)?.[1];
-    expect(declared).toBe(MINIMUM_MACOS.split('.')[0]);
+  test('packaging is the ONLY place that declares the floor, so there is nothing to drift from', () => {
+    // This used to cross-check `native/BimaxComputerUseKit/Package.swift`, which declared the same
+    // floor for the Computer Use target. That target left with Computer Use, so the test read a
+    // path that no longer exists and failed on ENOENT — reporting a missing file as a runtime
+    // violation.
+    //
+    // Deleting it outright would leave the cross-check silently unreplaced, so the assertion is
+    // inverted instead: the second declaration site must be ABSENT. If a native target ever comes
+    // back, this fails and says exactly what to restore, rather than letting two floors drift apart
+    // unwatched. A `existsSync(...) ? assert : return` would have been the worst option available —
+    // a test that can never fail again.
+    const nativeManifest = path.join(repo, 'native/BimaxComputerUseKit/Package.swift');
+    expect(fs.existsSync(nativeManifest)).toBe(false);
   });
 
   test('Terminal is untouched by the Desktop runtime upgrade', () => {
@@ -387,6 +397,41 @@ describe('a normal Desktop coding task still works, with zero Computer Use permi
       expect(code).not.toMatch(/from\s+'\.\/(engine|focus-broker)'/);
       expect(code).not.toMatch(/require\(['"].*computer/i);
     }
+  });
+});
+
+describe('pasted clipboard content cannot choose where it lands', () => {
+  test('a plain filename with an expected extension is accepted', () => {
+    expect(asPastedFileName('Pasted image 2026-09-07 040506.png')).toBe('Pasted image 2026-09-07 040506.png');
+    expect(asPastedFileName('Pasted text 2026-09-07 040506.txt')).toBe('Pasted text 2026-09-07 040506.txt');
+  });
+
+  test('a name that could steer the write is refused', () => {
+    // The renderer proposes the name. If any of these got through, a paste would decide the
+    // directory rather than only the filename.
+    for (const name of [
+      '../../escape.png', 'nested/deep.png', 'back\\slash.png', 'nul\0byte.png',
+      '.hidden.png', '.', '..', '',
+    ]) {
+      expect(() => asPastedFileName(name)).toThrow(InvalidPayloadError);
+    }
+    expect(() => asPastedFileName('x'.repeat(201) + '.png')).toThrow(InvalidPayloadError);
+    expect(() => asPastedFileName(42)).toThrow(InvalidPayloadError);
+  });
+
+  test('only clipboard-shaped file types are written, never something executable', () => {
+    for (const name of ['run.command', 'lib.dylib', 'x.sh', 'script.js', 'page.html', 'noextension']) {
+      expect(() => asPastedFileName(name)).toThrow(InvalidPayloadError);
+    }
+  });
+
+  test('the payload has to be bounded bytes', () => {
+    expect(asPastedBytes(new Uint8Array([1, 2, 3]))).toEqual(new Uint8Array([1, 2, 3]));
+    expect(asPastedBytes(new Uint8Array([7]).buffer)).toEqual(new Uint8Array([7]));
+    expect(() => asPastedBytes('not bytes')).toThrow(InvalidPayloadError);
+    expect(() => asPastedBytes(null)).toThrow(InvalidPayloadError);
+    expect(() => asPastedBytes(new Uint8Array(0))).toThrow(InvalidPayloadError);
+    expect(() => asPastedBytes(new Uint8Array(25 * 1024 * 1024 + 1))).toThrow(InvalidPayloadError);
   });
 });
 

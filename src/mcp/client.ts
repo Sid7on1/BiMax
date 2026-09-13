@@ -1,3 +1,5 @@
+import { outcomeError, outcomeOk } from '../tools/outcome';
+import { reportCapability } from '../core/capability.status';
 import { ToolRegistry } from '../tools/tool.registry';
 import { buildTool, BuiltTool } from '../tools/tool.factory';
 import { IGovernor } from '../core/interfaces';
@@ -329,6 +331,9 @@ export async function connectAndRegister(
               // Reconnect once and retry on the fresh client — the retry is a direct client call
               // (never back through the registry), so a still-dead server can't recurse.
               if (!healer || !isDeadConnectionError(e)) throw e;
+              reportCapability({ id: `mcp:${spec.name}`, label: `MCP ${spec.name}`, state: 'unavailable',
+                reason: 'The connection stopped responding during an operation.', impact: 'The operation requires a reconnect.',
+                action: 'Bimax is attempting its bounded reconnect.' });
               Logger.warn(`[MCP] '${spec.name}' connection dead mid-call (${e?.message}); reconnecting to retry.`);
               const fresh = await healer(spec.name);
               if (!fresh) throw e;
@@ -348,7 +353,7 @@ export async function connectAndRegister(
             }
             const text = contentToString(res);
             recordMcpCall(spec.name, t.name, Date.now() - started, res?.isError ? text : undefined);
-            return res?.isError ? `MCP tool ${t.name} reported an error: ${text}` : text;
+            return res?.isError ? outcomeError('unknown', `MCP tool ${t.name} reported an error: ${text}`) : outcomeOk(text);
           } catch (e: any) {
             recordMcpCall(spec.name, t.name, Date.now() - started, e?.message || String(e));
             throw e;

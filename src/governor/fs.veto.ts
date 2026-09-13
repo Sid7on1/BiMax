@@ -6,25 +6,28 @@ import * as fs from 'fs/promises';
 
 export class FileSystemVeto {
   async checkVeto(targetPath: string): Promise<void> {
-    // 1. Resolve symlinks FIRST (Sandbox escape prevention)
-    let realPath: string;
-    try {
-      realPath = await fs.realpath(targetPath);
-    } catch (e) {
-      // File doesn't exist yet — resolve the PARENT's real path so a symlinked parent directory
-      // can't smuggle the operation outside the workspace (the parent must already exist).
-      const abs = path.resolve(targetPath);
-      try {
-        const parentReal = await fs.realpath(path.dirname(abs));
-        realPath = path.join(parentReal, path.basename(abs));
-      } catch {
-        realPath = abs; // parent missing too — leave unresolved; the boundary check still applies
+    // Resolve the nearest existing ancestor, not just the immediate parent. A symlink
+    // followed by two nonexistent directories must not turn into an unresolved allowed path.
+    const canonical = async (input: string): Promise<string> => {
+      let current = path.resolve(input);
+      const missing: string[] = [];
+      for (;;) {
+        try { return path.join(await fs.realpath(current), ...missing.reverse()); }
+        catch (error: any) {
+          if (error?.code !== 'ENOENT') throw error;
+          const entry = await fs.lstat(current).catch(() => null);
+          if (entry?.isSymbolicLink()) throw new GovernorVetoError('Unresolvable symbolic link in target path.');
+          const parent = path.dirname(current);
+          if (parent === current) throw error;
+          missing.push(path.basename(current));
+          current = parent;
+        }
       }
-    }
-    
-    // Normalize and canonicalize
-    const normalized = path.normalize(realPath).toLowerCase();
-    const canonicalWorkspace = path.resolve(SafetyPolicy.allowedWorkspace).toLowerCase();
+    };
+    const realPath = await canonical(targetPath);
+    // Preserve case: case-sensitive volumes must not admit a differently-cased sibling.
+    const normalized = path.normalize(realPath);
+    const canonicalWorkspace = await canonical(SafetyPolicy.allowedWorkspace);
 
     // 1. Must be inside workspace (separator-aware to prevent sibling-prefix escapes,
     //    e.g. /home/user/workspace-evil must NOT pass for workspace /home/user/workspace)
@@ -36,7 +39,7 @@ export class FileSystemVeto {
 
     // 2. Cannot touch forbidden system paths
     for (const forbidden of SafetyPolicy.forbiddenPaths) {
-      if (normalized.includes(forbidden.toLowerCase())) {
+      if (normalized.toLowerCase().includes(forbidden.toLowerCase())) {
         Logger.error(`[Governor: Veto] File operation blocked. Target contains forbidden path: ${forbidden}`);
         throw new GovernorVetoError('Forbidden path access.');
       }

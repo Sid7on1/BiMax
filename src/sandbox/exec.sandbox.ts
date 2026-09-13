@@ -22,7 +22,7 @@ export function setSandboxEnabled(v: boolean): void { enabled = v; }
  * thing standing between the model and that command is the kernel's network namespace. A sovereign
  * claim with the sandbox switched off is not a sovereign claim.
  */
-export function isSandboxEnabled(): boolean { return enabled || isSovereign(); }
+export function isSandboxEnabled(): boolean { return enabled || isSovereign() || Boolean(process.env.BIMAX_THREAD_ROOT); }
 
 let availableCache: boolean | null = null;
 /** The usable OS sandbox backend for this platform, or null. Cached after the first real probe. */
@@ -122,6 +122,10 @@ export function buildOfflineProfile(cwd: string): string {
 export function sandboxArgv(command: string, cwd: string): string[] | null {
   if (!isSandboxEnabled()) return null;
   const backend = sandboxBackend();
+  if (process.env.BIMAX_THREAD_ROOT) {
+    if (!backend) throw new Error('This thread requires an OS sandbox for shell commands; none is available.');
+    cwd = process.env.BIMAX_THREAD_ROOT;
+  }
   // Sovereign mode denies the network at the kernel. The ordinary profile deliberately permits it —
   // an npm install or a git fetch is normal work — but under sovereign mode that permission is the
   // one hole the in-process perimeter cannot see through.

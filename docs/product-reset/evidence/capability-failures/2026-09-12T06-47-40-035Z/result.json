@@ -1,0 +1,46 @@
+{
+  "schema": "bimax.capability-fault-proof.v1",
+  "startedAt": "2026-09-12T06:47:40.036Z",
+  "binarySha256": "6b9fe90ac616fc7638c1fe4a34d266d76b33d4b22c3561477df458a72bc1e86b",
+  "scriptSha256": "f17069059fdef923bbfdf938783b1f7cdb83a5fef69ec9333dfaa8bd966d68d1",
+  "runtime": {
+    "platform": "darwin",
+    "arch": "arm64",
+    "totalMemoryBytes": 8589934592
+  },
+  "provider": "controlled loopback HTTP fixture",
+  "model": "mock",
+  "cases": [
+    {
+      "name": "embedding-410",
+      "status": "pass",
+      "configBefore": "af83aabc04fa93cb02a459b913e8722e8457d52f3e5b577228a749e8e839316d",
+      "injectedHttpStatus": 410,
+      "embedCalls": 1,
+      "rerankCalls": 1,
+      "failureAt": 436.49424999999997,
+      "noticeAt": 439.976625,
+      "detectionMs": 3.4823750000000473,
+      "finalAt": 460.21554100000003,
+      "parsedFrames": 32,
+      "invalidFrames": 0
+    },
+    {
+      "name": "reranking-404",
+      "status": "pass",
+      "configBefore": "af83aabc04fa93cb02a459b913e8722e8457d52f3e5b577228a749e8e839316d",
+      "injectedHttpStatus": 404,
+      "embedCalls": 4,
+      "rerankCalls": 1,
+      "failureAt": 498.123375,
+      "noticeAt": 498.464333,
+      "detectionMs": 0.34095800000000054,
+      "finalAt": 504.211958,
+      "parsedFrames": 32,
+      "invalidFrames": 0
+    }
+  ],
+  "status": "pass",
+  "configUnchanged": true,
+  "finishedAt": "2026-09-12T06:47:41.166Z"
+}

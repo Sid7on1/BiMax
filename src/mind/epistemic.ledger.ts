@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { randomUUID } from 'crypto';
 import { mindSingletonRoot } from './self.model';
 import { wilsonInterval, isotonicFit, expectedCalibrationError } from './stats';
 import { TestDependencyMap, importReachable } from '../substrate/tdm';
@@ -28,6 +29,7 @@ import { TestDependencyMap, importReachable } from '../substrate/tdm';
  */
 
 export interface OpenClaim {
+  id?: string;        // legacy claims may lack identity; never eligible for background settlement
   domain: string;      // file extension the mutation touched
   file?: string;       // the mutated path — the scoping key
   confidence: number;  // 0..1, stated at claim time (grounded in the self-model)
@@ -55,7 +57,7 @@ interface LedgerFile {
   unattributed: number;          // red evidence that named no files (couldn't be scoped)
 }
 
-const CLAIM_TTL_MS = 30 * 60_000;   // unresolved claims expire — silence is not evidence
+export const CLAIM_TTL_MS = 30 * 60_000;   // unresolved claims expire — silence is not evidence
 const EVIDENCE_WINDOW_MS = 15 * 60_000; // evidence only resolves claims this recent
 const MIN_DOMAIN_SAMPLES = 5;       // weighted samples before a domain can escalate
 
@@ -68,6 +70,7 @@ const W_BASENAME = 0.7;
 /** Does this shell command produce correctness evidence (build/test/typecheck)? */
 export function isEvidenceCommand(command: string): boolean {
   const c = (command || '').toLowerCase();
+  if (/\b(node\s+--test|bun\s+test)\b/.test(c)) return true;
   return /\b(npm (run )?(test|build)|npx? (tsc|jest|vitest|eslint)|yarn (test|build)|pnpm (test|build)|go (build|test|vet)|cargo (build|test|check)|pytest|tsc\b|jest\b|vitest\b|make (test|build|check))\b/.test(c);
 }
 
@@ -79,17 +82,53 @@ export function commandPathTokens(command: string): string[] {
     .map(t => t.replace(/^['"]|['"]$/g, ''));
 }
 
+export const EVIDENCE_OUTPUT_MAX_CHARS = 20_000; // existing diagnostic parser input ceiling
+
 /** Source-file paths named in build/test output (tsc, jest, vitest, go, cargo, pytest formats). */
 export function outputFilePaths(output: string): string[] {
   const found = new Set<string>();
   const re = /([A-Za-z0-9_$@./\\-]+\.(?:ts|tsx|js|jsx|mjs|cjs|go|py|rs|java|rb|c|cc|cpp|h|hpp))(?=[:(\s'"]|$)/gm;
   let m: RegExpExecArray | null;
-  const capped = (output || '').slice(0, 20_000);
+  const capped = (output || '').slice(0, EVIDENCE_OUTPUT_MAX_CHARS);
   while ((m = re.exec(capped)) !== null) {
     found.add(m[1]);
     if (found.size >= 50) break;
   }
   return Array.from(found);
+}
+
+/**
+ * Files a runner's own LCOV report proves it EXECUTED (`SF:` with a non-zero `LH:`).
+ *
+ * This is the only positive scope accepted. Green stdout cannot supply one: measured on
+ * node 22.23.1 under piped capture, `node --test` names only test names on success and
+ * jest prints aggregate counts with no per-file line even at `--verbose`, while both name
+ * paths on failure. Reporters report exceptions, not the routine.
+ *
+ * Coverage is independent of the command in the way that matters: a path can be named on
+ * the command line and still never run — filtered, skipped, or never imported — and such a
+ * file gets no `SF:` record at all. `SF:` carries the full project-relative path, so no
+ * basename reassembly (and therefore no basename matching) is involved. `LH: 0` is not
+ * verification: the file was loaded but nothing in it ran. A record stranded without its
+ * `LH:` by a truncated tail counts as nothing, never as a hit.
+ */
+export function coverageExecutedPaths(output: string): string[] {
+  const executed = new Set<string>();
+  const capped = (output || '').slice(0, EVIDENCE_OUTPUT_MAX_CHARS);
+  let file: string | null = null;
+  for (const raw of capped.split('\n')) {
+    const line = raw.trim();
+    if (line.startsWith('SF:')) { file = line.slice(3).trim() || null; continue; }
+    if (!file) continue;
+    if (line === 'end_of_record') { file = null; continue; }
+    if (line.startsWith('LH:')) {
+      const hit = Number(line.slice(3).trim());
+      if (Number.isInteger(hit) && hit > 0) executed.add(file);
+      file = null;
+      if (executed.size >= 50) break;
+    }
+  }
+  return Array.from(executed);
 }
 
 /**
@@ -187,11 +226,14 @@ export class EpistemicLedger {
 
   saveNow(): void {
     if (!this.dirty) return;
+    const temporary = `${this.filePath}.${randomUUID()}.tmp`;
     try {
       fs.mkdirSync(path.dirname(this.filePath), { recursive: true });
-      fs.writeFileSync(this.filePath, JSON.stringify(this.data, null, 2), 'utf-8');
+      fs.writeFileSync(temporary, JSON.stringify(this.data, null, 2), 'utf-8');
+      fs.renameSync(temporary, this.filePath);
       this.dirty = false;
-    } catch { /* best-effort */ }
+    } catch { /* retain dirty state for retry; old complete snapshot remains readable */ }
+    finally { try { fs.unlinkSync(temporary); } catch { /* renamed or absent */ } }
   }
 
   private expire(now: number): void {
@@ -201,12 +243,20 @@ export class EpistemicLedger {
   }
 
   /** A mutating tool succeeded — the agent implicitly claims the change is correct. */
-  openClaim(domain: string, confidence: number, file?: string): void {
+  openClaim(domain: string, confidence: number, file?: string): string {
     this.load();
     const now = Date.now();
     this.expire(now);
-    this.data.open.push({ domain, file, confidence: Math.min(1, Math.max(0, confidence)), at: now });
+    const id = randomUUID();
+    this.data.open.push({ id, domain, file, confidence: Math.min(1, Math.max(0, confidence)), at: now });
     this.scheduleSave();
+    return id;
+  }
+
+  /** Immutable launch-time claim identities for delayed evidence. */
+  claimSnapshot(): OpenClaim[] {
+    this.load();
+    return this.data.open.map(claim => ({ ...claim }));
   }
 
   /** Weighted settlement — a claim resolved by weaker evidence moves the stats less. */
@@ -226,13 +276,15 @@ export class EpistemicLedger {
    * Hard evidence arrived (build/test run). Resolves only the open claims the evidence
    * COVERS (see module docs). Returns how many claims were settled.
    */
-  resolveDetailed(evidenceOk: boolean, opts?: { command?: string; output?: string }): EvidenceResolution {
+  resolveDetailed(evidenceOk: boolean, opts?: { command?: string; output?: string; claimIds?: readonly string[]; exactFiles?: readonly string[] }): EvidenceResolution {
     this.load();
     const now = Date.now();
     this.expire(now);
     const cmdPaths = commandPathTokens(opts?.command || '');
-    const repoWide = evidenceOk && cmdPaths.length === 0;
-    const inWindow = this.data.open.filter(c => now - c.at <= EVIDENCE_WINDOW_MS);
+    // Attested scope is deliberately narrow: it never widens into a repo-wide settle.
+    const repoWide = evidenceOk && opts?.exactFiles === undefined && cmdPaths.length === 0;
+    const inWindow = this.data.open.filter(c => now - c.at <= EVIDENCE_WINDOW_MS
+      && (opts?.claimIds === undefined || (!!c.id && opts.claimIds.includes(c.id))));
     if (inWindow.length === 0) return { settled: 0, coveredFiles: [], repoWide };
 
     // Opportunistic TDM growth: a path-scoped coverage run just PROVED which files that
@@ -244,21 +296,27 @@ export class EpistemicLedger {
     if (evidenceOk) {
       // Green: a repo-wide run is legitimately global (full weight); a path-scoped run
       // covers only claims whose file it plausibly targets, at the match tier's weight.
-      covered = cmdPaths.length === 0
-        ? inWindow.map(c => ({ claim: c, w: W_EXACT }))
-        : inWindow.map(c => ({ claim: c, w: this.coverWeight(c.file, cmdPaths) })).filter(x => x.w > 0);
+      // Attested green: the caller proved which files the run EXECUTED, so only those
+      // claims settle — never the command's targets, which express intent, not outcome.
+      covered = opts?.exactFiles !== undefined
+        ? inWindow.map(c => ({ claim: c, w: c.file && opts.exactFiles!.includes(c.file) ? W_EXACT : 0 })).filter(x => x.w > 0)
+        : cmdPaths.length === 0
+          ? inWindow.map(c => ({ claim: c, w: W_EXACT }))
+          : inWindow.map(c => ({ claim: c, w: this.coverWeight(c.file, cmdPaths) })).filter(x => x.w > 0);
     } else {
       // Red: only claims whose file the FAILURE OUTPUT names are refuted. A red run
       // that names no files (or only files nobody claimed) refutes nothing — the
       // failure may predate every open claim, and guessing poisons calibration.
       const failPaths = outputFilePaths(opts?.output || '');
-      const scope = failPaths.length > 0 ? failPaths : cmdPaths;
+      const scope = failPaths; // A command target is not a file named by the failure.
       if (scope.length === 0) {
         this.data.unattributed++;
         this.scheduleSave();
         return { settled: 0, coveredFiles: [], repoWide: false };
       }
-      covered = inWindow.map(c => ({ claim: c, w: this.coverWeight(c.file, scope) })).filter(x => x.w > 0);
+      covered = inWindow.map(c => ({ claim: c, w: opts?.exactFiles !== undefined
+        ? (c.file && opts.exactFiles.includes(c.file) ? W_EXACT : 0)
+        : this.coverWeight(c.file, scope) })).filter(x => x.w > 0);
       if (covered.length === 0) this.data.unattributed++;
     }
 

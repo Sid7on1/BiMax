@@ -2,7 +2,7 @@
   "name": "bimax-app",
   "productName": "Bimax",
   "version": "1.1.0",
-  "description": "Bimax \u2014 an agentic coding IDE for project work",
+  "description": "Bimax — an agentic coding IDE for project work",
   "main": "out/main/index.js",
   "private": true,
   "author": "Bimax",
@@ -14,7 +14,11 @@
     "prepare:engine": "bash scripts/prepare-engine.sh",
     "dist:mac": "electron-vite build && BIMAX_RELEASE_BUILD=1 bash scripts/prepare-engine.sh darwin-arm64 && electron-builder --mac --arm64",
     "dist:mac:x64": "electron-vite build && BIMAX_RELEASE_BUILD=1 bash scripts/prepare-engine.sh darwin-x64 && electron-builder --mac --x64",
-    "dist:mac:local": "electron-vite build && bash scripts/prepare-engine.sh darwin-arm64 && electron-builder --mac --arm64 -c.mac.entitlements=buildResources/entitlements.mac.local.plist -c.mac.entitlementsInherit=buildResources/entitlements.mac.local.plist -c.directories.output=${BIMAX_RELEASE_DIR:-/tmp/bimax-release}"
+    "dist:mac:local": "electron-vite build && bash scripts/prepare-engine.sh darwin-arm64 && electron-builder --mac --arm64 -c.mac.entitlements=buildResources/entitlements.mac.local.plist -c.mac.entitlementsInherit=buildResources/entitlements.mac.local.plist -c.directories.output=${BIMAX_RELEASE_DIR:-/tmp/bimax-release}",
+    "check:design-preview": "vite build --config design-preview/vite.config.ts --logLevel warn",
+    "gen:motion": "node scripts/gen-motion-tokens.mjs",
+    "check:motion": "node scripts/gen-motion-tokens.mjs --check",
+    "check:glass-contrast": "node scripts/check-glass-contrast.mjs"
   },
   "dependencies": {
     "@ai-sdk/react": "^4.0.61",
@@ -44,6 +48,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "codemirror": "^6.0.2",
+    "electron-liquid-glass": "^1.1.1",
     "highlight.js": "^11.11.1",
     "lucide-react": "^1.24.0",
     "marked": "^18.0.6",

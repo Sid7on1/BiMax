@@ -62,4 +62,20 @@ exports.default = async function afterPack(context) {
       '    npx electron-builder --mac --arm64 -c.directories.output=/tmp/bimax-release'
     );
   }
+
+  // Compile the app icon into an asset catalog and declare CFBundleIconName.
+  //
+  // This has to happen HERE — after packing, before electron-builder signs — because Assets.car and
+  // Info.plist are both signed resources: adding them afterwards invalidates the signature, and
+  // electron-builder has no hook of its own for "an extra resource, compiled by Xcode".
+  //
+  // Not fatal if it fails. Without the catalog the app still ships its `.icns` and renders with the
+  // legacy icon treatment, which is exactly where it was before this existed — so a machine without
+  // Xcode (actool lives inside it) should produce a slightly worse icon, not no build at all.
+  try {
+    const { installAppIcon } = await import('./make-app-icon-assets.mjs');
+    installAppIcon(bundle);
+  } catch (error) {
+    console.warn(`  • app icon catalog SKIPPED (${error.message}) — shipping the legacy .icns only`);
+  }
 };

@@ -1,8 +1,9 @@
 import {
-  AlignmentType, BorderStyle, Document, HeadingLevel, Packer, Paragraph, ShadingType,
+  AlignmentType, BorderStyle, Document, HeadingLevel, ImageRun, Packer, Paragraph, ShadingType,
   Table, TableCell, TableRow, TextRun, WidthType,
 } from 'docx';
-import { Block, COLOR, DocumentSpec, FONT, SPACE, TYPE, resolveDate } from './design';
+import { Block, COLOR, DocumentSpec, FONT, PAGE, SPACE, TYPE, resolveDate } from './design';
+import { fitBox, loadImage } from './images';
 
 /** docx sizes are half-points; spacing is twentieths of a point (DXA). */
 const hp = (pt: number): number => Math.round(pt * 2);
@@ -73,7 +74,7 @@ function tableBlock(columns: string[], rows: string[][], caption?: string): (Tab
   })];
 }
 
-function renderBlock(block: Block): (Paragraph | Table)[] {
+function renderBlock(block: Block, baseDir: string): (Paragraph | Table)[] {
   switch (block.kind) {
     case 'heading':
       return [headingParagraph(block.level, block.text)];
@@ -125,6 +126,38 @@ function renderBlock(block: Block): (Paragraph | Table)[] {
       })];
     case 'table':
       return tableBlock(block.columns, block.rows, block.caption);
+    case 'image': {
+      const img = loadImage(block.path, baseDir);
+      // Word wants explicit points. Fit to the text column at the true aspect ratio so a wide
+      // screenshot shrinks to the margin instead of running under it.
+      const maxW = PAGE.width - PAGE.marginLeft - PAGE.marginRight;
+      const box = fitBox(img.width, img.height, maxW * (block.width ?? 1), 560);
+      return [
+        new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { before: dxa(SPACE.block), after: dxa(block.caption ? SPACE.tight : SPACE.block) },
+          children: [new ImageRun({
+            type: img.type === 'jpeg' ? 'jpg' : 'png',
+            data: img.data,
+            transformation: { width: Math.round(box.w), height: Math.round(box.h) },
+          })],
+        }),
+        ...(block.caption ? [new Paragraph({
+          alignment: AlignmentType.CENTER,
+          spacing: { after: dxa(SPACE.block) },
+          children: runs(block.caption, { size: TYPE.small, color: COLOR.muted, font: FONT.sans, italics: true }),
+        })] : []),
+      ];
+    }
+    case 'chart':
+      // Word has no chart part in this library. Saying so beats emitting a silent blank.
+      return [new Paragraph({
+        spacing: { before: dxa(SPACE.block), after: dxa(SPACE.block) },
+        children: runs(
+          `[chart "${block.caption ?? block.chart}" omitted — charts are supported in pptx and pdf; use a table here]`,
+          { size: TYPE.small, color: COLOR.muted, font: FONT.sans, italics: true },
+        ),
+      })];
     case 'divider':
       return [new Paragraph({
         spacing: { before: dxa(SPACE.block), after: dxa(SPACE.block) },
@@ -138,7 +171,7 @@ function renderBlock(block: Block): (Paragraph | Table)[] {
   }
 }
 
-export async function buildDocx(spec: DocumentSpec): Promise<Buffer> {
+export async function buildDocx(spec: DocumentSpec, baseDir: string = process.cwd()): Promise<Buffer> {
   const date = resolveDate(spec);
 
   // A title block, not a title page: an approval note that opens with a blank cover wastes the
@@ -175,7 +208,7 @@ export async function buildDocx(spec: DocumentSpec): Promise<Buffer> {
     },
     sections: [{
       properties: { page: { margin: { top: dxa(72), bottom: dxa(72), left: dxa(72), right: dxa(72) } } },
-      children: [...head, ...(spec.blocks ?? []).flatMap(renderBlock)],
+      children: [...head, ...(spec.blocks ?? []).flatMap(b => renderBlock(b, baseDir))],
     }],
   });
 

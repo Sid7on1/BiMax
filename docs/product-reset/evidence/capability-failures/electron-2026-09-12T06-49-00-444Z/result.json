@@ -1,0 +1,76 @@
+{
+  "status": "pass",
+  "boundary": "Electron main + real preload + staged compiled engine + loopback provider",
+  "binarySha256": "6b9fe90ac616fc7638c1fe4a34d266d76b33d4b22c3561477df458a72bc1e86b",
+  "scriptSha256": "b3af4488d102002be86a2aa425b167dd7d8ae60da24e6bdb433ec73f5355ca2c",
+  "configBefore": "af83aabc04fa93cb02a459b913e8722e8457d52f3e5b577228a749e8e839316d",
+  "failureAt": 3578.866542,
+  "visibleAt": 3674.215375,
+  "reloadedWarning": true,
+  "pageURLs": [
+    "file:///Users/vishsiddharth/Bimax/app/out/renderer/index.html"
+  ],
+  "supervisor": {
+    "phase": "degraded",
+    "enteredAt": 1789195744128,
+    "attempt": 1,
+    "generation": 1,
+    "message": "Engine ready (some services disabled)",
+    "reason": "capabilities_shed",
+    "pid": 71146,
+    "profile": "minimal",
+    "capabilities": [
+      {
+        "id": "nativeCompression",
+        "enabled": true,
+        "reason": "built-in (works without the Headroom sidecar)"
+      },
+      {
+        "id": "persistentGraph",
+        "enabled": true,
+        "reason": "core storage"
+      },
+      {
+        "id": "headroomProxy",
+        "enabled": false,
+        "reason": "off by default on desktop (set BIMAX_DISABLE_HEADROOM=0 to enable)"
+      },
+      {
+        "id": "codebaseMemory",
+        "enabled": false,
+        "reason": "deferred (profile minimal)"
+      },
+      {
+        "id": "autoIndex",
+        "enabled": false,
+        "reason": "env override"
+      },
+      {
+        "id": "drivesBoot",
+        "enabled": false,
+        "reason": "deferred (profile minimal)"
+      }
+    ],
+    "degradedCapabilities": [
+      "codebaseMemory",
+      "autoIndex",
+      "drivesBoot"
+    ],
+    "lastHeartbeat": {
+      "at": 1789195744128,
+      "uptimeMs": 1357,
+      "rssMb": 270,
+      "heapMb": 51,
+      "eventLoopDelayMs": 0,
+      "activeTurn": false
+    }
+  },
+  "warning": "Code index: degraded\nSearch results are incomplete; absence from results does not prove absence from the project.\nSemantic retrieval: degraded\nSearch is using keywords only; paraphrase matches may be missed.",
+  "summaryBounds": {
+    "top": 99,
+    "bottom": 138,
+    "parentTop": 44,
+    "parentBottom": 149
+  },
+  "configAfter": "af83aabc04fa93cb02a459b913e8722e8457d52f3e5b577228a749e8e839316d"
+}

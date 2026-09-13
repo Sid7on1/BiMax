@@ -1,12 +1,26 @@
-# Bimax CLI Master Plan: Compact TUI and Evidence-Driven Autonomy
+# Historical design notes: evidence-driven autonomy (superseded)
 
-> **Status:** Canonical product and engineering direction for the Bimax CLI.
+> **Status: SUPERSEDED — historical reference only. Do not build from this document.**
 >
-> **Release decision (2026-07-14):** The v1.0.0 public-beta candidate passed the complete 10-stage
-> launch gate. General-availability claims remain gated on the external validation listed below.
+> **Bimax ships one thing: the macOS desktop app.** There is no CLI product, no TUI, and no
+> command-line distribution. This file previously described itself as "canonical product and
+> engineering direction for the Bimax CLI", which has not been true since the terminal TUI was
+> removed from the build (commit `d97018f`, 2026-09-06). The claim is removed rather than the file
+> because parts of the design below are still live.
+>
+> **What is stale here:** §1 (Compact TUI refactor) describes a surface that no longer exists, and
+> §9 (Browser and computer interaction) describes Computer Use, which was also separated out of the
+> product. The v1.0.0 public-beta framing and the launch-gate language refer to a CLI release that
+> is not a thing Bimax ships.
+>
+> **What is still live:** the shared task runtime, sub-agent coordination, honesty and quality
+> gates, and the Outcome Convergence Engine correspond to `src/core/subagent.manager.ts`,
+> `src/evidence/` and `src/outcome/`, which are all real and in use. Read those sections as design
+> rationale for the engine that the desktop app drives — never as a product plan.
+>
+> Last substantive edit: 2026-07-14.
 
-Bimax's next milestone is a compact, user-friendly TUI built around a persistent,
-evidence-driven autonomy system.
+The design below was written around a persistent, evidence-driven autonomy system.
 
 Browser automation, sub-agents, research, memory, verification, honesty, performance, and
 long-running recovery cannot behave like disconnected features. They need one shared task runtime

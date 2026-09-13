@@ -34,6 +34,13 @@ export interface GitStatusResult {
   files: GitFile[];
 }
 
+/**
+ * A git status reply, stamped by main with the project it was actually computed against and the
+ * generation of that project session — both captured before the read began. The renderer drops a
+ * reply whose stamp names a project it has left, so a slow read cannot describe the wrong repo.
+ */
+export type StampedGitStatus = GitStatusResult & { project: string; generation: number };
+
 export interface GitCommitEntry { hash: string; subject: string; when: string }
 
 export interface FileEntry { name: string; dir: boolean }
@@ -179,10 +186,11 @@ export interface EmbeddedBrowserState {
 declare global {
   interface Window {
     bimax: {
+      threads: import("../../preload/index").BimaxApi["threads"];
       send: (msg: Inbound) => void;
       onMessage: (cb: (msg: Outbound) => void) => () => void;
       onEngineState: (cb: (state: string, detail: string) => void) => () => void;
-      onProject: (cb: (dir: string) => void) => () => void;
+      onProject: (cb: (dir: string, generation: number) => void) => () => void;
       supervisor: {
         onStatus: (cb: (status: SupervisorStatus) => void) => () => void;
         getStatus: () => Promise<SupervisorStatus | null>;
@@ -217,6 +225,14 @@ declare global {
       pickFiles: () => Promise<string[]>;
       /** Absolute path of a dropped File (Electron 32+ removed File.path). */
       pathForFile: (file: File) => string;
+      /**
+       * Persist pasted clipboard bytes and return the file's path, or '' if it was refused.
+       *
+       * Optional on purpose: a renderer bundle can run against an older packaged main process, and
+       * a composer that assumed this existed would throw on paste instead of falling back. Every
+       * caller must feature-detect and say plainly what it could not do.
+       */
+      stashPaste?: (name: string, bytes: Uint8Array) => Promise<string>;
       restartEngine: () => Promise<string>;
       providers: {
         localModels: () => Promise<LocalModelReport>;
@@ -245,7 +261,7 @@ declare global {
         onAdaptiveChanged: (cb: (snapshot: AdaptiveRuntimeSnapshot) => void) => () => void;
       };
       git: {
-        status: () => Promise<GitStatusResult | null>;
+        status: () => Promise<StampedGitStatus | null>;
         diff: (file: string, untracked: boolean) => Promise<string>;
         branches: () => Promise<{ current: string; all: string[] }>;
         log: (n: number) => Promise<GitCommitEntry[]>;
@@ -260,7 +276,7 @@ declare global {
         reveal: (rel: string) => Promise<void>;
         search: (query: string) => Promise<{ hits: { rel: string; name: string; dir: boolean }[]; truncated: boolean }>;
         write: (rel: string, content: string) => Promise<void>;
-        onChanged: (cb: () => void) => () => void;
+        onChanged: (cb: (generation: number) => void) => () => void;
       };
       sessionsMeta: () => Promise<SessionMetaRecord[]>;
       trustReport: () => Promise<TrustReport | null>;

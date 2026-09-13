@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { mindSingletonRoot } from './self.model';
 import { getEventLedger, EventLedger } from './event.ledger';
+import { wilsonInterval } from './stats';
 
 /**
  * Policy arms (v2 §4.4) — every learned prompt intervention becomes an ARM whose effect
@@ -10,12 +11,18 @@ import { getEventLedger, EventLedger } from './event.ledger';
  * The mechanism the whole plan leans on: when a mind block (self-model hints, habits,
  * user model, drives, calibration escalation, exemplars) is about to enter the prompt,
  * the arm DECIDES (show / hold out) and the decision is logged as a `policy_active`
- * event WITH ITS PROPENSITY. Active arms show with P = 1 − holdout (a small randomized
- * holdout is the price of ever knowing the counterfactual); shadow arms never show but
- * still log what they would have said. Rewards are folded from the ledger per episode
- * (boundary-to-boundary tool-outcome success), and self-normalized IPS gives the
+ * event WITH ITS PROPENSITY. Active arms show with P = 1 − holdout; shadow arms never
+ * show but still log what they would have said. Rewards are folded from the ledger per
+ * episode (boundary-to-boundary tool-outcome success), and self-normalized IPS gives the
  * off-policy answer — "does showing this block make episodes go better?" — from
  * historical traffic, at zero token cost.
+ *
+ * The holdout defaults to ZERO: arms always show. A randomized holdout is the price of
+ * ever knowing the counterfactual, but it is only worth paying once something reads the
+ * estimate. Measured 2026-09-09: no project had accumulated a single scored episode, so
+ * every held-out turn degraded its own prompt to buy information nothing consumed —
+ * strictly worse than not randomizing. Set BIMAX_POLICY_HOLDOUT (e.g. 0.1) to resume
+ * buying counterfactuals when episodes are actually accruing and the estimate is read.
  *
  * Honest scope: reward = episode tool-success ratio ≥ 0.8 (a proxy the ledger can
  * compute today; verified-claim reward joins when TDM coverage deepens), and demotion
@@ -26,7 +33,8 @@ import { getEventLedger, EventLedger } from './event.ledger';
 export const ARM_IDS = ['self-knowledge', 'habits', 'user-model', 'drives', 'calibration', 'exemplars', 'journal'] as const;
 export type ArmId = typeof ARM_IDS[number];
 
-const DEFAULT_HOLDOUT = 0.1;   // active arms hide their block this often — the counterfactual budget
+const DEFAULT_HOLDOUT = 0;     // arms always show — the counterfactual budget is not spent
+                               // while nothing reads the estimate (see the module doc)
 const REWARD_OK_RATIO = 0.8;   // an episode "went well" when ≥80% of its tool calls succeeded
 const MIN_EPISODE_TOOLS = 2;   // fewer tool calls than this = no signal, episode skipped
 
@@ -77,6 +85,9 @@ export class PolicyArms {
     } catch { /* best-effort */ }
   }
 
+  /** The randomization rate in force, so a report can say WHY it has no counterfactual. */
+  holdoutRate(): number { return this.holdout; }
+
   status(arm: ArmId): 'active' | 'shadow' {
     this.load();
     return this.data.status[arm] || 'active';
@@ -96,7 +107,9 @@ export class PolicyArms {
   decide(arm: ArmId, ledger: EventLedger = getEventLedger()): ArmDecision {
     const st = this.status(arm);
     const propensity = st === 'shadow' ? 0 : 1 - this.holdout;
-    const show = st === 'shadow' ? false : this.rng() >= this.holdout;
+    // With no holdout there is nothing to draw: showing is deterministic, so do not
+    // consume randomness. The decision is still logged — it is the audit trail.
+    const show = st === 'shadow' ? false : this.holdout <= 0 || this.rng() >= this.holdout;
     try { ledger.append('policy_active', { arm, shown: show, propensity }); } catch { /* best-effort */ }
     return { show, propensity };
   }
@@ -158,6 +171,40 @@ export class PolicyArms {
     const vShow = wS > 0 ? rS / wS : null;
     const vHide = wH > 0 ? rH / wH : null;
     return { vShow, vHide, lift: vShow !== null && vHide !== null ? vShow - vHide : null };
+  }
+
+  /**
+   * Nominal 95% Newcombe/Wilson difference interval for independent binary episodes
+   * at one fixed randomized propensity. No CI for shadow traffic or adaptive weights.
+   * Source: Newcombe (1998), doi:10.1002/(SICI)1097-0258(19980430)17:8<873::AID-SIM779>3.0.CO;2-I.
+   * Callers must establish independent, completed episodes; this method does not
+   * turn historical observations into a randomized experiment.
+   */
+  holdoutComparison(samples: { shown: boolean; propensity: number; reward: number }[]): {
+    shown: number; hidden: number; lift: number | null;
+    interval: { lo: number; hi: number } | null; reason: string | null;
+  } {
+    const shown = samples.filter(s => s.shown);
+    const hidden = samples.filter(s => !s.shown);
+    const unavailable = (reason: string) => ({ shown: shown.length, hidden: hidden.length, lift: null, interval: null, reason });
+    if (!shown.length || !hidden.length) return unavailable('Both randomized arms require observations');
+    const propensity = samples[0].propensity;
+    if (samples.some(s => !Number.isFinite(s.propensity) || s.propensity <= 0 || s.propensity >= 1
+      || s.propensity !== propensity || (s.reward !== 0 && s.reward !== 1))) {
+      return unavailable('Requires fixed propensity in (0,1) and binary independent episode rewards');
+    }
+    const yes = shown.reduce((n, s) => n + s.reward, 0);
+    const no = hidden.reduce((n, s) => n + s.reward, 0);
+    const p = yes / shown.length, q = no / hidden.length;
+    const a = wilsonInterval(yes, shown.length), b = wilsonInterval(no, hidden.length);
+    const lift = p - q;
+    return {
+      shown: shown.length, hidden: hidden.length, lift,
+      interval: {
+        lo: Math.max(-1, lift - Math.hypot(p - a.lo, b.hi - q)),
+        hi: Math.min(1, lift + Math.hypot(a.hi - p, q - b.lo)),
+      }, reason: null,
+    };
   }
 
   report(ledger: EventLedger = getEventLedger()): ArmReport[] {

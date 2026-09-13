@@ -1,5 +1,73 @@
 # Bimax gap register
 
+## Silent failure update — 2026-09-12
+
+**Implemented, locally verified within record 45's stated boundaries:** retrieval fallback and
+incomplete indexing now emit proactive capability notices; tool/MCP errors remain errors through
+rendering; explicit document requests have bounded activation checks; directory writes obey the
+workspace floor. Desktop persists notices across clear/reload and CLI print mode uses stderr.
+See `../45_CAPABILITY_FAILURE_VISIBILITY_RECORD.md` for raw fault runs, caught mutations, discarded
+fixture attempts and remaining Targets. Broad “every capability is healthy,” live-provider quality,
+and release qualification are not established.
+
+
+## Speed and efficiency planning update — 2026-09-08
+
+Second-pass correction: `../33_REFACTOR_RECHECK_AND_RESEARCH.md` confirms existing persisted
+OutcomeContract, adaptive dependency scheduling, SQLite EventLedger, pipeline/subagent journals
+and test-dependency attribution. The Target is integration and stronger durability/resource/cache
+contracts, not their first implementation. Nine focused suites passed (91 tests); temporary-file
+reproduction confirmed empty-file deletion and later-human-edit overwrite on rollback.
+
+**Delivery update, 2026-09-08:** stages 1, 0, 2 and the transport, batching and live-tail subscription slices of stage 3 are
+**Implemented and locally verified** — see `../34_FAST_CODE_AND_COWORK_IMPLEMENTATION_RECORD.md`. Stage 1, the transaction correctness floor,
+fixes both reproduced rollback defects together with the read-error, failed-rollback,
+binary-content and file-mode cases (`evidence/2026-09-08-transaction-correctness/`). Stage 0 adds
+the F01 measurement primitives and the P01 paired runner, whose seven-case self-check and
+seven-mutant campaign both pass (`evidence/2026-09-08-p01-harness/`). Every other stage, the
+paper-informed E1–E5 experiments and all speed targets remain unmeasured Target. No fixture is
+frozen and no Bimax path has a baseline, so no latency improvement is claimed by any of them.
+Stage 2 replaces the Desktop git-refresh burst and its unfenced replies with one in-flight read, a
+dirty follow-up and a monotonic project generation; on a scripted burst-plus-switch sequence that is
+101 reads and one stale delivery before, 2 reads and none after — an operation count, not a timing
+(`evidence/2026-09-08-git-refresh-fencing/`). Stage 3a bounds the engine's outbound protocol pipe:
+on a stalled consumer, 4,144,980 retained bytes with no notice before, 263,124 within a declared
+ceiling with the withheld output announced and the approval request still admitted after — again a
+count, not a timing (`evidence/2026-09-08-transport-backpressure/`). Stage 3b coalesces adjacent
+streaming deltas into one reducer pass per frame: 2,034 passes for one turn before, 683/126/47 after
+at 200/1,000/3,000 events per second, with the resulting transcript state identical field for field
+(`evidence/2026-09-08-stream-batching/`).
+
+See `../32_FAST_CODE_AND_COWORK_REFACTOR_PLAN.md` and `examples/P01_FAST_CODE_AND_COWORK.md`.
+This is a proposed delivery program, not a change in runtime capability or measured performance.
+
+| Gap identified from current source | Planned response | Status |
+|---|---|---|
+| Repeated recursive discovery despite incremental chunk updates | Shared project manifest, bounded invalidation and reconciliation | Target |
+| Desktop git refresh had no in-flight guard, so a change burst started one `git status` per event | **Closed 2026-09-08.** One read in flight, a dirty bit folding the burst into a single follow-up; 101 reads → 2 on the scripted sequence | Implemented, locally verified (record 34) |
+| A slow git reply for a closed project was applied to the newly opened one, and a closed watcher could still wake it | **Closed 2026-09-08.** Replies are stamped with the project and generation captured before the read; a monotonic fence drops retired ones; `watchProject`'s handle cancels its own debounce timer | Implemented, locally verified (record 34) |
+| Per-event broad renderer updates and stdio writes without drain handling | **Transport, batching and live-tail isolation implemented 2026-09-08** — the stdio pipe is a bounded ordered queue that honours backpressure and reserves capacity for lifecycle/approval traffic, and adjacent display deltas now coalesce into one reducer pass per frame with the transcript byte-identical. Stage 3c adds stable domain snapshots and isolates the live tail: a browser sample preserved selection and final output with zero further workspace renders during streaming. Remaining non-stream consumer migration and latency measurements stay Target | Partly Implemented, locally verified (record 34) |
+| Observer ledger tolerates write failure; durable work needs stronger effect admission | Versioned TaskContract, authoritative effect records and crash reconciliation | Target |
+| TransactionManager conflates absent/empty/read-error state and ignores later edits on rollback | **Closed 2026-09-08.** Explicit file/absent/unreadable before-state, declared-write verification so a later external edit is kept rather than overwritten, retained originals plus `/tx recover` after a failed restoration, per-path receipts, exact bytes and mode. 22 regressions, 6/6 defect cases failing pre-fix and passing post-fix, 5 mutants caught | Implemented, locally verified (record 34) |
+| Document ingestion/export pieces exist without the proposed complete editable-output lifecycle | Artifact registry, bounded extraction, deterministic analysis and independent export checks | Target integration |
+| Existing scheduling/context optimizations need workload-wide budgets and quality evidence | Extend current tool batches, capacity leases, stable context and provider deadlines | Target |
+| Turn timings describe the first model round only, and a streamed character count was reported as `tokens` | **Closed 2026-09-08.** Every provider round is now recorded individually; token totals come only from a provider usage report and read `unavailable` — never 0 — otherwise; `TurnPerf.tokens` is now `streamedChars` | Implemented, locally verified (record 34) |
+| No runner existed to compare a candidate against a baseline without rewarding fast wrong answers | **Closed 2026-09-08.** Independent end-state grading, valid-run denominators, quality-before-latency and cost-per-accepted gates, alternating order, predeclared hashed config, no outlier dropping. 7/7 self-check cases and 7/7 harness mutants | Implemented, locally verified (record 34) |
+| P01 has no frozen fixtures and no baseline distribution for any proposed budget | Freeze the six fixture families, then run the predeclared paired samples | Target |
+
+Existing bounded parallelism, transcript virtualization, corpus deduplication, lazy document writers
+and cooperative indexing are preserved foundations. W01/W02/W03 are proposed journeys in plan 32;
+P01 is an evaluation contract only. No new Measured, Product-ready or Win status is assigned.
+
+## Unified workspace direction — 2026-09-07
+
+Owner-directed general coding/work expansion is planned in
+`../31_UNIFIED_WORKSPACE_AND_COMPOSER_PLAN.md`. Composer task briefs, output preferences, local text
+drafts, attachment readiness/retry and review-held next messages are **Implemented** in source;
+U01 defines their local verification boundary. Persistent TaskContract, artifact registry,
+permission-aware organization graph, live blocks, investigations, workflows, shared workspaces and
+decision inbox remain **Target**. This does not revive any historical Computer Use row below.
+
 Current product decision (2026-09-02): Computer Use is deliberately removed from Terminal and
 Desktop. The active P0 is a code-only agentic IDE with project-scoped create/edit/shell/test/git/
 review workflows, no TCC prompts, no native CU payload, and no `mac_control` registration.
@@ -71,7 +139,7 @@ Status meanings:
 | Context/prompt cache discipline | Hermes/Codex | Content-addressed fragments, diff updates, cache metrics, safe compaction |
 | Semantic code search over the repo | Cursor (syntactic chunks + embeddings, Merkle sync); Cody (keyword ∥ embeddings, reranked); Claude Code / Codex (grep-class only, by design) | **Implemented; local regression journey verified 2026-08-17; not yet Measured**: symbol-shaped contextual chunks, local FTS5/BM25, optional int8 dense scan, RRF, optional reranking, graph expansion, project-scoped indexes, active-space migration, explicit dense abstention, and bounded incremental sync. First-launch/restart persistence, Bun statement iteration, refused-write manifest integrity, exact long-chunk identifiers, project switching, and model-space backfill are pinned by `R02_RETRIEVAL_TRUTH.md`. Local lexical indexing is default; remote source embeddings/reranking require explicit consent (`codeIndexRemoteEmbeddings` or `BIMAX_CODE_INDEX_REMOTE=1`). The 4,000-chunk RAM ledger and 28-query stand-in corpus are engineering fixtures only, not preserved live-provider or rival quality proof. **Target**: a passing immutable artifact from `scripts/live-retrieval-run.ts`, then a like-for-like rival head-to-head journey. |
 | Long-term memory recall in the turn | Claude/Codex session-memory patterns | **Implemented; offline fixture results are not yet Measured under this pack's preserved-run definition**: one store, chunk → BM25 ∥ dense → reciprocal rank fusion → cross-encoder rerank, with per-stage null degradation reported by `lastSearchMode()` and recall guards against stale-block injection. The labelled fake-transport corpus currently reports lexical 0.80 recall@3 / 0.767 MRR, hybrid 1.00 / 0.844, and reranked 0.93 / 0.933; these are regression figures, not live quality claims. Persona recall, AgentLoop auto-recall, and subagent workers share the configured hybrid store; tag scopes prevent duplicate injection; writes deduplicate only with corroborated signals; multiple coalesced recency updates survive reload; model and dimension changes invalidate stale spaces. `/retrieval` probes the live memory space and backfills missing vectors. The first Desktop context bridge now gives a CU turn the read-only `MemoryQueryTool` and `CodeSearchTool` beside its required app-owned `mac_control`, while the schema/prompt allow-list excludes shell, writes, coding mutation and third-party CU; the required-tool gate still prevents retrieval-only narration from completing an operation. **Target**: preserve an assertion-based provider run, exercise a live memory-informed CU journey, and broaden the quality corpus before upgrading to Measured. |
-| Programmatic bounded tool calls | Hermes/OpenAI model tooling | Sandboxed dispatcher with nested permission enforcement and compact results |
+| Programmatic bounded tool calls | Hermes/OpenAI model tooling | **Partly Implemented, 2026-09-10:** deferred read-only ToolWorkflowTool with dependency graphs, result bindings, nested guards, bounded previews and interruption draining ([record 41](../41_TOOL_WORKFLOW_RECORD.md)). Actual-byte/directory evidence, stale descendant invalidation and scoped selective refresh extend it in [record 42](../42_WORKFLOW_EVIDENCE_RECORD.md). Continuous watching, test/patch claim integration, arbitrary-code sandbox, durable resume, structured search outputs and live model-tier qualification remain Target |
 | ACP support | Zed/Hermes/OpenCode ecosystem | Bimax Terminal usable as external agent without copying engine into the host |
 | Always-allowed Mac apps | ChatGPT Computer Use documents a revocable always-allowed list | Named capability grants that survive a task, visible and revocable in Trust Center. Phase 5 deliberately shipped no UI for this because the capability does not exist |
 | Diagnostics export — **Implemented, locally Measured 2026-08-09** | Mature desktop products | Trust Center writes a user-chosen local allowlisted JSON with build/signature/hash/permission and bounded crash metadata; paths, source/file contents, transcripts, secrets/env, raw logs and crash tails are omitted. Fresh packaged UI journey remains Target |
@@ -132,3 +200,45 @@ passes `06_HEAD_TO_HEAD_EVALS.md`:
 
 This is not a judgment that they are fake. It separates implementation history from current
 product evidence after a major architecture split.
+
+## Historical learning-loop census — 2026-09-09
+
+**Partial / Implemented and locally verified**, not a closed learning loop. Record
+[`35_LEARNING_LOOP_MEASUREMENT_RECORD.md`](../35_LEARNING_LOOP_MEASUREMENT_RECORD.md) preserves
+the actual 59,454-span census: 16,303 observational trace episodes, zero attributable correctness
+outcomes, all 388 claims expired unverified, zero policy assignments and no measurable holdout
+effect or calibration improvement. These are not replayable episodes and are not admitted to the
+existing tuner/replay engines. Scope-aware mining, idempotent disk-backed storage and a guarded
+holdout interval API exist; joint live policy/episode identity, verifier provenance, production
+traffic, causal baseline isolation and behavioral benefit remain **Target**. No Product-ready or
+Win status is assigned. The epistemic red-evidence command-path fallback was removed to match its
+stated no-file/no-settlement rule. See the preserved tests, mutants, raw corpus hashes and limits.
+
+## Live epistemic sensor — 2026-09-09
+
+**Implemented and locally verified, bounded:** [record 36](../36_LIVE_LEARNING_HANDOFF.md) now
+supersedes the prior zero-resolution observation for fresh controlled data. The normal AgentLoop
+observer emits canonical mutation scope and completed command outcomes, persists the epistemic
+transition and records linked ledger events. Source and bundled real-tool proofs each resolve one
+claim while refusing red output naming no file. Strict attribution: 1/1 claims, 1/10 spans per run;
+74 focused tests and three live-path mutants. The mined archive remains unused. Background
+completions, representative/live-model quality and policy effects remain Target; no Product-ready
+or Win claim. See preserved data and explicit limits in record 36.
+
+## Background epistemic completion — 2026-09-09
+
+**Implemented and locally verified:** [record 37](../37_BACKGROUND_LEARNING_RECORD.md) connects
+AgentLoop background Bash completion to captured claim IDs and exact diagnostic scope. Named failure
+resolves one claim; launch, no-file failure, cancellation and changed-file probes resolve none.
+Five reopened SQLite proofs, 81 focused tests and two real-path mutants are preserved. Atomic
+snapshot replacement and the known AgentLoop lint error are also addressed. Detached background
+spans do not bypass the strict tree attributor. Green positive scope, retry/restart identity,
+concurrent/power-loss durability and policy-effect measurement remain Target.
+
+### Desktop visual iteration — 2026-09-10
+
+**Implemented:** task/project welcome atmosphere, action-card motion, compact split-pane treatment,
+and a composer Send/Stop column. Typecheck/build and 26 composer tests pass; local browser input
+and installed-app launch/files checks are recorded in `../44_DESKTOP_VISUAL_REFRESH_RECORD.md`.
+**Target / unmeasured:** visual usability study, rendering/energy budgets, full U01 and live-model
+release journeys. No competitive Win or Product-ready status is inferred from this visual refresh.

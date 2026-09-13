@@ -48,6 +48,13 @@ export const COLOR = {
   accentWash: 'EAF0F6',
 } as const;
 
+/**
+ * Series colours. The accent leads, then hues chosen to stay distinguishable in greyscale print
+ * and for the common red-green colour deficiencies — a chart that only works in colour is a chart
+ * half the readers cannot read.
+ */
+export const CHART = ['1F4E79', 'C1663A', '4E7A52', '7A5C8E', '8A7B2F', '3E7C8C'] as const;
+
 /** A serif for long prose, a grotesque for slides and data. Both ship with Office and macOS. */
 export const FONT = {
   prose: 'Georgia',
@@ -57,6 +64,9 @@ export const FONT = {
 
 /** Points. 1in margins on a document; slides get their own generous gutter. */
 export const PAGE = {
+  /** US Letter, in points — the size both writers already assumed implicitly. */
+  width: 612,
+  height: 792,
   marginTop: 72,
   marginBottom: 72,
   marginLeft: 72,
@@ -77,6 +87,30 @@ export interface TableBlock {
   caption?: string;
 }
 
+export interface ImageBlock {
+  kind: 'image';
+  /** Project-relative path to a PNG or JPEG already on disk. Never a URL or base64. */
+  path: string;
+  caption?: string;
+  /** Fraction of the content width, 0.1–1. The aspect ratio is always preserved. */
+  width?: number;
+}
+
+/**
+ * Data, not pixels. The writer draws it — natively in PowerPoint (where the reader can click the
+ * chart and see the numbers) and as vector graphics in PDF. Both stay crisp at any zoom, which a
+ * rendered PNG would not, and neither needs a charting dependency compiled into the engine.
+ */
+export interface ChartBlock {
+  kind: 'chart';
+  chart: 'bar' | 'line' | 'pie';
+  /** Category labels — one per value in every series. */
+  labels: string[];
+  /** One entry per series; `values` must line up with `labels`. Pie charts use the first series. */
+  series: { name: string; values: number[] }[];
+  caption?: string;
+}
+
 export type Block =
   | { kind: 'heading'; level: 1 | 2 | 3; text: string }
   | { kind: 'paragraph'; text: string }
@@ -86,6 +120,8 @@ export type Block =
   | { kind: 'quote'; text: string; attribution?: string }
   | { kind: 'code'; text: string; language?: string }
   | TableBlock
+  | ImageBlock
+  | ChartBlock
   | { kind: 'divider' }
   | { kind: 'pagebreak' };
 
@@ -97,6 +133,10 @@ export interface Slide {
   table?: { columns: string[]; rows: string[][] };
   /** A single large statement instead of bullets — for section dividers and headline numbers. */
   statement?: string;
+  /** A picture as the slide's body. Mutually exclusive with the other body kinds. */
+  image?: { path: string; caption?: string };
+  /** A native, editable PowerPoint chart as the slide's body. */
+  chart?: Omit<ChartBlock, 'kind'>;
 }
 
 export interface Sheet {
@@ -127,6 +167,32 @@ export function resolveDate(spec: DocumentSpec): string {
 }
 
 /** Every writer validates the same way, so a bad spec fails identically in all four formats. */
+/** Shape checks only. Existence, format and size are the loader's job at build time. */
+function imageProblem(b: { path?: unknown; width?: unknown }): string | null {
+  if (typeof b.path !== 'string' || !b.path.trim()) return 'path is required';
+  if (b.width !== undefined && (typeof b.width !== 'number' || !(b.width > 0) || b.width > 1)) {
+    return 'width must be a number in (0, 1] — a fraction of the content width';
+  }
+  return null;
+}
+
+function chartProblem(c: { chart?: unknown; labels?: unknown; series?: unknown }): string | null {
+  if (c.chart !== 'bar' && c.chart !== 'line' && c.chart !== 'pie') return 'chart must be bar, line or pie';
+  if (!Array.isArray(c.labels) || c.labels.length === 0) return 'labels must be a non-empty array';
+  if (!Array.isArray(c.series) || c.series.length === 0) return 'series must be a non-empty array';
+  for (const [i, ser] of c.series.entries()) {
+    if (!ser || typeof ser.name !== 'string' || !ser.name) return `series[${i}].name is required`;
+    if (!Array.isArray(ser.values)) return `series[${i}].values must be an array`;
+    if (ser.values.length !== c.labels.length) {
+      return `series[${i}].values has ${ser.values.length} values but there are ${c.labels.length} labels`;
+    }
+    const bad = (ser.values as unknown[]).findIndex(v => typeof v !== 'number' || !Number.isFinite(v));
+    // A NaN reaches the file as a blank bar with no error, which reads as a real zero.
+    if (bad >= 0) return `series[${i}].values[${bad}] is not a finite number`;
+  }
+  return null;
+}
+
 export function validateSpec(spec: DocumentSpec, need: 'blocks' | 'slides' | 'sheets'): string | null {
   if (!spec || typeof spec !== 'object') return 'spec must be an object';
   if (!spec.title || typeof spec.title !== 'string') return 'spec.title is required';
@@ -138,6 +204,28 @@ export function validateSpec(spec: DocumentSpec, need: 'blocks' | 'slides' | 'sh
       if (b.kind === 'table') {
         const bad = b.rows.findIndex(r => r.length !== b.columns.length);
         if (bad >= 0) return `blocks[${i}].rows[${bad}] has ${b.rows[bad].length} cells but there are ${b.columns.length} columns`;
+      }
+      if (b.kind === 'image') {
+        const bad = imageProblem(b);
+        if (bad) return `blocks[${i}].${bad}`;
+      }
+      if (b.kind === 'chart') {
+        const bad = chartProblem(b);
+        if (bad) return `blocks[${i}].${bad}`;
+      }
+    }
+  }
+  if (need === 'slides') {
+    for (const [i, sl] of (spec.slides ?? []).entries()) {
+      const bodies = ['statement', 'table', 'bullets', 'image', 'chart'].filter(k => (sl as unknown as Record<string, unknown>)[k]);
+      if (bodies.length > 1) return `slides[${i}] has ${bodies.join(' + ')}; a slide carries one body`;
+      if (sl.image) {
+        const bad = imageProblem(sl.image);
+        if (bad) return `slides[${i}].image.${bad}`;
+      }
+      if (sl.chart) {
+        const bad = chartProblem(sl.chart);
+        if (bad) return `slides[${i}].chart.${bad}`;
       }
     }
   }

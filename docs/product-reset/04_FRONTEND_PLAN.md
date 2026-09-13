@@ -1,5 +1,14 @@
 # Frontend plan
 
+## Current composer and planned workspace expansion — 2026-09-07
+
+See `31_UNIFIED_WORKSPACE_AND_COMPOSER_PLAN.md` for the owner's general coding/work direction.
+The composer now has visible output preferences, an optional constraints/completion brief,
+expandable text, project-local text recovery, review-held follow-ups, caret-aware references and
+attachment readiness/retry. Preferences use the current engine and do not enable new permissions.
+The existing visual tokens and task/inspector hierarchy remain the reference. Historical Control
+Mac sections below remain retired.
+
 > **Superseded scope, 2026-09-02:** both frontends are code-only agentic IDE surfaces. The Control
 > Mac lane, Trust Center permission journey, Live Target, takeover controls, and native Mac action
 > receipts below are historical evidence and must not be exposed or shipped. See
@@ -161,3 +170,12 @@ Sources:
 - [Apple HIG: Designing for macOS](https://developer.apple.com/design/human-interface-guidelines/designing-for-macos/)
 - [Apple HIG: Sidebars](https://developer.apple.com/design/human-interface-guidelines/sidebars)
 - [Apple HIG: Toolbars](https://developer.apple.com/design/human-interface-guidelines/toolbars)
+
+## Installed Desktop visual iteration — 2026-09-10
+
+Record `44_DESKTOP_VISUAL_REFRESH_RECORD.md` documents the owner's request for stronger visuals
+and smooth motion: a finite silver orbital welcome scene, clearer starter actions, layered composer
+surfaces and a reserved Send/Stop column. Compact layouts shorten the introduction before hiding
+actions below the scroll boundary. Decorative welcome entrances may settle over up to 1.8 seconds;
+control feedback stays 160–220ms, and Reduce Motion removes geometric entrances. This is local
+implementation evidence, not a rendering-performance or public-release claim.

@@ -70,7 +70,7 @@ export const MOTION = {
   /** A surface with no honest seed (⌘K). It does not fly; it arrives. */
   materialize: { spring: { stiffness: 460, ratio: 0.95 }, reveal: { start: 0.25, end: 0.65 } },
   /** Every close. */
-  dismiss: { spring: { stiffness: 560, ratio: 1.0 }, reveal: { start: 0, end: 0.30 } },
+  dismiss: { spring: { stiffness: 700, ratio: 1.0 }, reveal: { start: 0, end: 0.30 } },
 
   /**
    * Reduce Motion. Not "no motion" — Prompt 2 §32 asks for the continuity to survive.

@@ -23,9 +23,11 @@ const CORE_TOOLS = new Set<string>([
   // docs, errors). Deferring it behind ToolSearch made the model flail — call ToolSearch, then guess
   // at a fetch with no URL — instead of just searching. Keep them in the working set (like Claude Code).
   'WebSearchTool', 'WebFetchTool',
-  // BrowserTool is the native convergence/verification instrument. Keeping its schema available
-  // avoids a ToolSearch detour when a task explicitly asks the agent to inspect a real UI.
-  'BrowserTool',
+  // BrowserTool was removed here when src/browser/ was deleted in the 2026-09-02 code-only reset.
+  // It was inert rather than harmful — every read of this set is intersected with `this.tools`, so
+  // a name with no registered tool behind it can never reach the model — but leaving it here said
+  // the working set contained something it did not, and the desktop Settings pane was still
+  // describing the tool to users on the strength of it.
   // SkillTool is itself the progressive-disclosure entry point (the prompt's AVAILABLE SKILLS
   // section tells the model to call it), so it must always be loaded — never deferred.
   'SkillTool',
@@ -35,7 +37,7 @@ const CORE_TOOLS = new Set<string>([
   // WriteFileTool and wrote 543 bytes of markdown into a file named `.docx`, which Word cannot
   // open. That is the exact failure DocumentTool was built to remove, and a tool the model never
   // sees removes nothing.
-  'DocumentTool',
+  'DocumentTool', 'ThreadMessageTool',
   // ReadDocumentTool is the input half of DocumentTool and is deferred for the same reason it
   // must not be: a model that cannot see a PDF reader reaches for ReadFileTool instead, which
   // returns binary noise and then gets summarised as if it were the document.

@@ -110,6 +110,8 @@ export class SqliteCodeVectorStore {
     }
   }
 
+  available(): boolean { return this.db !== null; }
+
   private loadTagMap(): void {
     this.tagsById.clear();
     if (!this.db) return;

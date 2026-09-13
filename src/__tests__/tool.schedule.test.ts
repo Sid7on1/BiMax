@@ -30,6 +30,31 @@ describe('planToolBatches — model order is the execution order', () => {
 });
 
 describe('runWithConcurrencyLimit', () => {
+  it('drains siblings and stops replenishment before rejecting a failed dispatch', async () => {
+    let release!: () => void;
+    const gate = new Promise<void>(r => { release = r; });
+    const started: number[] = [];
+    let drained = false;
+    let rejected = false;
+    const run = runWithConcurrencyLimit([0, 1, 2], 2, async i => {
+      started.push(i);
+      if (i === 0) throw new Error('dispatch failed');
+      await gate;
+      drained = true;
+      return i;
+    }).catch(e => { rejected = true; expect(drained).toBe(true); throw e; });
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(rejected).toBe(false);
+    release();
+    await expect(run).rejects.toThrow('dispatch failed');
+    expect(started).toEqual([0, 1]);
+  });
+
+  it.each([NaN, Infinity, -1, 0, 1.9])('normalizes invalid/fractional pool limits: %s', async limit => {
+    expect(await runWithConcurrencyLimit([1, 2, 3], limit, async i => i * 2)).toEqual([2, 4, 6]);
+  });
+
   it('returns results in INPUT order regardless of completion order', async () => {
     const delays = [30, 0, 15];
     const out = await runWithConcurrencyLimit(delays, 3, async ms => {

@@ -1,3 +1,4 @@
+import { reportCapability } from '../core/capability.status';
 /**
  * The semantic code index — retrieval over the repository's own source.
  *
@@ -155,7 +156,16 @@ export class CodeIndex {
   private readonly sliceBudgetMs: number;
   private readonly manifestPath: string;
   private manifest: Manifest | null = null;
-  private syncing = false;
+  private syncFlight: Promise<{ indexed: number; removed: number; pending: number }> | null = null;
+  private pendingFiles: number | null = null;
+  private reportIndex(reason: string, ready = false): void {
+    reportCapability({ id: `code-index:${this.root}`, label: 'Code index', state: ready ? 'ready' : 'degraded',
+      reason, impact: ready ? 'Index coverage is current.' : 'Search results are incomplete; absence from results does not prove absence from the project.',
+      action: ready ? '' : 'Use file search for exact tokens. Further searches retry indexing.' });
+  }
+  coverage(): { syncing: boolean; pending: number | null } {
+    return { syncing: this.syncFlight !== null, pending: this.pendingFiles };
+  }
 
   constructor(embeddings: EmbeddingBackend | null, reranker: RemoteReranker | null = null, options: CodeIndexOptions = {}) {
     this.root = path.resolve(options.root ?? process.cwd());
@@ -191,9 +201,14 @@ export class CodeIndex {
   oversized = 0;
 
   async sync(budgetFiles: number = 200): Promise<{ indexed: number; removed: number; pending: number }> {
-    if (this.syncing) return { indexed: 0, removed: 0, pending: 0 }; // one flight at a time
-    this.syncing = true;
+    if (this.syncFlight) return this.syncFlight;
+    this.syncFlight = this.performSync(budgetFiles).finally(() => { this.syncFlight = null; });
+    return this.syncFlight;
+  }
+
+  private async performSync(budgetFiles: number): Promise<{ indexed: number; removed: number; pending: number }> {
     try {
+      if (!this.store.available()) throw new Error('Code index storage unavailable');
       await this.loadManifest();
       const files = await this.walkSources();
 
@@ -205,6 +220,8 @@ export class CodeIndex {
       // the manifest was non-empty and the cap was skipped.
       if (MAX_INDEXABLE_FILES > 0 && files.length > MAX_INDEXABLE_FILES) {
         this.oversized = files.length;
+        this.pendingFiles = files.length;
+        this.reportIndex(`Indexing was skipped: ${files.length} files exceed the configured limit.`);
         Logger.warn(
           `[CodeIndex] SKIPPED — ${files.length} indexable source files exceeds the ${MAX_INDEXABLE_FILES} `
           + `limit. Indexing this repo would hold the event loop past the supervisor's liveness `
@@ -231,6 +248,8 @@ export class CodeIndex {
         const prev = this.manifest![f.rel];
         return !prev || prev.m !== f.mtimeMs || prev.s !== f.size;
       });
+      this.pendingFiles = changed.length;
+      if (changed.length) this.reportIndex(`Indexing ${changed.length} changed or new files.`);
       const batch = changed.slice(0, Math.max(0, budgetFiles));
       let indexed = 0;
 
@@ -310,12 +329,19 @@ export class CodeIndex {
       }
 
       const pending = changed.length - indexed;
+      this.pendingFiles = pending;
+      const pendingVectors = this.store.stats().denseConfigured ? this.store.stats().pending : 0;
+      this.reportIndex(pending || pendingVectors
+        ? `${pending} files and ${pendingVectors} embedding chunks remain pending.`
+        : 'Index synchronization completed.', pending === 0 && pendingVectors === 0);
       if (indexed || removed || pending) {
         Logger.info(`[CodeIndex] ${indexed} file(s) indexed, ${removed} removed, ${pending} pending.`);
       }
       return { indexed, removed, pending };
-    } finally {
-      this.syncing = false;
+    } catch (error) {
+      this.pendingFiles = null;
+      this.reportIndex('Index synchronization failed; coverage could not be established.');
+      throw error;
     }
   }
 
@@ -363,8 +389,11 @@ export class CodeIndex {
     try {
       await fs.mkdir(path.dirname(this.manifestPath), { recursive: true });
       await fs.writeFile(this.manifestPath, JSON.stringify(this.manifest), 'utf-8');
+      reportCapability({ id: 'index-manifest', label: 'Index persistence', state: 'ready', reason: 'The manifest was saved.', impact: '', action: '' });
     } catch {
-      // Manifest loss costs a re-index, never correctness.
+      reportCapability({ id: 'index-manifest', label: 'Index persistence', state: 'degraded',
+        reason: 'The index manifest could not be saved.', impact: 'The next session may need to rebuild the index.',
+        action: 'Check free disk space and project permissions.' });
     }
   }
 
@@ -387,7 +416,7 @@ export class CodeIndex {
       try {
         entries = await fs.readdir(dir, { withFileTypes: true });
       } catch {
-        return;
+        throw new Error('Code index could not enumerate a source directory');
       }
       for (const entry of entries) {
         await yieldIfDue();

@@ -17,6 +17,8 @@ import os from 'node:os';
 export interface AppSettings {
   lastProject?: string;
   recentProjects?: string[];
+  /** Where the ⌘2 bar was last dragged to (its top-left, in screen coordinates). */
+  quickBar?: { x: number; y: number };
 }
 
 const MAX_RECENTS = 8;

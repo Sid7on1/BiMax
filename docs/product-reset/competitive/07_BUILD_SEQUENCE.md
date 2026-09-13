@@ -1,5 +1,60 @@
 # Competitive build sequence
 
+## Proposed refactor sequence — 2026-09-08
+
+Recheck amendment: record 33 requires extending the existing outcome contract, adaptive scheduler,
+SQLite event ledger and test-dependency map. The numbered rows in plan 32 are stages, not one PR
+each. Split transport/UI, schema/storage/recovery, validation/exporters and comparison/connectors.
+Keep rollback correctness first; evaluate experimental agent/compression policies only after the
+matched-budget, coverage-aware gates in P01 are implemented.
+
+`../32_FAST_CODE_AND_COWORK_REFACTOR_PLAN.md` supplies the technical dependency order for the
+record-31 expansion. Begin with per-stage measurements and transaction correctness, then git
+refresh isolation, stream responsiveness, lazy boot and incremental file discovery. Continue with
+AgentLoop extraction, durable task/effect state, context/provider deadlines, shared resource
+budgets and one verified Markdown/CSV cowork journey. Dependency-aware outputs, office-format
+qualification, alternative implementations, one connector and rehearsable recipes follow.
+
+Delivery status, 2026-09-08: **stages 1 and 0 are Implemented and locally verified**
+(`../34_FAST_CODE_AND_COWORK_IMPLEMENTATION_RECORD.md`). Stage 1, the transaction correctness floor,
+landed first because it depends on no baseline. Stage 0 now supplies the F01 measurement primitives
+and the P01 paired runner that gate every later performance claim — a candidate cannot be reported
+as faster without an independent end-state grade, a valid-run denominator and its charged cost.
+No fixture is frozen and nothing has been measured, so the plan's budgets stay Target.
+
+**Stage 2** — git single-flight and project-generation fencing — is also Implemented and locally
+verified: the Desktop refresh keeps one read in flight, folds a burst into a single follow-up, and
+drops any reply stamped with a project or generation the user has left. Counted before/after on a
+scripted sequence, not timed. Stage 3 — bounded streaming, backpressure, cancellation and narrower
+UI subscriptions — is split into three slices, with local evidence for each.
+
+**Stage 3a** (transport) is Implemented and locally verified: the outbound protocol pipe is a
+bounded, strictly ordered queue that honours backpressure, reserves capacity above a bulk
+high-water mark so lifecycle and approval traffic still gets through, announces withheld output on
+the wire, and discards a cancelled turn's queued display output only when the pipe is congested.
+Ordering is absolute by design — nothing overtakes bytes already queued on the same pipe.
+
+**Stage 3b** (stream batching) is also Implemented and locally verified: adjacent same-kind
+streaming deltas coalesce into one reducer pass per frame, with a maximum-latency timer for a hidden
+window and a flush before every boundary, and the resulting transcript state is identical field for
+field. **Stage 3c** now publishes stable domain snapshots and isolates the live transcript tail;
+a real-component browser fixture preserves selection and final output without text-only workspace
+rerenders. Non-stream facade migration remains Target. Stage 4 (profile-guided lazy boot and
+capability lifecycle) is next in the main sequence.
+
+Every other package remains **Target**; the current composer changes are preserved. Use P01 together
+with C01/C02/C03/C04/C05, R01/R02/U01 and the active code-only package/protocol gates. This proposes
+delivery dependencies, not a calendar or permission to activate retired CU workstreams.
+
+## Owner-directed expansion order — 2026-09-07
+
+The current program is `../31_UNIFIED_WORKSPACE_AND_COMPOSER_PLAN.md`: composer/task reliability →
+durable briefs and code/document/table outputs → connected context and decisions → live outputs,
+investigation and internal tools → rehearsable workflows and decision inbox → shared organization
+workspaces and scenarios. Each phase names dependencies and exact exit evidence. The composer is
+the first implemented slice; the rest remain Target. Code-only runtime/package gates stay in force,
+and Terminal remains the coding product. The old CU workstreams below are historical.
+
 > **Superseded 2026-09-02:** prioritize the code-only agentic IDE. Computer Use workstreams are
 > retired; the active order is coding-tool reliability, Desktop IDE ergonomics, protocol/recovery,
 > provider reliability, and code-only packaging proof. See

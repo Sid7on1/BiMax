@@ -5,6 +5,8 @@ import { minimatch } from 'minimatch';
 import { IGovernor } from '../../core/interfaces';
 import { buildTool } from '../tool.factory';
 import { walkFiles } from '../../utils/fsWalk';
+import { outcomeError } from '../outcome';
+import { WorkflowEvidence } from '../../core/workflow.evidence';
 
 /**
  * Human-readable label for where a search actually ran, relative to cwd. Surfacing this in the
@@ -46,6 +48,7 @@ export const createGrepTool = (governor: IGovernor) => buildTool({
 - **outputMode**: \`content\` returns matching lines with line numbers (default), \`files\` returns just the file paths that contain a match, \`count\` returns the number of matches per file.
 - High-traffic directories (node_modules, .git, dist, build, coverage) are skipped automatically.`,
   isDestructive: false,
+  workflowReadOnly: true,
   isConcurrencySafe: true,
   schema: {
     type: 'object',
@@ -61,6 +64,9 @@ export const createGrepTool = (governor: IGovernor) => buildTool({
     required: ['pattern'],
   },
   execute: async (args: GrepArgs, context?: any) => {
+    const evidence: WorkflowEvidence | undefined = context?.workflowEvidence;
+    const signal: AbortSignal | undefined = context?.signal;
+    signal?.throwIfAborted();
     const cwd = context?.cwd || process.cwd();
     const root = resolvePath(args.path || '.', cwd);
     const outputMode = args.outputMode || 'content';
@@ -71,18 +77,21 @@ export const createGrepTool = (governor: IGovernor) => buildTool({
     try {
       regex = new RegExp(args.pattern, args.caseInsensitive ? 'i' : undefined);
     } catch (e: any) {
-      return `Error: invalid regular expression: ${e.message}`;
+      return outcomeError('invalid_args', `Error: invalid regular expression: ${e.message}`);
     }
 
     // Build the candidate file list (a single file path is allowed too).
     const rootStat = await fs.stat(root).catch(() => null);
-    if (!rootStat) return `Error: path not found: ${args.path || '.'}`;
+    if (!rootStat) return outcomeError('not_found', `Error: path not found: ${args.path || '.'}`);
 
     const files: string[] = [];
     if (rootStat.isFile()) {
       files.push(root);
     } else {
-      for await (const f of walkFiles(root)) {
+      for await (const f of walkFiles(root, {
+        signal, onDirectory: (p, entries) => evidence?.directory(p, entries),
+        onIncomplete: reason => evidence?.incomplete(reason),
+      })) {
         if (args.glob) {
           const rel = path.relative(root, f);
           if (!minimatch(rel, args.glob, { dot: true })) continue;
@@ -103,15 +112,18 @@ export const createGrepTool = (governor: IGovernor) => buildTool({
     const collectFusion = outputMode === 'content' && args.contextLines === undefined;
 
     outer: for (const file of files) {
+      signal?.throwIfAborted();
       const stat = await fs.stat(file).catch(() => null);
-      if (!stat || stat.size > MAX_FILE_BYTES) continue;
+      if (!stat || stat.size > MAX_FILE_BYTES) { evidence?.incomplete('Unreadable or oversized file skipped'); continue; }
       let text: string;
       try {
-        text = await fs.readFile(file, 'utf8');
+        text = evidence ? await evidence.readFile(file) : await fs.readFile(file, { encoding: 'utf8', signal });
       } catch {
+        signal?.throwIfAborted();
+        evidence?.incomplete('File could not be read');
         continue;
       }
-      if (looksBinary(text.slice(0, 1024))) continue;
+      if (looksBinary(text.slice(0, 1024))) { evidence?.incomplete('Binary file skipped'); continue; }
 
       const lines = text.split('\n');
       let fileMatches = 0;
@@ -135,7 +147,7 @@ export const createGrepTool = (governor: IGovernor) => buildTool({
             contentLines.push(`${rel}${marker}${j + 1}${marker}${lines[j]}`);
           }
           if (ctx > 0) contentLines.push('--');
-          if (contentLines.length >= maxResults) break outer;
+          if (contentLines.length >= maxResults) { evidence?.incomplete('Result limit reached'); break outer; }
         } else if (outputMode === 'files') {
           break; // one match is enough to include the file
         }
@@ -144,7 +156,7 @@ export const createGrepTool = (governor: IGovernor) => buildTool({
       if (fileMatches > 0) {
         if (outputMode === 'files') {
           matchedFiles.push(path.relative(cwd, file) || file);
-          if (matchedFiles.length >= maxResults) break;
+          if (matchedFiles.length >= maxResults) { evidence?.incomplete('Result limit reached'); break; }
         } else if (outputMode === 'count') {
           counts.push({ file: path.relative(cwd, file) || file, n: fileMatches });
         }
@@ -198,6 +210,7 @@ export const createGlobTool = (governor: IGovernor) => buildTool({
 - **pattern** is a glob such as \`**/*.ts\`, \`src/**/*.tsx\`, or \`**/index.*\`.
 - Results are relative to the search directory and exclude node_modules/.git/dist by default.`,
   isDestructive: false,
+  workflowReadOnly: true,
   isConcurrencySafe: true,
   schema: {
     type: 'object',
@@ -209,15 +222,23 @@ export const createGlobTool = (governor: IGovernor) => buildTool({
     required: ['pattern'],
   },
   execute: async (args: GlobArgs, context?: any) => {
+    const evidence: WorkflowEvidence | undefined = context?.workflowEvidence;
+    const signal: AbortSignal | undefined = context?.signal;
+    signal?.throwIfAborted();
     const cwd = context?.cwd || process.cwd();
     const root = resolvePath(args.path || '.', cwd);
     const maxResults = args.maxResults ?? 500;
 
     const matches: { file: string; mtime: number }[] = [];
-    for await (const f of walkFiles(root)) {
+    for await (const f of walkFiles(root, {
+      signal, onDirectory: (p, entries) => evidence?.directory(p, entries),
+      onIncomplete: reason => evidence?.incomplete(reason),
+    })) {
       const rel = path.relative(root, f);
       if (!minimatch(rel, args.pattern, { dot: true })) continue;
       const stat = await fs.stat(f).catch(() => null);
+      if (stat) evidence?.stat(f, stat);
+      else evidence?.incomplete('File metadata unavailable');
       matches.push({ file: path.relative(cwd, f) || f, mtime: stat ? stat.mtimeMs : 0 });
     }
 
@@ -225,6 +246,7 @@ export const createGlobTool = (governor: IGovernor) => buildTool({
     if (matches.length === 0) return `No files matched ${args.pattern} under ${where}.`;
     matches.sort((a, b) => b.mtime - a.mtime);
     const shown = matches.slice(0, maxResults);
+    if (shown.length < matches.length) evidence?.incomplete('Result limit reached');
     const suffix = matches.length > maxResults ? `\n...and ${matches.length - maxResults} more` : '';
     return `${matches.length} file(s) matched ${args.pattern} under ${where}:\n${shown.map(m => m.file).join('\n')}${suffix}`;
   },

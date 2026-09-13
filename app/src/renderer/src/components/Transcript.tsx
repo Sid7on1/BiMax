@@ -1,10 +1,13 @@
-import React, { useMemo, useRef, useState } from 'react';
+import { ThinkingIndicator } from './ThinkingIndicator';
+import React, { createContext, useContext, useMemo, useRef, useState } from 'react';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import {
   Loader, CircleCheck, CircleX, ChevronRight, ChevronDown, Pencil, SearchCode, ArrowDown,
   Copy, Check, Volume2, ThumbsUp, ThumbsDown,
 } from 'lucide-react';
-import { TranscriptItem } from '../useEngine';
+import { TranscriptItem } from '../engine.state';
+import { EngineStore } from '../engine.store';
+import { useEngineDomain } from '../useEngineDomain';
 import { MessageEntry, ToolCallEntry } from '../protocol';
 import { Markdown } from '../markdown';
 import { Dashboard } from './Dashboards';
@@ -115,7 +118,7 @@ function toolVerb(name: string): string {
 /** The one argument worth reading: a path, a command, or a query. */
 function toolSubject(call: ToolCallEntry): string {
   const raw = call.input || '';
-  let parsed: Record<string, unknown> | null = null;
+  let parsed: Record<string, unknown> | null;
   try {
     const value = JSON.parse(raw);
     parsed = value && typeof value === 'object' && !Array.isArray(value) ? value : null;
@@ -127,90 +130,73 @@ function toolSubject(call: ToolCallEntry): string {
   return fileOf(raw) || truncate(raw.replace(/[{}"]/g, ' ').trim(), 80);
 }
 
+const TranscriptEngine = createContext<EngineStore | null>(null);
+
+// Stable component identity: text updates must not remount the footer or virtualized rows.
+function StreamFooter(): React.ReactElement {
+  const store = useContext(TranscriptEngine);
+  if (!store) throw new Error('Transcript engine is missing');
+  const { streaming, thinking, busy } = useEngineDomain(store.domains.stream);
+  return (
+    <div className="px-4 pb-3">
+      {/* While a turn is in flight and no answer text has arrived: a rotating status word, the elapsed
+          time, and the tail of the reasoning as it streams. The reasoning used to be hidden outright
+          because a looping model rendered its token loop ("ellsellsells…") straight into the transcript;
+          ThinkingIndicator keeps the stream visible and hides it only once it has degenerated, which is
+          the case that motivated hiding it. */}
+      {busy && !streaming && <ThinkingIndicator thinking={thinking} />}
+      {streaming && (
+        <div className="reading-column mx-auto">
+          <Markdown text={streaming} />
+          <span className="animate-soft-blink text-ember">▋</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const transcriptComponents = {
+  Header: () => <div className="h-4" />,
+  Footer: StreamFooter,
+};
+
 export function Transcript({
-  items, streaming, thinking, busy, onMenuSelect,
+  items, store, onMenuSelect,
 }: {
   items: TranscriptItem[];
-  streaming: string;
-  thinking: string;
-  /** The run is in flight. Drives the one liveness cue left after the task strip was removed. */
-  busy: boolean;
+  store: EngineStore;
   onMenuSelect: (id: string, value: string) => void;
 }): React.ReactElement {
   const rows = useMemo(() => buildRows(items), [items]);
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const [atBottom, setAtBottom] = useState(true);
 
-  if (items.length === 0 && !streaming) {
-    return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-1.5 select-none">
-        <div className="bimax-wordmark text-[20px]">BiMAX</div>
-        <div className="text-dim">
-          Ask anything about this project — or type{' '}
-          <code className="font-mono text-ember">/</code> for commands.
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="relative min-h-0 flex-1">
-      <Virtuoso
-        ref={virtuosoRef}
-        data={rows}
-        computeItemKey={(_, row) => row.key}
-        followOutput={(isAtBottom) => (isAtBottom ? 'auto' : false)}
-        atBottomStateChange={setAtBottom}
-        atBottomThreshold={48}
-        initialTopMostItemIndex={Math.max(rows.length - 1, 0)}
-        className="h-full overscroll-contain"
-        itemContent={(_, row) => <RowView row={row} onMenuSelect={onMenuSelect} />}
-        components={{
-          Header: () => <div className="h-4" />,
-          Footer: () => (
-            <div className="px-4 pb-3">
-              {/* Liveness only — the reasoning TEXT is deliberately not shown.
-                  Streaming the raw reasoning channel here put the model's private scratchpad in
-                  the transcript, and a reasoning model that degenerates (a token loop such as
-                  "ellsellsells…") rendered that loop straight to the user as if it were output.
-                  The tail was never readable at 200 chars in one truncated line anyway. What the
-                  reader needs from this row is "it is alive and it is thinking", which is exactly
-                  what it now says; the full reasoning is still captured on the message. */}
-              {thinking && (
-                <div className="reading-column mx-auto mb-3.5 truncate text-xs text-faint italic">
-                  <span className="mr-1.5 inline-block size-1.5 animate-soft-blink rounded-full bg-ember" />
-                  Thinking…
-                </div>
-              )}
-              {/* The only liveness cue left now that the task strip is gone. It sits in the flow of
-                  the conversation rather than in a bar above it, and it says nothing but that the
-                  run is alive — which is exactly the thing a silent two-minute wait cannot say. */}
-              {busy && !streaming && !thinking && (
-                <div className="reading-column mx-auto mb-3.5 flex items-center gap-2 text-xs text-faint">
-                  <span className="inline-block size-1.5 animate-soft-blink rounded-full bg-ember" />
-                  Working…
-                </div>
-              )}
-              {streaming && (
-                <div className="reading-column mx-auto">
-                  <Markdown text={streaming} />
-                  <span className="animate-soft-blink text-ember">▋</span>
-                </div>
-              )}
-            </div>
-          ),
-        }}
-      />
-      {!atBottom && (
-        <button
-          onClick={() => virtuosoRef.current?.scrollToIndex({ index: 'LAST', behavior: 'smooth' })}
-          className="absolute bottom-3 left-1/2 flex -translate-x-1/2 cursor-pointer items-center gap-1.5 rounded-full border border-line bg-raise px-3 py-1 text-xs text-dim shadow-lg hover:text-ink"
-        >
-          <ArrowDown size={12} />
-          Jump to latest
-        </button>
-      )}
-    </div>
+    <TranscriptEngine.Provider value={store}>
+      <div className="relative min-h-0 flex-1">
+        <Virtuoso
+          ref={virtuosoRef}
+          data={rows}
+          computeItemKey={(_, row) => row.key}
+          followOutput={(isAtBottom) => (isAtBottom ? 'auto' : false)}
+          atBottomStateChange={setAtBottom}
+          atBottomThreshold={48}
+          initialTopMostItemIndex={Math.max(rows.length - 1, 0)}
+          className="h-full overscroll-contain"
+          itemContent={(_, row) => <RowView row={row} onMenuSelect={onMenuSelect} />}
+          components={transcriptComponents}
+        />
+        {!atBottom && (
+          <button
+            onClick={() => virtuosoRef.current?.scrollToIndex({ index: 'LAST', behavior: 'smooth' })}
+            className="absolute bottom-3 left-1/2 flex -translate-x-1/2 cursor-pointer items-center gap-1.5 rounded-full border border-line bg-raise px-3 py-1 text-xs text-dim shadow-lg hover:text-ink"
+          >
+            <ArrowDown size={12} />
+            Jump to latest
+          </button>
+        )}
+      </div>
+    </TranscriptEngine.Provider>
   );
 }
 
@@ -405,7 +391,10 @@ function ActivityGroup({ kindOf, calls }: { kindOf: 'edit' | 'explore'; calls: T
   const failed = calls.some((c) => c.status === 'error');
   const nested = !!calls[0].parentId;
 
-  const label = kindOf === 'edit'
+  const label = failed
+    ? `${calls.filter(c => c.status === 'error').length} failed attempt${calls.filter(c => c.status === 'error').length === 1 ? '' : 's'} · ${calls.filter(c => c.status === 'success').length} succeeded`
+    : running ? `${calls.length} operation${calls.length === 1 ? '' : 's'} in progress`
+    : kindOf === 'edit'
     ? `Edited ${files.size || calls.length} file${(files.size || calls.length) === 1 ? '' : 's'} · ${calls.length} edit${calls.length === 1 ? '' : 's'}`
     : `Explored ${files.size || calls.length} ${files.size ? 'file' : 'location'}${(files.size || calls.length) === 1 ? '' : 's'}`;
 
@@ -510,7 +499,7 @@ function ToolCard({ call, inGroup }: { call: ToolCallEntry; inGroup?: boolean })
       >
         <span className="shrink-0">{icon}</span>
         <span className="flex min-w-0 flex-1 items-baseline gap-1.5">
-          <span className="shrink-0 text-dim">{toolVerb(call.toolName)}</span>
+          <span className="shrink-0 text-dim">{call.status === 'error' ? `${call.toolName.replace(/Tool$/, '')} failed` : call.status === 'running' ? call.toolName.replace(/Tool$/, '') : toolVerb(call.toolName)}</span>
           {subject ? <span className="min-w-0 truncate font-mono text-[11px] text-ink/85">{subject}</span> : null}
         </span>
         {call.agentLabel ? (

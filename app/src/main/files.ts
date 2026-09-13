@@ -103,20 +103,51 @@ export async function readSessionMeta(root: string): Promise<SessionMetaRecord[]
   }
 }
 
-export function watchProject(root: string, onChange: () => void): FSWatcher | null {
+/**
+ * A closed project watcher must be silent. `FSWatcher.close()` alone is not: it stops future events
+ * but cannot cancel the 400 ms debounce timer already scheduled, and it cannot un-queue a callback
+ * the event loop has already dispatched. Either one fires after a project switch and wakes the NEW
+ * project's refresh with the OLD project's change — which is exactly the staleness the renderer's
+ * generation fence then has to clean up. Close it properly here instead.
+ */
+export interface ProjectWatch {
+  close(): void;
+  /** True once `close()` has run. */
+  readonly closed: boolean;
+  /**
+   * True while a debounced change is still pending. Exposed because "the callback stays quiet" and
+   * "the timer is actually cancelled" are different guarantees: silencing the callback alone leaves
+   * a timer holding the event loop open for its full window after the project is gone.
+   */
+  readonly pendingChange: boolean;
+}
+
+export function watchProject(root: string, onChange: () => void): ProjectWatch | null {
   let timer: ReturnType<typeof setTimeout> | null = null;
+  let closed = false;
+  let watcher: FSWatcher;
   try {
-    const watcher = watch(root, { recursive: true }, (_event, filename) => {
+    watcher = watch(root, { recursive: true }, (_event, filename) => {
+      if (closed) return; // already dispatched when close() ran
       const name = String(filename ?? '');
       if (name.split(path.sep).some((seg) => IGNORE.has(seg))) return;
       if (timer) clearTimeout(timer);
-      timer = setTimeout(onChange, 400);
+      timer = setTimeout(() => { timer = null; if (!closed) onChange(); }, 400);
     });
     watcher.on('error', () => { /* project deleted mid-session — polling still covers git */ });
-    return watcher;
   } catch {
     return null; // recursive watch unavailable — renderer's poll interval still refreshes
   }
+  return {
+    get closed() { return closed; },
+    get pendingChange() { return timer !== null; },
+    close() {
+      if (closed) return;
+      closed = true;
+      if (timer) { clearTimeout(timer); timer = null; }
+      try { watcher.close(); } catch { /* already gone */ }
+    },
+  };
 }
 
 /**

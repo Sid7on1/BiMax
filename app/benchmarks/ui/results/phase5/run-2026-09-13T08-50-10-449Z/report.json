@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0",
+  "phase": 5,
+  "run_id": "2026-09-13T08-50-10-449Z",
+  "started_at": "2026-09-13T08:50:10.456Z",
+  "ended_at": "2026-09-13T08:50:14.659Z",
+  "product": "bimax-desktop-renderer",
+  "grader": {
+    "version": "1.0",
+    "mutation_pass_ran": false,
+    "mutant_checks_passed": null
+  },
+  "window_sizes": [
+    {
+      "name": "minimum",
+      "width": 720,
+      "height": 480
+    },
+    {
+      "name": "default",
+      "width": 1180,
+      "height": 800
+    },
+    {
+      "name": "large",
+      "width": 1680,
+      "height": 1050
+    }
+  ],
+  "journeys": [
+    {
+      "id": "J1",
+      "name": "Start a coding task",
+      "outcome": "pass",
+      "checks": [
+        {
+          "name": "the instruction reached the engine exactly once",
+          "pass": true,
+          "observed": "[\"Add retry with backoff to the fetch client\"]"
+        },
+        {
+          "name": "it reached it verbatim",
+          "pass": true,
+          "observed": "Add retry with backoff to the fetch client"
+        },
+        {
+          "name": "the user’s own turn is now in the transcript",
+          "pass": true,
+          "observed": "transcript"
+        },
+        {
+          "name": "no engine vocabulary leaked into the task surface",
+          "pass": true,
+          "observed": "plain language"
+        }
+      ],
+      "pageErrors": [],
+      "accessibilityFindings": [],
+      "error": null
+    }
+  ],
+  "mutations": [],
+  "screenshots": [],
+  "totals": {
+    "journeys": 1,
+    "passed": 1,
+    "failed": 0
+  }
+}

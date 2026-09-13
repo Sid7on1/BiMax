@@ -1,5 +1,103 @@
 # Bimax product reset
 
+## Capability failure visibility — 2026-09-12
+
+`45_CAPABILITY_FAILURE_VISIBILITY_RECORD.md` records proactive retrieval/tool/MCP/storage failures,
+a persistent Desktop warning, CLI stderr delivery, bounded recovery and controlled fault/mutation
+proof. Local implementation and measured boundaries are explicit; unused capabilities and model
+quality are not certified by an empty warning panel.
+
+
+## Desktop visual refresh — 2026-09-10
+
+`44_DESKTOP_VISUAL_REFRESH_RECORD.md` records the installed Mac app’s refreshed welcome screens,
+finite orbital animation, action cards and compact composer layout. Build/typecheck and 26 focused
+composer tests pass; installed launch and Files checks are local evidence, not release qualification.
+
+## Workflow input evidence — 2026-09-10
+
+`42_WORKFLOW_EVIDENCE_RECORD.md` extends the read-only workflow dispatcher with actual-byte and
+directory evidence, mid-run stale-dependency checks and session-scoped selective refresh. Incomplete
+searches are explicit and cannot be reused as current evidence. Locally verified with 224 tests
+and six caught behavioral mutants; continuous
+watching, durable replay, code/test claim integration and packaged/model qualification remain Target.
+
+## Read-only tool workflows — 2026-09-10
+
+`41_TOOL_WORKFLOW_RECORD.md` adds a deferred dependency-graph dispatcher for file reads and
+searches, with result bindings, nested permission checks, bounded results and cancellation draining.
+Implemented and locally verified: 195 tests and four caught behavioral mutants. Durable resume,
+structured search outputs, packaged/live-model qualification and performance claims remain Target.
+The record also lists seven concrete coding-infrastructure follow-ups.
+
+## Engine boot baseline — 2026-09-09
+
+`40_ENGINE_BOOT_BASELINE_RECORD.md` gives the engine its first latency baseline: **400ms warm
+spawn→ready, 1,588ms cold**, and a full-module trace showing **56% of it elapses before any Bimax
+source module runs**. No speedup is claimed. One change was kept and explicitly credited with zero
+(bun had already tree-shaken the dead imports the isolated probes blamed); one was measured and
+**reverted** — deferring `gpt-tokenizer` bought 100ms on `--version` but cost 15ms on spawn→ready,
+the path Desktop actually waits on. One real win landed: `build:engine` now minifies whitespace and
+syntax — 85MB→79MB, **spawn→ready 396→382ms**. Full `--minify` was rejected on measured evidence
+that it destroys the egress ledger's function-name attribution. F02 should be re-scoped against this baseline: as written it
+targets the 45ms of reported boot phases, not the 222ms that precedes them.
+
+## Policy holdout off — 2026-09-09
+
+`39_POLICY_HOLDOUT_OFF_RECORD.md`: the policy-arm holdout now defaults to 0, so Bimax stops hiding
+a mind block from its own prompt ~1 turn in 10. Measured first — this repo's event ledger holds 0
+scored episodes and no learner state file exists, so the exploration was being paid for and never
+spent. `/arms` now says the holdout is off instead of implying more data is coming. One environment
+variable (`BIMAX_POLICY_HOLDOUT=0.1`) reverses it; do that once episodes accrue and something reads
+the estimate. The reward being a tool-success proxy rather than verified claims remains Target.
+
+## Attested positive scope — 2026-09-09
+
+`38_ATTESTED_GREEN_SCOPE_RECORD.md` closes record 37's next step: a **passing** background run can
+now settle a claim, but only for files the runner's own coverage report proves it executed.
+Measured first — under piped capture `node --test` names only test names on success and jest only
+aggregate counts, while both name paths on failure — so green stdout cannot scope a claim and LCOV
+`SF:`/`LH:` records supply the scope instead. Six fresh real-tool scenarios, four mutants killed
+(two only after the proof was strengthened to reach the guard), 93 focused tests across nine
+suites. Bimax must never add coverage flags to the model's command to manufacture an attestation.
+File-level attestation does not prove the mutated *lines* ran; that remains the next tightening.
+
+## Proposed speed and efficiency program — 2026-09-08
+
+`32_FAST_CODE_AND_COWORK_REFACTOR_PLAN.md` turns the unified workspace direction into ten
+source-grounded refactor tracks and a dependency-ordered delivery sequence. It covers boot,
+streaming, incremental discovery, durable tasks, safe edits, scheduling, context and verified
+work outputs. Unimplemented tracks and all numerical budgets remain **Target**. The evaluation contract is
+`competitive/examples/P01_FAST_CODE_AND_COWORK.md`; no runtime speedup is claimed by the plan.
+The second-pass audit and major-lab paper references are in `33_REFACTOR_RECHECK_AND_RESEARCH.md`.
+It corrects the existing-foundation inventory, reports 91 focused passing tests and two reproduced
+rollback defects, and tightens budget/quality experiments.
+
+Delivery began on 2026-09-08 and is recorded in `34_FAST_CODE_AND_COWORK_IMPLEMENTATION_RECORD.md`.
+Stages 0–3 are **Implemented and locally verified** within the limits recorded for each slice. Stage 1, the transaction correctness floor,
+fixes both reproduced rollback defects along with read-error handling, failed-rollback retention,
+binary content and file mode. Stage 0 adds the measurement primitives and the P01 paired runner that
+every later performance claim has to pass through — including the gates that stop a fast wrong
+answer, a hidden abstention or an unavailable timing from being reported as a speedup. Stage 2 gives
+the Desktop git refresh one in-flight read, a coalescing dirty flag and a project-generation fence,
+so a burst no longer starts a read per event and a reply about a closed project can no longer be
+painted onto the open one. Stage 3's transport slice makes the engine's outbound protocol pipe a
+bounded, strictly ordered queue that honours backpressure and reserves capacity for approvals rather
+than pretending a later message can overtake queued bytes, and its batching slice coalesces adjacent
+streaming deltas into one reducer pass per frame while keeping the transcript byte-identical. Stage 3c isolates the live transcript tail with stable
+domain snapshots; text-only batches no longer rerender the workspace. The browser fixture preserves
+selection and final output; broader non-stream consumer migration remains Target. Every
+other stage, every frozen fixture and every numerical budget in the plan remains **Target** and
+unmeasured: no Bimax path has been benchmarked for latency.
+
+## Planned expansion — unified coding and work workspace (2026-09-07)
+
+The owner has directed Bimax Desktop toward a general workspace for individual and organization
+work, spanning coding, research, analysis, documents and connected workflows. The phased plan and
+first composer slice are in `31_UNIFIED_WORKSPACE_AND_COMPOSER_PLAN.md`. Organization services and
+broader workflows remain Target. The runtime boundary below remains enforced: this decision does
+not reactivate Computer Use or native permissions. Terminal remains the coding product.
+
 ## Current direction — code-only agentic IDE (2026-09-02)
 
 The owner has superseded the app-owned Computer Use plan. Bimax Terminal and Bimax Desktop now
@@ -128,6 +226,9 @@ engine artifact plus its protocol schema; the Mac app pins and bundles one verif
   measurements remain Research Target.
 - `30_CODE_ONLY_AGENTIC_IDE_RESET_RECORD.md` — the current owner decision, enforced code-only
   boundary, local verification, and remaining clean-machine/package release proof.
+- `34_FAST_CODE_AND_COWORK_IMPLEMENTATION_RECORD.md` — what the speed and efficiency program has
+  actually landed, stage by stage, with the exact verification, mutants and remaining Targets.
+  Stages 0–3 have local implementation evidence; numerical performance budgets remain Target.
 - `vision/` — the owner's complete Bimax Mac Buddy north-star vision, preserved verbatim and required
   reading for Mac app, adaptive-runtime, performance, environment-intelligence, CU, and Trust work.
 - `ownership-manifest.json` — machine-readable starting ownership for the extraction tooling.

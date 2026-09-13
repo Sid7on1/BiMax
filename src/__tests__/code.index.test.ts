@@ -180,9 +180,10 @@ describe('CodeIndex sync', () => {
     const before = seeded.stats().documents;
     expect(before).toBeGreaterThan(0);
 
-    // Re-open at a capacity that refuses every write, and change the file so it is a candidate.
+    // A one-byte disk ceiling refuses every write, even when the chunker combines both declarations
+    // into one replacement chunk. The former maxVectors-only fixture did not actually refuse.
     fs.writeFileSync(path.join(tmp, 'src', 'a.ts'), 'export const alpha = 2;\nexport const beta = 3;\n');
-    const refusing = new CodeIndex(null, null, { root: tmp, storePath, maxVectors: 1, sliceBudgetMs: 0 });
+    const refusing = new CodeIndex(null, null, { root: tmp, storePath, maxVectors: 1, maxIndexBytes: 1, sliceBudgetMs: 0 });
     const refused = await refusing.sync(100);
     expect(refused.indexed).toBe(0);
     expect(refused.pending).toBe(1);

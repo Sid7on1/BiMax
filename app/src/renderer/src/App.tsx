@@ -1,5 +1,8 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Group, Panel, Separator } from 'react-resizable-panels';
+import { CapabilityBanner } from './components/CapabilityBanner';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { Group, Panel, Separator, type GroupImperativeHandle } from 'react-resizable-panels';
+import { followCollapse, releaseCollapse, settleCollapse } from './pane.flight';
+import { prefersReducedMotion } from './components/ui/motion';
 import { useEngine } from './useEngine';
 import { useSupervisor } from './useSupervisor';
 import { useGit } from './useGit';
@@ -14,6 +17,7 @@ import { EngineStatusBanner } from './components/EngineStatusBanner';
 import { CommandPalette } from './components/CommandPalette';
 import { Transcript } from './components/Transcript';
 import { Composer } from './components/Composer';
+import { clearDraft } from './composer.model';
 import { RequestModal } from './components/RequestModal';
 import { SettingsDialog } from './components/SettingsDialog';
 import { WorkspaceSheet, type WorkspaceSheetTab } from './components/WorkspaceSheet';
@@ -44,7 +48,7 @@ import { usePhase9 } from './usePhase9';
 
 export function App(): React.ReactElement {
   const {
-    state, submit, interrupt, setControls, sendCommand, query, ingestAttachment, reply, menuSelect,
+    state, store, submit, interrupt, setControls, sendCommand, query, ingestAttachment, reply, menuSelect,
     clearCompletions, configGet, configSet, catalogGet,
   } = useEngine();
   const { status: supervisorStatus, act: supervisorAct } = useSupervisor();
@@ -76,6 +80,12 @@ export function App(): React.ReactElement {
   const [inspectorMounted, setInspectorMounted] = useState(false);
   useEffect(() => { if (sidebarPinned) setSidebarMounted(true); }, [sidebarPinned]);
   useEffect(() => { if (inspectorOpen) setInspectorMounted(true); }, [inspectorOpen]);
+  // A collapsing pane's width follows its shell, and the layout is handed back only once the pane has
+  // left it — so the conversation moves with the edge rather than after it. See pane.flight.ts.
+  const groupEl = useRef<HTMLDivElement | null>(null);
+  const groupRef = useRef<GroupImperativeHandle | null>(null);
+  useLayoutEffect(() => { if (!sidebarMounted) settleCollapse(groupEl.current, groupRef.current, 'sidebar'); }, [sidebarMounted]);
+  useLayoutEffect(() => { if (!inspectorMounted) settleCollapse(groupEl.current, groupRef.current, 'inspector'); }, [inspectorMounted]);
   const [requestedTab, setRequestedTab] = useState<InspectorTabId | null>(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -90,6 +100,7 @@ export function App(): React.ReactElement {
   const [activeFile, setActiveFile] = useState<string | null>(null);
   const [machineHealthOpen, setMachineHealthOpen] = useState(false);
   const [modelsOpen, setModelsOpen] = useState(false);
+  const [composerRevision, setComposerRevision] = useState(0);
 
   useEffect(() => {
     window.bimax.setAppearance(appearance);
@@ -112,13 +123,13 @@ export function App(): React.ReactElement {
   // in the repo" signal — no extra polling loop.
   const [remote, setRemote] = useState<{ isRepo: boolean; ahead: number; behind: number } | null>(null);
   useEffect(() => {
-    if (!hasProject) { setRemote(null); return; }
+    if (!hasProject) { setRemote(null); return undefined; }
     let live = true;
     // Optional-call on purpose: a renderer paired with an older preload (dev reload, partial
     // install) would otherwise throw inside an effect and white-screen the entire app over a
     // missing side-panel badge. The lane degrades to "not a repo" instead.
     const read = window.bimax.git?.remote?.();
-    if (!read) { setRemote(null); return; }
+    if (!read) { setRemote(null); return undefined; }
     void read
       .then((r: unknown) => { if (live) setRemote(r as { isRepo: boolean; ahead: number; behind: number } | null); })
       .catch(() => { if (live) setRemote(null); });
@@ -137,7 +148,7 @@ export function App(): React.ReactElement {
 
   // --- Shell actions --------------------------------------------------------------------------
 
-  const submitTask = useCallback((text: string) => submit(text), [submit]);
+  const submitTask = useCallback((text: string, engineText?: string) => submit(text, engineText), [submit]);
 
   const openInspector = useCallback((tab: InspectorTabId) => {
     setRequestedTab(tab);
@@ -166,25 +177,19 @@ export function App(): React.ReactElement {
 
   /** Start a fresh task. One definition, because the sidebar, the palette and ⌘N must agree. */
   const newTask = useCallback(() => {
-    // INTERRUPT FIRST. `/clear force` resets the conversation history, the taint tracker and the
-    // todo list — but it does not stop a turn that is already running (see `/clear` in
-    // cli/commands/meta.ts: it emits the `clear` event and returns; there is no abort). Starting a
-    // new task while the agent was working therefore left the OLD turn executing: its remaining
-    // tool calls kept running against the filesystem, and their results streamed into the new
-    // task's transcript. Reported live, with file deletions among the calls that kept going.
-    //
-    // The renderer's own guard against the stray events is `awaitingNewTurn` in engine.state.ts;
-    // this is the other half, and the more important one — that guard hides the events, this stops
-    // the work. Interrupting when nothing is running is a no-op, so it is unconditional.
-    interrupt();
-    sendCommand('/clear force');
+    // A new thread is a new engine in the same folder; the thread it replaces keeps running (see thread.manager.ts).
+    clearDraft(`${state.project}#${state.threadId ?? ''}`);
+    setComposerRevision(value => value + 1);
+    void window.bimax.threads.create();
     setView('chat');
-  }, [interrupt, sendCommand]);
+  }, [interrupt, sendCommand, state.project]);
 
   const resumeSession = useCallback((id: string) => {
+    clearDraft(`${state.project}#${state.threadId ?? ''}`);
+    setComposerRevision(value => value + 1);
     window.bimax.send({ t: 'resume', id });
     setView('chat');
-  }, []);
+  }, [state.project, state.threadId]);
 
   // New project → the open files and every evidence lane belonged to the old one.
   useEffect(() => {
@@ -193,7 +198,7 @@ export function App(): React.ReactElement {
     setRequestedTab(null);
     setInspectorOpen(false);
     setView('chat');
-  }, [state.project]);
+  }, [state.project, state.threadId]);
 
   /**
    * The inspector reveals itself the first time this task has evidence, and again whenever a lane
@@ -240,7 +245,7 @@ export function App(): React.ReactElement {
     return () => window.removeEventListener('keydown', handler);
   }, [openFiles.length, newTask]);
 
-  const showHome = view === 'chat' && state.items.length === 0 && !state.streaming && !state.thinking;
+  const showHome = view === 'chat' && state.items.length === 0 && !state.hasActiveStream;
   const showEditor = inspectorOpen && openFiles.length > 0 && activeFile !== null && requestedTab === null;
   const latestProblem = [...state.diagnostics].reverse().find((entry) => entry.level !== 'info');
 
@@ -309,7 +314,7 @@ export function App(): React.ReactElement {
             {sidebarNode}
           </div>
         )}
-        <Group orientation="horizontal" className="h-full">
+        <Group orientation="horizontal" className="h-full" elementRef={groupEl} groupRef={groupRef}>
           {hasProject && sidebarMounted && (
             <>
               <Panel id="sidebar" defaultSize="18%" minSize="190px" maxSize="30%">
@@ -319,6 +324,10 @@ export function App(): React.ReactElement {
                 <MorphRegion
                   open={sidebarPinned}
                   kind="sidebar"
+                  onFrame={(frame) => {
+                    if (frame.state === 'closing') followCollapse(groupEl.current, 'sidebar', frame.geometry.width, prefersReducedMotion());
+                    else if (frame.state === 'opening') releaseCollapse(groupEl.current, 'sidebar');
+                  }}
                   onCollapsed={() => setSidebarMounted(false)}
                 >
                   <div className="h-full" onMouseLeave={() => setSidebarPeek(false)}>
@@ -332,6 +341,7 @@ export function App(): React.ReactElement {
 
           <Panel id="task" minSize="34%">
             <div className="app-surface flex h-full flex-col">
+              <CapabilityBanner notices={Object.values(state.capabilities)} />
               {!hasProject ? (
                 <ProjectWelcome />
               ) : view === 'gallery' ? (
@@ -369,13 +379,13 @@ export function App(): React.ReactElement {
                   ) : (
                     <Transcript
                       items={state.items}
-                      streaming={state.streaming}
-                      thinking={state.thinking}
-                      busy={busy}
+                      store={store}
                       onMenuSelect={menuSelect}
                     />
                   )}
                   <Composer
+                    key={`${state.threadId}:${composerRevision}`}
+                    draftKey={`${state.project}#${state.threadId ?? ''}`}
                     busy={busy}
                     mode={state.mode}
                     tier={state.tier}
@@ -418,6 +428,10 @@ export function App(): React.ReactElement {
                   <MorphRegion
                     open={inspectorOpen}
                     kind="inspector"
+                    onFrame={(frame) => {
+                      if (frame.state === 'closing') followCollapse(groupEl.current, 'inspector', frame.geometry.width, prefersReducedMotion());
+                      else if (frame.state === 'opening') releaseCollapse(groupEl.current, 'inspector');
+                    }}
                     onCollapsed={() => setInspectorMounted(false)}
                   >
                     <Inspector
@@ -487,10 +501,18 @@ export function App(): React.ReactElement {
         catalogGet={catalogGet}
       />
 
+      {/*
+        `phase9`, not `trustReport={null}`. The dialog used to take a TrustReport and was always
+        handed null, so it fell through to hardcoded placeholder hardware on every open. The
+        TrustReport channel it was waiting for does not exist — `global.d.ts` declares
+        `trust.trustReport()` but no main-process handler was ever written for it, and the type
+        still describes the Computer Use components that were archived. `phase9` is the feed that
+        is genuinely live here, and this component already sits inside its 30-second refresh.
+      */}
       <MachineHealthDialog
         open={machineHealthOpen}
         onOpenChange={setMachineHealthOpen}
-        trustReport={null}
+        phase9={phase9}
       />
     </div>
   );

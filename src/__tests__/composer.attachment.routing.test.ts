@@ -42,6 +42,14 @@ const write = async (name: string, body: string | Buffer): Promise<string> => {
 };
 
 describe('attachments route by kind and size, not by hope', () => {
+  it('reads JSON-quoted paths containing spaces, punctuation and quotes exactly', async () => {
+    const file = await write('Team "launch" notes (final).md', 'APPROVED_SOURCE_42');
+    const result = await expandFileAtMentions(`summarize @${JSON.stringify(file)}`, workdir);
+    expect(result.text).toContain('APPROVED_SOURCE_42');
+    expect(result.injected).toContain(`@${file}`);
+    expect(result.text).not.toContain(`@${JSON.stringify(file)}`);
+  });
+
   it('still inlines a small text file — RAG must not tax the ordinary case', async () => {
     const file = await write('config.yaml', 'threshold_mm: 6.4\nunit: CDU');
     const result = await expandFileAtMentions(`look at @${file}`, workdir);

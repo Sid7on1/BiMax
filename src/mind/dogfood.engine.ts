@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as http from 'http';
 import { spawn, exec } from 'child_process';
 import { globalProjectMemory } from '../memory/project.memory';
 import { mindSingletonRoot } from './self.model';
@@ -135,83 +134,11 @@ export class DogfoodEngine {
     try { return JSON.parse(fs.readFileSync(path.join(this.projectRoot, 'package.json'), 'utf-8')); } catch { return null; }
   }
 
-  /** Site probe: load the built site in Puppeteer's managed browser, collect console errors. */
-  private async probeSite(): Promise<ProbeResult | null> {
-    const persona = 'visitor loading the landing page';
-    const distIndex = ['site/dist/index.html', 'dist/index.html', 'build/index.html']
-      .find(p => this.has(p));
-    if (!distIndex) return null;
-    let server: http.Server | null = null;
-    let browser: Awaited<ReturnType<(typeof import('puppeteer'))['launch']>> | null = null;
-    try {
-      const puppeteer = await import('puppeteer');
-      const siteRoot = path.dirname(path.join(this.projectRoot, distIndex));
-      server = http.createServer((req, res) => {
-        try {
-          const pathname = decodeURIComponent(new URL(req.url || '/', 'http://localhost').pathname);
-          const requested = pathname === '/' ? 'index.html' : pathname.replace(/^\/+/, '');
-          const file = path.resolve(siteRoot, requested);
-          if (file !== siteRoot && !file.startsWith(siteRoot + path.sep)) {
-            res.writeHead(403).end('Forbidden');
-            return;
-          }
-          const ext = path.extname(file).toLowerCase();
-          const mime: Record<string, string> = {
-            '.html': 'text/html; charset=utf-8', '.js': 'application/javascript; charset=utf-8',
-            '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8',
-            '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
-            '.webp': 'image/webp', '.woff': 'font/woff', '.woff2': 'font/woff2',
-          };
-          const body = fs.readFileSync(file);
-          res.writeHead(200, { 'Content-Type': mime[ext] || 'application/octet-stream' }).end(body);
-        } catch {
-          res.writeHead(404).end('Not found');
-        }
-      });
-      await new Promise<void>((resolve, reject) => {
-        server!.once('error', reject);
-        server!.listen(0, '127.0.0.1', resolve);
-      });
-      const address = server.address();
-      if (!address || typeof address === 'string') throw new Error('static preview server did not bind');
-
-      browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-gpu'],
-      });
-      {
-        const page = await browser.newPage();
-        const errors: string[] = [];
-        page.on('console', (m: any) => { if (m.type() === 'error') errors.push(m.text()); });
-        page.on('pageerror', (e: any) => errors.push(String(e?.message || e)));
-        await page.goto(`http://127.0.0.1:${address.port}/`, { waitUntil: 'networkidle0', timeout: 45_000 });
-        await new Promise(r => setTimeout(r, 2500)); // let animations/3D mount
-        fs.mkdirSync(this.outDir, { recursive: true });
-        const shot = path.join(this.outDir, `site-${Date.now()}.png`);
-        await page.screenshot({ path: shot as `${string}.png` });
-        const bodyText = await page.evaluate(() => document.body?.innerText?.length || 0);
-        const passed = errors.length === 0 && bodyText > 50;
-        return {
-          id: 'site-load', persona, ran: true, passed,
-          summary: passed ? `page loads clean (screenshot: ${path.relative(this.projectRoot, shot)})`
-            : errors.length ? `${errors.length} console error(s) on load` : 'page rendered no visible content',
-          evidence: errors.slice(0, 5).join('\n') || undefined,
-        };
-      }
-    } catch (e: any) {
-      return { id: 'site-load', persona, ran: false, summary: `browser unavailable: ${e?.message}` };
-    } finally {
-      if (browser) await browser.close().catch(() => undefined);
-      if (server) await new Promise<void>(resolve => server!.close(() => resolve()));
-    }
-  }
-
   /** Which probes apply here — used by /dogfood to explain itself before running. */
   applicableProbes(): string[] {
     const probes: string[] = [];
     if (this.has('build/bimax') || this.has('tui/bimax-tui')) probes.push('tui-smoke');
     if (this.has('build/bimax') || this.has('dist/index.js') || !!this.pkg()?.bin) probes.push('cli-help');
-    if (['site/dist/index.html', 'dist/index.html', 'build/index.html'].some(p => this.has(p))) probes.push('site-load');
     return probes;
   }
 
@@ -226,8 +153,6 @@ export class DogfoodEngine {
     }
     const cli = await this.probeCli();
     if (cli) { log('info', 'Dogfood: running --help as a new user…'); results.push(cli); }
-    const site = await this.probeSite();
-    if (site) { log('info', 'Dogfood: loading the site as a visitor…'); results.push(site); }
 
     // Failures become durable, structured bug reports the agent can pick up as work.
     const failures = results.filter(r => r.ran && r.passed === false);

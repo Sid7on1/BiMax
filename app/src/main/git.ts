@@ -22,6 +22,28 @@ export interface GitStatusResult {
   files: GitFile[];
 }
 
+/**
+ * A status reply that says which project session it describes. `git status` on a large repository
+ * is not instant, so a reply can outlive the project it was asked about; the renderer needs the
+ * stamp to tell "this is your repo" from "this was the repo you had open a moment ago".
+ */
+export type StampedGitStatus = GitStatusResult & { project: string; generation: number };
+
+/**
+ * Read status and stamp it with the project and generation as they were BEFORE the read started.
+ * Capturing them first is the whole point: a switch that happens during the read must not make the
+ * answer look like it describes the new project.
+ */
+export async function stampedGitStatus(
+  project: string,
+  generation: number,
+  read: (cwd: string) => Promise<GitStatusResult | null> = gitStatus,
+): Promise<StampedGitStatus | null> {
+  if (!project) return null;
+  const status = await read(project);
+  return status ? { ...status, project, generation } : null;
+}
+
 function run(cwd: string, args: string[]): Promise<string> {
   return new Promise((resolve, reject) => {
     execFile('git', args, { cwd, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 }, (err, stdout) => {

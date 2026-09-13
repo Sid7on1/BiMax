@@ -11,6 +11,9 @@ export const DEFAULT_IGNORE_DIRS = new Set<string>([
 ]);
 
 export interface WalkOptions {
+  signal?: AbortSignal;
+  onDirectory?: (path: string, entries: import('fs').Dirent[]) => void;
+  onIncomplete?: (reason: string) => void;
   /** Directory names to skip entirely. Defaults to DEFAULT_IGNORE_DIRS. */
   ignoreDirs?: Set<string>;
   /** Hard cap on the number of files yielded, to bound runaway walks. */
@@ -30,21 +33,25 @@ export async function* walkFiles(root: string, opts: WalkOptions = {}): AsyncGen
 
   const stack: string[] = [root];
   while (stack.length > 0) {
+    opts.signal?.throwIfAborted();
     const dir = stack.pop()!;
     let entries: import('fs').Dirent[];
     try {
       entries = await fs.readdir(dir, { withFileTypes: true });
+      opts.onDirectory?.(dir, entries);
     } catch {
+      opts.onIncomplete?.('Directory could not be read');
       continue; // unreadable directory — skip rather than abort the whole walk
     }
     for (const entry of entries) {
+      opts.signal?.throwIfAborted();
       const full = path.join(dir, entry.name);
       if (entry.isDirectory()) {
         if (ignore.has(entry.name)) continue;
         stack.push(full);
       } else if (entry.isFile()) {
         yield full;
-        if (++count >= maxFiles) return;
+        if (++count >= maxFiles) { opts.onIncomplete?.('File scan limit reached'); return; }
       }
     }
   }

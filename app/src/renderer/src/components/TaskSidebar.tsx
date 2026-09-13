@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ChevronRight, PenLine, Search, Users, Cpu, Settings2, HardDrive, FlaskConical,
 } from 'lucide-react';
+import { ThreadsList } from './ThreadsList';
 import { cn } from '../lib/cn';
 import { UiSnapshot } from '../protocol';
 import type { InspectorTabId } from '../inspector.model';
@@ -122,7 +123,7 @@ export function TaskSidebar({
           onClick={onOpenPalette}
           title="Search everything (⌘K)"
           aria-label="Search everything"
-          className="glass-row flex size-7 cursor-pointer items-center justify-center rounded-lg text-faint hover:text-ink focus-visible:outline-2 focus-visible:outline-ember"
+          className="glass-row flex size-7 cursor-pointer items-center justify-center rounded-lg text-dim hover:text-ink focus-visible:outline-2 focus-visible:outline-ember"
         >
           <Search size={15} />
         </button>
@@ -135,13 +136,14 @@ export function TaskSidebar({
           className="glass-pill flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] font-semibold text-ink focus-visible:outline-2 focus-visible:outline-ember"
         >
           <PenLine size={15} />
-          <span className="flex-1 text-left">New chat</span>
+          <span className="flex-1 text-left">New thread</span>
           <Keycap>⌘N</Keycap>
         </button>
       </div>
 
       {/* --- Everything else, grouped ------------------------------------------------------- */}
       <div className="quiet-scrollbar min-h-0 flex-1 space-y-0.5 overflow-y-auto px-3 py-2">
+        <ThreadsList />
         <Section id="recents" label="Recents" defaultOpen>
           {ordered.length === 0 ? (
             <p className="px-2.5 py-1.5 text-[12px] text-faint">Nothing yet</p>
@@ -252,7 +254,7 @@ function MachineFooter({
         aria-expanded={open}
         className="glass-row flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-[12.5px] text-dim hover:text-ink focus-visible:outline-2 focus-visible:outline-ember"
       >
-        <Settings2 size={15} className="shrink-0 text-faint" />
+        <Settings2 size={15} className="shrink-0 text-dim" />
         <span className="flex-1">Settings</span>
         <Keycap>⌘,</Keycap>
       </button>
@@ -267,7 +269,16 @@ function NavRow({ item }: { item: NavItem }): React.ReactElement {
       onClick={item.onSelect}
       className="glass-row flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-[12.5px] text-dim hover:text-ink focus-visible:outline-2 focus-visible:outline-ember"
     >
-      <span className="shrink-0 text-faint">{item.icon}</span>
+      {/* `dim`, not `faint`. Icons are NON-TEXT, so the floor they answer to is 3:1 (WCAG 1.4.11),
+          not 4.5:1 — and `faint` only just clears it: measured 4.54:1 in moonlight but 3.12:1 in
+          starlight against the solid surface, and the glass-contrast checker puts this same band at
+          ~2.1:1 in starlight over windowed glass. So in the light theme these icons were under the
+          floor whenever the sidebar was actually translucent.
+          This is also as far as "macOS 27 restores colour to sidebar icons" can sensibly be taken
+          here: the palette is achromatic on purpose — `--color-ember` and `--color-amber` are greys
+          — and the sidebar has no destination taxonomy for a hue to encode. Inventing per-item
+          colours would be decoration carrying no information. Undraining them is the real intent. */}
+      <span className="shrink-0 text-dim">{item.icon}</span>
       <span className="min-w-0 flex-1 truncate">{item.label}</span>
       {item.marked && (
         <span

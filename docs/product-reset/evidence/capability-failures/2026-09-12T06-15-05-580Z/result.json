@@ -1,0 +1,44 @@
+{
+  "schema": "bimax.capability-fault-proof.v1",
+  "startedAt": "2026-09-12T06:15:05.599Z",
+  "binarySha256": "304b9a696062babb7e544030c2b7cb6581bc24a040f8a29d48a9e9f83b533f0b",
+  "scriptSha256": "2db67d51526d3f1c005304db6b1c588feeea20b751257a4b889a331f495aecc7",
+  "runtime": {
+    "platform": "darwin",
+    "arch": "arm64",
+    "totalMemoryBytes": 8589934592
+  },
+  "provider": "controlled loopback HTTP fixture",
+  "model": "mock",
+  "cases": [
+    {
+      "name": "embedding-410",
+      "status": "pass",
+      "injectedHttpStatus": 410,
+      "embedCalls": 1,
+      "rerankCalls": 0,
+      "failureAt": 2243.215625,
+      "noticeAt": 2253.759583,
+      "detectionMs": 10.543958000000202,
+      "finalAt": 2287.352958,
+      "parsedFrames": 32,
+      "invalidFrames": 0
+    },
+    {
+      "name": "reranking-404",
+      "status": "fail",
+      "injectedHttpStatus": 404,
+      "embedCalls": 4,
+      "rerankCalls": 0,
+      "failureAt": null,
+      "noticeAt": null,
+      "detectionMs": null,
+      "finalAt": 625.519417,
+      "parsedFrames": 31,
+      "invalidFrames": 0
+    }
+  ],
+  "status": "fail",
+  "configUnchanged": true,
+  "finishedAt": "2026-09-12T06:15:08.681Z"
+}

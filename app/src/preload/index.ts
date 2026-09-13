@@ -6,8 +6,41 @@ import type { WindowChromeState } from '../shared/window.chrome';
  * protocol Inbound message, `onMessage` yields protocol Outbound messages (src/protocol/protocol.ts
  * in the engine repo; mirrored types live in renderer/src/protocol.ts).
  */
+let activeThreadId: string | null = null;
+ipcRenderer.on('threads:selected', (_event, value) => { activeThreadId = value.id; });
+function subscribe(channel: string, cb: (value: any) => void): () => void {
+  const listener = (_event: unknown, value: any) => cb(value);
+  ipcRenderer.on(channel, listener);
+  return () => ipcRenderer.removeListener(channel, listener);
+}
 const api = {
-  send: (msg: unknown): void => ipcRenderer.send('engine:send', msg),
+  threads: {
+    list: () => ipcRenderer.invoke('threads:list'),
+    onList: (cb: (value: any) => void) => subscribe('threads:list', cb),
+    onSelected: (cb: (value: any) => void) => subscribe('threads:selected', cb),
+    create: () => ipcRenderer.invoke('threads:new'),
+    select: (id: string) => ipcRenderer.invoke('threads:select', id),
+    start: (id: string) => ipcRenderer.invoke('threads:start', id),
+    stop: (id: string) => ipcRenderer.invoke('threads:stop', id),
+    link: (a: string, b: string, enabled: boolean) => ipcRenderer.invoke('threads:link', a, b, enabled),
+    context: () => ipcRenderer.invoke('threads:context'),
+    onContext: (cb: (value: any) => void) => subscribe('threads:context', cb),
+    pickFolder: () => ipcRenderer.invoke('threads:pick-folder'),
+    quickSubmit: (prompt: string) => ipcRenderer.invoke('threads:quick-submit', prompt),
+    hide: () => ipcRenderer.send('threads:hide'),
+    approvals: () => ipcRenderer.invoke('threads:approvals'),
+    onApprovals: (cb: (value: any) => void) => subscribe('threads:approvals', cb),
+    reply: (id: string, requestId: number, value: string, token: string) => ipcRenderer.invoke('threads:reply', id, requestId, value, token),
+    // The ⌘2 bar: its own thread, its own message stream, and its size.
+    quickCurrent: () => ipcRenderer.invoke('threads:quick-current'),
+    onQuickThread: (cb: (value: any) => void) => subscribe('threads:quick-thread', cb),
+    onQuickMsg: (cb: (value: any) => void) => subscribe('threads:quick-msg', cb),
+    quickReset: () => ipcRenderer.send('threads:quick-reset'),
+    quickInterrupt: () => ipcRenderer.send('threads:quick-interrupt'),
+    quickResize: (height: number) => ipcRenderer.send('threads:quick-resize', height),
+    quickOpen: () => ipcRenderer.send('threads:quick-open'),
+  },
+  send: (msg: unknown): void => ipcRenderer.send('engine:send', msg, activeThreadId),
   onMessage: (cb: (msg: unknown) => void): (() => void) => {
     const h = (_e: unknown, msg: unknown): void => cb(msg);
     ipcRenderer.on('engine:msg', h);
@@ -18,8 +51,8 @@ const api = {
     ipcRenderer.on('engine:state', h);
     return () => ipcRenderer.removeListener('engine:state', h);
   },
-  onProject: (cb: (dir: string) => void): (() => void) => {
-    const h = (_e: unknown, dir: string): void => cb(dir);
+  onProject: (cb: (dir: string, generation: number) => void): (() => void) => {
+    const h = (_e: unknown, dir: string, generation: number): void => cb(dir, generation);
     ipcRenderer.on('app:project', h);
     return () => ipcRenderer.removeListener('app:project', h);
   },
@@ -63,6 +96,16 @@ const api = {
   pathForFile: (file: File): string => {
     try { return webUtils.getPathForFile(file); } catch { return ''; }
   },
+  /**
+   * Write pasted clipboard content to a temporary file and return its path.
+   *
+   * Pasting is the other half of `pathForFile`: a file copied in Finder arrives with a real path,
+   * but a screenshot or a pasted log has none, so without this the composer can only accept
+   * context that already exists on disk. Main validates the name and the size; the renderer
+   * chooses neither the directory nor the eventual location.
+   */
+  stashPaste: (name: string, bytes: Uint8Array): Promise<string> =>
+    ipcRenderer.invoke('app:stash-paste', name, bytes),
   restartEngine: (): Promise<string> => ipcRenderer.invoke('engine:restart'),
   providers: {
     /** What this machine can run locally, and what is merely downloaded. */
@@ -111,8 +154,8 @@ const api = {
     search: (query: string): Promise<{ hits: { rel: string; name: string; dir: boolean }[]; truncated: boolean }> =>
       ipcRenderer.invoke('files:search', query),
     write: (rel: string, content: string): Promise<void> => ipcRenderer.invoke('files:write', rel, content),
-    onChanged: (cb: () => void): (() => void) => {
-      const h = (): void => cb();
+    onChanged: (cb: (generation: number) => void): (() => void) => {
+      const h = (_e: unknown, generation: number): void => cb(generation);
       ipcRenderer.on('files:changed', h);
       return () => ipcRenderer.removeListener('files:changed', h);
     },

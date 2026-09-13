@@ -25,7 +25,7 @@ import { Logger } from '../utils/logger';
  * JSONL directory (tests point it at a tmpdir).
  */
 
-export type AttrValue = string | number | boolean;
+export type AttrValue = string | number | boolean | string[];
 
 export interface SpanContext {
   traceId: string;
@@ -116,7 +116,8 @@ export function toOtlpJson(spans: EndedSpan[], serviceName = 'bimax'): object {
     Object.entries(attrs).map(([key, v]) => ({
       key,
       value:
-        typeof v === 'number'
+        Array.isArray(v) ? { arrayValue: { values: v.map(value => ({ stringValue: value })) } }
+        : typeof v === 'number'
           ? Number.isInteger(v) ? { intValue: String(v) } : { doubleValue: v }
           : typeof v === 'boolean' ? { boolValue: v } : { stringValue: String(v) },
     }));

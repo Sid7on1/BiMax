@@ -60,8 +60,9 @@ globalCommandRegistry.register({
   execute: async () => {
     const out: string[] = ['**Retrieval**', ''];
 
+    const settings = resolveMemorySettings();
     const keys = buildKeyPool();
-    if (!keys.length) {
+    if (!keys.length && !settings.embeddingBaseURL) {
       out.push(line('fail', 'Embeddings', 'no API key — search is BM25 only'));
       out.push('');
       out.push('Keyword search still works. Paraphrases (no shared words) will not be found.');
@@ -71,9 +72,10 @@ globalCommandRegistry.register({
     const manager = new ApiKeyManager(keys);
     // Same resolution path as the container (env → config → default), so what this probe tests is
     // what the session actually runs — not a second divergent configuration.
-    const settings = resolveMemorySettings();
     const backend = new RemoteEmbeddingBackend({
+      statusId: 'embedding-probe',
       resolve: async () => {
+        if (settings.embeddingBaseURL) return { apiKey: 'local', baseURL: settings.embeddingBaseURL };
         const key = await manager.getNextKey();
         if (!key.keyStr) return null;
         return { apiKey: key.keyStr, baseURL: key.baseURL || 'https://integrate.api.nvidia.com/v1' };
@@ -139,6 +141,7 @@ globalCommandRegistry.register({
     // reranker that cannot answer leaves the fused order in place, which is correct and invisible.
     out.push('');
     const reranker = new RemoteReranker({
+      statusId: 'reranking-probe',
       resolve: async () => {
         const key = await manager.getNextKey();
         if (!key.keyStr) return null;

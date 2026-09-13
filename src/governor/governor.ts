@@ -7,6 +7,9 @@ import { GlobalPrompter } from '../cli/prompter';
 import { YoloClassifier } from '../security/yolo.classifier';
 import { cliEvents } from '../cli/events';
 import { BashStaticAnalyzer } from './bash.analyzer';
+import * as fsp from 'fs/promises';
+import { isReadOnlyShellCommand } from '../tools/shell.readonly';
+import { enforceThreadScope } from '../tools/thread.scope';
 import { taintRestriction } from '../mind/taint';
 
 /**
@@ -106,6 +109,32 @@ export class Governor implements IGovernor {
   }
 
   public async approveTaskExecution(taskType: string, payload: any): Promise<void> {
+    // Folder-bound Bimax threads (BIMAX_THREAD_ROOT) cannot inherit bypass or persistent blanket grants.
+    // Creating a new file inside the thread's folder and proven read-only commands are routine; a
+    // replacement, a delete, a shell mutation or any other destructive action needs one fresh answer for
+    // that exact action, which the app shows in the thread's approval popup.
+    if (process.env.BIMAX_THREAD_ROOT && taskType !== 'API_CALL') {
+      await enforceThreadScope(payload, payload.context?.cwd || process.cwd());
+      // The workspace floor (forbidden paths, sensitive names and extensions) still applies inside the
+      // thread's own folder — thread engines run with WORKSPACE_ROOT set to that folder.
+      if ((taskType === 'FILE_WRITE' || taskType === 'FILE_DELETE') && typeof payload.targetPath === 'string') {
+        await this.fs.checkVeto(payload.targetPath);
+      }
+      if (this.mode === 'plan' && payload.isDestructive !== false) throw new GovernorVetoError('Plan mode: approve the plan before changing files.');
+      let routine = payload.isDestructive === false;
+      if (taskType === 'OS_COMMAND') routine = isReadOnlyShellCommand(payload.command);
+      if (taskType === 'FILE_WRITE' && typeof payload.targetPath === 'string') {
+        try { await fsp.lstat(payload.targetPath); routine = false; }
+        catch (error: any) { if (error.code === 'ENOENT') routine = true; else throw error; }
+      }
+      if (!routine) {
+        const detail = taskType === 'OS_COMMAND' ? String(payload.command || '') : `${payload.tool || taskType}: ${payload.targetPath || payload.path || 'external action'}`;
+        const answer = await GlobalPrompter.ask(`Allow this action in ${process.env.BIMAX_THREAD_ROOT}?\n${detail}`, ['Yes', 'No']);
+        if (answer !== 'Yes') throw new GovernorVetoError('Action declined. No permission was granted.');
+      }
+      return;
+    }
+
     // Hard floor for computer control: credential stores, OS security surfaces, and wallets are
     // denied outright — before bypass, before rules, before grants. A prompt-injected page or a
     // blanket "always allow" must never be able to steer clicks into a password manager.
@@ -116,6 +145,11 @@ export class Governor implements IGovernor {
           `Computer control is not allowed on sensitive targets (credential managers, system security settings, wallets): ${target}. Do it manually if it is genuinely needed.`
         );
       }
+    }
+
+    // Workspace containment is a hard floor, including persistent allow rules and bypass mode.
+    if (taskType === 'FILE_WRITE' || taskType === 'FILE_DELETE') {
+      await this.fs.checkVeto(payload.targetPath);
     }
 
     if (this.mode === 'bypass') {
@@ -182,9 +216,6 @@ export class Governor implements IGovernor {
     }
 
     try {
-      if (taskType === 'FILE_WRITE' || taskType === 'FILE_DELETE') {
-        await this.fs.checkVeto(payload.targetPath);
-      }
       
       if (taskType === 'API_CALL') {
         await this.budget.checkVeto(payload.estimatedCost);

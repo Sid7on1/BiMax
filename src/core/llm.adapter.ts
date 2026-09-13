@@ -16,7 +16,8 @@ import {
   ThinkTagFilter, stripThink, extractJson, chooseThinkStrategy, hasMeaningfulStreamPayload,
 } from './llm.stream';
 import type { ToolCallSlot } from './llm.stream';
-import { markProviderRequest, markFirstRawChunk } from '../telemetry/perf';
+import { markProviderRequest, markFirstRawChunk, recordProviderRound, attachRoundUsage } from '../telemetry/perf';
+import { providerUsage } from '../telemetry/measure';
 import { attributeSlowWait, SLOW_WAIT_THRESHOLD_MS } from '../telemetry/netprobe';
 import { CircuitBreaker, Outcome, BreakerOpen, RetryPolicy, serverConfig } from './circuit-breaker';
 import { assertEgressAllowed } from '../security/egress.guard';
@@ -1132,6 +1133,10 @@ export class LlmAdapter implements LLMProvider {
         if (!receivedFirstPayload && hasMeaningfulStreamPayload(chunk)) {
           markFirstRawChunk(); // perf: first meaningful provider payload, not an SSE preamble
           const waitedMs = Date.now() - requestStartMs;
+          // Per-round record. markFirstRawChunk above is first-wins for the turn, so on a tool-using
+          // turn it only ever describes round 1; this one lands for every round, which is what makes
+          // a slow later round attributable instead of averaged away.
+          recordProviderRound({ waitMs: waitedMs, model });
           // Latency feedback: teach the key picker which keys answer fast (NIM queues per-key).
           this.apiKeyManager.reportKeyLatency(kr.idx!, waitedMs);
           // Slow-but-successful first token: gather attribution evidence too, so /perf can say
@@ -1220,6 +1225,14 @@ export class LlmAdapter implements LLMProvider {
           const completionToks = Number(chunk.usage.completion_tokens) || 0;
           const cacheRead = chunk.usage.cache_read_input_tokens ?? 0;
           const cacheCreate = chunk.usage.cache_creation_input_tokens ?? 0;
+          // The provider told us; record it as provider-sourced usage. Rounds with no usage chunk
+          // stay `unavailable` rather than being back-filled from a character count.
+          attachRoundUsage(providerUsage({
+            inputTokens: promptToks,
+            outputTokens: completionToks,
+            cachedInputTokens: Number(cacheRead) || 0,
+            cacheCreationTokens: Number(cacheCreate) || 0,
+          }));
           globalTelemetry.recordUsage(promptToks, cacheRead, cacheCreate);
           yield { type: 'usage', prompt: promptToks, completion: completionToks };
           if (this.budgetVeto) {

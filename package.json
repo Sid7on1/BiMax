@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "tsx src/index.ts",
     "build": "tsc",
-    "build:engine": "bun build src/index.ts --compile --outfile .engine-local/bimax-engine && rm -f .*.bun-build",
+    "build:engine": "bun build src/index.ts --compile --minify-whitespace --minify-syntax --outfile .engine-local/bimax-engine && rm -f .*.bun-build",
     "postinstall": "node -e \"try{require('fs').existsSync(require('path').join(process.cwd(),'.breakglass','config.json'))||require('./scripts/postinstall')()}catch(e){}\"",
     "test": "jest --coverage",
     "test:ci": "jest --coverage=false",
@@ -58,7 +58,6 @@
     "pdfkit": "^0.20.2",
     "pg": "^8.23.0",
     "pptxgenjs": "^4.0.1",
-    "puppeteer": "^25.9.0",
     "tree-sitter-wasms": "^0.1.13",
     "vscode-jsonrpc": "^9.0.0",
     "web-tree-sitter": "^0.20.8",

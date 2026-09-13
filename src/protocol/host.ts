@@ -1,3 +1,4 @@
+import { capabilitySnapshot, capabilityMessage } from '../core/capability.status';
 import { EventEmitter } from 'events';
 import {
   Outbound, Inbound, ReplyMsg, MenuSelectMsg, CompletionItem, CatalogResultMsg,
@@ -138,6 +139,9 @@ export class ProtocolHost {
       features: [...PROTOCOL_FEATURES],
     });
     this.write({ t: 'ready', protocol: PROTOCOL_VERSION });
+    for (const status of capabilitySnapshot().filter(s => s.state !== 'ready')) {
+      this.write({ t: 'event', name: 'message', args: sanitizeArgs([capabilityMessage(status)]) });
+    }
   }
 
   /** Route one decoded inbound message. Unknown / stale messages are ignored, never thrown. */

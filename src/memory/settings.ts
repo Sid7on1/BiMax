@@ -16,14 +16,45 @@ export interface MemoryModelSettings {
   /** Matryoshka truncation; 0 means the built-in default. One of 384/512/768/1024/2048. */
   embeddingDimensions: number;
   rerankModel: string;
+  /**
+   * Where the EMBEDDINGS calls go, when that is not where the chat calls go.
+   *
+   * Retrieval used to be pinned to the chat provider's base URL, which made the two questions
+   * "who answers my prompts" and "who embeds my private corpus" the same question. They are not:
+   * a local embedder is the cheap half to bring in-house, and it is the half that sees every
+   * document. Empty means "follow the chat provider", which is the previous behaviour byte for
+   * byte.
+   *
+   * A loopback value also flips `embeddingDialectFor` to the OpenAI body automatically, so
+   * Ollama/vLLM/TEI work without the NVIDIA-only fields they reject with a terminal 400.
+   */
+  embeddingBaseURL: string;
 }
 
 /**
  * These are deployable defaults, not a quality claim. Provider availability and retrieval quality
  * must be revalidated with the evidence-producing live journey before a release is called Measured.
  */
-export const DEFAULT_EMBEDDING_MODEL = 'nvidia/llama-nemotron-embed-1b-v2';
-export const DEFAULT_EMBEDDING_DIMENSIONS = 768;
+/**
+ * Measured 2026-09-12 against the live provider, because the previous default had silently died:
+ * `nvidia/llama-nemotron-embed-1b-v2` answers **410 Gone** and is absent from the provider's
+ * 81-model catalogue entirely. Retrieval does not fail loudly when that happens — the backend
+ * latches `unavailable` and every search quietly degrades to BM25 alone, which measured
+ * recall@3 0.80 / MRR 0.767 on the labelled set against 1.00 / 0.844 with a live embedder.
+ *
+ * Of the seven embedding models the catalogue advertises, only this one actually serves (200 OK,
+ * 2048 dims); the other probed four answer 404. A default is a claim that it works, so it is now
+ * the one that was measured working rather than the one that was shipped first.
+ */
+export const DEFAULT_EMBEDDING_MODEL = 'nvidia/nemotron-3-embed-1b';
+export const DEFAULT_EMBEDDING_DIMENSIONS = 2048;
+/**
+ * Kept, but known-unavailable on at least one live account: every rerank model returns 404 with
+ * the SAME function id ("Function ... not found for account"), i.e. the reranking function is not
+ * provisioned rather than the model name being wrong. Reranking already degrades safely —
+ * `lastSearchMode().reranked` reports false and fusion's order stands — so this stays a default
+ * rather than a hard failure, and `BIMAX_RERANK_MODEL` retargets it.
+ */
 export const DEFAULT_RERANK_MODEL = 'nvidia/rerank-qa-mistral-4b';
 
 /** NVIDIA's rerankers serve from the retrieval host, not the chat/embeddings host. */
@@ -119,6 +150,7 @@ export interface SettingsConfigView {
   memoryEmbeddingModel?: string;
   memoryEmbeddingDimensions?: number;
   memoryRerankModel?: string;
+  memoryEmbeddingBaseURL?: string;
 }
 
 export function resolveMemorySettings(
@@ -140,6 +172,7 @@ export function resolveMemorySettings(
     // resolves to the default rather than disabling embeddings entirely.
     embeddingDimensions: ALLOWED_DIMENSIONS.has(dimsRaw) ? dimsRaw : DEFAULT_EMBEDDING_DIMENSIONS,
     rerankModel: fromEnv(env.BIMAX_RERANK_MODEL) || String(configView.memoryRerankModel || '').trim() || DEFAULT_RERANK_MODEL,
+    embeddingBaseURL: fromEnv(env.BIMAX_EMBED_BASE_URL) || String(configView.memoryEmbeddingBaseURL || '').trim() || '',
   };
 }
 

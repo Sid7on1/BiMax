@@ -149,7 +149,7 @@ export const createMultiEditTool = (governor: IGovernor) => buildTool({
 
     // Phase 3 — track (for /tx atomic rollback) and back up every file, then write them.
     for (const full of order) {
-      await globalTransactionManager.trackEdit(full);
+      await globalTransactionManager.trackEdit(full, working.get(full)!);
       await backupFile(full);
     }
     // If a write fails mid-batch, the files written before it are already changed. Restore each of

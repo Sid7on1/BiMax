@@ -27,11 +27,23 @@ export function renderPerf(s: PerfSnapshot): string {
     `  Greeting-lane overhead:     p95 ${ms(s.liteOverheadP95)}`,
   ];
   if (s.lastTurn) {
-    lines.push(`  Last turn:                  first token ${ms(s.lastTurn.firstTokenMs)} · total ${ms(s.lastTurn.totalMs)} · ${s.lastTurn.tokens} chars`);
+    lines.push(`  Last turn:                  first token ${ms(s.lastTurn.firstTokenMs)} · total ${ms(s.lastTurn.totalMs)} · ${s.lastTurn.streamedChars} streamed chars`);
   }
   if (s.lastBreakdown) {
     const b = s.lastBreakdown;
     lines.push(`  Last turn split:            ${b.lane} lane · overhead ${ms(b.overheadMs)} · provider ${ms(b.providerWaitMs)} · render ${ms(b.renderMs)}`);
+  }
+
+  if (s.providerRounds > 0) {
+    // Characters are characters and tokens are tokens: a count the provider never reported reads
+    // "unavailable", never 0, so an unmetered route can't look free.
+    const tok = (n: number | null) => (n === null ? 'unavailable' : String(n));
+    lines.push(
+      '',
+      `  Provider rounds:            ${s.providerRounds} · wait p50 ${ms(s.roundWaitP50)} · p95 ${ms(s.roundWaitP95)}`,
+      `  Provider-reported usage:    ${s.roundsWithUsage}/${s.providerRounds} round(s) · ` +
+      `in ${tok(s.providerInputTokens)} · out ${tok(s.providerOutputTokens)} · cached-in ${tok(s.providerCachedInputTokens)}`,
+    );
   }
 
   lines.push('', '  Performance budgets:');

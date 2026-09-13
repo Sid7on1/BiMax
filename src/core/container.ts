@@ -41,9 +41,8 @@ import { globalCodemem } from '../graph/codemem/backend';
 import { globalMcpManager } from '../mcp/manager';
 import { createMcpManageTool } from '../tools/implementations/mcp.tool';
 import { createToolSearchTool } from '../tools/implementations/toolsearch.tool';
+import { createToolWorkflowTool } from '../tools/implementations/workflow.tool';
 import { createWebSearchTool } from '../tools/implementations/websearch.tool';
-import { createBrowserTool } from '../tools/implementations/browser.tool';
-import { globalBrowserRuntime } from '../browser/browser.runtime';
 import { shutdownTracer } from '../telemetry/trace';
 import { createSkillTool } from '../tools/implementations/skill.tool';
 import { createSkillInstallTool } from '../tools/implementations/skill.install.tool';
@@ -68,6 +67,7 @@ import { createCodeSearchTool } from '../tools/implementations/code.search.tool'
 import { createSpawnSubagentTool } from '../tools/implementations/spawn.tool';
 import { createTasksTool } from '../tools/implementations/tasks.tool';
 import { createNotebookEditTool } from '../tools/implementations/notebook.tool';
+import { createThreadMessageTool } from '../tools/implementations/thread.message.tool';
 import { createDocumentTool } from '../tools/implementations/document.tool';
 import { createRegisterAgentTool } from '../tools/implementations/register.tool';
 import { createAskUserTool } from '../tools/implementations/ask_user.tool';
@@ -91,7 +91,7 @@ import { Governor } from '../governor/governor';
 import { CliConfig } from '../cli/config';
 import { buildKeyPool } from '../cli/provider';
 
-let browserShutdownWired = false;
+let shutdownWired = false;
 
 export async function createContainer(config?: Partial<CliConfig>): Promise<{
   governor: Governor;
@@ -222,6 +222,12 @@ export async function createContainer(config?: Partial<CliConfig>): Promise<{
   const memorySettings = resolveMemorySettings(cfg);
   const embeddings = new RemoteEmbeddingBackend({
     resolve: async () => {
+      // A configured embeddings endpoint outranks the chat provider AND does not need its key: a
+      // loopback Ollama/vLLM has no credential, and requiring one would have made "run the embedder
+      // locally" impossible for exactly the sovereign install that wants it most.
+      if (memorySettings.embeddingBaseURL) {
+        return { apiKey: 'local', baseURL: memorySettings.embeddingBaseURL };
+      }
       const key = await apiKeyManager.getNextKey();
       if (!key.keyStr) return null;
       return { apiKey: key.keyStr, baseURL: key.baseURL || 'https://integrate.api.nvidia.com/v1' };
@@ -368,6 +374,7 @@ export async function createContainer(config?: Partial<CliConfig>): Promise<{
   toolRegistry.register(createTasksTool(governor));
   toolRegistry.register(createNotebookEditTool(governor));
   toolRegistry.register(createDocumentTool(governor));
+  if (process.env.BIMAX_THREAD_ID) toolRegistry.register(createThreadMessageTool(governor));
   toolRegistry.register(createRegisterAgentTool(governor, toolRegistry));
   toolRegistry.register(createAskUserTool(governor, llmAdapter));
   toolRegistry.register(createGitTool(governor));
@@ -410,12 +417,11 @@ export async function createContainer(config?: Partial<CliConfig>): Promise<{
   toolRegistry.register(createModelManageTool(governor, llmAdapter));
   // Smart context mode: loader for deferred tool schemas (kept off the wire until needed).
   toolRegistry.register(createToolSearchTool(governor, toolRegistry));
+  toolRegistry.register(createToolWorkflowTool(governor, toolRegistry));
   toolRegistry.register(createWebSearchTool(governor));
-  toolRegistry.register(createBrowserTool(governor));
-  if (!browserShutdownWired) {
-    browserShutdownWired = true;
+  if (!shutdownWired) {
+    shutdownWired = true;
     cliEvents.once('shutdown', () => {
-      void globalBrowserRuntime.close();
       void shutdownTracer();
     });
   }

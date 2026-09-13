@@ -18,6 +18,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
 server.setRequestHandler(CallToolRequestSchema, async (req) => {
   const { name, arguments: args } = req.params;
   if (name === 'echo') {
+    if (args && args.text === '__error__') return { content: [{ type: 'text', text: 'fixture refused operation' }], isError: true };
     if (args && args.text === '__hang__') return new Promise(() => {});
     return { content: [{ type: 'text', text: 'echo: ' + (args && args.text != null ? args.text : '') }] };
   }

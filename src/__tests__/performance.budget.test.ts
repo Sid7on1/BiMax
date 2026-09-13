@@ -7,6 +7,8 @@ function snap(over?: Partial<PerfSnapshot>): PerfSnapshot {
     firstTokenP50: 0, firstTokenP95: 0, lastTurn: null,
     overheadP50: 0, overheadP95: 0, providerWaitP50: 0, providerWaitP95: 0,
     renderP95: 0, liteOverheadP95: 0, lastBreakdown: null,
+    providerRounds: 0, roundWaitP50: 0, roundWaitP95: 0, roundsWithUsage: 0,
+    providerInputTokens: null, providerOutputTokens: null, providerCachedInputTokens: null,
     ...over,
   };
 }

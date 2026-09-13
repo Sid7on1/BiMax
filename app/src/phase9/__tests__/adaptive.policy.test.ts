@@ -1,7 +1,7 @@
 import { AdaptiveRuntimePolicy, renderingPolicy, replayPolicy, type RuntimeSignals } from '../adaptive.policy';
 
 const base = (at: number, overrides: Partial<RuntimeSignals> = {}): RuntimeSignals => ({
-  observedAt: at, architecture: 'arm64', cpuCount: 8, availableMemoryMb: 12_000,
+  observedAt: at, architecture: 'arm64', cpuCount: 8, availableMemoryMb: 12_000, totalMemoryMb: 16_384,
   thermal: 'nominal', memoryPressure: 'normal', powerSource: 'ac', lowPowerMode: false,
   network: 'normal', activeInteraction: false, reduceMotion: false,
   simulatorReservationMb: 0, localModelReservationMb: 0, ...overrides,

@@ -10,6 +10,7 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
+import { TokenUsage, USAGE_UNAVAILABLE } from './measure';
 
 const processStart = Date.now();
 let readyAt = 0;
@@ -23,9 +24,29 @@ export function markReady(): void {
 }
 
 export interface TurnPerf {
-  firstTokenMs: number; // turn start → first streamed token (0 if the turn produced none)
-  totalMs: number;      // turn start → turn end
-  tokens: number;       // streamed characters this turn
+  firstTokenMs: number;   // turn start → first streamed token (0 if the turn produced none)
+  totalMs: number;        // turn start → turn end
+  /**
+   * Streamed CHARACTERS this turn. Named for what it is: this field used to be called `tokens`,
+   * which invited every reader and every readout to treat a character count as tokenizer-derived
+   * usage. Real token counts only ever come from a provider usage report — see `providerRounds`.
+   */
+  streamedChars: number;
+}
+
+/**
+ * One model round. The turn timeline's `providerReqMs`/`firstRawChunkMs` are first-wins by design —
+ * they answer "when did this turn start talking?" — so on a multi-round tool-using turn they
+ * describe the first round and nothing else. This ring records EVERY round, which is what F01 needs
+ * to attribute a slow turn to the round that was actually slow.
+ */
+export interface ProviderRound {
+  wallStart: number;
+  /** Provider request → first meaningful payload for THIS round. */
+  waitMs: number;
+  model?: string;
+  /** Provider-reported usage, or the unavailable sentinel. Never estimated from characters. */
+  usage: TokenUsage;
 }
 
 export type TurnLane = 'lite' | 'full';
@@ -60,7 +81,9 @@ export interface TurnBreakdown {
 
 const turns: TurnPerf[] = [];
 const timelines: TurnBreakdown[] = [];
+const rounds: ProviderRound[] = [];
 const MAX_TURNS = 100;
+const MAX_ROUNDS = 200;
 
 let current: TurnTimeline | null = null;
 let currentBase = 0; // monotonic base for the active turn
@@ -115,6 +138,30 @@ export function recordTurn(t: TurnPerf): void {
   if (turns.length > MAX_TURNS) turns.shift();
 }
 
+/** Record one completed model round. Called per round, unlike the first-wins turn marks. */
+export function recordProviderRound(r: { waitMs: number; model?: string; usage?: TokenUsage }): void {
+  rounds.push({
+    wallStart: Date.now(),
+    waitMs: Math.max(0, Math.round(r.waitMs)),
+    model: r.model,
+    usage: r.usage ?? USAGE_UNAVAILABLE,
+  });
+  if (rounds.length > MAX_ROUNDS) rounds.shift();
+}
+
+/** Attach provider-reported usage to the most recent round. No-op when no round is recorded yet. */
+export function attachRoundUsage(usage: TokenUsage): void {
+  if (rounds.length === 0) return;
+  rounds[rounds.length - 1].usage = usage;
+}
+
+/** Sum a usage field across rounds that actually reported it. Null when none did. */
+function sumUsage(field: 'inputTokens' | 'outputTokens' | 'cachedInputTokens'): number | null {
+  const reported = rounds.filter(r => r.usage.source === 'provider' && r.usage[field] !== null);
+  if (reported.length === 0) return null;
+  return reported.reduce((sum, r) => sum + (r.usage[field] as number), 0);
+}
+
 function percentile(sorted: number[], q: number): number {
   if (sorted.length === 0) return 0;
   return sorted[Math.min(sorted.length - 1, Math.floor(q * sorted.length))];
@@ -141,6 +188,15 @@ export interface PerfSnapshot {
   // Lite-lane (greeting) overhead — the gate that must hold p95 <= 250ms.
   liteOverheadP95: number;
   lastBreakdown: TurnBreakdown | null;
+  // Per-round provider accounting. Token totals are null — not zero — when no round carried a
+  // provider usage report, because "we were not told" and "it cost nothing" are different facts.
+  providerRounds: number;
+  roundWaitP50: number;
+  roundWaitP95: number;
+  roundsWithUsage: number;
+  providerInputTokens: number | null;
+  providerOutputTokens: number | null;
+  providerCachedInputTokens: number | null;
 }
 
 export function perfSnapshot(): PerfSnapshot {
@@ -166,8 +222,18 @@ export function perfSnapshot(): PerfSnapshot {
     renderP95: p(render, 0.95),
     liteOverheadP95: p(liteOverhead, 0.95),
     lastBreakdown: timelines.length ? timelines[timelines.length - 1] : null,
+    providerRounds: rounds.length,
+    roundWaitP50: p(rounds.map(r => r.waitMs), 0.5),
+    roundWaitP95: p(rounds.map(r => r.waitMs), 0.95),
+    roundsWithUsage: rounds.filter(r => r.usage.source === 'provider').length,
+    providerInputTokens: sumUsage('inputTokens'),
+    providerOutputTokens: sumUsage('outputTokens'),
+    providerCachedInputTokens: sumUsage('cachedInputTokens'),
   };
 }
+
+/** Every retained round, oldest first. */
+export function providerRounds(): ProviderRound[] { return rounds.slice(); }
 
 // --- Bounded, secret-free persistence so /perf still explains the previous turn after a restart. ---
 
@@ -211,6 +277,7 @@ export function loadPersistedTimelines(): void {
 export function __resetPerf(): void {
   turns.length = 0;
   timelines.length = 0;
+  rounds.length = 0;
   readyAt = 0;
   current = null;
 }

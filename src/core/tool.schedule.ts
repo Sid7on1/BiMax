@@ -67,6 +67,8 @@ export function planToolBatches<T>(calls: T[], isSafe: (call: T) => boolean): To
  * halts replenishment without abandoning the calls already running — those are drained, exactly as
  * dsh drains started dispatches on abort. Entries never started are left `undefined`, and the caller
  * answers them with an explicit stub so no tool call goes unanswered.
+ * A dispatch/stop-check rejection stops replenishment and is rethrown only after active siblings
+ * drain, so callers cannot advance to another turn while work from this pool remains live.
  */
 export async function runWithConcurrencyLimit<T, R>(
   items: T[],
@@ -75,18 +77,28 @@ export async function runWithConcurrencyLimit<T, R>(
   shouldStop?: () => boolean,
 ): Promise<Array<R | undefined>> {
   const results: Array<R | undefined> = new Array(items.length).fill(undefined);
-  const bound = Math.max(1, Math.min(limit, items.length));
+  const bound = Number.isFinite(limit) ? Math.max(1, Math.min(Math.floor(limit), items.length)) : 1;
   let next = 0;
+  let failed = false;
+  let failure: unknown;
 
   const worker = async (): Promise<void> => {
     for (;;) {
-      if (shouldStop?.()) return;
+      if (failed) return;
+      try { if (shouldStop?.()) return; }
+      catch (error) { failed = true; failure = error; return; }
       const index = next++;
       if (index >= items.length) return;
-      results[index] = await fn(items[index]);
+      try { results[index] = await fn(items[index]); }
+      catch (error) {
+        if (!failed) failure = error;
+        failed = true;
+        return;
+      }
     }
   };
 
   await Promise.all(Array.from({ length: bound }, () => worker()));
+  if (failed) throw failure;
   return results;
 }

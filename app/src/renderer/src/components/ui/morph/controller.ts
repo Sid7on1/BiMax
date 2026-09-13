@@ -166,6 +166,16 @@ function schedule(): void {
  */
 const WATCHDOG_MS = 1400;
 
+/**
+ * How close a collapse must be to its target to count as finished.
+ *
+ * A collapse ends sitting on its own trigger (seeded), fading over empty background (unseeded), or
+ * handing its last pixels to the layout (a structural pane) — so the final sub-pixel of travel is never
+ * visible. Holding it to the spring's 0.1px / 1px·s⁻¹ rest threshold kept every dismissal on screen,
+ * crawling, for roughly its last 150ms, and that crawl is what made closing feel stuck.
+ */
+const CLOSE_REST_PX = 1.5;
+
 export class MorphController {
   state: MorphState = 'closed';
 
@@ -313,11 +323,15 @@ export class MorphController {
     this.h = step(this.h, target.height, spring, dt);
     this.r = step(this.r, target.radius, spring, dt);
 
-    const rested = isAtRest(this.x, target.x)
-      && isAtRest(this.y, target.y)
-      && isAtRest(this.w, target.width)
-      && isAtRest(this.h, target.height)
-      && isAtRest(this.r, target.radius);
+    const near = (spring: SpringState, goal: number): boolean => Math.abs(spring.value - goal) < CLOSE_REST_PX;
+    const rested = this.state === 'closing'
+      ? near(this.x, target.x) && near(this.y, target.y) && near(this.w, target.width)
+        && near(this.h, target.height) && near(this.r, target.radius)
+      : isAtRest(this.x, target.x)
+        && isAtRest(this.y, target.y)
+        && isAtRest(this.w, target.width)
+        && isAtRest(this.h, target.height)
+        && isAtRest(this.r, target.radius);
 
     if (rested) {
       this.finish();

@@ -27,7 +27,10 @@ export function countWords(content: string, excludeTitle = false): number {
   if (excludeTitle) {
     const lines = content.split(/\r?\n/);
     const titleLine = lines.findIndex(line => line.trim().length > 0);
-    counted = titleLine >= 0 ? lines.slice(titleLine + 1).join('\n') : '';
+    // A one-line story is not a title. Never erase the entire draft from the count.
+    if (titleLine >= 0 && lines.slice(titleLine + 1).some(line => line.trim())) {
+      counted = lines.slice(titleLine + 1).join('\n');
+    }
   }
   const trimmed = counted.trim();
   return trimmed ? trimmed.split(/\s+/).length : 0;
@@ -45,6 +48,7 @@ Use this tool to inspect source code, configuration files, or logs. It natively 
 - **Context Gathering:** When investigating a bug, do not read files blindly. First, use the \`GraphQueryTool\` to find the exact file paths and class names relevant to the feature.
 - **No Directories:** This tool only works on files. If you need to see the contents of a directory, use the \`BashTool\` with \`ls -la\`.`,
   isDestructive: false, // Read-only
+  workflowReadOnly: true,
   isConcurrencySafe: true,
   schema: {
     type: 'object',
@@ -68,6 +72,15 @@ Use this tool to inspect source code, configuration files, or logs. It natively 
     try {
       const currentCwd = context?.cwd || process.cwd();
       const fullPath = resolvePath(args.path, currentCwd);
+
+      if (context?.workflowEvidence) {
+        // Evidence must describe the returned bytes, not an mtime-cache entry from an older read.
+        const rawContent = await context.workflowEvidence.readFile(fullPath);
+        if (args.startLine === undefined && args.endLine === undefined) return rawContent;
+        const { text, error } = sliceLineRange(rawContent, args.startLine, args.endLine);
+        if (error) return outcomeError('invalid_args', `Error: ${error}`);
+        return text ?? rawContent;
+      }
 
       // Get mtime for cache lookup and stale detection
       const mtime = await fileStateCache.getMtime(fullPath);
@@ -180,6 +193,9 @@ Use this tool to write new code, config files, or artifacts. It is significantly
   }, context?: any) => {
     const currentCwd = context?.cwd || process.cwd();
     const fullPath = resolvePath(args.path, currentCwd);
+    if (/\.(docx|xlsx|pptx|pdf)$/i.test(fullPath)) {
+      return outcomeError('invalid_args', 'WriteFileTool writes text, not office documents. Use DocumentTool to create a valid document; no file was written.');
+    }
     const wsBlock = workspaceWriteBlock(fullPath);
     if (wsBlock) return outcomeError('permission', `Error: ${wsBlock}`);
 
@@ -235,9 +251,10 @@ Use this tool to write new code, config files, or artifacts. It is significantly
     if (shield) {
       return outcomeError('syntax', `Write to ${args.path} refused by Edit Shield: ${shield}`);
     }
-    // Track original content for atomic rollback when a /tx transaction is open (records '' for a
-    // new file so rollback deletes it). Must run before the write so the snapshot is the pre-write state.
-    await globalTransactionManager.trackEdit(fullPath);
+    // Track the pre-write state for atomic rollback when a /tx transaction is open, and declare the
+    // content about to land so rollback can tell this write apart from a later external change.
+    // Must run before the write so the snapshot is the pre-write state.
+    await globalTransactionManager.trackEdit(fullPath, args.content);
     // Snapshot overwrites so /undo and /diff-file can restore the prior version.
     if (exists) await backupFile(fullPath);
     await fs.mkdir(path.dirname(fullPath), { recursive: true });
@@ -296,7 +313,9 @@ Use this tool whenever the user explicitly asks you to delete, remove, or trash 
     // backup shouldn't block an explicitly-approved delete.
     try {
       const st = await fs.stat(fullPath);
-      if (st.isFile()) { await globalTransactionManager.trackEdit(fullPath); await backupFile(fullPath); }
+      // `null` declares the intent: after this tool runs the path is gone, so an open /tx can
+      // re-create it on rollback and still detect a file somebody else put back in the meantime.
+      if (st.isFile()) { await globalTransactionManager.trackEdit(fullPath, null); await backupFile(fullPath); }
     } catch { /* best-effort */ }
     try {
       await fs.rm(fullPath, { recursive: true, force: true });
@@ -317,7 +336,7 @@ Use this tool whenever the user asks you to create, make, or add a new *folder* 
 - **Supports \`~/\` and \`~/Desktop/...\` paths** — the home directory is resolved automatically.
 - **Recursive:** Parent directories are created automatically if they are missing (like \`mkdir -p\`).
 - **Idempotent:** If the directory already exists, this succeeds without error.`,
-  isDestructive: false,
+  isDestructive: true,
   schema: {
     type: 'object',
     properties: {
@@ -332,7 +351,10 @@ Use this tool whenever the user asks you to create, make, or add a new *folder* 
     if (stat && stat.isFile()) {
       return outcomeError('invalid_args', `Error: A file already exists at ${fullPath}, so a directory with that name cannot be created. Delete the file first if you meant to replace it with a folder.`);
     }
+    const block = workspaceWriteBlock(fullPath);
+    if (block) return outcomeError('permission', block);
     await fs.mkdir(fullPath, { recursive: true });
+    if (!(await fs.stat(fullPath)).isDirectory()) return outcomeError('io', 'Directory creation could not be verified.');
     return outcomeOk(`Successfully created directory ${fullPath}`);
   }
 }, governor);

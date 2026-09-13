@@ -1,3 +1,4 @@
+import { outcomeError } from '../outcome';
 import { ToolDef, buildTool, BuiltTool } from '../tool.factory';
 import { IGovernor } from '../../core/interfaces';
 import type { CodeIndex } from '../../memory/code.index';
@@ -32,11 +33,15 @@ Prefer GrepTool when you know the exact token (error code, identifier, string li
     isConcurrencySafe: true,
     execute: async (args: { query: string; limit?: number; pathPrefix?: string }, context?: { cwd?: string }) => {
       const activeIndex = await resolveIndex(context?.cwd || process.cwd());
-      const hits = await activeIndex.search(args.query, args.limit || 5, args.pathPrefix).catch(() => []);
+      let hits;
+      try { hits = await activeIndex.search(args.query, args.limit || 5, args.pathPrefix); }
+      catch { return outcomeError('io', 'Code search failed. No conclusion about matching files can be drawn; use GrepTool or inspect index storage.'); }
       if (!hits.length) {
         return 'No matching code found. The index may still be syncing (first run trickles in over a minute) — try GrepTool for exact tokens.';
       }
       const mode = activeIndex.stats().lastMode;
+      const coverage = activeIndex.coverage();
+      const incomplete = coverage.syncing || coverage.pending === null || coverage.pending > 0;
       const pipeline = `lexical${mode.dense ? '+dense' : ''}${mode.reranked ? '+rerank' : ''}`;
       return hits
         .map((h) => {
@@ -45,7 +50,7 @@ Prefer GrepTool when you know the exact token (error code, identifier, string li
             : '';
           return `${h.path}:${h.startLine}-${h.endLine} · ${h.symbol}${related}\n\`\`\`\n${h.text.split('\n').slice(0, 12).join('\n')}\n\`\`\``;
         })
-        .join('\n---\n') + `\n(${pipeline})`;
+        .join('\n---\n') + `\n(${pipeline}${incomplete ? '; index incomplete' : ''})`;
     },
   };
   return buildTool(def, governor);

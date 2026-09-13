@@ -1,3 +1,4 @@
+import { reportCapability } from '../core/capability.status';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
@@ -78,6 +79,12 @@ export class McpManager {
   }
 
   /** Connect one server and retain the connection. Returns the live connection or null. */
+  private reportConnection(name: string, ready: boolean): void {
+    reportCapability({ id: `mcp:${name}`, label: `MCP ${name}`, state: ready ? 'ready' : 'unavailable',
+      reason: ready ? 'The connection answered successfully.' : 'The configured connection failed.',
+      impact: ready ? '' : 'Its tools may be unavailable.', action: ready ? '' : 'Check the server or use /mcp reconnect.' });
+  }
+
   public async connectSpec(
     spec: McpServerSpec,
     registry: ToolRegistry,
@@ -99,6 +106,7 @@ export class McpManager {
       });
       if (!conn) {
         this.errors.set(spec.name, failure || 'Connection failed without an error message.');
+        this.reportConnection(spec.name, false);
         return null;
       }
 
@@ -117,7 +125,11 @@ export class McpManager {
       this.connections.set(conn.name, conn);
       if (spec.eager) registry.markDiscovered(conn.toolNames);
       this.errors.delete(spec.name);
+      this.reportConnection(spec.name, true);
       return conn;
+    } catch (error) {
+      this.reportConnection(spec.name, false);
+      throw error;
     } finally {
       this.pending.delete(spec.name);
     }
@@ -188,6 +200,7 @@ export class McpManager {
       // Skip servers whose path args don't exist — they would just fail and slow the others.
       const missing = missingPathArgs(normalizeArgs(spec.args));
       if (missing.length) {
+        this.reportConnection(spec.name, false);
         Logger.warn(`[MCP] Skipping '${spec.name}': path(s) do not exist: ${missing.join(', ')}`);
         cliEvents.emit('status', `MCP '${spec.name}' skipped — missing path(s): ${missing.join(', ')}`);
         return false;
@@ -287,8 +300,10 @@ export class McpManager {
           : conn.client.listTools();
         await withTimeout(Promise.resolve(probe), 5000, `MCP '${conn.name}' health check`);
         this.errors.delete(conn.name);
+        this.reportConnection(conn.name, true);
       } catch (e: any) {
         this.errors.set(conn.name, e?.message || String(e));
+        this.reportConnection(conn.name, false);
       }
     }
     return this.health(cwd);
@@ -348,7 +363,9 @@ export class McpManager {
             const probe = typeof conn.client?.ping === 'function' ? conn.client.ping() : conn.client.listTools();
             await withTimeout(Promise.resolve(probe), 5000, `MCP '${conn.name}' watchdog probe`);
             this.healFailures.delete(conn.name);
+            this.reportConnection(conn.name, true);
           } catch (probeErr: any) {
+            this.reportConnection(conn.name, false);
             const attempts = this.healFailures.get(conn.name) ?? 0;
             if (attempts >= McpManager.MAX_HEAL_ATTEMPTS) continue; // gave up — manual reconnect resets
             this.errors.set(conn.name, probeErr?.message || String(probeErr));

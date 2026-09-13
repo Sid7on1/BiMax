@@ -45,7 +45,7 @@ const PAGES: Page[] = [
       { key: 'parallelToolCalls', label: 'Parallel tool calls', desc: 'Allow compatible models to batch independent tool calls.', control: { kind: 'toggle' } },
     ],
   },
-  { id: 'browser', label: 'Browser & research', icon: <Globe2 size={15} />, subtitle: 'Structured browsing, artifacts and page health', items: [] },
+  { id: 'browser', label: 'Browser & research', icon: <Globe2 size={15} />, subtitle: 'The browsing lane, its session and saved sign-ins', items: [] },
   { id: 'environment', label: 'Environment', icon: <TerminalSquare size={15} />, subtitle: 'Runtimes, SDKs and local developer services', items: [] },
   { id: 'alchemist', label: 'ML Alchemist', icon: <FlaskConical size={15} />, subtitle: 'Measured local-model experiments and compression', items: [] },
   {
@@ -177,11 +177,19 @@ export function SettingsDialog({
 function CapabilitySettings({ page, phase9, onOpenModels, onOpenInspector, onOpenHealth, onClose }: {
   page: PageId; phase9: Phase9View; onOpenModels: () => void; onOpenInspector: (tab: InspectorTabId) => void; onOpenHealth: () => void; onClose: () => void;
 }): React.ReactElement {
+  /*
+   * This page used to describe BrowserTool — "stable indexed targets, screenshots, downloads,
+   * assertions and page-health evidence" — and a "managed Puppeteer browser". Neither exists:
+   * src/browser/ was deleted in the 2026-09-02 code-only reset and no browser tool is registered.
+   * What DOES exist is the embedded research browser you drive yourself, which lives entirely in
+   * the app's main process (embedded.browser.manager.ts) and never involved the engine at all.
+   * Every claim below is checked against that implementation.
+   */
   if (page === 'browser') return (
     <div className="settings-capability-grid">
-      <ActionCard icon={<Globe2 size={16} />} title="Structured research browser" description="BrowserTool uses stable indexed targets, screenshots, downloads, assertions and page-health evidence inside its isolated browser profile." action="Open Browser lane" />
-      <CapabilityNote icon={<Shield size={15} />} title="Isolated automation profile" description="Bimax uses its managed Puppeteer browser by default. Your personal Chrome profile, history and extensions are not attached." />
-      <CapabilityNote icon={<BrainCircuit size={15} />} title="Research receipts" description="URLs, page titles, failed requests and console errors stay attached to the task as reviewable evidence." />
+      <CapabilityHero icon={<Globe2 size={18} />} title="A browser inside the workspace" description="Tabs and an address bar in a lane beside the conversation, so research sits next to the work instead of in another application." status="Built in" />
+      <CapabilityNote icon={<Shield size={15} />} title="Its own browsing session" description="Pages load in a separate persistent session from your everyday browser. Your Chrome profile, history, cookies and extensions are not attached to it." />
+      <CapabilityNote icon={<KeyRound size={15} />} title="Sign-ins last until you quit" description="A username and password you save for a site is held in memory for this run of Bimax and is never written to disk. Quitting the app forgets it." />
     </div>
   );
   if (page === 'environment') {

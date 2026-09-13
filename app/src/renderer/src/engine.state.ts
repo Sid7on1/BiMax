@@ -32,7 +32,20 @@ export interface DiagnosticEntry {
   timestamp: string;
 }
 
+export interface CapabilityNotice {
+  id: string; label: string; state: 'degraded' | 'unavailable' | 'ready';
+  reason: string; impact: string; action: string; observedAt: string;
+}
+
+/**
+ * A per-call tool failure (`tool:DocumentTool` after one refused write) or the "model never invoked the
+ * requested tool" gate describes ONE turn, not an outage — the tool card in the transcript already shows
+ * it. Treating those as standing alerts is how a single blocked write became a banner that never went
+ * away. They clear when the next turn starts; subsystem outages stay until the engine reports ready.
+ */
+export const isTurnScopedCapability = (id: string): boolean => id.startsWith('tool:') || id === 'tool-activation';
 export interface EngineUiState {
+  threadId?: string;
   items: TranscriptItem[];
   streaming: string;            // in-flight assistant reply (stream_token accumulation)
   thinking: string;             // reasoning-channel text for the current turn
@@ -50,6 +63,7 @@ export interface EngineUiState {
   streamedChars: number;
   project: string;
   diagnostics: DiagnosticEntry[];
+  capabilities: Record<string, CapabilityNotice>;
   review: ReviewSnapshot | null;   // the engine's per-thread review state (review_update)
   /**
    * True between a transcript clear and the start of the next user turn.
@@ -86,6 +100,7 @@ export const initialEngineState: EngineUiState = {
   streamedChars: 0,
   project: '',
   diagnostics: [],
+  capabilities: {},
   review: null,
   awaitingNewTurn: false,
 };
@@ -94,6 +109,7 @@ type Action =
   | { type: 'outbound'; msg: Outbound }
   | { type: 'engineState'; state: string; detail: string }
   | { type: 'project'; dir: string }
+  | { type: 'restoreThread'; state: EngineUiState }
   | { type: 'localUser'; text: string }
   | { type: 'turnStarted' }
   | { type: 'closeRequest' }
@@ -125,6 +141,7 @@ function onEvent(state: EngineUiState, name: string, args: any[]): EngineUiState
     if (name === 'message' && (args[0] as MessageEntry | undefined)?.role === 'assistant') return state;
   }
   switch (name) {
+    case 'thread_user': return engineReducer(state, { type: 'localUser', text: String(args[0]) });
     case 'log': {
       const raw = args[0];
       const text = String(typeof raw === 'object' && raw ? raw.text ?? '' : raw ?? '')
@@ -146,6 +163,14 @@ function onEvent(state: EngineUiState, name: string, args: any[]): EngineUiState
       const incoming = args[0] as MessageEntry;
       if (!incoming) return state;
       const msg = incoming;
+      const notice = msg.role === 'system' ? msg.payload?.capabilityStatus : undefined;
+      if (notice && typeof notice.id === 'string' && ['degraded', 'unavailable', 'ready'].includes(notice.state)
+        && ['label', 'reason', 'impact', 'action', 'observedAt'].every(key => typeof notice[key] === 'string')) {
+        const capabilities = { ...state.capabilities };
+        if (notice.state === 'ready') delete capabilities[notice.id];
+        else capabilities[notice.id] = notice;
+        state = { ...state, capabilities };
+      }
       // The engine echoes the user's turn as its own `message` event (that echo is what the session
       // file persists). The composer already painted an instant local bubble — adopt the engine's
       // entry into it instead of appending a duplicate.
@@ -262,6 +287,7 @@ export function engineReducer(state: EngineUiState, action: Action): EngineUiSta
           return {
             ...state,
             engine: { state: 'ready', detail: '' },
+            capabilities: {},
             protocolMismatch: !supportsProtocolMajor(m.protocol) ? m.protocol : null,
           };
         case 'event':
@@ -285,6 +311,7 @@ export function engineReducer(state: EngineUiState, action: Action): EngineUiSta
         engine: { state: action.state, detail: action.detail },
         request: action.state === 'exited' ? null : state.request,
       };
+    case 'restoreThread': return action.state;
     case 'project':
       return {
         ...state,
@@ -295,6 +322,7 @@ export function engineReducer(state: EngineUiState, action: Action): EngineUiSta
         todos: [],
         snapshot: null,
         diagnostics: [],
+        capabilities: {},
         review: null,
         request: null, // any pending approval belonged to the previous engine process
         engine: action.dir ? state.engine : { state: 'idle', detail: '' },
@@ -306,7 +334,8 @@ export function engineReducer(state: EngineUiState, action: Action): EngineUiSta
         content: action.text,
         timestamp: new Date().toISOString(),
       };
-      return { ...state, items: [...state.items, { kind: 'msg', msg }], awaitingNewTurn: false };
+      const capabilities = Object.fromEntries(Object.entries(state.capabilities).filter(([id]) => !isTurnScopedCapability(id)));
+      return { ...state, items: [...state.items, { kind: 'msg', msg }], awaitingNewTurn: false, capabilities };
     }
     case 'turnStarted':
       return state.awaitingNewTurn ? { ...state, awaitingNewTurn: false } : state;

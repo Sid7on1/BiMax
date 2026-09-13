@@ -200,7 +200,7 @@ The site must let a visitor answer, in order:
 
 ```text
 /
-├─ Hero: real Build Ledger demo + Install CLI
+├─ Hero: real Build Ledger demo + Download the macOS app
 ├─ Proof: current version · supported OS · signed/notarized state · checksum
 ├─ Real session: prompt → files → verification → result
 ├─ Capabilities: four real tasks with evidence

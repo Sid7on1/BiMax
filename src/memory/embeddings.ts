@@ -34,7 +34,7 @@
  *    two spaces produces similarity scores that look plausible and mean nothing.
  */
 
-import { Logger } from '../utils';
+import { capabilityDeadline, capabilityEndpoint, reportCapability } from '../core/capability.status';
 import {
   DEFAULT_EMBEDDING_DIMENSIONS, DEFAULT_EMBEDDING_MODEL, embeddingDialectFor, queryInstruction,
 } from './settings';
@@ -67,6 +67,7 @@ export type EmbeddingTransport = (
 
 export interface RemoteEmbeddingOptions {
   resolve: () => Promise<EmbeddingCredentials | null>;
+  statusId?: string;
   model?: string;
   /**
    * Matryoshka truncation. The model emits 2048 and supports 384/512/768/1024/2048; the smaller
@@ -140,8 +141,19 @@ export class RemoteEmbeddingBackend implements EmbeddingBackend {
    * query for a capability that is not coming back this session. A 429 or a 5xx is NOT terminal.
    */
   private unavailable: string | null = null;
+  private retryAt = 0;
+  private readonly statusId: string;
+  private fail(reason: string, permanent = false): null {
+    this.unavailable = permanent ? reason : null;
+    this.retryAt = Date.now() + (permanent ? 30_000 : 0);
+    reportCapability({ id: this.statusId, label: 'Semantic retrieval', state: 'degraded', reason,
+      impact: 'Search is using keywords only; paraphrase matches may be missed.',
+      action: 'Check the embedding service and model settings. A later use retries automatically.' });
+    return null;
+  }
 
   constructor(options: RemoteEmbeddingOptions) {
+    this.statusId = options.statusId ?? 'embeddings';
     this.resolve = options.resolve;
     this.model = options.model ?? DEFAULT_EMBEDDING_MODEL;
     this.declaredDimensions = options.dimensions ?? DEFAULT_EMBEDDING_DIMENSIONS;
@@ -157,12 +169,11 @@ export class RemoteEmbeddingBackend implements EmbeddingBackend {
 
   async embed(texts: string[], role: 'query' | 'passage'): Promise<number[][] | null> {
     if (!texts.length) return [];
-    if (this.unavailable) return null;
+    if (Date.now() < this.retryAt) return null;
 
-    const credentials = await this.resolve().catch(() => null);
+    const credentials = await capabilityDeadline(() => this.resolve(), this.timeoutMs).catch(() => null);
     if (!credentials?.apiKey) {
-      this.unavailable = 'no API key configured';
-      return null;
+      return this.fail('Embedding credentials are unavailable.', true);
     }
 
     const out: number[][] = [];
@@ -171,6 +182,10 @@ export class RemoteEmbeddingBackend implements EmbeddingBackend {
       if (!batch) return null;
       out.push(...batch);
     }
+    this.unavailable = null;
+    this.retryAt = 0;
+    reportCapability({ id: this.statusId, label: 'Semantic retrieval', state: 'ready',
+      reason: 'The embedding service returned valid vectors.', impact: 'Subsequent searches can use semantic ranking.', action: '' });
     return out;
   }
 
@@ -179,8 +194,6 @@ export class RemoteEmbeddingBackend implements EmbeddingBackend {
     role: 'query' | 'passage',
     credentials: EmbeddingCredentials,
   ): Promise<number[][] | null> {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), this.timeoutMs);
     try {
       const dialect = embeddingDialectFor(credentials.baseURL);
       // Empty strings are rejected by the provider and would fail the whole batch for one bad
@@ -189,7 +202,7 @@ export class RemoteEmbeddingBackend implements EmbeddingBackend {
       const input = batch.map((t) => (t.trim() ? t : ' '));
       // Two incompatible bodies exist, for the same reason two rerank dialects do. NVIDIA/Cohere
       // take `input_type`/`truncate`/`dimensions`; the OpenAI embeddings schema has none of them,
-      // so a local vLLM or Ollama answers 400 — which this module treats as terminal and latches.
+      // so a local vLLM or Ollama answers 400 — which this module reports and backs off before retrying.
       const body = dialect === 'nvidia'
         ? {
             model: this.model,
@@ -210,80 +223,44 @@ export class RemoteEmbeddingBackend implements EmbeddingBackend {
             encoding_format: 'float',
           };
 
-      const response = await this.transport(`${trimSlash(credentials.baseURL)}/embeddings`, {
+      const response = await capabilityDeadline(async (signal) => {
+        const response = await this.transport(`${trimSlash(credentials.baseURL)}/embeddings`, {
         headers: {
           'content-type': 'application/json',
           authorization: `Bearer ${credentials.apiKey}`,
         },
         body: JSON.stringify(body),
-        signal: controller.signal,
+        signal,
       });
+        return { ok: response.ok, status: response.status, payload: response.ok ? await response.json() : null };
+      }, this.timeoutMs);
 
       if (!response.ok) {
-        // 404 = this provider serves no embeddings; 401/403 = the key cannot; 410 = the model is
-        // END-OF-LIFE (a live run caught exactly this: the previous default model began answering
-        // 410 Gone and, absent from this list, masqueraded as a transient failure forever).
-        // 400 is a permanent request/model mismatch. None improve by being asked again.
-        // Everything else (429, 5xx, network) is transient: stay available so the next search
-        // tries again.
-        if ([400, 401, 403, 404, 410].includes(response.status)) {
-          // Name the body we sent, not just the status. A 400 from a local server almost always
-          // means the extension fields were rejected, and the old message ("provider returned 400")
-          // sent operators hunting for a bad model name instead — the same misdirection that kept
-          // reranking dead on every sovereign install for months.
-          this.unavailable =
-            `${trimSlash(credentials.baseURL)}/embeddings returned ${response.status} for `
-            + `${this.model} (${dialect} body)`;
-          Logger.warn(
-            `[embeddings] DISABLED — ${this.unavailable}. Retrieval falls back to BM25 alone. `
-            + (dialect === 'nvidia'
-              ? 'If this endpoint is an OpenAI-compatible server, set BIMAX_EMBED_DIALECT=openai '
-                + 'to drop the input_type/truncate/dimensions fields it does not accept.'
-              : 'Check that BIMAX_EMBED_MODEL names a model this server actually serves '
-                + '(GET /v1/models lists them).'),
-          );
-        }
-        return null;
+        return this.fail(`Embedding service ${capabilityEndpoint(credentials.baseURL)}/embeddings returned HTTP ${response.status} (${dialect} body).`, [400, 401, 403, 404, 410, 422].includes(response.status));
       }
 
-      const payload = (await response.json()) as { data?: { embedding?: number[]; index?: number }[] };
+      const payload = response.payload as { data?: { embedding?: number[]; index?: number }[] };
       const rows = payload?.data;
-      if (!Array.isArray(rows) || rows.length !== batch.length) return null;
-
-      // Order by `index` rather than trusting arrival order. The spec allows any order, and a
-      // mis-ordered batch attaches every vector to the wrong document — which produces a store
-      // that returns confident, completely unrelated results.
-      const ordered = [...rows].sort((a, b) => (a.index ?? 0) - (b.index ?? 0));
-      const vectors: number[][] = [];
-      for (const row of ordered) {
-        if (!Array.isArray(row.embedding) || row.embedding.length === 0) return null;
-        // The space is defined by what the model emits, and every vector in one space must be the
-        // same length. A server that changes width mid-corpus (a reload onto a different model
-        // behind the same id) would otherwise be scored by `dot()` over the shorter prefix — a
-        // plausible-looking number computed from two unrelated spaces.
-        if (this.observedDimensions === null) {
-          this.observedDimensions = row.embedding.length;
-          if (row.embedding.length !== this.declaredDimensions) {
-            Logger.info(
-              `[embeddings] space is ${this.id} — server returned ${row.embedding.length} dims, `
-              + `settings asked for ${this.declaredDimensions}. Stamping the observed size.`,
-            );
-          }
-        } else if (row.embedding.length !== this.observedDimensions) {
-          this.unavailable =
-            `server changed embedding width mid-session (${this.observedDimensions} -> `
-            + `${row.embedding.length}) for ${this.model}`;
-          Logger.warn(`[embeddings] disabled: ${this.unavailable}`);
-          return null;
-        }
-        vectors.push(normalize(row.embedding));
+      if (!Array.isArray(rows) || rows.length !== batch.length) return this.fail('Embedding response has the wrong row count.');
+      // A complete permutation is required. Duplicate/missing indices can silently associate
+      // a valid vector with the wrong document.
+      const indices = new Set<number>();
+      let width = this.observedDimensions;
+      for (const row of rows) {
+        if (!row || !Number.isInteger(row.index) || row.index! < 0 || row.index! >= batch.length || indices.has(row.index!))
+          return this.fail('Embedding response has invalid or duplicate indices.');
+        indices.add(row.index!);
+        const v = row.embedding;
+        if (!Array.isArray(v) || !v.length || v.some(n => typeof n !== 'number' || !Number.isFinite(n))
+          || !Number.isFinite(v.reduce((sum, n) => sum + n * n, 0)) || !v.some(n => n !== 0))
+          return this.fail('Embedding response contains invalid or zero vectors.');
+        width ??= v.length;
+        if (width !== v.length) return this.fail('Server changed embedding width within the active model space.', true);
       }
-      return vectors;
+      this.observedDimensions = width;
+      return [...rows].sort((a, b) => a.index! - b.index!).map(row => normalize(row.embedding!));
     } catch {
-      // Timeout, abort, malformed JSON. Transient by assumption — do not latch.
-      return null;
-    } finally {
-      clearTimeout(timer);
+      return this.fail('Embedding request failed, timed out, or returned unreadable data.');
     }
   }
 }

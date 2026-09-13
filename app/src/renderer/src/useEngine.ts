@@ -1,10 +1,11 @@
-import { useEffect, useReducer, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import {
-  Outbound, RequestMsg, CompletionItem, MessageEntry, ToolCallEntry, UiSnapshot, SubAgentClaim,
-  ReviewSnapshot, EngineConfig, EngineCatalog,
+  EngineConfig, EngineCatalog,
   ControlsMsg,
 } from './protocol';
-import { engineReducer, initialEngineState } from './engine.state';
+import { EngineStore } from './engine.store';
+import { useEngineDomain } from './useEngineDomain';
+import { StreamCoalescer } from './stream.coalescer';
 
 // The state machine now lives in engine.state.ts (pure, testable). Re-exported here because the
 // rest of the renderer has always imported these from useEngine.
@@ -18,8 +19,14 @@ export { engineReducer, initialEngineState } from './engine.state';
 const CATALOG_TIMEOUT_MS = 30_000;
 
 export function useEngine() {
-  const [state, dispatch] = useReducer(engineReducer, initialEngineState);
+  const [store] = useState(() => new EngineStore());
+  const state = useEngineDomain(store.domains.workspace);
+  const dispatch = store.dispatch;
+  // Adjacent streaming deltas are merged into one dispatch per frame. Held in a ref because the
+  // interrupt and project paths outside the subscription effect need to flush or retire it.
+  const coalescer = useRef<StreamCoalescer | null>(null);
   const queryId = useRef(0);
+  const completionQueryId = useRef(-1);
   // Config round-trips (protocol v3) resolve promises instead of flowing through the reducer —
   // settings pages await them directly; nothing renders in the transcript.
   const configId = useRef(0);
@@ -32,6 +39,8 @@ export function useEngine() {
   const catalogPending = useRef(new Map<number, (result: EngineCatalog) => void>());
 
   useEffect(() => {
+    const batcher = new StreamCoalescer({ emit: (msg) => dispatch({ type: 'outbound', msg }) });
+    coalescer.current = batcher;
     const offMsg = window.bimax.onMessage((msg) => {
       if (msg.t === 'configResult') {
         const resolve = configPending.current.get(msg.id);
@@ -50,18 +59,35 @@ export function useEngine() {
         }
         return;
       }
-      dispatch({ type: 'outbound', msg });
+      if (msg.t === 'queryResult' && msg.id !== completionQueryId.current) return;
+      // Everything the reducer consumes goes through the batcher, which merges only adjacent
+      // same-kind text deltas and flushes before anything else — so arrival order is preserved.
+      batcher.push(msg);
     });
-    const offState = window.bimax.onEngineState((s, d) => dispatch({ type: 'engineState', state: s, detail: d }));
-    const offProject = window.bimax.onProject((dir) => dispatch({ type: 'project', dir }));
-    void window.bimax.getProject().then((dir) => dispatch({ type: 'project', dir }));
+    const offState = window.bimax.onEngineState((s, d) => {
+      // An engine-state change is not a display delta; the text produced before it must land first.
+      batcher.flush();
+      dispatch({ type: 'engineState', state: s, detail: d });
+    });
+    const offProject = window.bimax.onProject((dir) => {
+      // A different project discards the transcript, so buffered text for the old one is dropped
+      // rather than flushed into the new one's state.
+      batcher.retire();
+      dispatch({ type: 'project', dir });
+    });
+    const offThread = window.bimax.threads.onSelected((value) => {
+      batcher.retire();
+      configPending.current.forEach(resolve => resolve({})); configPending.current.clear();
+      catalogPending.current.forEach(resolve => resolve({ providers: [], models: [], error: 'Thread changed' })); catalogPending.current.clear();
+      dispatch({ type: 'restoreThread', state: value.state });
+    });
     window.bimax.rendererReady();
-    return () => { offMsg(); offState(); offProject(); };
+    return () => { offMsg(); offState(); offProject(); offThread(); batcher.dispose(); coalescer.current = null; };
   }, []);
 
   // Footer statuses are ephemeral (TUI parity): self-clear ~10s after the last update.
   useEffect(() => {
-    if (!state.status) return;
+    if (!state.status) return undefined;
     const id = setTimeout(() => dispatch({ type: 'statusClear' }), 10000);
     return () => clearTimeout(id);
   }, [state.status]);
@@ -70,12 +96,20 @@ export function useEngine() {
     const trimmed = text.trim();
     const engineTrimmed = engineText.trim();
     if (!trimmed) return;
+    // Painted at once, as before threads: a turn sent to a thread whose engine is still starting, or queued
+    // behind another thread in the same folder, must not vanish until it is dispatched. The thread manager
+    // records the same turn for history and does not echo it back to this window.
     dispatch({ type: 'localUser', text: trimmed });
     window.bimax.send({ t: 'input', text: engineTrimmed || trimmed });
     dispatch({ type: 'clearCompletions' });
   }, []);
 
-  const interrupt = useCallback(() => window.bimax.send({ t: 'interrupt' }), []);
+  const interrupt = useCallback(() => {
+    // The text already arrived from the engine; the user should see it. Flush at the boundary
+    // rather than discarding a frame's worth of the reply they just stopped.
+    coalescer.current?.flush();
+    window.bimax.send({ t: 'interrupt' });
+  }, []);
 
   const setControls = useCallback((controls: Omit<ControlsMsg, 't'>) => {
     window.bimax.send({ t: 'controls', ...controls });
@@ -95,6 +129,7 @@ export function useEngine() {
 
   const query = useCallback((text: string) => {
     const id = ++queryId.current;
+    completionQueryId.current = id;
     window.bimax.send({ t: 'query', id, text });
   }, []);
 
@@ -130,16 +165,22 @@ export function useEngine() {
   }, []);
 
   const reply = useCallback((id: number, value: string) => {
-    window.bimax.send({ t: 'reply', id, value });
-    dispatch({ type: 'closeRequest' });
-  }, []);
+    const token = (state.request as any)?.approvalToken;
+    if (!state.threadId || !token) return;
+    void window.bimax.threads.reply(state.threadId, id, value, token).then(ok => {
+      if (ok) dispatch({ type: 'closeRequest' });
+    });
+  }, [state.threadId, state.request]);
 
   const menuSelect = useCallback((id: string, value: string) => {
     window.bimax.send({ t: 'menuSelect', id, value });
     dispatch({ type: 'menuChosen', id, value });
   }, []);
 
-  const clearCompletions = useCallback(() => dispatch({ type: 'clearCompletions' }), []);
+  const clearCompletions = useCallback(() => {
+    completionQueryId.current = -1;
+    dispatch({ type: 'clearCompletions' });
+  }, []);
 
   const configRoundTrip = useCallback((send: (id: number) => void): Promise<EngineConfig> => {
     const id = ++configId.current;
@@ -209,7 +250,7 @@ export function useEngine() {
   );
 
   return {
-    state, submit, interrupt, setControls, sendCommand, query, ingestAttachment, reply, menuSelect, clearCompletions,
+    state, store, submit, interrupt, setControls, sendCommand, query, ingestAttachment, reply, menuSelect, clearCompletions,
     configGet, configSet, catalogGet, providerSet,
   };
 }

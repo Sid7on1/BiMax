@@ -451,10 +451,12 @@ globalCommandRegistry.register({
         return { type: 'message', level: 'error', content: `Usage: \`/arms ${sub} <arm>\` — arms: ${ARM_IDS.join(', ')}` };
       }
       arms.setStatus(id, sub === 'shadow' ? 'shadow' : 'active');
-      return { type: 'message', level: 'success', content: `Arm \`${id}\` → ${sub === 'shadow' ? 'SHADOW (logs counterfactuals, never enters the prompt)' : 'ACTIVE (shows with the holdout propensity)'}.` };
+      const restored = arms.holdoutRate() > 0 ? 'ACTIVE (shows with the holdout propensity)' : 'ACTIVE (always shows — the holdout is off)';
+      return { type: 'message', level: 'success', content: `Arm \`${id}\` → ${sub === 'shadow' ? 'SHADOW (logs counterfactuals, never enters the prompt)' : restored}.` };
     }
 
     const rows = arms.report();
+    const holdout = arms.holdoutRate();
     const lines = [
       '## Policy arms — every mind prompt block, measured (v2 §4.4)',
       '',
@@ -464,10 +466,15 @@ globalCommandRegistry.register({
     for (const r of rows) {
       const eff = r.lift !== null
         ? `V(show)=${(r.vShow! * 100).toFixed(0)}% V(hide)=${(r.vHide! * 100).toFixed(0)}% → lift ${r.lift >= 0 ? '+' : ''}${(r.lift * 100).toFixed(0)}pp`
-        : 'no counterfactual data yet (both sides of the holdout need observations)';
+        : holdout <= 0 && r.status === 'active'
+          ? 'no counterfactual — the holdout is off, so this arm always shows'
+          : 'no counterfactual data yet (both sides of the holdout need observations)';
       lines.push(`- **${r.arm}** [${r.status}] · ${r.decisions} scored decision(s), shown ${Math.round(r.shownRate * 100)}% · ${eff}${r.lift !== null && r.lift < 0 && r.decisions >= 30 ? ' · ⚠ consider `/arms shadow ' + r.arm + '`' : ''}`);
     }
-    lines.push('', '_`/arms shadow <arm>` demotes (stops acting, keeps logging) · `/arms activate <arm>` restores. Holdout via BIMAX_POLICY_HOLDOUT (default 0.1)._');
+    const budget = holdout > 0
+      ? `Holdout ${(holdout * 100).toFixed(0)}% — active arms hide that often to buy the counterfactual.`
+      : 'Holdout is **off** (the default): arms always show, so no lift can be estimated. Set `BIMAX_POLICY_HOLDOUT=0.1` to start buying counterfactuals — worth it once episodes are accruing and something reads the estimate.';
+    lines.push('', `_\`/arms shadow <arm>\` demotes (stops acting, keeps logging) · \`/arms activate <arm>\` restores. ${budget}_`);
     return { type: 'message', level: 'info', content: lines.join('\n') };
   },
 });

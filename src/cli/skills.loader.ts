@@ -1,16 +1,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import { AgentPersona, PersonaConfig } from './personas/base.persona';
-import { ToolRegistry } from '../tools/tool.registry';
-import { LlmAdapter } from '../core/llm.adapter';
+// Type-only: reading skill names must not pull in base.persona's runtime graph.
+// `DynamicPersona` lives in ./personas/dynamic.persona.ts — see the note there.
+import type { PersonaConfig } from './personas/base.persona';
 import { Logger } from '../utils/logger';
-
-export class DynamicPersona extends AgentPersona {
-  constructor(config: PersonaConfig, registry: ToolRegistry, llmAdapter: LlmAdapter) {
-    super(config, registry, llmAdapter);
-  }
-}
 
 export class SkillLoader {
   private static skills: Record<string, PersonaConfig> = {};

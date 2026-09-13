@@ -17,10 +17,15 @@ files:
   # @lydell/node-pty is externalized by electron-vite (native N-API prebuilds) and must ship;
   # its platform binary lives in a @lydell/node-pty-<platform>-<arch> sibling package.
   - node_modules/@lydell/**
+  # electron-liquid-glass (native Liquid Glass behind the ⌘2 bar) is externalized the same way. It loads its
+  # N-API prebuild through node-gyp-build, so that ships too. Without either, the bar falls back to vibrancy.
+  - node_modules/electron-liquid-glass/**
+  - node_modules/node-gyp-build/**
 
 # Native binaries can't load from inside the asar archive.
 asarUnpack:
   - node_modules/@lydell/**
+  - node_modules/electron-liquid-glass/**
 
 # engine/ holds exactly one binary: bimax-engine, compiled for the
 # same platform+arch this build targets.
@@ -44,6 +49,8 @@ mac:
   # CSC_LINK/CSC_KEY_PASSWORD (or expose the Developer ID identity in the keychain) and verify the
   # nested service. Notarization below remains credential-gated and must never be inferred from a
   # local `codesign` pass alone.
+  extendInfo:
+    NSAppleEventsUsageDescription: Bimax reads the active Finder folder when you open the global thread prompt bar.
   hardenedRuntime: true
   gatekeeperAssess: false
   entitlements: buildResources/entitlements.mac.plist

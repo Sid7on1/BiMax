@@ -30,6 +30,7 @@ import './route';
 import './diagnostics';
 import './retrieval';
 import './sidecars';
+import './compliance';
 import './output';
 import './a11y';
 import './orchestrate';

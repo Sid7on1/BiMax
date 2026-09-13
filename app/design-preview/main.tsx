@@ -3,8 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { TaskSidebar } from '../src/renderer/src/components/TaskSidebar';
 import { ChatPreview } from './chat';
 import { ModelsPreview } from './models';
-import { PermissionsPreview } from './permissions';
-import { InspectorPreview } from './inspector';
+import { TranscriptPreview } from './transcript';
 import { MotionPreview } from './motion';
 import { MotionLab } from './lab';
 import type { UiSnapshot, UiSnapshotSession } from '../src/renderer/src/protocol';
@@ -17,6 +16,20 @@ import '../src/renderer/src/styles.css';
  */
 (window as unknown as { bimax: unknown }).bimax = {
   pickFolder: async () => null,
+  // The sidebar lists Bimax Threads. The preview has no main process, so there are never any threads,
+  // Finder context or pending approvals to show — the list renders empty instead of throwing.
+  threads: {
+    list: async () => ({ activeId: null, threads: [], shortcutAvailable: true }),
+    onList: () => () => {},
+    onSelected: () => () => {},
+    context: async () => ({ root: null, source: 'Choose a folder' }),
+    onContext: () => () => {},
+    approvals: async () => [],
+    onApprovals: () => () => {},
+    quickCurrent: async () => null,
+    onQuickThread: () => () => {},
+    onQuickMsg: () => () => {},
+  },
   // Only what the previewed components touch. The coach's IPC is stubbed so the overlay can be
   // looked at; anything it calls that is NOT stubbed must throw rather than be silently faked.
   permissionCoach: {
@@ -65,7 +78,7 @@ function Stage({
       </figcaption>
       {/* The desktop the glass samples. Without something behind it, translucency is unverifiable. */}
       <div
-        className={`theme-${theme}`}
+        className={`theme-${theme} text-ink`}
         data-chrome={chrome}
         style={{
           width: 268,
@@ -93,12 +106,18 @@ function Stage({
   );
 }
 
-type Page = 'lab' | 'motion' | 'shell' | 'models' | 'permissions' | 'inspector';
-const PAGES: Page[] = ['lab', 'motion', 'shell', 'models', 'permissions', 'inspector'];
+type Page = 'lab' | 'motion' | 'shell' | 'models' | 'transcript';
+const PAGES: Page[] = ['lab', 'motion', 'shell', 'models', 'transcript'];
 
 function Preview(): React.ReactElement {
   const [dark, setDark] = useState(true);
-  const [page, setPage] = useState<Page>('lab');
+  // Addressable by hash (#transcript, #shell, …) so a view can be opened, linked and screenshotted
+  // without editing this file — which is what the previous default-only switch forced.
+  const [page, setPage] = useState<Page>(() => {
+    const h = window.location.hash.slice(1) as Page;
+    return PAGES.includes(h) ? h : 'lab';
+  });
+  useEffect(() => { window.location.hash = page; }, [page]);
   // The real app puts the theme class on <html>; portalled surfaces (the brand dropdown) inherit
   // from there, so the page root has to carry it too or they would render unthemed.
   useEffect(() => {
@@ -136,13 +155,14 @@ function Preview(): React.ReactElement {
         <div className={dark ? 'theme-moonlight' : 'theme-starlight'} data-chrome="windowed">
           <MotionPreview />
         </div>
-      ) : page === 'inspector' ? (
-        <div className={dark ? 'theme-moonlight' : 'theme-starlight'} data-chrome="expanded">
-          <InspectorPreview />
-        </div>
-      ) : page === 'permissions' ? (
-        <div className={dark ? 'theme-moonlight' : 'theme-starlight'} data-chrome="expanded">
-          <PermissionsPreview />
+      ) : page === 'transcript' ? (
+        <div style={{ display: 'flex', gap: 28, flexWrap: 'wrap', alignItems: 'flex-start' }}>
+          {/* `text-ink` is load-bearing: body resolves --color-ink under whatever theme <html>
+              carries, and descendants inherit the COMPUTED colour — so a themed subtree that does
+              not re-assert it renders the other theme's ink. Markdown has no colour class of its
+              own, so it is the surface that exposes this. */}
+          <div className="theme-moonlight text-ink" data-chrome="expanded"><TranscriptPreview /></div>
+          <div className="theme-starlight text-ink" data-chrome="expanded"><TranscriptPreview /></div>
         </div>
       ) : page === 'models' ? (
         <div className={dark ? 'theme-moonlight' : 'theme-starlight'} data-chrome="expanded">

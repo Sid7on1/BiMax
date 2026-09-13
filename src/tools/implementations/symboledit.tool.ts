@@ -193,7 +193,7 @@ export const createSymbolEditTool = (governor: IGovernor) => buildTool({
     );
     if (!approved) return outcomeRejected(`SymbolEdit to ${args.path} rejected by user. No changes were made.`);
 
-    await globalTransactionManager.trackEdit(fullPath);
+    await globalTransactionManager.trackEdit(fullPath, updated);
     await backupFile(fullPath);
     await fs.writeFile(fullPath, updated, 'utf8');
     fileStateCache.invalidate(fullPath);

@@ -1,3 +1,4 @@
+import { reportCapability } from './capability.status';
 import { LLMProvider, Message, ChatEvent } from './llm.provider';
 import { responseSanitizer } from './response.sanitizer';
 import { extractTextToolCalls } from './tool.call.parser';
@@ -18,11 +19,11 @@ import { TypedOutcome, typedFromError } from '../tools/outcome';
 import { getEventLedger } from '../mind/event.ledger';
 import { markToolTaint } from '../mind/taint';
 import { getHabitMiner } from '../mind/habit.compiler';
-import { getEpistemicLedger, isEvidenceCommand } from '../mind/epistemic.ledger';
+import { observeClaim, observeCommandOutcome } from '../mind/outcome.sensor';
 import { startEpisodeRecording, isReplayActive } from '../mind/episode.recorder';
 import { getTracer } from '../telemetry/trace';
 import { requiresBuildVerification } from '../review/verification.scope';
-import { applyImplicitWriteConstraints } from '../tools/write.constraints';
+import { applyImplicitWriteConstraints, applyImplicitDocumentConstraints } from '../tools/write.constraints';
 import { screenshotFromToolResult, buildScreenshotObservation, appendScreenshotObservation, pruneScreenshotObservations, contentToText, isScreenshotObservationMessage } from './multimodal';
 import { canonicalToolArgs } from './tool.args';
 import { checkToolArgs, argsViolationMessage } from '../tools/args.validate';
@@ -201,8 +202,7 @@ export class AgentLoop {
   /**
    * Retrieve against the latest user message and inject what comes back.
    *
-   * Guarded by `recallQuery`, which is pure and tested separately. Failure is silent by design:
-   * recall is an enhancement, and a memory lookup must never be able to fail a user's turn.
+   * Guarded by `recallQuery`, which is pure and tested separately. Lookup failures are reported by recallForTurn without failing the user's turn.
    */
   private async injectRecall(): Promise<void> {
     if (!this.memoryStore) return;
@@ -213,7 +213,11 @@ export class AgentLoop {
     if (!query) return;
     this.recalled.add(recallKey(query));
 
-    const recalled = await recallForTurn(this.memoryStore, query).catch(() => null);
+    const recalled = await recallForTurn(this.memoryStore, query).catch(() => {
+      reportCapability({ id: 'memory-recall', label: 'Memory recall', state: 'degraded',
+        reason: 'Memory lookup failed.', impact: 'This turn continues without recalled context.', action: 'Check memory storage and retrieval settings.' });
+      return null;
+    });
     if (!recalled) return;
 
     // Placed before the user's message, so the model reads the evidence and then the question —
@@ -238,6 +242,14 @@ export class AgentLoop {
     context?: any
   ): AsyncGenerator<string> {
     this.messages = [...initialMessages];
+    const latestRequest = [...initialMessages].reverse().find(m => m.role === 'user')?.content;
+    // A narrow, explicit export request has an observable delivery requirement. Reuse the bounded
+    // activation gate; making the schema visible alone did not make weak models call it.
+    if (!options?.requireTool && typeof latestRequest === 'string'
+      && /^(?:(?:please|can you|could you)\s+)?(?:create|produce|generate|write|export|make|build)\b[\s\S]{0,160}?(?:\bword document\b|\bpowerpoint\b|\bexcel (?:workbook|spreadsheet)\b|\bpdf\b|\.docx\b|\.pptx\b|\.xlsx\b)/i.test(latestRequest.trim())
+      && this.tools.getTool('DocumentTool')) {
+      options = { ...options, requireTool: 'DocumentTool' };
+    }
     // Env override for headless/benchmark runs: a hard task can legitimately need hundreds of
     // rounds, and there the wall clock (container/task timeout) is the real budget, not this.
     const maxIter = options?.maxIterations
@@ -249,6 +261,8 @@ export class AgentLoop {
     const signal = options?.signal;
     // Fresh loop detector per execute() call — tracks tool-call patterns across turns.
     const loopDetector = new LoopDetector();
+    // A DocumentTool draft receipt is not a delivered file; the turn may not end on one.
+    let documentDraftPending = false;
     // Bounds the regenerate-on-empty correction below to a single retry, so a model
     // that keeps emitting pure filler can never spin the loop.
     let pureFillerRetried = false;
@@ -386,7 +400,7 @@ export class AgentLoop {
         // (incl. tool-call follow-ups) runs on lite. Heavy turns leave this unset → coding model.
         lite: options?.useLite,
         ...(forceRequiredTool ? {
-          toolChoice: { type: 'function' as const, function: { name: options.requireTool! } },
+          toolChoice: { type: 'function' as const, function: { name: options!.requireTool! } },
         } : {}),
         // CRITICAL: thread the interrupt signal into the request so Ctrl+C/esc aborts the underlying
         // fetch IMMEDIATELY. Without it the signal only took effect between stream events — so a hung
@@ -730,6 +744,9 @@ export class AgentLoop {
           cliEvents.emit('status', `Activating ${options.requireTool} for this operation…`);
           continue;
         } else {
+          reportCapability({ id: 'tool-activation', label: 'Requested capability', state: 'unavailable',
+            reason: `The model did not invoke ${options.requireTool} after ${MAX_REQUIRED_TOOL_NUDGES} retries.`,
+            impact: 'The requested operation was not performed.', action: 'Retry with a tool-capable model.' });
           const note = `\nThe active model did not invoke ${options.requireTool} after ${MAX_REQUIRED_TOOL_NUDGES} attempts, so the operation was not performed. Try a tool-capable model or retry the task.\n`;
           anyTextYielded = true;
           yield note;
@@ -807,6 +824,7 @@ export class AgentLoop {
           tc.args = emitted.json;
         }
         if (tc.name === 'WriteFileTool') tc.args = applyImplicitWriteConstraints(tc.args, this.messages);
+        if (tc.name === 'DocumentTool') tc.args = applyImplicitDocumentConstraints(tc.args, this.messages);
         const canonical = canonicalToolArgs(tc.args);
         if (canonical?.repaired) {
           Logger.warn(`[AgentLoop] Repaired malformed ${tc.name} argument JSON before execution.`);
@@ -854,7 +872,7 @@ export class AgentLoop {
         const batches = planToolBatches(executableCalls, tc => {
           const tool = this.tools.getTool(tc.name);
           if (!tool) return false; // an unknown tool is answered with an error; never overlap it
-          let parsed: any = {};
+          let parsed: any;
           try { parsed = JSON.parse(tc.args || '{}'); } catch { return false; }
           // `concurrencySafeFor` is the per-call answer; a registry entry that predates it (or a
           // test double) still has the static flag, and either way an absent answer means exclusive.
@@ -894,11 +912,15 @@ export class AgentLoop {
             // set up, which is the state the completion gate exists to interrupt.
             if (options?.requireTool && tc.name === options.requireTool) {
               lastCapabilitySucceeded = !isError;
+              if (tc.name === 'DocumentTool' && typed?.status === 'ok' && !result.startsWith('Draft retained')) sawAdvancingAction = true;
+              if (!isError) reportCapability({ id: 'tool-activation', label: 'Requested capability', state: 'ready',
+                reason: 'The requested tool completed a subsequent operation.', impact: '', action: '' });
               if (!isError) {
                 try { if (JSON.parse(result)?.ok === false) lastCapabilitySucceeded = false; }
                 catch { /* non-JSON capability output counts as delivered */ }
               }
             }
+            if (tc.name === 'DocumentTool' && !isError) documentDraftPending = result.startsWith('Draft retained');
             const endTime = new Date();
             const durationMs = endTime.getTime() - entry.startTime.getTime();
             globalTelemetry.recordToolCall(tc.name, durationMs);
@@ -976,22 +998,15 @@ export class AgentLoop {
                 // the turn with the nonsensical instruction to run a build/test.
                 if (requiresBuildVerification(claimFile)) {
                   const conf = getSelfModel().confidenceFor(tc.name, domain);
-                  getEpistemicLedger().openClaim(domain, conf, claimFile);
-                  getEventLedger().append('claim', { tool: tc.name, domain, file: claimFile, confidence: conf });
-                  toolSpan.setAttribute('bimax.claim.confidence', Number(conf.toFixed(4)));
+                  observeClaim(toolSpan, tc.name, domain, conf, claimFile, context?.cwd || process.cwd());
                 }
-              } else if (tc.name === 'BashTool' && bashCmd && isEvidenceCommand(bashCmd)) {
-                // Exit code (when Bash declared it) beats the regex guess: a red tsc/test run
-                // returns its output with exit≠0 and used to classify 'ok', silently settling
-                // claims as GREEN. Ground truth ends that.
-                const evidenceOk = typed?.exitCode !== undefined ? typed.exitCode === 0 : outcome === 'ok';
-                const resolution = getEpistemicLedger().resolveDetailed(evidenceOk, { command: bashCmd, output: result });
-                const { settled, coveredFiles, repoWide } = resolution;
-                getEventLedger().append('evidence', {
-                  command: bashCmd.slice(0, 200), ok: evidenceOk, settled, coveredFiles, repoWide,
+              } else if (tc.name === 'BashTool' && bashCmd) {
+                const resolution = observeCommandOutcome(toolSpan, {
+                  command: bashCmd, result, exitCode: typed?.exitCode,
+                  background: argsObj?.background === true,
+                  cwd: context?.cwd || process.cwd(),
                 });
-                // Review domain: verification truth with the REAL exit code, at the moment it lands.
-                cliEvents.emit('review_evidence', { command: bashCmd, ok: evidenceOk, settled, coveredFiles, repoWide });
+                if (resolution) cliEvents.emit('review_evidence', { command: bashCmd, ...resolution });
               }
             } catch { /* observers are best-effort */ }
             cliEvents.emit('tool_call_result', {
@@ -1055,6 +1070,7 @@ export class AgentLoop {
             const toolContext = {
               ...(context || { cwd: process.cwd() }), signal,
               sessionId: options?.sessionId,
+              learningTrace: isReplayActive() ? undefined : toolSpan.context,
               reportOutcome: (o: TypedOutcome) => { typed = o; },
               // The LIVE conversation array for this loop, so context-management tools
               // (FreeContextTool) can act on the real session context, not a stale copy.
@@ -1062,7 +1078,7 @@ export class AgentLoop {
             };
             const result = await tool.execute(argsObj, toolContext);
             const resultStr = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
-            return finish(resultStr, false, typed);
+            return finish(resultStr, !!typed && typed.status !== 'ok', typed);
           } catch (e: any) {
             const text = `Tool Error: ${e.message}`;
             return finish(text, true, typedFromError(e, text));
@@ -1262,6 +1278,11 @@ export class AgentLoop {
         // its gate is still closed (or open but not formally finished), keep working instead of
         // allowing a confident prose "done" to terminate the run. A genuine user-required blocker
         // returns an empty nudge, so the agent can hand control back honestly.
+        if (documentDraftPending && persistenceNudges < MAX_PERSISTENCE_NUDGES) {
+          persistenceNudges++;
+          this.messages.push({ role: 'user', content: 'The DocumentTool draft has NOT been written to an output file. Continue the retained draft with new paragraphs or replace a block to meet the requested word count, then call finalize. Do not claim that the PDF exists while it is only a draft.' });
+          continue;
+        }
         let outcomeNudge = '';
         try {
           const { getOutcomeManager } = require('../outcome/outcome.manager') as typeof import('../outcome/outcome.manager');

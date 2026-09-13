@@ -1,3 +1,4 @@
+import { reportCapability } from '../core/capability.status';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { Logger } from '../utils';
@@ -258,7 +259,8 @@ export class VectorStore {
           : null;
         const data = await fs.readFile(this.STORE_PATH, 'utf-8');
         const parsed = JSON.parse(data);
-        this.store = Array.isArray(parsed) ? parsed : [];
+        if (!Array.isArray(parsed)) throw new Error('Invalid memory store');
+        this.store = parsed;
         for (const doc of this.store) {
           if (pendingRecency?.has(doc.id)) {
             doc.lastUsedAt = Math.max(doc.lastUsedAt ?? 0, pendingRecency.get(doc.id) ?? 0);
@@ -281,8 +283,14 @@ export class VectorStore {
         }
         this.indexDirty = true;
         Logger.info(`[VectorStore] Loaded ${this.store.length} memories from disk.`);
-      } catch {
-        // Missing file is fine
+        reportCapability({ id: 'memory-storage-read', label: 'Memory storage', state: 'ready',
+          reason: 'Stored memories were read successfully.', impact: '', action: '' });
+      } catch (error: any) {
+        if (error?.code === 'ENOENT') return;
+        reportCapability({ id: 'memory-storage-read', label: 'Memory storage', state: 'unavailable',
+          reason: 'Stored memories could not be read.', impact: 'Memory results cannot be trusted as complete.',
+          action: 'Check the memory file and disk access before retrying.' });
+        throw error;
       }
     };
 
@@ -294,8 +302,13 @@ export class VectorStore {
     try {
       await fs.mkdir(path.dirname(this.STORE_PATH), { recursive: true });
       await fs.writeFile(this.STORE_PATH, JSON.stringify(this.store, null, 2), 'utf-8');
-    } catch {
-      Logger.error(`[VectorStore] Failed to write memories to disk.`);
+      reportCapability({ id: 'memory-storage-write', label: 'Memory persistence', state: 'ready',
+        reason: 'Stored memories were saved successfully.', impact: '', action: '' });
+    } catch (error) {
+      reportCapability({ id: 'memory-storage-write', label: 'Memory persistence', state: 'unavailable',
+        reason: 'Memories could not be saved.', impact: 'The update is not durable.',
+        action: 'Check free disk space and memory-directory permissions, then retry.' });
+      throw error;
     }
   }
 
@@ -349,6 +362,8 @@ export class VectorStore {
     }
 
     await this.rwMutex.runExclusive(async () => {
+      // Never overwrite an unreadable store with the constructor's empty in-memory default.
+      await this.loadStore(true);
       for (const input of prepared) {
         // Near-duplicate merge BEFORE insert (memory only — see VectorStoreOptions.dedup): a
         // store that keeps every phrasing of one fact spends its top-three retrieval budget

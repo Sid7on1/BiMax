@@ -60,22 +60,17 @@ export function ProjectWelcome(): React.ReactElement {
   };
 
   return (
-    <main className="relative flex min-h-0 flex-1 overflow-y-auto bg-bg">
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute top-[-220px] left-1/2 size-[560px] -translate-x-1/2 rounded-full bg-ember/8 blur-3xl" />
-        <div className="absolute inset-0 opacity-[0.035] [background-image:radial-gradient(circle_at_center,var(--color-ink)_1px,transparent_1px)] [background-size:28px_28px]" />
-      </div>
-
-      <div className="relative mx-auto flex w-full max-w-[900px] flex-col px-8 pt-[10vh] pb-10">
+    <main className="project-welcome home-canvas relative flex min-h-0 flex-1 overflow-y-auto">
+      <div className="workspace-home-content">
         <div className="anim-fade-up flex items-center gap-3">
           <BrandMark className="text-[13px]" />
           <span className="text-xs font-medium tracking-[0.12em] text-faint uppercase">Welcome to BiMAX</span>
         </div>
         <h1 className="anim-fade-up font-display mt-4 max-w-[650px] text-[40px] leading-[1.06] font-semibold tracking-[-0.04em] text-ink" style={{ animationDelay: '50ms' }}>
-          Where are we working?
+          Great work starts here.
         </h1>
         <p className="anim-fade-up mt-4 max-w-[620px] text-[14px] leading-relaxed text-dim" style={{ animationDelay: '90ms' }}>
-          Open a project and BiMAX will understand its code, remember your tasks, and keep every change inside that folder.
+          Bring a project. Make it yours. A focused workspace for your ideas, code, and everything that comes next.
         </p>
 
         <div className="anim-fade-up mt-8 flex flex-wrap gap-2.5" style={{ animationDelay: '130ms' }}>

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   ArrowUp, Square, FunctionSquare, FileText, Shield, Cpu,
-  ChevronUp, Sparkles, Pencil, Search, Hammer, Flame, Plus,
+  ChevronUp, Sparkles, Pencil, Search, Hammer, Flame, Plus, ListChecks, X, CornerDownRight, Folder, GitBranch, AtSign, SquareSlash as SlashSquare,
 } from 'lucide-react';
 import { CompletionItem, ControlsMsg, UiSnapshot } from '../protocol';
 import { cn } from '../lib/cn';
@@ -9,6 +9,11 @@ import { AttachmentWell, FileTile, type Attachment } from './AttachmentWell';
 import { Button } from './ui/button';
 import { SeedMenu, SeedMenuItem, SeedMenuLabel, SeedMenuReadout, SeedMenuSeparator } from './ui/morph/SeedMenu';
 import type { SupervisorStatus } from '../global';
+import {
+  emptyDraft, readDraft, saveDraft, composeMessage, mentionAt, replaceMention,
+  completionInsert, slashCommand, commandPrefix, readHistory, pushHistory,
+  shouldAttachPaste, pastedFileName, CLIPBOARD_IMAGE_TYPES, CONTEXT_VERBS, type ComposerDraft,
+} from '../composer.model';
 
 /**
  * Code-only composer for the agentic IDE. The strip under the input contains project autonomy,
@@ -55,7 +60,7 @@ const TIERS = [
 ];
 
 export function Composer({
-  busy, mode, tier, snapshot, streamedChars, completions, project, branch,
+  busy, mode, tier, snapshot, streamedChars, completions, project, draftKey = project, branch,
   onSubmit, onInterrupt, onControls, onCommand, onQuery, onIngest, onClearCompletions, onOpenModels, runtime,
 }: {
   busy: boolean;
@@ -63,11 +68,12 @@ export function Composer({
   tier: string;
   /** Absolute path of the open project — only its last segment is shown. */
   project: string;
+  draftKey?: string;
   branch: string | null;
   snapshot: UiSnapshot | null;
   streamedChars: number;
   completions: CompletionItem[];
-  onSubmit: (text: string) => void;
+  onSubmit: (text: string, engineText?: string) => void;
   onInterrupt: () => void;
   onControls: (controls: Omit<ControlsMsg, 't'>) => void;
   onCommand: (cmd: string) => void;
@@ -79,183 +85,283 @@ export function Composer({
   onOpenModels: () => void;
   runtime: SupervisorStatus | null;
 }): React.ReactElement {
-  const [text, setText] = useState('');
-  const [queued, setQueued] = useState<string | null>(null);
+  const [draft, setDraft] = useState<ComposerDraft>(() => readDraft(draftKey));
+  const text = draft.text;
+  const setText = (value: string | ((previous: string) => string)): void => {
+    setDraft(current => ({ ...current, text: typeof value === 'function' ? value(current.text) : value }));
+  };
+  const [queued, setQueued] = useState<{ draft: ComposerDraft; attachments: Attachment[] } | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [saved, setSaved] = useState(true);
+  const [error, setError] = useState('');
   const [sel, setSel] = useState(0);
+  const [caret, setCaret] = useState(0);
   const [permission, setPermission] = useState('auto');
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [wellOpen, setWellOpen] = useState(false);
+  const [dropDepth, setDropDepth] = useState(0);
   const taRef = useRef<HTMLTextAreaElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
-  const historyRef = useRef<string[]>([]);
+  const historyRef = useRef<string[]>(readHistory(draftKey));
   const histIdxRef = useRef(-1);
-
-  const visibleCompletions = completions.filter((item) => item.kind !== 'command');
-  const showDropdown = visibleCompletions.length > 0 && text.trim().length > 0;
+  const mounted = useRef(true);
+  const ingestJobs = useRef(new Map<string, symbol>());
+  const submissionLock = useRef(false);
+  const activeMention = mentionAt(text, caret);
+  // Typing `/` asks for commands; typing `@` asks for context. Command suggestions used to be
+  // filtered out of this list unconditionally and `onCommand` was never called, so every slash
+  // command the engine offers was unreachable from the one input the product points people at.
+  const activeCommand = commandPrefix(text, caret);
+  const visibleCompletions = completions
+    .filter(item => (activeCommand !== null ? item.kind === 'command' : item.kind !== 'command'))
+    .slice(0, 8);
+  const showDropdown = (!!activeMention || activeCommand !== null) && visibleCompletions.length > 0;
   const modeId = (mode || '').toLowerCase() === 'plan' ? 'general' : (mode || '').toLowerCase() || 'general';
-  const activeMode = ADVANCED_MODES.find((m) => m.id === modeId) ?? ADVANCED_MODES[0];
+  const activeMode = ADVANCED_MODES.find(m => m.id === modeId) ?? ADVANCED_MODES[0];
   const readOnlyMode = ['PLAN', 'EXPLORE', 'SKETCH'].includes((mode || '').toUpperCase());
-  const activeLevel = CONTROL_LEVELS.find((level) => level.id === permission) ?? CONTROL_LEVELS[1];
-  const activeTier = TIERS.find((t) => t.id === (tier || 'auto')) ?? TIERS[0];
-
+  const activeLevel = CONTROL_LEVELS.find(level => level.id === permission) ?? CONTROL_LEVELS[1];
+  const activeTier = TIERS.find(t => t.id === (tier || 'auto')) ?? TIERS[0];
+  // Quality is no longer its own pill. The default is silent; a pinned tier is named here, so a
+  // non-default can never hide inside a menu nobody opens.
+  const modelLabel = shortModel(snapshot?.models.coding) + (activeTier.id === 'auto' ? '' : ` · ${activeTier.short}`);
+  const modelTitle = `${snapshot?.models.coding ?? 'Model'} · ${activeTier.desc}`;
   const ctxPct = snapshot && snapshot.contextWindow > 0
-    ? Math.min(100, Math.round(((snapshot.tokensBaseline + streamedChars / 4) / snapshot.contextWindow) * 100))
-    : null;
+    ? Math.min(100, Math.round(((snapshot.tokensBaseline + streamedChars / 4) / snapshot.contextWindow) * 100)) : null;
   const available = runtime?.phase === 'ready' || runtime?.phase === 'degraded';
+  const unread = attachments.some(a => a.state !== 'read');
+  const pendingCommand = attachments.length ? null : slashCommand(text);
+  const canSubmit = !!text.trim() && available && !unread && !queued;
 
-  // Let the first instruction feel instant even while a newly opened project finishes loading.
-  // The user never has to wait for or understand the background runtime lifecycle.
   useEffect(() => {
-    if (!available || !queued) return;
-    onSubmit(queued);
-    setQueued(null);
-  }, [available, queued, onSubmit]);
-
+    mounted.current = true;
+    return () => { mounted.current = false; clearTimeout(debounceRef.current); ingestJobs.current.clear(); };
+  }, []);
+  useEffect(() => { setSaved(saveDraft(draftKey, draft)); }, [draftKey, draft]);
   useEffect(() => { setSel(0); }, [completions]);
+  useEffect(() => { submissionLock.current = false; }, [text, busy, available]);
 
-  // Files panel "@" button (and anything else in the shell) can inject text into the composer.
+  // Explicit task navigation resets the composer through its keyed parent. Engine-side /clear and
+  // resume are also task boundaries; stale ingestion promises must not repopulate the new draft.
+  useEffect(() => window.bimax.onMessage?.(msg => {
+    if (msg.t !== 'event' || (msg.name !== 'clear' && !(msg.name === 'session_restore' && available))) return;
+    ingestJobs.current.clear();
+    setQueued(null); setAttachments([]); setDraft(emptyDraft()); setError('');
+    // History survives a task boundary. Clearing the transcript resets the ENGINE's context; what
+    // the person typed is theirs, and ↑ after New Task is how a similar request gets restarted.
+    historyRef.current = readHistory(draftKey); histIdxRef.current = -1;
+    onClearCompletions();
+  }), [onClearCompletions, available, project]);
+
   useEffect(() => {
-    const h = (e: Event): void => {
-      const detail = String((e as CustomEvent).detail ?? '');
-      if (!detail) return;
-      setText((t) => (t ? `${t.replace(/\s+$/, '')} ${detail}` : detail));
+    const insert = (event: Event): void => {
+      const value = String((event as CustomEvent).detail ?? '');
+      if (!value) return;
+      setText(current => current ? `${current.trimEnd()} ${value}` : value);
       taRef.current?.focus();
     };
-    window.addEventListener('bimax:compose-insert', h);
-    return () => window.removeEventListener('bimax:compose-insert', h);
+    window.addEventListener('bimax:compose-insert', insert);
+    return () => window.removeEventListener('bimax:compose-insert', insert);
   }, []);
-
   useEffect(() => {
     const ta = taRef.current;
     if (!ta) return;
     ta.style.height = 'auto';
-    ta.style.height = Math.min(ta.scrollHeight, 200) + 'px';
+    ta.style.height = Math.min(ta.scrollHeight, 260) + 'px';
   }, [text]);
 
-  const change = (v: string): void => {
-    setText(v);
-    histIdxRef.current = -1;
+  const queryAt = (value: string, position: number): void => {
+    setCaret(position);
     clearTimeout(debounceRef.current);
-    if (v.includes('@')) {
-      debounceRef.current = setTimeout(() => onQuery(v), 120);
-    } else if (completions.length) {
+    onClearCompletions();
+    if (!available) return;
+    const command = commandPrefix(value, position);
+    const mention = command === null ? mentionAt(value, position) : null;
+    const request = command ?? mention?.query;
+    if (request !== undefined) debounceRef.current = setTimeout(() => onQuery(request), 120);
+  };
+  const change = (value: string, position = value.length): void => {
+    setText(value); setError(''); histIdxRef.current = -1;
+    queryAt(value, position);
+  };
+  const send = (next: ComposerDraft, files: Attachment[]): boolean => {
+    try {
+      const message = composeMessage(next, files.map(file => file.path));
+      const display = composeMessage(next) + (files.length ? `\n\nAttached: ${files.map(f => f.name).join(', ')}` : '');
+      onSubmit(display, message);
+      historyRef.current = pushHistory(draftKey, next.text);
       onClearCompletions();
+      return true;
+    } catch {
+      setError('Your message was not sent. Your draft is still here.');
+      return false;
     }
   };
-
   const submit = (): void => {
-    if (!text.trim() || busy || queued) return;
-    historyRef.current.push(text);
-    histIdxRef.current = -1;
-    // The engine resolves attachments from `@path` tokens; the person never sees them. Appended at
-    // SUBMIT rather than typed into the box, so the prompt stays the prompt.
-    const refs = attachments.map((a) => `@${a.path}`).join(' ');
-    const message = refs ? `${text.trim()} ${refs}`.trim() : text;
-    if (!available) {
-      setQueued(message);
-      setText('');
-      setAttachments([]);
+    if (!canSubmit || submissionLock.current) return;
+    submissionLock.current = true;
+    // A slash command is an instruction to the application, not a turn for the model. It runs now
+    // — including mid-task, which is the whole point of `/clear` and `/model` — and is never held
+    // back for review the way a follow-up message is.
+    if (pendingCommand) {
+      onCommand(pendingCommand);
+      historyRef.current = pushHistory(draftKey, pendingCommand);
+      histIdxRef.current = -1;
+      setDraft(emptyDraft()); setDetailsOpen(false);
+      onClearCompletions();
+      submissionLock.current = false;
       return;
     }
-    onSubmit(message);
-    setText('');
-    setAttachments([]);
-  };
-
-  const accept = (item: CompletionItem): void => {
-    if (item.disabled) return;
-    const at = text.lastIndexOf('@');
-    setText(at === -1 ? item.value : text.slice(0, at) + item.value);
-    onClearCompletions();
-    taRef.current?.focus();
-  };
-
-  /**
-   * Attachments are STATE, not text.
-   *
-   * They used to be appended to the textarea as `@/Users/<name>/Desktop/<file>.pdf` — the absolute
-   * path became the UI, it consumed the full width, it buried the prompt being written, and the only
-   * way to remove one was backspace. They are now a list the person can see and dismiss, and the
-   * path is appended to the message only at submit, where the engine reads it.
-   */
-  const [attachments, setAttachments] = useState<Attachment[]>([]);
-  const [wellOpen, setWellOpen] = useState(false);
-
-  const addPaths = (paths: string[]): void => {
-    const usable = paths.filter(Boolean);
-    if (!usable.length) return;
-    setAttachments((current) => {
-      const seen = new Set(current.map((a) => a.path));
-      const added = usable.filter((p) => !seen.has(p))
-        .map((p) => ({ path: p, name: p.split('/').pop() || p, size: 0, state: 'reading' as const }));
-      return added.length ? [...current, ...added] : current;
-    });
-
-    // Read it NOW. Not at send: a file must be read the moment it is attached, which is what makes
-    // the model answer from the document instead of appearing to go and find it.
-    for (const p of usable) {
-      void onIngest(p).then((result) => {
-        setAttachments((current) => current.map((a) => (a.path === p
-          ? { ...a, state: result.ok ? 'read' : 'failed', chunks: result.chunks, reason: result.reason }
-          : a)));
-      }).catch(() => {
-        setAttachments((current) => current.map(
-          (a) => (a.path === p ? { ...a, state: 'failed', reason: 'could not be read' } : a)));
-      });
+    if (busy) {
+      // This is a reviewable follow-up, never silently replayed after a crash or a task switch.
+      setQueued({ draft: { ...draft }, attachments: [...attachments] });
+      return;
     }
+    if (!send(draft, attachments)) { submissionLock.current = false; return; }
+    setDraft(emptyDraft()); setAttachments([]); setDetailsOpen(false);
+    ingestJobs.current.clear(); histIdxRef.current = -1;
   };
-
-  const removeAttachment = (path: string): void =>
-    setAttachments((current) => current.filter((a) => a.path !== path));
-
-  const attach = (): void => {
-    void window.bimax.pickFiles().then(addPaths);
+  const sendQueued = (): void => {
+    if (!queued || busy || !available || submissionLock.current) return;
+    submissionLock.current = true;
+    if (send(queued.draft, queued.attachments)) {
+      setQueued(null); setDraft(emptyDraft()); setAttachments([]); setDetailsOpen(false);
+    } else submissionLock.current = false;
   };
-
-  const openWell = (): void => setWellOpen(true);
-  const closeWell = (): void => {
+  const focusCaret = (position: number): void => {
+    requestAnimationFrame(() => { taRef.current?.focus(); taRef.current?.setSelectionRange(position, position); });
+  };
+  const accept = (item?: CompletionItem): void => {
+    if (!item || item.disabled) return;
+    if (item.kind === 'command') {
+      // `commandPrefix` only matches when everything before the caret IS the command name, so the
+      // command replaces exactly that and whatever the user typed after the caret is preserved.
+      const name = item.value.trim();
+      const next = `${name} ${text.slice(caret).replace(/^ /, '')}`;
+      setText(next); setCaret(name.length + 1); onClearCompletions();
+      focusCaret(name.length + 1);
+      return;
+    }
+    const result = replaceMention(text, caret, completionInsert(item));
+    setText(result.text); setCaret(result.caret); onClearCompletions();
+    focusCaret(result.caret);
+  };
+  const ingest = (path: string): void => {
+    if (!available || queued) return;
+    const job = Symbol(path);
+    ingestJobs.current.set(path, job);
+    setAttachments(current => current.map(a => a.path === path ? { ...a, state: 'reading', reason: '' } : a));
+    void onIngest(path).then(result => {
+      if (!mounted.current || ingestJobs.current.get(path) !== job) return;
+      setAttachments(current => current.map(a => a.path === path
+        ? { ...a, state: result.ok ? 'read' : 'failed', chunks: result.chunks, reason: result.reason } : a));
+    }).catch(() => {
+      if (!mounted.current || ingestJobs.current.get(path) !== job) return;
+      setAttachments(current => current.map(a => a.path === path ? { ...a, state: 'failed', reason: 'Could not read this file' } : a));
+    });
+  };
+  const addPaths = (paths: string[]): void => {
+    if (!available || queued) { setError('Wait until Bimax is ready, then attach your files.'); return; }
+    const usable = [...new Set(paths.filter(Boolean))].filter(path => !ingestJobs.current.has(path));
+    if (!usable.length) return;
+    setAttachments(current => [...current, ...usable.map(path => ({ path, name: path.split('/').pop() || path, size: 0, state: 'reading' as const }))]);
+    usable.forEach(ingest);
     setWellOpen(false);
-    taRef.current?.focus();
   };
-
-  /**
-   * Drag-and-drop.
-   *
-   * `depth` rather than a boolean: dragenter/dragleave fire for every child element the pointer
-   * crosses, so a boolean flickers the highlight off as soon as the cursor moves over the textarea
-   * inside the drop zone. Counting enter/leave pairs is what makes the affordance stable.
-   */
-  const [dropDepth, setDropDepth] = useState(0);
-
+  const removeAttachment = (path: string): void => {
+    if (queued) return;
+    ingestJobs.current.delete(path);
+    setAttachments(current => current.filter(a => a.path !== path));
+  };
+  const attach = (): void => {
+    void window.bimax.pickFiles().then(paths => { if (mounted.current) addPaths(paths); })
+      .catch(() => { if (mounted.current) setError('The file picker could not open. Try again.'); });
+  };
+  const openWell = (): void => setWellOpen(true);
+  const closeWell = (): void => { setWellOpen(false); taRef.current?.focus(); };
   const onDragOver = (e: React.DragEvent): void => {
     if (!e.dataTransfer.types.includes('Files')) return;
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
+    e.preventDefault(); e.dataTransfer.dropEffect = available && !queued ? 'copy' : 'none';
   };
   const onDragEnter = (e: React.DragEvent): void => {
-    if (!e.dataTransfer.types.includes('Files')) return;
-    e.preventDefault();
-    // A drag anywhere over the composer opens the well, so the hole is what you drop onto.
-    setWellOpen(true);
-    setDropDepth((d) => d + 1);
+    if (!e.dataTransfer.types.includes('Files') || !available || queued) return;
+    e.preventDefault(); setWellOpen(true); setDropDepth(d => d + 1);
   };
-  const onDragLeave = (): void => setDropDepth((d) => Math.max(0, d - 1));
+  const onDragLeave = (): void => setDropDepth(d => Math.max(0, d - 1));
   const onDrop = (e: React.DragEvent): void => {
     if (!e.dataTransfer.types.includes('Files')) return;
+    e.preventDefault(); setDropDepth(0);
+    const paths = Array.from(e.dataTransfer.files).map(file => window.bimax.pathForFile(file));
+    if (paths.some(path => !path)) setError('Some dropped files have no local path. Save them locally and attach again.');
+    addPaths(paths);
+  };
+
+  /**
+   * Paste.
+   *
+   * A screenshot on the clipboard is a File with no path (`pathForFile` returns ''), and a pasted
+   * log is not a file at all — so before this, the composer's only sources of context were the
+   * picker and drag-and-drop, and pasting a screenshot into the prompt did nothing whatsoever.
+   * Clipboard bytes are written out by main and then take exactly the same route a dropped file
+   * takes: attached, read at attach time, and blocking send until they have actually been read.
+   */
+  const insertAtCaret = (value: string): void => {
+    // Read the LIVE field, not the render-time `text`: this runs after an await, and someone who
+    // kept typing while the clipboard was being written out must not have that typing overwritten.
+    const ta = taRef.current;
+    if (!ta) { setText(current => current + value); return; }
+    const start = ta.selectionStart;
+    const next = ta.value.slice(0, start) + value + ta.value.slice(ta.selectionEnd);
+    change(next, start + value.length);
+    focusCaret(start + value.length);
+  };
+  const stashBytes = async (name: string, bytes: Uint8Array): Promise<string> => {
+    // Optional on the bridge: a renderer can run against an older packaged main process, and the
+    // caller must be able to say what it could not do rather than throw on a keystroke.
+    const stash = window.bimax.stashPaste;
+    if (!stash) return '';
+    return stash(name, bytes).catch(() => '');
+  };
+  const onPaste = (e: React.ClipboardEvent): void => {
+    if (queued) return;
+    const files = Array.from(e.clipboardData.files ?? []);
+    if (files.length) {
+      e.preventDefault();
+      if (!available) { setError('Wait until Bimax is ready, then paste again.'); return; }
+      void (async () => {
+        const paths: string[] = [];
+        const refused: string[] = [];
+        for (const file of files) {
+          const onDisk = window.bimax.pathForFile(file);
+          if (onDisk) { paths.push(onDisk); continue; }
+          const extension = CLIPBOARD_IMAGE_TYPES[file.type];
+          if (!extension) { refused.push(file.type || 'unknown type'); continue; }
+          const stashed = await stashBytes(
+            pastedFileName('image', new Date(), extension),
+            new Uint8Array(await file.arrayBuffer()),
+          );
+          if (stashed) paths.push(stashed); else refused.push(file.name || 'pasted image');
+        }
+        if (!mounted.current) return;
+        // Never silent: a paste that produced no attachment has to say so, or the user believes
+        // the screenshot is in the prompt and asks a question about something nothing can see.
+        if (refused.length) setError(`Could not attach ${refused.join(', ')}. Save it to a file and attach it instead.`);
+        if (paths.length) addPaths(paths);
+      })();
+      return;
+    }
+    const pasted = e.clipboardData.getData('text/plain');
+    if (!shouldAttachPaste(pasted) || !available) return;
     e.preventDefault();
-    setDropDepth(0);
-    // Electron 32 removed `File.path`; `webUtils.getPathForFile` in the preload is the replacement.
-    // Files with no resolvable path (a drag from a browser, say) are dropped rather than passed on
-    // as empty strings, which would become a meaningless `@` reference.
-    const dropped = Array.from(e.dataTransfer.files);
-    addPaths(dropped.map((file) => window.bimax.pathForFile(file)));
-    // A drop already knows each file's size; the picker does not, and asking the main process for
-    // one is what crashed the app. Free information only.
-    const sizes = new Map(dropped.map((file) => [window.bimax.pathForFile(file), file.size]));
-    setAttachments((current) => current.map(
-      (a) => (sizes.get(a.path) ? { ...a, size: sizes.get(a.path)! } : a),
-    ));
+    void (async () => {
+      const stashed = await stashBytes(pastedFileName('text'), new TextEncoder().encode(pasted));
+      if (!mounted.current) return;
+      // A failed stash must not eat the clipboard: the text goes into the prompt as it would have.
+      if (stashed) addPaths([stashed]); else insertAtCaret(pasted);
+    })();
   };
 
   const keyDown = (e: React.KeyboardEvent): void => {
+    if (e.nativeEvent.isComposing || e.keyCode === 229 || wellOpen) return;
     if (showDropdown) {
       if (e.key === 'ArrowDown') { e.preventDefault(); setSel((s) => Math.min(s + 1, visibleCompletions.length - 1)); return; }
       if (e.key === 'ArrowUp') { e.preventDefault(); setSel((s) => Math.max(s - 1, 0)); return; }
@@ -280,7 +386,7 @@ export function Composer({
       setText(histIdxRef.current === -1 ? '' : hist[histIdxRef.current]);
       return;
     }
-    if (e.key === 'Enter' && (e.metaKey || (!e.shiftKey && !showDropdown))) {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey || (!e.shiftKey && !showDropdown))) {
       e.preventDefault();
       submit();
       return;
@@ -294,10 +400,15 @@ export function Composer({
   return (
     <div className="relative shrink-0 px-4 pt-1 pb-4">
       {showDropdown && (
-        <div className="absolute bottom-full left-1/2 z-20 mb-1 w-[min(860px,calc(100%-48px))] -translate-x-1/2 overflow-hidden rounded-[10px] border border-line bg-raise shadow-[0_12px_32px_rgba(0,0,0,0.45)]">
+        <div id="composer-suggestions" role="listbox" aria-label="Context suggestions" className="absolute bottom-full left-1/2 z-20 mb-1 w-[min(860px,calc(100%-48px))] -translate-x-1/2 overflow-hidden rounded-[10px] border border-line bg-raise shadow-[0_12px_32px_rgba(0,0,0,0.45)]">
           {visibleCompletions.slice(0, 8).map((c, i) => (
             <button
               key={c.value + i}
+              id={`composer-option-${i}`}
+              role="option"
+              aria-selected={i === sel}
+              disabled={c.disabled}
+              onMouseDown={e => e.preventDefault()}
               onMouseEnter={() => setSel(i)}
               onClick={() => accept(c)}
               className={cn(
@@ -307,7 +418,11 @@ export function Composer({
               )}
             >
               <span className="w-4 shrink-0 text-ember">
-                {c.kind === 'symbol' ? <FunctionSquare size={13} /> : <FileText size={13} />}
+                {/* A context verb arrives as `kind: 'path'` because it rides mid-prompt like one,
+                    but `@diff` is not a file and a document icon would say it was. */}
+                {c.kind === 'command' ? <SlashSquare size={13} />
+                  : CONTEXT_VERBS.includes(c.value) ? <AtSign size={13} />
+                    : c.kind === 'symbol' ? <FunctionSquare size={13} /> : <FileText size={13} />}
               </span>
               <span className="font-mono">{c.label}</span>
               <span className="truncate text-faint">{c.disabled ? c.disabledReason || c.desc : c.desc}</span>
@@ -317,14 +432,32 @@ export function Composer({
       )}
 
       <div className="composer-column mx-auto">
+        <div className="mb-2 flex min-w-0 items-center justify-between gap-3 px-2 text-[11px] text-faint">
+          <span className="inline-flex min-w-0 items-center gap-1.5" title={project}>
+            <Folder size={12} className="shrink-0" /><span className="truncate">{project.split('/').filter(Boolean).pop() || 'Workspace'}</span>
+            {branch && <><span className="text-line">/</span><GitBranch size={11} className="shrink-0" /><span className="max-w-32 truncate">{branch}</span></>}
+          </span>
+          <span className="shrink-0">{busy ? 'Working · prepare your next step' : available ? 'Ready when you are' : 'Connecting · keep writing'}</span>
+        </div>
+        {queued && (
+          <div className="mb-2 flex items-start gap-3 rounded-2xl border border-line bg-raise px-4 py-3" role="status">
+            <CornerDownRight size={15} className="mt-0.5 shrink-0 text-dim" />
+            <div className="min-w-0 flex-1"><p className="text-[11px] font-medium text-dim">Next message · held for your review</p><p className="mt-1 truncate text-[12px] text-ink">{queued.draft.text}</p></div>
+            <button type="button" onClick={() => { setQueued(null); submissionLock.current = false; taRef.current?.focus(); }} className="text-[11px] text-dim hover:text-ink">Edit</button>
+            {!busy && <button type="button" disabled={!available} onClick={sendQueued} className="text-[11px] font-medium text-ink disabled:opacity-40">Send now</button>}
+            <button type="button" aria-label="Cancel next message" onClick={() => { setQueued(null); submissionLock.current = false; }} className="text-faint hover:text-ink"><X size={13} /></button>
+          </div>
+        )}
       <div
         onDragOver={onDragOver}
         onDragEnter={onDragEnter}
         onDragLeave={onDragLeave}
         onDrop={onDrop}
         className={cn(
-          'launch-console relative rounded-[22px] border bg-raise shadow-[0_18px_50px_rgba(0,0,0,0.12)] transition-[border-color,box-shadow] focus-within:border-ember/45 focus-within:shadow-[0_20px_56px_rgba(0,0,0,0.16)]',
-          dropDepth > 0 ? 'border-ember/70 shadow-[0_20px_56px_rgba(0,0,0,0.16)]' : 'border-line',
+          // `.launch-console` owns radius and shadow in styles.css; a utility here would be dead
+          // weight that only looks like it is in charge.
+          'launch-console relative rounded-[18px] border bg-raise transition-[border-color,box-shadow] focus-within:border-ember/45',
+          dropDepth > 0 ? 'border-ember/70' : 'border-line',
         )}
       >
         {/*
@@ -333,19 +466,8 @@ export function Composer({
           * is the worst outcome available: the user believes the file was read and acts on an answer
           * that never saw it.
           */}
-        {snapshot?.composer && (snapshot.composer.session + snapshot.composer.library) === 0 && !text && (
-          // Empty state. Without it the Composer is invisible until you already know it exists: the
-          // corpus readout suppresses itself at zero and the drop zone only renders mid-drag, so the
-          // paperclip was the sole affordance and drag-and-drop was undiscoverable. An empty state is
-          // the only moment a feature can introduce itself.
-          <div className="flex items-center gap-1.5 px-5 pt-2 text-[11px] text-faint">
-            <FileText size={11} />
-            <span>Drop files here — PDFs, scans, spreadsheets, notes. Bimax reads them and cites what it uses.</span>
-          </div>
-        )}
-
         {snapshot?.composer && (snapshot.composer.session + snapshot.composer.library) > 0 && (
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-5 pt-2 text-[11px] text-faint">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 pt-2.5 text-[11px] text-faint">
             <span className="inline-flex items-center gap-1.5">
               <FileText size={11} />
               {snapshot.composer.session + snapshot.composer.library} document
@@ -382,37 +504,66 @@ export function Composer({
 
         {/* Once the well is closed the files ride ABOVE the prompt, still removable. */}
         {!wellOpen && attachments.length > 0 && (
-          <div className="flex flex-wrap gap-2 px-5 pt-3">
+          <div className="flex flex-wrap gap-2 px-4 pt-3">
             {attachments.map((file) => (
-              <FileTile key={file.path} file={file} compact onRemove={() => removeAttachment(file.path)} />
+              <FileTile key={file.path} file={file} compact locked={!!queued} onRemove={() => removeAttachment(file.path)} onRetry={file.state === 'failed' ? () => ingest(file.path) : undefined} />
             ))}
           </div>
         )}
 
-        <div className="flex items-end gap-3 px-5 pt-4 pb-3">
+        <div className="flex items-end gap-3 px-4 pt-3.5 pb-1">
           <textarea
             ref={taRef}
             rows={1}
             value={text}
             aria-label="Describe what you want Bimax to do"
             data-bimax-composer=""
-            placeholder={busy ? 'Add direction while Bimax works…' : queued ? 'Your task will start in a moment…' : 'Do anything'}
-            onChange={(e) => change(e.target.value)}
+            placeholder={busy ? 'Write the next step. Save it for review…' : 'Ask a question, build something, or bring your work here…'}
+            readOnly={!!queued}
+            aria-describedby="composer-help"
+            aria-controls={showDropdown ? 'composer-suggestions' : undefined}
+            aria-expanded={showDropdown}
+            aria-autocomplete="list"
+            aria-activedescendant={showDropdown ? `composer-option-${sel}` : undefined}
+            onChange={(e) => change(e.target.value, e.target.selectionStart)}
+            onSelect={e => { const position = e.currentTarget.selectionStart; if (position !== caret) queryAt(text, position); }}
             onKeyDown={keyDown}
-            className="max-h-[220px] min-h-12 flex-1 resize-none border-none bg-transparent font-display text-[15px] leading-relaxed outline-none placeholder:text-faint"
+            onPaste={onPaste}
+            className="min-w-0 flex-1 resize-none border-none bg-transparent font-display text-[14.5px] leading-relaxed outline-none placeholder:text-faint"
           />
         </div>
 
-        <div className="flex min-w-0 items-center gap-1.5 px-3 pb-3">
+        {detailsOpen && (
+          <div id="composer-brief" className="mx-4 mb-3 grid gap-3 rounded-xl border border-line bg-bg/40 p-3 sm:grid-cols-2">
+            <label className="text-[11px] text-dim">Constraints
+              <textarea rows={2} value={draft.constraints} readOnly={!!queued} onChange={e => setDraft(current => ({ ...current, constraints: e.target.value }))}
+                placeholder="Audience, scope, sources, things to preserve…" className="mt-1.5 block w-full resize-y rounded-lg border border-line bg-transparent p-2 text-[12px] text-ink outline-none focus:border-ember/50" />
+            </label>
+            <label className="text-[11px] text-dim">What does done look like?
+              <textarea rows={2} value={draft.checks} readOnly={!!queued} onChange={e => setDraft(current => ({ ...current, checks: e.target.value }))}
+                placeholder="Tests pass, claims cite sources, totals reconcile…" className="mt-1.5 block w-full resize-y rounded-lg border border-line bg-transparent p-2 text-[12px] text-ink outline-none focus:border-ember/50" />
+            </label>
+            <p className="text-[10px] text-faint sm:col-span-2">Included in your message. Output preferences keep your current permissions.</p>
+          </div>
+        )}
+        <div className="composer-toolbar flex min-w-0 items-center gap-1 px-3 pb-2.5">
           <button
             type="button"
-            title="Attach files as @references"
+            title="Attach files"
+            aria-label="Attach files"
+            disabled={!available || !!queued}
             onClick={openWell}
-            className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-line text-dim transition-colors hover:border-ember/50 hover:bg-hover hover:text-ink"
+            className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-faint transition-colors hover:bg-hover hover:text-ink disabled:opacity-40"
           >
             <Plus size={16} />
           </button>
 
+          <button type="button" aria-expanded={detailsOpen} aria-controls="composer-brief" onClick={() => setDetailsOpen(value => !value)}
+            title="Constraints, and what done looks like"
+            className={cn('flex shrink-0 items-center gap-1.5 rounded-xl px-2 py-1.5 text-[11px] transition-colors', detailsOpen || draft.constraints || draft.checks ? 'text-ink' : 'text-faint hover:text-ink')}>
+            <ListChecks size={13} />
+            <span className="composer-brief-label">Brief{(draft.constraints || draft.checks) ? ` · ${Number(!!draft.constraints) + Number(!!draft.checks)}` : ''}</span>
+          </button>
           {/* Widest of the strip's menus: in `custom` it grows three sections deep, and `fitHeight`
               means the surface is exactly as tall as whichever shape it is in rather than sized for
               its largest one. */}
@@ -493,7 +644,7 @@ export function Composer({
           <SeedMenu
             label="Model"
             width={280}
-            trigger={(open) => <ComposerPill open={open} icon={<Cpu size={13} />} label={shortModel(snapshot?.models.coding)} mono />}
+            trigger={(open) => <ComposerPill open={open} icon={<Cpu size={13} />} label={modelLabel} title={modelTitle} />}
           >
             {(close) => (
               <>
@@ -504,6 +655,11 @@ export function Composer({
                 <SeedMenuReadout label="Work" value={snapshot?.models.coding ?? 'not reported'} />
                 <SeedMenuReadout label="Quick" value={snapshot?.models.lite ?? 'not reported'} />
                 <SeedMenuSeparator />
+                <SeedMenuLabel>Model quality</SeedMenuLabel>
+                {TIERS.map((t) => (
+                  <SeedMenuItem key={t.id} selected={(tier || 'auto') === t.id} label={t.label} desc={t.desc} onClick={() => { onControls({ tier: t.id as ControlsMsg['tier'] }); close(); }} />
+                ))}
+                <SeedMenuSeparator />
                 <SeedMenuItem
                   label="Change model…"
                   desc="Slots, reasoning effort and what the engine actually kept"
@@ -512,37 +668,28 @@ export function Composer({
               </>
             )}
           </SeedMenu>
-
-          <SeedMenu
-            label="Model quality"
-            trigger={(open) => <ComposerPill open={open} label={activeTier.short} title={activeTier.desc} />}
-          >
-            {(close) => (
-              <>
-                <SeedMenuLabel>Model quality</SeedMenuLabel>
-                {TIERS.map((t) => (
-                  <SeedMenuItem key={t.id} selected={(tier || 'auto') === t.id} label={t.label} desc={t.desc} onClick={() => { onControls({ tier: t.id as ControlsMsg['tier'] }); close(); }} />
-                ))}
-              </>
-            )}
-          </SeedMenu>
-          {queued && (
-            <span className="hidden items-center gap-1.5 text-[10px] text-dim sm:flex">
-              <span className="signal-beacon size-1.5 rounded-full bg-amber" /> Starting your task…
-            </span>
-          )}
-
-          {busy ? (
-            <Button variant="accent" size="icon" className="ml-1 size-9 rounded-full" title="Stop" onClick={onInterrupt}>
-              <Square size={11} fill="currentColor" className="rounded-[2px]" />
-            </Button>
-          ) : (
-            <Button variant="accent" size="icon" className="ml-1 size-9 rounded-full shadow-[0_6px_16px_rgba(0,0,0,0.18)]" title="Send (Enter)" disabled={!text.trim() || !!queued} onClick={submit}>
-              <ArrowUp size={16} />
+          {busy && (
+            <Button variant="ghost" size="icon" className="composer-stop ml-1 size-8 shrink-0 rounded-full" aria-label="Stop current task" title="Stop current task" onClick={onInterrupt}>
+              <Square size={11} fill="currentColor" />
             </Button>
           )}
+          <Button variant="accent" size="icon" className="composer-send ml-1 size-8 shrink-0 rounded-full"
+            aria-label={pendingCommand ? `Run ${pendingCommand.split(/\s/)[0]}` : busy ? 'Save next message' : 'Send message'}
+            title={unread ? 'Wait for files to finish reading, or retry/remove failed files'
+              : pendingCommand ? `Run ${pendingCommand.split(/\s/)[0]} now`
+                : busy ? 'Save next message for review' : 'Send (Enter)'}
+            disabled={!canSubmit} onClick={submit}>
+            {busy && !pendingCommand ? <CornerDownRight size={15} /> : <ArrowUp size={15} />}
+          </Button>
         </div>
       </div>
+        <div id="composer-help" className="mt-2 flex items-center justify-between gap-3 px-3 text-[10px] text-faint">
+          <span className="truncate">{unread ? 'Files must finish reading. Retry or remove any failed files.'
+            : pendingCommand ? `Enter runs ${pendingCommand.split(/\s/)[0]} now — this is a command, not a message`
+              : 'Enter to send · ⇧⏎ new line · @ context · / commands'}</span>
+          {!saved && <span className="shrink-0 text-amber">Draft storage unavailable · keep this window open</span>}
+        </div>
+        {error && <p role="alert" className="mt-2 px-2 text-[12px] text-rust">{error}</p>}
       </div>
     </div>
   );
@@ -572,20 +719,29 @@ export function ComposerPill({
       title={title}
       data-bimax-pill={testId}
       className={cn(
-        'flex max-w-[190px] items-center gap-1.5 rounded-xl px-2.5 py-1.5 text-[10.5px] transition-colors',
+        // `min-w-0 overflow-hidden`: the toolbar lets every control shrink before it wraps, and a pill that
+        // could not shrink with it painted its chevron over the send button in a ~240px chat column.
+        'flex min-w-0 max-w-[190px] items-center gap-1.5 overflow-hidden rounded-xl px-2.5 py-1.5 text-[10.5px] transition-colors',
         open ? 'bg-ember/12 text-ember'
           : tone === 'mac' ? 'bg-amber/10 text-amber' : 'text-dim hover:bg-hover hover:text-ink',
       )}
     >
       {icon ? <span className={open ? 'text-ember' : 'text-faint'}>{icon}</span> : null}
-      <span className={cn('truncate', mono && 'font-mono text-[9.5px]')}>{label}</span>
-      <ChevronUp size={9} className={cn('shrink-0 text-faint transition-transform', open && 'rotate-180')} />
+      <span className={cn('composer-pill-label truncate', mono && 'font-mono text-[9.5px]')}>{label}</span>
+      <ChevronUp size={9} className={cn('composer-pill-chevron shrink-0 text-faint transition-transform', open && 'rotate-180')} />
     </span>
   );
 }
 
 function shortModel(id?: string): string {
-  if (!id) return 'model';
-  const tail = id.split('/').pop() || id;
-  return tail.length > 22 ? tail.slice(0, 21) + '…' : tail;
+  if (!id) return 'Model';
+  const tail = (id.split('/').pop() || id)
+    .replace(/[:@].*$/, '')
+    .replace(/-(preview|latest|instruct|chat)$/i, '')
+    .replace(/-\d{6,8}$/, '');
+  if (tail.length <= 18) return tail;
+  // Cut at a separator so the label reads as a name — `nemotron-3.5…`, never `nemotron-3.5-lightnin…`.
+  const cut = tail.slice(0, 18);
+  const seam = Math.max(cut.lastIndexOf('-'), cut.lastIndexOf('.'));
+  return (seam > 7 ? cut.slice(0, seam) : cut) + '…';
 }

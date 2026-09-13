@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
+import { ThreadQuickBar, ThreadApprovals } from './components/ThreadSurfaces';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import '@fontsource-variable/inter';
 import './styles.css';
@@ -12,7 +13,7 @@ import './styles.css';
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ErrorBoundary>
-      <App />
+      {new URLSearchParams(location.search).get('surface') === 'quick' ? <ThreadQuickBar /> : new URLSearchParams(location.search).get('surface') === 'approval' ? <ThreadApprovals /> : <App />}
     </ErrorBoundary>
   </React.StrictMode>,
 );

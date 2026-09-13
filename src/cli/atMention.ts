@@ -142,7 +142,7 @@ export interface FileAtExpansion {
  */
 // Compiled once — avoids re-parsing the regex on every keystroke / expansion call.
 // Matches @url <https://...>, @diff, @staged, @selection/@sel, and @path-like tokens
-const FILE_AT_RE = /(?<![A-Za-z0-9_@])@(diff|staged|selection|sel|(?:\.\.?\/|~\/|\/)[^\s,;"'`()[\]{}]*|[A-Za-z0-9_./-]+\/[^\s,;"'`()[\]{}]*)/g;
+const FILE_AT_RE = /(?<![A-Za-z0-9_@])@("(?:[^"\\\r\n]|\\.)*"|diff|staged|selection|sel|(?:\.\.?\/|~\/|\/)[^\s,;"'`()[\]{}]*|[A-Za-z0-9_./-]+\/[^\s,;"'`()[\]{}]*)/g;
 // URL pattern matched separately (fetch is async and the URL contains non-path chars)
 const URL_AT_RE = /(?<![A-Za-z0-9_@])@url\s+(https?:\/\/\S+)/gi;
 
@@ -179,7 +179,13 @@ export async function expandFileAtMentions(text: string, cwd: string): Promise<F
   let m: RegExpExecArray | null;
   FILE_AT_RE.lastIndex = 0; // must reset the global regex before each scan
   while ((m = FILE_AT_RE.exec(text)) !== null) {
-    matches.push({ full: m[0], token: m[1], index: m.index });
+    let token = m[1];
+    if (token.startsWith('"')) {
+      try { token = JSON.parse(token); } catch { continue; }
+      // Quoted references are paths, never aliases or arbitrary prompt fragments.
+      if (typeof token !== 'string' || !/^(?:\.\.?\/|~\/|\/)/.test(token) || /[\0\r\n]/.test(token)) continue;
+    }
+    matches.push({ full: m[0], token, index: m.index });
   }
 
   for (const { full, token } of matches) {

@@ -64,3 +64,18 @@ jobs:
       - name: Build (electron-vite bundles; no packaging)
         run: npm run build
         working-directory: app
+      # The design-preview harness imports the real renderer components, so it is the only thing
+      # that fails when a component is deleted out from under it. It broke silently in d97018f
+      # (Computer Use archive separation) and stayed broken because nothing ran it. `npm run build`
+      # does NOT cover it: electron-vite never touches design-preview/.
+      - name: Design-preview harness resolves
+        run: npm run check:design-preview
+        working-directory: app
+
+      # The `linear()` spring curves in styles.css are compiled output, pasted from the same solver
+      # the JS animations use. Nothing about a stale paste looks wrong — the animation still runs,
+      # it just no longer matches the spring the JS applies to the same surface — so this compares
+      # the stylesheet against the solver and fails on any divergence.
+      - name: Motion tokens match the solver
+        run: npm run check:motion
+        working-directory: app

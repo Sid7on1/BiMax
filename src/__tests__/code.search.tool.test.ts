@@ -8,6 +8,7 @@ const governor = {
 
 function fakeIndex(path: string): CodeIndex {
   return {
+    coverage: () => ({ syncing: false, pending: 0 }),
     search: jest.fn().mockResolvedValue([{
       path,
       startLine: 1,

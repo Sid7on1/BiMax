@@ -1,0 +1,32 @@
+{"t":"boot","phase":"booting","pid":70858}
+{"t":"boot","phase":"loading_storage","pid":70858}
+{"t":"boot","phase":"loading_graph","pid":70858}
+{"t":"boot","phase":"loading_tools","pid":70858}
+{"t":"boot","phase":"loading_tools","pid":70858,"detail":"background services scheduled"}
+{"t":"boot","phase":"loading_tools","pid":70858,"detail":"semantic layer wired"}
+{"t":"boot","phase":"loading_tools","pid":70858,"detail":"analyzers wired"}
+{"t":"boot","phase":"loading_tools","pid":70858,"detail":"container ready"}
+{"t":"boot","phase":"loading_interface","pid":70858}
+{"t":"boot","phase":"restoring_session","pid":70858}
+{"t":"hello","engine":{"version":"dev","buildCommit":"unknown"},"protocolVersion":"3.2.0","protocolMajor":3,"minCompatibleMajor":2,"maxCompatibleMajor":3,"features":["approvals","boot","catalog","config","controls","health","interrupt","resume","review-snapshot","outcome-snapshot"]}
+{"t":"ready","protocol":3}
+{"t":"health","uptimeMs":424,"rssMb":266,"heapMb":51,"eventLoopDelayMs":0,"activeTurn":false,"phase":"ready"}
+{"t":"event","name":"ui_snapshot","args":[{"models":{"coding":"mock","lite":"mock","vision":"moonshotai/kimi-k3"},"goalCount":0,"mind":{"weakSpots":0,"driveDeviations":0,"habits":0,"weak":[],"drives":[],"habitNames":[],"ledger":{"resolved":0,"open":0,"expired":0,"coveragePct":0,"overconfident":0}},"graph":{"nodeCount":0,"fileCount":0,"aiGraphBuilt":false,"modules":[],"engine":"none"},"contextWindow":32000,"tokensBaseline":12682,"compressionSaved":0,"workspace":{"count":0,"names":[],"writable":0},"sessions":[],"tools":{"registered":50,"ready":23,"deferred":25,"discovered":0,"mcp":0,"graphReady":false},"composer":{"session":0,"library":0,"passages":0,"facts":0}}]}
+{"t":"event","name":"outcome_update","args":[null]}
+{"t":"event","name":"outcome_update","args":[null]}
+{"t":"event","name":"message","args":[{"id":"msg-1789195661110-nf4ss","role":"user","content":"Find sentinelAlpha with code search.","timestamp":"2026-09-12T06:47:41.110Z"}]}
+{"t":"event","name":"spinner_state","args":["thinking","Thinking…"]}
+{"t":"event","name":"model_tier","args":[{"tier":"lite","pinned":null}]}
+{"t":"event","name":"spinner_state","args":["thinking","Thinking…"]}
+{"t":"event","name":"message","args":[{"id":"capability-1","role":"system","level":"warn","content":"Code index: degraded. Indexing 2 changed or new files. Search results are incomplete; absence from results does not prove absence from the project. Use file search for exact tokens. Further searches retry indexing.","timestamp":"2026-09-12T06:47:41.122Z","payload":{"capabilityStatus":{"id":"code-index:/private/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-capability-proof-a4YLu5/project","label":"Code index","state":"degraded","reason":"Indexing 2 changed or new files.","impact":"Search results are incomplete; absence from results does not prove absence from the project.","action":"Use file search for exact tokens. Further searches retry indexing.","observedAt":"2026-09-12T06:47:41.122Z"}}}]}
+{"t":"event","name":"message","args":[{"id":"capability-2","role":"system","level":"success","content":"Code index: recovered. Index synchronization completed. Index coverage is current.","timestamp":"2026-09-12T06:47:41.132Z","payload":{"capabilityStatus":{"id":"code-index:/private/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-capability-proof-a4YLu5/project","label":"Code index","state":"ready","reason":"Index synchronization completed.","impact":"Index coverage is current.","action":"","observedAt":"2026-09-12T06:47:41.132Z"}}}]}
+{"t":"event","name":"tool_call","args":[{"id":"search-fixture","toolName":"CodeSearchTool","input":"{\"query\":\"sentinelAlpha\"}","output":"","status":"running","startTime":"2026-09-12T06:47:41.133Z"}]}
+{"t":"event","name":"status","args":["Approved: TOOL_EXECUTION"]}
+{"t":"event","name":"spinner_state","args":["executing","CodeSearchTool..."]}
+{"t":"event","name":"message","args":[{"id":"capability-3","role":"system","level":"warn","content":"Search reranking: degraded. Reranking service http://127.0.0.1:63636/v1/rerank returned HTTP 404. Results keep the first-stage order; reranking was not applied. Check reranking service access and settings. A later use retries automatically.","timestamp":"2026-09-12T06:47:41.148Z","payload":{"capabilityStatus":{"id":"reranking","label":"Search reranking","state":"degraded","reason":"Reranking service http://127.0.0.1:63636/v1/rerank returned HTTP 404.","impact":"Results keep the first-stage order; reranking was not applied.","action":"Check reranking service access and settings. A later use retries automatically.","observedAt":"2026-09-12T06:47:41.148Z"}}}]}
+{"t":"event","name":"tool_call_result","args":[{"id":"search-fixture","toolName":"CodeSearchTool","input":"{\"query\":\"sentinelAlpha\"}","output":"sentinel.ts:1-2 · sentinelAlpha\n```\nsentinel.ts :: sentinelAlpha (lines 1-2)\nexport function sentinelAlpha() { return \"fixture\"; }\n\n```\n---\nrelated.ts:1-2 · sentinelBeta\n```\nrelated.ts :: sentinelBeta (lines 1-2)\nexport function sentinelBeta() { return \"sentinelAlpha related fixture\"; }\n\n```\n(lexical+dense)","status":"success","startTime":"2026-09-12T06:47:41.133Z","endTime":"2026-09-12T06:47:41.149Z"}]}
+{"t":"event","name":"stream_token","args":["Fixture search finished."]}
+{"t":"event","name":"message","args":[{"id":"msg-1789195661154-e0t45","role":"assistant","content":"Fixture search finished.","timestamp":"2026-09-12T06:47:41.154Z"}]}
+{"t":"event","name":"cost_update","args":[24]}
+{"t":"event","name":"thinking_clear","args":[]}
+{"t":"event","name":"spinner_state","args":["idle","Ready"]}

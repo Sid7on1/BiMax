@@ -18,6 +18,13 @@ export interface RuntimeSignals {
   architecture: 'arm64' | 'x64' | 'unknown';
   cpuCount: number;
   availableMemoryMb: number;
+  /**
+   * Installed physical memory. The policy itself only needs the headroom figure above, but the
+   * ratio between the two is what makes that figure legible to a person — "3.1 GB free" means
+   * nothing without the total beside it. It was already being computed here to derive memory
+   * pressure and then thrown away, which is why Machine Health showed an invented "16 GB".
+   */
+  totalMemoryMb: number;
   thermal: ThermalState;
   memoryPressure: MemoryPressure;
   powerSource: PowerSource;

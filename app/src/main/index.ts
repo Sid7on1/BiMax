@@ -1,8 +1,16 @@
-import { app, BrowserWindow, ipcMain, dialog, shell, session, systemPreferences, powerMonitor, net, nativeTheme } from 'electron';
+import { CapabilityReplay } from './capability.replay';
+import { app, BrowserWindow, ipcMain, dialog, shell, session, systemPreferences, powerMonitor, net, nativeTheme, globalShortcut, screen } from 'electron';
 import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron';
 import path from 'node:path';
+import { ThreadManager } from './thread.manager';
+import { ThreadStorage } from './thread.storage';
+import { createThreadBroker } from './thread.broker';
+import { finderContext } from './finder.context';
+import type { QuickContext, QuickThread } from '../shared/threads';
+import { QUICK_BAR, quickBarBounds, quickBarOrigin } from './quick.bar';
 import os from 'node:os';
-import { FSWatcher, readFileSync, writeFileSync, renameSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, renameSync, mkdirSync, realpathSync } from 'node:fs';
+import fsp from 'node:fs/promises';
 import {
   spawnEngineProcess, recentEngineLog, engineProcessProvenance,
 } from './engine';
@@ -13,17 +21,18 @@ import type { WindowChromeState } from '../shared/window.chrome';
 import { EngineSupervisor } from './supervisor/supervisor';
 import { CrashJournal } from './supervisor/journal';
 import { SupervisorStatus } from './supervisor/types';
-import { gitStatus, gitDiff, gitBranches, gitLog, gitRemoteInfo, gitFetch, gitPull, gitPush } from './git';
+import { gitDiff, gitBranches, gitLog, gitRemoteInfo, gitFetch, gitPull, gitPush, stampedGitStatus } from './git';
 import { discoverLocalModels } from './local.models';
-import { listDir, readFilePreview, writeFileContent, readSessionMeta, watchProject, searchFiles } from './files';
+import { listDir, readFilePreview, writeFileContent, readSessionMeta, watchProject, searchFiles, ProjectWatch } from './files';
 import { createPty, writePty, resizePty, killPty, killAllPtys } from './pty';
-import { pickInitialProject, loadSettings, recordProject, recentProjects, isRealProject } from './settings';
+import { pickInitialProject, loadSettings, recordProject, recentProjects, isRealProject, saveSettings } from './settings';
 import { embeddedBrowserManager, type ViewBounds } from './embedded.browser.manager';
 import { CredentialVaultBridge } from './credential.vault.bridge';
 import {
   REQUIRED_WEB_PREFERENCES, RENDERER_CSP, InvalidPayloadError,
   isTrustedSender, isAllowedNavigation, isAllowedPermission,
   asBoundedInt, asFileContent, asPtyInput, asSupervisorAction,
+  asPastedFileName, asPastedBytes,
   isProtocolFrame, resolveWithinRoot,
   type SenderIdentity, type TrustedRenderer,
 } from './security';
@@ -54,7 +63,154 @@ import {
 
 let win: BrowserWindow | null = null;
 let supervisor: EngineSupervisor | null = null;
-let projectWatcher: FSWatcher | null = null;
+// Bimax Threads: one engine, history and approval namespace per folder-bound conversation (thread.manager.ts).
+let threads: ThreadManager;
+let threadStorage: ThreadStorage;
+let threadBroker: Awaited<ReturnType<typeof createThreadBroker>>;
+let quickWindow: BrowserWindow | null = null;
+let approvalWindow: BrowserWindow | null = null;
+let quickContext: QuickContext = { root: null, source: 'Choose a folder' };
+let shortcutAvailable = false;
+let listTimer: ReturnType<typeof setTimeout> | undefined;
+// The ⌘2 bar's own conversation, where the user last put it, and how tall it currently is.
+let quickThreadId: string | null = null;
+let quickAnchor: { x: number; y: number } | null = null;
+let quickHeight: number = QUICK_BAR.collapsedHeight;
+let quickMoving = false;
+// A folder picker opened from the bar takes focus; that blur must not hide the bar it was opened from.
+let quickPicking = false;
+function threadList() { return { activeId: threads?.activeId ?? null, threads: threads?.list() ?? [], shortcutAvailable }; }
+function threadChanged(): void {
+  if (listTimer) return;
+  listTimer = setTimeout(() => {
+    listTimer = undefined;
+    broadcast('threads:list', threadList());
+    if (approvalWindow && !approvalWindow.isDestroyed()) {
+      approvalWindow.webContents.send('threads:approvals', threads.approvals());
+      if (!threads.approvals().length) approvalWindow.hide();
+    }
+  }, 100);
+}
+/**
+ * Native Liquid Glass (macOS 26+, via `electron-liquid-glass`), or null where it is unavailable — an older
+ * macOS, another platform, or the add-on failing to load — in which case the panels use `hud` vibrancy.
+ */
+interface LiquidGlass { addView(handle: Buffer, options?: { cornerRadius?: number; tintColor?: string; opaque?: boolean }): number }
+let liquidGlassModule: LiquidGlass | null | undefined;
+function liquidGlass(): LiquidGlass | null {
+  if (liquidGlassModule !== undefined) return liquidGlassModule;
+  liquidGlassModule = null;
+  if (process.platform !== 'darwin') return null;
+  try {
+    const loaded = require('electron-liquid-glass');
+    liquidGlassModule = (loaded?.default ?? loaded) as LiquidGlass;
+  } catch (error) {
+    console.warn('[threads] Liquid Glass unavailable; using system vibrancy:', (error as Error).message);
+  }
+  return liquidGlassModule;
+}
+
+/**
+ * The ⌘2 bar and the approval popup: frameless floating glass panels, dragged by their header and footer
+ * (styles.css `.quick-drag`), and limited to their own IPC channels.
+ */
+function auxiliaryWindow(kind: 'quick' | 'approval'): BrowserWindow {
+  const mac = process.platform === 'darwin';
+  const glass = liquidGlass();
+  const window = new BrowserWindow({
+    width: kind === 'quick' ? QUICK_BAR.width : 520,
+    height: kind === 'quick' ? QUICK_BAR.collapsedHeight : 380,
+    show: false, frame: false, transparent: true, backgroundColor: '#00000000', hasShadow: true,
+    resizable: false, minimizable: false, maximizable: false, fullscreenable: false, skipTaskbar: true,
+    alwaysOnTop: true, roundedCorners: true,
+    ...(mac ? { type: 'panel' as const } : {}),
+    ...(mac && !glass ? { vibrancy: 'hud' as const, visualEffectState: 'active' as const } : {}),
+    title: kind === 'quick' ? 'Bimax Threads' : 'Bimax needs your decision',
+    webPreferences: { preload: path.join(__dirname, '../preload/index.js'), ...REQUIRED_WEB_PREFERENCES },
+  });
+  let glassMode: 'native' | 'vibrancy' = 'vibrancy';
+  if (glass) {
+    try {
+      glass.addView(window.getNativeWindowHandle(), { cornerRadius: kind === 'quick' ? 28 : 22 });
+      glassMode = 'native';
+    } catch (error) {
+      console.warn('[threads] Liquid Glass failed to attach; using system vibrancy:', (error as Error).message);
+      if (mac) window.setVibrancy('hud');
+    }
+  }
+  window.setAlwaysOnTop(true, 'floating');
+  window.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+  window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+  window.webContents.on('will-navigate', event => event.preventDefault());
+  window.on('close', event => { event.preventDefault(); window.hide(); });
+  if (kind === 'quick') {
+    // A drag the user made is remembered; the bar resizing itself to its content is not a drag.
+    window.on('moved', () => {
+      if (quickMoving) return;
+      const [x, y] = window.getPosition();
+      quickAnchor = { x, y };
+      saveSettings({ quickBar: quickAnchor });
+    });
+    // Like Spotlight, an empty bar goes away when you click elsewhere. One running a task stays up.
+    window.on('blur', () => { if (!quickThreadId && !quickPicking && window.isVisible()) window.hide(); });
+    // Hiding the bar must not strand a question its task is waiting on: it moves to the approval popup.
+    window.on('hide', () => {
+      if (quickThreadId && threads.approvals().some(a => a.threadId === quickThreadId)) showThreadApproval();
+    });
+  }
+  const query = { surface: kind, glass: glassMode };
+  const url = process.env.ELECTRON_RENDERER_URL;
+  if (url) void window.loadURL(`${url}?${new URLSearchParams(query)}`);
+  else void window.loadFile(path.join(__dirname, '../renderer/index.html'), { query });
+  return window;
+}
+function quickThreadSnapshot(): QuickThread | null {
+  if (!quickThreadId) return null;
+  try {
+    const { summary, state } = threads.get(quickThreadId);
+    return { id: summary.id, title: summary.title, root: summary.root, state };
+  } catch {
+    quickThreadId = null;
+    return null;
+  }
+}
+function sendQuickThread(): void {
+  if (quickWindow && !quickWindow.isDestroyed()) quickWindow.webContents.send('threads:quick-thread', quickThreadSnapshot());
+}
+/** Size the bar to its content, growing from where the user put it (see quick.bar.ts). */
+function applyQuickBounds(requestedHeight: number): void {
+  if (!quickWindow || quickWindow.isDestroyed()) return;
+  const current = quickWindow.getBounds();
+  const anchor = quickAnchor ?? { x: current.x, y: current.y };
+  const area = screen.getDisplayMatching({ ...current, ...anchor }).workArea;
+  const next = quickBarBounds(anchor, requestedHeight, area);
+  if (next.x === current.x && next.y === current.y && next.width === current.width && next.height === current.height) return;
+  quickHeight = next.height;
+  quickMoving = true;
+  // Animated only for a real change of shape (pill to conversation); streaming growth is a few pixels at a time.
+  quickWindow.setBounds(next, process.platform === 'darwin' && Math.abs(next.height - current.height) > 48);
+  setTimeout(() => { quickMoving = false; }, 250);
+}
+async function showQuickBar(): Promise<void> {
+  if (quickWindow?.isVisible()) { quickWindow.hide(); return; }
+  // Freeze the Finder folder BEFORE taking keyboard focus, so the bar never reads its own window. A bar that
+  // is already running a task keeps that task's folder.
+  if (!quickThreadId) quickContext = await finderContext();
+  if (!quickWindow || quickWindow.isDestroyed()) quickWindow = auxiliaryWindow('quick');
+  const cursorArea = screen.getDisplayNearestPoint(screen.getCursorScreenPoint()).workArea;
+  quickAnchor = quickBarOrigin(loadSettings().quickBar, screen.getAllDisplays().map(d => d.workArea), cursorArea);
+  applyQuickBounds(quickHeight);
+  quickWindow.webContents.send('threads:context', quickContext);
+  sendQuickThread();
+  quickWindow.show(); quickWindow.focus();
+}
+function showThreadApproval(): void {
+  if (!approvalWindow || approvalWindow.isDestroyed()) approvalWindow = auxiliaryWindow('approval');
+  approvalWindow.webContents.send('threads:approvals', threads.approvals());
+  approvalWindow.showInactive();
+}
+let projectWatcher: ProjectWatch | null = null;
+const capabilityReplay = new CapabilityReplay();
 let lastStatus: SupervisorStatus | null = null;
 let latestUiSnapshot: unknown = null;
 let latestReviewSnapshot: unknown = null;
@@ -113,6 +269,7 @@ function currentRuntimeSignals(): RuntimeSignals {
     architecture: process.arch === 'arm64' ? 'arm64' : process.arch === 'x64' ? 'x64' : 'unknown',
     cpuCount: os.cpus().length,
     availableMemoryMb,
+    totalMemoryMb: Math.round(totalMb),
     thermal: thermalState,
     memoryPressure: freeRatio < 0.05 ? 'critical' : freeRatio < 0.12 ? 'warning' : 'normal',
     powerSource: powerMonitor.isOnBatteryPower() ? 'battery' : 'ac',
@@ -191,7 +348,7 @@ function windowChrome(): WindowChromeState {
 function trustedRenderer(): TrustedRenderer {
   return {
     webContentsId: win && !win.isDestroyed() ? win.webContents.id : null,
-    auxiliaryWebContentsIds: [],
+    auxiliaryWebContentsIds: [quickWindow, approvalWindow].filter(w => w && !w.isDestroyed()).map(w => w!.webContents.id),
     devServerUrl: process.env.ELECTRON_RENDERER_URL,
   };
 }
@@ -204,6 +361,16 @@ function senderIdentity(event: IpcMainEvent | IpcMainInvokeEvent): SenderIdentit
     frameUrl: (() => { try { return frame?.url; } catch { return undefined; } })(),
     isMainFrame: !!frame && frame === frame.top,
   };
+}
+
+/** The main window may use every channel; the prompt bar and approval popup only their own few. */
+function auxiliaryChannelAllowed(event: IpcMainEvent | IpcMainInvokeEvent, channel: string): boolean {
+  if (event.sender.id === win?.webContents.id) return true;
+  const allowed = event.sender.id === quickWindow?.webContents.id
+    ? ['threads:context', 'threads:pick-folder', 'threads:quick-submit', 'threads:hide', 'threads:list', 'threads:reply',
+      'threads:quick-current', 'threads:quick-reset', 'threads:quick-interrupt', 'threads:quick-resize', 'threads:quick-open']
+    : ['threads:approvals', 'threads:reply', 'threads:hide', 'threads:stop'];
+  return allowed.includes(channel);
 }
 
 function refuse(channel: string, reason: string): void {
@@ -225,7 +392,7 @@ function secureHandle<T>(
   fn: (event: IpcMainInvokeEvent, ...args: unknown[]) => T | Promise<T>,
 ): void {
   ipcMain.handle(channel, async (event, ...args: unknown[]) => {
-    if (!isTrustedSender(senderIdentity(event), trustedRenderer())) {
+    if (!isTrustedSender(senderIdentity(event), trustedRenderer()) || !auxiliaryChannelAllowed(event, channel)) {
       refuse(channel, 'untrusted sender');
       return fallback;
     }
@@ -244,7 +411,7 @@ function secureHandle<T>(
 /** send-style channel: same gate, no reply. */
 function secureOn(channel: string, fn: (event: IpcMainEvent, ...args: unknown[]) => void): void {
   ipcMain.on(channel, (event, ...args: unknown[]) => {
-    if (!isTrustedSender(senderIdentity(event), trustedRenderer())) {
+    if (!isTrustedSender(senderIdentity(event), trustedRenderer()) || !auxiliaryChannelAllowed(event, channel)) {
       refuse(channel, 'untrusted sender');
       return;
     }
@@ -270,8 +437,8 @@ function legacyState(s: SupervisorStatus): { state: string; detail: string } | n
   }
 }
 
-function createSupervisor(): EngineSupervisor {
-  const journalPath = path.join(app.getPath('userData'), 'crash-journal.json');
+function createSupervisor(threadId?: string): EngineSupervisor {
+  const journalPath = path.join(app.getPath('userData'), threadId ? `thread-crash-${threadId}.json` : 'crash-journal.json');
   const journal = new CrashJournal({
     load: () => {
       try { return readFileSync(journalPath, 'utf8'); } catch { return null; }
@@ -294,6 +461,8 @@ function createSupervisor(): EngineSupervisor {
         // Keychain-backed secrets enter only at the child boundary. They never pass through the
         // renderer or the engine protocol and are not written to diagnostics.
         ...providerCredentialEnvironment(),
+        ...(threadId ? { ...threadBroker.environment(threadId), BIMAX_THREAD_ROOT: project, WORKSPACE_ROOT: project,
+          BIMAX_AUTO_INDEX: '0', BIMAX_DISABLE_CODEMEM: '1', BIMAX_DISABLE_CODEBASE_MEMORY: '1', BIMAX_DRIVES_BOOT: '0' } : {}),
       }, callbacks);
     },
     now: () => Date.now(),
@@ -307,12 +476,16 @@ function createSupervisor(): EngineSupervisor {
     journal,
     logTail: () => recentEngineLog(),
     onStatus: (status) => {
+      if (threadId) threads.lifecycle(threadId, status.phase, status.message);
+      if (threadId && threads.activeId !== threadId) return;
       lastStatus = status;
       broadcast('supervisor:status', status);
       const legacy = legacyState(status);
       if (legacy) broadcast('engine:state', legacy.state, legacy.detail);
     },
     onMessage: (msg: any) => {
+      if (threadId) { threads.receive(threadId, msg); return; }
+      capabilityReplay.accept(msg);
       if (msg?.t === 'event' && msg.name === 'ui_snapshot') latestUiSnapshot = msg;
       if (msg?.t === 'event' && msg.name === 'review_update') latestReviewSnapshot = msg;
       broadcast('engine:msg', msg);
@@ -320,6 +493,7 @@ function createSupervisor(): EngineSupervisor {
     // Notices reuse the renderer's existing diagnostics pipeline (the 'log' event fold), so they
     // show up in the Health panel without a parallel plumbing path.
     onNotice: (level, text) => {
+      if (threadId && threads.activeId !== threadId) return;
       broadcast('engine:msg', {
         t: 'event',
         name: 'log',
@@ -329,26 +503,55 @@ function createSupervisor(): EngineSupervisor {
   });
 }
 
-function startEngine(projectDir: string): void {
+function selectThread(id: string): void {
+  const root = threads.get(id).summary.root;
+  capabilityReplay.clear();
   latestUiSnapshot = null;
   latestReviewSnapshot = null;
   capabilityCache = null;
-  // macOS: window-all-closed disposes the supervisor but the app lives on — reopening a window
-  // (dock click → activate) needs a fresh instance, since a disposed supervisor never respawns.
-  if (!supervisor) supervisor = createSupervisor();
-  supervisor.openProject(projectDir);
+  supervisor = (threads.engine(id) as EngineSupervisor | undefined) ?? null;
+  // Every project session gets a monotonically rising generation. It rides on change broadcasts and
+  // on git replies so the renderer can drop an answer that describes a project it has already left.
+  const generation = ++projectGeneration;
+  // `watchProject`'s handle cancels its own debounce timer on close, so the watcher for the project
+  // we just left cannot wake the one we just opened.
   projectWatcher?.close();
-  projectWatcher = watchProject(projectDir, () => broadcast('files:changed'));
-  broadcast('app:project', projectDir);
-  // Persist so the NEXT launch resumes here instead of defaulting to $HOME (P0.1).
-  recordProject(projectDir);
+  projectWatcher = watchProject(root, () => broadcast('files:changed', generation));
+  broadcast('app:project', root, generation);
+  threads.select(id);
+  lastStatus = supervisor ? supervisor.status() : null;
+  broadcast('supervisor:status', lastStatus);
+}
+
+/** Opening a folder starts a thread for it: its own engine, history and approvals (thread.manager.ts). */
+function startEngine(projectDir: string): void {
+  const id = threads.create(realpathSync(projectDir));
+  threads.start(id);
+  selectThread(id);
+}
+
+/**
+ * A project the user opened in the main window — the Open Project dialog, a recent project, or a launch
+ * from a folder. Only these become Recent Projects. A folder a thread works in (a ⌘2 task, a thread
+ * switch, "Open in Bimax", an engine restart) was never chosen as a project, so it stays off the welcome.
+ */
+function openProject(projectDir: string): void {
+  startEngine(projectDir);
+  recordProject(realpathSync(projectDir));
 }
 
 // The active project for native git/files/pty reads. Empty string when no project is open (the
 // renderer shows the project-first welcome then) — never $HOME, which caused the Git/genome errors.
 function projectDir(): string {
-  return supervisor?.currentProject ?? '';
+  return threads?.activeId ? threads.get(threads.activeId).summary.root : '';
 }
+
+/**
+ * Monotonic project-session counter. Rises on every `startEngine`, including a restart of the same
+ * directory, and is stamped onto replies and change broadcasts so a slow answer about a retired
+ * session is identifiable as one instead of being applied to whatever is open now.
+ */
+let projectGeneration = 0;
 
 function createWindow(): void {
   win = new BrowserWindow({
@@ -469,8 +672,29 @@ app.whenReady().then(async () => {
       broadcast('adaptive:changed', adaptiveSnapshot());
     });
   }
-  supervisor = createSupervisor();
+  threadStorage = new ThreadStorage(path.join(app.getPath('userData'), 'threads'));
+  threads = new ThreadManager({
+    engine: id => createSupervisor(id), changed: threadChanged,
+    selected: value => broadcast('threads:selected', value),
+    message: (id, msg) => {
+      if (threads.activeId === id) broadcast('engine:msg', msg, id);
+      if (id === quickThreadId && quickWindow && !quickWindow.isDestroyed()) quickWindow.webContents.send('threads:quick-msg', msg);
+    },
+    // The ⌘2 bar answers its own task's questions inline while it is on screen; everything else gets the popup.
+    approval: (value) => { if (value.threadId === quickThreadId && quickWindow?.isVisible()) return; showThreadApproval(); },
+    save: value => threadStorage.save(value),
+  }, threadStorage.load());
+  threadBroker = await createThreadBroker(threads, async (from, to) => {
+    const a = threads.get(from).summary, b = threads.get(to).summary;
+    const result = await dialog.showMessageBox({ type: 'question', title: 'Link Bimax threads?',
+      message: `Allow “${a.title}” and “${b.title}” to communicate?`,
+      detail: `${a.root}\n${b.root}\n\nThey can exchange task messages. Their folders and action permissions stay separate.`,
+      buttons: ['Cancel', 'Link threads'], defaultId: 0, cancelId: 0 });
+    return result.response === 1;
+  });
   createWindow();
+  shortcutAvailable = globalShortcut.register('CommandOrControl+2', () => { void showQuickBar(); });
+  if (!shortcutAvailable) console.warn('[threads] Cmd+2 is already registered by another application.');
   // The embedded browser attaches its BrowserViews to this window. A BrowserView is an OS-level
   // overlay painted ABOVE the renderer, not a DOM node, so it needs the real BrowserWindow and it
   // needs to be told where the React layout wants it (see 'browser:bounds' below).
@@ -556,9 +780,70 @@ app.whenReady().then(async () => {
   secureOn('browser:bounds', (_e, bounds: unknown) => embeddedBrowserManager.setBounds(asBounds(bounds)));
   secureOn('browser:visible', (_e, visible: unknown) => embeddedBrowserManager.setVisible(visible === true));
 
-  secureOn('engine:send', (_e, msg: unknown) => {
+  secureHandle('threads:list', { activeId: null, threads: [], shortcutAvailable: false } as any, () => threadList());
+  secureHandle('threads:context', { root: null, source: 'Choose a folder' } as QuickContext, () => quickContext);
+  secureHandle('threads:approvals', [] as any[], () => threads.approvals());
+  secureHandle('threads:pick-folder', null as string | null, async () => {
+    quickPicking = true;
+    const result = await dialog.showOpenDialog({ properties: ['openDirectory'], title: 'Choose this thread’s workspace' })
+      .finally(() => { quickPicking = false; if (quickWindow?.isVisible()) quickWindow.focus(); });
+    if (result.canceled || !result.filePaths[0]) return null;
+    const root = await fsp.realpath(result.filePaths[0]);
+    quickContext = { root, source: 'Selected folder' }; return root;
+  });
+  secureHandle('threads:quick-submit', { ok: false } as any, async (_e, prompt: unknown) => {
+    if (typeof prompt !== 'string' || !prompt.trim() || prompt.length > 200000) return { ok: false, error: 'Enter a prompt.' };
+    try {
+      // A follow-up continues the bar's thread; a first prompt starts one in the captured folder. The bar has
+      // already painted the turn, so the thread records it without echoing it back (thread.manager.ts).
+      if (quickThreadId && quickThreadSnapshot()) {
+        threads.submit(quickThreadId, prompt, prompt, false);
+        return { ok: true, id: quickThreadId };
+      }
+      if (!quickContext.root) return { ok: false, error: 'Choose a folder for this task.' };
+      const root = await fsp.realpath(quickContext.root);
+      if (!(await fsp.stat(root)).isDirectory()) throw new Error('Workspace folder is unavailable');
+      const id = threads.create(root);
+      quickThreadId = id;
+      threads.submit(id, prompt, prompt, false);
+      sendQuickThread();
+      return { ok: true, id };
+    } catch (error) { return { ok: false, error: (error as Error).message }; }
+  });
+  secureHandle('threads:quick-current', null as QuickThread | null, () => quickThreadSnapshot());
+  secureOn('threads:quick-resize', (_e, height: unknown) => { if (typeof height === 'number') applyQuickBounds(height); });
+  secureOn('threads:quick-reset', () => { quickThreadId = null; sendQuickThread(); });
+  secureOn('threads:quick-interrupt', () => { if (quickThreadId) threads.send(quickThreadId, { t: 'interrupt' }); });
+  secureOn('threads:quick-open', () => {
+    if (!quickThreadId) return;
+    selectThread(quickThreadId);
+    revealMainWindow();
+    quickWindow?.hide();
+  });
+  secureHandle('threads:new', null as string | null, () => {
+    const root = projectDir(); if (!root) return null;
+    const id = threads.create(root); threads.start(id); selectThread(id); return id;
+  });
+  secureHandle('threads:select', false, (_e, id: unknown) => { if (typeof id !== 'string') return false; selectThread(id); return true; });
+  secureHandle('threads:start', false, (_e, id: unknown) => { if (typeof id !== 'string') return false; threads.start(id); selectThread(id); return true; });
+  secureHandle('threads:stop', false, (_e, id: unknown) => { if (typeof id !== 'string') return false; threads.stop(id); if (id === threads.activeId) selectThread(id); return true; });
+  secureHandle('threads:link', false, (_e, a: unknown, b: unknown, enabled: unknown) => {
+    if (typeof a !== 'string' || typeof b !== 'string' || typeof enabled !== 'boolean') return false;
+    threads.link(a, b, enabled); return true;
+  });
+  secureHandle('threads:reply', false, (_e, id: unknown, requestId: unknown, value: unknown, token: unknown) => {
+    if (typeof id !== 'string' || typeof requestId !== 'number' || typeof value !== 'string') return false;
+    try { threads.send(id, { t: 'reply', id: requestId, value, approvalToken: token }); return true; } catch { return false; }
+  });
+  secureOn('threads:hide', event => BrowserWindow.fromWebContents(event.sender)?.hide());
+
+  secureOn('engine:send', (_e, msg: unknown, threadId: unknown) => {
     if (!isProtocolFrame(msg)) throw new InvalidPayloadError('not a protocol frame');
-    supervisor?.sendFromRenderer(msg);
+    // Frames are addressed to a thread. One from a renderer still showing a thread it has left is dropped
+    // rather than delivered to whichever engine happens to be selected now.
+    if (typeof threadId !== 'string' || threadId !== threads.activeId) return;
+    threads.send(threadId, msg);
+    supervisor = (threads.engine(threadId) as EngineSupervisor | undefined) ?? null;
   });
 
   secureHandle<string | null>('app:pick-folder', null, async () => {
@@ -569,17 +854,22 @@ app.whenReady().then(async () => {
     });
     if (res.canceled || res.filePaths.length === 0) return null;
     const dir = res.filePaths[0];
-    startEngine(dir);
+    openProject(dir);
     return dir;
   });
 
   secureHandle<string>('engine:restart', '', () => {
     // Restart the current project, or re-resolve one if none is open. No valid project → stay on
     // the welcome (never boot $HOME).
-    const dir = supervisor?.currentProject || pickInitialProject(loadSettings().lastProject);
-    if (dir) startEngine(dir);
+    if (threads.activeId) {
+      const id = threads.activeId;
+      threads.stop(id); threads.start(id); selectThread(id);
+      return projectDir();
+    }
+    const dir = pickInitialProject(loadSettings().lastProject);
+    if (dir) openProject(dir);
     else broadcast('app:project', '');
-    return supervisor?.currentProject ?? '';
+    return projectDir();
   });
 
   secureHandle<unknown[]>('providers:credential-status', [], () => providerCredentialStatuses());
@@ -692,7 +982,7 @@ app.whenReady().then(async () => {
   // Open a specific recent project by path (from the welcome list). isRealProject is the gate: an
   // arbitrary renderer-supplied path is not a project just because it is a directory.
   secureHandle<string | null>('app:open-project', null, (_e, dir: unknown) => {
-    if (typeof dir === 'string' && isRealProject(dir)) { startEngine(dir); return dir; }
+    if (typeof dir === 'string' && isRealProject(dir)) { openProject(dir); return dir; }
     return null;
   });
 
@@ -707,6 +997,27 @@ app.whenReady().then(async () => {
     if (res.canceled) return [];
     const root = projectDir().replace(/\/+$/, '');
     return res.filePaths.map((p) => (p.startsWith(root + '/') ? p.slice(root.length + 1) : p));
+  });
+
+  /**
+   * Give pasted clipboard content a path, so it can travel the same route as a dropped file.
+   *
+   * A screenshot on the clipboard is a `File` with no backing path — `webUtils.getPathForFile`
+   * returns '' for it — and a pasted log is not a file at all. Both were therefore unattachable:
+   * the composer's only sources of context were the picker and drag-and-drop, which is why a
+   * screenshot pasted into the prompt did nothing at all.
+   *
+   * The bytes land in a fresh `mkdtemp` directory, never in the project. Writing into the project
+   * would dirty the user's working tree on a keystroke; a temp directory is also why the filename
+   * validator can be strict without having to reason about an existing file being overwritten.
+   */
+  secureHandle<string>('app:stash-paste', '', async (_e, name: unknown, bytes: unknown) => {
+    const safeName = asPastedFileName(name);
+    const content = asPastedBytes(bytes);
+    const dir = await fsp.mkdtemp(path.join(os.tmpdir(), 'bimax-paste-'));
+    const target = path.join(dir, safeName);
+    await fsp.writeFile(target, content, { flag: 'wx' });
+    return target;
   });
 
   /**
@@ -732,7 +1043,10 @@ app.whenReady().then(async () => {
   // fetched off the modal-dismiss path and proven not to fault before shipping.
 
   // Review panel — native git reads (writes go through the engine's /git for attribution).
-  secureHandle<unknown>('git:status', null, () => gitStatus(projectDir()));
+  // Stamped with the project and generation captured BEFORE the read starts. A `git status` on a
+  // large repository is not instant, and without the stamp a reply that began under the previous
+  // project would be applied to the current one.
+  secureHandle<unknown>('git:status', null, () => stampedGitStatus(projectDir(), projectGeneration));
   // gitDiff contains the pathspec against the project itself — see its doc comment.
   secureHandle<string>('git:diff', '', (_e, file: unknown, untracked: unknown) =>
     gitDiff(projectDir(), file, untracked === true));
@@ -804,6 +1118,7 @@ app.whenReady().then(async () => {
     // and only correct itself at the next window event, which may never come.
     broadcast('window:chrome', windowChrome());
     const dir = projectDir();
+    if (threads.activeId) { selectThread(threads.activeId); return; }
     if (dir) {
       broadcast('app:project', dir);
       if (lastStatus) {
@@ -815,9 +1130,10 @@ app.whenReady().then(async () => {
       // cannot leave repository or task-review state stale.
       if (latestUiSnapshot) broadcast('engine:msg', latestUiSnapshot);
       if (latestReviewSnapshot) broadcast('engine:msg', latestReviewSnapshot);
+      for (const notice of capabilityReplay.snapshot()) broadcast('engine:msg', notice);
       return;
     }
-    if (initialDir) startEngine(initialDir);
+    if (initialDir) openProject(initialDir);
     else broadcast('app:project', '');
   });
 
@@ -829,8 +1145,7 @@ app.whenReady().then(async () => {
 // dispose() supersedes the child and cancels every timer — the supervisor can never relaunch the
 // engine while the app is quitting.
 app.on('window-all-closed', () => {
-  supervisor?.dispose();
-  supervisor = null;
+  // Threads keep working with the window closed; engines stop only when the app quits.
   killAllPtys();
   projectWatcher?.close();
   projectWatcher = null;
@@ -838,6 +1153,10 @@ app.on('window-all-closed', () => {
 });
 
 app.on('before-quit', () => {
+  globalShortcut.unregisterAll();
+  quickWindow?.destroy(); approvalWindow?.destroy();
+  threads?.dispose(); threadBroker?.close();
+  void threadStorage?.flush();
   supervisor?.dispose();
   supervisor = null;
   killAllPtys();

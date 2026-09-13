@@ -46,3 +46,13 @@ export function applyImplicitWriteConstraints(rawArgs: string, messages: Message
   }
   return JSON.stringify(args);
 }
+
+/** Apply the same prose-length contract to PDF/Word output, including incremental drafts. */
+export function applyImplicitDocumentConstraints(rawArgs: string, messages: Message[]): string {
+  let args: any;
+  try { args = JSON.parse(rawArgs); } catch { return rawArgs; }
+  if (!args || !['pdf', 'docx'].includes(args.format)) return rawArgs;
+  const target = inferExactWordTarget(messages);
+  if (target !== undefined && args.expectedWords === undefined) args.expectedWords = target;
+  return JSON.stringify(args);
+}

@@ -5,6 +5,7 @@ normal user language first, then list the internal evidence needed to prove the 
 
 | Example | What it proves | Main rivals |
 |---|---|---|
+| `P01_FAST_CODE_AND_COWORK.md` | Proposed performance contract for correct coding/cowork, responsiveness, resource use and recovery; runner remains Target | Bimax baseline/candidate first; future rivals require competitive/06 |
 | `C01_DIRTY_REPO_REPAIR.md` | coding reliability without damaging user work | Claude Code, Codex, OpenCode, Hermes, Cursor |
 | `M02_BACKGROUND_MAC_ACTION.md` | native Mac work without stealing the user's foreground | ChatGPT/Codex Computer Use, Hermes |
 | `X01_BUILD_RUN_PROVE.md` | Bimax's combined code + Mac wedge | OpenAI/Codex, Cursor cloud agents |

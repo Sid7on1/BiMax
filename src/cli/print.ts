@@ -1,3 +1,4 @@
+import { capabilitySnapshot, capabilityMessage } from '../core/capability.status';
 import { ToolRegistry } from '../tools/tool.registry';
 import { LlmAdapter } from '../core/llm.adapter';
 import { Governor } from '../governor/governor';
@@ -44,6 +45,11 @@ export async function executePrintMode(prompt: string, options: {
       process.stderr.write(`  ⎿ ${tc.status === 'error' ? '✗' : '✓'} ${firstLine}\n`);
     }
   };
+  const onCapability = (message: any) => {
+    if (message?.payload?.capabilityStatus) process.stderr.write(`${message.content}\n`);
+  };
+  cliEvents.on('message', onCapability);
+  for (const status of capabilitySnapshot().filter(s => s.state !== 'ready')) onCapability(capabilityMessage(status));
   cliEvents.on('tool_call', onToolStart);
   cliEvents.on('tool_call_result', onToolResult);
 
@@ -58,6 +64,7 @@ export async function executePrintMode(prompt: string, options: {
     process.stdout.write('\n');
   } finally {
     console.log = originalLog;
+    cliEvents.off('message', onCapability);
     cliEvents.off('tool_call', onToolStart);
     cliEvents.off('tool_call_result', onToolResult);
   }

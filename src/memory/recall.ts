@@ -1,3 +1,4 @@
+import { reportCapability } from '../core/capability.status';
 /**
  * Automatic recall — the stage that decides whether any of the rest is ever used.
  *
@@ -111,9 +112,13 @@ export async function recallForTurn(
     // not help. Recall is for durable knowledge; code has its own door.
     documents = await store.semanticSearch(query, limit, 0, { excludeTags: ['project-memory', 'code'] });
   } catch {
-    // Recall is an enhancement. A retrieval failure must never fail the user's turn.
+    reportCapability({ id: 'memory-recall', label: 'Memory recall', state: 'degraded',
+      reason: 'Memory lookup failed.', impact: 'This turn continues without recalled context.',
+      action: 'Check memory storage and retrieval settings.' });
     return null;
   }
+  reportCapability({ id: 'memory-recall', label: 'Memory recall', state: 'ready',
+    reason: 'Memory lookup completed.', impact: '', action: '' });
   if (!documents.length) return null;
 
   const parts: string[] = [];

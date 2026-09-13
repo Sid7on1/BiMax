@@ -104,7 +104,7 @@ Reserve BashTool for actual shell operations (installs, builds, git, processes, 
       // the sandbox profile wraps it.
       if (args.background && !floorRoot() && !sandboxArgv(cmd, currentCwd)) {
         const { startShellTask } = require('../../core/shell.tasks');
-        const { task, summary } = startShellTask(cmd, { cwd: currentCwd, timeoutMs: timeoutMs > 30_000 ? timeoutMs : 0 });
+        const { task, summary } = startShellTask(cmd, { cwd: currentCwd, timeoutMs: timeoutMs > 30_000 ? timeoutMs : 0, learningOrigin: context?.learningTrace });
         return outcomeOk(JSON.stringify({ taskId: task.id, state: task.state, note: summary }, null, 2), { exitCode: 0 });
       }
       const flArgv = floorArgv(cmd);
@@ -119,7 +119,7 @@ Reserve BashTool for actual shell operations (installs, builds, git, processes, 
         cwd: currentCwd, timeout: timeoutMs, maxBuffer: 10 * 1024 * 1024,
         signal: context?.signal as AbortSignal | undefined,
         // Floored episodes (even soft-bypassed ones) never expose the parent env to children.
-        ...(floorRoot() ? { env: floorChildEnv() } : {}),
+        ...((floorRoot() || process.env.BIMAX_THREAD_ROOT) ? { env: floorChildEnv() } : {}),
       };
       const { stdout, stderr } = sbArgv && sbBin
         ? await execFileAsync(sbBin, sbArgv, execOpts)

@@ -1,5 +1,97 @@
 # Competitive source ledger
 
+## Failure visibility — inspected 2026-09-12
+
+Owner-supplied `../../RETRIEVAL_TOOL_AUDIT.md` is the investigation input; its live-provider results
+were not rerun or promoted into new measurements. Record 45 uses inspected local embeddings,
+reranking, CodeIndex/SQLite/VectorStore, tool factory/Governor, MCP client/manager, AgentLoop,
+protocol host/wire queue, CLI print and Desktop main/reducer/rendering code. Controlled HTTP,
+filesystem, MCP and scripted-model faults provide the new evidence. No competitor source,
+external dependency or contemporary provider claim was introduced.
+
+
+## Workflow evidence implementation — inspected 2026-09-10
+
+Record 42 uses local `file.tool.ts`, `search.tool.ts`, `fsWalk.ts`, `tool.factory.ts`,
+`tool.workflow.ts`, `file-state-cache.ts` and `epistemic.ledger.ts`. The former workflow file-read
+path could return mtime-cached content; directory traversal silently skipped unreadable directories
+and stopped at its file cap. Actual-byte capture and explicit workflow completeness now address
+those evidence gaps. Existing ephemeral correctness statistics are not promoted into immutable
+proof; cross-system code/test claim integration remains Target. No new external dependency or
+competitor code reuse. The earlier Bazel and replay references remain design background only.
+
+## Tool-workflow feature exploration — checked 2026-09-10
+
+- [Anthropic: advanced tool use](https://www.anthropic.com/engineering/advanced-tool-use)
+  describes tool discovery and programmatic orchestration. Those mechanisms alone are not evidence
+  of novelty; Bimax's proposals should be assessed on verified behavior and integration.
+- [Bazel: remote caching](https://bazel.build/remote/caching) binds actions to inputs, commands,
+  outputs and environment. This informs a proposed incrementally invalidated workflow/evidence
+  graph; safe reuse still requires Bimax-specific input completeness and invalidation tests.
+- [rr](https://rr-project.org/) documents deterministic record/replay for Linux processes. It
+  inspires a proposed tool-boundary replay debugger, not an rr dependency or a claim of equivalent
+  instruction-level replay on macOS. Model and external results would be recorded fixtures.
+
+These are design references, not implemented Bimax features or evidence of market uniqueness.
+
+## Tool result contracts — checked 2026-09-10
+
+[MCP tools specification, 2026-07-28](https://github.com/modelcontextprotocol/modelcontextprotocol/blob/main/docs/specification/2026-07-28/server/tools.mdx)
+documents structuredContent and outputSchema validation, with serialized text for compatibility.
+This supports record 41's proposed typed search-result extension; it does not establish that Bimax
+currently implements that output contract. The shipped slice uses inspected local tool.factory,
+args.validate, tool.schedule, file/search tools and the existing deferred registry. No dependency
+upgrade, external code reuse or competitor performance claim.
+
+## Renderer subscriptions — checked 2026-09-08
+
+[React: useSyncExternalStore](https://react.dev/reference/react/useSyncExternalStore) requires
+cached immutable snapshots and stable subscribe functions with cleanup. Applied to stage 3c
+in record 34 using the installed React 18.3.1 API; no dependency upgrade. Local reducer and
+Virtuoso source informed integration. Eight regressions, five caught mutants and a simulated-IPC
+browser fixture support the bounded claim; latency and installed-product qualification remain Target.
+
+## Major-lab research recheck — accessed 2026-09-08, Asia/Kolkata
+
+Full methods/limits, local findings and E1–E5 transfer experiments are in
+`../33_REFACTOR_RECHECK_AND_RESEARCH.md`; amendments are applied to plan 32 and P01.
+
+| Primary source | Version/type | Decision informed; limit |
+|---|---|---|
+| [Google Research / DeepMind / MIT: Towards a Science of Scaling Agent Systems](https://arxiv.org/html/2512.08296v3) | Paper v3, 2026-04-08 | Task-aware coordination with a single-agent control; empirical thresholds are not Bimax constants |
+| [DeepMind / Berkeley: Scaling LLM Test-Time Compute Optimally](https://arxiv.org/html/2408.03314v1) | Paper v1, 2024-08-06 | Compare bounded repair/search budgets; math and fine-tuned-model findings are not coding guarantees |
+| [Microsoft Research and collaborators: LLMLingua-2](https://arxiv.org/html/2403.12968v2) | Paper v2, 2024-08-12 | Optional compression ablation with overhead and fidelity checks; protect exact operational data |
+| [Google Research: Sufficient Context](https://arxiv.org/html/2411.06037v3) | Paper v3, 2025-04-23 | Separate evidence availability from model use; evaluate answer coverage as well as accuracy |
+| [OpenAI: SWE-Lancer](https://arxiv.org/html/2502.12115v4) | Paper v4, 2025-05-29 | Independent hidden user-flow graders; benchmark task payouts do not predict Bimax savings |
+| [Anthropic: multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system) | Engineering report, 2025-06-13; not a paper | Include coordination/copied-context costs; parallel research is not equivalent to concurrent edits |
+
+Selected literature, not an exhaustive survey. No competitor code/model was copied, no paper
+performance multiplier is adopted, and no new Product-ready/Win claim follows. The retained local
+checks establish existing module behavior and two rollback defects; optimization remains Target.
+
+## Coding and cowork performance architecture — checked 2026-09-07
+
+Recorded with the 2026-09-08 refactor plan in `../32_FAST_CODE_AND_COWORK_REFACTOR_PLAN.md`.
+These sources constrain proposed implementations; they do not establish a Bimax speedup or Win.
+
+| First-party source | Verified constraint | Plan consequence |
+|---|---|---|
+| [Electron performance](https://www.electronjs.org/docs/latest/tutorial/performance) | Profile running code, defer unnecessary initialization, and avoid blocking main/renderer work | Measure critical paths; preserve security initialization while making optional work lazy |
+| [Node writable streams](https://nodejs.org/api/stream.html#event-drain) | A false return from write requires waiting for drain before producing more buffered writes | Bound the NDJSON output path and test slow consumers; preserve event order and controls |
+| [React useSyncExternalStore](https://react.dev/reference/react/useSyncExternalStore) | External-store snapshots must be immutable and retain identity when unchanged; subscriptions should be stable | Evaluate domain subscriptions without replacing the entire renderer stack |
+| [SQLite WAL](https://sqlite.org/wal.html) | Readers can coexist with a writer, but there is one writer at a time; WAL requires same-host shared memory and does not work on network filesystems | Use one storage writer and crash-tested settings; do not treat a synced database as team collaboration |
+
+Local source inspection on working tree `65725a3` found existing bounded tool scheduling,
+subagent capacity leases, manifest-based code indexing with cooperative yields, Virtuoso,
+content-hash corpus deduplication and dynamically imported office writers. Proposed work extends
+those foundations. Repeated discovery, broad stream state, observer-ledger write failure semantics
+and the transaction empty-file sentinel are code observations; their latency/incident frequency
+was not measured. The worktree includes pre-existing uncommitted composer changes.
+
+The missing capability matrix and absent `tui/` directory are explicit historical-audit conflicts
+in plan 32. No competitor feature claim was refreshed or inferred for this optimization program.
+Validation performed for the plan is source/document inspection and reference/diff checks only.
+
 Accessed 2026-08-08 unless noted. First-party sources are preferred. Product documentation changes
 quickly; re-open every source before publishing an external comparison.
 
@@ -276,3 +368,70 @@ attempt was interrupted after more than 120 seconds without a response. Those ar
 availability/latency observations, not a model-quality failure and not a valid task evaluation.
 Kimi K3 is now the owner-selected default, while coding reliability, tool fidelity, screenshot
 grounding, real-app Computer Use and latency remain Target pending healthy repeated runs.
+
+## Coding and knowledge-work ideation refresh — 2026-09-07
+
+Owner request: suggest ambitious features combining the experience of Codex, Claude Code,
+ChatGPT Work, and Claude Cowork. This is exploratory product advice, not an implementation or
+approval to reactivate Computer Use. The 2026-09-02 code-only boundary remains current.
+
+| First-party source, accessed 2026-09-07 | Documented baseline | Ideation consequence |
+|---|---|---|
+| [ChatGPT Work getting started](https://learn.chatgpt.com/docs/get-started-with-work) | Files, plugins and approved tools support reviewable briefs, decks, analyses and workflows; local and cloud execution have distinct capabilities | Artifact creation and long-running work are established comparison points; explore consistency across a mission's deliverables |
+| [Codex app introduction](https://openai.com/index/introducing-the-codex-app/) | Isolated worktrees, parallel task threads, in-thread review, skills and scheduled automations | Parallel agents alone are insufficient differentiation; explore measurable alternative implementations and durable task state |
+| [Claude Code overview](https://code.claude.com/docs/en/overview) | Repository edits, commands, verification, MCP, skills, hooks, memory, parallel agents and scheduled work | Preserve coding depth while exploring broader workflows; do not treat a model selector or subagents as a unique advantage |
+| [Claude Cowork product guide](https://claude.com/blog/the-claude-cowork-product-guide) | Local files, connected apps, citations, subagents, long-running work and scheduled tasks | Explore linked code/research/document outputs with inspectable sources and completion checks |
+
+Candidate Targets discussed: durable missions, dependency-aware artifact updates, alternative
+implementation comparison, independent falsification, source-linked decision memory, workflow
+recipes, budgeted background work, reviewable rollback and resumable provider handoff. These are
+proposals, with no claim of novelty, implementation, measured quality, Product-ready status or Win.
+Broad knowledge-work scope would require a subsequent product-boundary decision.
+
+Repository context: current README, reset record 30, frontend plan 04, architecture 05, acceptance
+gates 08 and gap register were read directly. Dataless research files were consulted through Git
+HEAD, including competitive README/02/04, repo audit 01, examples 03, split runbook 06, owner vision
+and C01/R01 journeys. Referenced competitive/03_CAPABILITY_MATRIX.md is absent from both the
+working tree and HEAD; no matrix findings were inferred. Verification for this refresh is source
+inspection only, with no product execution or competitive evaluation.
+
+## Learning-loop evidence — 2026-09-09
+
+- Local first-party source: `src/telemetry/trace.ts`, trace producer in
+  `src/core/agent.loop.ts`, and `src/mind/{episode.recorder,epistemic.ledger,policy.arms,stats,harness.tuner,harness.lab.eval,event.ledger}.ts`.
+  Current traces record confidence and execution status, but lack mutation paths, verifier scopes,
+  request/response recordings and policy assignments. Read-only SQLite inspection found no ledger
+  events; WAL/main-file size alone was not used as proof of emptiness.
+- Local corpus: 15 `.bimax/traces/*.jsonl` files, 59,454 unique spans, input SHA-256s in
+  [`evidence/2026-09-09-learning-loop/report.json`](evidence/2026-09-09-learning-loop/report.json).
+  Record 35 distinguishes observational import from replay and from causal experimental evidence.
+- Statistical primary source, checked 2026-09-09:
+  [Newcombe (1998), interval estimation for the difference between independent proportions](https://pubmed.ncbi.nlm.nih.gov/9595617/),
+  DOI `10.1002/(SICI)1097-0258(19980430)17:8<873::AID-SIM779>3.0.CO;2-I`.
+  Combines Wilson intervals for independent binomial proportions. The new PolicyArms API uses the
+  uncorrected square-and-add form for fixed-propensity binary samples. It does not certify sample
+  independence or convert missing/nonrandomized history into a treatment effect. The corpus effect
+  and CI are unavailable. Existing Wilson 95% default is a statistical convention, not a tuned
+  empirical threshold.
+
+## Live outcome sensor — 2026-09-09
+
+Local source and actual execution, no new external claims: `src/mind/outcome.sensor.ts`, production
+calls in `src/core/agent.loop.ts`, string-array export in `src/telemetry/trace.ts`, and
+`src/mind/learning.proof.ts`. Evidence and source hashes:
+[`2026-09-09-live-learning/manifest.json`](evidence/2026-09-09-live-learning/manifest.json).
+Two fresh controlled real-tool runs independently reopen with one resolved claim and nine
+hash-valid SQLite events each. These are scripted actions with real file/shell execution, not
+model-quality or policy-effect experiments. The raw diagnostic output, before/after state,
+span links, source mutants and limitations are preserved. No archive was mined this run.
+
+## Background learning execution — 2026-09-09
+
+Source: `src/core/shell.tasks.ts`, `src/mind/background.evidence.ts`, the AgentLoop/BashTool origin
+handoff, and `src/mind/epistemic.ledger.ts`. Preserved local evidence:
+[background-learning manifest](evidence/2026-09-09-background-learning/manifest.json).
+Five controlled real-tool runs were independently reopened: named failure (source/bundled) resolves
+one captured claim; no-file failure, cancellation and an intervening write resolve none. A first
+probe observed unchanged bytes/inode/mtime with changed ctime; its cause is unverified. The guard
+therefore uses content hash, inode and modification time, not ctime. See record 37 for the exact
+limitations, failed attempts, mutants and remaining Targets. No new external/platform claim.

@@ -30,7 +30,7 @@
  * indistinguishable from one that worked, which is the failure mode this codebase keeps producing.
  */
 
-import { Logger } from '../utils';
+import { capabilityDeadline, capabilityEndpoint, reportCapability } from '../core/capability.status';
 import { DEFAULT_RERANK_MODEL, rerankDialectFor } from './settings';
 
 /** `rerankURL` overrides the endpoint when the reranker lives elsewhere than <base>/ranking —
@@ -48,6 +48,7 @@ export type RerankTransport = (
 
 export interface RerankOptions {
   resolve: () => Promise<RerankCredentials | null>;
+  statusId?: string;
   model?: string;
   /**
    * How many candidates to re-score.
@@ -82,8 +83,19 @@ export class RemoteReranker {
   private readonly timeoutMs: number;
   private readonly transport: RerankTransport;
   private unavailable: string | null = null;
+  private retryAt = 0;
+  private readonly statusId: string;
+  private fail(reason: string, permanent = false): null {
+    this.unavailable = permanent ? reason : null;
+    this.retryAt = Date.now() + (permanent ? 30_000 : 0);
+    reportCapability({ id: this.statusId, label: 'Search reranking', state: 'degraded', reason,
+      impact: 'Results keep the first-stage order; reranking was not applied.',
+      action: 'Check reranking service access and settings. A later use retries automatically.' });
+    return null;
+  }
 
   constructor(options: RerankOptions) {
+    this.statusId = options.statusId ?? 'reranking';
     this.resolve = options.resolve;
     this.model = options.model ?? DEFAULT_RERANK_MODEL;
     this.maxCandidates = Math.max(1, options.maxCandidates ?? DEFAULT_MAX_CANDIDATES);
@@ -102,17 +114,14 @@ export class RemoteReranker {
    */
   async rerank(query: string, candidates: RerankCandidate[]): Promise<RerankedHit[] | null> {
     if (!candidates.length) return [];
-    if (this.unavailable || !query.trim()) return null;
+    if (Date.now() < this.retryAt || !query.trim()) return null;
 
-    const credentials = await this.resolve().catch(() => null);
+    const credentials = await capabilityDeadline(() => this.resolve(), this.timeoutMs).catch(() => null);
     if (!credentials?.apiKey) {
-      this.unavailable = 'no API key configured';
-      return null;
+      return this.fail('Reranking credentials are unavailable.', true);
     }
 
     const window = candidates.slice(0, this.maxCandidates);
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), this.timeoutMs);
     try {
       const url = credentials.rerankURL ?? `${trimSlash(credentials.baseURL)}/v1/rerank`;
       const dialect = rerankDialectFor(url);
@@ -137,55 +146,56 @@ export class RemoteReranker {
             top_n: window.length,
           };
 
-      const response = await this.transport(url, {
+      const response = await capabilityDeadline(async (signal) => {
+        const response = await this.transport(url, {
         headers: {
           'content-type': 'application/json',
           authorization: `Bearer ${credentials.apiKey}`,
         },
         body: JSON.stringify(body),
-        signal: controller.signal,
+        signal,
       });
+        return { ok: response.ok, status: response.status, payload: response.ok ? await response.json() : null };
+      }, this.timeoutMs);
 
       if (!response.ok) {
-        if ([400, 401, 403, 404, 422].includes(response.status)) {
-          this.unavailable = `${url} returned ${response.status} for ${this.model}`;
-          // Named loudly, with the URL. The previous message said only the status and the model,
-          // so an operator whose sovereign install was silently running WITHOUT its most impactful
-          // retrieval stage had no way to see which endpoint had been tried.
-          Logger.warn(
-            `[rerank] DISABLED — ${this.unavailable}. Retrieval keeps the fused order, which costs `
-            + `roughly Recall@5 0.82 -> 0.70. Set BIMAX_RERANK_URL to a reranking endpoint `
-            + `(vLLM/Infinity/TEI serve one at /v1/rerank) or BIMAX_RERANK_MODEL to a served model.`,
-          );
-        }
-        return null;
+        return this.fail(`Reranking service ${capabilityEndpoint(url)} returned HTTP ${response.status}.`, [400, 401, 403, 404, 410, 422].includes(response.status));
       }
 
-      const payload = (await response.json()) as {
+      const payload = response.payload as {
         rankings?: { index?: number; logit?: number }[];
         results?: { index?: number; relevance_score?: number }[];
       };
       const rows: { index?: number; score?: number }[] = dialect === 'nvidia'
         ? (payload?.rankings ?? []).map((r) => ({ index: r.index, score: r.logit }))
         : (payload?.results ?? []).map((r) => ({ index: r.index, score: r.relevance_score }));
-      if (!Array.isArray(rows) || !rows.length) return null;
+      if (!Array.isArray(rows) || !rows.length) return this.fail('Reranking response is empty.');
+      const indices = new Set<number>();
 
       const out: RerankedHit[] = [];
       for (const row of rows) {
         // `index` points into the passage array we sent. A row whose index is out of range means we
         // are misreading the response; dropping it silently would reorder by accident.
         const candidate = typeof row.index === 'number' ? window[row.index] : undefined;
-        if (!candidate || typeof row.score !== 'number') return null;
+        if (!candidate || !Number.isInteger(row.index) || indices.has(row.index!) || typeof row.score !== 'number' || !Number.isFinite(row.score))
+          return this.fail('Reranking response contains invalid scores or duplicate indices.');
+        indices.add(row.index!);
         out.push({ id: candidate.id, logit: row.score });
       }
       // Both APIs document descending order, but sorting locally costs nothing and makes this
       // correct even if that ever changes — a silently mis-ordered rerank is worse than none.
       out.sort((a, b) => b.logit - a.logit);
+      if (rows.length !== window.length) {
+        this.fail('Reranking response covers only some candidates; the remaining order is unverified.');
+        return out;
+      }
+      this.unavailable = null;
+      this.retryAt = 0;
+      reportCapability({ id: this.statusId, label: 'Search reranking', state: 'ready',
+        reason: 'The service returned a complete valid ranking.', impact: '', action: '' });
       return out;
     } catch {
-      return null;
-    } finally {
-      clearTimeout(timer);
+      return this.fail('Reranking request failed, timed out, or returned unreadable data.');
     }
   }
 }
