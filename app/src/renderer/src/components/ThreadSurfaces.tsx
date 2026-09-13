@@ -8,6 +8,8 @@ import { applyAppearance, savedAppearance } from '../appearance';
 import { cn } from '../lib/cn';
 import { ThinkingIndicator } from './ThinkingIndicator';
 import { StreamCoalescer } from '../stream.coalescer';
+import { MicButton } from './MicButton';
+import { useDictation } from '../useDictation';
 import { approvalShortcut, denyOption } from '../approval.keys';
 import { PathLinkContext } from '../path.links';
 import { loadHistory, remember, stepHistory } from '../quick.history';
@@ -60,6 +62,13 @@ export function ThreadQuickBar(): React.ReactElement {
   const history = useRef<string[]>(loadHistory());
   const historyCursor = useRef<number | null>(null);
   const draft = useRef('');
+  // Dictation: the mic, or hold right ⌥; words land at the cursor as they are heard (useDictation.ts).
+  const dictation = useDictation({
+    get: () => ({ text: input.current?.value ?? '', caret: input.current?.selectionStart ?? input.current?.value.length ?? 0 }),
+    set: (text, caret) => { setPrompt(text); requestAnimationFrame(() => input.current?.setSelectionRange(caret, caret)); },
+    context: () => (root ? [folderName(root)] : []),
+  });
+  useEffect(() => { if (dictation.error) setError(dictation.error); }, [dictation.error]);
   // This folder's rules, while they are being edited (⋯ → Rules for …); null when the editor is closed.
   const [rules, setRules] = useState<{ root: string; text: string; protect: string[] } | null>(null);
   useEffect(() => window.bimax.threads.onOpenRules(() => {
@@ -276,6 +285,8 @@ export function ThreadQuickBar(): React.ReactElement {
       onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setDropping(false); }}
       onDrop={(e) => { e.preventDefault(); setDropping(false); addDropped(e.dataTransfer.files); }}
       onKeyDown={(e) => {
+        // Dictation owns right ⌥ (hold to talk) and, while listening, Esc (discard what was heard).
+        if (dictation.onKeyDown(e)) { e.preventDefault(); return; }
         // An approval card on screen owns ⌘↩ (allow) and Esc (deny); otherwise Esc hides the bar.
         const pick = request ? approvalShortcut(e.nativeEvent, request) : undefined;
         if (pick) { e.preventDefault(); void reply(pick); return; }
@@ -293,11 +304,12 @@ export function ThreadQuickBar(): React.ReactElement {
           autoFocus
           rows={1}
           aria-label="Ask Bimax"
-          placeholder={thread ? 'Follow up…' : 'Ask Bimax anything…'}
+          placeholder={dictation.state !== 'idle' ? 'Listening…' : thread ? 'Follow up…' : 'Ask Bimax anything…'}
           value={prompt}
           onChange={(e) => { historyCursor.current = null; setPrompt(e.target.value); }}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey && !e.metaKey && !e.ctrlKey && !e.nativeEvent.isComposing) { e.preventDefault(); void submit(); }
+            // Enter while dictating stops listening (the last words settle); Enter again sends.
+            if (e.key === 'Enter' && !e.shiftKey && !e.metaKey && !e.ctrlKey && !e.nativeEvent.isComposing) { e.preventDefault(); if (dictation.state !== 'idle') dictation.stop(); else void submit(); }
             // ↑ at the start (or in an empty field) recalls earlier prompts; ↓ walks back to what was being typed.
             const field = e.currentTarget;
             const atStart = field.selectionStart === 0 && field.selectionEnd === 0;
@@ -309,6 +321,7 @@ export function ThreadQuickBar(): React.ReactElement {
           }}
           className="quick-input"
         />
+        <MicButton dictation={dictation} className="quick-circle quick-mic" size={15} />
         <button
           type="button"
           className="quick-folder"
@@ -324,7 +337,7 @@ export function ThreadQuickBar(): React.ReactElement {
             <Square size={12} />
           </button>
         ) : prompt.trim() ? (
-          <button type="button" aria-label="Send" className="quick-circle quick-send" disabled={sending} onClick={() => void submit()}>
+          <button type="button" aria-label="Send" className="quick-circle quick-send" disabled={sending} onClick={() => { if (dictation.state !== 'idle') dictation.stop(); else void submit(); }}>
             <ArrowUp size={17} />
           </button>
         ) : null}

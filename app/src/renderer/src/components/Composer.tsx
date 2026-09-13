@@ -6,6 +6,8 @@ import {
 import { CompletionItem, ControlsMsg, UiSnapshot } from '../protocol';
 import { cn } from '../lib/cn';
 import { AttachmentWell, FileTile, type Attachment } from './AttachmentWell';
+import { MicButton } from './MicButton';
+import { useDictation } from '../useDictation';
 import { Button } from './ui/button';
 import { SeedMenu, SeedMenuItem, SeedMenuLabel, SeedMenuReadout, SeedMenuSeparator } from './ui/morph/SeedMenu';
 import type { SupervisorStatus } from '../global';
@@ -360,8 +362,17 @@ export function Composer({
     })();
   };
 
+  // Dictation: the mic button or hold right ⌥; words land at the cursor as they are heard (useDictation.ts).
+  const dictation = useDictation({
+    get: () => ({ text: taRef.current?.value ?? text, caret: taRef.current?.selectionStart ?? text.length }),
+    set: (value, caret) => { setText(value); requestAnimationFrame(() => taRef.current?.setSelectionRange(caret, caret)); },
+  });
+
   const keyDown = (e: React.KeyboardEvent): void => {
     if (e.nativeEvent.isComposing || e.keyCode === 229 || wellOpen) return;
+    if (dictation.onKeyDown(e)) { e.preventDefault(); return; }
+    // Enter while dictating stops listening (the last words settle); Enter again sends.
+    if (e.key === 'Enter' && !e.shiftKey && !e.metaKey && dictation.state !== 'idle') { e.preventDefault(); dictation.stop(); return; }
     if (showDropdown) {
       if (e.key === 'ArrowDown') { e.preventDefault(); setSel((s) => Math.min(s + 1, visibleCompletions.length - 1)); return; }
       if (e.key === 'ArrowUp') { e.preventDefault(); setSel((s) => Math.max(s - 1, 0)); return; }
@@ -531,8 +542,10 @@ export function Composer({
             onPaste={onPaste}
             className="min-w-0 flex-1 resize-none border-none bg-transparent font-display text-[14.5px] leading-relaxed outline-none placeholder:text-faint"
           />
+          <MicButton dictation={dictation} disabled={!!queued} className="composer-mic flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-faint transition-colors hover:bg-hover hover:text-ink disabled:opacity-40" />
         </div>
 
+        {dictation.error ? <p role="status" className="px-4 pb-1 text-[11px] text-amber">{dictation.error}</p> : null}
         {detailsOpen && (
           <div id="composer-brief" className="mx-4 mb-3 grid gap-3 rounded-xl border border-line bg-bg/40 p-3 sm:grid-cols-2">
             <label className="text-[11px] text-dim">Constraints

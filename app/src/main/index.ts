@@ -1,5 +1,5 @@
 import { CapabilityReplay } from './capability.replay';
-import { app, BrowserWindow, ipcMain, dialog, shell, session, systemPreferences, powerMonitor, net, nativeTheme, globalShortcut, screen, Menu, Notification, Tray, nativeImage } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, shell, session, systemPreferences, powerMonitor, net, nativeTheme, globalShortcut, screen, Menu, Notification, Tray, nativeImage, webContents as electronWebContents } from 'electron';
 import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron';
 import path from 'node:path';
 import { ThreadManager, threadIndexEnvironment } from './thread.manager';
@@ -13,11 +13,13 @@ import { insideFolder, validAttachments, withContext } from './quick.context';
 import { nextQuickThread, trayEntries, trayTitle, trayTooltip } from './thread.tray';
 import { modelMenuItems, type CatalogModel, type ModelMenuItem, type ModelTime } from './thread.models';
 import { cleanRules, rulesEnvironment } from './folder.rules';
+import { VoiceSessions, voiceHelperPath, voiceSupported } from './voice';
 import { describeSchedule, dueSchedules, newSchedule, type Cadence, type Schedule } from './schedules';
 import { randomUUID } from 'node:crypto';
 import { macBin } from './bin';
 import os from 'node:os';
-import { readFileSync, writeFileSync, renameSync, mkdirSync, realpathSync } from 'node:fs';
+import { spawn } from 'node:child_process';
+import { readFileSync, writeFileSync, renameSync, mkdirSync, realpathSync, existsSync } from 'node:fs';
 import fsp from 'node:fs/promises';
 import {
   spawnEngineProcess, recentEngineLog, engineProcessProvenance,
@@ -164,6 +166,7 @@ function auxiliaryWindow(kind: 'quick' | 'approval'): BrowserWindow {
     window.on('blur', () => { if (!quickThreadId && !quickPicking && window.isVisible()) window.hide(); });
     // Hiding the bar must not strand a question its task is waiting on: it moves to the approval popup.
     window.on('hide', () => {
+      voice.stop(window.webContents.id);
       if (quickThreadId && threads.approvals().some(a => a.threadId === quickThreadId)) showThreadApproval();
     });
   }
@@ -291,6 +294,20 @@ function notifyFinished(id: string): void {
   note.on('click', () => openThread(id));
   note.show();
 }
+/** Dictation (voice.ts): one on-device helper per dictation; its events go only to the window that started it. */
+const voiceHelper = (): string => voiceHelperPath({ packaged: app.isPackaged, resourcesPath: process.resourcesPath, appPath: app.getAppPath() });
+const voice = new VoiceSessions({
+  spawn: (args) => {
+    const child = spawn(voiceHelper(), args, { stdio: ['pipe', 'pipe', 'ignore'] });
+    child.stdout.setEncoding('utf8');
+    return child;
+  },
+  send: (owner, event) => {
+    const target = electronWebContents.fromId(owner);
+    if (target && !target.isDestroyed()) target.send('voice:event', event);
+    else voice.cancel(owner);
+  },
+});
 /** Threads that were busy when their folder's rules changed: they restart on the new rules when their turn ends. */
 const rulesStale = new Set<string>();
 /** The folder whose rules the bar is editing — fixed when the editor opens, so a save cannot land on another folder. */
@@ -586,7 +603,8 @@ function auxiliaryChannelAllowed(event: IpcMainEvent | IpcMainInvokeEvent, chann
     ? ['threads:context', 'threads:pick-folder', 'threads:quick-submit', 'threads:hide', 'threads:list', 'threads:reply',
       'threads:quick-current', 'threads:quick-reset', 'threads:quick-interrupt', 'threads:quick-resize', 'threads:quick-open',
       'threads:undo-info', 'threads:undo', 'threads:open-path', 'threads:quick-switch', 'threads:model-menu',
-      'threads:more-menu', 'threads:rules-get', 'threads:rules-set', 'threads:rules-pick']
+      'threads:more-menu', 'threads:rules-get', 'threads:rules-set', 'threads:rules-pick',
+      'voice:available', 'voice:start', 'voice:stop', 'voice:cancel']
     : ['threads:approvals', 'threads:reply', 'threads:hide', 'threads:stop'];
   return allowed.includes(channel);
 }
@@ -1106,6 +1124,37 @@ app.whenReady().then(async () => {
   });
   secureOn('threads:model-menu', (_e, mode: unknown) => { void showModelMenu(mode === 'retry' ? 'retry' : 'switch'); });
   secureOn('threads:more-menu', () => showMoreMenu());
+  // Dictation (voice.ts, native/voice): the on-device helper runs only between voice:start and voice:stop / voice:cancel.
+  const voiceAvailable = (): boolean => voiceSupported(process.platform, os.release(), existsSync(voiceHelper()));
+  secureHandle('voice:available', { available: false }, () => ({ available: voiceAvailable() }));
+  secureHandle('voice:start', { ok: false } as { ok: boolean; error?: string; code?: string }, async (event, raw: unknown) => {
+    if (!voiceAvailable()) return { ok: false, code: 'unsupported', error: 'Dictation needs macOS 26 or later.' };
+    const status = systemPreferences.getMediaAccessStatus('microphone');
+    if (status !== 'granted') {
+      let granted = false;
+      if (status === 'not-determined') {
+        // The permission prompt takes focus; an empty ⌘2 bar would otherwise hide itself underneath it.
+        quickPicking = true;
+        try { granted = await systemPreferences.askForMediaAccess('microphone'); }
+        finally {
+          quickPicking = false;
+          if (event.sender.id === quickWindow?.webContents.id && quickWindow.isVisible()) quickWindow.focus();
+        }
+      }
+      if (!granted) {
+        if (status === 'denied' || status === 'restricted') void shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone');
+        return { ok: false, code: 'microphone-denied', error: 'Bimax can’t use the microphone. Turn it on in System Settings → Privacy & Security → Microphone.' };
+      }
+    }
+    const options = (raw && typeof raw === 'object' ? raw : {}) as { context?: unknown };
+    const context = Array.isArray(options.context)
+      ? options.context.filter((w): w is string => typeof w === 'string' && w.length > 0 && w.length <= 60).slice(0, 40)
+      : [];
+    voice.start(event.sender.id, { locales: app.getPreferredSystemLanguages(), context: ['Bimax', ...context] });
+    return { ok: true };
+  });
+  secureOn('voice:stop', (event) => voice.stop(event.sender.id));
+  secureOn('voice:cancel', (event) => voice.cancel(event.sender.id));
   // The bar's folder rules editor (folder.rules.ts). Saved in Bimax's settings; engines pick them up when they start.
   secureHandle('threads:rules-get', null as { root: string; text: string; protect: string[] } | null, () => {
     const root = quickThreadSnapshot()?.root ?? quickContext.root ?? null;
@@ -1520,6 +1569,7 @@ app.on('window-all-closed', () => {
 });
 
 app.on('before-quit', () => {
+  voice.dispose();
   globalShortcut.unregisterAll();
   quickWindow?.destroy(); approvalWindow?.destroy();
   threads?.dispose(); threadBroker?.close();

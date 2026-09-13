@@ -88,6 +88,9 @@ fi
 # CU build failure destroyed the staged directory on the release path — a failure mode the product
 # no longer has any reason to carry. scripts/prepare-native.sh remains on disk, unreferenced.
 
+echo "→ voice helper"
+bash scripts/build-voice.sh "$ARCH"
+
 echo "→ package app directory (unhardened, outside iCloud)"
 [ ! -e "$OUT" ] || { echo "error: refusing to overwrite existing local build output: $OUT" >&2; exit 1; }
 npx electron-builder --mac "--$ARCH" --dir \

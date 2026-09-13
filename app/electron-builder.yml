@@ -32,6 +32,9 @@ asarUnpack:
 extraResources:
   - from: engine
     to: engine
+  # voice/ holds bimax-voice, the on-device dictation helper (native/voice, built by scripts/build-voice.sh).
+  - from: voice
+    to: voice
 
 asar: true
 
@@ -51,6 +54,7 @@ mac:
   # local `codesign` pass alone.
   extendInfo:
     NSAppleEventsUsageDescription: Bimax reads the active Finder folder when you open the global thread prompt bar.
+    NSMicrophoneUsageDescription: Bimax listens only while you dictate — the mic button is on or right Option is held — and turns your words into text on this Mac.
   hardenedRuntime: true
   gatekeeperAssess: false
   entitlements: buildResources/entitlements.mac.plist

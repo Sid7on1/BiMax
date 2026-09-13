@@ -14,6 +14,14 @@ function subscribe(channel: string, cb: (value: any) => void): () => void {
   return () => ipcRenderer.removeListener(channel, listener);
 }
 const api = {
+  // Dictation (main/voice.ts): events arrive only in the window that started it.
+  voice: {
+    available: () => ipcRenderer.invoke('voice:available'),
+    start: (options?: { context?: string[] }) => ipcRenderer.invoke('voice:start', options ?? {}),
+    stop: () => ipcRenderer.send('voice:stop'),
+    cancel: () => ipcRenderer.send('voice:cancel'),
+    onEvent: (cb: (event: any) => void) => subscribe('voice:event', cb),
+  },
   threads: {
     list: () => ipcRenderer.invoke('threads:list'),
     onList: (cb: (value: any) => void) => subscribe('threads:list', cb),

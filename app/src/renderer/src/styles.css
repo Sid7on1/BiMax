@@ -1404,6 +1404,13 @@ html.aux-surface, html.aux-surface body, html.aux-surface #root { background: tr
 .quick-circle:hover { background: color-mix(in srgb, var(--color-ink) 18%, transparent); }
 .quick-send { background: var(--color-ink); color: var(--color-bg); }
 .quick-send:hover { background: color-mix(in srgb, var(--color-ink) 86%, transparent); }
+/* Dictation (MicButton): quiet until listening, then a ring that follows the voice (--mic-level, 0–1). */
+.quick-mic { background: transparent; color: color-mix(in srgb, var(--color-ink) 62%, transparent); }
+.mic-button[data-listening] { background: color-mix(in srgb, #ff3b30 20%, transparent); color: #ff453a;
+  box-shadow: 0 0 0 calc(1px + var(--mic-level, 0) * 7px) color-mix(in srgb, #ff3b30 28%, transparent); transition: box-shadow 90ms linear; }
+.mic-button[data-listening="starting"], .mic-button[data-listening="finishing"] { animation: mic-wait 1s ease-in-out infinite; }
+@keyframes mic-wait { 50% { opacity: 0.55; } }
+@media (prefers-reduced-motion: reduce) { .mic-button[data-listening] { transition: none; animation: none; } }
 .quick-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; border-top: 1px solid color-mix(in srgb, var(--color-ink) 10%, transparent); }
 .quick-body { display: flex; flex-direction: column; gap: 10px; padding: 14px 22px 8px; font-size: 13.5px; line-height: 1.55; }
 .quick-body .reading-column { max-width: 100%; margin-inline: 0; }
