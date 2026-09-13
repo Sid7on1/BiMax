@@ -1,5 +1,13 @@
 # Bimax product reset
 
+## Feature backlog — 2026-09-14
+
+`48_FEATURE_BACKLOG_2026_09.md` is the owner's next major build, starting 2026-09-15: foundations for unattended
+work (queued messages surviving a restart first), quick fixes found while shipping talk mode, small integrations
+(approve from a notification, `bimax://` links and Shortcuts), flagships (folders that act, an editable preview,
+"Actually…", Night Shift, muscle memory), later bets and ideas parked until Computer Use returns. Every item is
+Target, rated against commit `0dc3a6e`.
+
 ## Capability failure visibility — 2026-09-12
 
 `45_CAPABILITY_FAILURE_VISIBILITY_RECORD.md` records proactive retrieval/tool/MCP/storage failures,
