@@ -1,5 +1,11 @@
 import { cliEvents } from './events';
 
+/** The spinner a permission prompt interrupts, so answering it resumes the turn instead of ending it. */
+let spinnerBeforePrompt: { state: string; message: string } = { state: 'idle', message: 'Ready' };
+cliEvents.on('spinner_state', (state: string, message?: string) => {
+  if (state !== 'vetoing') spinnerBeforePrompt = { state: String(state), message: String(message ?? '') };
+});
+
 export class GlobalPrompter {
   private static isPrompting = false;
 
@@ -13,6 +19,10 @@ export class GlobalPrompter {
     }
 
     this.isPrompting = true;
+    // The turn does not end when the user answers, so put back what the prompt interrupted ("thinking",
+    // "executing") rather than reporting idle. Idle mid-turn hid the activity row after every approved
+    // command, and the thread manager took it for the end of the turn.
+    const resume = spinnerBeforePrompt;
 
     try {
       cliEvents.emit('spinner_state', 'vetoing', 'Governor is evaluating safety constraints...');
@@ -25,12 +35,12 @@ export class GlobalPrompter {
       try {
         cliEvents.emit('veto_prompt', question, options, (answer: string) => {
           this.isPrompting = false;
-          cliEvents.emit('spinner_state', 'idle', 'Ready');
+          cliEvents.emit('spinner_state', resume.state, resume.message);
           resolve(answer.trim());
         });
       } catch (e) {
         this.isPrompting = false;
-        cliEvents.emit('spinner_state', 'idle', 'Ready');
+        cliEvents.emit('spinner_state', resume.state, resume.message);
         throw e;
       }
     });

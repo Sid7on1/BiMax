@@ -13,6 +13,8 @@ export interface ThreadSummary {
   origin?: 'quick' | 'project';
 }
 export interface ThreadSelection { id: string; state: EngineUiState }
+/** The tallest the ⌘2 bar may grow, as a share of its screen's work area (main clamps, the bar follows text at it). */
+export const QUICK_BAR_MAX_HEIGHT_SHARE = 0.72;
 export interface ThreadList { activeId: string | null; threads: ThreadSummary[]; shortcutAvailable: boolean }
 export interface QuickContext { root: string | null; source: string; error?: string }
 /** The thread the ⌘2 bar is showing, with its transcript state, so a reopened bar picks up where it was. */

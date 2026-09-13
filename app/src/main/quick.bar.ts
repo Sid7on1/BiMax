@@ -5,6 +5,8 @@
  * grows downward into a conversation as a task produces output. Unlike Spotlight it can be dragged, and it
  * reopens where it was left.
  */
+import { QUICK_BAR_MAX_HEIGHT_SHARE } from '../shared/threads';
+
 export interface Point { x: number; y: number }
 export interface Rect extends Point { width: number; height: number }
 
@@ -13,7 +15,7 @@ export const QUICK_BAR = {
   /** The pill alone: one row of input. */
   collapsedHeight: 64,
   /** The tallest the bar may grow, as a share of its screen's work area. */
-  maxHeightShare: 0.72,
+  maxHeightShare: QUICK_BAR_MAX_HEIGHT_SHARE,
   /** Where a bar with no remembered position opens, as a share of the work area's height. */
   topShare: 0.24,
 } as const;

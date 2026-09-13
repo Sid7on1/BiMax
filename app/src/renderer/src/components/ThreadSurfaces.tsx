@@ -1,12 +1,13 @@
 import React, { useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react';
 import { ArrowUp, Check, ChevronRight, ExternalLink, Folder, PenLine, Search, Square, X } from 'lucide-react';
-import type { QuickContext, QuickThread, ThreadApproval } from '../../../shared/threads';
+import { QUICK_BAR_MAX_HEIGHT_SHARE, type QuickContext, type QuickThread, type ThreadApproval } from '../../../shared/threads';
 import { engineReducer, initialEngineState, type TranscriptItem } from '../engine.state';
 import type { Outbound, RequestMsg, ToolCallEntry } from '../protocol';
 import { DiffView, Markdown } from '../markdown';
 import { applyAppearance, savedAppearance } from '../appearance';
 import { cn } from '../lib/cn';
 import { ThinkingIndicator } from './ThinkingIndicator';
+import { StreamCoalescer } from '../stream.coalescer';
 
 /**
  * The two floating surfaces of Bimax Threads: the ⌘2 bar and the approval popup.
@@ -18,6 +19,11 @@ import { ThinkingIndicator } from './ThinkingIndicator';
 
 /** A folder's own name is what a person recognises; the full path stays in the tooltip. */
 const folderName = (root: string | null | undefined): string => root?.split('/').filter(Boolean).pop() ?? 'Choose a folder';
+
+/** How much the bar grows at a time while a reply is being written: about two lines of body text. */
+const GROW_STEP_PX = 44;
+/** How long text may stop arriving mid-turn before the bar shows that the turn is still working. */
+const STALL_MS = 900;
 
 function useSurface(kind: 'quick' | 'approval'): 'native' | 'vibrancy' {
   const glass = new URLSearchParams(location.search).get('glass') === 'native' ? 'native' : 'vibrancy';
@@ -46,29 +52,60 @@ export function ThreadQuickBar(): React.ReactElement {
   const scroller = useRef<HTMLDivElement>(null);
   const body = useRef<HTMLDivElement>(null);
   const footer = useRef<HTMLDivElement>(null);
+  // Whether the newest engine output was a tool step rather than text. After a tool runs, the text on screen
+  // was written BEFORE it, so the activity row must show even though the stream buffer is not empty.
+  const [afterTool, setAfterTool] = useState(false);
+  const afterToolRef = useRef(false);
+  const noteOutputKind = useRef((msg: Outbound): void => {
+    const name = msg.t === 'event' ? String((msg as { name?: unknown }).name ?? '') : '';
+    if (!name) return;
+    const next = name === 'tool_call' || name === 'tool_call_result' ? true
+      : name === 'stream_token' || name === 'message' ? false : afterToolRef.current;
+    if (next !== afterToolRef.current) { afterToolRef.current = next; setAfterTool(next); }
+  }).current;
 
   useEffect(() => {
+    // Adjacent streaming deltas become one dispatch per frame, as in the main window. Dispatching every token
+    // re-rendered the whole bar hundreds of times a second while a reply was written.
+    const batcher = new StreamCoalescer({ emit: (msg) => dispatch({ type: 'outbound', msg }) });
     const adopt = (value: QuickThread | null): void => {
+      batcher.retire(); // the snapshot already holds everything the batcher was waiting to send
       setThread(value ? { id: value.id, title: value.title, root: value.root } : null);
       dispatch({ type: 'restoreThread', state: value ? value.state : initialEngineState });
     };
     const offContext = window.bimax.threads.onContext((value: QuickContext) => { setContext(value); setError(''); input.current?.focus(); });
     const offThread = window.bimax.threads.onQuickThread(adopt);
-    const offMsg = window.bimax.threads.onQuickMsg((msg: Outbound) => dispatch({ type: 'outbound', msg }));
+    const offMsg = window.bimax.threads.onQuickMsg((msg: Outbound) => {
+      noteOutputKind(msg);
+      batcher.push(msg);
+    });
     void window.bimax.threads.context().then(setContext);
     void window.bimax.threads.quickCurrent().then(adopt);
-    return () => { offContext(); offThread(); offMsg(); };
+    return () => { offContext(); offThread(); offMsg(); batcher.dispose(); };
   }, []);
 
   const busy = state.spinner.state !== 'idle' && state.spinner.state !== '';
   const hasConversation = Boolean(thread) || state.items.length > 0;
   const request = state.request as (RequestMsg & { approvalToken?: string }) | null;
   const root = thread?.root ?? context.root;
+  // Text that stops arriving mid-turn means the model is running a tool or reading its result. Say so, instead
+  // of leaving the last sentence looking like the end of the answer.
+  const [stalled, setStalled] = useState(false);
+  useEffect(() => {
+    setStalled(false);
+    if (!busy || !state.streaming) return;
+    const timer = setTimeout(() => setStalled(true), STALL_MS);
+    return () => clearTimeout(timer);
+  }, [busy, state.streaming]);
+  const showActivity = busy && !request && (!state.streaming || afterTool || stalled);
   // Like Spotlight, the empty bar is only the pill. A missing Finder folder is already said by the folder chip,
   // so its explanation appears only when someone tries to send without one.
   const status = error;
   const showFooter = hasConversation || Boolean(status);
 
+  const busyRef = useRef(busy);
+  busyRef.current = busy;
+  const reportedHeight = useRef(0);
   // The window is exactly as tall as what it shows, so report the NATURAL height — header, the whole
   // conversation, footer — not the scroll box, which the window itself caps. Main clamps it to the screen.
   useLayoutEffect(() => {
@@ -76,7 +113,14 @@ export function ThreadQuickBar(): React.ReactElement {
     const report = (): void => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        const height = (header.current?.offsetHeight ?? 0) + (body.current ? body.current.offsetHeight + 1 : 0) + (footer.current?.offsetHeight ?? 0);
+        const natural = (header.current?.offsetHeight ?? 0) + (body.current ? body.current.offsetHeight + 1 : 0) + (footer.current?.offsetHeight ?? 0);
+        // While a reply is being written, grow two lines at a time and never shrink: resizing the window on
+        // every line, and shrinking whenever half-written markdown reflowed, is what made the text jump.
+        const height = busyRef.current
+          ? Math.max(reportedHeight.current, Math.ceil(natural / GROW_STEP_PX) * GROW_STEP_PX)
+          : natural;
+        if (height === reportedHeight.current) return;
+        reportedHeight.current = height;
         window.bimax.threads.quickResize(height);
       });
     };
@@ -84,13 +128,16 @@ export function ThreadQuickBar(): React.ReactElement {
     const observer = new ResizeObserver(report);
     for (const el of [header.current, body.current, footer.current]) if (el) observer.observe(el);
     return () => { observer.disconnect(); cancelAnimationFrame(frame); };
-  }, [hasConversation, showFooter]);
+  }, [hasConversation, showFooter, busy]);
 
-  // Follow the answer as it streams, unless the reader has scrolled up to look at something.
+  // Follow the newest text only once the bar is as tall as it may get. Below that the window grows to fit,
+  // and scrolling ahead of the resize is what made lines jump. A reader who scrolled up stays where they are.
   useEffect(() => {
     const el = scroller.current;
-    if (el && el.scrollHeight - el.scrollTop - el.clientHeight < 80) el.scrollTop = el.scrollHeight;
-  }, [state.items.length, state.streaming, state.thinking, request?.id]);
+    if (!el) return;
+    if (reportedHeight.current < Math.floor(window.screen.availHeight * QUICK_BAR_MAX_HEIGHT_SHARE)) return;
+    if (el.scrollHeight - el.scrollTop - el.clientHeight < 120) el.scrollTop = el.scrollHeight;
+  }, [state.items.length, state.streaming, state.thinking, request?.id, showActivity]);
 
   async function submit(): Promise<void> {
     const text = prompt.trim();
@@ -171,8 +218,8 @@ export function ThreadQuickBar(): React.ReactElement {
         <div ref={scroller} className="quick-scroll">
           <div ref={body} className="quick-body">
             <QuickConversation items={state.items} />
-            {busy && !state.streaming && !request ? <ThinkingIndicator thinking={state.thinking} /> : null}
             {state.streaming ? <div className="quick-answer"><Markdown text={state.streaming} /></div> : null}
+            {showActivity ? <ThinkingIndicator thinking={state.thinking} /> : null}
             {request ? <QuickRequest key={request.id} req={request} onReply={(value) => void reply(value)} /> : null}
           </div>
         </div>
