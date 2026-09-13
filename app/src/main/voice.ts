@@ -1,4 +1,5 @@
 import path from 'node:path';
+import type { TalkHelper } from './talk.session';
 
 /**
  * Dictation in the main process. Each dictation is one run of the on-device helper (native/voice/main.swift):
@@ -38,6 +39,44 @@ export function voiceSupported(platform: string, release: string, helperExists: 
   return platform === 'darwin' && Number.parseInt(release, 10) >= 25 && helperExists;
 }
 
+/** The helper's command line: a dictation (--listen) or talk mode (--talk), with the languages and the words to expect. */
+export function helperArguments(mode: '--listen' | '--talk', options: { locales: readonly string[]; context: readonly string[] }): string[] {
+  const args: string[] = [mode];
+  const locales = options.locales.filter((l) => /^[A-Za-z]{2,3}([-_][A-Za-z0-9]{2,8})*$/.test(l));
+  if (locales.length) args.push('--locale', locales.join(','));
+  const words = [...new Set(options.context.map((w) => w.replace(/[,\n]/g, ' ').trim()).filter(Boolean))];
+  if (words.length) args.push('--context', words.join(','));
+  return args;
+}
+
+/**
+ * Talk mode's one warm helper (talk.session.ts): its output read as events, commands written as JSON lines. `end` asks
+ * it to finish and kills it if it is still there 1.5s later. `onExit` is called once, on `close` rather than `exit`:
+ * the helper prints why it failed just before exiting, and those words can arrive after the exit event.
+ */
+export function talkHelper(
+  child: VoiceChild,
+  onEvent: (event: VoiceEvent & Record<string, unknown>) => void,
+  onExit: () => void,
+  later: (fn: () => void, ms: number) => unknown = (fn, ms) => setTimeout(fn, ms),
+): TalkHelper {
+  let rest = '';
+  let gone = false;
+  child.stdout?.on('data', (chunk) => {
+    const parsed = splitVoiceLines(rest + String(chunk));
+    rest = parsed.rest;
+    for (const event of parsed.events) onEvent(event as VoiceEvent & Record<string, unknown>);
+  });
+  const exit = (): void => { if (gone) return; gone = true; onExit(); };
+  child.on('close', exit);
+  child.on('error', (error: Error) => { if (!gone) onEvent({ event: 'error', code: 'helper', message: `Talk mode couldn’t start: ${error.message}` }); exit(); });
+  const send = (command: Record<string, unknown>): void => {
+    if (gone) return;
+    try { child.stdin?.write(`${JSON.stringify(command)}\n`); } catch { child.kill(); }
+  };
+  return { send, end: () => { send({ cmd: 'end' }); later(() => { if (!gone) child.kill(); }, 1500); } };
+}
+
 interface Session { owner: number; child: VoiceChild; ended: boolean; errored: boolean }
 
 export class VoiceSessions {
@@ -53,11 +92,7 @@ export class VoiceSessions {
 
   start(owner: number, options: { locales: readonly string[]; context: readonly string[] }): void {
     this.cancelCurrent();
-    const args = ['--listen'];
-    const locales = options.locales.filter((l) => /^[A-Za-z]{2,3}([-_][A-Za-z0-9]{2,8})*$/.test(l));
-    if (locales.length) args.push('--locale', locales.join(','));
-    const words = [...new Set(options.context.map((w) => w.replace(/[,\n]/g, ' ').trim()).filter(Boolean))];
-    if (words.length) args.push('--context', words.join(','));
+    const args = helperArguments('--listen', options);
     let child: VoiceChild;
     try {
       child = this.deps.spawn(args);

@@ -1411,6 +1411,19 @@ html.aux-surface, html.aux-surface body, html.aux-surface #root { background: tr
 .mic-button[data-listening="starting"], .mic-button[data-listening="finishing"] { animation: mic-wait 1s ease-in-out infinite; }
 @keyframes mic-wait { 50% { opacity: 0.55; } }
 @media (prefers-reduced-motion: reduce) { .mic-button[data-listening] { transition: none; animation: none; } }
+/* Talk mode: the field shows what is heard or what the conversation is doing. The dot follows the voice while listening
+   (--talk-level, 0–1), breathes while thinking, pulses while speaking, and turns amber when a click is needed. */
+.quick-talk { flex: 1; min-width: 0; margin: 0; padding: 8px 0; overflow: hidden; color: var(--color-ink); font-size: 20px; line-height: 28px; text-overflow: ellipsis; white-space: nowrap; }
+.quick-talk[data-placeholder] { color: color-mix(in srgb, var(--color-ink) 48%, transparent); }
+.quick-talk-orb { flex: none; width: 14px; height: 14px; margin: 3px; border-radius: 999px; background: #0a84ff;
+  box-shadow: 0 0 0 calc(2px + var(--talk-level, 0) * 8px) color-mix(in srgb, #0a84ff 26%, transparent); transition: box-shadow 90ms linear; }
+.quick-talk-orb[data-state="starting"], .quick-talk-orb[data-state="thinking"] { animation: mic-wait 1.2s ease-in-out infinite; }
+.quick-talk-orb[data-state="speaking"] { animation: talk-speak 0.8s ease-in-out infinite alternate; }
+.quick-talk-orb[data-state="waiting"] { background: #ff9f0a; box-shadow: 0 0 0 3px color-mix(in srgb, #ff9f0a 26%, transparent); }
+@keyframes talk-speak { from { transform: scale(0.8); } to { transform: scale(1.15); } }
+.quick-talk-button { background: transparent; color: color-mix(in srgb, var(--color-ink) 62%, transparent); }
+.quick-talk-button[aria-pressed="true"] { background: color-mix(in srgb, #0a84ff 20%, transparent); color: #0a84ff; }
+@media (prefers-reduced-motion: reduce) { .quick-talk-orb { transition: none; animation: none !important; } }
 .quick-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; border-top: 1px solid color-mix(in srgb, var(--color-ink) 10%, transparent); }
 .quick-body { display: flex; flex-direction: column; gap: 10px; padding: 14px 22px 8px; font-size: 13.5px; line-height: 1.55; }
 .quick-body .reading-column { max-width: 100%; margin-inline: 0; }

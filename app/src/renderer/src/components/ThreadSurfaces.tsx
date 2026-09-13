@@ -1,6 +1,7 @@
 import React, { useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { ArrowUp, Check, ChevronRight, Cpu, ExternalLink, FileText, Folder, Globe, MoreHorizontal, PenLine, Plus, RotateCcw, Search, Shield, Square, Undo2, X } from 'lucide-react';
+import { ArrowUp, AudioLines, Check, ChevronRight, Cpu, ExternalLink, FileText, Folder, Globe, MoreHorizontal, PenLine, Plus, RotateCcw, Search, Shield, Square, Undo2, X } from 'lucide-react';
 import { QUICK_BAR_MAX_HEIGHT_SHARE, type QuickAttachment, type QuickContext, type QuickThread, type ThreadApproval } from '../../../shared/threads';
+import type { TalkView } from '../../../shared/talk';
 import { engineReducer, initialEngineState, type TranscriptItem } from '../engine.state';
 import type { Outbound, RequestMsg, ToolCallEntry } from '../protocol';
 import { DiffView, Markdown } from '../markdown';
@@ -10,6 +11,7 @@ import { ThinkingIndicator } from './ThinkingIndicator';
 import { StreamCoalescer } from '../stream.coalescer';
 import { MicButton } from './MicButton';
 import { useDictation } from '../useDictation';
+import { useTalk } from '../useTalk';
 import { approvalShortcut, denyOption } from '../approval.keys';
 import { PathLinkContext } from '../path.links';
 import { loadHistory, remember, stepHistory } from '../quick.history';
@@ -31,6 +33,18 @@ const GROW_STEP_PX = 44;
 const STALL_MS = 900;
 /** A turn's length for the footer: seconds, then minutes and seconds. */
 const formatDuration = (ms: number): string => (ms < 60_000 ? `${Math.max(1, Math.round(ms / 1000))}s` : `${Math.floor(ms / 60_000)}m ${Math.round((ms % 60_000) / 1000)}s`);
+/** What the bar's field says while talking: the words as they are heard, or what the conversation is doing. */
+function talkLine(view: TalkView): string {
+  switch (view.state) {
+    case 'starting': return view.heard || 'Getting ready…';
+    case 'listening': return view.heard || 'Listening…';
+    case 'thinking': return 'Thinking…';
+    case 'speaking': return 'Speaking…';
+    case 'waiting': return 'Choose on screen to go on';
+    default: return '';
+  }
+}
+const BASIC_VOICE_TIP = 'This is the Mac’s basic voice. For a more natural one, download a Premium voice in System Settings → Accessibility → Spoken Content.';
 
 function useSurface(kind: 'quick' | 'approval'): 'native' | 'vibrancy' {
   const glass = new URLSearchParams(location.search).get('glass') === 'native' ? 'native' : 'vibrancy';
@@ -69,6 +83,11 @@ export function ThreadQuickBar(): React.ReactElement {
     context: () => (root ? [folderName(root)] : []),
   });
   useEffect(() => { if (dictation.error) setError(dictation.error); }, [dictation.error]);
+  // Talk mode: a spoken conversation with this task — it listens, answers out loud, and listens again (useTalk.ts).
+  const talk = useTalk();
+  const talking = talk.active;
+  useEffect(() => { if (talk.error) setError(talk.error); }, [talk.error]);
+  const talkVoice = talking && talk.view.voice ? `Voice: ${talk.view.voice.name}${talk.view.voice.quality === 'default' ? ' (basic)' : ''}` : '';
   // This folder's rules, while they are being edited (⋯ → Rules for …); null when the editor is closed.
   const [rules, setRules] = useState<{ root: string; text: string; protect: string[] } | null>(null);
   useEffect(() => window.bimax.threads.onOpenRules(() => {
@@ -286,10 +305,12 @@ export function ThreadQuickBar(): React.ReactElement {
       onDrop={(e) => { e.preventDefault(); setDropping(false); addDropped(e.dataTransfer.files); }}
       onKeyDown={(e) => {
         // Dictation owns right ⌥ (hold to talk) and, while listening, Esc (discard what was heard).
-        if (dictation.onKeyDown(e)) { e.preventDefault(); return; }
+        if (!talking && dictation.onKeyDown(e)) { e.preventDefault(); return; }
         // An approval card on screen owns ⌘↩ (allow) and Esc (deny); otherwise Esc hides the bar.
         const pick = request ? approvalShortcut(e.nativeEvent, request) : undefined;
         if (pick) { e.preventDefault(); void reply(pick); return; }
+        // Talking, Esc ends the conversation; the task and what was said stay in the bar.
+        if (talking && e.key === 'Escape') { e.preventDefault(); talk.end(); return; }
         // ⌘[ and ⌘] step through this bar's recent tasks.
         if (e.metaKey && (e.key === '[' || e.key === ']')) { e.preventDefault(); void window.bimax.threads.quickSwitch(e.key === '[' ? 'older' : 'newer'); return; }
         if (e.key === 'Escape' && rules) { e.preventDefault(); setRules(null); return; }
@@ -298,7 +319,16 @@ export function ThreadQuickBar(): React.ReactElement {
       }}
     >
       <div ref={header} className="quick-header quick-drag">
-        <Search size={20} className="quick-icon" aria-hidden />
+        {talking ? (
+          <span className="quick-talk-orb" data-state={talk.view.state} style={{ '--talk-level': talk.view.level.toFixed(2) } as React.CSSProperties} aria-hidden />
+        ) : (
+          <Search size={20} className="quick-icon" aria-hidden />
+        )}
+        {talking ? (
+          <p className="quick-talk" data-state={talk.view.state} data-placeholder={talk.view.state === 'listening' && talk.view.heard ? undefined : true} role="status" aria-live="polite">
+            {talkLine(talk.view)}
+          </p>
+        ) : (
         <textarea
           ref={input}
           autoFocus
@@ -321,7 +351,21 @@ export function ThreadQuickBar(): React.ReactElement {
           }}
           className="quick-input"
         />
-        <MicButton dictation={dictation} className="quick-circle quick-mic" size={15} />
+        )}
+        {talking ? null : <MicButton dictation={dictation} className="quick-circle quick-mic" size={15} />}
+        {dictation.available ? (
+          <button
+            type="button"
+            className="quick-circle quick-talk-button"
+            aria-pressed={talking}
+            aria-label={talking ? 'End talk' : 'Talk'}
+            title={talking ? 'End the conversation (Esc)' : 'Talk with Bimax: it answers out loud'}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => (talking ? talk.end() : talk.start())}
+          >
+            {talking ? <X size={15} aria-hidden /> : <AudioLines size={15} aria-hidden />}
+          </button>
+        ) : null}
         <button
           type="button"
           className="quick-folder"
@@ -332,7 +376,13 @@ export function ThreadQuickBar(): React.ReactElement {
           <Folder size={13} aria-hidden />
           <span>{folderName(root)}</span>
         </button>
-        {busy ? (
+        {talking ? (
+          talk.view.state === 'thinking' || talk.view.state === 'speaking' || talk.view.state === 'waiting' ? (
+            <button type="button" aria-label="Stop" title="Stop and listen" className="quick-circle" onClick={() => talk.interrupt()}>
+              <Square size={12} />
+            </button>
+          ) : null
+        ) : busy ? (
           <button type="button" aria-label="Stop" title="Stop this task" className="quick-circle" onClick={() => window.bimax.threads.quickInterrupt()}>
             <Square size={12} />
           </button>
@@ -373,8 +423,8 @@ export function ThreadQuickBar(): React.ReactElement {
 
       {showFooter ? (
         <div ref={footer} className="quick-footer quick-drag">
-          <span className={cn('quick-status', status && 'quick-error')} role="status">
-            {status || [busy ? `Working in ${folderName(root)}` : thread ? folderName(root) : '', timing].filter(Boolean).join(' · ')}
+          <span className={cn('quick-status', status && 'quick-error')} role="status" title={talking && talk.view.voice?.quality === 'default' ? BASIC_VOICE_TIP : undefined}>
+            {status || [talkVoice, busy ? `Working in ${folderName(root)}` : thread ? folderName(root) : '', timing].filter(Boolean).join(' · ')}
           </span>
           {thread ? (
             <>

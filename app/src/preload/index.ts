@@ -22,6 +22,14 @@ const api = {
     cancel: () => ipcRenderer.send('voice:cancel'),
     onEvent: (cb: (event: any) => void) => subscribe('voice:event', cb),
   },
+  // Talk mode (main/talk.session.ts): a spoken conversation with the ⌘2 bar's task.
+  talk: {
+    start: () => ipcRenderer.invoke('talk:start'),
+    end: () => ipcRenderer.send('talk:end'),
+    interrupt: () => ipcRenderer.send('talk:interrupt'),
+    current: () => ipcRenderer.invoke('talk:current'),
+    onState: (cb: (view: any) => void) => subscribe('talk:state', cb),
+  },
   threads: {
     list: () => ipcRenderer.invoke('threads:list'),
     onList: (cb: (value: any) => void) => subscribe('threads:list', cb),

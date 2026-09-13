@@ -188,6 +188,7 @@ declare global {
     bimax: {
       threads: import("../../preload/index").BimaxApi["threads"];
       voice: import("../../preload/index").BimaxApi["voice"];
+      talk: import("../../preload/index").BimaxApi["talk"];
       send: (msg: Inbound) => void;
       onMessage: (cb: (msg: Outbound) => void) => () => void;
       onEngineState: (cb: (state: string, detail: string) => void) => () => void;

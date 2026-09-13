@@ -1,5 +1,5 @@
 import { EventEmitter } from 'node:events';
-import { splitVoiceLines, VoiceSessions, voiceHelperPath, voiceSupported, type VoiceEvent } from '../main/voice';
+import { helperArguments, splitVoiceLines, talkHelper, VoiceSessions, voiceHelperPath, voiceSupported, type VoiceEvent } from '../main/voice';
 
 function fakeChild() {
   const child = Object.assign(new EventEmitter(), {
@@ -74,4 +74,40 @@ test('dictation is offered only on macOS 26 or later with the helper present', (
   expect(voiceSupported('linux', '25.5.0', true)).toBe(false);
   expect(voiceHelperPath({ packaged: true, resourcesPath: '/A/Resources', appPath: '/x' })).toBe('/A/Resources/voice/bimax-voice');
   expect(voiceHelperPath({ packaged: false, resourcesPath: '/A/Resources', appPath: '/dev/app' })).toBe('/dev/app/voice/bimax-voice');
+});
+
+test('talk mode runs one helper: events in, commands out as JSON lines, and an end that cannot hang', () => {
+  expect(helperArguments('--talk', { locales: ['en-US'], context: ['Bimax', 'Downloads'] })).toEqual(['--talk', '--locale', 'en-US', '--context', 'Bimax,Downloads']);
+  const child = fakeChild();
+  const events: unknown[] = [];
+  const exits = jest.fn();
+  const timers: Array<() => void> = [];
+  const helper = talkHelper(child, (e) => events.push(e), exits, (fn) => timers.push(fn));
+  child.stdout.emit('data', '{"event":"ready","voice":"Samantha"}\n{"event":"utter');
+  child.stdout.emit('data', 'ance","text":"hi"}\n');
+  expect(events).toEqual([{ event: 'ready', voice: 'Samantha' }, { event: 'utterance', text: 'hi' }]);
+  helper.send({ cmd: 'speak', text: 'Hey.' });
+  expect(child.stdin.write).toHaveBeenCalledWith('{"cmd":"speak","text":"Hey."}\n');
+  helper.end();
+  expect(child.stdin.write).toHaveBeenLastCalledWith('{"cmd":"end"}\n');
+  timers.forEach((run) => run());
+  expect(child.kill).toHaveBeenCalled();
+  child.emit('close', null);
+  child.emit('close', null);
+  expect(exits).toHaveBeenCalledTimes(1);
+  helper.send({ cmd: 'listen' });
+  expect(child.stdin.write).toHaveBeenCalledTimes(2);
+});
+
+test('a talk helper that explains its failure keeps the explanation, even when the words arrive after it exits', () => {
+  const child = fakeChild();
+  const events: unknown[] = [];
+  const exits = jest.fn();
+  talkHelper(child, (e) => events.push(e), exits, () => {});
+  child.emit('exit', 1);
+  child.stdout.emit('data', '{"event":"error","code":"microphone-denied","message":"Microphone access is off for Bimax."}\n');
+  expect(exits).not.toHaveBeenCalled();
+  child.emit('close', 1);
+  expect(events).toEqual([{ event: 'error', code: 'microphone-denied', message: 'Microphone access is off for Bimax.' }]);
+  expect(exits).toHaveBeenCalledTimes(1);
 });

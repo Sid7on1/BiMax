@@ -13,6 +13,8 @@ export interface ThreadSummary {
   origin?: 'quick' | 'project';
   /** The model this task answers with, when it is not Bimax's own (the ⌘2 model menu, "Retry with…"). */
   model?: string;
+  /** A talk-mode task (the ⌘2 bar's spoken conversation): its engine writes replies to be read aloud. */
+  voice?: boolean;
 }
 export interface ThreadSelection { id: string; state: EngineUiState }
 /** The tallest the ⌘2 bar may grow, as a share of its screen's work area (main clamps, the bar follows text at it). */

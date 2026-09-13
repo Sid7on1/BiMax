@@ -15,6 +15,7 @@ import { globalSkillService } from '../../skills/skill.service';
 import { getConfig } from '../config';
 import { loadProjectGuide } from '../projectGuide';
 import { folderRulesSection } from '../../tools/thread.rules';
+import { voiceModeSection } from '../../tools/thread.voice';
 import { beginTodoTurn, getTodoPromptBlock, retireCompletedTodos } from '../../tools/implementations/todo.tool';
 import { getGoalManager } from '../../memory/goal.manager';
 import { agentModePromptSection } from '../agentMode';
@@ -250,6 +251,9 @@ export abstract class AgentPersona {
     // Folder rules: the user's own instructions for the folder a Bimax thread works in, set in the app. Empty outside threads.
     const folderRules = folderRulesSection();
     if (folderRules) sections.folderRules = folderRules;
+    // Talk mode: the reply is read aloud, so it is written to be heard. Empty outside talk-mode threads.
+    const voiceMode = voiceModeSection();
+    if (voiceMode) sections.voiceMode = voiceMode;
 
     if (opts?.exemplars) {
       sections.exemplars = opts.exemplars;
@@ -359,6 +363,7 @@ export abstract class AgentPersona {
       sections.environment,
       sections.projectGuide,
       sections.folderRules,
+      sections.voiceMode,
       sections.tools,
       sections.loadOnDemand,
       sections.skills,

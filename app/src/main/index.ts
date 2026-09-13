@@ -2,7 +2,7 @@ import { CapabilityReplay } from './capability.replay';
 import { app, BrowserWindow, ipcMain, dialog, shell, session, systemPreferences, powerMonitor, net, nativeTheme, globalShortcut, screen, Menu, Notification, Tray, nativeImage, webContents as electronWebContents } from 'electron';
 import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron';
 import path from 'node:path';
-import { ThreadManager, threadIndexEnvironment } from './thread.manager';
+import { ThreadManager, threadIndexEnvironment, threadVoiceEnvironment } from './thread.manager';
 import { ThreadStorage } from './thread.storage';
 import { createThreadBroker } from './thread.broker';
 import { finderContext } from './finder.context';
@@ -13,7 +13,8 @@ import { insideFolder, validAttachments, withContext } from './quick.context';
 import { nextQuickThread, trayEntries, trayTitle, trayTooltip } from './thread.tray';
 import { modelMenuItems, type CatalogModel, type ModelMenuItem, type ModelTime } from './thread.models';
 import { cleanRules, rulesEnvironment } from './folder.rules';
-import { VoiceSessions, voiceHelperPath, voiceSupported } from './voice';
+import { helperArguments, talkHelper, VoiceSessions, voiceHelperPath, voiceSupported } from './voice';
+import { TalkSession, talkModel, type TalkView } from './talk.session';
 import { describeSchedule, dueSchedules, newSchedule, type Cadence, type Schedule } from './schedules';
 import { randomUUID } from 'node:crypto';
 import { macBin } from './bin';
@@ -167,6 +168,7 @@ function auxiliaryWindow(kind: 'quick' | 'approval'): BrowserWindow {
     // Hiding the bar must not strand a question its task is waiting on: it moves to the approval popup.
     window.on('hide', () => {
       voice.stop(window.webContents.id);
+      talk.end();
       if (quickThreadId && threads.approvals().some(a => a.threadId === quickThreadId)) showThreadApproval();
     });
   }
@@ -273,6 +275,7 @@ async function showModelMenu(mode: 'switch' | 'retry'): Promise<void> {
 }
 /** Bring a ⌘2 task back into the bar — from the menu bar, a notification, or ⌘[ / ⌘]. */
 function showQuickThread(id: string): void {
+  if (talk.threadId && talk.threadId !== id) talk.end();
   quickThreadId = id;
   if (quickWindow?.isVisible()) { sendQuickThread(); quickWindow.focus(); return; }
   void showQuickBar();
@@ -307,6 +310,44 @@ const voice = new VoiceSessions({
     if (target && !target.isDestroyed()) target.send('voice:event', event);
     else voice.cancel(owner);
   },
+});
+/**
+ * Talk mode (talk.session.ts): a spoken conversation with the ⌘2 bar's task, through one warm on-device helper. The
+ * task's engine writes replies to be heard (BIMAX_THREAD_VOICE) and answers with a quick model (talkModel).
+ */
+let talkRoot: string | null = null;
+let talkModelChoice: string | undefined;
+const talk = new TalkSession({
+  spawn: (onEvent, onExit) => {
+    const context = ['Bimax', ...(talkRoot ? [path.basename(talkRoot)] : [])];
+    const child = spawn(voiceHelper(), helperArguments('--talk', { locales: app.getPreferredSystemLanguages(), context }), { stdio: ['pipe', 'pipe', 'ignore'] });
+    child.stdout.setEncoding('utf8');
+    // A command written just as the helper exits must not become an uncaught EPIPE in the main process.
+    child.stdin.on('error', () => {});
+    return talkHelper(child, onEvent, onExit);
+  },
+  // Talking again in the bar's talk task carries on that conversation; otherwise a new task starts in the bar's folder.
+  openThread: () => {
+    if (!talkRoot) throw new Error('Choose a folder for this task first.');
+    const shown = quickThreadSnapshot();
+    const id = shown && shown.root === talkRoot && threads.get(shown.id).summary.voice
+      ? shown.id
+      : threads.create(talkRoot, '', 'quick', talkModelChoice, true);
+    quickThreadId = id;
+    threads.start(id);
+    sendQuickThread();
+    return id;
+  },
+  submit: (id, words, engineText) => threads.submit(id, engineText, words),
+  answer: (id, requestId, text) => {
+    const pending = threads.approvals().find((a) => a.threadId === id && a.request.id === requestId);
+    if (!pending) throw new Error('That question has expired.');
+    threads.send(id, { t: 'reply', id: requestId, value: text, approvalToken: pending.token });
+    // The bar closes a card it answered itself; one answered by voice is closed from the thread's own state.
+    if (id === quickThreadId) sendQuickThread();
+  },
+  interrupt: (id) => threads.send(id, { t: 'interrupt' }),
+  show: (view) => { if (quickWindow && !quickWindow.isDestroyed()) quickWindow.webContents.send('talk:state', view); },
 });
 /** Threads that were busy when their folder's rules changed: they restart on the new rules when their turn ends. */
 const rulesStale = new Set<string>();
@@ -604,7 +645,7 @@ function auxiliaryChannelAllowed(event: IpcMainEvent | IpcMainInvokeEvent, chann
       'threads:quick-current', 'threads:quick-reset', 'threads:quick-interrupt', 'threads:quick-resize', 'threads:quick-open',
       'threads:undo-info', 'threads:undo', 'threads:open-path', 'threads:quick-switch', 'threads:model-menu',
       'threads:more-menu', 'threads:rules-get', 'threads:rules-set', 'threads:rules-pick',
-      'voice:available', 'voice:start', 'voice:stop', 'voice:cancel']
+      'voice:available', 'voice:start', 'voice:stop', 'voice:cancel', 'talk:start', 'talk:end', 'talk:interrupt', 'talk:current']
     : ['threads:approvals', 'threads:reply', 'threads:hide', 'threads:stop'];
   return allowed.includes(channel);
 }
@@ -702,6 +743,7 @@ function createSupervisor(threadId?: string): EngineSupervisor {
           ...threadIndexEnvironment(threads.get(threadId).summary.origin),
           ...threadStateEnvironment(app.getPath('userData'), project, threads.get(threadId).summary.origin),
           ...rulesEnvironment(loadSettings().folderRules?.[project]),
+          ...threadVoiceEnvironment(threads.get(threadId).summary.voice),
           ...(threads.get(threadId).summary.model ? { BIMAX_THREAD_MODEL: threads.get(threadId).summary.model } : {}) } : {}),
       }, callbacks);
     },
@@ -933,6 +975,9 @@ app.whenReady().then(async () => {
         done(modelCatalog);
         return;
       }
+      if (id === talk.threadId) {
+        try { talk.onThreadMessage(msg); } catch { /* talk mode must never stop the thread's own delivery */ }
+      }
       if (threads.activeId === id) broadcast('engine:msg', msg, id);
       if (id === quickThreadId && quickWindow && !quickWindow.isDestroyed()) quickWindow.webContents.send('threads:quick-msg', msg);
     },
@@ -1134,35 +1179,65 @@ app.whenReady().then(async () => {
   secureOn('threads:more-menu', () => showMoreMenu());
   // Dictation (voice.ts, native/voice): the on-device helper runs only between voice:start and voice:stop / voice:cancel.
   const voiceAvailable = (): boolean => voiceSupported(process.platform, os.release(), existsSync(voiceHelper()));
+  // The microphone, for dictation and talk mode. macOS asks once; its prompt takes focus, and an empty ⌘2 bar would
+  // otherwise hide itself underneath it.
+  const MICROPHONE_OFF = 'Bimax can’t use the microphone. Turn it on in System Settings → Privacy & Security → Microphone.';
+  const microphoneAllowed = async (sender: Electron.WebContents): Promise<boolean> => {
+    const status = systemPreferences.getMediaAccessStatus('microphone');
+    if (status === 'granted') return true;
+    let granted = false;
+    if (status === 'not-determined') {
+      quickPicking = true;
+      try { granted = await systemPreferences.askForMediaAccess('microphone'); }
+      finally {
+        quickPicking = false;
+        if (sender.id === quickWindow?.webContents.id && quickWindow.isVisible()) quickWindow.focus();
+      }
+    }
+    if (!granted && (status === 'denied' || status === 'restricted')) void shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone');
+    return granted;
+  };
   secureHandle('voice:available', { available: false }, () => ({ available: voiceAvailable() }));
   secureHandle('voice:start', { ok: false } as { ok: boolean; error?: string; code?: string }, async (event, raw: unknown) => {
     if (!voiceAvailable()) return { ok: false, code: 'unsupported', error: 'Dictation needs macOS 26 or later.' };
-    const status = systemPreferences.getMediaAccessStatus('microphone');
-    if (status !== 'granted') {
-      let granted = false;
-      if (status === 'not-determined') {
-        // The permission prompt takes focus; an empty ⌘2 bar would otherwise hide itself underneath it.
-        quickPicking = true;
-        try { granted = await systemPreferences.askForMediaAccess('microphone'); }
-        finally {
-          quickPicking = false;
-          if (event.sender.id === quickWindow?.webContents.id && quickWindow.isVisible()) quickWindow.focus();
-        }
-      }
-      if (!granted) {
-        if (status === 'denied' || status === 'restricted') void shell.openExternal('x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone');
-        return { ok: false, code: 'microphone-denied', error: 'Bimax can’t use the microphone. Turn it on in System Settings → Privacy & Security → Microphone.' };
-      }
-    }
+    if (!(await microphoneAllowed(event.sender))) return { ok: false, code: 'microphone-denied', error: MICROPHONE_OFF };
     const options = (raw && typeof raw === 'object' ? raw : {}) as { context?: unknown };
     const context = Array.isArray(options.context)
       ? options.context.filter((w): w is string => typeof w === 'string' && w.length > 0 && w.length <= 60).slice(0, 40)
       : [];
+    talk.end();
     voice.start(event.sender.id, { locales: app.getPreferredSystemLanguages(), context: ['Bimax', ...context] });
     return { ok: true };
   });
   secureOn('voice:stop', (event) => voice.stop(event.sender.id));
   secureOn('voice:cancel', (event) => voice.cancel(event.sender.id));
+  // Talk mode (talk.session.ts): the ⌘2 bar's spoken conversation. One microphone at a time, so it ends any dictation.
+  secureHandle('talk:start', { ok: false } as { ok: boolean; error?: string; code?: string }, async (event) => {
+    if (event.sender.id !== quickWindow?.webContents.id) return { ok: false, error: 'Talk mode runs in the ⌘2 bar.' };
+    if (!voiceAvailable()) return { ok: false, code: 'unsupported', error: 'Talk mode needs macOS 26 or later.' };
+    if (talk.active) return { ok: true };
+    let root = quickThreadSnapshot()?.root ?? null;
+    if (!root) {
+      if (!quickContext.root) return { ok: false, error: 'Choose a folder for this task first.' };
+      try {
+        root = await fsp.realpath(quickContext.root);
+        if (!(await fsp.stat(root)).isDirectory()) throw new Error('not a folder');
+      } catch { return { ok: false, error: 'That folder is no longer available. Choose another.' }; }
+      if (root === '/' || root === os.homedir()) return { ok: false, error: 'Choose a specific folder rather than your whole home folder.' };
+    }
+    if (!(await microphoneAllowed(event.sender))) return { ok: false, code: 'microphone-denied', error: MICROPHONE_OFF };
+    const models = await refreshModelCatalog();
+    if (talk.active) return { ok: true };
+    if (!quickWindow?.isVisible()) return { ok: false, error: 'The ⌘2 bar was closed.' };
+    voice.cancel(event.sender.id);
+    talkRoot = root;
+    talkModelChoice = talkModel(models, loadSettings().quickModel);
+    talk.start();
+    return { ok: true };
+  });
+  secureOn('talk:end', () => talk.end());
+  secureOn('talk:interrupt', () => talk.interrupt());
+  secureHandle('talk:current', null as TalkView | null, () => talk.current);
   // The bar's folder rules editor (folder.rules.ts). Saved in Bimax's settings; engines pick them up when they start.
   secureHandle('threads:rules-get', null as { root: string; text: string; protect: string[] } | null, () => {
     const root = quickThreadSnapshot()?.root ?? quickContext.root ?? null;
@@ -1205,6 +1280,7 @@ app.whenReady().then(async () => {
     if (direction !== 'older' && direction !== 'newer') return null;
     const next = nextQuickThread(threads.list(), quickThreadId, direction);
     if (!next) return null;
+    talk.end();
     quickThreadId = next;
     sendQuickThread();
     return next;
@@ -1235,7 +1311,7 @@ app.whenReady().then(async () => {
     }
   });
   secureOn('threads:quick-resize', (_e, height: unknown) => { if (typeof height === 'number') applyQuickBounds(height); });
-  secureOn('threads:quick-reset', () => { quickThreadId = null; sendQuickThread(); });
+  secureOn('threads:quick-reset', () => { talk.end(); quickThreadId = null; sendQuickThread(); });
   secureOn('threads:quick-interrupt', () => { if (quickThreadId) threads.send(quickThreadId, { t: 'interrupt' }); });
   secureOn('threads:quick-open', () => {
     if (!quickThreadId) return;
@@ -1577,6 +1653,7 @@ app.on('window-all-closed', () => {
 });
 
 app.on('before-quit', () => {
+  talk.end();
   voice.dispose();
   globalShortcut.unregisterAll();
   quickWindow?.destroy(); approvalWindow?.destroy();

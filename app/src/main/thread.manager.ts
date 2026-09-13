@@ -45,6 +45,11 @@ export function threadIndexEnvironment(origin: ThreadSummary['origin']): Record<
   return origin === 'project' ? {} : { BIMAX_CODE_INDEX: '0' };
 }
 
+/** A talk-mode task's engine writes every reply to be heard (src/tools/thread.voice.ts). */
+export function threadVoiceEnvironment(voice: ThreadSummary['voice']): Record<string, string> {
+  return voice ? { BIMAX_THREAD_VOICE: '1' } : {};
+}
+
 /** One process, state, queue and approval namespace per folder-bound conversation. */
 export class ThreadManager {
   private records = new Map<string, LiveThread>();
@@ -73,11 +78,11 @@ export class ThreadManager {
       .filter(r => r.summary.origin === 'project' && r.summary.root === root)
       .sort((a, b) => b.summary.updatedAt - a.summary.updatedAt)[0]?.summary.id;
   }
-  create(root: string, prompt = '', origin: 'quick' | 'project' = 'quick', model?: string): string {
+  create(root: string, prompt = '', origin: 'quick' | 'project' = 'quick', model?: string, voice = false): string {
     if (this.records.size >= 200) throw new Error('Thread history is full. Remove an old stopped thread first.');
     const id = randomUUID();
     const r: LiveThread = {
-      summary: { id, root, title: prompt.trim().slice(0, 80) || `New thread in ${path.basename(root)}`, updatedAt: Date.now(), status: 'idle', peers: [], origin, ...(model ? { model } : {}) },
+      summary: { id, root, title: prompt.trim().slice(0, 80) || `New thread in ${path.basename(root)}`, updatedAt: Date.now(), status: 'idle', peers: [], origin, ...(model ? { model } : {}), ...(voice ? { voice: true } : {}) },
       state: { ...initialEngineState, project: root, threadId: id }, ready: false, queue: [], pending: new Map(), notes: [],
     };
     this.records.set(id, r);
