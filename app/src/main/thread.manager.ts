@@ -27,6 +27,8 @@ interface LiveThread extends SavedThread {
   talk?: { model?: string };
   /** The engine restarts to pick up a talk change as soon as it is between turns with nothing queued. */
   restartWanted?: boolean;
+  /** The manager restarted this engine itself, so its "Resumed …" notice is not added to the transcript. */
+  quietResume?: boolean;
 }
 interface Dependencies {
   engine(id: string): ThreadEngine;
@@ -154,6 +156,14 @@ export class ThreadManager {
   receive(id: string, msg: Outbound): void {
     const r = this.records.get(id);
     if (!r?.engine) return;
+    // Talk mode restarts the engine when talking starts and again when it stops. Each resume made the engine add
+    // "Resumed … continuing this thread." to the transcript, so a few conversations stacked them up; a restart the manager
+    // made itself resumes silently. One the user asked for still says so.
+    if (r.quietResume && msg.t === 'event') {
+      const note = msg.name === 'message' ? (msg.args[0] as { role?: string; content?: unknown } | undefined) : undefined;
+      if (note?.role === 'system' && typeof note.content === 'string' && note.content.startsWith('Resumed "')) { r.quietResume = false; return; }
+      if (msg.name === 'spinner_state' && msg.args[0] !== 'idle') r.quietResume = false;
+    }
     if (msg.t === 'ready') {
       r.ready = true;
       r.summary.status = 'idle';
@@ -260,6 +270,7 @@ export class ThreadManager {
     const id = r.summary.id;
     this.stop(id);
     this.start(id);
+    r.quietResume = true;
     this.deps.restarted?.(id);
   }
 
