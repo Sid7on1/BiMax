@@ -14,6 +14,7 @@ function fixture() {
     answer: jest.fn(),
     interrupt: jest.fn(),
     show: (view: TalkView) => views.push(view),
+    closed: jest.fn(),
     setTimer: (fn: () => void, ms: number) => { timers.push({ fn, ms, cleared: false }); return timers.length - 1; },
     clearTimer: (handle: unknown) => { timers[handle as number].cleared = true; },
   };
@@ -128,6 +129,7 @@ test('interrupting stops the speech and the task, then listens; ending closes th
   expect(f.end).toHaveBeenCalled();
   expect(f.last().state).toBe('off');
   expect(f.armed()).toHaveLength(0);
+  expect(f.deps.closed).toHaveBeenCalledWith('t1');
 });
 
 test('two quiet minutes of listening end talk mode; speaking restarts the count, and a turn stops it', () => {
@@ -149,12 +151,14 @@ test('a thread that cannot open, or a helper that dies, ends talk mode with a re
   const f = listening();
   f.crash();
   expect(f.last()).toMatchObject({ state: 'off', error: 'Talk mode stopped unexpectedly.' });
+  expect(f.deps.closed).toHaveBeenCalledWith('t1');
   const g = fixture();
   g.deps.openThread.mockImplementation(() => { throw new Error('Four threads are active. Stop a thread before starting another.'); });
   g.talk.start();
   g.helper({ event: 'ready', voice: 'Samantha' });
   expect(g.last()).toMatchObject({ state: 'off', error: 'Four threads are active. Stop a thread before starting another.' });
   expect(g.end).toHaveBeenCalled();
+  expect(g.deps.closed).toHaveBeenCalledWith(null);
 });
 
 test('talk mode answers with the quick model when the provider serves it, else the ⌘2 default', () => {

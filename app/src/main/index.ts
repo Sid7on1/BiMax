@@ -168,7 +168,7 @@ function auxiliaryWindow(kind: 'quick' | 'approval'): BrowserWindow {
     // Hiding the bar must not strand a question its task is waiting on: it moves to the approval popup.
     window.on('hide', () => {
       voice.stop(window.webContents.id);
-      talk.end();
+      if (talkOwner === 'quick') talk.end();
       if (quickThreadId && threads.approvals().some(a => a.threadId === quickThreadId)) showThreadApproval();
     });
   }
@@ -275,7 +275,7 @@ async function showModelMenu(mode: 'switch' | 'retry'): Promise<void> {
 }
 /** Bring a ⌘2 task back into the bar — from the menu bar, a notification, or ⌘[ / ⌘]. */
 function showQuickThread(id: string): void {
-  if (talk.threadId && talk.threadId !== id) talk.end();
+  if (talkOwner === 'quick' && talk.threadId && talk.threadId !== id) talk.end();
   quickThreadId = id;
   if (quickWindow?.isVisible()) { sendQuickThread(); quickWindow.focus(); return; }
   void showQuickBar();
@@ -312,11 +312,15 @@ const voice = new VoiceSessions({
   },
 });
 /**
- * Talk mode (talk.session.ts): a spoken conversation with the ⌘2 bar's task, through one warm on-device helper. The
- * task's engine writes replies to be heard (BIMAX_THREAD_VOICE) and answers with a quick model (talkModel).
+ * Talk mode (talk.session.ts): a spoken conversation through one warm on-device helper, in the ⌘2 bar's task or in the
+ * project open in the main window, whichever window started it. The engine it talks to writes replies to be heard
+ * (BIMAX_THREAD_VOICE) and answers with a quick model (talkModel): a ⌘2 talk task has both from the start, a project
+ * only while talking (ThreadManager.setTalk).
  */
 let talkRoot: string | null = null;
 let talkModelChoice: string | undefined;
+let talkOwner: 'quick' | 'main' = 'quick';
+const talkWindow = (): BrowserWindow | null => (talkOwner === 'main' ? win : quickWindow);
 const talk = new TalkSession({
   spawn: (onEvent, onExit) => {
     const context = ['Bimax', ...(talkRoot ? [path.basename(talkRoot)] : [])];
@@ -326,8 +330,15 @@ const talk = new TalkSession({
     child.stdin.on('error', () => {});
     return talkHelper(child, onEvent, onExit);
   },
-  // Talking again in the bar's talk task carries on that conversation; otherwise a new task starts in the bar's folder.
   openThread: () => {
+    if (talkOwner === 'main') {
+      const id = threads.activeId;
+      if (!id) throw new Error('Open a project to talk about it.');
+      threads.setTalk(id, true, talkModelChoice);
+      threads.start(id);
+      return id;
+    }
+    // Talking again in the bar's talk task carries on that conversation; otherwise a new task starts in the bar's folder.
     if (!talkRoot) throw new Error('Choose a folder for this task first.');
     const shown = quickThreadSnapshot();
     const id = shown && shown.root === talkRoot && threads.get(shown.id).summary.voice
@@ -343,11 +354,17 @@ const talk = new TalkSession({
     const pending = threads.approvals().find((a) => a.threadId === id && a.request.id === requestId);
     if (!pending) throw new Error('That question has expired.');
     threads.send(id, { t: 'reply', id: requestId, value: text, approvalToken: pending.token });
-    // The bar closes a card it answered itself; one answered by voice is closed from the thread's own state.
-    if (id === quickThreadId) sendQuickThread();
+    // A window closes a card it answered itself; one answered by voice is closed from the thread's own state.
+    if (talkOwner === 'main' && id === threads.activeId) threads.select(id);
+    else if (id === quickThreadId) sendQuickThread();
   },
   interrupt: (id) => threads.send(id, { t: 'interrupt' }),
-  show: (view) => { if (quickWindow && !quickWindow.isDestroyed()) quickWindow.webContents.send('talk:state', view); },
+  show: (view) => { const target = talkWindow(); if (target && !target.isDestroyed()) target.webContents.send('talk:state', view); },
+  // A project goes back to its own model and style once the talking is over.
+  closed: (id) => {
+    if (!id || talkOwner !== 'main') return;
+    try { threads.setTalk(id, false); } catch { /* the thread is gone */ }
+  },
 });
 /** Threads that were busy when their folder's rules changed: they restart on the new rules when their turn ends. */
 const rulesStale = new Set<string>();
@@ -743,8 +760,8 @@ function createSupervisor(threadId?: string): EngineSupervisor {
           ...threadIndexEnvironment(threads.get(threadId).summary.origin),
           ...threadStateEnvironment(app.getPath('userData'), project, threads.get(threadId).summary.origin),
           ...rulesEnvironment(loadSettings().folderRules?.[project]),
-          ...threadVoiceEnvironment(threads.get(threadId).summary.voice),
-          ...(threads.get(threadId).summary.model ? { BIMAX_THREAD_MODEL: threads.get(threadId).summary.model } : {}) } : {}),
+          ...threadVoiceEnvironment(threads.talkState(threadId).voice),
+          ...(threads.talkState(threadId).model ? { BIMAX_THREAD_MODEL: threads.talkState(threadId).model } : {}) } : {}),
       }, callbacks);
     },
     now: () => Date.now(),
@@ -786,6 +803,8 @@ function createSupervisor(threadId?: string): EngineSupervisor {
 }
 
 function selectThread(id: string): void {
+  // Talking in the main window follows the conversation on screen: moving to another one ends it.
+  if (talkOwner === 'main' && talk.threadId && talk.threadId !== id) talk.end();
   const root = threads.get(id).summary.root;
   capabilityReplay.clear();
   latestUiSnapshot = null;
@@ -917,7 +936,7 @@ function createWindow(): void {
     void win.loadFile(path.join(__dirname, '../renderer/index.html'));
   }
 
-  win.on('closed', () => { win = null; });
+  win.on('closed', () => { if (talkOwner === 'main') talk.end(); win = null; });
 }
 
 /**
@@ -993,6 +1012,8 @@ app.whenReady().then(async () => {
       }
     },
     save: value => threadStorage.save(value),
+    // A talk change restarted this thread's engine: re-attach the main window when it is the one on screen.
+    restarted: (id) => { if (id === threads.activeId) selectThread(id); },
     finished: (id, tookMs) => {
       recordModelTime(id, tookMs);
       notifyFinished(id);
@@ -1211,33 +1232,49 @@ app.whenReady().then(async () => {
   });
   secureOn('voice:stop', (event) => voice.stop(event.sender.id));
   secureOn('voice:cancel', (event) => voice.cancel(event.sender.id));
-  // Talk mode (talk.session.ts): the ⌘2 bar's spoken conversation. One microphone at a time, so it ends any dictation.
+  // Talk mode (talk.session.ts), from the ⌘2 bar or the main window's composer. One microphone at a time: starting it
+  // ends any dictation, and talking in one window ends talking in the other.
+  const talkSurface = (sender: Electron.WebContents): 'quick' | 'main' | null =>
+    sender.id === quickWindow?.webContents.id ? 'quick' : sender.id === win?.webContents.id ? 'main' : null;
   secureHandle('talk:start', { ok: false } as { ok: boolean; error?: string; code?: string }, async (event) => {
-    if (event.sender.id !== quickWindow?.webContents.id) return { ok: false, error: 'Talk mode runs in the ⌘2 bar.' };
+    const surface = talkSurface(event.sender);
+    if (!surface) return { ok: false, error: 'Talk mode runs in the ⌘2 bar or the main window.' };
     if (!voiceAvailable()) return { ok: false, code: 'unsupported', error: 'Talk mode needs macOS 26 or later.' };
-    if (talk.active) return { ok: true };
-    let root = quickThreadSnapshot()?.root ?? null;
-    if (!root) {
-      if (!quickContext.root) return { ok: false, error: 'Choose a folder for this task first.' };
-      try {
-        root = await fsp.realpath(quickContext.root);
-        if (!(await fsp.stat(root)).isDirectory()) throw new Error('not a folder');
-      } catch { return { ok: false, error: 'That folder is no longer available. Choose another.' }; }
-      if (root === '/' || root === os.homedir()) return { ok: false, error: 'Choose a specific folder rather than your whole home folder.' };
+    if (talk.active && talkOwner === surface) return { ok: true };
+    let root: string | null = null;
+    if (surface === 'main') {
+      root = threads.activeId ? threads.get(threads.activeId).summary.root : null;
+      if (!root) return { ok: false, error: 'Open a project to talk about it.' };
+    } else {
+      root = quickThreadSnapshot()?.root ?? null;
+      if (!root) {
+        if (!quickContext.root) return { ok: false, error: 'Choose a folder for this task first.' };
+        try {
+          root = await fsp.realpath(quickContext.root);
+          if (!(await fsp.stat(root)).isDirectory()) throw new Error('not a folder');
+        } catch { return { ok: false, error: 'That folder is no longer available. Choose another.' }; }
+        if (root === '/' || root === os.homedir()) return { ok: false, error: 'Choose a specific folder rather than your whole home folder.' };
+      }
     }
     if (!(await microphoneAllowed(event.sender))) return { ok: false, code: 'microphone-denied', error: MICROPHONE_OFF };
     const models = await refreshModelCatalog();
-    if (talk.active) return { ok: true };
-    if (!quickWindow?.isVisible()) return { ok: false, error: 'The ⌘2 bar was closed.' };
+    const visible = surface === 'main' ? win?.isVisible() : quickWindow?.isVisible();
+    if (!visible) return { ok: false, error: surface === 'main' ? 'The Bimax window was closed.' : 'The ⌘2 bar was closed.' };
+    if (talk.active) {
+      if (talkOwner === surface) return { ok: true };
+      talk.end();
+    }
     voice.cancel(event.sender.id);
+    talkOwner = surface;
     talkRoot = root;
     talkModelChoice = talkModel(models, loadSettings().quickModel);
     talk.start();
     return { ok: true };
   });
-  secureOn('talk:end', () => talk.end());
-  secureOn('talk:interrupt', () => talk.interrupt());
-  secureHandle('talk:current', null as TalkView | null, () => talk.current);
+  secureOn('talk:end', (event) => { if (talkSurface(event.sender) === talkOwner) talk.end(); });
+  secureOn('talk:interrupt', (event) => { if (talkSurface(event.sender) === talkOwner) talk.interrupt(); });
+  // Only the window that is talking sees the conversation's state; the other one's Talk button stays ready.
+  secureHandle('talk:current', null as TalkView | null, (event) => (talkSurface(event.sender) === talkOwner ? talk.current : null));
   // The bar's folder rules editor (folder.rules.ts). Saved in Bimax's settings; engines pick them up when they start.
   secureHandle('threads:rules-get', null as { root: string; text: string; protect: string[] } | null, () => {
     const root = quickThreadSnapshot()?.root ?? quickContext.root ?? null;
@@ -1280,7 +1317,7 @@ app.whenReady().then(async () => {
     if (direction !== 'older' && direction !== 'newer') return null;
     const next = nextQuickThread(threads.list(), quickThreadId, direction);
     if (!next) return null;
-    talk.end();
+    if (talkOwner === 'quick') talk.end();
     quickThreadId = next;
     sendQuickThread();
     return next;
@@ -1311,7 +1348,7 @@ app.whenReady().then(async () => {
     }
   });
   secureOn('threads:quick-resize', (_e, height: unknown) => { if (typeof height === 'number') applyQuickBounds(height); });
-  secureOn('threads:quick-reset', () => { talk.end(); quickThreadId = null; sendQuickThread(); });
+  secureOn('threads:quick-reset', () => { if (talkOwner === 'quick') talk.end(); quickThreadId = null; sendQuickThread(); });
   secureOn('threads:quick-interrupt', () => { if (quickThreadId) threads.send(quickThreadId, { t: 'interrupt' }); });
   secureOn('threads:quick-open', () => {
     if (!quickThreadId) return;

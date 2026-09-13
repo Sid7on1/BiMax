@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  ArrowUp, Square, FunctionSquare, FileText, Shield, Cpu,
+  ArrowUp, AudioLines, Square, FunctionSquare, FileText, Shield, Cpu,
   ChevronUp, Sparkles, Pencil, Search, Hammer, Flame, Plus, ListChecks, X, CornerDownRight, Folder, GitBranch, AtSign, SquareSlash as SlashSquare,
 } from 'lucide-react';
 import { CompletionItem, ControlsMsg, UiSnapshot } from '../protocol';
@@ -8,6 +8,7 @@ import { cn } from '../lib/cn';
 import { AttachmentWell, FileTile, type Attachment } from './AttachmentWell';
 import { MicButton } from './MicButton';
 import { useDictation } from '../useDictation';
+import { BASIC_VOICE_TIP, talkIsStatus, talkLine, useTalk } from '../useTalk';
 import { Button } from './ui/button';
 import { SeedMenu, SeedMenuItem, SeedMenuLabel, SeedMenuReadout, SeedMenuSeparator } from './ui/morph/SeedMenu';
 import type { SupervisorStatus } from '../global';
@@ -367,10 +368,14 @@ export function Composer({
     get: () => ({ text: taRef.current?.value ?? text, caret: taRef.current?.selectionStart ?? text.length }),
     set: (value, caret) => { setText(value); requestAnimationFrame(() => taRef.current?.setSelectionRange(caret, caret)); },
   });
+  // Talk mode: a spoken conversation with this project. It listens, answers out loud, and listens again (useTalk.ts).
+  const talk = useTalk();
 
   const keyDown = (e: React.KeyboardEvent): void => {
     if (e.nativeEvent.isComposing || e.keyCode === 229 || wellOpen) return;
-    if (dictation.onKeyDown(e)) { e.preventDefault(); return; }
+    // Talking, Esc ends the conversation, and right ⌥ dictation stays off: the microphone is talk mode's.
+    if (talk.active && e.key === 'Escape') { e.preventDefault(); talk.end(); return; }
+    if (!talk.active && dictation.onKeyDown(e)) { e.preventDefault(); return; }
     // Enter while dictating stops listening (the last words settle); Enter again sends.
     if (e.key === 'Enter' && !e.shiftKey && !e.metaKey && dictation.state !== 'idle') { e.preventDefault(); dictation.stop(); return; }
     if (showDropdown) {
@@ -522,6 +527,22 @@ export function Composer({
           </div>
         )}
 
+        {talk.active && (
+          <div className="composer-talk-strip flex items-center gap-2.5 px-4 pt-3" role="status" aria-live="polite">
+            <span className="talk-orb" data-state={talk.view.state} style={{ '--talk-level': talk.view.level.toFixed(2) } as React.CSSProperties} aria-hidden />
+            <span className={cn('min-w-0 flex-1 truncate text-[13px]', talkIsStatus(talk.view) ? 'text-faint' : 'text-ink')}>{talkLine(talk.view)}</span>
+            {talk.view.voice ? (
+              <span className="shrink-0 text-[11px] text-faint" title={talk.view.voice.quality === 'default' ? BASIC_VOICE_TIP : undefined}>
+                {talk.view.voice.name}{talk.view.voice.quality === 'default' ? ' · basic voice' : ''}
+              </span>
+            ) : null}
+            {talk.view.state === 'thinking' || talk.view.state === 'speaking' || talk.view.state === 'waiting' ? (
+              <button type="button" onClick={talk.interrupt} title="Stop and listen" className="shrink-0 cursor-pointer rounded-full px-2.5 py-1 text-[11.5px] text-dim transition-colors hover:bg-hover hover:text-ink">Stop</button>
+            ) : null}
+            <button type="button" onClick={talk.end} title="End the conversation (Esc)" className="shrink-0 cursor-pointer rounded-full px-2.5 py-1 text-[11.5px] text-dim transition-colors hover:bg-hover hover:text-ink">End</button>
+          </div>
+        )}
+
         <div className="flex items-end gap-3 px-4 pt-3.5 pb-1">
           <textarea
             ref={taRef}
@@ -542,10 +563,24 @@ export function Composer({
             onPaste={onPaste}
             className="min-w-0 flex-1 resize-none border-none bg-transparent font-display text-[14.5px] leading-relaxed outline-none placeholder:text-faint"
           />
-          <MicButton dictation={dictation} disabled={!!queued} className="composer-mic flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-faint transition-colors hover:bg-hover hover:text-ink disabled:opacity-40" />
+          <MicButton dictation={dictation} disabled={!!queued || talk.active} className="composer-mic flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-faint transition-colors hover:bg-hover hover:text-ink disabled:opacity-40" />
+          {dictation.available ? (
+            <button
+              type="button"
+              aria-pressed={talk.active}
+              aria-label={talk.active ? 'End talk' : 'Talk'}
+              title={talk.active ? 'End the conversation (Esc)' : 'Talk with Bimax: it answers out loud'}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => (talk.active ? talk.end() : talk.start())}
+              className="composer-talk flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-faint transition-colors hover:bg-hover hover:text-ink"
+            >
+              {talk.active ? <X size={16} aria-hidden /> : <AudioLines size={16} aria-hidden />}
+            </button>
+          ) : null}
         </div>
 
         {dictation.error ? <p role="status" className="px-4 pb-1 text-[11px] text-amber">{dictation.error}</p> : null}
+        {talk.error ? <p role="status" className="px-4 pb-1 text-[11px] text-amber">{talk.error}</p> : null}
         {detailsOpen && (
           <div id="composer-brief" className="mx-4 mb-3 grid gap-3 rounded-xl border border-line bg-bg/40 p-3 sm:grid-cols-2">
             <label className="text-[11px] text-dim">Constraints

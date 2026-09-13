@@ -2,8 +2,9 @@ import { useCallback, useEffect, useState } from 'react';
 import type { TalkView } from '../../shared/talk';
 
 /**
- * Talk mode for the ⌘2 bar: a spoken conversation with the bar's task (main/talk.session.ts). The main process owns the
- * microphone, the voice and the turn-taking; this follows its state and offers the controls.
+ * Talk mode, in the ⌘2 bar or the main window's composer: a spoken conversation with the task or project on screen
+ * (main/talk.session.ts). The main process owns the microphone, the voice and the turn-taking; this follows its state
+ * and offers the controls. Only the window that started talking receives its state.
  */
 export interface Talk {
   view: TalkView;
@@ -15,6 +16,23 @@ export interface Talk {
 }
 
 const OFF: TalkView = { state: 'off', heard: '', level: 0, voice: null, error: null, threadId: null };
+
+export const BASIC_VOICE_TIP = 'This is the Mac’s basic voice. For a more natural one, download a Premium voice in System Settings → Accessibility → Spoken Content.';
+
+/** What the conversation shows: the words as they are heard, or what it is doing. */
+export function talkLine(view: TalkView): string {
+  switch (view.state) {
+    case 'starting': return view.heard || 'Getting ready…';
+    case 'listening': return view.heard || 'Listening…';
+    case 'thinking': return 'Thinking…';
+    case 'speaking': return 'Speaking…';
+    case 'waiting': return 'Choose on screen to go on';
+    default: return '';
+  }
+}
+
+/** Words being heard are content; everything else talkLine says is a status, shown quieter. */
+export const talkIsStatus = (view: TalkView): boolean => !(view.state === 'listening' && view.heard);
 
 export function useTalk(): Talk {
   const api = typeof window === 'undefined' ? undefined : window.bimax?.talk;
@@ -31,6 +49,12 @@ export function useTalk(): Talk {
     });
     return () => { live = false; off(); };
   }, [api]);
+
+  useEffect(() => {
+    if (!error) return;
+    const timer = setTimeout(() => setError(null), 8000);
+    return () => clearTimeout(timer);
+  }, [error]);
 
   const start = useCallback((): void => {
     if (!api) return;

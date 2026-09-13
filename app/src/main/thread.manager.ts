@@ -23,6 +23,10 @@ interface LiveThread extends SavedThread {
   /** What was last handed to storage, so an event that changed nothing is not written again. */
   savedState?: EngineUiState;
   savedSummary?: string;
+  /** Talk mode in a thread that is not itself a talk task (a project in the main window). In memory only. */
+  talk?: { model?: string };
+  /** The engine restarts to pick up a talk change as soon as it is between turns with nothing queued. */
+  restartWanted?: boolean;
 }
 interface Dependencies {
   engine(id: string): ThreadEngine;
@@ -33,6 +37,8 @@ interface Dependencies {
   save(value: SavedThread): void;
   /** A turn ended (working → idle). The app notifies when the thread is not on screen. */
   finished?(id: string, tookMs?: number): void;
+  /** The manager restarted this thread's engine itself (a talk change), so the window showing it can re-attach. */
+  restarted?(id: string): void;
 }
 
 /**
@@ -181,6 +187,7 @@ export class ThreadManager {
       r.turnStartedAt = undefined;
       this.deps.finished?.(id, tookMs);
     }
+    this.restartIfWanted(r);
     // Only dispatch queued inputs after the current protocol event has been delivered.
     if (r.ready && r.summary.status === 'idle') for (const next of this.records.values()) this.pump(next);
     this.persist(r);
@@ -221,6 +228,39 @@ export class ThreadManager {
     this.stop(id);
     this.start(id);
     return true;
+  }
+
+  /**
+   * Talk mode in a conversation that is not a talk task (a project in the main window): while the user is talking, its
+   * engine answers in spoken style with the talk model, and afterwards goes back to its own. Kept in memory and never
+   * saved, so a crash cannot leave a project talking. The engine picks it up on a restart that waits until the turn has
+   * ended with nothing queued, because stopping clears the queue and would drop what the user just said.
+   */
+  setTalk(id: string, on: boolean, model?: string): void {
+    const r = this.records.get(id);
+    if (!r) throw new Error('Thread not found');
+    const before = JSON.stringify(this.talkState(id));
+    r.talk = on ? (model ? { model } : {}) : undefined;
+    if (JSON.stringify(this.talkState(id)) === before || !r.engine) return;
+    r.restartWanted = true;
+    this.restartIfWanted(r);
+  }
+
+  /** What this thread's engine starts with: spoken style or not, and its model (talk mode's while talking). */
+  talkState(id: string): { voice: boolean; model?: string } {
+    const r = this.records.get(id);
+    if (!r) throw new Error('Thread not found');
+    const model = r.talk?.model ?? r.summary.model;
+    return { voice: Boolean(r.summary.voice || r.talk), ...(model ? { model } : {}) };
+  }
+
+  private restartIfWanted(r: LiveThread): void {
+    if (!r.restartWanted || !r.engine || !r.ready || r.summary.status !== 'idle' || r.queue.length || r.pending.size) return;
+    r.restartWanted = false;
+    const id = r.summary.id;
+    this.stop(id);
+    this.start(id);
+    this.deps.restarted?.(id);
   }
 
   /** Choose the model this task answers with (null: Bimax's own). A running engine restarts on it and resumes. */
@@ -271,7 +311,7 @@ export class ThreadManager {
     const r = this.records.get(id);
     if (!r) return;
     const engine = r.engine;
-    r.engine = undefined; r.ready = false; r.queue = []; r.pending.clear();
+    r.engine = undefined; r.ready = false; r.queue = []; r.pending.clear(); r.restartWanted = false;
     engine?.dispose();
     r.summary.status = 'stopped';
     r.state = { ...r.state, request: null, spinner: { state: 'idle', message: '' }, engine: { state: 'exited', detail: 'Thread stopped' } };

@@ -56,6 +56,8 @@ export interface TalkDeps {
   answer(threadId: string, requestId: number, text: string): void;
   interrupt(threadId: string): void;
   show(view: TalkView): void;
+  /** Talk mode ended, however it ended, in this thread (null when it never opened one). */
+  closed?(threadId: string | null): void;
   setTimer?(fn: () => void, ms: number): unknown;
   clearTimer?(handle: unknown): void;
 }
@@ -100,11 +102,13 @@ export class TalkSession {
   end(): void {
     if (!this.active) return;
     const helper = this.helper;
+    const { threadId } = this.view;
     this.helper = null;
     this.disarmQuiet();
     this.forgetTurn();
     this.set({ state: 'off', level: 0 });
     helper?.end();
+    this.deps.closed?.(threadId);
   }
 
   /** Stop speaking (or stop the task thinking) and listen again. */
@@ -233,6 +237,7 @@ export class TalkSession {
     this.disarmQuiet();
     this.forgetTurn();
     this.set({ state: 'off', level: 0, error: this.view.error ?? 'Talk mode stopped unexpectedly.' });
+    this.deps.closed?.(this.view.threadId);
   }
 
   private listen(): void {
