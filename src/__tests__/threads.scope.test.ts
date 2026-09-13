@@ -89,3 +89,15 @@ test('a thread asks in plain words, refuses deletes it cannot send to the Bin, a
   ask.mockResolvedValue('Deny');
   await expect(gov.approveTaskExecution('OS_COMMAND',{ command:'mv DEV elsewhere',context:{ cwd:root },isDestructive:true })).rejects.toThrow('declined');
 });
+
+test('an item protected by the folder rules is refused before any approval card, even when the answer would be Allow',async()=> {
+  const gov=new Governor({ emit:jest.fn() } as any);
+  fs.mkdirSync(path.join(root,'DEV'));
+  process.env.BIMAX_THREAD_PROTECTED=JSON.stringify([path.join(root,'DEV')]);
+  const ask=jest.spyOn(GlobalPrompter,'ask').mockResolvedValue('Allow');
+  try {
+    await expect(gov.approveTaskExecution('OS_COMMAND',{ command:'mv DEV old-DEV',context:{ cwd:root },isDestructive:true })).rejects.toThrow('protected');
+    await expect(gov.approveTaskExecution('FILE_WRITE',{ tool:'WriteFileTool',targetPath:path.join(root,'DEV','new.txt'),context:{ cwd:root },isDestructive:true })).rejects.toThrow('protected');
+    expect(ask).not.toHaveBeenCalled();
+  } finally { delete process.env.BIMAX_THREAD_PROTECTED; }
+});

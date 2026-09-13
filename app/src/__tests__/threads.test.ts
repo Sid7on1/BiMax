@@ -157,3 +157,13 @@ test('retry answers the last request again with another model, on an engine rest
   expect(f.manager.get(a).state.items.some(i => i.kind==='msg' && i.msg.content==='Retrying with llama-3.3-70b-instruct…')).toBe(true);
   expect(f.manager.create('/fixture/Downloads','', 'quick', 'meta/llama-3.3-70b-instruct')).toBeTruthy();
 });
+
+test('saving folder rules restarts an idle task on fresh settings, and never cuts off a running turn',()=> {
+  const f=fixture(), a=f.manager.create('/fixture/Desktop','list'); f.ready(a);
+  expect(f.manager.restartIfIdle(a)).toBe(false);
+  f.idle(a);
+  const first=f.engines.get(a)!;
+  expect(f.manager.restartIfIdle(a)).toBe(true);
+  expect(first.dispose).toHaveBeenCalled();
+  expect(f.engines.get(a)).not.toBe(first);
+});

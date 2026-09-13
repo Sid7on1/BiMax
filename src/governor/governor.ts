@@ -12,6 +12,7 @@ import { isReadOnlyShellCommand } from '../tools/shell.readonly';
 import { enforceThreadScope } from '../tools/thread.scope';
 import { approvalCard, deletesOutsideBin, planFileChange } from '../tools/thread.changes';
 import { recordBeforeChange } from '../tools/thread.journal';
+import { protectedPaths, protectedRefusal, protectedTouchedBy } from '../tools/thread.rules';
 import { taintRestriction } from '../mind/taint';
 
 /** Why a thread refuses a delete it cannot send to the Bin, and how to delete so the user can undo it. */
@@ -141,6 +142,9 @@ export class Governor implements IGovernor {
       // Say what will happen in words, list every affected item, and say whether it can be undone. The raw
       // command is still on the card, but it is no longer the whole question.
       const change = planFileChange(taskType, payload, threadCwd);
+      // The user's folder rules protect some items outright: refused before any card, so no approval can override them.
+      const guarded = protectedTouchedBy(change, taskType === 'OS_COMMAND' ? String(payload.command || '') : '', protectedPaths(), process.env.BIMAX_THREAD_ROOT);
+      if (guarded) throw new GovernorVetoError(protectedRefusal(guarded));
       if (!routine) {
         const card = approvalCard(change, taskType, payload);
         const answer = await GlobalPrompter.ask(card.question, ['Allow', 'Deny'], { body: card.body });

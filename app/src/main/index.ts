@@ -12,6 +12,9 @@ import { lastUndoable, threadStateEnvironment, threadStateRoot, undoLast } from 
 import { insideFolder, validAttachments, withContext } from './quick.context';
 import { nextQuickThread, trayEntries, trayTitle, trayTooltip } from './thread.tray';
 import { modelMenuItems, type CatalogModel, type ModelMenuItem, type ModelTime } from './thread.models';
+import { cleanRules, rulesEnvironment } from './folder.rules';
+import { describeSchedule, dueSchedules, newSchedule, type Cadence, type Schedule } from './schedules';
+import { randomUUID } from 'node:crypto';
 import { macBin } from './bin';
 import os from 'node:os';
 import { readFileSync, writeFileSync, renameSync, mkdirSync, realpathSync } from 'node:fs';
@@ -288,6 +291,114 @@ function notifyFinished(id: string): void {
   note.on('click', () => openThread(id));
   note.show();
 }
+/** Threads that were busy when their folder's rules changed: they restart on the new rules when their turn ends. */
+const rulesStale = new Set<string>();
+/** The folder whose rules the bar is editing — fixed when the editor opens, so a save cannot land on another folder. */
+let rulesEditingRoot: string | null = null;
+/** The words the user first gave a task — what a repeat of it asks again. */
+function firstPrompt(id: string): string | null {
+  const item = threads.get(id).state.items.find((entry) => entry.kind === 'msg' && entry.msg.role === 'user');
+  return item && item.kind === 'msg' ? item.msg.content.trim() || null : null;
+}
+const loadSchedules = (): Schedule[] => loadSettings().schedules ?? [];
+function saveSchedules(list: Schedule[]): void { saveSettings({ schedules: list }); updateTray(); }
+const removeSchedule = (id: string): void => saveSchedules(loadSchedules().filter((s) => s.id !== id));
+/** Resuming counts from now, so a paused schedule never starts a run it missed while paused. */
+const setScheduleEnabled = (id: string, enabled: boolean): void =>
+  saveSchedules(loadSchedules().map((s) => (s.id === id ? { ...s, enabled, ...(enabled ? { lastRunAt: Date.now() } : {}) } : s)));
+/**
+ * One run of a repeating task: a new ⌘2 task in its folder, which asks before changing anything like every task.
+ * 'busy' (four tasks already running) creates nothing, so the run is tried again a minute later.
+ */
+async function startScheduled(schedule: Schedule): Promise<'started' | 'busy' | 'failed'> {
+  if (threads.list().filter((t) => ['working', 'starting', 'needs-you'].includes(t.status)).length >= 4) return 'busy';
+  try {
+    const root = await fsp.realpath(schedule.root);
+    if (!(await fsp.stat(root)).isDirectory()) throw new Error(`${path.basename(schedule.root)} is not a folder`);
+    const id = threads.create(root, '', 'quick', schedule.model || loadSettings().quickModel || undefined);
+    threads.addNote(id, `${describeSchedule(schedule)} · scheduled task`);
+    threads.submit(id, schedule.prompt, schedule.prompt, true);
+    if (Notification.isSupported()) {
+      const note = new Notification({ title: `Scheduled: ${schedule.title}`, subtitle: `Started in ${path.basename(root)}`, body: 'It will ask before it changes anything.' });
+      note.on('click', () => openThread(id));
+      note.show();
+    }
+    return 'started';
+  } catch (error) {
+    if (Notification.isSupported()) new Notification({ title: `Couldn’t start “${schedule.title}”`, body: (error as Error).message }).show();
+    return 'failed';
+  }
+}
+let schedulesRunning = false;
+async function runSchedules(): Promise<void> {
+  if (schedulesRunning || !threads) return;
+  schedulesRunning = true;
+  try {
+    const now = Date.now();
+    const { due, skipped } = dueSchedules(loadSchedules(), now);
+    const done = new Set(skipped.map((s) => s.id));
+    for (const schedule of due) if ((await startScheduled(schedule)) !== 'busy') done.add(schedule.id);
+    if (done.size) saveSchedules(loadSchedules().map((s) => (done.has(s.id) ? { ...s, lastRunAt: now } : s)));
+  } finally {
+    schedulesRunning = false;
+  }
+}
+async function runScheduleNow(id: string): Promise<void> {
+  const schedule = loadSchedules().find((s) => s.id === id);
+  if (schedule && (await startScheduled(schedule)) === 'busy') {
+    void dialog.showMessageBox({ type: 'info', message: 'Four tasks are already running.', detail: 'Stop one, or let one finish, then run it again.' });
+  }
+}
+/** The menu bar's "Scheduled tasks": each repeating task with Run now, Pause/Resume and Stop repeating. */
+function scheduleMenu(): Electron.MenuItemConstructorOptions[] {
+  const list = loadSchedules();
+  if (!list.length) return [];
+  return [
+    { label: 'Scheduled tasks', submenu: list.map((s): Electron.MenuItemConstructorOptions => ({
+      label: `${s.enabled ? '' : 'Paused · '}${s.title.slice(0, 48)} — ${describeSchedule(s)}`,
+      submenu: [
+        { label: `In ${path.basename(s.root)}`, enabled: false },
+        { label: 'Run now', click: () => void runScheduleNow(s.id) },
+        { label: s.enabled ? 'Pause' : 'Resume', click: () => setScheduleEnabled(s.id, !s.enabled) },
+        { type: 'separator' },
+        { label: 'Stop repeating', click: () => removeSchedule(s.id) },
+      ],
+    })) },
+    { type: 'separator' },
+  ];
+}
+/** ⋯ in the ⌘2 bar: repeat this task on a schedule (schedules.ts), or edit this folder's rules (folder.rules.ts). */
+function showMoreMenu(): void {
+  if (!quickWindow || quickWindow.isDestroyed()) return;
+  const snapshot = quickThreadSnapshot();
+  const root = snapshot?.root ?? quickContext.root ?? null;
+  const prompt = snapshot ? firstPrompt(snapshot.id) : null;
+  const template: Electron.MenuItemConstructorOptions[] = [];
+  const existing = snapshot && prompt ? loadSchedules().find((s) => s.root === snapshot.root && s.prompt === prompt) : undefined;
+  if (snapshot && prompt && existing) {
+    template.push(
+      { label: `Repeats ${describeSchedule(existing).replace(/^Every/, 'every')}`, enabled: false },
+      { label: 'Stop repeating', click: () => { removeSchedule(existing.id); threads.addNote(snapshot.id, 'This task no longer repeats.'); } },
+    );
+  } else if (snapshot && prompt) {
+    template.push({ label: 'Repeat this task', enabled: false });
+    const now = new Date();
+    for (const cadence of ['daily', 'weekdays', 'weekly'] as Cadence[]) {
+      const draft = newSchedule({ id: randomUUID(), title: snapshot.title, root: snapshot.root, prompt, model: threads.get(snapshot.id).summary.model, cadence, now });
+      template.push({ label: describeSchedule(draft), click: () => {
+        saveSchedules([...loadSchedules(), draft]);
+        threads.addNote(snapshot.id, `Repeats ${describeSchedule(draft).replace(/^Every/, 'every')}. Each run starts a new task in ${path.basename(snapshot.root)} and asks before changing anything. Manage it from Bimax in the menu bar.`);
+      } });
+    }
+  } else {
+    template.push({ label: 'Repeat this task', enabled: false, sublabel: 'Send a task first' });
+  }
+  template.push({ type: 'separator' });
+  template.push(root
+    ? { label: `Rules for ${path.basename(root)}…`, click: () => quickWindow?.webContents.send('threads:open-rules') }
+    : { label: 'Rules for this folder…', enabled: false, sublabel: 'Choose a folder first' });
+  Menu.buildFromTemplate(template).popup({ window: quickWindow });
+}
 let tray: Tray | null = null;
 /** The menu bar item: running and waiting tasks at a glance, and a menu of recent ones (thread.tray.ts). */
 function updateTray(): void {
@@ -301,6 +412,7 @@ function updateTray(): void {
     { label: 'Bimax tasks', enabled: false },
     ...(entries.length ? entries.map((entry) => ({ label: entry.label, click: () => openThread(entry.id) })) : [{ label: 'No tasks yet', enabled: false }]),
     { type: 'separator' },
+    ...scheduleMenu(),
     { label: 'New ⌘2 Task', click: () => { quickThreadId = null; if (quickWindow?.isVisible()) sendQuickThread(); else void showQuickBar(); } },
     { label: 'Open Bimax', click: () => revealMainWindow() },
     { type: 'separator' },
@@ -473,7 +585,8 @@ function auxiliaryChannelAllowed(event: IpcMainEvent | IpcMainInvokeEvent, chann
   const allowed = event.sender.id === quickWindow?.webContents.id
     ? ['threads:context', 'threads:pick-folder', 'threads:quick-submit', 'threads:hide', 'threads:list', 'threads:reply',
       'threads:quick-current', 'threads:quick-reset', 'threads:quick-interrupt', 'threads:quick-resize', 'threads:quick-open',
-      'threads:undo-info', 'threads:undo', 'threads:open-path', 'threads:quick-switch', 'threads:model-menu']
+      'threads:undo-info', 'threads:undo', 'threads:open-path', 'threads:quick-switch', 'threads:model-menu',
+      'threads:more-menu', 'threads:rules-get', 'threads:rules-set', 'threads:rules-pick']
     : ['threads:approvals', 'threads:reply', 'threads:hide', 'threads:stop'];
   return allowed.includes(channel);
 }
@@ -570,6 +683,7 @@ function createSupervisor(threadId?: string): EngineSupervisor {
           BIMAX_AUTO_INDEX: '0', BIMAX_DISABLE_CODEMEM: '1', BIMAX_DISABLE_CODEBASE_MEMORY: '1', BIMAX_DRIVES_BOOT: '0',
           ...threadIndexEnvironment(threads.get(threadId).summary.origin),
           ...threadStateEnvironment(app.getPath('userData'), project, threads.get(threadId).summary.origin),
+          ...rulesEnvironment(loadSettings().folderRules?.[project]),
           ...(threads.get(threadId).summary.model ? { BIMAX_THREAD_MODEL: threads.get(threadId).summary.model } : {}) } : {}),
       }, callbacks);
     },
@@ -808,8 +922,17 @@ app.whenReady().then(async () => {
       }
     },
     save: value => threadStorage.save(value),
-    finished: (id, tookMs) => { recordModelTime(id, tookMs); notifyFinished(id); },
+    finished: (id, tookMs) => {
+      recordModelTime(id, tookMs);
+      notifyFinished(id);
+      // Its folder's rules changed mid-turn: restart on them now that the turn is over (unless a message is queued).
+      if (rulesStale.delete(id) && !threads.restartIfIdle(id)) rulesStale.add(id);
+    },
   }, threadStorage.load());
+  // Repeating ⌘2 tasks (schedules.ts): checked every minute, shortly after launch, and when the Mac wakes.
+  setInterval(() => void runSchedules(), 60_000);
+  setTimeout(() => void runSchedules(), 15_000);
+  powerMonitor.on('resume', () => { setTimeout(() => void runSchedules(), 5_000); });
   threadBroker = await createThreadBroker(threads, async (from, to) => {
     const a = threads.get(from).summary, b = threads.get(to).summary;
     const result = await dialog.showMessageBox({ type: 'question', title: 'Link Bimax threads?',
@@ -982,6 +1105,44 @@ app.whenReady().then(async () => {
     }
   });
   secureOn('threads:model-menu', (_e, mode: unknown) => { void showModelMenu(mode === 'retry' ? 'retry' : 'switch'); });
+  secureOn('threads:more-menu', () => showMoreMenu());
+  // The bar's folder rules editor (folder.rules.ts). Saved in Bimax's settings; engines pick them up when they start.
+  secureHandle('threads:rules-get', null as { root: string; text: string; protect: string[] } | null, () => {
+    const root = quickThreadSnapshot()?.root ?? quickContext.root ?? null;
+    rulesEditingRoot = root;
+    if (!root) return null;
+    const saved = loadSettings().folderRules?.[root];
+    return { root, text: saved?.text ?? '', protect: saved?.protect ?? [] };
+  });
+  secureHandle('threads:rules-set', { ok: false } as { ok: boolean; error?: string }, (_e, raw: unknown) => {
+    const root = rulesEditingRoot;
+    if (!root) return { ok: false, error: 'Choose a folder first.' };
+    const rules = cleanRules(root, raw);
+    const all = { ...(loadSettings().folderRules ?? {}) };
+    if (rules.text || rules.protect.length) all[root] = rules;
+    else delete all[root];
+    saveSettings({ folderRules: all });
+    // Idle engines in this folder restart on the new rules now (resuming their conversation); busy ones after their turn.
+    for (const thread of threads.list()) {
+      if (thread.root !== root || !threads.engine(thread.id)) continue;
+      if (!threads.restartIfIdle(thread.id)) rulesStale.add(thread.id);
+    }
+    if (quickThreadId && threads.get(quickThreadId).summary.root === root) {
+      threads.addNote(quickThreadId, rules.text || rules.protect.length ? `Rules for ${path.basename(root)} saved.` : `Rules for ${path.basename(root)} cleared.`);
+    }
+    return { ok: true };
+  });
+  secureHandle('threads:rules-pick', [] as string[], async () => {
+    const root = rulesEditingRoot;
+    if (!root) return [];
+    quickPicking = true;
+    const result = await dialog.showOpenDialog({ defaultPath: root, title: `Protect items in ${path.basename(root)}`, buttonLabel: 'Protect',
+      properties: ['openFile', 'openDirectory', 'multiSelections'] })
+      .finally(() => { quickPicking = false; if (quickWindow?.isVisible()) quickWindow.focus(); });
+    if (result.canceled) return [];
+    const picked = await Promise.all(result.filePaths.map((p) => fsp.realpath(p).catch(() => null)));
+    return picked.filter((p): p is string => !!p && p !== root && insideFolder(root, p));
+  });
   // ⌘[ / ⌘] in the bar: the previous or next of its recent tasks (thread.tray.ts nextQuickThread).
   secureHandle('threads:quick-switch', null as string | null, (_e, direction: unknown) => {
     if (direction !== 'older' && direction !== 'newer') return null;

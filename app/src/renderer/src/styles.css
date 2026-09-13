@@ -1437,6 +1437,10 @@ html.aux-surface, html.aux-surface body, html.aux-surface #root { background: tr
 .quick-undo { min-width: 0; max-width: 220px; }
 .quick-model { min-width: 0; max-width: 170px; }
 .quick-model span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* A folder's rules, edited in the bar. */
+.quick-rules-text { width: 100%; min-height: 64px; padding: 8px 10px; border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent); border-radius: 10px;
+  outline: none; resize: vertical; background: color-mix(in srgb, var(--color-bg) 40%, transparent); color: var(--color-ink); font: inherit; font-size: 13px; }
+.quick-rules-protect { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .quick-undo span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* An approval card's detail: every affected item, whether it can be undone, and the command. */
 .quick-request-body { max-height: 180px; overflow: auto; margin: 0; padding: 8px 10px; border-radius: 10px;

@@ -203,6 +203,15 @@ export class ThreadManager {
     r.engine?.sendFromRenderer(msg);
     this.persist(r);
   }
+  /** Restart an idle task's engine so it starts with fresh settings (folder rules); a busy one is never cut off. */
+  restartIfIdle(id: string): boolean {
+    const r = this.records.get(id);
+    if (!r?.engine || r.summary.status !== 'idle' || r.queue.length || r.pending.size) return false;
+    this.stop(id);
+    this.start(id);
+    return true;
+  }
+
   /** Choose the model this task answers with (null: Bimax's own). A running engine restarts on it and resumes. */
   setModel(id: string, model: string | null): void {
     const r = this.records.get(id);
@@ -223,12 +232,12 @@ export class ThreadManager {
     if (!last || last.kind !== 'msg') throw new Error('There is no request to retry yet.');
     const request = last.msg.content;
     this.setModel(id, model);
-    this.note(id, `Retrying with ${model ? (model.split('/').pop() || model) : 'Bimax’s model'}…`);
+    this.addNote(id, `Retrying with ${model ? (model.split('/').pop() || model) : 'Bimax’s model'}…`);
     this.submit(id, `[The user asked for this request to be answered again, from scratch, with a different model.]\n\n${request}`, request, false);
   }
 
   /** A line in the thread from the app itself (not the engine), shown in the bar and the main window. */
-  private note(id: string, content: string): void {
+  addNote(id: string, content: string): void {
     const r = this.records.get(id)!;
     const msg = { t: 'event', name: 'message', args: [{ id: randomUUID(), role: 'system', level: 'info', content, payload: { threadNote: true }, timestamp: new Date().toISOString() }] } as Outbound;
     r.state = engineReducer(r.state, { type: 'outbound', msg });

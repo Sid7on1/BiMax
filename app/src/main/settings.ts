@@ -23,6 +23,10 @@ export interface AppSettings {
   quickModel?: string;
   /** How long turns have taken with each model on this Mac, for the model menu (thread.models.ts). */
   modelTimes?: Record<string, { avgMs: number; turns: number }>;
+  /** Each folder's rules, keyed by its real path (folder.rules.ts) — kept here, never in the folder. */
+  folderRules?: Record<string, { text: string; protect: string[] }>;
+  /** Repeating ⌘2 tasks (schedules.ts). */
+  schedules?: import('./schedules').Schedule[];
 }
 
 const MAX_RECENTS = 8;

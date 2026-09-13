@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { ArrowUp, Check, ChevronRight, Cpu, ExternalLink, FileText, Folder, Globe, PenLine, RotateCcw, Search, Square, Undo2, X } from 'lucide-react';
+import { ArrowUp, Check, ChevronRight, Cpu, ExternalLink, FileText, Folder, Globe, MoreHorizontal, PenLine, Plus, RotateCcw, Search, Shield, Square, Undo2, X } from 'lucide-react';
 import { QUICK_BAR_MAX_HEIGHT_SHARE, type QuickAttachment, type QuickContext, type QuickThread, type ThreadApproval } from '../../../shared/threads';
 import { engineReducer, initialEngineState, type TranscriptItem } from '../engine.state';
 import type { Outbound, RequestMsg, ToolCallEntry } from '../protocol';
@@ -60,6 +60,11 @@ export function ThreadQuickBar(): React.ReactElement {
   const history = useRef<string[]>(loadHistory());
   const historyCursor = useRef<number | null>(null);
   const draft = useRef('');
+  // This folder's rules, while they are being edited (⋯ → Rules for …); null when the editor is closed.
+  const [rules, setRules] = useState<{ root: string; text: string; protect: string[] } | null>(null);
+  useEffect(() => window.bimax.threads.onOpenRules(() => {
+    void window.bimax.threads.rulesGet().then((value: { root: string; text: string; protect: string[] } | null) => { if (value) setRules(value); });
+  }), []);
   const input = useRef<HTMLTextAreaElement>(null);
   const header = useRef<HTMLDivElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
@@ -225,6 +230,17 @@ export function ThreadQuickBar(): React.ReactElement {
     setUndo(await window.bimax.threads.undoInfo(thread.id));
   }
 
+  async function saveRules(): Promise<void> {
+    if (!rules) return;
+    const result = await window.bimax.threads.rulesSet({ text: rules.text, protect: rules.protect });
+    if (result?.ok) { setRules(null); setError(''); } else setError(result?.error || 'Could not save the rules.');
+  }
+
+  async function protectMore(): Promise<void> {
+    const picked: string[] = await window.bimax.threads.rulesPick();
+    if (picked?.length) setRules((current) => (current ? { ...current, protect: [...new Set([...current.protect, ...picked])] } : current));
+  }
+
   /** Files dropped on the bar become context. A new task works in their folder; an existing one keeps its own. */
   function addDropped(files: FileList): void {
     const paths = [...files].map((file) => window.bimax.threads.pathForFile(file)).filter((p: string | undefined): p is string => Boolean(p));
@@ -265,6 +281,7 @@ export function ThreadQuickBar(): React.ReactElement {
         if (pick) { e.preventDefault(); void reply(pick); return; }
         // ⌘[ and ⌘] step through this bar's recent tasks.
         if (e.metaKey && (e.key === '[' || e.key === ']')) { e.preventDefault(); void window.bimax.threads.quickSwitch(e.key === '[' ? 'older' : 'newer'); return; }
+        if (e.key === 'Escape' && rules) { e.preventDefault(); setRules(null); return; }
         if (e.key === 'Escape') { e.preventDefault(); window.bimax.threads.hide(); }
         if (e.key.toLowerCase() === 'n' && e.metaKey) { e.preventDefault(); window.bimax.threads.quickReset(); input.current?.focus(); }
       }}
@@ -329,6 +346,9 @@ export function ThreadQuickBar(): React.ReactElement {
         <div ref={scroller} className="quick-scroll">
           <PathLinkContext.Provider value={pathLinks}>
           <div ref={body} className="quick-body">
+            {rules ? (
+              <QuickRules value={rules} onChange={setRules} onPick={() => void protectMore()} onSave={() => void saveRules()} onCancel={() => setRules(null)} />
+            ) : null}
             <QuickConversation items={state.items} />
             {state.streaming ? <div className="quick-answer"><Markdown text={state.streaming} /></div> : null}
             {showActivity ? <ThinkingIndicator thinking={state.thinking} /> : null}
@@ -353,6 +373,9 @@ export function ThreadQuickBar(): React.ReactElement {
                   <RotateCcw size={12} aria-hidden />Retry
                 </button>
               ) : null}
+              <button type="button" className="quick-link" aria-label="More" title="Repeat this task · Rules for this folder" onClick={() => window.bimax.threads.moreMenu()}>
+                <MoreHorizontal size={14} aria-hidden />
+              </button>
               {undo && !busy ? (
                 <button type="button" className="quick-link quick-undo" title={`Undo: ${undo.title}`} onClick={() => void undoLastChange()}>
                   <Undo2 size={12} aria-hidden /><span>Undo: {undo.title}</span>
@@ -476,6 +499,47 @@ function QuickRequest({ req, onReply }: { req: RequestMsg; onReply: (value: stri
           {denyOption(req.options) ? <span className="quick-request-keys">⌘↩ {req.options[0]} · Esc {denyOption(req.options)}</span> : null}
         </div>
       )}
+    </section>
+  );
+}
+
+/**
+ * A folder's rules, edited in the bar: words every task in this folder follows, and items no task may change. Saved
+ * in Bimax's settings (main/folder.rules.ts); the engine enforces the protected items (src/tools/thread.rules.ts).
+ */
+function QuickRules({ value, onChange, onPick, onSave, onCancel }: {
+  value: { root: string; text: string; protect: string[] };
+  onChange: (value: { root: string; text: string; protect: string[] }) => void;
+  onPick: () => void;
+  onSave: () => void;
+  onCancel: () => void;
+}): React.ReactElement {
+  return (
+    <section className="quick-request quick-rules" aria-label="Folder rules">
+      <p className="quick-request-question">Rules for {folderName(value.root)}</p>
+      <textarea
+        autoFocus
+        rows={3}
+        className="quick-rules-text"
+        placeholder="e.g. Ask before renaming anything. Keep file names lowercase."
+        value={value.text}
+        onChange={(e) => onChange({ ...value, text: e.target.value })}
+      />
+      <div className="quick-rules-protect">
+        <span className="quick-note">Protected — tasks can read these but never change them:</span>
+        {value.protect.map((item) => (
+          <span key={item} className="quick-chip" title={item}>
+            <Shield size={11} aria-hidden />
+            <span>{item.split('/').filter(Boolean).pop()}</span>
+            <button type="button" aria-label={`Stop protecting ${item}`} onClick={() => onChange({ ...value, protect: value.protect.filter((p) => p !== item) })}><X size={10} /></button>
+          </span>
+        ))}
+        <button type="button" className="quick-link" onClick={onPick}><Plus size={12} aria-hidden />Protect a file or folder…</button>
+      </div>
+      <div className="quick-request-options">
+        <button type="button" className="quick-choice quick-choice-primary" onClick={onSave}>Save rules</button>
+        <button type="button" className="quick-choice" onClick={onCancel}>Cancel</button>
+      </div>
     </section>
   );
 }

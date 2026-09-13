@@ -14,6 +14,7 @@ import { isCodememReady } from '../../graph/codemem/backend';
 import { globalSkillService } from '../../skills/skill.service';
 import { getConfig } from '../config';
 import { loadProjectGuide } from '../projectGuide';
+import { folderRulesSection } from '../../tools/thread.rules';
 import { beginTodoTurn, getTodoPromptBlock, retireCompletedTodos } from '../../tools/implementations/todo.tool';
 import { getGoalManager } from '../../memory/goal.manager';
 import { agentModePromptSection } from '../agentMode';
@@ -246,6 +247,10 @@ export abstract class AgentPersona {
       }
     } catch { /* project guide is best-effort */ }
 
+    // Folder rules: the user's own instructions for the folder a Bimax thread works in, set in the app. Empty outside threads.
+    const folderRules = folderRulesSection();
+    if (folderRules) sections.folderRules = folderRules;
+
     if (opts?.exemplars) {
       sections.exemplars = opts.exemplars;
     }
@@ -353,6 +358,7 @@ export abstract class AgentPersona {
     const dynamicSuffix = [
       sections.environment,
       sections.projectGuide,
+      sections.folderRules,
       sections.tools,
       sections.loadOnDemand,
       sections.skills,

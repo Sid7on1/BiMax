@@ -48,6 +48,12 @@ const api = {
     quickSwitch: (direction: 'older' | 'newer') => ipcRenderer.invoke('threads:quick-switch', direction),
     // The task's model: choose it, or answer again with another (main/thread.models.ts).
     modelMenu: (mode: 'switch' | 'retry') => ipcRenderer.send('threads:model-menu', mode),
+    // ⋯ in the bar: repeat this task on a schedule, or edit this folder's rules (main/schedules.ts, main/folder.rules.ts).
+    moreMenu: () => ipcRenderer.send('threads:more-menu'),
+    onOpenRules: (cb: (value: any) => void) => subscribe('threads:open-rules', cb),
+    rulesGet: () => ipcRenderer.invoke('threads:rules-get'),
+    rulesSet: (rules: { text: string; protect: string[] }) => ipcRenderer.invoke('threads:rules-set', rules),
+    rulesPick: () => ipcRenderer.invoke('threads:rules-pick'),
   },
   send: (msg: unknown): void => ipcRenderer.send('engine:send', msg, activeThreadId),
   onMessage: (cb: (msg: unknown) => void): (() => void) => {
