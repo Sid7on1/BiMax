@@ -28,3 +28,9 @@ test('⌘[ goes to older bar tasks and ⌘] to newer ones, skipping projects', (
   expect(nextQuickThread(list, 'q1', 'older')).toBeNull();
   expect(nextQuickThread([], null, 'older')).toBeNull();
 });
+
+test('projects opened in the main window are not ⌘2 tasks: the menu neither lists nor counts them', () => {
+  const list = [thread('cn', 'working', 9, { origin: 'project', title: 'New thread in CN Lab' }), thread('q', 'idle', 2, { origin: 'quick' }), thread('legacy', 'needs-you', 1)];
+  expect(trayEntries(list).map((e) => e.id)).toEqual(['q', 'legacy']);
+  expect(trayTitle(list)).toBe('⌘2 1 · 1 waiting');
+});

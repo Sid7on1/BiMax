@@ -167,3 +167,12 @@ test('saving folder rules restarts an idle task on fresh settings, and never cut
   expect(first.dispose).toHaveBeenCalled();
   expect(f.engines.get(a)).not.toBe(first);
 });
+
+test('a project reopened in the main window returns to its own thread; a ⌘2 task in the same folder stays separate',()=> {
+  const f=fixture();
+  const project=f.manager.create('/fixture/CN Lab','','project');
+  const task=f.manager.create('/fixture/CN Lab','list files','quick');
+  expect(f.manager.projectThread('/fixture/CN Lab')).toBe(project);
+  expect(f.manager.projectThread('/fixture/CN Lab')).not.toBe(task);
+  expect(f.manager.projectThread('/fixture/Other')).toBeUndefined();
+});

@@ -24,3 +24,11 @@ export interface QuickContext { root: string | null; source: string; error?: str
 /** The thread the ⌘2 bar is showing, with its transcript state, so a reopened bar picks up where it was. */
 export interface QuickThread { id: string; title: string; root: string; state: EngineUiState }
 export interface ThreadApproval { threadId: string; title: string; root: string; request: RequestMsg; token: string }
+
+/**
+ * A ⌘2 task (or a thread saved before origins existed), as opposed to a project opened in the main window. A project
+ * runs as a thread too, but it belongs in Recents: only these are listed in the Threads section and the menu bar.
+ */
+export function isQuickThread(thread: Pick<ThreadSummary, 'origin'>): boolean {
+  return thread.origin !== 'project';
+}

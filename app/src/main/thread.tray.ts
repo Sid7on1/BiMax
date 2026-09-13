@@ -1,14 +1,15 @@
-import type { ThreadSummary } from '../shared/threads';
+import { isQuickThread, type ThreadSummary } from '../shared/threads';
 
 /**
  * The menu bar item and the bar's task switching. Pure, so the wording and the ordering can be tested without
  * Electron: how many threads are running or waiting, which recent ones the menu lists, and which task ⌘[ / ⌘]
- * move to.
+ * move to. Only ⌘2 tasks count: projects opened in the main window live in Recents.
  */
 const ACTIVE = new Set<ThreadSummary['status']>(['working', 'starting', 'needs-you']);
 
 function counts(threads: readonly ThreadSummary[]): { active: number; waiting: number } {
-  return { active: threads.filter((t) => ACTIVE.has(t.status)).length, waiting: threads.filter((t) => t.status === 'needs-you').length };
+  const quick = threads.filter(isQuickThread);
+  return { active: quick.filter((t) => ACTIVE.has(t.status)).length, waiting: quick.filter((t) => t.status === 'needs-you').length };
 }
 
 export function trayTitle(threads: readonly ThreadSummary[]): string {
@@ -27,7 +28,7 @@ const GLYPH: Record<ThreadSummary['status'], string> = { working: '◐', startin
 
 /** The most recent threads for the menu, newest first, each with a status glyph and a short title. */
 export function trayEntries(threads: readonly ThreadSummary[], limit = 8): Array<{ id: string; label: string }> {
-  return [...threads].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, limit).map((t) => {
+  return threads.filter(isQuickThread).sort((a, b) => b.updatedAt - a.updatedAt).slice(0, limit).map((t) => {
     const title = t.title.length > 44 ? `${t.title.slice(0, 43)}…` : t.title;
     const state = t.status === 'needs-you' ? ' — needs you' : t.status === 'working' || t.status === 'starting' ? ' — working' : '';
     return { id: t.id, label: `${GLYPH[t.status]} ${title}${state}` };
@@ -39,7 +40,7 @@ export function trayEntries(threads: readonly ThreadSummary[], limit = 8): Array
  * first. `older` moves down the list and `newer` up; with no current task, `older` picks the newest.
  */
 export function nextQuickThread(threads: readonly ThreadSummary[], currentId: string | null, direction: 'older' | 'newer'): string | null {
-  const quick = [...threads].filter((t) => t.origin !== 'project').sort((a, b) => b.updatedAt - a.updatedAt);
+  const quick = threads.filter(isQuickThread).sort((a, b) => b.updatedAt - a.updatedAt);
   if (!quick.length) return null;
   const index = currentId ? quick.findIndex((t) => t.id === currentId) : -1;
   const next = index === -1 ? (direction === 'older' ? 0 : -1) : index + (direction === 'older' ? 1 : -1);

@@ -67,6 +67,12 @@ export class ThreadManager {
     return r;
   }
   engine(id: string): ThreadEngine | undefined { return this.records.get(id)?.engine; }
+  /** The thread of a project opened in the main window, so reopening the project returns to it instead of adding another. */
+  projectThread(root: string): string | undefined {
+    return [...this.records.values()]
+      .filter(r => r.summary.origin === 'project' && r.summary.root === root)
+      .sort((a, b) => b.summary.updatedAt - a.summary.updatedAt)[0]?.summary.id;
+  }
   create(root: string, prompt = '', origin: 'quick' | 'project' = 'quick', model?: string): string {
     if (this.records.size >= 200) throw new Error('Thread history is full. Remove an old stopped thread first.');
     const id = randomUUID();

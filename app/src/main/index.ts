@@ -764,8 +764,16 @@ function selectThread(id: string): void {
 }
 
 /** Opening a folder starts a thread for it: its own engine, history and approvals (thread.manager.ts). */
-function startEngine(projectDir: string): void {
-  const id = threads.create(realpathSync(projectDir), '', 'project');
+/**
+ * One thread per project. Reopening a project (Recents, the Open dialog, a launch) returns to its thread, whose engine
+ * resumes the conversation, instead of adding another thread and another engine every time. `restart` starts a new
+ * engine generation on the same thread, for new credentials.
+ */
+function startEngine(projectDir: string, options: { restart?: boolean } = {}): void {
+  const root = realpathSync(projectDir);
+  const existing = threads.projectThread(root);
+  const id = existing ?? threads.create(root, '', 'project');
+  if (existing && options.restart) threads.stop(id);
   threads.start(id);
   selectThread(id);
 }
@@ -1303,7 +1311,7 @@ app.whenReady().then(async () => {
       // A child cannot have its environment mutated in place. Start a new generation with the
       // Keychain-backed key and provider route; the provider pane waits for ready before refresh.
       const dir = supervisor?.currentProject || pickInitialProject(loadSettings().lastProject);
-      if (dir) startEngine(dir);
+      if (dir) startEngine(dir, { restart: true });
       return { ok: true };
     } catch (error) {
       return { ok: false, error: String((error as Error)?.message || error) };
