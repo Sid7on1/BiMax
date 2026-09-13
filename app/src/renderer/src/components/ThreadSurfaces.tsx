@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { ArrowUp, Check, ChevronRight, ExternalLink, FileText, Folder, Globe, PenLine, Search, Square, Undo2, X } from 'lucide-react';
+import { ArrowUp, Check, ChevronRight, Cpu, ExternalLink, FileText, Folder, Globe, PenLine, RotateCcw, Search, Square, Undo2, X } from 'lucide-react';
 import { QUICK_BAR_MAX_HEIGHT_SHARE, type QuickAttachment, type QuickContext, type QuickThread, type ThreadApproval } from '../../../shared/threads';
 import { engineReducer, initialEngineState, type TranscriptItem } from '../engine.state';
 import type { Outbound, RequestMsg, ToolCallEntry } from '../protocol';
@@ -138,7 +138,9 @@ export function ThreadQuickBar(): React.ReactElement {
   const models = (state.snapshot as { models?: { coding?: string; lite?: string } } | null)?.models;
   const modelId = state.tier === 'lite' ? models?.lite || models?.coding : models?.coding;
   const elapsed = busy && turnStart.current !== null ? Date.now() - turnStart.current : lastTurnMs;
-  const timing = [elapsed !== null ? formatDuration(elapsed) : '', modelId ? modelId.split('/').pop() : ''].filter(Boolean).join(' · ');
+  const timing = elapsed !== null ? formatDuration(elapsed) : '';
+  const lastItem = state.items[state.items.length - 1];
+  const lastIsAnswer = !!lastItem && lastItem.kind === 'msg' && lastItem.msg.role === 'assistant';
   const pathLinks = useMemo(() => ({
     open: (raw: string, mode: 'preview' | 'reveal') => {
       void window.bimax.threads.openPath(raw, mode).then((result: { ok: boolean; error?: string } | undefined) => {
@@ -343,13 +345,21 @@ export function ThreadQuickBar(): React.ReactElement {
           </span>
           {thread ? (
             <>
+              <button type="button" className="quick-link quick-model" title="Choose the model for this task" onClick={() => window.bimax.threads.modelMenu('switch')}>
+                <Cpu size={12} aria-hidden /><span>{modelId ? modelId.split('/').pop() : 'Model'}</span>
+              </button>
+              {!busy && lastIsAnswer ? (
+                <button type="button" className="quick-link" title="Answer again with another model" onClick={() => window.bimax.threads.modelMenu('retry')}>
+                  <RotateCcw size={12} aria-hidden />Retry
+                </button>
+              ) : null}
               {undo && !busy ? (
                 <button type="button" className="quick-link quick-undo" title={`Undo: ${undo.title}`} onClick={() => void undoLastChange()}>
                   <Undo2 size={12} aria-hidden /><span>Undo: {undo.title}</span>
                 </button>
               ) : null}
-              <button type="button" className="quick-link" onClick={() => window.bimax.threads.quickOpen()}>
-                <ExternalLink size={12} aria-hidden />Open in Bimax
+              <button type="button" className="quick-link" title="Open in Bimax" onClick={() => window.bimax.threads.quickOpen()}>
+                <ExternalLink size={12} aria-hidden />Open
               </button>
               <button type="button" className="quick-link" title="New task (⌘N)" onClick={() => { window.bimax.threads.quickReset(); input.current?.focus(); }}>
                 <PenLine size={12} aria-hidden />New
@@ -377,7 +387,7 @@ function QuickConversation({ items }: { items: TranscriptItem[] }): React.ReactE
     const { msg } = item;
     if (msg.role === 'user') blocks.push(<p key={msg.id} className="quick-prompt">{msg.content}</p>);
     else if (msg.role === 'assistant') blocks.push(<div key={msg.id} className="quick-answer"><Markdown text={msg.content} /></div>);
-    else if ((msg.level === 'error' || msg.level === 'warn' || msg.level === 'success') && !msg.payload?.capabilityStatus) blocks.push(<p key={msg.id} className="quick-note">{msg.content}</p>);
+    else if (((msg.level === 'error' || msg.level === 'warn' || msg.level === 'success') && !msg.payload?.capabilityStatus) || msg.payload?.threadNote) blocks.push(<p key={msg.id} className="quick-note">{msg.content}</p>);
   });
   flush('steps-end');
   return <>{blocks}</>;

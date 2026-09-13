@@ -270,6 +270,12 @@ export function buildEngineChildEnv(input: ChildEnvInput): Record<string, string
   delete env[TRUSTED_PLAN_REQUIRED_ENV];
   for (const variable of NATIVE_COMPONENT_ENV) delete env[variable];
   delete env[HOST_CAPABILITIES_ENV];
+  // One task may answer with a different model than Bimax's saved slots (the ⌘2 model menu, "Retry with…"). It
+  // arrives as BIMAX_THREAD_MODEL and becomes the engine's volatile overrides — applied after the clearing above,
+  // and never written back to the user's configuration.
+  const threadModel = String(input.extraEnv?.BIMAX_THREAD_MODEL ?? '').trim();
+  delete env.BIMAX_THREAD_MODEL;
+  if (threadModel) { env.BGW_MODEL = threadModel; env.BGW_LITE_MODEL = threadModel; }
   // Code-only product boundary: resolved native components and inherited CU variables are ignored.
   // The only capabilities the child can load are ordinary coding tools and user-configured MCP.
   return env;

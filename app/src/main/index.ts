@@ -11,6 +11,7 @@ import { QUICK_BAR, quickBarBounds, quickBarOrigin } from './quick.bar';
 import { lastUndoable, threadStateEnvironment, threadStateRoot, undoLast } from './thread.undo';
 import { insideFolder, validAttachments, withContext } from './quick.context';
 import { nextQuickThread, trayEntries, trayTitle, trayTooltip } from './thread.tray';
+import { modelMenuItems, type CatalogModel, type ModelMenuItem, type ModelTime } from './thread.models';
 import { macBin } from './bin';
 import os from 'node:os';
 import { readFileSync, writeFileSync, renameSync, mkdirSync, realpathSync } from 'node:fs';
@@ -208,6 +209,61 @@ async function showQuickBar(): Promise<void> {
   quickWindow.webContents.send('threads:context', quickContext);
   sendQuickThread();
   quickWindow.show(); quickWindow.focus();
+}
+/** The Work model in Bimax's own settings, for the "Same as Bimax" menu entry. */
+function bimaxModel(): string {
+  try { return String(JSON.parse(readFileSync(path.join(os.homedir(), '.breakglass', 'config.json'), 'utf8')).model || ''); } catch { return ''; }
+}
+// How long turns have taken with each model on this Mac: a running average over the last 20 turns, kept in settings.
+const modelTimes = new Map<string, ModelTime>();
+let modelTimesLoaded = false;
+function recordModelTime(id: string, tookMs: number | undefined): void {
+  if (!tookMs || tookMs < 500) return;
+  if (!modelTimesLoaded) { for (const [model, time] of Object.entries(loadSettings().modelTimes ?? {})) modelTimes.set(model, time); modelTimesLoaded = true; }
+  const model = threads.get(id).summary.model || bimaxModel();
+  if (!model) return;
+  const prior = modelTimes.get(model) ?? { avgMs: tookMs, turns: 0 };
+  const turns = Math.min(prior.turns + 1, 20);
+  modelTimes.set(model, { avgMs: Math.round(prior.avgMs + (tookMs - prior.avgMs) / turns), turns });
+  saveSettings({ modelTimes: Object.fromEntries(modelTimes) });
+}
+// The provider's model list, asked of a running thread engine (catalogGet) and remembered for when none is running.
+let modelCatalog: CatalogModel[] = [];
+const catalogWaiters = new Map<number, (models: CatalogModel[]) => void>();
+let catalogRequest = 1_000_000_000;
+function refreshModelCatalog(): Promise<CatalogModel[]> {
+  const running = [quickThreadId, threads.activeId, ...threads.list().map((t) => t.id)].find((id): id is string => !!id && !!threads.engine(id));
+  if (!running) return Promise.resolve(modelCatalog);
+  const id = ++catalogRequest;
+  return new Promise((resolve) => {
+    catalogWaiters.set(id, resolve);
+    setTimeout(() => { if (catalogWaiters.delete(id)) resolve(modelCatalog); }, 8000);
+    threads.send(running, { t: 'catalogGet', id, refresh: false });
+  });
+}
+/** The ⌘2 bar's model menu (thread.models.ts): choose this task's model, or answer again with another. */
+async function showModelMenu(mode: 'switch' | 'retry'): Promise<void> {
+  const id = quickThreadId;
+  if (!id || !quickWindow || quickWindow.isDestroyed()) return;
+  if (!modelTimesLoaded) { for (const [model, time] of Object.entries(loadSettings().modelTimes ?? {})) modelTimes.set(model, time); modelTimesLoaded = true; }
+  const models = await refreshModelCatalog();
+  const items: ModelMenuItem[] = modelMenuItems({
+    models, current: threads.get(id).summary.model ?? null, bimaxModel: bimaxModel(),
+    quickDefault: loadSettings().quickModel ?? null, times: Object.fromEntries(modelTimes), mode,
+  });
+  const template: Electron.MenuItemConstructorOptions[] = items.map((item) => {
+    if (item.kind === 'separator') return { type: 'separator' };
+    if (item.kind === 'header') return { label: item.label, enabled: false };
+    if (item.kind === 'default') return { label: item.label, type: 'checkbox', checked: item.checked, click: () => saveSettings({ quickModel: item.model ?? undefined }) };
+    return {
+      label: item.label, type: mode === 'switch' ? 'checkbox' : 'normal', checked: item.checked,
+      click: () => {
+        try { if (mode === 'retry') threads.retryWith(id, item.model); else threads.setModel(id, item.model); }
+        catch (error) { void dialog.showMessageBox({ type: 'info', message: (error as Error).message }); }
+      },
+    };
+  });
+  Menu.buildFromTemplate(template).popup({ window: quickWindow });
 }
 /** Bring a ⌘2 task back into the bar — from the menu bar, a notification, or ⌘[ / ⌘]. */
 function showQuickThread(id: string): void {
@@ -417,7 +473,7 @@ function auxiliaryChannelAllowed(event: IpcMainEvent | IpcMainInvokeEvent, chann
   const allowed = event.sender.id === quickWindow?.webContents.id
     ? ['threads:context', 'threads:pick-folder', 'threads:quick-submit', 'threads:hide', 'threads:list', 'threads:reply',
       'threads:quick-current', 'threads:quick-reset', 'threads:quick-interrupt', 'threads:quick-resize', 'threads:quick-open',
-      'threads:undo-info', 'threads:undo', 'threads:open-path', 'threads:quick-switch']
+      'threads:undo-info', 'threads:undo', 'threads:open-path', 'threads:quick-switch', 'threads:model-menu']
     : ['threads:approvals', 'threads:reply', 'threads:hide', 'threads:stop'];
   return allowed.includes(channel);
 }
@@ -513,7 +569,8 @@ function createSupervisor(threadId?: string): EngineSupervisor {
         ...(threadId ? { ...threadBroker.environment(threadId), BIMAX_THREAD_ROOT: project, WORKSPACE_ROOT: project,
           BIMAX_AUTO_INDEX: '0', BIMAX_DISABLE_CODEMEM: '1', BIMAX_DISABLE_CODEBASE_MEMORY: '1', BIMAX_DRIVES_BOOT: '0',
           ...threadIndexEnvironment(threads.get(threadId).summary.origin),
-          ...threadStateEnvironment(app.getPath('userData'), project, threads.get(threadId).summary.origin) } : {}),
+          ...threadStateEnvironment(app.getPath('userData'), project, threads.get(threadId).summary.origin),
+          ...(threads.get(threadId).summary.model ? { BIMAX_THREAD_MODEL: threads.get(threadId).summary.model } : {}) } : {}),
       }, callbacks);
     },
     now: () => Date.now(),
@@ -728,6 +785,14 @@ app.whenReady().then(async () => {
     engine: id => createSupervisor(id), changed: threadChanged,
     selected: value => broadcast('threads:selected', value),
     message: (id, msg) => {
+      // A model list this process asked for (the ⌘2 model menu) is answered here, not shown in a window.
+      if (msg.t === 'catalogResult' && catalogWaiters.has(msg.id)) {
+        const done = catalogWaiters.get(msg.id)!;
+        catalogWaiters.delete(msg.id);
+        modelCatalog = (msg.models ?? []) as CatalogModel[];
+        done(modelCatalog);
+        return;
+      }
       if (threads.activeId === id) broadcast('engine:msg', msg, id);
       if (id === quickThreadId && quickWindow && !quickWindow.isDestroyed()) quickWindow.webContents.send('threads:quick-msg', msg);
     },
@@ -743,7 +808,7 @@ app.whenReady().then(async () => {
       }
     },
     save: value => threadStorage.save(value),
-    finished: (id) => notifyFinished(id),
+    finished: (id, tookMs) => { recordModelTime(id, tookMs); notifyFinished(id); },
   }, threadStorage.load());
   threadBroker = await createThreadBroker(threads, async (from, to) => {
     const a = threads.get(from).summary, b = threads.get(to).summary;
@@ -893,7 +958,7 @@ app.whenReady().then(async () => {
       if (root === '/' || root === os.homedir()) return { ok: false, error: 'Choose a specific folder rather than your whole home folder.' };
       const outside = attachments.find((item) => item.path && !insideFolder(root, item.path));
       if (outside) return { ok: false, error: `“${outside.label}” is outside ${path.basename(root)}. Choose its folder instead.` };
-      const id = threads.create(root, '', 'quick');
+      const id = threads.create(root, '', 'quick', loadSettings().quickModel || undefined);
       quickThreadId = id;
       threads.submit(id, withContext(prompt, attachments), prompt, false);
       sendQuickThread();
@@ -916,6 +981,7 @@ app.whenReady().then(async () => {
       return { ok: false, error: `Could not find “${text}” in ${path.basename(base)}.` };
     }
   });
+  secureOn('threads:model-menu', (_e, mode: unknown) => { void showModelMenu(mode === 'retry' ? 'retry' : 'switch'); });
   // ⌘[ / ⌘] in the bar: the previous or next of its recent tasks (thread.tray.ts nextQuickThread).
   secureHandle('threads:quick-switch', null as string | null, (_e, direction: unknown) => {
     if (direction !== 'older' && direction !== 'newer') return null;

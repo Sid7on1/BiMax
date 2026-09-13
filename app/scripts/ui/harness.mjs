@@ -179,6 +179,7 @@ function installBridge(fixture) {
       pathForFile: () => '',
       openPath: async (raw, mode) => { record('threads.openPath', { raw, mode }); return { ok: false, error: 'No main process in the harness' }; },
       quickSwitch: async (direction) => { record('threads.quickSwitch', direction); return null; },
+      modelMenu: (mode) => record('threads.modelMenu', mode),
     },
     windowChrome: {
       get: async () => ({ fullScreen: false, maximized: false }),

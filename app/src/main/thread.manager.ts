@@ -18,6 +18,8 @@ interface LiveThread extends SavedThread {
   pending: Map<number, ThreadApproval>;
   /** File changes the user undid from the app since the engine's last turn; told to it with the next message. */
   notes: string[];
+  /** When the current turn was sent to the engine, for its duration. */
+  turnStartedAt?: number;
   /** What was last handed to storage, so an event that changed nothing is not written again. */
   savedState?: EngineUiState;
   savedSummary?: string;
@@ -30,7 +32,7 @@ interface Dependencies {
   approval(value: ThreadApproval): void;
   save(value: SavedThread): void;
   /** A turn ended (working → idle). The app notifies when the thread is not on screen. */
-  finished?(id: string): void;
+  finished?(id: string, tookMs?: number): void;
 }
 
 /**
@@ -65,11 +67,11 @@ export class ThreadManager {
     return r;
   }
   engine(id: string): ThreadEngine | undefined { return this.records.get(id)?.engine; }
-  create(root: string, prompt = '', origin: 'quick' | 'project' = 'quick'): string {
+  create(root: string, prompt = '', origin: 'quick' | 'project' = 'quick', model?: string): string {
     if (this.records.size >= 200) throw new Error('Thread history is full. Remove an old stopped thread first.');
     const id = randomUUID();
     const r: LiveThread = {
-      summary: { id, root, title: prompt.trim().slice(0, 80) || `New thread in ${path.basename(root)}`, updatedAt: Date.now(), status: 'idle', peers: [], origin },
+      summary: { id, root, title: prompt.trim().slice(0, 80) || `New thread in ${path.basename(root)}`, updatedAt: Date.now(), status: 'idle', peers: [], origin, ...(model ? { model } : {}) },
       state: { ...initialEngineState, project: root, threadId: id }, ready: false, queue: [], pending: new Map(), notes: [],
     };
     this.records.set(id, r);
@@ -129,6 +131,7 @@ export class ThreadManager {
     if (conflict) return;
     const next = r.queue.shift()!;
     r.summary.status = 'working';
+    r.turnStartedAt = Date.now();
     r.engine!.sendFromRenderer({ t: 'input', text: next.text });
   }
   receive(id: string, msg: Outbound): void {
@@ -162,7 +165,11 @@ export class ThreadManager {
       r.summary.status = 'idle';
     }
     this.deps.message(id, msg);
-    if (finishedTurn) this.deps.finished?.(id);
+    if (finishedTurn) {
+      const tookMs = r.turnStartedAt ? Date.now() - r.turnStartedAt : undefined;
+      r.turnStartedAt = undefined;
+      this.deps.finished?.(id, tookMs);
+    }
     // Only dispatch queued inputs after the current protocol event has been delivered.
     if (r.ready && r.summary.status === 'idle') for (const next of this.records.values()) this.pump(next);
     this.persist(r);
@@ -196,6 +203,39 @@ export class ThreadManager {
     r.engine?.sendFromRenderer(msg);
     this.persist(r);
   }
+  /** Choose the model this task answers with (null: Bimax's own). A running engine restarts on it and resumes. */
+  setModel(id: string, model: string | null): void {
+    const r = this.records.get(id);
+    if (!r) throw new Error('Thread not found');
+    const next = model || undefined;
+    if (r.summary.model === next) return;
+    r.summary.model = next;
+    if (r.engine) { this.stop(id); this.start(id); }
+    this.persist(r);
+  }
+
+  /** "Retry with…": answer the last request again, from scratch, with another model. */
+  retryWith(id: string, model: string | null): void {
+    const r = this.records.get(id);
+    if (!r) throw new Error('Thread not found');
+    if (r.summary.status === 'working' || r.summary.status === 'needs-you') throw new Error('Wait for this task to finish before retrying it.');
+    const last = [...r.state.items].reverse().find((item) => item.kind === 'msg' && item.msg.role === 'user');
+    if (!last || last.kind !== 'msg') throw new Error('There is no request to retry yet.');
+    const request = last.msg.content;
+    this.setModel(id, model);
+    this.note(id, `Retrying with ${model ? (model.split('/').pop() || model) : 'Bimax’s model'}…`);
+    this.submit(id, `[The user asked for this request to be answered again, from scratch, with a different model.]\n\n${request}`, request, false);
+  }
+
+  /** A line in the thread from the app itself (not the engine), shown in the bar and the main window. */
+  private note(id: string, content: string): void {
+    const r = this.records.get(id)!;
+    const msg = { t: 'event', name: 'message', args: [{ id: randomUUID(), role: 'system', level: 'info', content, payload: { threadNote: true }, timestamp: new Date().toISOString() }] } as Outbound;
+    r.state = engineReducer(r.state, { type: 'outbound', msg });
+    this.deps.message(id, msg);
+    this.persist(r);
+  }
+
   /** A change was undone from the app: show it in the thread, and tell the engine with the next message. */
   noteUndo(id: string, title: string): void {
     const r = this.records.get(id);

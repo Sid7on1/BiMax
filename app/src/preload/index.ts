@@ -46,6 +46,8 @@ const api = {
     pathForFile: (file: File): string => webUtils.getPathForFile(file),
     openPath: (raw: string, mode: 'preview' | 'reveal') => ipcRenderer.invoke('threads:open-path', raw, mode),
     quickSwitch: (direction: 'older' | 'newer') => ipcRenderer.invoke('threads:quick-switch', direction),
+    // The task's model: choose it, or answer again with another (main/thread.models.ts).
+    modelMenu: (mode: 'switch' | 'retry') => ipcRenderer.send('threads:model-menu', mode),
   },
   send: (msg: unknown): void => ipcRenderer.send('engine:send', msg, activeThreadId),
   onMessage: (cb: (msg: unknown) => void): (() => void) => {

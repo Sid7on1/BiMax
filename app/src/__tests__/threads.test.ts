@@ -139,5 +139,21 @@ test('a turn that ends tells the app once; an idle engine repeating idle does no
   manager.receive(a,{ t:'event',name:'spinner_state',args:['idle',''] } as any);
   manager.receive(a,{ t:'event',name:'spinner_state',args:['idle',''] } as any);
   expect(finished).toHaveBeenCalledTimes(1);
-  expect(finished).toHaveBeenCalledWith(a);
+  expect(finished).toHaveBeenCalledWith(a, expect.any(Number));
+});
+
+test('retry answers the last request again with another model, on an engine restarted with that model',()=> {
+  const f=fixture(), a=f.manager.create('/fixture/Desktop','what files do you see ?'); f.ready(a); f.idle(a);
+  const first=f.engines.get(a)!;
+  f.manager.retryWith(a,'meta/llama-3.3-70b-instruct');
+  expect(first.dispose).toHaveBeenCalled();
+  expect(f.manager.get(a).summary.model).toBe('meta/llama-3.3-70b-instruct');
+  const second=f.engines.get(a)!;
+  expect(second).not.toBe(first);
+  f.ready(a);
+  const sent=second.sendFromRenderer.mock.calls.map(c => c[0]).find(m => m.t==='input');
+  expect(sent.text).toContain('answered again');
+  expect(sent.text).toContain('what files do you see ?');
+  expect(f.manager.get(a).state.items.some(i => i.kind==='msg' && i.msg.content==='Retrying with llama-3.3-70b-instruct…')).toBe(true);
+  expect(f.manager.create('/fixture/Downloads','', 'quick', 'meta/llama-3.3-70b-instruct')).toBeTruthy();
 });

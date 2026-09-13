@@ -1434,7 +1434,9 @@ html.aux-surface, html.aux-surface body, html.aux-surface #root { background: tr
 .quick-link { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 8px; color: color-mix(in srgb, var(--color-ink) 74%, transparent); cursor: pointer; }
 .quick-link:hover { background: color-mix(in srgb, var(--color-ink) 10%, transparent); color: var(--color-ink); }
 .quick-error { color: var(--color-rust); }
-.quick-undo { min-width: 0; max-width: 300px; }
+.quick-undo { min-width: 0; max-width: 220px; }
+.quick-model { min-width: 0; max-width: 170px; }
+.quick-model span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .quick-undo span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* An approval card's detail: every affected item, whether it can be undone, and the command. */
 .quick-request-body { max-height: 180px; overflow: auto; margin: 0; padding: 8px 10px; border-radius: 10px;

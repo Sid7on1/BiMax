@@ -11,6 +11,8 @@ export interface ThreadSummary {
   sessionId?: string;
   /** Where the thread came from: the ⌘2 bar, or a project opened in the main window. Absent on threads saved before origins existed. */
   origin?: 'quick' | 'project';
+  /** The model this task answers with, when it is not Bimax's own (the ⌘2 model menu, "Retry with…"). */
+  model?: string;
 }
 export interface ThreadSelection { id: string; state: EngineUiState }
 /** The tallest the ⌘2 bar may grow, as a share of its screen's work area (main clamps, the bar follows text at it). */

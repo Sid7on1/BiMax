@@ -19,6 +19,10 @@ export interface AppSettings {
   recentProjects?: string[];
   /** Where the ⌘2 bar was last dragged to (its top-left, in screen coordinates). */
   quickBar?: { x: number; y: number };
+  /** The model new ⌘2 tasks start with; absent means Bimax's own. */
+  quickModel?: string;
+  /** How long turns have taken with each model on this Mac, for the model menu (thread.models.ts). */
+  modelTimes?: Record<string, { avgMs: number; turns: number }>;
 }
 
 const MAX_RECENTS = 8;
