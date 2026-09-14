@@ -14,6 +14,7 @@
     "test": "jest --coverage",
     "test:ci": "jest --coverage=false",
     "test:context": "bun test ./src/__tests__/context.audit.acceptance.test.ts",
+    "bench:context": "bun benchmarks/context/run.ts",
     "doctor": "bash scripts/doctor.sh",
     "app:dev": "npm --prefix app run dev",
     "app:dist:mac": "npm --prefix app run dist:mac",
