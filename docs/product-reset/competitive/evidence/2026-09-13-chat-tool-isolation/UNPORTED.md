@@ -1,5 +1,10 @@
 # Record 49: the code that was never ported
 
+**Ported 2026-09-14 in `6d602d1`** (backlog F8). The saved patch applied cleanly; `host.ts`, `agent.loop.ts` and
+`base.persona.ts` were ported by hand from `codex-exec-calls.txt`, and `tool.factory.ts` already had both
+cancellation checks. Record 49's ten suites pass (106 tests), and four mutants fail. The rest of this file is kept as
+it was written.
+
 Written 2026-09-14, when record 49 was copied here from the stale `~/Desktop/Bimax` copy (where it was record 45).
 Its code change is **not in this repository**. This folder keeps everything needed to port it, so the work
 survives even if the Desktop copy is lost. Porting it is item F8 in `../../../48_FEATURE_BACKLOG_2026_09.md`.

@@ -1,7 +1,8 @@
 # Chat isolation and tool cancellation — 2026-09-13
 
-Status in this repository: **Not implemented.** This record was written in the stale `~/Desktop/Bimax` copy
-as record 45 and its code was never ported here. It was copied on 2026-09-14 and renumbered, because this
+Status in this repository: **Implemented 2026-09-14** in `6d602d1` (backlog F8): record 49's ten suites pass (106
+tests) and four mutants fail. This record was written in the stale `~/Desktop/Bimax` copy
+as record 45, and its code was first ported here on that date. It was copied on 2026-09-14 and renumbered, because this
 repository's record 45 is a different change; the text below is otherwise unchanged. Porting it is item F8 in
 `48_FEATURE_BACKLOG_2026_09.md`; `competitive/evidence/2026-09-13-chat-tool-isolation/UNPORTED.md` says where
 the exact edits are.

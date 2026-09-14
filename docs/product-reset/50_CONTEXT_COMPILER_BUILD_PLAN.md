@@ -251,9 +251,35 @@ far; the prompt compiler in step 6 is the real consumer.
 **Exit:** every admitted item shows its source, version and scope, and changing one of two inputs invalidates only
 the items built from it.
 
+## Audit 51 repairs — done 2026-09-14
+
+An external audit ([record 51](51_CONTEXT_UPGRADE_AUDIT.md)) showed steps 1–5 passing their own tests while several
+promises could still fail. Its findings were repaired before step 6. Each repair has a test that fails on the old code
+and a mutant that puts the defect back.
+
+| Finding | What was wrong | Repair | Commit |
+|---|---|---|---|
+| U09 | Budget grades trusted a pack's own size, and negative cases passed an empty search | Benchmark version 2 measures the text and pairs every negative case; its baseline, re-run on unchanged code, is 26 of 33 | `6c8e337`, `49c6e1b` |
+| U01, U02 | Old index rows could carry a newer file's version | A code hit is admitted only when its lines, read now, are its indexed text, at the version of those bytes | `30656a5` |
+| U03 | Span ids ignored dependencies; eviction and late admission lost invalidation | Ids cover dependencies; dependants are tracked; a stale, evicted or unrecorded parent marks its children | `30656a5` |
+| U04 | File versions hashed decoded text | Versions hash raw bytes, equal to the text hash for valid UTF-8 | `30656a5` |
+| U05, U06 | The archive followed symlinks, its byte cap was soft, and a damaged copy was reused | No-follow opens, atomic writes, an 8 MiB per-item cap, damaged copies replaced | `342c92b` |
+| U07 | Recall evidence recorded whole chunks the budget had cut | Evidence holds only the shown text, marked partial when cut | `342c92b` |
+| U10 | Compressed logs dropped signs and seven-digit values | Signed and large numbers are kept, with each extreme line | `342c92b` |
+| U11 | Compression ran before any archive | Raw output is archived before compression, and later clearing keeps that handle | `342c92b` |
+
+**Proof.** Bun: 37 context tests pass. Mutants: eight for U01–U04 and nine for U05–U11, each failing a test. Benchmark
+version 2 stays at 26 of 33 with no family lower: these repairs make the existing passes trustworthy rather than add
+new ones. Jest over the suites that import the changed modules shows no failure that was not there before.
+
+**Still open.** U08 (a recall block removed by the compaction that runs right after it) belongs to step 6's residency
+ledger. S01 (resource bounds of scoped search and admission reads) and S02 (the graph cache under in-place mutation)
+are unmeasured risks, not reproduced defects.
+
 ## Step 6: C2 prompt compiler
 
-Start after F8 (record 49's fix) is ported: both touch `agent.loop.ts` and `base.persona.ts`.
+F8 (record 49's fix) was ported first, in `6d602d1`, because both touch `agent.loop.ts` and `base.persona.ts`. This
+step also takes audit 51's U08.
 
 1. One allocator owns the whole request budget (record 47 §3.4) at the final request boundary.
 2. Each candidate gets several representations (locator, signature, exact span, neighbourhood). Pick them with a
@@ -282,7 +308,7 @@ with the acceptance gates. Only then call it Product-ready.
 ## How this fits the backlog
 
 - The owner decided on 2026-09-14 to build this plan before the other features. The one interruption is F8
-  (record 49's fix), which must be ported before step 6.
+  (record 49's fix), which was ported before step 6 (`6d602d1`).
 - Step 5's dependency invalidation is the mechanism backlog L1 (living deliverables) needs, and F4's event wakeups
   can trigger it.
 - Step 6 shares its continuation state with F2 and must follow F8.

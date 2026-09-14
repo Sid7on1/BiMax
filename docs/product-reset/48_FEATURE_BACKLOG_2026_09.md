@@ -65,8 +65,10 @@ Each item lists **Value** (high, medium, low), **Effort** (S: days, M: 1–2 wee
 
 1. **C0–C1:** record 50 steps 1–5: acceptance tests and fixes for all eight defects A01–A08 (steps 1–3, C0, done 2026-09-14), the
    baseline benchmark (step 4, done 2026-09-14: 25 of 33 cases pass), and the evidence foundation (step 5, done 2026-09-14: 26 of 33).
-2. **F8:** port the chat and tool cancellation fix from record 49. Record 50's step 6 edits the same files
-   (`agent.loop.ts`, `base.persona.ts`), so the port has to land first.
+   Audit 51 then showed those tests passing while several promises could still fail. Its findings were repaired the
+   same day (U01–U07 and U09–U11; record 50, "Audit 51 repairs"). U08 moves into step 6.
+2. **F8:** port the chat and tool cancellation fix from record 49. **Done 2026-09-14** (`6d602d1`), before step 6,
+   which edits the same files.
 3. **C2–C4:** record 50 steps 6–8.
 4. **F1:** queued messages survive an engine restart and an app reload (T01).
 5. **Q1–Q4:** the quick fixes, about an hour together.
@@ -116,7 +118,8 @@ to investigate code and run builds. Record 49's third mutant shows why the post-
 it, a cancelled tool wrote the protected fixture file.
 Value high · Effort S–M · Needs an edit-by-edit port, not a file copy: `agent.loop.ts`, `base.persona.ts` and
 `tool.factory.ts` have changed here since. `competitive/evidence/2026-09-13-chat-tool-isolation/UNPORTED.md`
-says where the exact edits are.
+says where the exact edits are. **Done 2026-09-14** (`6d602d1`): record 49's ten suites pass (106 tests), and four
+mutants fail.
 
 **F9. A resume that can fail visibly (T02).** When a saved session is missing or unreadable, the thread waits for a
 `session_restore` that never arrives, and a queued Continue never resolves. Add a typed success or failure with a
@@ -319,7 +322,8 @@ before it. The verdicts and efforts are this merge's proposals; record 47 gives 
 with the code location of each defect, is [record 50](50_CONTEXT_COMPILER_BUILD_PLAN.md).
 
 **C0. Repair the eight reproduced defects.** Each probe becomes an acceptance test, paired with a mutant that
-restores the defect. Value high · Effort M · Verdict Next · **Done 2026-09-14** (record 50 steps 1–3).
+restores the defect. Value high · Effort M · Verdict Next · **Done 2026-09-14** (record 50 steps 1–3); audit 51 found
+gaps, repaired the same day.
 - **A01:** a rewrite that keeps size and modification time is not re-indexed, and compaction restores the old
   bytes labelled "verified unchanged".
 - **A02:** the scope filter runs after the result limit, and the path prefix `wanted` also matches `wantedExtra/`.
@@ -331,7 +335,8 @@ restores the defect. Value high · Effort M · Verdict Next · **Done 2026-09-14
 - **A08:** log compression keeps the first value and drops the maximum.
 
 **C1. Evidence foundation.** Shared evidence span, locator and version types; raw tool output archived; dependency
-invalidation, so a changed source dirties only what used it. Verdict Flagship · Effort L · Needs C0 · **Done 2026-09-14** (record 50 step 5).
+invalidation, so a changed source dirties only what used it. Verdict Flagship · Effort L · Needs C0 · **Done 2026-09-14** (record 50 step 5);
+audit 51 found gaps in freshness, dependency tracking and the archive, repaired the same day.
 
 **C2. Prompt compiler.** One token budget for the whole request, a representation chosen per item (locator,
 signature, exact span or neighbourhood), a structured continuation state, and a ledger of what is actually in the
