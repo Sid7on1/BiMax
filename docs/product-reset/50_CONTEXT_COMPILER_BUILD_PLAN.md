@@ -1,6 +1,6 @@
 # 50 — Context Compiler: build plan and flow
 
-Date: 2026-09-14. Status: **in progress**. Steps 1–3 (the eight fixes, C0) are done; steps 4–8 are still plan. It turns
+Date: 2026-09-14. Status: **in progress**. Steps 1–4 are done (the eight fixes and the baseline benchmark); steps 5–8 are still plan. It turns
 [record 47](47_RAG_AND_CONTEXT_COMPILER_UPGRADE.md) into steps someone can follow, in order, on this repository.
 Backlog items C0–C4 in [record 48](48_FEATURE_BACKLOG_2026_09.md) point here.
 
@@ -151,7 +151,48 @@ evidence.
 **Exit:** all eight acceptance tests pass, each of the eight mutants is caught, and the six existing suites named in
 the audit's evidence README still pass.
 
-## Step 4: evaluation set and repaired baseline
+## Step 4: evaluation set and repaired baseline — done 2026-09-14
+
+**What shipped.** `benchmarks/context` (`npm run bench:context`, under Bun): 36 small, fixed cases across record
+47's eight families. Each runs the real stage that feeds the prompt and grades the text it produces. No model is
+called and the dense stage is off, so a run is free and repeatable; two runs matched on every case, down to the
+hash of each graded text. Graders pass their controls before scoring, and a run is invalid rather than failed when
+a control fails, FTS5 is missing, or anything touches the network. [DESIGN.md](../../benchmarks/context/DESIGN.md)
+says what it does and does not measure.
+
+**The baseline** is run `2026-09-14T06-51-49-224Z_e724750` on commit `e724750`, recorded in
+`benchmarks/context/results/`. 25 of 33 graded cases pass, and 3 more are size measurements.
+
+| Family | Passed | Measured |
+|---|---|---|
+| `single-hop` | 4 of 5 |  |
+| `multi-hop-code` | 1 of 3 |  |
+| `temporal` | 4 of 4 |  |
+| `source-change` | 4 of 5 |  |
+| `long-session` | 0 of 3 | 1 |
+| `numeric` | 5 of 5 |  |
+| `budget` | 2 of 3 | 2 |
+| `scope` | 5 of 5 |  |
+
+| Failing | Case | Which later step should fix it |
+|---|---|---|
+| S5 | no answer exists, so nothing is injected | step 7: evidence sufficiency, so a question with no answer injects nothing |
+| M1 | retry change needs the retry code, the cancellation contract and the test | step 7: evidence requirements and graph expansion reach every required file |
+| M2 | a low-similarity config limit behind a behaviour question | step 7: evidence requirements and graph expansion reach every required file |
+| C4 | a change the index has not synced yet | step 5: bytes are verified when evidence is admitted, not only when the index syncs |
+| L1 | the user's constraint survives ten compactions | step 6: the continuation state keeps constraints across compaction |
+| L2 | the tested revision survives ten compactions | step 6: the continuation state keeps verified observations across compaction |
+| L3 | a failed attempt survives ten compactions | step 6: the continuation state keeps failed attempts across compaction |
+| B5 | the answer survives a 600-character recall budget | step 6: representation choice keeps the answering span inside a tight budget |
+
+`temporal` passes in full only because every fixture note carries its own date; it guards against regressions
+rather than showing a gap today.
+
+**How later steps use it.** A stage counts as better only when more cases pass and no family's pass count falls. A
+smaller prompt never outranks a more correct one. Changing the benchmark itself bumps its version and re-records
+the baseline on the same commit first, so every comparison stays like for like.
+
+**The plan as it was written:**
 
 Build the test families from record 47 §6 as small fixed sets: single-hop lookup, multi-hop code, temporal memory,
 source changes, long sessions, numeric documents, budget, and scope. Record the model, embedding and reranker
