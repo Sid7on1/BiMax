@@ -182,7 +182,11 @@ its test moved to `~/Developer/bimax-archive` (byte-checked); the tests that sti
 ## Next: small, high value (days)
 
 **N1. Approve from the notification.** Allow and Deny buttons on the "needs your decision" notification.
-Value high · Effort S · Needs a check of how macOS shows action buttons (alert style versus banners).
+Value high · Effort S · Needs a check of how macOS shows action buttons (alert style versus banners). **Built 2026-09-14:** a plain yes-or-no
+approval notification carries the one-time Allow and Deny (never "Always Allow This Tool", never a file change, a
+free-form or a multiple-choice question), and a button sends the same token-bound reply the card does; an answer that
+is already gone opens the card instead. Three mutants fail a test. **Not verified live:** macOS shows the buttons only
+when Bimax's notifications use the Alerts style, or under Options on a banner.
 
 **N2. `bimax://` links and Shortcuts actions.** Start a ⌘2 task in a folder with a prompt from Shortcuts, Raycast,
 Stream Deck or a Focus mode. Value high · Effort S. *Why:* every other tool can then trigger Bimax.

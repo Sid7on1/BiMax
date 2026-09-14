@@ -18,6 +18,7 @@ import { TalkSession, talkModel, type TalkView } from './talk.session';
 import { describeSchedule, dueSchedules, newSchedule, type Cadence, type Schedule } from './schedules';
 import { randomUUID } from 'node:crypto';
 import { macBin } from './bin';
+import { answerFromNotification, notificationChoices } from './approval.notification';
 import os from 'node:os';
 import { spawn } from 'node:child_process';
 import { readFileSync, writeFileSync, renameSync, mkdirSync, realpathSync, existsSync, appendFileSync, statSync } from 'node:fs';
@@ -1043,8 +1044,22 @@ app.whenReady().then(async () => {
       showThreadApproval();
       // Away from Bimax: say so where the person will see it; the popup is already waiting when they come back.
       if (Notification.isSupported() && !BrowserWindow.getFocusedWindow()) {
-        const note = new Notification({ title: `${value.title} needs your decision`, body: value.request.question.slice(0, 160) });
+        const choices = notificationChoices(value.request);
+        const note = new Notification({
+          title: `${value.title} needs your decision`, body: value.request.question.slice(0, 160),
+          // Allow and Deny on the notification itself (backlog N1). macOS shows them on an alert-style notification, or
+          // under Options on a banner; clicking the notification still opens the full card.
+          ...(choices ? { actions: [{ type: 'button' as const, text: choices.allow }, { type: 'button' as const, text: choices.deny }], closeButtonText: 'Later' } : {}),
+        });
         note.on('click', () => { showThreadApproval(); approvalWindow?.focus(); });
+        if (choices) {
+          note.on('action', (_event, index) => {
+            const answer = answerFromNotification(value, index, choices);
+            if (!answer) return;
+            // Already answered on the card, or the task moved on: show what is waiting now instead.
+            try { threads.send(value.threadId, answer); } catch { showThreadApproval(); }
+          });
+        }
         note.show();
       }
     },
