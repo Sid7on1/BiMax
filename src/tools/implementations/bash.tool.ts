@@ -8,7 +8,7 @@ import { outcomeOk, classifiedError } from '../outcome';
 import { guiAutomationRefusal } from '../gui.automation.guard';
 import { isReadOnlyShellCommand } from '../shell.readonly';
 import { planShellChange } from '../thread.changes';
-import { moveToBin } from '../thread.bin';
+import { binLookNote, moveToBin, movedToBinText } from '../thread.bin';
 import { recordTrash } from '../thread.journal';
 
 const execAsync = promisify(exec);
@@ -92,9 +92,12 @@ Reserve BashTool for actual shell operations (installs, builds, git, processes, 
         const { moved, error } = await moveToBin(change.trash, context?.signal);
         await recordTrash(change.title, 'BashTool', moved);
         if (error) throw classifiedError(`Moved ${moved.length} of ${change.trash.length} item(s) to the Bin, then stopped: ${error}`, 'external');
-        return outcomeOk(`Moved to the Bin (the user can undo this from the thread in Bimax):\n${moved.map((m) => m.path).join('\n')}`, { exitCode: 0 });
+        return outcomeOk(movedToBinText(moved.map((m) => m.path)), { exitCode: 0 });
       }
     }
+    // A command that looks inside the Bin gets a note in every outcome: Bimax cannot read the Bin, and what the
+    // command printed must not be taken as its contents (thread.bin.ts).
+    const binNote = binLookNote(args.command);
     const rawTimeout = Number(args.timeout);
     const timeoutMs = Number.isFinite(rawTimeout)
       ? Math.min(Math.max(0, Math.floor(rawTimeout)), 600_000)
@@ -148,6 +151,7 @@ Reserve BashTool for actual shell operations (installs, builds, git, processes, 
       const payload = {
         stdout: out.length > MAX_OUTPUT_CHARS ? out.slice(0, MAX_OUTPUT_CHARS) + '\n...[truncated]' : out,
         stderr: err.length > MAX_OUTPUT_CHARS ? err.slice(0, MAX_OUTPUT_CHARS) + '\n...[truncated]' : err,
+        ...(binNote ? { note: binNote } : {}),
       };
       // Typed outcome: text matches the old JSON.stringify wire format exactly; exitCode 0 is
       // ground truth for the epistemic ledger's green evidence flag.
@@ -158,7 +162,7 @@ Reserve BashTool for actual shell operations (installs, builds, git, processes, 
         throw classifiedError(`Command interrupted: ${args.command}`, 'interrupted');
       }
       if (e.killed) {
-        throw classifiedError(`Command timed out after ${timeoutMs}ms: ${args.command}`, 'timeout');
+        throw classifiedError(`Command timed out after ${timeoutMs}ms: ${args.command}${binNote ? `\n${binNote}` : ''}`, 'timeout');
       }
       // A NON-ZERO exit is normal and useful for many commands — `tsc` with type errors, a failing
       // `npm test`, `grep` with no match. Node's exec rejects in that case but attaches the captured
@@ -172,12 +176,13 @@ Reserve BashTool for actual shell operations (installs, builds, git, processes, 
         const payload = {
           stdout: out.length > MAX_OUTPUT_CHARS ? out.slice(0, MAX_OUTPUT_CHARS) + '\n...[truncated]' : out,
           stderr: ((err + tag).length > MAX_OUTPUT_CHARS ? (err + tag).slice(0, MAX_OUTPUT_CHARS) + '\n...[truncated]' : (err + tag)),
+          ...(binNote ? { note: binNote } : {}),
         };
         // Still status 'ok' — a failing tsc/test run is a useful result, not a tool failure —
         // but the non-zero exitCode makes the ledger's red evidence flag exact.
         return outcomeOk(JSON.stringify(payload, null, 2), { exitCode: typeof e.code === 'number' ? e.code : 1 });
       }
-      const wrapped: any = classifiedError(`Bash execution failed: ${e.message}`, 'external');
+      const wrapped: any = classifiedError(`Bash execution failed: ${e.message}${binNote ? `\n${binNote}` : ''}`, 'external');
       wrapped.cause = e;
       throw wrapped;
     }

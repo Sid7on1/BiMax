@@ -73,6 +73,16 @@ const inside = (parent: string, child: string): boolean => {
 };
 
 /**
+ * Where Finder's delete can put an item: the user's Bin, or iCloud Drive's Bin for an item in an iCloud Drive
+ * folder — which includes the Desktop and Documents when they sync. MEASURED 2026-09-14: a thread deleted a file
+ * on the synced Desktop, Finder reported it in ~/Library/Mobile Documents/.Trash, and undo refused it.
+ */
+const binRoots = (): string[] => [
+  path.join(os.homedir(), '.Trash'),
+  path.join(os.homedir(), 'Library', 'Mobile Documents', '.Trash'),
+];
+
+/**
  * Reverse the newest change. Every path is checked before anything moves — it must lie inside the thread's
  * folder, the thread's backups or the Bin — and so is every conflict, so a refused undo changes nothing and
  * says why. A replaced file's current version goes to the Bin before the saved copy is put back.
@@ -82,7 +92,7 @@ export async function undoLast(stateRoot: string, threadRoot: string, bin: BinOp
   const change = pending[pending.length - 1];
   if (!change) throw new Error('There is nothing to undo in this thread.');
   const root = await fs.realpath(threadRoot).catch(() => path.resolve(threadRoot));
-  const trashRoot = path.join(os.homedir(), '.Trash');
+  const bins = binRoots();
   const backups = path.join(stateRoot, '.bimax', 'undo', 'backups');
   const ops = [...change.ops].reverse();
 
@@ -92,7 +102,7 @@ export async function undoLast(stateRoot: string, threadRoot: string, bin: BinOp
       if (typeof p !== 'string' || !inside(root, p)) throw new Error(`Undo refused: ${p} is outside this thread’s folder.`);
     }
     if (op.op === 'restore' && (typeof op.backup !== 'string' || !inside(backups, op.backup))) throw new Error('Undo refused: the saved copy is not in this thread’s undo folder.');
-    if (op.op === 'trash' && op.trashPath && !inside(trashRoot, op.trashPath)) throw new Error('Undo refused: that item is not in the Bin.');
+    if (op.op === 'trash' && op.trashPath && !bins.some((bin) => inside(bin, op.trashPath!))) throw new Error('Undo refused: that item is not in the Bin.');
   }
   for (const op of ops) {
     if (op.op === 'move' && await exists(op.to) && await exists(op.from)) {

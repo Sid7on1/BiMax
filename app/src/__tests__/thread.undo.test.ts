@@ -82,6 +82,32 @@ test('a Bin move is put back; a conflict changes nothing and says why', async ()
   expect(lastUndoable(state)).toBeNull();
 });
 
+test('an item from an iCloud Drive folder, like a synced Desktop, is put back from iCloud Drive’s Bin', async () => {
+  // MEASURED 2026-09-14: Finder's delete of a file on the iCloud-synced Desktop lands in
+  // ~/Library/Mobile Documents/.Trash, and undo refused it as "not in the Bin".
+  const item = path.join(root, 'Agents.docx');
+  const trashPath = path.join(os.homedir(), 'Library', 'Mobile Documents', '.Trash', 'Agents.docx');
+  journal({ type: 'change', id: 'i', at: 1, title: 'Move file “Agents.docx” to the Bin', tool: 'DeleteTool', ops: [{ op: 'trash', path: item, trashPath }] });
+  const bin = fakeBin();
+  await expect(undoLast(state, root, bin)).resolves.toEqual({ title: 'Move file “Agents.docx” to the Bin' });
+  expect(bin.restored).toEqual([item]);
+});
+
+test('a Bin place outside every Bin is refused before anything moves', async () => {
+  const item = path.join(root, 'old.txt');
+  for (const trashPath of [
+    path.join(os.homedir(), 'Library', 'Mobile Documents', 'com~apple~CloudDocs', 'old.txt'),
+    path.join(os.homedir(), 'Library', 'Mobile Documents', '.Trash', '..', 'old.txt'),
+    '/tmp/.Trash/old.txt',
+  ]) {
+    fs.rmSync(path.join(state, '.bimax', 'undo', 'journal.jsonl'), { force: true });
+    journal({ type: 'change', id: 'o', at: 1, title: 'Move file “old.txt” to the Bin', tool: 'DeleteTool', ops: [{ op: 'trash', path: item, trashPath }] });
+    const bin = fakeBin();
+    await expect(undoLast(state, root, bin)).rejects.toThrow('not in the Bin');
+    expect(bin.restored).toEqual([]);
+  }
+});
+
 test('a journal naming a path outside the thread folder is refused before anything moves', async () => {
   journal({ type: 'change', id: 'e', at: 1, title: 'Rename', tool: 'BashTool', ops: [{ op: 'move', from: '/etc/hosts', to: path.join(root, 'hosts') }] });
   await expect(undoLast(state, root, fakeBin())).rejects.toThrow('outside');

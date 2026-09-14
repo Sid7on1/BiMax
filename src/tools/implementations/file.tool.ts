@@ -14,7 +14,7 @@ import { detectCorruptWrite } from '../write-guard';
 import { fileStateCache, statStamp, hashFileText } from '../../memory/file-state-cache';
 import { globalTransactionManager } from '../../core/transaction.manager';
 import { outcomeOk, outcomeError, outcomeRejected } from '../outcome';
-import { moveToBin } from '../thread.bin';
+import { moveToBin, movedToBinText } from '../thread.bin';
 import { recordTrash } from '../thread.journal';
 
 // Files larger than this get truncated with a note. The full file content is written to
@@ -321,7 +321,7 @@ Use this tool whenever the user explicitly asks you to delete, remove, or trash 
         const { moved, error } = await moveToBin([fullPath], context?.signal);
         await recordTrash(`Move ${kind} “${path.basename(fullPath)}” to the Bin`, 'DeleteTool', moved);
         if (error || !moved.length) return outcomeError('io', `Could not move ${args.path} to the Bin: ${error || 'nothing was moved'}. Nothing was deleted.`);
-        return outcomeOk(`Moved ${fullPath} to the Bin (the user can undo this from the thread in Bimax)`);
+        return outcomeOk(movedToBinText(moved.map((m) => m.path)));
       } catch (e: any) {
         return outcomeError('io', `Could not move ${args.path} to the Bin: ${e.message}. Nothing was deleted.`);
       }
