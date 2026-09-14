@@ -4,7 +4,7 @@ import * as path from 'path';
 import {
   ContextEvidence, UNKNOWN_VERSION, derivedEvidence, evidenceSpan, fileEvidence, fileVersion, versionOfBytes, versionOfText,
 } from '../context/evidence';
-import { archiveDirectory, archiveOutput, readArchivedOutput } from '../context/output.archive';
+import { MAX_ARCHIVED_BYTES, archiveDirectory, archiveOutput, readArchivedOutput } from '../context/output.archive';
 import { createContextArchiveTool } from '../tools/implementations/context-archive.tool';
 import { createReadFileTool } from '../tools/implementations/file.tool';
 import { ContextManager } from '../memory/context.manager';
@@ -227,6 +227,53 @@ describe('the context archive', () => {
   });
 });
 
+describe('archive safety and bounds (audit 51, U05, U06)', () => {
+  test('a symlink in the archive is never followed, for a file or for the directory itself', () => {
+    const outside = path.join(temp, 'outside.txt');
+    const outsideText = 'text that lives outside the archive\n';
+    fs.writeFileSync(outside, outsideText);
+    const id = versionOfText(outsideText).slice('sha256:'.length, 'sha256:'.length + 32);
+    archiveOutput('the archive directory exists');
+    const link = path.join(archiveDirectory(), `${id}.txt`);
+    fs.symlinkSync(outside, link);
+    expect(readArchivedOutput(`archive:${id}`)).toEqual({ ok: false, reason: 'unsafe' });
+
+    // Archiving that same text replaces the link with a real file, and the file outside is untouched.
+    const archived = archiveOutput(outsideText)!;
+    expect(archived.handle).toBe(`archive:${id}`);
+    expect(fs.lstatSync(link).isSymbolicLink()).toBe(false);
+    expect(readArchivedOutput(archived.handle)).toMatchObject({ ok: true, text: outsideText });
+    expect(fs.readFileSync(outside, 'utf8')).toBe(outsideText);
+
+    // The directory itself swapped for a link: nothing is written through it or read from it.
+    const dir = archiveDirectory();
+    const real = `${dir}-real`;
+    const elsewhere = fs.mkdtempSync(path.join(temp, 'elsewhere-'));
+    fs.renameSync(dir, real);
+    fs.symlinkSync(elsewhere, dir);
+    try {
+      expect(archiveOutput('written through a link?')).toBeNull();
+      expect(fs.readdirSync(elsewhere)).toEqual([]);
+      expect(readArchivedOutput(archived.handle)).toEqual({ ok: false, reason: 'unsafe' });
+    } finally {
+      fs.unlinkSync(dir);
+      fs.renameSync(real, dir);
+    }
+    // Control: with the real directory back, the handle reads again.
+    expect(readArchivedOutput(archived.handle)).toMatchObject({ ok: true });
+  });
+
+  test('one result over the per-item cap is not archived, and a damaged copy is replaced rather than reused', () => {
+    expect(archiveOutput('x'.repeat(MAX_ARCHIVED_BYTES + 1))).toBeNull();
+    expect(archiveOutput('x'.repeat(1024))).not.toBeNull();
+    const text = 'kept exactly as it was\n';
+    const first = archiveOutput(text)!;
+    fs.writeFileSync(path.join(archiveDirectory(), `${first.id}.txt`), 'damaged');
+    expect(archiveOutput(text)!.handle).toBe(first.handle);
+    expect(readArchivedOutput(first.handle)).toMatchObject({ ok: true, text });
+  });
+});
+
 describe('admitted evidence from the pipeline', () => {
   test('micro-compaction archives what it clears, and the stub carries a handle that reads it back', () => {
     const manager = new ContextManager(summarizer);
@@ -276,6 +323,39 @@ describe('admitted evidence from the pipeline', () => {
     const block = admitted.find((span) => span.sourceId === 'derived:recall-block')!;
     expect(block).toBeDefined();
     expect(block.derivedFrom.length).toBe(admitted.filter((span) => span.sourceId === 'memory:orchid').length);
+  });
+
+  // Audit 51, U07: a cut passage was recorded whole, so the record claimed text the model never saw.
+  test('recall records only the text it injects, and marks a cut chunk partial', async () => {
+    const store = new VectorStore(null as any, null as any, { storePath: path.join(temp, 'recall-cut.json'), dedup: false });
+    await store.storeDocument('orchid-cut', `${'orchid '.repeat(100)} HIDDEN-SENTINEL`, ['note']);
+    const recalled = (await recallForTurn(store, 'orchid', { maxChars: 100 }))!;
+    expect(recalled.text).not.toContain('HIDDEN-SENTINEL');
+    expect(recalled.evidence.length).toBeGreaterThan(0);
+    for (const span of recalled.evidence) {
+      expect(span.text).not.toContain('HIDDEN-SENTINEL');
+      expect(recalled.text).toContain(span.text);
+    }
+    expect(recalled.evidence.some((span) => span.locator.kind === 'memory' && span.locator.partial)).toBe(true);
+  });
+
+  // Audit 51, U11: compression ran before any archive, so the raw result was never saved.
+  test('a tool result compaction compresses is archived raw first, and later clearing keeps that handle', async () => {
+    const manager = new ContextManager(summarizer, 1000);
+    const raw = Array.from({ length: 500 }, (_, i) => `sample ${i === 77 ? 900 : 100} ms`).join('\n');
+    const messages = [
+      { role: 'user', content: 'go' },
+      ...toolExchange('c0', raw),
+      ...Array.from({ length: 9 }).flatMap((_, i) => toolExchange(`c${i + 1}`, `filler result ${i}`)),
+    ];
+    const out = await manager.checkAndCompact(messages as any);
+    const span = manager.evidence.all().find((s) => s.sourceVersion === versionOfText(raw));
+    expect(span?.rawHandle).toMatch(/^archive:[0-9a-f]{32}$/);
+    const back = readArchivedOutput(span!.rawHandle!);
+    expect(back.ok && back.text.split('\n')[77]).toBe('sample 900 ms');
+    // Whatever stands in the prompt for that result names the raw handle, not a handle of its compressed form.
+    const first = out.find((m: any) => m.role === 'tool' && m.tool_call_id === 'c0');
+    if (first) expect(String(first.content)).toContain(span!.rawHandle!);
   });
 
   test('a restored file is admitted at its verified version, and goes stale when its bytes change', async () => {

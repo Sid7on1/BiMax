@@ -31,6 +31,16 @@ export type ContextMode = 'smart' | 'full';
 // Module-level graph store reference injected by the container at startup.
 // When set, checkAndCompact() injects a compact RepoMap outline at the capToolResults layer.
 let _graphStore: IGraphStore | null = null;
+/** The note compaction appends to a tool result it compressed; the raw output's archive handle follows it. */
+const RAW_OUTPUT_NOTE = 'compressed to save context; the raw output is archived as';
+
+/** The raw output's archive handle in a tool result compaction compressed, or null. */
+function rawHandleIn(content: string): string | null {
+  const at = content.lastIndexOf(`[${RAW_OUTPUT_NOTE} archive:`);
+  if (at < 0) return null;
+  return /^archive:[0-9a-f]{32}/.exec(content.slice(at + RAW_OUTPUT_NOTE.length + 2))?.[0] ?? null;
+}
+
 export function setContextManagerGraphStore(store: IGraphStore): void { _graphStore = store; }
 /** The boot-wired native graph store, for code that needs a RepoMap outside the compaction loop. */
 export function getContextManagerGraphStore(): IGraphStore | null { return _graphStore; }
@@ -224,6 +234,7 @@ export class ContextManager {
         saved = stats.saved;
         if (saved > 0) recordCompression(model, stats.compressedBefore, stats.compressedAfter, 'native');
       }
+      msgs = this.keepRawOutput(messages, msgs);
       if (saved > 0) {
         Logger.info(`[Headroom] ${usedProxy ? 'Kompress proxy' : 'native'} compression saved ~${saved} tokens (model ${model})`);
         // Token-meter refresh only. This must NOT be 'graph_changed' — the TUI renders that as
@@ -297,6 +308,25 @@ export class ContextManager {
    * explicit, whole-result mechanisms (micro-compact stubs of OLD results, FreeContextTool), never
    * via silent mid-content truncation.
    */
+  /**
+   * Compression is lossy — order, individual samples and ANSI are gone — and it ran before any archive existed, so a
+   * compressed result could later be cleared with only its compressed form saved, or none at all (audit 51, U11). Each
+   * tool result compression changed is archived raw first and carries that handle; a result that would not stay
+   * shorter with the note, or whose raw form cannot be saved, keeps its compressed form as before.
+   */
+  private keepRawOutput(before: Message[], after: Message[]): Message[] {
+    if (before.length !== after.length) return after;
+    return after.map((m, i) => {
+      const raw = before[i]?.content;
+      if (m.role !== 'tool' || typeof raw !== 'string' || typeof m.content !== 'string' || m.content === raw) return m;
+      if (raw.length < this.MIN_ARCHIVED_RESULT_CHARS || rawHandleIn(m.content)) return m;
+      const handle = this.archive(raw);
+      if (!handle) return m;
+      const content = `${m.content}\n[${RAW_OUTPUT_NOTE} ${handle} (ContextArchiveTool)]`;
+      return content.length < raw.length ? { ...m, content } : m;
+    });
+  }
+
   private capToolResults(messages: Message[]): Message[] {
     const max = this.TOOL_RESULT_MAX_CHARS;
     let trimmed = 0;
@@ -307,8 +337,9 @@ export class ContextManager {
       const head = m.content.slice(0, Math.floor(max * 0.7));
       const tail = m.content.slice(-Math.floor(max * 0.2));
       const elided = m.content.length - head.length - tail.length;
-      // The whole result is archived first, so the cut middle stays recoverable instead of silently lost.
-      const archived = this.archive(m.content);
+      // The whole result is archived first, so the cut middle stays recoverable instead of silently lost. A result
+      // compression already archived raw keeps that handle: the raw output is the better original.
+      const archived = rawHandleIn(m.content) ?? this.archive(m.content);
       const where = archived ? `; the full result is archived as ${archived} (ContextArchiveTool)` : '';
       return { ...m, content: `${head}\n\n… [${elided} chars elided to save context${where}] …\n\n${tail}` };
     });
@@ -363,9 +394,8 @@ export class ContextManager {
       // nothing about one.
       // A stub with a handle runs to about 130 characters, so a result shorter than MIN_ARCHIVED_RESULT_CHARS
       // keeps the short stub instead: archiving it would make micro-compaction grow the context it shrinks.
-      const archived = typeof m.content === 'string' && m.content.length >= this.MIN_ARCHIVED_RESULT_CHARS
-        ? this.archive(m.content)
-        : null;
+      const archived = typeof m.content === 'string' && (rawHandleIn(m.content)
+        ?? (m.content.length >= this.MIN_ARCHIVED_RESULT_CHARS ? this.archive(m.content) : null));
       const saved = archived ? ` The cleared output is archived as ${archived} (ContextArchiveTool).` : '';
       if (typeof m.content === 'string' && looksLikeCode(m.content)) {
         const file = m.content.match(/^FILE\s+(.+?):/m)?.[1];

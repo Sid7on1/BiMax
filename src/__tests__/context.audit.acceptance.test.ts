@@ -306,4 +306,23 @@ describe('A08: log compression', () => {
     expect(out).toContain('numbers ranged 100–900');
     expect(out.length).toBeLessThan(latencies.length);
   });
+
+  // Audit 51, U10: signs were dropped, and a seven-digit value was taken for an id and lost.
+  test('keeps signs, large values and the extreme lines themselves', () => {
+    const temperatures = Array.from({ length: 40 }, (_, i) => `temperature ${i === 23 ? -900 : -100} C`).join('\n');
+    const cold = compressText(temperatures);
+    expect(cold).toContain('numbers ranged -900–-100');
+    expect(cold.split('\n')).toContain('temperature -900 C');
+
+    const payloads = Array.from({ length: 40 }, (_, i) => `payload ${i === 23 ? 9000000 : 1000000} bytes`).join('\n');
+    const big = compressText(payloads);
+    expect(big).toContain('numbers ranged 1000000–9000000');
+    expect(big.split('\n')).toContain('payload 9000000 bytes');
+
+    // Control: a hash-like id is still not a number, and a date's dashes are not minus signs.
+    const commits = Array.from({ length: 10 }, (_, i) => `2026-09-14 commit ${(0xdeadbeef + i).toString(16)} ok`).join('\n');
+    const log = compressText(commits);
+    expect(log).toContain('similar lines elided');
+    expect(log).not.toContain('numbers ranged');
+  });
 });

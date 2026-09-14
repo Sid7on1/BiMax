@@ -40,6 +40,9 @@ Cleared and cut results carry a handle such as \`archive:3f2a…\`. Pass it here
       if (read.reason === 'missing') {
         return outcomeError('not_found', 'That archived result is no longer available: the archive keeps a bounded number of results and evicts the oldest. Re-run the tool that produced it.');
       }
+      if (read.reason === 'unsafe') {
+        return outcomeError('io', 'That archived result is not a plain file in the archive, so it is not read. Re-run the tool that produced it.');
+      }
       return outcomeError('io', 'That archived result no longer matches its hash, so it is not returned. Re-run the tool that produced it.');
     }
     if (args.startLine === undefined && args.endLine === undefined) return read.text;

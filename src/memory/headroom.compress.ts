@@ -75,9 +75,16 @@ function signature(line: string): string {
     .trim();
 }
 
-/** The numbers in a line, in order, skipping hash-like ids exactly as `signature` does. */
+/** A hash-like id: 7 to 40 hex digits with at least one letter. A plain seven-digit count is a number, not an id. */
+const HASH_ID = /\b(?=[0-9a-f]*[a-f])[0-9a-f]{7,40}\b/gi;
+
+/**
+ * The numbers in a line, in order, signed where a minus sign starts the number (not a date's `2026-09-14`), skipping
+ * hash-like ids. Dropping every 7-to-40-digit integer as an id and every sign lost a 9,000,000 outlier outright and
+ * reported `-900` among `-100`s as "ranged 100–900" (audit 51, U10).
+ */
 function numbersIn(line: string): number[] {
-  return (line.replace(/\b[0-9a-f]{7,40}\b/gi, '#').match(/\d+(?:\.\d+)?/g) ?? []).map(Number);
+  return (line.replace(HASH_ID, '#').match(/(?<![\w.])-?\d+(?:\.\d+)?(?:e[+-]?\d+)?|\d+(?:\.\d+)?/gi) ?? []).map(Number);
 }
 
 /**
@@ -88,6 +95,7 @@ function numbersIn(line: string): number[] {
  */
 function numberRanges(run: string[]): string[] {
   const rows = run.map(numbersIn);
+  if (!rows.length) return [];
   const width = rows[0].length;
   if (!width || rows.some((row) => row.length !== width)) return [];
   const ranges: string[] = [];
@@ -101,6 +109,29 @@ function numberRanges(run: string[]): string[] {
     if (min !== max) ranges.push(`${min}–${max}`);
   }
   return ranges;
+}
+
+/**
+ * The rows holding each varying number's minimum and maximum, so the collapsed run keeps the actual extreme lines,
+ * not only their values. At most `limit`, first columns first. Empty when the lines' numbers do not line up.
+ */
+function extremeRows(run: string[], limit = 4): number[] {
+  const rows = run.map(numbersIn);
+  const width = rows[0]?.length ?? 0;
+  if (!width || rows.some((row) => row.length !== width)) return [];
+  const picked = new Set<number>();
+  for (let k = 0; k < width && picked.size < limit; k++) {
+    let min = 0;
+    let max = 0;
+    rows.forEach((row, r) => {
+      if (row[k] < rows[min][k]) min = r;
+      if (row[k] > rows[max][k]) max = r;
+    });
+    if (rows[min][k] === rows[max][k]) continue;
+    picked.add(min);
+    if (picked.size < limit) picked.add(max);
+  }
+  return [...picked];
 }
 
 /**
@@ -134,9 +165,12 @@ export function compressText(text: string): string {
     while (j < lines.length && !ERROR_LINE.test(lines[j]) && signature(lines[j]) === sig) j++;
     const run = j - i;
     if (run >= 4) {
-      out.push(lines[i]);                                  // keep one representative
-      const ranges = numberRanges(lines.slice(i, j));
-      out.push(`… (×${run - 1} more similar lines elided${ranges.length ? `; numbers ranged ${ranges.join(', ')}` : ''}) …`);
+      const block = lines.slice(i, j);
+      // Keep one representative and the lines holding each varying number's extremes, in their original order.
+      const kept = [...new Set([0, ...extremeRows(block)])].sort((a, b) => a - b);
+      for (const k of kept) out.push(block[k]);
+      const ranges = numberRanges(block);
+      out.push(`… (×${run - kept.length} more similar lines elided${ranges.length ? `; numbers ranged ${ranges.join(', ')}` : ''}) …`);
       i = j;
     } else {
       out.push(line);

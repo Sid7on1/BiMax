@@ -134,11 +134,12 @@ export async function recallForTurn(
     if (!content) continue;
     // Truncate the last one that fits rather than dropping it: a partial memory is usually still
     // the fact that was wanted, and the alternative is silently recalling less than the budget.
-    const slice = content.length <= budget ? content : content.slice(0, Math.max(0, budget - 1)).trimEnd() + '…';
-    if (!slice) break;
+    const shown = content.length <= budget ? content : content.slice(0, Math.max(0, budget - 1)).trimEnd();
+    const slice = shown === content ? content : `${shown}…`;
+    if (!shown) break;
     parts.push(`- ${slice}`);
     ids.push(doc.id);
-    evidence.push(...memoryEvidence(doc, passage.picked));
+    evidence.push(...memoryEvidence(doc, passage, shown.length));
     budget -= slice.length + 3;
     if (budget <= 80) break;
   }
@@ -160,10 +161,21 @@ export async function recallForTurn(
  * of the document lost the answer whenever it sat further down a long note (record 47, A03). A result
  * without matched chunks, from a store that does not report them, falls back to the whole content.
  */
-function passageOf(doc: VectorDocument, budget: number): { text: string; picked: StoredChunk[] } {
+interface Passage {
+  text: string;
+  /** What `text` is made of, in order, joined by PASSAGE_JOINER: each chunk's position label and its trimmed text. */
+  segments: Array<{ chunk: StoredChunk | null; label: string; body: string }>;
+}
+
+const PASSAGE_JOINER = '\n  ';
+
+function passageOf(doc: VectorDocument, budget: number): Passage {
   const chunks = doc.chunks ?? [];
   const matched = doc.matchedChunks ?? [];
-  if (!matched.length || !chunks.length) return { text: (doc.metadata?.content || '').trim(), picked: [] };
+  if (!matched.length || !chunks.length) {
+    const body = (doc.metadata?.content || '').trim();
+    return { text: body, segments: body ? [{ chunk: null, label: '', body }] : [] };
+  }
   const picked: StoredChunk[] = [];
   let used = 0;
   for (const chunk of matched) {
@@ -173,20 +185,22 @@ function passageOf(doc: VectorDocument, budget: number): { text: string; picked:
     picked.push(chunk);
     used += cost;
   }
-  const text = picked
+  const segments = picked
     .map((chunk) => ({ chunk, at: chunks.indexOf(chunk) }))
     .sort((a, b) => a.at - b.at)
-    .map(({ chunk, at }) => `${chunks.length > 1 && at >= 0 ? `(part ${at + 1} of ${chunks.length}) ` : ''}${chunk.text.trim()}`)
-    .join('\n  ')
-    .trim();
-  return { text, picked };
+    .map(({ chunk, at }) => ({ chunk, label: chunks.length > 1 && at >= 0 ? `(part ${at + 1} of ${chunks.length}) ` : '', body: chunk.text.trim() }))
+    .filter((segment) => segment.body);
+  return { text: segments.map((segment) => segment.label + segment.body).join(PASSAGE_JOINER), segments };
 }
 
 /**
- * A recalled document as evidence: one span per injected chunk, or one for the whole note when no chunk was reported.
- * The version is the hash of the stored text. A memory records no date, so `validFrom` stays unset rather than guessed.
+ * A recalled document as evidence: one span per injected chunk, or one for the whole note when no chunk was reported,
+ * holding exactly the text the recall block shows. The first `shownChars` of the passage reached the prompt; a chunk
+ * the budget cut is recorded as its visible part and marked partial, and one cut entirely is not recorded. Recording
+ * the whole chunk claimed the model saw text it never did (audit 51, U07). The version is the hash of the stored text.
+ * A memory records no date, so `validFrom` stays unset rather than guessed.
  */
-function memoryEvidence(doc: VectorDocument, picked: StoredChunk[]): EvidenceSpan[] {
+function memoryEvidence(doc: VectorDocument, passage: Passage, shownChars: number): EvidenceSpan[] {
   const content = doc.metadata?.content || '';
   const chunks = doc.chunks ?? [];
   const base = {
@@ -196,12 +210,21 @@ function memoryEvidence(doc: VectorDocument, picked: StoredChunk[]): EvidenceSpa
     derivedFrom: [],
     kind: 'source' as const,
   };
-  if (!picked.length) return [evidenceSpan({ ...base, locator: { kind: 'memory', documentId: doc.id }, text: content.trim() })];
-  return picked.map((chunk) => evidenceSpan({
-    ...base,
-    locator: { kind: 'memory', documentId: doc.id, part: chunks.indexOf(chunk) + 1, parts: chunks.length },
-    text: chunk.text,
-  }));
+  const spans: EvidenceSpan[] = [];
+  let offset = 0;
+  passage.segments.forEach((segment, n) => {
+    if (n > 0) offset += PASSAGE_JOINER.length;
+    const start = offset + segment.label.length;
+    offset = start + segment.body.length;
+    const text = segment.body.slice(0, Math.max(0, Math.min(segment.body.length, shownChars - start))).trimEnd();
+    if (!text) return;
+    const partial = text.length < segment.body.length ? { partial: true } : {};
+    const locator = segment.chunk
+      ? { kind: 'memory' as const, documentId: doc.id, part: chunks.indexOf(segment.chunk) + 1, parts: chunks.length, ...partial }
+      : { kind: 'memory' as const, documentId: doc.id, ...partial };
+    spans.push(evidenceSpan({ ...base, locator, text }));
+  });
+  return spans;
 }
 
 /**

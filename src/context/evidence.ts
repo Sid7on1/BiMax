@@ -49,7 +49,7 @@ export async function fileVersion(file: string, signal?: AbortSignal): Promise<s
 
 export type SourceLocator =
   | { kind: 'file'; path: string; startLine?: number; endLine?: number; partial?: boolean }
-  | { kind: 'memory'; documentId: string; part?: number; parts?: number }
+  | { kind: 'memory'; documentId: string; part?: number; parts?: number; partial?: boolean }
   | { kind: 'tool-output'; handle: string }
   | { kind: 'derived'; label: string };
 
