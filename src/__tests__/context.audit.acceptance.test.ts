@@ -10,17 +10,18 @@ import { ContextManager } from '../memory/context.manager';
 import { fileStateCache } from '../memory/file-state-cache';
 import { GraphStore } from '../graph/graph.store';
 import { planContext } from '../graph/context.planner';
-import { computePageRank } from '../graph/pagerank';
+import { computePageRank, formatRepoMapOutline } from '../graph/pagerank';
 import { compressText } from '../memory/headroom.compress';
 import { openSqlite } from '../core/sqlite';
 
 /**
- * Acceptance tests for the eight context defects reproduced in record 47 (A01–A08). This is step 1 of
+ * Acceptance tests for the eight context defects reproduced in record 47 (A01–A08), from step 1 of
  * record 50's build plan.
  *
- * Every check asserts the behaviour we WANT. Today each one fails, so each runs inside `knownDefect`,
- * which passes only while its check fails with an assertion. The day a fix lands, `knownDefect` turns
- * the test red on purpose: replace it with the plain check, and the test guards the fix from then on.
+ * Every check asserts the behaviour we WANT. While a defect is still open, its check runs inside
+ * `knownDefect`, which passes only while that check fails with an assertion. The day a fix lands,
+ * `knownDefect` turns the test red on purpose, and the check becomes a plain assertion that guards the
+ * fix from then on. Fixed so far (record 50, step 2): A02, A05, A06, A07, A08. Still open: A01, A03, A04.
  *
  * A broken fixture must never read as "still broken". Setup and controls run outside `knownDefect`,
  * and any error inside it that is not an assertion still fails the test.
@@ -144,19 +145,15 @@ describe('A01: a rewrite that keeps the size and modification time', () => {
     test('finds the in-scope hit even when out-of-scope hits outrank it', async () => {
       // Control: the intended hit is in the index.
       expect((await index.search('needle', 100, undefined, 'lexical')).some(h => h.path === 'wanted/target.ts')).toBe(true);
-      const scoped = await index.search('needle', 1, 'wanted', 'lexical');
-      await knownDefect(() => {
-        assert.deepEqual(scoped.map(h => h.path), ['wanted/target.ts']);
-      });
+      expect((await index.search('needle', 1, 'wanted', 'lexical')).map(h => h.path)).toEqual(['wanted/target.ts']);
+      // A single file is a scope too.
+      expect((await index.search('needle', 5, 'wanted/target.ts', 'lexical')).map(h => h.path)).toEqual(['wanted/target.ts']);
     });
 
     test('matches whole path segments, so `wanted` does not include `wantedExtra/`', async () => {
       // Control: the sibling file is in the index.
       expect((await index.search('boundarysentinel', 5, undefined, 'lexical')).some(h => h.path === 'wantedExtra/leak.ts')).toBe(true);
-      const scoped = await index.search('boundarysentinel', 5, 'wanted', 'lexical');
-      await knownDefect(() => {
-        assert.ok(!scoped.some(h => h.path.startsWith('wantedExtra/')), `scope "wanted" returned ${scoped.map(h => h.path).join(', ')}`);
-      });
+      expect((await index.search('boundarysentinel', 5, 'wanted', 'lexical')).map(h => h.path)).toEqual([]);
     });
   });
 });
@@ -208,26 +205,27 @@ describe('A05: a graph context pack', () => {
     expect(roomy.truncated).toBe(false);
     expect(roomy.text.split('descriptiveVariable').length - 1).toBe(150);
 
+    // A tight budget keeps the leading lines, stays under the cap, and says what it left out.
     const tight = await planContext(graph, 'budget-target', { cwd: dir, maxTokens: 100 });
-    await knownDefect(() => {
-      if ('error' in tight) {
-        assert.match(tight.error, /budget|token/i);
-        return;
-      }
-      assert.ok(tight.tokenEstimate <= 100, `a 100-token pack came back at ${tight.tokenEstimate} tokens`);
-      assert.equal(tight.truncated, true);
-    });
+    if ('error' in tight) throw new Error(tight.error);
+    expect(tight.tokenEstimate).toBeLessThanOrEqual(100);
+    expect(tight.truncated).toBe(true);
+    expect(tight.text).toContain('omitted to fit the 100-token budget');
+
+    // A budget too small for the headers is an explicit error, never an oversized pack.
+    const impossible = await planContext(graph, 'budget-target', { cwd: dir, maxTokens: 10 });
+    expect('error' in impossible && impossible.error).toMatch(/cannot fit in 10 tokens/);
   });
 });
 
 describe('A06: graph ranking', () => {
   const setEdges = (store: GraphStore, ids: string[], edges: Array<[string, string]>) =>
     store.setGraph({
-      nodes: new Map(ids.map(id => [id, { id, type: 'FUNCTION', name: id }])),
+      nodes: new Map(ids.map(id => [id, { id, type: 'FUNCTION', name: id, filePath: `${id}.ts`, startLine: 1, signature: `function ${id}()` }])),
       edges: edges.map(([sourceId, targetId]) => ({ sourceId, targetId, type: 'CALLS' })),
     } as any);
 
-  test('reflects rewired edges even when the node and edge counts stay the same', async () => {
+  test('reflects rewired edges even when the node and edge counts stay the same', () => {
     const ids = ['rank-aa', 'rank-bb', 'rank-cc'];
     const store = new GraphStore(':memory:');
     setEdges(store, ids, [['rank-aa', 'rank-bb']]);
@@ -237,52 +235,55 @@ describe('A06: graph ranking', () => {
 
     setEdges(store, ids, [['rank-aa', 'rank-cc']]);
     const second = computePageRank(store);
-    await knownDefect(() => {
-      assert.ok(second.get('rank-cc')! > second.get('rank-bb')!, 'the ranking still reflects the old edge');
-    });
+    expect(second.get('rank-cc')!).toBeGreaterThan(second.get('rank-bb')!);
   });
 
-  test('keeps the total score at 1 when some nodes have no outgoing edges', async () => {
+  test('the repo map outline also reflects rewired edges', () => {
+    const ids = ['map-aa', 'map-bb', 'map-cc'];
+    const store = new GraphStore(':memory:');
+    setEdges(store, ids, [['map-aa', 'map-bb']]);
+    const before = formatRepoMapOutline(store, 5000);
+    // Control: the ranked file comes first.
+    expect(before.indexOf('map-bb.ts')).toBeLessThan(before.indexOf('map-cc.ts'));
+
+    setEdges(store, ids, [['map-aa', 'map-cc']]);
+    const after = formatRepoMapOutline(store, 5000);
+    expect(after.indexOf('map-cc.ts')).toBeLessThan(after.indexOf('map-bb.ts'));
+  });
+
+  test('keeps the total score at 1 when some nodes have no outgoing edges', () => {
     const ids = ['mass-aa', 'mass-bb', 'mass-cc'];
     const store = new GraphStore(':memory:');
     setEdges(store, ids, [['mass-aa', 'mass-bb']]);
     const scores = computePageRank(store);
     expect(scores.size).toBe(3);
     const total = [...scores.values()].reduce((sum, score) => sum + score, 0);
-    await knownDefect(() => {
-      assert.ok(Math.abs(total - 1) < 1e-6, `scores sum to ${total}`);
-    });
+    expect(total).toBeCloseTo(1, 6);
   });
 });
 
 describe('A07: lexical search', () => {
-  test('keeps non-Latin words', async () => {
-    // Controls: Latin-script tokens must come out unchanged, and the index ranks a matching document first.
+  test('keeps non-Latin words', () => {
+    // Controls: Latin-script tokens come out unchanged, and the index ranks a matching document first.
     expect(tokenize('Error 0x8832 in Render-Loop failed, exit 25208'))
       .toEqual(['error', '0x8832', 'render', 'loop', 'failed', 'exit', '25208']);
     const other = { id: 'other', text: 'rendering pipeline frame budget' };
     expect(new Bm25Index([{ id: 'english', text: 'payment details summary' }, other]).search('payment details')[0]?.id).toBe('english');
 
     const query = 'भुगतान विवरण';
-    const tokens = tokenize(query);
-    const hits = new Bm25Index([{ id: 'hindi', text: `${query} का सारांश` }, other]).search(query);
-    await knownDefect(() => {
-      assert.deepEqual(tokens, ['भुगतान', 'विवरण']);
-      assert.equal(hits[0]?.id, 'hindi');
-    });
+    expect(tokenize(query)).toEqual(['भुगतान', 'विवरण']);
+    expect(new Bm25Index([{ id: 'hindi', text: `${query} का सारांश` }, other]).search(query)[0]?.id).toBe('hindi');
   });
 });
 
 describe('A08: log compression', () => {
-  test('keeps the outlier when it collapses similar numeric lines', async () => {
+  test('keeps the outlier when it collapses similar numeric lines', () => {
     // Control: identical lines still collapse.
     expect(compressText(Array.from({ length: 40 }, () => 'GET /health 200').join('\n'))).toContain('similar lines elided');
 
     const latencies = Array.from({ length: 40 }, (_, i) => `latency ${i === 23 ? 900 : 100 + (i % 7) * 10} ms`).join('\n');
     const out = compressText(latencies);
-    await knownDefect(() => {
-      assert.ok(out.includes('900'), 'the maximum observation was dropped');
-      assert.ok(out.length < latencies.length, 'the log was not compressed at all');
-    });
+    expect(out).toContain('numbers ranged 100–900');
+    expect(out.length).toBeLessThan(latencies.length);
   });
 });

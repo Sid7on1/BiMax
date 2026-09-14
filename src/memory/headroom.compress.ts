@@ -75,6 +75,34 @@ function signature(line: string): string {
     .trim();
 }
 
+/** The numbers in a line, in order, skipping hash-like ids exactly as `signature` does. */
+function numbersIn(line: string): number[] {
+  return (line.replace(/\b[0-9a-f]{7,40}\b/gi, '#').match(/\d+(?:\.\d+)?/g) ?? []).map(Number);
+}
+
+/**
+ * The spread of every number that varies across a run of similar lines, as `min–max`, in the order
+ * the numbers appear. Collapsing a run to one representative line used to drop every other value,
+ * including the one worth seeing (a 900 ms spike among 100 ms lines, record 47 A08), so the elision
+ * marker carries the ranges. Empty when nothing varies or the lines' numbers do not line up.
+ */
+function numberRanges(run: string[]): string[] {
+  const rows = run.map(numbersIn);
+  const width = rows[0].length;
+  if (!width || rows.some((row) => row.length !== width)) return [];
+  const ranges: string[] = [];
+  for (let k = 0; k < width; k++) {
+    let min = Infinity;
+    let max = -Infinity;
+    for (const row of rows) {
+      if (row[k] < min) min = row[k];
+      if (row[k] > max) max = row[k];
+    }
+    if (min !== max) ranges.push(`${min}–${max}`);
+  }
+  return ranges;
+}
+
 /**
  * Compress a single tool/output blob: strip ANSI, collapse runs of near-identical lines (the
  * classic log/build spam), and squeeze blank-line runs. Error/warning lines are kept verbatim and
@@ -107,7 +135,8 @@ export function compressText(text: string): string {
     const run = j - i;
     if (run >= 4) {
       out.push(lines[i]);                                  // keep one representative
-      out.push(`… (×${run - 1} more similar lines elided) …`);
+      const ranges = numberRanges(lines.slice(i, j));
+      out.push(`… (×${run - 1} more similar lines elided${ranges.length ? `; numbers ranged ${ranges.join(', ')}` : ''}) …`);
       i = j;
     } else {
       out.push(line);

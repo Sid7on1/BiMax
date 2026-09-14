@@ -347,8 +347,10 @@ export class CodeIndex {
   }
 
   /**
-   * Semantic search over the codebase. `pathPrefix` scopes to a subtree (e.g. `src/memory`)
-   * by over-retrieving then filtering — tag equality cannot express prefixes.
+   * Semantic search over the codebase. `pathPrefix` scopes to a subtree (e.g. `src/memory`) or one
+   * file, matched on whole path segments, so `src/mem` never includes `src/memory`. The scope is
+   * applied inside the store, before any limit: filtering the results afterwards returned nothing
+   * whenever out-of-scope hits outranked the in-scope ones (record 47, A02).
    */
   async search(
     query: string,
@@ -356,13 +358,16 @@ export class CodeIndex {
     pathPrefix?: string,
     mode: 'hybrid' | 'lexical' | 'dense' = 'hybrid',
   ): Promise<CodeHit[]> {
-    const overfetch = pathPrefix ? limit * 4 : limit;
-    const docs = await this.store.semanticSearch(query, overfetch, 0.05, { tags: ['code'], mode });
+    const scope = pathPrefix?.replace(/^(\.\/)+/, '').replace(/^\/+|\/+$/g, '');
+    const scopeTag = scope ? fileTag(scope) : '';
+    const where = scopeTag
+      ? (tags: readonly string[]) => tags.some((t) => t === scopeTag || t.startsWith(`${scopeTag}/`))
+      : undefined;
+    const docs = await this.store.semanticSearch(query, limit, 0.05, { tags: ['code'], mode, where });
     const hits: CodeHit[] = [];
     for (const doc of docs) {
       const hit = docToHit(doc);
       if (!hit) continue;
-      if (pathPrefix && !hit.path.startsWith(pathPrefix.replace(/^\/+|\/+$/g, ''))) continue;
       hits.push(hit);
       if (hits.length >= limit) break;
     }

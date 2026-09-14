@@ -63,7 +63,8 @@ Each item lists **Value** (high, medium, low), **Effort** (S: days, M: 1–2 wee
 
 **The owner decided on 2026-09-14: the RAG upgrade comes first, then the other features.**
 
-1. **C0–C1:** record 50 steps 1–5: acceptance tests for A01–A08 (step 1 done 2026-09-14), the eight fixes, a
+1. **C0–C1:** record 50 steps 1–5: acceptance tests for A01–A08 and fixes for A02, A05, A06, A07 and A08 (steps 1–2 done
+   2026-09-14), fixes for A01, A03 and A04, a
    repaired baseline, and the evidence foundation.
 2. **F8:** port the chat and tool cancellation fix from record 49. Record 50's step 6 edits the same files
    (`agent.loop.ts`, `base.persona.ts`), so the port has to land first.

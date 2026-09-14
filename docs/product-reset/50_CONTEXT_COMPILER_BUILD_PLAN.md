@@ -68,9 +68,34 @@ evidence.
 - A04's second half, "the same question recalls again after compaction", is a `test.todo`. Its state lives in
   `AgentLoop.recalled`, which has no seam yet; step 3 adds the seam and the real test.
 
-## Step 2: small fixes, one file each (C0)
+## Step 2: small fixes, one file each (C0) — done 2026-09-14
 
-Smallest first, so each one lands and is proven before the next:
+**What shipped.**
+- **A07:** `tokenize` keeps letters, combining marks and digits from every script.
+- **A08:** a collapsed run of similar lines keeps its representative, and the elision marker now carries the
+  range of every number that varies (`… (×39 more similar lines elided; numbers ranged 100–900) …`).
+- **A02:** `SearchOptions.where`, a tag predicate applied before depth in both stores; a scoped FTS query reads
+  every matching id instead of a fixed window; the code index scope matches whole path segments or one file.
+- **A05:** the budget is measured on the rendered pack; a target body that cannot fit keeps its leading lines
+  and ends with a note saying where the rest is; a budget too small for the headers returns an error.
+  Behaviour change: `GraphContextTool`'s default 1,500-token pack now cuts a large target body instead of
+  exceeding the budget.
+- **A06:** PageRank and the repo map outline (which had the same stale key) cache per graph object, checked
+  against the edge array's identity and the node and edge counts; dangling-node rank is redistributed, so the
+  scores sum to 1.
+
+**Proof.**
+- The five acceptance tests are plain assertions now, plus two new ones: a one-file scope and the repo map
+  outline. Bun: 13 pass, 1 todo. Jest: 10 pass, 3 skipped, 1 todo, no type errors.
+- Mutants: putting each old file back failed exactly that defect's tests and no others.
+- The 24 related suites show the same 25 Jest failures as before the change, and none new. Those failures
+  predate this work: most need FTS5, which Node 22 lacks on the dev Mac.
+- The retrieval eval on this repository gives identical numbers before and after (BM25 recall@3/MRR
+  0.64/0.542, hybrid 0.61/0.488). It was already failing before step 2, because hybrid MRR sits below BM25's;
+  that is step 4's starting point, not a step 2 regression.
+- ESLint: 0 errors on the changed files.
+
+**The plan as it was written:**
 
 1. **A07, `bm25.ts`:** tokenize with Unicode classes (letters, marks and numbers), so Hindi vowel signs survive.
    English tokens must come out unchanged.

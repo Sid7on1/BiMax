@@ -1,4 +1,4 @@
-import { IGraphStore, GraphNode } from './models';
+import { IGraphStore, GraphNode, GraphData, GraphEdge } from './models';
 
 export interface PageRankResult {
   nodeId: string;
@@ -17,12 +17,34 @@ export interface PageRankResult {
  */
 // ponytail: PageRank is recomputed on EVERY agent-loop iteration (the repo-map injection), ~150ms
 // over a large graph × up to 130 iterations per task = seconds of pure waste — yet the graph only
-// changes on /index. Memoize by a cheap node+edge signature; a re-index changes those counts and
-// invalidates the cache. Rare same-count re-index → a slightly stale orientation map, which is
-// harmless. A SMALL capped map (not one entry) so a cross-repo workspace, which ranks several
-// distinct stores per turn, doesn't thrash the cache down to zero hits (PR3).
-const PR_CACHE_MAX = 8;
-const _prCache = new Map<string, Map<string, number>>();
+// changes on /index. So results are memoized per graph.
+//
+// The key used to be node and edge COUNTS plus the first and last node id, so a re-index that rewired
+// edges without changing those counts kept serving the old ranking (record 47, A06). The cache is now
+// keyed by the GraphData object itself and checked against the identity and length of its edge array
+// and its node count: setGraph, clear, loadFromDisk and removeNode replace the object or the array, and
+// addNode/addEdge change a count. Only an edge mutated in place would go unseen. A WeakMap drops
+// entries along with their graphs, so a cross-repo workspace that ranks several stores per turn (PR3)
+// still hits without a size cap.
+interface GraphCacheEntry<T> {
+  edges: GraphEdge[];
+  edgeCount: number;
+  nodeCount: number;
+  values: Map<string, T>;
+}
+
+/** The cached values for this graph, emptied whenever the graph has changed since they were stored. */
+function cacheFor<T>(cache: WeakMap<GraphData, GraphCacheEntry<T>>, graph: GraphData): Map<string, T> {
+  const entry = cache.get(graph);
+  if (entry && entry.edges === graph.edges && entry.edgeCount === graph.edges.length && entry.nodeCount === graph.nodes.size) {
+    return entry.values;
+  }
+  const fresh: GraphCacheEntry<T> = { edges: graph.edges, edgeCount: graph.edges.length, nodeCount: graph.nodes.size, values: new Map() };
+  cache.set(graph, fresh);
+  return fresh.values;
+}
+
+const _prCache = new WeakMap<GraphData, GraphCacheEntry<Map<string, number>>>();
 
 export function computePageRank(
   store: IGraphStore,
@@ -33,11 +55,10 @@ export function computePageRank(
   const nodes = Array.from(graph.nodes.values());
   if (nodes.length === 0) return new Map();
 
-  // Include first/last node id (Map preserves insertion order → stable per graph) so two DIFFERENT
-  // graphs that happen to share node/edge counts don't collide on the cache.
-  const sig = `${nodes.length}:${graph.edges.length}:${nodes[0].id}:${nodes[nodes.length - 1].id}:${iterations}:${damping}`;
-  const cached = _prCache.get(sig);
-  if (cached) return cached;
+  const cached = cacheFor(_prCache, graph);
+  const key = `${iterations}:${damping}`;
+  const hit = cached.get(key);
+  if (hit) return hit;
 
   const N = nodes.length;
   const scores = new Map<string, number>();
@@ -48,15 +69,18 @@ export function computePageRank(
   for (const n of nodes) outDegree.set(n.id, store.getEdgesFrom(n.id).length);
 
   for (let iter = 0; iter < iterations; iter++) {
+    // A node with no outgoing edges hands its rank to every node, the way a random surfer at a dead end
+    // jumps anywhere. Skipping it leaked that rank on every iteration, so the scores stopped summing to 1.
+    let dangling = 0;
+    for (const n of nodes) if (outDegree.get(n.id) === 0) dangling += scores.get(n.id) ?? 0;
+    const base = (1 - damping) / N + (damping * dangling) / N;
+
     const next = new Map<string, number>();
-    for (const n of nodes) next.set(n.id, (1 - damping) / N);
+    for (const n of nodes) next.set(n.id, base);
 
     for (const n of nodes) {
       const outEdges = store.getEdgesFrom(n.id);
-      if (outEdges.length === 0) {
-        // Dangling node: distribute its rank evenly (teleportation only)
-        continue;
-      }
+      if (outEdges.length === 0) continue;
       const contribution = (scores.get(n.id) ?? 0) * damping / outEdges.length;
       for (const edge of outEdges) {
         next.set(edge.targetId, (next.get(edge.targetId) ?? 0) + contribution);
@@ -66,8 +90,7 @@ export function computePageRank(
     for (const [id, s] of next) scores.set(id, s);
   }
 
-  _prCache.set(sig, scores);
-  if (_prCache.size > PR_CACHE_MAX) _prCache.delete(_prCache.keys().next().value as string);
+  cached.set(key, scores);
   return scores;
 }
 
@@ -110,7 +133,7 @@ const estTokens = (s: string) => Math.ceil(s.length / 4);
  * has no captured signature (older graphs). Empty string when the graph isn't indexed.
  */
 const MAP_CACHE_MAX = 8;
-const _mapCache = new Map<string, string>();
+const _mapCache = new WeakMap<GraphData, GraphCacheEntry<string>>();
 
 /**
  * `headerLabel` (PR3): override the standalone `[RepoMap] …` header with a compact repo-scoped line
@@ -120,16 +143,16 @@ const _mapCache = new Map<string, string>();
 export function formatRepoMapOutline(store: IGraphStore, maxTokens = 1500, focusTerms: string[] = [], headerLabel?: string): string {
   const graph = store.getGraph();
   // ponytail: re-injected every loop iteration, but within a task the graph and the focus terms (from
-  // the same user message) are stable — cache the rendered outline keyed by graph size + budget +
-  // focus, so we render once per task instead of sorting 19k nodes 130×. (PageRank itself is cached
-  // separately in computePageRank.) Small capped map so a cross-repo turn (several stores) still hits.
-  const firstId = graph.nodes.keys().next().value || ''; // O(1) graph identity, avoids count-collisions
-  const cacheKey = `${graph.nodes.size}:${graph.edges.length}:${firstId}:${maxTokens}:${focusTerms.join(',')}:${headerLabel || ''}`;
-  const hit = _mapCache.get(cacheKey);
+  // the same user message) are stable — cache the rendered outline per graph (keyed by the graph object,
+  // for the reason given above computePageRank) and per budget + focus, so we render once per task
+  // instead of sorting 19k nodes 130×. At most MAP_CACHE_MAX outlines are kept for one graph.
+  const outlines = cacheFor(_mapCache, graph);
+  const cacheKey = `${maxTokens}:${focusTerms.join(',')}:${headerLabel || ''}`;
+  const hit = outlines.get(cacheKey);
   if (hit !== undefined) return hit;
   const done = (out: string): string => {
-    _mapCache.set(cacheKey, out);
-    if (_mapCache.size > MAP_CACHE_MAX) _mapCache.delete(_mapCache.keys().next().value as string);
+    outlines.set(cacheKey, out);
+    if (outlines.size > MAP_CACHE_MAX) outlines.delete(outlines.keys().next().value as string);
     return out;
   };
 

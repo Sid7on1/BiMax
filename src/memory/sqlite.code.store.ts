@@ -270,6 +270,7 @@ export class SqliteCodeVectorStore {
       if (!tags) return false;
       if (tagSet && !tags.some((t) => tagSet.has(t))) return false;
       if (exclSet && tags.some((t) => exclSet.has(t))) return false;
+      if (options.where && !options.where(tags)) return false;
       return true;
     };
 
@@ -282,9 +283,12 @@ export class SqliteCodeVectorStore {
       const terms = tokenize(query).map((t) => `"${t.replace(/"/g, '')}"`).slice(0, 24);
       if (terms.length) {
         try {
-          const rows = this.db.prepare(
-            'SELECT id FROM fts WHERE fts MATCH ? ORDER BY bm25(fts) LIMIT ?',
-          ).all(terms.join(' OR '), depth * 2);
+          // A `where` scope can exclude most of the corpus, so a fixed window of the best rows may
+          // hold no in-scope chunk at all (record 47, A02). A scoped search reads every matching id
+          // instead: ids are short, and bm25() scores every match either way.
+          const rows = options.where
+            ? this.db.prepare('SELECT id FROM fts WHERE fts MATCH ? ORDER BY bm25(fts)').all(terms.join(' OR '))
+            : this.db.prepare('SELECT id FROM fts WHERE fts MATCH ? ORDER BY bm25(fts) LIMIT ?').all(terms.join(' OR '), depth * 2);
           lexicalIds = rows.map((row) => String(row.id)).filter(allowed).slice(0, depth);
         } catch { /* malformed match — lexical half simply abstains */ }
       }

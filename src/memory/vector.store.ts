@@ -95,6 +95,12 @@ export interface SearchOptions {
    */
   excludeTags?: string[];
   /**
+   * Restrict retrieval to documents whose tags pass this test, applied before depth is consumed like
+   * `tags`. Tag equality cannot express a path scope, and filtering the results afterwards returned
+   * nothing whenever out-of-scope documents ranked higher (record 47, A02).
+   */
+  where?: (tags: readonly string[]) => boolean;
+  /**
    * Which retrievers run. Default 'hybrid'. 'lexical' skips the embedding call entirely (no key,
    * or a caller that wants grep-class results fast); 'dense' skips BM25 — the diagnostic position
    * that isolates what fusion adds over either retriever alone.
@@ -480,6 +486,7 @@ export class VectorStore {
         const tags = doc.metadata?.tags ?? [];
         if (tagSet && !tags.some((t) => tagSet.has(t))) return false;
         if (exclSet && tags.some((t) => exclSet.has(t))) return false;
+        if (options.where && !options.where(tags)) return false;
         return true;
       };
       const allowed = (chunkId: string): boolean => docAllowed(this.chunkOwner.get(chunkId));

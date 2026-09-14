@@ -42,11 +42,16 @@ const STOP = new Set([
  * Single characters are dropped but **digits are kept**: version numbers, exit codes and error
  * numbers are among the most discriminating terms in this corpus, and a tokenizer that threw away
  * `0x8832` or `25208` would lose exactly the tokens a user searches for when something broke.
+ *
+ * Letters, combining marks and digits count in every script. An ASCII-only class deleted every
+ * non-Latin letter, so a Hindi query tokenized to nothing and lexical search silently found nothing
+ * (record 47, A07). Marks matter: Devanagari vowel signs are combining marks, and dropping them
+ * splits one word into fragments.
  */
 export function tokenize(text: string): string[] {
   return text
     .toLowerCase()
-    .replace(/[^a-z0-9\s]+/g, ' ')
+    .replace(/[^\p{L}\p{M}\p{N}\s]+/gu, ' ')
     .split(/\s+/)
     .filter((w) => w.length > 1 && !STOP.has(w));
 }
