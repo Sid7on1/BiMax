@@ -361,6 +361,22 @@ selective counter-evidence for decisions and dates, and bounded read-only operat
 fetch, join, aggregate, diff) through the existing workflow dispatcher and FactStore. **Exit:** better held-out task
 outcomes than the baseline, on the same models and resource budget.
 
+
+**Part 7a, abstention, and 7c, searching archived output — done 2026-09-14** (`975e3f9`).
+- Recall abstains when memory does not know the subject: if at least half of a question's stemmed content words appear
+  in no memory at all, nothing is injected (`src/memory/sufficiency.ts`, `VectorStore.unknownTerms`). The rule is off
+  whenever the dense stage ran, because a paraphrase can match without shared words. It is a heuristic about lexical
+  evidence, not a relevance judgement.
+- `ContextArchiveTool` takes a `pattern` and returns the matching lines numbered, at most `maxMatches`, instead of the
+  whole result: the select and fetch operations of record 47 §3.6 over archived output.
+- Three existing tests asked "why does the permission flow feel slow and blocked" of a note sharing two of its five
+  words. They now ask with the note's subject, which is what they test; under the new rule the old wording abstains.
+- **Proof.** Benchmark run `2026-09-14T11-20-26-480Z_975e3f9`: **37 of 42**, up from 34; S5, H1 and A1 pass, single-hop is 7 of 7 with H2 (the
+  over-abstention control) still passing, and no family fell. Six mutants each fail a test. Jest over the 26 suites
+  importing the changed modules: no new failure.
+- **Held-out caveat.** H1 and H2 were written before this step, but the rule was checked against them while it was
+  chosen, so they no longer count as untouched. H3 and H4 have not been looked at for step 7b.
+
 ## Step 8: C4 qualification
 
 An evidence inspector in the app that reads the evidence record and holds no truth logic of its own, plain
