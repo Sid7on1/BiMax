@@ -61,16 +61,19 @@ Each item lists **Value** (high, medium, low), **Effort** (S: days, M: 1–2 wee
 
 ## Start here on 2026-09-15
 
-1. **F1:** queued messages survive an engine restart and an app reload (T01).
-2. **Q1–Q4:** the quick fixes, about an hour together.
-3. **F8:** port the chat and tool cancellation fix from record 49.
-4. **F9–F12:** the Threads reliability defects T02–T05.
-5. **N1:** approve from the notification.
-6. **N2:** `bimax://` links and Shortcuts actions.
-7. **FL1:** write the folder-trigger design (events, loop protection, undo, limits) before any code.
+**The owner decided on 2026-09-14: the RAG upgrade comes first, then the other features.**
 
-The context work (C0 onward) mostly touches `src/memory` and `src/graph`, so it can run alongside the Threads
-items instead of waiting for them. Its build flow is record 50.
+1. **C0–C1:** record 50 steps 1–5: acceptance tests for A01–A08 (step 1 done 2026-09-14), the eight fixes, a
+   repaired baseline, and the evidence foundation.
+2. **F8:** port the chat and tool cancellation fix from record 49. Record 50's step 6 edits the same files
+   (`agent.loop.ts`, `base.persona.ts`), so the port has to land first.
+3. **C2–C4:** record 50 steps 6–8.
+4. **F1:** queued messages survive an engine restart and an app reload (T01).
+5. **Q1–Q4:** the quick fixes, about an hour together.
+6. **F9–F12:** the Threads reliability defects T02–T05.
+7. **N1:** approve from the notification.
+8. **N2:** `bimax://` links and Shortcuts actions.
+9. **FL1:** write the folder-trigger design (events, loop protection, undo, limits) before any code.
 
 ---
 

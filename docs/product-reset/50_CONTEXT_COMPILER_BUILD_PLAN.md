@@ -53,11 +53,20 @@ helps → only then add the clever retrieval and the UI.**
 - **Keep the models fixed.** Generation, embedding and reranker stay as configured, so any gain comes from the
   harness.
 
-## Step 1: acceptance tests (C0)
+## Step 1: acceptance tests (C0) — done 2026-09-14
 
-Copy `competitive/evidence/2026-09-14-context-audit/probe.ts` into real tests and flip each assertion from "the bug
-happens" to "the bug does not happen". Keep A01 and A02 in a Bun-run harness (they need FTS5) and the other six in
-Jest. All eight must fail on day one. Keep the original probe unchanged as audit evidence.
+`src/__tests__/context.audit.acceptance.test.ts` states the wanted behaviour for all eight defects. Each check runs
+inside `knownDefect`, which passes only while the check fails with an assertion. The day a fix lands, that test turns
+red on purpose, and step 2 or 3 replaces `knownDefect` with the plain check. Setup and controls run outside it, so a
+broken fixture fails loudly instead of reading as "still broken". The original probe stays unchanged as audit
+evidence.
+
+- `npm run test:context` runs the file under Bun: 12 pass, 1 todo. This is the run that covers every defect.
+- Jest (`npm test`) runs it too, and skips the three code-index tests (A01's index test and both A02 tests) by name,
+  because Node 22's `node:sqlite` on the dev Mac has no FTS5: 9 pass, 3 skipped, 1 todo.
+- A01 has two tests: old bytes restored after compaction, and old bytes served by the index.
+- A04's second half, "the same question recalls again after compaction", is a `test.todo`. Its state lives in
+  `AgentLoop.recalled`, which has no seam yet; step 3 adds the seam and the real test.
 
 ## Step 2: small fixes, one file each (C0)
 
@@ -82,7 +91,8 @@ Smallest first, so each one lands and is proven before the next:
    verify bytes before any "verified unchanged" label (store a content hash in the file-state cache), and re-hash
    a search hit's file before returning it as current.
 3. **A04, `recall.ts` and `context.manager.ts`:** treat a recall block as turn-scoped. Compaction drops it and clears
-   its key, so asking again recalls fresh evidence. Step 6 replaces this with the residency ledger.
+   its key, so asking again recalls fresh evidence. The key set lives in `AgentLoop.recalled`, so expose that seam
+   and turn the A04 `test.todo` into a real test. Step 6 replaces this with the residency ledger.
 
 **Exit:** all eight acceptance tests pass, each of the eight mutants is caught, and the six existing suites named in
 the audit's evidence README still pass.
@@ -136,8 +146,8 @@ with the acceptance gates. Only then call it Product-ready.
 
 ## How this fits the backlog
 
-- Steps 1–3 touch `src/memory` and `src/graph`, so they can run between the Threads items (F1, F8–F12) without
-  file conflicts.
+- The owner decided on 2026-09-14 to build this plan before the other features. The one interruption is F8
+  (record 49's fix), which must be ported before step 6.
 - Step 5's dependency invalidation is the mechanism backlog L1 (living deliverables) needs, and F4's event wakeups
   can trigger it.
 - Step 6 shares its continuation state with F2 and must follow F8.
