@@ -816,3 +816,27 @@ describe('dispose', () => {
     expect(h.children).toHaveLength(1);
   });
 });
+
+describe('dispose waits for the process (backlog F11, T04)', () => {
+  test('dispose resolves true once the child exits, false if it never does, and true at once with no child', async () => {
+    const h = makeHarness();
+    h.sup.openProject('/proj');
+    const child = h.lastChild();
+    child.ready();
+    let settled = false;
+    const exited = h.sup.dispose().then((confirmed) => { settled = true; return confirmed; });
+    await Promise.resolve();
+    expect(settled).toBe(false);
+    child.exit(null, 'SIGTERM');
+    await expect(exited).resolves.toBe(true);
+
+    const stuck = makeHarness();
+    stuck.sup.openProject('/proj');
+    stuck.lastChild().ready();
+    const never = stuck.sup.dispose();
+    stuck.clock.advance(600_000);
+    await expect(never).resolves.toBe(false);
+
+    await expect(makeHarness().sup.dispose()).resolves.toBe(true);
+  });
+});

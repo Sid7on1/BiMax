@@ -7,7 +7,8 @@ import type { Outbound } from '../renderer/src/protocol';
 export interface ThreadEngine {
   openProject(root: string): void;
   sendFromRenderer(msg: unknown): void;
-  dispose(): void;
+  /** May resolve when the process has exited; until then its folder stays taken (backlog F11). */
+  dispose(): void | Promise<unknown>;
 }
 /**
  * A message the user sent, kept until its turn is over (backlog F1, record 46 T01). `queued`: accepted, not yet handed to
@@ -43,6 +44,12 @@ interface LiveThread extends SavedThread {
   restartWanted?: boolean;
   /** The manager restarted this engine itself, so its "Resumed …" notice is not added to the transcript. */
   quietResume?: boolean;
+  /** Cancels the deadline for the engine to confirm a resume (backlog F9). */
+  resumeDeadline?: () => void;
+  /** A resume failed and the user has not said what to do with the queued message yet. */
+  holdInputs?: boolean;
+  /** The previous engine's process is still exiting: nothing else may write in this folder yet (backlog F11). */
+  draining?: Promise<unknown>;
 }
 interface Dependencies {
   engine(id: string): ThreadEngine;
@@ -57,7 +64,19 @@ interface Dependencies {
   finished?(id: string, tookMs?: number): void;
   /** The manager restarted this thread's engine itself (a talk change), so the window showing it can re-attach. */
   restarted?(id: string): void;
+  /** Schedule `fn` after `ms`; returns a cancel function. Defaults to the process timer. */
+  timer?(fn: () => void, ms: number): () => void;
 }
+
+/** The id of the manager's own "resume failed" choice. The engine's request ids are positive. */
+const RESUME_CHOICE_ID = -1;
+/** How long a starting engine has to confirm or refuse a resume. */
+const RESUME_DEADLINE_MS = 20_000;
+export const RESUME_CHOICES = {
+  fresh: 'Start fresh with my message',
+  sessions: 'Show saved conversations',
+  keep: 'Keep my message for now',
+} as const;
 
 /**
  * What a thread engine starts with on top of the broker's environment. A ⌘2 thread works in whatever folder
@@ -155,6 +174,11 @@ export class ThreadManager {
     if (!r) throw new Error('Thread not found');
     if (!text.trim() || text.length > 200_000) throw new Error('Prompt must contain 1–200,000 characters');
     if (r.inputs.filter((input) => input.state === 'queued').length >= 20) throw new Error('This thread already has 20 queued messages');
+    // A new message after a failed resume is the user acting: stop holding what was queued, and close the choice.
+    if (r.holdInputs) {
+      r.holdInputs = false;
+      if (r.pending.delete(RESUME_CHOICE_ID)) r.state = { ...r.state, request: null };
+    }
     this.start(id);
     if (r.summary.title.startsWith('New thread in ')) r.summary.title = display.trim().slice(0,80);
     // Recorded when submitted, not when dispatched: a queued or not-yet-started thread still shows the turn.
@@ -174,10 +198,10 @@ export class ThreadManager {
   }
   private pump(r: LiveThread): void {
     const next = r.inputs.find((input) => input.state === 'queued');
-    if (!r.ready || r.pending.size || r.summary.status === 'working' || !next) return;
+    if (!r.ready || r.pending.size || r.summary.status === 'working' || !next || r.holdInputs || r.draining) return;
     const root = r.summary.root;
     const conflict = [...this.records.values()].some(other => other !== r &&
-      ['working','needs-you'].includes(other.summary.status) &&
+      (['working','needs-you'].includes(other.summary.status) || !!other.draining) &&
       (root === other.summary.root || root.startsWith(other.summary.root + path.sep) || other.summary.root.startsWith(root + path.sep)));
     if (conflict) return;
     next.state = 'sent';
@@ -201,7 +225,11 @@ export class ThreadManager {
     if (msg.t === 'ready') {
       r.ready = true;
       r.summary.status = 'idle';
-      if (r.resumeWanted) { r.ready = false; r.summary.status = 'starting'; r.engine.sendFromRenderer({ t: 'resume', id: r.resumeWanted }); }
+      if (r.resumeWanted) {
+        r.ready = false; r.summary.status = 'starting';
+        r.engine.sendFromRenderer({ t: 'resume', id: r.resumeWanted });
+        this.armResumeDeadline(r);
+      }
     }
     if (msg.t === 'request') {
       const approval: ThreadApproval = { threadId: id, title: r.summary.title, root: r.summary.root, request: msg, token: randomUUID() };
@@ -215,17 +243,34 @@ export class ThreadManager {
       const current = (msg.args[0] as any)?.sessions?.find((s: any) => s.current);
       if (current?.id && !r.resumeWanted) r.summary.sessionId = current.id;
     }
-    if (msg.t === 'event' && msg.name === 'session_restore' && (msg.args[0] as any)?.id === r.resumeWanted) {
-      r.summary.sessionId = r.resumeWanted; r.resumeWanted = undefined; r.ready = true; r.summary.status = 'idle';
+    if (msg.t === 'event' && msg.name === 'session_restore') {
+      const restored = (msg.args[0] as any)?.id;
+      if (r.resumeWanted && restored === r.resumeWanted) {
+        r.resumeDeadline?.(); r.resumeDeadline = undefined;
+        r.summary.sessionId = r.resumeWanted; r.resumeWanted = undefined; r.ready = true; r.summary.status = 'idle';
+      } else if (r.holdInputs && typeof restored === 'string' && !r.resumeWanted) {
+        // After a failed resume the user picked a saved conversation from the list: continue there with the kept message.
+        r.summary.sessionId = restored;
+        r.holdInputs = false;
+      }
+    }
+    if (msg.t === 'event' && msg.name === 'session_restore_failed' && r.resumeWanted && (msg.args[0] as any)?.id === r.resumeWanted) {
+      this.resumeFailed(r, String((msg.args[0] as any)?.reason || 'the saved conversation could not be read'));
     }
     let finishedTurn = false;
     if (msg.t === 'event' && msg.name === 'spinner_state' && msg.args[0] === 'idle') {
-      finishedTurn = r.summary.status === 'working' || r.summary.status === 'needs-you';
+      // The manager's own resume choice is not the engine's to clear: an idle engine leaves it waiting for the user.
+      const choice = r.pending.get(RESUME_CHOICE_ID);
+      finishedTurn = !choice && (r.summary.status === 'working' || r.summary.status === 'needs-you');
       // The turn is over, so the message it answered is settled.
       if (finishedTurn) r.inputs = r.inputs.filter((input) => input.state !== 'sent');
       r.pending.clear();
-      r.state = { ...r.state, request: null };
-      r.summary.status = 'idle';
+      if (choice) {
+        r.pending.set(RESUME_CHOICE_ID, choice);
+      } else {
+        r.state = { ...r.state, request: null };
+        r.summary.status = 'idle';
+      }
     }
     this.deps.message(id, msg);
     if (finishedTurn) {
@@ -247,6 +292,14 @@ export class ThreadManager {
       // A failed or restarting engine used to take the queue with it. Queued messages stay; the one being worked on is
       // reported, not repeated.
       this.recoverInputs(r, phase === 'restarting' ? 'the engine restarted' : 'the engine stopped', true);
+      if (phase === 'failed' || phase === 'exited') {
+        // The engine is gone for good. Keeping its reference made Resume do nothing, because start() saw an engine
+        // (backlog F10, T03): drop it, so the next start makes a new one.
+        const dead = r.engine;
+        r.engine = undefined;
+        r.resumeDeadline?.(); r.resumeDeadline = undefined;
+        this.drain(r, dead);
+      }
       this.persist(r);
     }
   }
@@ -260,6 +313,11 @@ export class ThreadManager {
       if (!pending.request.isAsk && pending.request.kind !== 'input' && !(pending.request.isMulti ? msg.value.split(', ').every((v:string) => pending.request.options.includes(v)) : pending.request.options.includes(msg.value))) throw new Error('Invalid approval choice');
       r.pending.delete(msg.id);
       r.state = { ...r.state, request: null };
+      if (msg.id === RESUME_CHOICE_ID) {
+        this.resumeChoice(r, String(msg.value));
+        this.persist(r);
+        return;
+      }
       r.summary.status = 'working';
     }
     if (msg.t === 'interrupt') {
@@ -387,7 +445,8 @@ export class ThreadManager {
     if (options.keepInputs) this.recoverInputs(r, 'the task was restarted', true);
     else r.inputs = [];
     r.engine = undefined; r.ready = false; r.pending.clear(); r.restartWanted = false;
-    engine?.dispose();
+    r.resumeDeadline?.(); r.resumeDeadline = undefined; r.holdInputs = false;
+    this.drain(r, engine);
     r.summary.status = 'stopped';
     r.state = { ...r.state, request: null, spinner: { state: 'idle', message: '' }, engine: { state: 'exited', detail: 'Thread stopped' } };
     this.persist(r);
@@ -417,6 +476,80 @@ export class ThreadManager {
     this.persist(source);
     return 'Message queued for the linked thread. Its workspace and approval scope are unchanged.';
   }
+  private timer(fn: () => void, ms: number): () => void {
+    if (this.deps.timer) return this.deps.timer(fn, ms);
+    const handle = setTimeout(fn, ms);
+    return () => clearTimeout(handle);
+  }
+
+  /** Dispose an engine. Until its process is confirmed gone, its folder stays taken (backlog F11, T04). */
+  private drain(r: LiveThread, engine: ThreadEngine | undefined): void {
+    if (!engine) return;
+    const exited = engine.dispose();
+    if (!exited || typeof (exited as Promise<unknown>).then !== 'function') return;
+    const draining: Promise<unknown> = Promise.resolve(exited).catch(() => undefined).then(() => {
+      if (r.draining === draining) r.draining = undefined;
+      for (const other of this.records.values()) this.pump(other);
+    });
+    r.draining = draining;
+  }
+
+  /** A starting engine has a deadline to confirm or refuse a resume; silence counts as a failure (backlog F9, T02). */
+  private armResumeDeadline(r: LiveThread): void {
+    r.resumeDeadline?.();
+    const wanted = r.resumeWanted;
+    r.resumeDeadline = this.timer(() => {
+      r.resumeDeadline = undefined;
+      if (!r.engine || !r.resumeWanted || r.resumeWanted !== wanted) return;
+      this.resumeFailed(r, `the engine did not confirm it within ${RESUME_DEADLINE_MS / 1000} seconds`);
+      this.persist(r);
+    }, RESUME_DEADLINE_MS);
+  }
+
+  /**
+   * A resume that could not happen (backlog F9, T02). The thread used to wait for a confirmation that never came, with
+   * the user's message stuck behind it. It becomes usable again, says why, keeps the message unsent, and asks what to do.
+   */
+  private resumeFailed(r: LiveThread, reason: string): void {
+    r.resumeDeadline?.(); r.resumeDeadline = undefined;
+    const sessionId = r.resumeWanted;
+    r.resumeWanted = undefined;
+    r.summary.sessionId = undefined;
+    r.ready = true;
+    r.summary.status = 'idle';
+    const waiting = r.inputs.some((input) => input.state === 'queued');
+    this.appendNote(r, `Couldn't pick up the saved conversation${sessionId ? ` (${sessionId})` : ''}: ${reason}. ${waiting ? 'Your message is kept and has not been sent.' : 'This task continues as a new conversation.'}`, 'warning', true);
+    if (!waiting) return;
+    r.holdInputs = true;
+    const request = {
+      t: 'request', id: RESUME_CHOICE_ID, kind: 'prompt',
+      question: `Couldn't pick up the saved conversation for “${r.summary.title}”. What should happen to your message?`,
+      options: [RESUME_CHOICES.fresh, RESUME_CHOICES.sessions, RESUME_CHOICES.keep],
+    } as unknown as ThreadApproval['request'];
+    const approval: ThreadApproval = { threadId: r.summary.id, title: r.summary.title, root: r.summary.root, request, token: randomUUID() };
+    r.pending.set(RESUME_CHOICE_ID, approval);
+    r.summary.status = 'needs-you';
+    const msg = { ...request, approvalToken: approval.token } as Outbound;
+    r.state = engineReducer(r.state, { type: 'outbound', msg });
+    this.deps.message(r.summary.id, msg);
+    this.deps.approval(approval);
+  }
+
+  private resumeChoice(r: LiveThread, value: string): void {
+    r.summary.status = 'idle';
+    if (value === RESUME_CHOICES.sessions) {
+      // The engine's own list; picking one resumes it, and the kept message follows (see session_restore above).
+      r.engine?.sendFromRenderer({ t: 'input', text: '/sessions' });
+      return;
+    }
+    if (value === RESUME_CHOICES.keep) {
+      this.appendNote(r, 'Your message is kept. Send another message, or pick a saved conversation, when you are ready.', 'info', true);
+      return;
+    }
+    r.holdInputs = false;
+    this.pump(r);
+  }
+
   /** Quitting keeps every thread's queued messages for next time. */
   dispose(): void { for (const id of this.records.keys()) this.stop(id, { keepInputs: true }); }
   private persist(r: LiveThread, now = false): void {

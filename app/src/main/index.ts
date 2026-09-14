@@ -1007,7 +1007,18 @@ app.whenReady().then(async () => {
       broadcast('adaptive:changed', adaptiveSnapshot());
     });
   }
-  threadStorage = new ThreadStorage(path.join(app.getPath('userData'), 'threads'));
+  let storageNoticeShown = false;
+  threadStorage = new ThreadStorage(path.join(app.getPath('userData'), 'threads'), {
+    // A thread that cannot be saved is said out loud once, not left to be discovered after a restart (backlog F12).
+    onFailure: (message) => {
+      if (message === null) { storageNoticeShown = false; console.info('[threads] saving works again'); return; }
+      console.warn(`[threads] could not save thread history: ${message}`);
+      if (!storageNoticeShown && Notification.isSupported()) {
+        storageNoticeShown = true;
+        new Notification({ title: 'Bimax could not save your tasks', body: `${message.slice(0, 140)} It keeps trying.` }).show();
+      }
+    },
+  });
   threads = new ThreadManager({
     engine: id => createSupervisor(id), changed: threadChanged,
     selected: value => broadcast('threads:selected', value),
@@ -1737,13 +1748,21 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
 
-app.on('before-quit', () => {
+let quitCleanupDone = false;
+app.on('before-quit', (event) => {
+  if (quitCleanupDone) return;
+  quitCleanupDone = true;
   talk.end();
   voice.dispose();
   globalShortcut.unregisterAll();
   quickWindow?.destroy(); approvalWindow?.destroy();
   threads?.dispose(); threadBroker?.close();
-  void threadStorage?.flush();
+  if (threadStorage) {
+    // Wait for the last thread writes (backlog F12), but never hold quitting for more than three seconds.
+    event.preventDefault();
+    const storage = threadStorage;
+    void Promise.race([storage.flush(), new Promise((resolve) => setTimeout(resolve, 3000))]).finally(() => app.quit());
+  }
   supervisor?.dispose();
   supervisor = null;
   killAllPtys();

@@ -128,18 +128,29 @@ mutants fail.
 
 **F9. A resume that can fail visibly (T02).** When a saved session is missing or unreadable, the thread waits for a
 `session_restore` that never arrives, and a queued Continue never resolves. Add a typed success or failure with a
-deadline, keep the prompt, and offer: resume failed, start fresh, or inspect. Value high · Effort S–M.
+deadline, keep the prompt, and offer: resume failed, start fresh, or inspect. Value high · Effort S–M. **Done 2026-09-14:** the engine emits
+`session_restore_failed { id, reason }` for a missing, ambiguous, unreadable or refused session (added to the wire
+contract and the app's generated mirror), and a starting engine has 20 seconds to confirm a resume. On failure the
+thread becomes usable, says why, keeps the queued message unsent, and asks: start fresh with it, show saved
+conversations (picking one continues there with the message), or keep it for now.
 
 **F10. One restart path (T03).** After an engine failure, the sidebar's Resume does nothing, because the dead
-engine reference makes `start()` return early. Value high · Effort S.
+engine reference makes `start()` return early. Value high · Effort S. **Done 2026-09-14:** a failed or exited engine is
+disposed and dropped, so Resume starts a new one; a restarting engine is kept.
 
 **F11. Stop waits for the engine to exit (T04).** `stop()` starts the next task in the same folder before the old
 process is confirmed gone. Release the folder only after termination is confirmed. Value medium–high · Effort M.
-The probe proved the early dispatch, not an actual collision between two processes.
+The probe proved the early dispatch, not an actual collision between two processes. **Done 2026-09-14:** the supervisor's `dispose`
+resolves when the process has exited (or false once SIGKILL should have ended it), and a thread whose engine is still
+exiting keeps its folder: no other task writes there, and its own restarted engine waits too. Still not exercised: a
+real lingering process, since the tests drive the supervisor with fake children.
 
 **F12. Storage survives one write error (T05).** One failed write rejects the save chain, so no later save runs,
 even after the disk problem is fixed. Retry within bounds, keep pending writes, show unsaved state, and wait for the
-final flush on quit. Value high · Effort S.
+final flush on quit. Value high · Effort S. **Done 2026-09-14:** a failed write stays in its batch, goes
+back to pending, and is retried after 1, 2, 4… up to 30 seconds; later saves still run, and a missing folder is
+recreated. The app shows one notification while saving fails, and quitting waits up to three seconds for the last
+writes.
 
 **F13. State the folder scope honestly (T06).** A thread's shell can read files outside its folder; the folder
 limits writes, not reads. Say so now, and design declared read roots and a task-private temp folder before making

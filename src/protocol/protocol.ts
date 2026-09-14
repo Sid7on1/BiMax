@@ -401,6 +401,8 @@ export const FORWARDED_EVENTS: readonly string[] = [
   // True resume: `{ id, entries }` — the saved thread's transcript (messages + tool lines) so a
   // graphical front-end can rebuild its scrollback, not just inject invisible context.
   'session_restore',
+  // A resume that could not happen: `{ id, reason }`, so a front-end waiting on that id says so instead of waiting forever.
+  'session_restore_failed',
   // Review domain: the current thread's derived review snapshot (plan, approvals, attributed
   // changes, verification runs, checkpoint state). Always a FULL snapshot — a reconnecting
   // front-end is correct again on the next emit.

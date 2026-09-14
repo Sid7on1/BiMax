@@ -37,16 +37,19 @@ async function previewSession(file: string, context: any): Promise<void> {
  */
 async function resumeSession(file: string, context: any, store: SessionStore): Promise<void> {
   const entries = await store.loadSession(file);
+  const failed = (reason: string): void => { cliEvents.emit('session_restore_failed', { id: file.replace(/\.jsonl$/, ''), reason }); };
   if (entries.length === 0) {
+    failed('the saved conversation is empty or unreadable');
     context.addSystemMessage('error', `Session ${prettySessionName(file)} is empty or unreadable.`);
     return;
   }
   if (!context.restoreMessages) {
+    failed('this engine cannot restore conversations');
     context.addSystemMessage('error', 'Session restore is not available in this context. Use /resume from the main terminal.');
     return;
   }
   const llm = messageEntriesToLLM(entries).slice(-40);
-  if (context.restoreMessages(llm) === false) return; // busy — the session already surfaced why
+  if (context.restoreMessages(llm) === false) { failed('the task was busy'); return; } // busy — the session already surfaced why
   const id = file.replace(/\.jsonl$/, '');
   const firstUser = entries.find((m: any) => m.role === 'user' && typeof m.content === 'string') as any;
   const chatCount = entries.filter((m: any) => m.role === 'user' || m.role === 'assistant').length;
@@ -235,10 +238,14 @@ globalCommandRegistry.register({
         if (prefixed.length === 1) {
           match = prefixed[0];
         } else if (prefixed.length > 1) {
+          cliEvents.emit('session_restore_failed', { id: args[0], reason: `more than one saved conversation starts with "${args[0]}"` });
           return { type: 'message', level: 'error', content: `"${args[0]}" matches ${prefixed.length} sessions (${prefixed.slice(0, 5).join(', ')}…). Be more specific or open /sessions.` };
         }
       }
-      if (!match) return { type: 'message', level: 'error', content: `No session matching "${args[0]}". Open /sessions to browse.` };
+      if (!match) {
+        cliEvents.emit('session_restore_failed', { id: args[0], reason: 'no saved conversation has that id' });
+        return { type: 'message', level: 'error', content: `No session matching "${args[0]}". Open /sessions to browse.` };
+      }
       await resumeSession(match, context, store);
       return { type: 'none' };
     }

@@ -229,20 +229,39 @@ export class EngineSupervisor {
     this.terminateChild(this.child);
   }
 
-  /** App quit: stop everything and make sure no timer can relaunch the engine afterwards. */
-  dispose(): void {
+  /** Resolvers waiting for a disposed child's exit, by its generation. */
+  private exitWaiters = new Map<number, (confirmed: boolean) => void>();
+
+  /**
+   * App quit or a thread's Stop: stop everything and make sure no timer can relaunch the engine afterwards.
+   *
+   * Resolves true once the process has exited, and false if it still had not by the time SIGKILL should have ended it,
+   * so a caller can hold a folder until the old writer is really gone without waiting forever (backlog F11, T04).
+   */
+  dispose(): Promise<boolean> {
     this.disposed = true;
     this.cancelScheduledRestart();
     this.stopWatchdog();
     for (const t of this.killTimers) this.deps.clearTimeout(t);
     this.killTimers.clear();
     const child = this.child;
+    const gen = this.childGen;
     // Supersede first: the exit event of the dying child must not run recovery logic.
     this.supersedeChild();
-    if (child) {
-      try { child.endStdin(); } catch { /* gone */ }
-      try { child.kill('SIGTERM'); } catch { /* gone */ }
-    }
+    if (!child) return Promise.resolve(true);
+    try { child.endStdin(); } catch { /* gone */ }
+    try { child.kill('SIGTERM'); } catch { /* gone */ }
+    return new Promise((resolve) => {
+      let settled = false;
+      const settle = (confirmed: boolean): void => {
+        if (settled) return;
+        settled = true;
+        this.exitWaiters.delete(gen);
+        resolve(confirmed);
+      };
+      this.exitWaiters.set(gen, settle);
+      this.deps.setTimeout(() => settle(false), this.timeouts.killEscalationMs + 2000);
+    });
   }
 
   /** A validated renderer recovery action. Returns false when the payload was malformed. */
@@ -501,6 +520,7 @@ export class EngineSupervisor {
   }
 
   private onChildExit(gen: number, code: number | null, signal: string | null): void {
+    this.exitWaiters.get(gen)?.(true);
     if (gen !== this.childGen) {
       // Superseded child finished dying (project switch / manual restart) — evidence only.
       this.deps.onNotice('info', `Previous engine process exited (${signal ?? `code ${code ?? '?'}`}).`);
