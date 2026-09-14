@@ -36,7 +36,7 @@ test('a dictation starts the helper with the languages and expected words, repor
   f.sessions.stop(7);
   expect(child.stdin.write).toHaveBeenCalledWith('stop\n');
   child.stdout.emit('data', '{"event":"stopped"}\n');
-  child.emit('exit', 0);
+  child.emit('close', 0);
   expect(f.sent).toEqual([[7, { event: 'ready' }], [7, { event: 'final', text: 'Hello' }], [7, { event: 'stopped' }]]);
   f.timers.forEach((run) => run());
   expect(child.kill).not.toHaveBeenCalled();
@@ -51,7 +51,7 @@ test('only one microphone session: a second window cancels the first, and anothe
   expect(f.children[1].stdin.write).not.toHaveBeenCalled();
   f.timers.forEach((run) => run());
   expect(f.children[0].kill).toHaveBeenCalled();
-  f.children[0].emit('exit', null);
+  f.children[0].emit('close', null);
   expect(f.sent).toEqual([[1, { event: 'stopped' }]]);
   expect(f.sessions.activeOwner).toBe(2);
 });
@@ -59,12 +59,21 @@ test('only one microphone session: a second window cancels the first, and anothe
 test('a crash still ends the session, but a failure the helper explained keeps its own message', () => {
   const f = fixture();
   f.sessions.start(3, { locales: [], context: [] });
-  f.children[0].emit('exit', 1);
+  f.children[0].emit('close', 1);
   expect(f.sent.at(-1)).toEqual([3, { event: 'stopped', code: 'helper', message: 'Dictation stopped unexpectedly.' }]);
   f.sessions.start(4, { locales: [], context: [] });
   f.children[1].stdout.emit('data', '{"event":"error","code":"microphone-denied","message":"Microphone access is off for Bimax."}\n');
-  f.children[1].emit('exit', 1);
+  f.children[1].emit('close', 1);
   expect(f.sent.slice(-2)).toEqual([[4, { event: 'error', code: 'microphone-denied', message: 'Microphone access is off for Bimax.' }], [4, { event: 'stopped' }]]);
+});
+
+test('a dictation helper that explains its failure keeps the explanation, even when the words arrive after it exits', () => {
+  const f = fixture();
+  f.sessions.start(5, { locales: [], context: [] });
+  f.children[0].emit('exit', 1);
+  f.children[0].stdout.emit('data', '{"event":"error","code":"microphone-denied","message":"Microphone access is off for Bimax."}\n');
+  f.children[0].emit('close', 1);
+  expect(f.sent).toEqual([[5, { event: 'error', code: 'microphone-denied', message: 'Microphone access is off for Bimax.' }], [5, { event: 'stopped' }]]);
 });
 
 test('dictation is offered only on macOS 26 or later with the helper present', () => {

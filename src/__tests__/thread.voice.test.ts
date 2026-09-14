@@ -9,4 +9,6 @@ test('only a talk-mode thread is told its reply will be spoken, and never to use
   expect(section).toContain('SPOKEN CONVERSATION');
   expect(section).toMatch(/Never use markdown/);
   expect(section).toMatch(/approves it on screen/);
+  // Backlog Q1: spoken replies stopped with "Is that all you need?" after every answer.
+  expect(section).toMatch(/Do not end with a check-in question/);
 });

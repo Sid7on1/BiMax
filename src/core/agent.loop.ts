@@ -2,7 +2,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { reportCapability } from './capability.status';
 import { LLMProvider, Message, ChatEvent } from './llm.provider';
 import { responseSanitizer } from './response.sanitizer';
-import { extractTextToolCalls } from './tool.call.parser';
+import { cleanToolName, extractTextToolCalls } from './tool.call.parser';
 import { ToolRegistry } from '../tools/tool.registry';
 import { IGovernor } from './interfaces';
 import { Logger } from '../utils';
@@ -561,7 +561,8 @@ export class AgentLoop {
           if (event.replay) replayableReasoning += event.text;
           cliEvents.emit('thinking', event.text);
         } else if (event.type === 'tool_call') {
-          toolCalls.push(event);
+          // gpt-oss can glue harmony tokens to the name; the call and the history keep the clean one (backlog Q1).
+          toolCalls.push({ ...event, name: cleanToolName(event.name) });
         } else if (event.type === 'tool_call_partial') {
           // Live activity only: show the call forming in the UI while args still stream. The
           // authoritative entry is (re-)emitted by executeTool with the same id, which the UI

@@ -114,5 +114,12 @@ export function buildEngineChildEnv(input: {
   const spoken = input.extraEnv?.BIMAX_THREAD_VOICE === '1';
   delete env.BIMAX_THREAD_VOICE;
   if (spoken) env.BIMAX_THREAD_VOICE = '1';
+  // Folder rules and protected items belong to the folder the app started this engine for (backlog Q2). Left in the
+  // shell that started Bimax, they reached every engine, the same leak BIMAX_THREAD_VOICE had.
+  for (const variable of ['BIMAX_THREAD_RULES', 'BIMAX_THREAD_PROTECTED']) {
+    const own = input.extraEnv?.[variable];
+    delete env[variable];
+    if (own !== undefined) env[variable] = own;
+  }
   return env;
 }

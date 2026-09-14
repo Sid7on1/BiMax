@@ -119,7 +119,9 @@ export class VoiceSessions {
       // A helper that already explained its failure (microphone off, language unsupported) keeps that message.
       this.deps.send(owner, { event: 'stopped', ...(message && !session.errored ? { code: 'helper', message } : {}) });
     };
-    child.on('exit', (code: number | null) => finish(code ? 'Dictation stopped unexpectedly.' : undefined));
+    // `close`, not `exit`: the helper prints why it failed just before exiting, and those bytes can arrive after the exit
+    // event (backlog Q4; talk mode learned this first). Finishing on exit replaced the explanation with a generic one.
+    child.on('close', (code: number | null) => finish(code ? 'Dictation stopped unexpectedly.' : undefined));
     child.on('error', (error: Error) => finish(`Dictation couldn’t start: ${error.message}`));
   }
 

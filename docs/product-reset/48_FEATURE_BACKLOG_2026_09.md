@@ -161,6 +161,13 @@ importing it. The rule is move, don't delete.
 **Q4. Dictation error messages.** `VoiceSessions` finishes on the helper's `exit` rather than `close`, so it can
 lose the reason the microphone failed. Talk mode already uses `close`.
 
+**Q1–Q4 done 2026-09-14.** Q1: harmony tokens are stripped from tool names in both the streamed and the text-recovered
+path, so the call runs and history keeps the clean name; talk mode is told not to end with a check-in question. Q2:
+`BIMAX_THREAD_RULES` and `BIMAX_THREAD_PROTECTED` reach only an engine the app set them for. Q3: `runtime.paths.ts` and
+its test moved to `~/Developer/bimax-archive` (byte-checked); the tests that still applied now run against
+`coding.runtime.paths.ts` in `app/src/__tests__/coding.runtime.paths.test.ts`. Q4: dictation finishes on the helper's
+`close`, so an explanation printed just before it exits is kept. Six mutants each fail a test.
+
 ## Next: small, high value (days)
 
 **N1. Approve from the notification.** Allow and Deny buttons on the "needs your decision" notification.
