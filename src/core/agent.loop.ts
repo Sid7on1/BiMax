@@ -263,7 +263,12 @@ export class AgentLoop {
     await this.injectRecall();
     const beforeCompaction = this.messages;
     this.messages = await this.contextManager.checkAndCompact(this.messages, contextMode);
-    if (droppedRecall(beforeCompaction, this.messages)) this.recalled.clear();
+    if (droppedRecall(beforeCompaction, this.messages)) {
+      this.recalled.clear();
+      // The request about to be sent needs that evidence too: recall it again now, after compaction, rather than a
+      // round later. A round that ends in a final answer had no later round, so it went without (audit 51, U08).
+      await this.injectRecall();
+    }
   }
 
   private truncateContext(messages: Message[], keepRecentTurns = 4): Message[] {

@@ -186,13 +186,18 @@ describe('A04: recalled memory and compaction', () => {
     }) as VectorStore['semanticSearch'];
 
     const question = 'why does the permission flow feel slow and blocked';
-    const twoRounds = async (manager: ContextManager): Promise<number> => {
+    // Graded at the request boundary: after each round's context is prepared, the messages about to be sent carry
+    // exactly one recall block (audit 51, U08: counting searches passed while the request itself had none).
+    const twoRounds = async (manager: ContextManager): Promise<{ searches: number; resident: number[] }> => {
       searches = 0;
       const loop = new AgentLoop(summarizer, new ToolRegistry(), undefined, undefined, manager, store, new Set<string>());
       (loop as any).messages = [...history(20), { role: 'user', content: question }];
-      await (loop as any).prepareContext('smart');
-      await (loop as any).prepareContext('smart');
-      return searches;
+      const resident: number[] = [];
+      for (let round = 0; round < 2; round++) {
+        await (loop as any).prepareContext('smart');
+        resident.push((loop as any).messages.filter((m: any) => String(m.content).startsWith(RECALL_PREFIX)).length);
+      }
+      return { searches, resident };
     };
     const keepsEverything = new (class extends ContextManager {
       async checkAndCompact(messages: any[]) { return messages; }
@@ -202,9 +207,11 @@ describe('A04: recalled memory and compaction', () => {
     })(summarizer);
 
     // Control: while the recall block stays in the prompt, the same question is not searched twice.
-    expect(await twoRounds(keepsEverything)).toBe(1);
-    // Compaction drops the block, so the next round recalls the evidence again.
-    expect(await twoRounds(compactsEveryRound)).toBe(2);
+    expect(await twoRounds(keepsEverything)).toEqual({ searches: 1, resident: [1, 1] });
+    // Compaction drops the block, and the same round recalls it again, so every request carries it, once.
+    const compacting = await twoRounds(compactsEveryRound);
+    expect(compacting.resident).toEqual([1, 1]);
+    expect(compacting.searches).toBe(2);
   });
 });
 

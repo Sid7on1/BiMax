@@ -5,6 +5,7 @@ import { fileStateCache } from './file-state-cache';
 import { RECALL_PREFIX } from './recall';
 import { archiveOutput } from '../context/output.archive';
 import { ContextEvidence, evidenceSpan, fileEvidence, fileVersion, versionOfText } from '../context/evidence';
+import { CONTINUATION_PREFIX, ContinuationState, isContinuationMessage } from '../context/continuation';
 import { IGraphStore } from '../graph/models';
 import { crossRepoMapSync } from '../graph/cross.repo';
 import { compressBacklog, proxyCompress, recordCompression, looksLikeCode } from './headroom.compress';
@@ -110,6 +111,8 @@ export class ContextManager {
    * archived tool output. A span goes stale when the source it was taken from changes.
    */
   readonly evidence = new ContextEvidence();
+  /** What compaction removed that a long task must keep: the user's words, commands run, the assistant's claims. */
+  readonly continuation = new ContinuationState();
 
   // Real-usage overhead calibration (C4): our estimate only sees `messages`, but the request also
   // carries the system prompt + tool schemas (10-30k tokens the estimate is blind to). The provider's
@@ -133,6 +136,8 @@ export class ContextManager {
     // outlived its freshness and could never be refreshed (record 47, A04); AgentLoop forgets the
     // session's recalls when compaction drops one, so a question still in play recalls again.
     RECALL_PREFIX,
+    // Re-rendered from ContextManager.continuation into every compacted window; an old copy is never kept.
+    CONTINUATION_PREFIX,
   ];
 
   private isTransientSystem(m: Message): boolean {
@@ -440,10 +445,11 @@ export class ContextManager {
     const nonSystem = messages.filter(m => m.role !== 'system');
     if (nonSystem.length <= this.SNIP_TRIGGER_MESSAGES) return messages;
 
-    const system = messages.filter(m => m.role === 'system');
     const tail = this.dropLeadingOrphanToolMessages(nonSystem.slice(-this.SNIP_KEEP_TAIL));
+    this.continuation.absorb(nonSystem.filter(m => !tail.includes(m)), (text) => this.archive(text));
+    const system = messages.filter(m => m.role === 'system' && !isContinuationMessage(m));
     Logger.warn(`[ContextManager] Snipped ${nonSystem.length - tail.length} old message(s) (runaway history guard).`);
-    return [...system, ...tail];
+    return [...system, ...this.continuationMessages(), ...tail];
   }
 
   /**
@@ -578,6 +584,9 @@ Comma-separated list of files created, modified, or important to the task.`,
       role: 'system',
       content: `[Previous Context Summary]\n${summaryText}`,
     };
+    // The summary is a narrative a summarizer may get wrong or leave empty, so it is not the only record: the
+    // continuation state keeps what these messages said, word for word (record 50 step 6).
+    this.continuation.absorb(olderMessages, (text) => this.archive(text));
 
     // Post-compact file restoration: re-inject recently-read files as synthetic attachments
     // so the model doesn't need to re-read files it was actively working with. Bounded by a TOTAL
@@ -622,9 +631,15 @@ Comma-separated list of files created, modified, or important to the task.`,
       Logger.info(`[ContextManager] Restored ${fileAttachments.length} recently-read file(s) post-compact${restoreSkipped ? ` (${restoreSkipped} skipped — over the ${this.RESTORE_BUDGET_CHARS}-char budget)` : ''}${restoreStale ? ` (${restoreStale} not restored — not verified unchanged on disk)` : ''}.`);
     }
 
-    const compacted = [...systemMessages, summaryMsg, ...fileAttachments, ...recentMessages];
+    const compacted = [...systemMessages, summaryMsg, ...this.continuationMessages(), ...fileAttachments, ...recentMessages];
     this.currentTokens = this.estimateTokens(compacted);
     return compacted;
+  }
+
+  /** The continuation state as one system message, or nothing while it is empty. */
+  private continuationMessages(): Message[] {
+    const text = this.continuation.render((saved) => this.archive(saved));
+    return text ? [{ role: 'system', content: text }] : [];
   }
 
   /** Reactive recovery: fires when the API rejects a request as too long. Cuts the window hard. */
@@ -650,9 +665,11 @@ Comma-separated list of files created, modified, or important to the task.`,
       const recentMessages = this.dropLeadingOrphanToolMessages(
         messages.filter(m => m.role !== 'system').slice(-5)
       );
+      this.continuation.absorb(messages.filter(m => m.role !== 'system' && !recentMessages.includes(m)), (text) => this.archive(text));
       return [
         ...durableSystem,
         ...(lastSummary ? [lastSummary] : []),
+        ...this.continuationMessages(),
         { role: 'system', content: '[Older messages aggressively compacted due to API context limits]' } as Message,
         ...recentMessages,
       ];
