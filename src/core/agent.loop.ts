@@ -8,6 +8,7 @@ import { Logger } from '../utils';
 import { ContextManager, type ContextMode } from '../memory/context.manager';
 import type { VectorStore } from '../memory/vector.store';
 import { droppedRecall, recallForTurn, recallKey, recallQuery } from '../memory/recall';
+import { derivedEvidence } from '../context/evidence';
 import { cliEvents, ToolCallEntry } from '../cli/events';
 import { getActiveTodos, todosTouchedThisTurn } from '../tools/implementations/todo.tool';
 import { LoopDetector, LoopSignal } from './loop-detector';
@@ -245,6 +246,10 @@ export class AgentLoop {
     // user said.
     const at = this.messages.lastIndexOf(last);
     this.messages.splice(at, 0, { role: 'system', content: recalled.text } as typeof last);
+    // Record what was shown and where it came from. The block is derived from its memories, so it goes stale
+    // with any of them.
+    this.contextManager.evidence.admitAll(recalled.evidence);
+    this.contextManager.evidence.admit(derivedEvidence('recall-block', recalled.text, recalled.evidence));
   }
 
   /**

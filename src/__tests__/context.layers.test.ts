@@ -102,7 +102,7 @@ describe('ContextManager — layered passes (smart vs full)', () => {
     const tools = out.filter(m => m.role === 'tool');
     expect(tools).toHaveLength(10); // none dropped — pairing preserved
     // First 4 cleared, last 6 kept.
-    expect(tools.slice(0, 4).every(t => t.content === '[tool result cleared to save context]')).toBe(true);
+    expect(tools.slice(0, 4).every(t => String(t.content).startsWith('[tool result cleared to save context'))).toBe(true);
     expect(tools.slice(-6).map(t => t.content)).toEqual(
       ['result-4', 'result-5', 'result-6', 'result-7', 'result-8', 'result-9'],
     );

@@ -37,6 +37,7 @@ import { reportCapability } from '../core/capability.status';
  */
 
 import type { StoredChunk, VectorDocument, VectorStore } from './vector.store';
+import { evidenceSpan, versionOfText, type EvidenceSpan } from '../context/evidence';
 
 export const RECALL_PREFIX = '[Recalled memory]';
 
@@ -52,6 +53,8 @@ export interface RecallOptions {
 export interface RecalledMemory {
   text: string;
   ids: string[];
+  /** What was injected, as evidence: the memory, the version of its stored text, and which part. */
+  evidence: EvidenceSpan[];
 }
 
 /**
@@ -123,9 +126,11 @@ export async function recallForTurn(
 
   const parts: string[] = [];
   const ids: string[] = [];
+  const evidence: EvidenceSpan[] = [];
   let budget = maxChars;
   for (const doc of documents) {
-    const content = passageOf(doc, budget);
+    const passage = passageOf(doc, budget);
+    const content = passage.text;
     if (!content) continue;
     // Truncate the last one that fits rather than dropping it: a partial memory is usually still
     // the fact that was wanted, and the alternative is silently recalling less than the budget.
@@ -133,6 +138,7 @@ export async function recallForTurn(
     if (!slice) break;
     parts.push(`- ${slice}`);
     ids.push(doc.id);
+    evidence.push(...memoryEvidence(doc, passage.picked));
     budget -= slice.length + 3;
     if (budget <= 80) break;
   }
@@ -140,6 +146,7 @@ export async function recallForTurn(
 
   return {
     ids,
+    evidence,
     text: [
       `${RECALL_PREFIX} — retrieved for this turn, not stated by the user. May be outdated; verify before relying on it.`,
       ...parts,
@@ -153,10 +160,10 @@ export async function recallForTurn(
  * of the document lost the answer whenever it sat further down a long note (record 47, A03). A result
  * without matched chunks, from a store that does not report them, falls back to the whole content.
  */
-function passageOf(doc: VectorDocument, budget: number): string {
+function passageOf(doc: VectorDocument, budget: number): { text: string; picked: StoredChunk[] } {
   const chunks = doc.chunks ?? [];
   const matched = doc.matchedChunks ?? [];
-  if (!matched.length || !chunks.length) return (doc.metadata?.content || '').trim();
+  if (!matched.length || !chunks.length) return { text: (doc.metadata?.content || '').trim(), picked: [] };
   const picked: StoredChunk[] = [];
   let used = 0;
   for (const chunk of matched) {
@@ -166,12 +173,35 @@ function passageOf(doc: VectorDocument, budget: number): string {
     picked.push(chunk);
     used += cost;
   }
-  return picked
+  const text = picked
     .map((chunk) => ({ chunk, at: chunks.indexOf(chunk) }))
     .sort((a, b) => a.at - b.at)
     .map(({ chunk, at }) => `${chunks.length > 1 && at >= 0 ? `(part ${at + 1} of ${chunks.length}) ` : ''}${chunk.text.trim()}`)
     .join('\n  ')
     .trim();
+  return { text, picked };
+}
+
+/**
+ * A recalled document as evidence: one span per injected chunk, or one for the whole note when no chunk was reported.
+ * The version is the hash of the stored text. A memory records no date, so `validFrom` stays unset rather than guessed.
+ */
+function memoryEvidence(doc: VectorDocument, picked: StoredChunk[]): EvidenceSpan[] {
+  const content = doc.metadata?.content || '';
+  const chunks = doc.chunks ?? [];
+  const base = {
+    sourceId: `memory:${doc.id}`,
+    sourceVersion: versionOfText(content),
+    scope: { tags: doc.metadata?.tags ?? [] },
+    derivedFrom: [],
+    kind: 'source' as const,
+  };
+  if (!picked.length) return [evidenceSpan({ ...base, locator: { kind: 'memory', documentId: doc.id }, text: content.trim() })];
+  return picked.map((chunk) => evidenceSpan({
+    ...base,
+    locator: { kind: 'memory', documentId: doc.id, part: chunks.indexOf(chunk) + 1, parts: chunks.length },
+    text: chunk.text,
+  }));
 }
 
 /**

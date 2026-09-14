@@ -79,6 +79,7 @@ import { createModeTool } from '../tools/implementations/mode.tool';
 import { createGitTool } from '../tools/implementations/git.tool';
 import { createLspQueryTool } from '../tools/implementations/lsp.tool';
 import { createFreeContextTool } from '../tools/implementations/free-context.tool';
+import { createContextArchiveTool } from '../tools/implementations/context-archive.tool';
 import { createGoalsTool } from '../tools/implementations/goals.tool';
 import { createWorkspaceTool } from '../tools/implementations/workspace.tool';
 import { initGoalManager } from '../memory/goal.manager';
@@ -381,6 +382,7 @@ export async function createContainer(config?: Partial<CliConfig>): Promise<{
   toolRegistry.register(createGitTool(governor));
   toolRegistry.register(createLspQueryTool(governor, graphStore));
   toolRegistry.register(createFreeContextTool(governor));
+  toolRegistry.register(createContextArchiveTool(governor));
   toolRegistry.register(createGoalsTool(governor));
   toolRegistry.register(createWorkspaceTool(governor));
   toolRegistry.register(createPlanTool(governor));

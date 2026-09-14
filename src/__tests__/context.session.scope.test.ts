@@ -146,7 +146,7 @@ describe('foreground compaction is deterministic and in-process', () => {
     const codeMsg = out.find(m => (m as any).tool_call_id === 'r1');
     // The code tool result is either present VERBATIM or explicitly stubbed by micro-compact —
     // never silently rewritten/compressed into a lossy variant.
-    if (codeMsg && String(codeMsg.content) !== '[tool result cleared to save context]') {
+    if (codeMsg && !String(codeMsg.content).startsWith('[tool result cleared to save context')) {
       expect(String(codeMsg.content)).toBe(code);
     }
   });

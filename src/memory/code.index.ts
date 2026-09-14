@@ -32,6 +32,7 @@ import { reportCapability } from '../core/capability.status';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { createHash } from 'crypto';
+import { fileEvidence, type EvidenceSpan } from '../context/evidence';
 import type { VectorDocument } from './vector.store';
 import { SqliteCodeVectorStore } from './sqlite.code.store';
 import type { EmbeddingBackend } from './embeddings';
@@ -122,6 +123,8 @@ export interface CodeHit {
    * graph answers WHO CARES by structure — retrieval returns both in one result.
    */
   related?: string[];
+  /** The hit as evidence: its file, the indexed version checked against the file's bytes when admitted, its lines. */
+  evidence?: EvidenceSpan;
 }
 
 /**
@@ -392,13 +395,33 @@ export class CodeIndex {
     const where = scopeTag
       ? (tags: readonly string[]) => tags.some((t) => t === scopeTag || t.startsWith(`${scopeTag}/`))
       : undefined;
-    const docs = await this.store.semanticSearch(query, limit, 0.05, { tags: ['code'], mode, where });
-    const hits: CodeHit[] = [];
-    for (const doc of docs) {
-      const hit = docToHit(doc);
-      if (!hit) continue;
-      hits.push(hit);
-      if (hits.length >= limit) break;
+    const retrieve = async (): Promise<CodeHit[]> => {
+      const docs = await this.store.semanticSearch(query, limit, 0.05, { tags: ['code'], mode, where });
+      const found: CodeHit[] = [];
+      for (const doc of docs) {
+        const hit = docToHit(doc);
+        if (!hit) continue;
+        found.push(hit);
+        if (found.length >= limit) break;
+      }
+      return found;
+    };
+
+    // Admission: a hit is evidence only while its file still holds the bytes it was indexed from. A change
+    // the index had not synced yet was served as current (context benchmark case C4). A stale hit triggers
+    // one sync and a fresh search, and whatever is still stale after that is dropped, not shown as current.
+    let hits = await retrieve();
+    let versions = await this.admissionVersions(hits);
+    if (hits.some((hit) => !versions.has(hit.path))) {
+      await this.sync().catch(() => undefined);
+      hits = await retrieve();
+      versions = await this.admissionVersions(hits);
+      hits = hits.filter((hit) => versions.has(hit.path));
+    }
+    for (const hit of hits) {
+      hit.evidence = fileEvidence(path.join(this.root, hit.path), hit.text, versions.get(hit.path)!, {
+        root: this.root, startLine: hit.startLine, endLine: hit.endLine, partial: true,
+      });
     }
     // Structural expansion rides on the TOP hits only: it is context the model will act on, and
     // graph walks are not free. Failure is silent by the same rule as everything here — the
@@ -409,6 +432,27 @@ export class CodeIndex {
       }));
     }
     return hits;
+  }
+
+  /**
+   * The indexed version of each hit's file, as `sha256:<hex>`, for the files whose bytes still match it. A stat stamp
+   * that matches the manifest is trusted without a read, the same rule sync uses; a moved stamp is settled by hashing;
+   * a deleted, unreadable or unhashed file has no admissible version.
+   */
+  private async admissionVersions(hits: CodeHit[]): Promise<Map<string, string>> {
+    await this.loadManifest();
+    const versions = new Map<string, string>();
+    for (const rel of new Set(hits.map((hit) => hit.path))) {
+      const entry = this.manifest![rel];
+      if (!entry?.h) continue;
+      const abs = path.join(this.root, rel);
+      try {
+        const stat = await fs.stat(abs);
+        const unchanged = entry.m === stat.mtimeMs && entry.s === stat.size && entry.c === stat.ctimeMs;
+        if (unchanged || hashSource(await fs.readFile(abs, 'utf-8')) === entry.h) versions.set(rel, `sha256:${entry.h}`);
+      } catch { /* deleted or unreadable: no admissible version */ }
+    }
+    return versions;
   }
 
   private async loadManifest(): Promise<void> {

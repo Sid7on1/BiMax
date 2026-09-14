@@ -1,8 +1,10 @@
 import { LLMProvider, Message } from '../core/llm.provider';
 import { contentToText, isScreenshotObservationMessage } from '../core/multimodal';
 import { Logger } from '../utils/logger';
-import { fileStateCache, hashFileText } from './file-state-cache';
+import { fileStateCache } from './file-state-cache';
 import { RECALL_PREFIX } from './recall';
+import { archiveOutput } from '../context/output.archive';
+import { ContextEvidence, evidenceSpan, fileEvidence, fileVersion, versionOfText } from '../context/evidence';
 import { IGraphStore } from '../graph/models';
 import { crossRepoMapSync } from '../graph/cross.repo';
 import { compressBacklog, proxyCompress, recordCompression, looksLikeCode } from './headroom.compress';
@@ -88,9 +90,16 @@ export class ContextManager {
   // Cheap-pass tuning. Deliberately conservative so multi-step tasks keep the context they need.
   private readonly TOOL_RESULT_MAX_CHARS = 16000; // cap on a single tool result
   private readonly KEEP_RECENT_TOOL_RESULTS = 6;  // most recent tool outputs left fully intact
+  private readonly MIN_ARCHIVED_RESULT_CHARS = 512; // shorter cleared results get the short stub, unarchived
   private readonly SNIP_TRIGGER_MESSAGES = 100;   // only guard against truly runaway histories
   private readonly SNIP_KEEP_TAIL = 60;
   private readonly RESTORE_BUDGET_CHARS = 40_000; // total post-compact file re-injection budget (~10k tok)
+
+  /**
+   * What this session showed the model and where it came from (record 50 step 5): recalled memory, restored files and
+   * archived tool output. A span goes stale when the source it was taken from changes.
+   */
+  readonly evidence = new ContextEvidence();
 
   // Real-usage overhead calibration (C4): our estimate only sees `messages`, but the request also
   // carries the system prompt + tool schemas (10-30k tokens the estimate is blind to). The provider's
@@ -298,7 +307,10 @@ export class ContextManager {
       const head = m.content.slice(0, Math.floor(max * 0.7));
       const tail = m.content.slice(-Math.floor(max * 0.2));
       const elided = m.content.length - head.length - tail.length;
-      return { ...m, content: `${head}\n\n… [${elided} chars elided to save context] …\n\n${tail}` };
+      // The whole result is archived first, so the cut middle stays recoverable instead of silently lost.
+      const archived = this.archive(m.content);
+      const where = archived ? `; the full result is archived as ${archived} (ContextArchiveTool)` : '';
+      return { ...m, content: `${head}\n\n… [${elided} chars elided to save context${where}] …\n\n${tail}` };
     });
     if (trimmed) Logger.info(`[ContextManager] Capped ${trimmed} oversized tool result(s).`);
     return out;
@@ -309,6 +321,23 @@ export class ContextManager {
    * KEEP_RECENT_TOOL_RESULTS intact. No LLM call. The tool message itself (and its tool_call_id)
    * is preserved so tool_use/tool_result pairing never breaks — only its body becomes a stub.
    */
+  /** Archive a tool result before it leaves the prompt, record it as evidence, and return its handle (null if unsaved). */
+  private archive(text: string): string | null {
+    const archived = archiveOutput(text);
+    if (!archived) return null;
+    this.evidence.admit(evidenceSpan({
+      sourceId: `tool-output:${archived.id}`,
+      sourceVersion: `sha256:${archived.sha256}`,
+      locator: { kind: 'tool-output', handle: archived.handle },
+      rawHandle: archived.handle,
+      text: text.slice(0, 280),
+      scope: {},
+      derivedFrom: [],
+      kind: 'observation',
+    }));
+    return archived.handle;
+  }
+
   private microCompact(messages: Message[]): Message[] {
     const toolIdx = messages.map((m, i) => (m.role === 'tool' ? i : -1)).filter(i => i >= 0);
     if (toolIdx.length <= this.KEEP_RECENT_TOOL_RESULTS) return messages;
@@ -323,26 +352,36 @@ export class ContextManager {
       // resolvable reference — the file path when the read header carries one — so the model re-reads
       // real content instead of reasoning over a half-cut ghost.
       //
-      // It is deliberately NOT called lossless, and the stub must not promise verbatim restoration.
       // A re-read returns the file as it is NOW, and the agent edits files: read foo.ts → evict →
-      // edit foo.ts → "re-read to restore it verbatim" would handed back different bytes while the
-      // model believed it had recovered the original. Resolvable is the honest claim; identical is
-      // not one we can make.
+      // edit foo.ts → a re-read hands back different bytes. So the stub never promises that re-reading
+      // gets the original back.
       //
-      // Content-addressing (hash at eviction, verify at re-read) is what would earn the stronger
-      // word, and it is not done here on purpose: this function cannot see the re-read, which
-      // happens later inside the file tool, so a digest recorded here would be an unverified number
-      // nothing ever checks. Do the plumbing or keep the claim narrow — do not just add the hash.
+      // What it can offer is the plumbing this comment once asked for instead of a bare hash: the cleared
+      // text is archived under its content hash before the stub replaces it, and ContextArchiveTool checks
+      // that hash on every read. The handle returns the earlier output, labelled as earlier; a re-read
+      // returns the current file (record 50 step 5). When the archive cannot be written, the stub says
+      // nothing about one.
+      // A stub with a handle runs to about 130 characters, so a result shorter than MIN_ARCHIVED_RESULT_CHARS
+      // keeps the short stub instead: archiving it would make micro-compaction grow the context it shrinks.
+      const archived = typeof m.content === 'string' && m.content.length >= this.MIN_ARCHIVED_RESULT_CHARS
+        ? this.archive(m.content)
+        : null;
+      const saved = archived ? ` The cleared output is archived as ${archived} (ContextArchiveTool).` : '';
       if (typeof m.content === 'string' && looksLikeCode(m.content)) {
         const file = m.content.match(/^FILE\s+(.+?):/m)?.[1];
         return {
           ...m,
           content: file
-            ? `[tool result cleared to save context — code from ${file}; re-read it for the current contents, which may have changed since]`
-            : '[tool result cleared to save context — code output; re-run the tool for a current result, which may differ from the cleared one]',
+            ? `[tool result cleared to save context — code from ${file}; re-read it for the current contents, which may have changed since.${saved}]`
+            : `[tool result cleared to save context — code output; re-run the tool for a current result, which may differ from the cleared one.${saved}]`,
         };
       }
-      return { ...m, content: '[tool result cleared to save context]' };
+      return {
+        ...m,
+        content: archived
+          ? `[tool result cleared to save context — archived as ${archived}; read it back with ContextArchiveTool]`
+          : '[tool result cleared to save context]',
+      };
     });
     if (cleared) Logger.info(`[ContextManager] Micro-compacted ${cleared} old tool result(s).`);
     return out;
@@ -526,15 +565,17 @@ Comma-separated list of files created, modified, or important to the task.`,
       // proof: a rewrite that put the old mtime back was restored as current (record 47, A01). So the
       // file is read now and compared with the hash taken when it was cached; a read cached without a
       // hash is verified only when it was the complete file, by comparing the text itself. A preview of
-      // a large file has neither, so it is never restored as the file.
+      // a large file has neither, so it is never restored as the file. The comparison runs through the
+      // session's evidence, so an earlier restoration of a file that has since changed goes stale too.
+      const claimed = f.fileHash ? `sha256:${f.fileHash}` : f.complete ? versionOfText(f.content) : null;
+      const current = await fileVersion(f.path);
+      this.evidence.sourceChanged(`file:${f.path}`, current);
+      let mtimeHolds = false;
       try {
         // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const fsSync = require('fs') as typeof import('fs');
-        if (fsSync.statSync(f.path).mtimeMs !== f.mtime) { restoreStale++; continue; }
-        const current = fsSync.readFileSync(f.path, 'utf8');
-        const verified = f.fileHash ? hashFileText(current) === f.fileHash : f.complete && current === f.content;
-        if (!verified) { restoreStale++; continue; }
-      } catch { restoreStale++; continue; } // deleted/unreadable — do not restore
+        mtimeHolds = (require('fs') as typeof import('fs')).statSync(f.path).mtimeMs === f.mtime;
+      } catch { /* deleted/unreadable — do not restore */ }
+      if (!claimed || !mtimeHolds || current !== claimed) { restoreStale++; continue; }
       restoreUsed += f.content.length;
       // A partial read is labeled as exactly that — never presented as the complete file.
       const scope = f.complete
@@ -544,6 +585,7 @@ Comma-separated list of files created, modified, or important to the task.`,
         role: 'system' as const,
         content: `[Post-Compact Restoration — ${f.path} — ${scope}, verified unchanged on disk]\n${f.content}`,
       });
+      this.evidence.admit(fileEvidence(f.path, f.content, claimed, { partial: !f.complete }));
     }
 
     if (fileAttachments.length > 0 || restoreSkipped > 0 || restoreStale > 0) {

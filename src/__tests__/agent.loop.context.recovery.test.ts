@@ -78,7 +78,7 @@ describe('AgentLoop — bounded graded context recovery', () => {
     expect(drain).toHaveBeenCalledTimes(1);
     expect(calls).toBe(2);
     expect(output).toContain('Recovered cheaply.');
-    expect(loop.messages.some(message => message.content === '[tool result cleared to save context]')).toBe(true);
+    expect(loop.messages.some(message => String(message.content).startsWith('[tool result cleared to save context'))).toBe(true);
   });
 
   it('advances through tiers 0, 1, and 2, then stops at the terminal bound', async () => {
