@@ -199,7 +199,8 @@ describe('session recall dedup across turns', () => {
     await store.storeDocument('note', 'The permission coach polls once a second and blocks the main process', []);
     const session = new Set<string>();
 
-    const question = 'why does the permission flow feel slow and blocked';
+    // Worded with the note's subject: recall abstains on a question mostly about words no memory contains (step 7).
+    const question = 'why does the permission coach keep blocking the main process';
     let injections = 0;
     for (let turn = 0; turn < 2; turn++) {
       const loop = new AgentLoop(fakeLoopLlm(), new ToolRegistry(), undefined, undefined, undefined, store, session);

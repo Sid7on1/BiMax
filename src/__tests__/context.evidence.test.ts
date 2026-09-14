@@ -227,6 +227,25 @@ describe('the context archive', () => {
   });
 });
 
+describe('searching an archived output (record 50 step 7, benchmark A1)', () => {
+  test('ContextArchiveTool finds lines by pattern, numbered and bounded, and says when none match', async () => {
+    const log = Array.from({ length: 2000 }, (_, i) => (i % 500 === 7 ? `ERROR shard ${i} checksum mismatch` : `INFO shard ${i} verified`)).join('\n');
+    const archived = archiveOutput(log)!;
+    const tool = createContextArchiveTool(governor);
+    expect(textOf(await tool.execute({ handle: archived.handle, pattern: 'error' }, { cwd: temp }))).toBe(
+      '4 of 2000 lines contain "error":\n8: ERROR shard 7 checksum mismatch\n508: ERROR shard 507 checksum mismatch\n1008: ERROR shard 1007 checksum mismatch\n1508: ERROR shard 1507 checksum mismatch',
+    );
+    expect(textOf(await tool.execute({ handle: archived.handle, pattern: 'shard', maxMatches: 2 }, { cwd: temp }))).toBe(
+      '2000 of 2000 lines contain "shard"; the first 2 are shown:\n1: INFO shard 0 verified\n2: INFO shard 1 verified',
+    );
+    expect(textOf(await tool.execute({ handle: archived.handle, pattern: 'zebra' }, { cwd: temp }))).toBe(
+      'No line of the archived result contains "zebra" (2000 lines searched).',
+    );
+    // Control: without a pattern the whole result comes back, as before.
+    expect(textOf(await tool.execute({ handle: archived.handle }, { cwd: temp }))).toBe(log);
+  });
+});
+
 describe('archive safety and bounds (audit 51, U05, U06)', () => {
   test('a symlink in the archive is never followed, for a file or for the directory itself', () => {
     const outside = path.join(temp, 'outside.txt');

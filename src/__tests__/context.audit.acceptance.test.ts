@@ -185,7 +185,7 @@ describe('A04: recalled memory and compaction', () => {
       return search(...args);
     }) as VectorStore['semanticSearch'];
 
-    const question = 'why does the permission flow feel slow and blocked';
+    const question = 'why does the permission coach keep blocking the main process';
     // Graded at the request boundary: after each round's context is prepared, the messages about to be sent carry
     // exactly one recall block (audit 51, U08: counting searches passed while the request itself had none).
     const twoRounds = async (manager: ContextManager): Promise<{ searches: number; resident: number[] }> => {

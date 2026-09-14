@@ -39,6 +39,7 @@ import { reportCapability } from '../core/capability.status';
 import type { StoredChunk, VectorDocument, VectorStore } from './vector.store';
 import { evidenceSpan, versionOfText, type EvidenceSpan } from '../context/evidence';
 import { tokenize } from './bm25';
+import { UNKNOWN_SUBJECT_SHARE, contentStems } from './sufficiency';
 
 export const RECALL_PREFIX = '[Recalled memory]';
 
@@ -95,6 +96,9 @@ export function recallKey(query: string): string {
  * Returns null when there is nothing worth injecting, which includes the case where retrieval
  * itself failed — a recall block that says "no memories found" is noise the model has to read.
  */
+/** What automatic recall never searches: the persona injects project memory itself, and code belongs to code search. */
+const RECALL_EXCLUDED_TAGS = ['project-memory', 'code'];
+
 export async function recallForTurn(
   store: VectorStore,
   query: string,
@@ -114,7 +118,7 @@ export async function recallForTurn(
     // code is EXCLUDED for the same reason from the other side: source chunks belong to
     // CodeSearchTool, and auto-recall injecting a wall of code into a user turn is displacement,
     // not help. Recall is for durable knowledge; code has its own door.
-    documents = await store.semanticSearch(query, limit, 0, { excludeTags: ['project-memory', 'code'], passages: true });
+    documents = await store.semanticSearch(query, limit, 0, { excludeTags: RECALL_EXCLUDED_TAGS, passages: true });
   } catch {
     reportCapability({ id: 'memory-recall', label: 'Memory recall', state: 'degraded',
       reason: 'Memory lookup failed.', impact: 'This turn continues without recalled context.',
@@ -124,6 +128,17 @@ export async function recallForTurn(
   reportCapability({ id: 'memory-recall', label: 'Memory recall', state: 'ready',
     reason: 'Memory lookup completed.', impact: '', action: '' });
   if (!documents.length) return null;
+  // Lexical retrieval cannot tell a note that answers from one that shares a word with the question. When at least half
+  // of the question's content words appear in no memory at all, memory does not know the subject: inject nothing
+  // (record 47 §4, benchmark S5). With the dense stage on, a paraphrase can match without shared words, so this stays off.
+  // A store that cannot say how it searched or what it holds (a partial stand-in) gets no abstention, as before.
+  const lexicalOnly = typeof store.lastSearchMode === 'function' && !store.lastSearchMode().dense;
+  if (lexicalOnly && typeof store.unknownTerms === 'function') {
+    const asked = contentStems(query);
+    if (asked.length && store.unknownTerms(asked, { excludeTags: RECALL_EXCLUDED_TAGS }).length / asked.length >= UNKNOWN_SUBJECT_SHARE) {
+      return null;
+    }
+  }
 
   const parts: string[] = [];
   const ids: string[] = [];

@@ -5,6 +5,7 @@ import * as path from 'path';
 import { Logger } from '../utils';
 import { Mutex } from 'async-mutex';
 import { Bm25Index, tokenize } from './bm25';
+import { contentStems } from './sufficiency';
 import { reciprocalRankFusion } from './fusion';
 import { chunkDocument } from './chunking';
 import { dot, type EmbeddingBackend } from './embeddings';
@@ -244,6 +245,31 @@ export class VectorStore {
 
   lastSearchMode(): SearchMode {
     return this.mode;
+  }
+
+  private stemCache = new WeakMap<VectorDocument, { content: string; stems: Set<string> }>();
+
+  /**
+   * Which of these stemmed content words appear in no document a search with `scope` could return (see
+   * `memory/sufficiency.ts`). Reads the store as the last search left it.
+   */
+  unknownTerms(stems: readonly string[], scope: Pick<SearchOptions, 'tags' | 'excludeTags' | 'where'> = {}): string[] {
+    const remaining = new Set(stems);
+    for (const doc of this.store) {
+      if (!remaining.size) break;
+      const tags = doc.metadata?.tags ?? [];
+      if (scope.tags?.length && !tags.some((t) => scope.tags!.includes(t))) continue;
+      if (scope.excludeTags?.length && tags.some((t) => scope.excludeTags!.includes(t))) continue;
+      if (scope.where && !scope.where(tags)) continue;
+      const content = doc.metadata?.content ?? '';
+      let cached = this.stemCache.get(doc);
+      if (!cached || cached.content !== content) {
+        cached = { content, stems: new Set(contentStems(content)) };
+        this.stemCache.set(doc, cached);
+      }
+      for (const term of cached.stems) remaining.delete(term);
+    }
+    return [...remaining];
   }
 
   /** A snapshot for readouts (/retrieval) — counts, not contents. */

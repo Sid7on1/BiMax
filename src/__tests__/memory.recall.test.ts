@@ -76,7 +76,8 @@ describe('what recall injects', () => {
     const store = new VectorStore(null);
     await store.storeDocument('note', 'The permission coach polls once a second and blocks the main process', []);
 
-    const recalled = await recallForTurn(store, 'why does the permission flow feel slow and blocked');
+    // Worded with the note's subject: a question mostly about words no memory contains is abstained on (step 7).
+    const recalled = await recallForTurn(store, 'why does the permission coach keep blocking the main process');
     expect(recalled).not.toBeNull();
     expect(recalled!.text.startsWith(RECALL_PREFIX)).toBe(true);
     expect(recalled!.text).toMatch(/retrieved for this turn, not stated by the user/i);
@@ -94,7 +95,7 @@ describe('what recall injects', () => {
   test('respects the character budget', async () => {
     const store = new VectorStore(null);
     await store.storeDocument('big', 'permission '.repeat(2000), []);
-    const recalled = await recallForTurn(store, 'tell me about the permission behaviour please', { maxChars: 300 });
+    const recalled = await recallForTurn(store, 'tell me about the permission', { maxChars: 300 });
     expect(recalled).not.toBeNull();
     expect(recalled!.text.length).toBeLessThan(600);
   });

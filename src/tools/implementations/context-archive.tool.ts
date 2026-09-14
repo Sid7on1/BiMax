@@ -18,7 +18,8 @@ Cleared and cut results carry a handle such as \`archive:3f2a…\`. Pass it here
 
 # Instructions
 - This returns the EARLIER output, not the current state of any file or command. Re-read the file or re-run the tool when you need what is true now.
-- For a long result, pass startLine/endLine instead of reading it whole.`,
+- For a long result, pass startLine/endLine instead of reading it whole.
+- To find lines in a long result, pass pattern: the lines containing it come back numbered, at most maxMatches of them.`,
   isDestructive: false,
   workflowReadOnly: true,
   isConcurrencySafe: true,
@@ -28,10 +29,12 @@ Cleared and cut results carry a handle such as \`archive:3f2a…\`. Pass it here
       handle: { type: 'string', description: 'The handle from the cleared result: "archive:" followed by 32 hex digits.' },
       startLine: { type: 'number', description: 'Optional. The 1-indexed first line to return.' },
       endLine: { type: 'number', description: 'Optional. The 1-indexed last line to return.' },
+      pattern: { type: 'string', description: 'Optional. Return only the lines containing this text (case-insensitive), numbered.' },
+      maxMatches: { type: 'number', description: 'Optional, with pattern. How many matching lines to return (default 50, at most 200).' },
     },
     required: ['handle'],
   },
-  execute: async (args: { handle: string; startLine?: number; endLine?: number }) => {
+  execute: async (args: { handle: string; startLine?: number; endLine?: number; pattern?: string; maxMatches?: number }) => {
     const read = readArchivedOutput(String(args.handle ?? ''));
     if (!read.ok) {
       if (read.reason === 'malformed') {
@@ -44,6 +47,22 @@ Cleared and cut results carry a handle such as \`archive:3f2a…\`. Pass it here
         return outcomeError('io', 'That archived result is not a plain file in the archive, so it is not read. Re-run the tool that produced it.');
       }
       return outcomeError('io', 'That archived result no longer matches its hash, so it is not returned. Re-run the tool that produced it.');
+    }
+    // A question about a large output is answered by searching it, not by reading it whole (record 47 §3.6, benchmark A1).
+    const pattern = typeof args.pattern === 'string' ? args.pattern.trim() : '';
+    if (pattern) {
+      const needle = pattern.toLowerCase();
+      const lines = read.text.split('\n');
+      const cap = Math.min(Math.max(1, Math.floor(Number(args.maxMatches) || 50)), 200);
+      const shown: string[] = [];
+      let count = 0;
+      lines.forEach((line, i) => {
+        if (!line.toLowerCase().includes(needle)) return;
+        count++;
+        if (shown.length < cap) shown.push(`${i + 1}: ${line.length > 300 ? `${line.slice(0, 300)}…` : line}`);
+      });
+      if (!count) return `No line of the archived result contains "${pattern}" (${lines.length} lines searched).`;
+      return `${count} of ${lines.length} lines contain "${pattern}"${count > shown.length ? `; the first ${shown.length} are shown` : ''}:\n${shown.join('\n')}`;
     }
     if (args.startLine === undefined && args.endLine === undefined) return read.text;
     const { text, error } = sliceLineRange(read.text, args.startLine, args.endLine);
