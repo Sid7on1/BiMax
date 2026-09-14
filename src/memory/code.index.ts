@@ -32,7 +32,8 @@ import { reportCapability } from '../core/capability.status';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { createHash } from 'crypto';
-import { fileEvidence, type EvidenceSpan } from '../context/evidence';
+import { fileEvidence, versionOfBytes, type EvidenceSpan } from '../context/evidence';
+import { readEvidenceFile } from '../core/workflow.evidence';
 import type { VectorDocument } from './vector.store';
 import { SqliteCodeVectorStore } from './sqlite.code.store';
 import type { EmbeddingBackend } from './embeddings';
@@ -253,8 +254,9 @@ export class CodeIndex {
       // mtime and size decide cheaply, as before. When both match but ctime moved, the bytes are hashed:
       // a rewrite that put the old mtime and size back kept serving the old chunks (record 47, A01).
       // ctime also moves without a content change (chmod, xattrs, cloud sync), so a moved ctime with an
-      // unchanged hash only updates the manifest. An entry written before hashes existed adopts one
-      // without re-indexing, so upgrading never re-embeds a repository.
+      // unchanged hash only updates the manifest. An entry written before hashes existed is re-indexed:
+      // adopting today's hash without re-chunking stamped the old rows with the new file's version
+      // (audit 51, U01). Hashes are over the raw bytes, like every file version (U04).
       const changed: typeof files = [];
       let manifestTouched = false;
       let hashSliceStart = Date.now();
@@ -264,13 +266,12 @@ export class CodeIndex {
         if (prev.h && prev.c === f.ctimeMs) continue;
         let hash: string;
         try {
-          hash = hashSource(await fs.readFile(f.abs, 'utf-8'));
+          hash = hashSource(await fs.readFile(f.abs));
         } catch {
           continue; // raced away: the next sync reconsiders it
         }
-        if (prev.h && prev.h !== hash) { changed.push(f); continue; }
+        if (prev.h !== hash) { changed.push(f); continue; }
         prev.c = f.ctimeMs;
-        prev.h = hash;
         manifestTouched = true;
         if (Date.now() - hashSliceStart >= this.sliceBudgetMs) {
           await new Promise<void>((resolve) => setImmediate(resolve));
@@ -321,7 +322,8 @@ export class CodeIndex {
 
         for (const file of batch) {
           try {
-            const source = await fs.readFile(file.abs, 'utf-8');
+            const bytes = await fs.readFile(file.abs);
+            const source = bytes.toString('utf-8');
             sliceTags.add(fileTag(file.rel));
             for (const chunk of chunkSource(file.rel, source, this.contextualHeaders)) {
               sliceDocs.push({
@@ -330,7 +332,7 @@ export class CodeIndex {
                 tags: ['code', fileTag(file.rel), `sym:${chunk.symbol}`, `lines:${chunk.startLine}-${chunk.endLine}`],
               });
             }
-            sliceFiles.push({ rel: file.rel, m: file.mtimeMs, s: file.size, c: file.ctimeMs, h: hashSource(source) });
+            sliceFiles.push({ rel: file.rel, m: file.mtimeMs, s: file.size, c: file.ctimeMs, h: hashSource(bytes) });
           } catch {
             // Unreadable mid-sync (deleted, permissions): skip; next sync reconsiders it.
           }
@@ -407,19 +409,23 @@ export class CodeIndex {
       return found;
     };
 
-    // Admission: a hit is evidence only while its file still holds the bytes it was indexed from. A change
-    // the index had not synced yet was served as current (context benchmark case C4). A stale hit triggers
-    // one sync and a fresh search, and whatever is still stale after that is dropped, not shown as current.
+    // Admission: a hit is evidence only while its lines, read now, are its indexed text. A change the index had
+    // not synced yet was served as current (context benchmark case C4). A stale hit triggers one sync and a
+    // fresh search, and whatever is still stale after that is dropped, not shown as current.
     let hits = await retrieve();
-    let versions = await this.admissionVersions(hits);
-    if (hits.some((hit) => !versions.has(hit.path))) {
+    let admission = await this.admitHits(hits);
+    if (admission.stale.size) {
+      // A manifest can call a file current while its rows are not — one written by a build that adopted hashes
+      // without re-indexing (audit 51, U01) — and then no sync would ever re-index it. Forget those entries so
+      // this sync does. A file that is gone keeps its entry, which is how sync finds and removes its rows.
+      await this.forgetEntries(admission.readable);
       await this.sync().catch(() => undefined);
       hits = await retrieve();
-      versions = await this.admissionVersions(hits);
-      hits = hits.filter((hit) => versions.has(hit.path));
+      admission = await this.admitHits(hits);
+      hits = hits.filter((hit) => admission.admitted.has(hit));
     }
     for (const hit of hits) {
-      hit.evidence = fileEvidence(path.join(this.root, hit.path), hit.text, versions.get(hit.path)!, {
+      hit.evidence = fileEvidence(path.join(this.root, hit.path), indexedBody(hit), admission.admitted.get(hit)!, {
         root: this.root, startLine: hit.startLine, endLine: hit.endLine, partial: true,
       });
     }
@@ -435,24 +441,42 @@ export class CodeIndex {
   }
 
   /**
-   * The indexed version of each hit's file, as `sha256:<hex>`, for the files whose bytes still match it. A stat stamp
-   * that matches the manifest is trusted without a read, the same rule sync uses; a moved stamp is settled by hashing;
-   * a deleted, unreadable or unhashed file has no admissible version.
+   * Which hits are still true, each with the version of the bytes it was checked against. A hit is admitted only when
+   * its lines in the file, read now, are exactly its indexed text, and its version is the hash of those same bytes.
+   * Nothing is taken from the manifest: consulting it let a sync that ran between retrieval and admission lend an old
+   * row the new file's version (audit 51, U02). A file that is gone, unreadable or past the indexable size admits
+   * nothing. `stale` names the files with a hit that failed; `readable` is those that could still be read.
    */
-  private async admissionVersions(hits: CodeHit[]): Promise<Map<string, string>> {
-    await this.loadManifest();
-    const versions = new Map<string, string>();
+  private async admitHits(hits: CodeHit[]): Promise<{ admitted: Map<CodeHit, string>; stale: Set<string>; readable: Set<string> }> {
+    const files = new Map<string, { version: string; lines: string[] } | null>();
     for (const rel of new Set(hits.map((hit) => hit.path))) {
-      const entry = this.manifest![rel];
-      if (!entry?.h) continue;
-      const abs = path.join(this.root, rel);
       try {
-        const stat = await fs.stat(abs);
-        const unchanged = entry.m === stat.mtimeMs && entry.s === stat.size && entry.c === stat.ctimeMs;
-        if (unchanged || hashSource(await fs.readFile(abs, 'utf-8')) === entry.h) versions.set(rel, `sha256:${entry.h}`);
-      } catch { /* deleted or unreadable: no admissible version */ }
+        const bytes = await readEvidenceFile(path.join(this.root, rel), undefined, MAX_FILE_BYTES);
+        files.set(rel, { version: versionOfBytes(bytes), lines: bytes.toString('utf-8').split('\n') });
+      } catch {
+        files.set(rel, null);
+      }
     }
-    return versions;
+    const admitted = new Map<CodeHit, string>();
+    const stale = new Set<string>();
+    const readable = new Set<string>();
+    for (const hit of hits) {
+      const file = files.get(hit.path);
+      if (file && indexedBody(hit) === file.lines.slice(hit.startLine - 1, hit.endLine).join('\n')) {
+        admitted.set(hit, file.version);
+        continue;
+      }
+      stale.add(hit.path);
+      if (file) readable.add(hit.path);
+    }
+    return { admitted, stale, readable };
+  }
+
+  /** Drop manifest entries so the next sync re-indexes those files. Saved by that sync, not here. */
+  private async forgetEntries(rels: Set<string>): Promise<void> {
+    if (!rels.size) return;
+    await this.loadManifest();
+    for (const rel of rels) delete this.manifest![rel];
   }
 
   private async loadManifest(): Promise<void> {
@@ -518,9 +542,16 @@ export class CodeIndex {
   }
 }
 
-/** Content identity of a source file's text, recorded in the manifest. */
-function hashSource(source: string): string {
-  return createHash('sha256').update(source).digest('hex');
+/** Content identity of a source file's raw bytes, recorded in the manifest. */
+function hashSource(bytes: Uint8Array): string {
+  return createHash('sha256').update(bytes).digest('hex');
+}
+
+/** A hit's text as it stands in its file: the indexed text without the contextual header chunkSource may add. */
+function indexedBody(hit: CodeHit): string {
+  if (!hit.text.startsWith(`${hit.path} :: `)) return hit.text;
+  const newline = hit.text.indexOf('\n');
+  return newline < 0 ? '' : hit.text.slice(newline + 1);
 }
 
 function fileTag(rel: string): string {

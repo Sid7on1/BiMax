@@ -11,10 +11,12 @@ import { readEvidenceFile } from '../core/workflow.evidence';
  * the model was SHOWN, so that a stale piece of it can be found.
  *
  * Two rules hold everywhere:
- * - **A version is never invented.** It is a hash of the text as taken from its source, or UNKNOWN_VERSION. An unknown
- *   version can never be shown current, so its span goes stale as soon as its source is checked.
- * - **Invalidation follows dependencies.** When a source changes, the spans taken from its old bytes go stale, and so
- *   does everything built from them. Nothing else does.
+ * - **A version is never invented.** It is a hash of the source as read — a file's raw bytes, a memory's stored text —
+ *   or UNKNOWN_VERSION. An unknown version can never be shown current, so its span goes stale as soon as its source is
+ *   checked.
+ * - **Invalidation follows dependencies.** When a source changes, the spans taken from its old version go stale, and so
+ *   does everything built from them. A span built from one that is stale, evicted or was never recorded cannot be
+ *   checked, so it is stale too. Nothing else goes stale.
  */
 
 export const UNKNOWN_VERSION = 'unknown';
@@ -27,10 +29,19 @@ export function versionOfText(text: string): string {
   return `sha256:${createHash('sha256').update(text).digest('hex')}`;
 }
 
+/**
+ * A file's version: sha256 over its raw bytes. Decoding first made two different invalid UTF-8 files share a version,
+ * because both decode to the same replacement character (audit 51, U04). For valid UTF-8 it equals
+ * {@link versionOfText} of the decoded text, so versions taken either way still compare.
+ */
+export function versionOfBytes(bytes: Uint8Array): string {
+  return `sha256:${createHash('sha256').update(bytes).digest('hex')}`;
+}
+
 /** A file's current version, from its actual bytes through record 42's bounded reader; null when gone or unreadable. */
 export async function fileVersion(file: string, signal?: AbortSignal): Promise<string | null> {
   try {
-    return versionOfText((await readEvidenceFile(file, signal, MAX_VERSION_READ_BYTES)).toString('utf8'));
+    return versionOfBytes(await readEvidenceFile(file, signal, MAX_VERSION_READ_BYTES));
   } catch {
     return null;
   }
@@ -73,12 +84,18 @@ export interface EvidenceSpan {
 
 export type EvidenceDraft = Omit<EvidenceSpan, 'id' | 'observedAt'> & { observedAt?: string };
 
-/** Seal a span. Its id is the content address of its source, version, locator and text. */
+/**
+ * Seal a span. Its id is the content address of everything that defines it — source, version, locator, text, scope,
+ * kind, validity and what it was built from — never of when it was seen. The id once left out dependencies and scope,
+ * so the same words built from two different inputs shared an id, and the store kept only the first one's inputs
+ * (audit 51, U03).
+ */
 export function evidenceSpan(draft: EvidenceDraft): EvidenceSpan {
-  const id = createHash('sha256')
-    .update(JSON.stringify([draft.sourceId, draft.sourceVersion, draft.locator, draft.text]))
-    .digest('hex')
-    .slice(0, 24);
+  const identity = [
+    draft.sourceId, draft.sourceVersion, draft.locator, draft.text, draft.scope, draft.kind, draft.derivedFrom,
+    draft.rawHandle ?? null, draft.validFrom ?? null, draft.validUntil ?? null, draft.supersedes ?? null,
+  ];
+  const id = createHash('sha256').update(JSON.stringify(identity)).digest('hex').slice(0, 24);
   return { ...draft, id: `ev_${id}`, observedAt: draft.observedAt ?? new Date().toISOString() };
 }
 
@@ -124,25 +141,38 @@ export function derivedEvidence(label: string, text: string, from: readonly Evid
  * The evidence one session has admitted, and which of it is stale.
  *
  * Bounded: past `maxSpans` the oldest spans are evicted, and the eviction is counted, so a consumer can tell a trimmed
- * record from a complete one.
+ * record from a complete one. What was built from an evicted span can no longer be checked through it, so it goes
+ * stale rather than staying current by default.
  */
 export class ContextEvidence {
   private readonly spans = new Map<string, EvidenceSpan>();
   private readonly stale = new Map<string, string>();
+  /** Span id → ids of the spans built from it, so invalidation walks dependants instead of rescanning the store. */
+  private readonly dependants = new Map<string, Set<string>>();
   private evicted = 0;
 
   constructor(private readonly maxSpans = 2000) {}
 
-  /** Record a span. Admitting the same span again is a no-op. */
+  /**
+   * Record a span. Admitting the same span again is a no-op: the id covers everything that defines it. A span built from
+   * a span that is already stale, or that is not in the record, is stale from the moment it is admitted — nothing
+   * could ever mark it later.
+   */
   admit(span: EvidenceSpan): EvidenceSpan {
-    if (this.spans.has(span.id)) return span;
+    const existing = this.spans.get(span.id);
+    if (existing) return existing;
     this.spans.set(span.id, span);
-    while (this.spans.size > this.maxSpans) {
-      const oldest = this.spans.keys().next().value as string;
-      this.spans.delete(oldest);
-      this.stale.delete(oldest);
-      this.evicted++;
+    const marked: string[] = [];
+    for (const dep of span.derivedFrom) {
+      if (!dep.sourceId.startsWith('span:')) continue;
+      const parent = dep.sourceId.slice('span:'.length);
+      let children = this.dependants.get(parent);
+      if (!children) this.dependants.set(parent, children = new Set());
+      children.add(span.id);
+      if (this.stale.has(parent)) this.markStale(span.id, `built from stale span:${parent}`, marked);
+      else if (!this.spans.has(parent)) this.markStale(span.id, `built from span:${parent}, which is not in the record`, marked);
     }
+    while (this.spans.size > this.maxSpans) this.evict(this.spans.keys().next().value as string);
     return span;
   }
 
@@ -172,15 +202,10 @@ export class ContextEvidence {
 
   /**
    * `sourceId` now has `currentVersion` (null when it is gone or unreadable). Every span taken from any other version of
-   * it goes stale, then everything built from a stale span, until nothing more changes. Returns the ids newly marked.
+   * it goes stale, then everything built from a stale span, transitively. Returns the ids newly marked.
    */
   sourceChanged(sourceId: string, currentVersion: string | null): string[] {
     const marked: string[] = [];
-    const mark = (span: EvidenceSpan, reason: string): void => {
-      if (this.stale.has(span.id)) return;
-      this.stale.set(span.id, reason);
-      marked.push(span.id);
-    };
     const outdated = (version: string): boolean =>
       currentVersion === null || version === UNKNOWN_VERSION || version !== currentVersion;
     const reason = currentVersion === null ? `${sourceId} is gone or unreadable` : `${sourceId} changed`;
@@ -188,18 +213,7 @@ export class ContextEvidence {
     for (const span of this.spans.values()) {
       const direct = span.sourceId === sourceId && outdated(span.sourceVersion);
       const dependency = span.derivedFrom.some((dep) => dep.sourceId === sourceId && outdated(dep.sourceVersion));
-      if (direct || dependency) mark(span, reason);
-    }
-    for (let grew = marked.length > 0; grew;) {
-      grew = false;
-      for (const span of this.spans.values()) {
-        if (this.stale.has(span.id)) continue;
-        const dep = span.derivedFrom.find((d) => d.sourceId.startsWith('span:') && this.stale.has(d.sourceId.slice(5)));
-        if (dep) {
-          mark(span, `built from stale ${dep.sourceId}`);
-          grew = true;
-        }
-      }
+      if (direct || dependency) this.markStale(span.id, reason, marked);
     }
     return marked;
   }
@@ -217,5 +231,42 @@ export class ContextEvidence {
       marked.push(...this.sourceChanged(sourceId, await fileVersion(sourceId.slice('file:'.length), signal)));
     }
     return marked;
+  }
+
+  /** Mark `id` stale for `reason`, then everything built from it, breadth first. Appends each newly marked id. */
+  private markStale(id: string, reason: string, marked: string[]): void {
+    if (this.stale.has(id) || !this.spans.has(id)) return;
+    this.stale.set(id, reason);
+    marked.push(id);
+    const queue = [id];
+    while (queue.length) {
+      const parent = queue.shift()!;
+      for (const child of this.dependants.get(parent) ?? []) {
+        if (this.stale.has(child) || !this.spans.has(child)) continue;
+        this.stale.set(child, `built from stale span:${parent}`);
+        marked.push(child);
+        queue.push(child);
+      }
+    }
+  }
+
+  /** Remove a span. What was built from it can no longer be checked through it, so it goes stale (audit 51, U03). */
+  private evict(id: string): void {
+    const span = this.spans.get(id);
+    if (!span) return;
+    const marked: string[] = [];
+    for (const child of this.dependants.get(id) ?? []) {
+      this.markStale(child, `built from span:${id}, which was evicted from the record`, marked);
+    }
+    this.spans.delete(id);
+    this.stale.delete(id);
+    this.dependants.delete(id);
+    for (const dep of span.derivedFrom) {
+      if (!dep.sourceId.startsWith('span:')) continue;
+      const siblings = this.dependants.get(dep.sourceId.slice('span:'.length));
+      siblings?.delete(id);
+      if (siblings?.size === 0) this.dependants.delete(dep.sourceId.slice('span:'.length));
+    }
+    this.evicted++;
   }
 }

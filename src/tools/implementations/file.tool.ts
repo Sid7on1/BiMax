@@ -11,7 +11,7 @@ import { requestDiffApproval } from '../../cli/diffApproval';
 import { checkBlastRadius } from '../../cli/blastGate';
 import { sliceLineRange } from '../file-range';
 import { detectCorruptWrite } from '../write-guard';
-import { fileStateCache, statStamp, hashFileText } from '../../memory/file-state-cache';
+import { fileStateCache, statStamp, hashFileBytes } from '../../memory/file-state-cache';
 import { globalTransactionManager } from '../../core/transaction.manager';
 import { outcomeOk, outcomeError, outcomeRejected } from '../outcome';
 import { moveToBin, movedToBinText } from '../thread.bin';
@@ -96,11 +96,12 @@ Use this tool to inspect source code, configuration files, or logs. It natively 
         const cached = fileStateCache.get(fullPath, mtime, args.startLine, args.endLine, stamp);
         if (cached !== null) return cached;
 
-        const rawContent = await fs.readFile(fullPath, 'utf8');
+        const rawBytes = await fs.readFile(fullPath);
+        const rawContent = rawBytes.toString('utf8');
         const { text, error } = sliceLineRange(rawContent, args.startLine, args.endLine);
         if (error) return outcomeError('invalid_args', `Error: ${error}`);
         const slicedText = text ?? '';
-        fileStateCache.set(fullPath, mtime, slicedText, args.startLine, args.endLine, { stamp, fileHash: hashFileText(rawContent) });
+        fileStateCache.set(fullPath, mtime, slicedText, args.startLine, args.endLine, { stamp, fileHash: hashFileBytes(rawBytes) });
         return slicedText;
       }
 
@@ -143,8 +144,9 @@ Use this tool to inspect source code, configuration files, or logs. It natively 
         return result;
       }
 
-      const content = await fs.readFile(fullPath, 'utf8');
-      fileStateCache.set(fullPath, mtime, content, undefined, undefined, { stamp, fileHash: hashFileText(content) });
+      const bytes = await fs.readFile(fullPath);
+      const content = bytes.toString('utf8');
+      fileStateCache.set(fullPath, mtime, content, undefined, undefined, { stamp, fileHash: hashFileBytes(bytes) });
       return content;
     } catch (e: any) {
       if (e.code === 'ENOENT') {

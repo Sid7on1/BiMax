@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import {
-  ContextEvidence, UNKNOWN_VERSION, derivedEvidence, evidenceSpan, fileEvidence, fileVersion, versionOfText,
+  ContextEvidence, UNKNOWN_VERSION, derivedEvidence, evidenceSpan, fileEvidence, fileVersion, versionOfBytes, versionOfText,
 } from '../context/evidence';
 import { archiveDirectory, archiveOutput, readArchivedOutput } from '../context/output.archive';
 import { createContextArchiveTool } from '../tools/implementations/context-archive.tool';
@@ -53,6 +53,15 @@ function sqliteHasFts5(): boolean {
   } finally {
     db.close();
   }
+}
+
+/** Rewrites a file with same-length text and puts the old modification time back. */
+function rewriteKeepingSizeAndMtime(file: string, text: string): void {
+  const before = fs.statSync(file);
+  fs.writeFileSync(file, text);
+  fs.utimesSync(file, JAN_1, JAN_1);
+  const after = fs.statSync(file);
+  expect([after.mtimeMs, after.size]).toEqual([before.mtimeMs, before.size]);
 }
 
 let temp: string;
@@ -123,6 +132,62 @@ describe('dependency invalidation', () => {
     ['file:/1', 'file:/2', 'file:/3'].forEach((id) => store.admit(source(id, 'sha256:v')));
     expect(store.all()).toHaveLength(2);
     expect(store.evictedCount).toBe(1);
+  });
+
+  // Audit 51, U03: identity, eviction and late admission each let a dependant stay current after its input changed.
+  test('the same words built from two different inputs are two spans, and each goes stale only with its own input', () => {
+    const store = new ContextEvidence();
+    const a = store.admit(source('file:/a', 'sha256:a1'));
+    const b = store.admit(source('file:/b', 'sha256:b1'));
+    const fromA = store.admit(derivedEvidence('summary', 'the same words', [a]));
+    const fromB = store.admit(derivedEvidence('summary', 'the same words', [b]));
+    expect(fromA.id).not.toBe(fromB.id);
+    expect(store.sourceChanged('file:/b', 'sha256:b2').sort()).toEqual([b.id, fromB.id].sort());
+    expect(store.isStale(fromA.id)).toBe(false);
+  });
+
+  test('evicting a span makes everything built from it stale, at the default bound too', () => {
+    const small = new ContextEvidence(2);
+    const a = small.admit(source('file:/a', 'sha256:a1'));
+    const child = small.admit(derivedEvidence('child', 'built from a', [a]));
+    small.admit(source('file:/b', 'sha256:b1'));
+    expect(small.get(a.id)).toBeUndefined();
+    expect(small.staleReason(child.id)).toContain('evicted');
+
+    const store = new ContextEvidence();
+    const parent = store.admit(source('file:/parent', 'sha256:p'));
+    const kid = store.admit(derivedEvidence('kid', 'built from parent', [parent]));
+    const grandkid = store.admit(derivedEvidence('grandkid', 'built from kid', [kid]));
+    for (let i = 0; i < 1997; i++) store.admit(source(`file:/filler-${i}`, 'sha256:f'));
+    // Control: at exactly the bound nothing is evicted and nothing is stale.
+    expect([store.evictedCount, store.isStale(kid.id)]).toEqual([0, false]);
+    store.admit(source('file:/one-more', 'sha256:f'));
+    expect(store.evictedCount).toBe(1);
+    expect([kid, grandkid].map((span) => store.isStale(span.id))).toEqual([true, true]);
+  });
+
+  test('a span built from a stale or unrecorded span is stale from the moment it is admitted', () => {
+    const store = new ContextEvidence();
+    const a = store.admit(source('file:/a', 'sha256:a1'));
+    store.sourceChanged('file:/a', 'sha256:a2');
+    const late = store.admit(derivedEvidence('late', 'built after a changed', [a]));
+    expect(store.staleReason(late.id)).toContain(`span:${a.id}`);
+    const orphan = store.admit(derivedEvidence('orphan', 'built from a span never admitted', [source('file:/never', 'sha256:n')]));
+    expect(store.staleReason(orphan.id)).toContain('not in the record');
+    // Control: built from a current span, a span is current.
+    const b = store.admit(source('file:/b', 'sha256:b1'));
+    expect(store.isStale(store.admit(derivedEvidence('fine', 'built from b', [b])).id)).toBe(false);
+  });
+
+  test('a file version is taken from its bytes, so two different invalid UTF-8 files never share one', async () => {
+    const file = path.join(temp, 'bytes.bin');
+    fs.writeFileSync(file, Buffer.from([0x61, 0xff]));
+    const first = await fileVersion(file);
+    fs.writeFileSync(file, Buffer.from([0x61, 0xfe]));
+    expect(await fileVersion(file)).not.toBe(first);
+    // Valid UTF-8: the byte version equals the text version, so versions taken either way still compare.
+    fs.writeFileSync(file, 'plain text ✓\n');
+    expect(await fileVersion(file)).toBe(versionOfText('plain text ✓\n'));
   });
 });
 
@@ -263,5 +328,75 @@ describe('admitted evidence from the pipeline', () => {
     expect((await index.search('beforesentinel', 3, undefined, 'lexical')).some((h) => h.text.includes('beforesentinel'))).toBe(false);
     const [after] = await index.search('aftersentinel', 3, undefined, 'lexical');
     expect(after.evidence!.sourceVersion).toBe(versionOfText(fs.readFileSync(path.join(root, 'src/moving.ts'), 'utf8')));
+  });
+
+  const indexedMarker = async (name: string) => {
+    const root = path.join(temp, name);
+    fs.mkdirSync(root, { recursive: true });
+    const file = path.join(root, 'marker.ts');
+    fs.writeFileSync(file, 'export const marker = "oldsentinel";\n');
+    fs.utimesSync(file, JAN_1, JAN_1);
+    const storePath = path.join(temp, `${name}.db`);
+    expect((await new CodeIndex(null, null, { root, storePath }).sync()).indexed).toBe(1);
+    const manifestPath = `${storePath}.manifest.json`;
+    const editManifest = (edit: (entry: { m: number; s: number; c?: number; h?: string }) => void) => {
+      const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+      edit(manifest['marker.ts']);
+      fs.writeFileSync(manifestPath, JSON.stringify(manifest));
+    };
+    return { root, file, storePath, editManifest };
+  };
+  const found = (hits: { text: string }[], word: string) => hits.some((hit) => hit.text.includes(word));
+
+  // Audit 51, U01: an older manifest adopted the new file's hash, and old rows were then served at the new version.
+  test('an index written before hashes existed re-indexes its files instead of adopting their new versions', async () => {
+    const { root, file, storePath, editManifest } = await indexedMarker('legacy');
+    editManifest((entry) => { delete entry.c; delete entry.h; });
+    rewriteKeepingSizeAndMtime(file, 'export const marker = "newsentinel";\n');
+
+    const index = new CodeIndex(null, null, { root, storePath });
+    expect((await index.sync()).indexed).toBe(1);
+    expect(found(await index.search('oldsentinel', 3, undefined, 'lexical'), 'oldsentinel')).toBe(false);
+    const [hit] = await index.search('newsentinel', 3, undefined, 'lexical');
+    expect(hit.evidence!.sourceVersion).toBe(versionOfBytes(fs.readFileSync(file)));
+  });
+
+  test('a manifest that already calls a file current while its rows are old heals at the next search', async () => {
+    const { root, file, storePath, editManifest } = await indexedMarker('adopted');
+    rewriteKeepingSizeAndMtime(file, 'export const marker = "newsentinel";\n');
+    // What a build that adopted hashes left behind: the new file's hash and ctime over the old rows.
+    editManifest((entry) => { entry.c = fs.statSync(file).ctimeMs; entry.h = versionOfBytes(fs.readFileSync(file)).slice('sha256:'.length); });
+
+    const index = new CodeIndex(null, null, { root, storePath });
+    // Control: sync alone believes the file is current, so only admission can find the old rows.
+    expect((await index.sync()).indexed).toBe(0);
+    expect(found(await index.search('oldsentinel', 3, undefined, 'lexical'), 'oldsentinel')).toBe(false);
+    expect(found(await index.search('newsentinel', 3, undefined, 'lexical'), 'newsentinel')).toBe(true);
+  });
+
+  // Audit 51, U02: search took rows, a sync then moved the manifest, and the old rows were admitted at the new version.
+  test('a sync between retrieval and admission cannot lend an old row the new version', async () => {
+    const { root, file, storePath } = await indexedMarker('race');
+    const index = new CodeIndex(null, null, { root, storePath });
+    const store = (index as any).store;
+    const retrieve = store.semanticSearch.bind(store);
+    let raced = false;
+    store.semanticSearch = async (...args: unknown[]) => {
+      const docs = await retrieve(...args);
+      if (!raced) {
+        raced = true;
+        fs.writeFileSync(file, 'export const marker = "newsentinel, rewritten during the search";\n');
+        await index.sync();
+      }
+      return docs;
+    };
+    const hits = await index.search('oldsentinel', 3, undefined, 'lexical');
+    expect(raced).toBe(true);
+    expect(found(hits, 'oldsentinel')).toBe(false);
+    const current = fs.readFileSync(file);
+    for (const hit of hits) {
+      expect(current.toString('utf8')).toContain(hit.evidence!.text);
+      expect(hit.evidence!.sourceVersion).toBe(versionOfBytes(current));
+    }
   });
 });

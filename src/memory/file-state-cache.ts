@@ -36,6 +36,14 @@ export function hashFileText(text: string): string {
 }
 
 /**
+ * Content identity of a file's raw bytes. Prefer it to {@link hashFileText} whenever the bytes are at hand: decoding
+ * first gives two different invalid UTF-8 files the same hash (audit 51, U04). For valid UTF-8 the two are equal.
+ */
+export function hashFileBytes(bytes: Uint8Array): string {
+  return createHash('sha256').update(bytes).digest('hex');
+}
+
+/**
  * FileStateCache — tracks every file the model has read (path + mtime + range → content).
  * Serves two purposes:
  *   1. Dedup guard: if the model tries to re-read an unchanged file+range, return cached content
