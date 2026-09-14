@@ -239,7 +239,17 @@ Value high once Threads is used daily · Effort S. **Built 2026-09-14:**
 
 **N12. Show why a task is waiting.** A task with queued work can show "idle". Separate idle, completed, failed,
 interrupted, waiting for a folder and waiting for approval, with the pending count and a cancel.
-Value medium · Effort S.
+Value medium · Effort S. **Built 2026-09-14:**
+- Every task says what it is doing, in the sidebar, the menu bar and the ⌘2 bar's footer:
+  - Working, Starting, or Needs your decision;
+  - Waiting for another task in this folder;
+  - Stopped, with its queued messages sent when it resumes;
+  - how its last turn ended: Done, Failed or Interrupted.
+- Queued messages are counted, with **Cancel queued**. The turn being worked on carries on.
+- "Failed": the engine reported an error in the turn, or died during it.
+- "Interrupted": the person interrupted or stopped the turn, the engine restarted, or Bimax closed mid-turn.
+- The last outcome is saved with the thread. The counts and the waiting reason are computed each time and never saved.
+- 7 tests; 25 mutants each fail one. **Not verified live.**
 
 **N13. Approve a described change set once.** Threads ask afresh for every existing-file write and mutating
 command, even under bypass or persistent rules. Offer task-scoped permission for an explicitly described change,

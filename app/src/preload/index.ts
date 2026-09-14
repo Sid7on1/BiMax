@@ -62,6 +62,9 @@ const api = {
     quickInterrupt: () => ipcRenderer.send('threads:quick-interrupt'),
     quickResize: (height: number) => ipcRenderer.send('threads:quick-resize', height),
     quickOpen: () => ipcRenderer.send('threads:quick-open'),
+    // How many messages the bar's task has queued and why it waits, and cancelling them (backlog N12).
+    onQuickActivity: (cb: (value: any) => void) => subscribe('threads:quick-activity', cb),
+    cancelQueued: (id: string) => ipcRenderer.invoke('threads:cancel-queued', id),
     // Undo the newest change a thread made to files (main/thread.undo.ts).
     undoInfo: (id: string) => ipcRenderer.invoke('threads:undo-info', id),
     undo: (id: string) => ipcRenderer.invoke('threads:undo', id),

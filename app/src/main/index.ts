@@ -7,6 +7,7 @@ import { ThreadStorage } from './thread.storage';
 import { createThreadBroker } from './thread.broker';
 import { finderContext } from './finder.context';
 import type { QuickContext, QuickThread, ThreadSummary } from '../shared/threads';
+import { threadNotice } from '../shared/threads';
 import { QUICK_BAR, quickBarBounds, quickBarOrigin } from './quick.bar';
 import { journalFile, lastUndoable, threadStateEnvironment, threadStateRoot, undoLast } from './thread.undo';
 import { insideFolder, validAttachments, withContext } from './quick.context';
@@ -105,6 +106,7 @@ function threadChanged(): void {
     listTimer = undefined;
     broadcast('threads:list', threadList());
     updateTray();
+    if (quickWindow && !quickWindow.isDestroyed()) quickWindow.webContents.send('threads:quick-activity', quickActivity());
     if (approvalWindow && !approvalWindow.isDestroyed()) {
       approvalWindow.webContents.send('threads:approvals', threads.approvals());
       if (!threads.approvals().length) approvalWindow.hide();
@@ -190,9 +192,20 @@ function quickThreadSnapshot(): QuickThread | null {
   if (!quickThreadId) return null;
   try {
     const { summary, state } = threads.get(quickThreadId);
-    return { id: summary.id, title: summary.title, root: summary.root, state };
+    const activity = quickActivity();
+    return { id: summary.id, title: summary.title, root: summary.root, state, queued: activity?.queued ?? 0, notice: activity?.notice ?? null };
   } catch {
     quickThreadId = null;
+    return null;
+  }
+}
+/** The ⌘2 bar's footer: how many messages its task has queued, and why it is waiting (backlog N12). */
+function quickActivity(): { id: string; queued: number; notice: string | null } | null {
+  if (!quickThreadId) return null;
+  try {
+    const summary = threads.summary(quickThreadId);
+    return { id: summary.id, queued: summary.queued ?? 0, notice: threadNotice(summary) };
+  } catch {
     return null;
   }
 }
@@ -1618,6 +1631,11 @@ app.whenReady().then(async () => {
   secureHandle('threads:select', false, (_e, id: unknown) => { if (typeof id !== 'string') return false; selectThread(id); return true; });
   secureHandle('threads:start', false, (_e, id: unknown) => { if (typeof id !== 'string') return false; threads.start(id); selectThread(id); return true; });
   secureHandle('threads:stop', false, (_e, id: unknown) => { if (typeof id !== 'string') return false; threads.stop(id); if (id === threads.activeId) selectThread(id); return true; });
+  // Drop a task's queued messages; the turn being worked on carries on (backlog N12).
+  secureHandle('threads:cancel-queued', 0, (_e, id: unknown) => {
+    if (typeof id !== 'string') return 0;
+    try { return threads.cancelQueued(id); } catch { return 0; }
+  });
   secureHandle('threads:link', false, (_e, a: unknown, b: unknown, enabled: unknown) => {
     if (typeof a !== 'string' || typeof b !== 'string' || typeof enabled !== 'boolean') return false;
     threads.link(a, b, enabled); return true;

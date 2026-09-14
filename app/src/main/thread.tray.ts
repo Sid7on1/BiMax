@@ -1,4 +1,4 @@
-import { isQuickThread, type ThreadSummary } from '../shared/threads';
+import { isQuickThread, threadActivity, type ThreadSummary } from '../shared/threads';
 
 /**
  * The menu bar item and the bar's task switching. Pure, so the wording and the ordering can be tested without
@@ -30,8 +30,8 @@ const GLYPH: Record<ThreadSummary['status'], string> = { working: '◐', startin
 export function trayEntries(threads: readonly ThreadSummary[], limit = 8): Array<{ id: string; label: string }> {
   return threads.filter(isQuickThread).sort((a, b) => b.updatedAt - a.updatedAt).slice(0, limit).map((t) => {
     const title = t.title.length > 44 ? `${t.title.slice(0, 43)}…` : t.title;
-    const state = t.status === 'needs-you' ? ' — needs you' : t.status === 'working' || t.status === 'starting' ? ' — working' : '';
-    return { id: t.id, label: `${GLYPH[t.status]} ${title}${state}` };
+    const { short } = threadActivity(t);
+    return { id: t.id, label: `${GLYPH[t.status]} ${title}${short ? ` — ${short}` : ''}` };
   });
 }
 

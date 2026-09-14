@@ -29,6 +29,7 @@ import '../src/renderer/src/styles.css';
     quickCurrent: async () => null,
     onQuickThread: () => () => {},
     onQuickMsg: () => () => {},
+    onQuickActivity: () => () => {},
     search: async () => [],
     archived: async () => [],
   },

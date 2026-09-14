@@ -51,6 +51,8 @@ export function ThreadQuickBar(): React.ReactElement {
   const glass = useSurface('quick');
   const [context, setContext] = useState<QuickContext>({ root: null, source: 'Reading Finder…' });
   const [thread, setThread] = useState<Omit<QuickThread, 'state'> | null>(null);
+  // How many messages the task has queued, and why it waits when it is not working (backlog N12).
+  const [activity, setActivity] = useState<{ queued: number; notice: string | null }>({ queued: 0, notice: null });
   const [state, dispatch] = useReducer(engineReducer, initialEngineState);
   const [prompt, setPrompt] = useState('');
   const [error, setError] = useState('');
@@ -104,6 +106,7 @@ export function ThreadQuickBar(): React.ReactElement {
     const adopt = (value: QuickThread | null): void => {
       batcher.retire(); // the snapshot already holds everything the batcher was waiting to send
       setThread(value ? { id: value.id, title: value.title, root: value.root } : null);
+      setActivity({ queued: value?.queued ?? 0, notice: value?.notice ?? null });
       if (value) setAttachments([]);
       dispatch({ type: 'restoreThread', state: value ? value.state : initialEngineState });
     };
@@ -113,9 +116,12 @@ export function ThreadQuickBar(): React.ReactElement {
       noteOutputKind(msg);
       batcher.push(msg);
     });
+    const offActivity = window.bimax.threads.onQuickActivity((value: { queued: number; notice: string | null } | null) => {
+      setActivity({ queued: value?.queued ?? 0, notice: value?.notice ?? null });
+    });
     void window.bimax.threads.context().then((value: QuickContext) => { setContext(value); setAttachments(value.attachments ?? []); });
     void window.bimax.threads.quickCurrent().then(adopt);
-    return () => { offContext(); offThread(); offMsg(); batcher.dispose(); };
+    return () => { offContext(); offThread(); offMsg(); offActivity(); batcher.dispose(); };
   }, []);
 
   const busy = state.spinner.state !== 'idle' && state.spinner.state !== '';
@@ -411,13 +417,22 @@ export function ThreadQuickBar(): React.ReactElement {
       {showFooter ? (
         <div ref={footer} className="quick-footer quick-drag">
           <span className={cn('quick-status', status && 'quick-error')} role="status" title={talking && talk.view.voice?.quality === 'default' ? BASIC_VOICE_TIP : undefined}>
-            {status || [talkVoice, busy ? `Working in ${folderName(root)}` : thread ? folderName(root) : '', timing].filter(Boolean).join(' · ')}
+            {status || [
+              talkVoice,
+              busy ? `Working in ${folderName(root)}${activity.queued ? ` · ${activity.queued} queued` : ''}` : thread ? (activity.notice ?? folderName(root)) : '',
+              timing,
+            ].filter(Boolean).join(' · ')}
           </span>
           {thread ? (
             <>
               <button type="button" className="quick-link quick-model" title="Choose the model for this task" onClick={() => window.bimax.threads.modelMenu('switch')}>
                 <Cpu size={12} aria-hidden /><span>{modelId ? modelId.split('/').pop() : 'Model'}</span>
               </button>
+              {activity.queued ? (
+                <button type="button" className="quick-link" title="Drop the messages waiting to be sent. The turn being worked on carries on." onClick={() => void window.bimax.threads.cancelQueued(thread.id)}>
+                  Cancel queued
+                </button>
+              ) : null}
               {!busy && lastIsAnswer ? (
                 <button type="button" className="quick-link" title="Answer again with another model" onClick={() => window.bimax.threads.modelMenu('retry')}>
                   <RotateCcw size={12} aria-hidden />Retry

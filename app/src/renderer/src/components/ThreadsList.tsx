@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Archive, Folder, Link2, MessageSquare, Pencil, RotateCcw, Search, Square, Trash2 } from 'lucide-react';
-import { isQuickThread, type ThreadList, type ThreadSummary } from '../../../shared/threads';
+import { isQuickThread, threadActivity, type ThreadList, type ThreadSummary } from '../../../shared/threads';
 
 /** What a thread action answers: a refusal says why; a cancelled confirmation says nothing. */
 type ActionResult = { ok: boolean; error?: string; cancelled?: boolean };
@@ -78,11 +78,12 @@ export function ThreadsList(): React.ReactElement {
           </div>
         : <button className="w-full cursor-pointer px-2 py-2 text-left" onClick={() => void action(() => window.bimax.threads.select(thread.id))}>
             <span className="flex gap-2 text-[12px] text-ink"><MessageSquare size={13} className="mt-0.5 shrink-0"/><span className="truncate">{thread.title}</span></span>
-            <span className="mt-1 flex items-center gap-1 pl-5 text-[10px] text-faint"><Folder size={10}/><span title={thread.root} className="truncate">{folderName(thread.root)}</span><span className={thread.status === 'needs-you' ? 'text-amber' : ''}>· {thread.status === 'needs-you' ? 'Needs you' : thread.status}</span></span>
+            <span className="mt-1 flex items-center gap-1 pl-5 text-[10px] text-faint"><Folder size={10}/><span title={thread.root} className="truncate">{folderName(thread.root)}</span><span className={thread.status === 'needs-you' ? 'text-amber' : thread.outcome === 'failed' && !thread.queued ? 'text-rust' : ''}>· {threadActivity(thread).label}</span></span>
           </button>}
       <div className="flex flex-wrap gap-x-3 gap-y-1 px-3 pb-1.5 text-[10px] text-dim">
         {thread.status === 'stopped' && <button className="cursor-pointer" onClick={() => void action(() => window.bimax.threads.start(thread.id))}>Resume</button>}
         {thread.status !== 'stopped' && <button title="Stop only this thread" className="flex cursor-pointer gap-1" onClick={() => void action(() => window.bimax.threads.stop(thread.id))}><Square size={10}/>Stop</button>}
+        {thread.queued ? <button title="Drop the messages waiting to be sent. The turn being worked on carries on." className="cursor-pointer" onClick={() => void action(() => window.bimax.threads.cancelQueued(thread.id))}>Cancel queued</button> : null}
         {active && active.id !== thread.id && <button className="flex cursor-pointer gap-1" onClick={() => void action(() => window.bimax.threads.link(active.id,thread.id,!active.peers.includes(thread.id)))}><Link2 size={11}/>{active.peers.includes(thread.id) ? 'Unlink' : 'Link to current'}</button>}
         {active?.peers.includes(thread.id) && <button className="cursor-pointer" onClick={() => void action(() => window.bimax.threads.link(active.id,thread.id,true))}>Renew</button>}
         <button className="flex cursor-pointer gap-1" onClick={() => setRenaming({ id: thread.id, title: thread.title })}><Pencil size={10}/>Rename</button>

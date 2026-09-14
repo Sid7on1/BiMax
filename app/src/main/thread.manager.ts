@@ -50,6 +50,10 @@ interface LiveThread extends SavedThread {
   holdInputs?: boolean;
   /** The previous engine's process is still exiting: nothing else may write in this folder yet (backlog F11). */
   draining?: Promise<unknown>;
+  /** The person interrupted the current turn, so it ends "interrupted", not "completed" (backlog N12). */
+  interruptAsked?: boolean;
+  /** The engine reported an error during the current turn, so it ends "failed". */
+  turnError?: boolean;
 }
 interface Dependencies {
   engine(id: string): ThreadEngine;
@@ -126,10 +130,17 @@ export class ThreadManager {
     };
     this.records.set(item.summary.id, r);
     // Bimax closed with messages still open: say what happened to each, before anything else can happen to them.
+    if (inputs.some((input) => input.state === 'sent')) r.summary.outcome = 'interrupted';
     if (inputs.length) this.recoverInputs(r, 'Bimax closed', false);
     return true;
   }
-  list(): ThreadSummary[] { return [...this.records.values()].map(r => ({ ...r.summary })).sort((a,b) => b.updatedAt-a.updatedAt); }
+  list(): ThreadSummary[] { return [...this.records.values()].map(r => this.summaryOf(r)).sort((a,b) => b.updatedAt-a.updatedAt); }
+  /** One thread's summary as lists show it, with its queue and why it waits (backlog N12). */
+  summary(id: string): ThreadSummary {
+    const r = this.records.get(id);
+    if (!r) throw new Error('Thread not found');
+    return this.summaryOf(r);
+  }
   get(id: string): SavedThread {
     const r = this.records.get(id);
     if (!r) throw new Error('Thread not found');
@@ -273,13 +284,13 @@ export class ThreadManager {
   private pump(r: LiveThread): void {
     const next = r.inputs.find((input) => input.state === 'queued');
     if (!r.ready || r.pending.size || r.summary.status === 'working' || !next || r.holdInputs || r.draining) return;
-    const root = r.summary.root;
-    const conflict = [...this.records.values()].some(other => other !== r &&
-      (['working','needs-you'].includes(other.summary.status) || !!other.draining) &&
-      (root === other.summary.root || root.startsWith(other.summary.root + path.sep) || other.summary.root.startsWith(root + path.sep)));
-    if (conflict) return;
+    if (this.folderTaken(r)) return;
     next.state = 'sent';
     r.summary.status = 'working';
+    // A new turn: how the last one ended no longer describes this thread.
+    r.summary.outcome = undefined;
+    r.interruptAsked = false;
+    r.turnError = false;
     r.turnStartedAt = Date.now();
     // Recorded as sent before it is sent: after a crash in between, the message is reported as possibly run, never repeated.
     this.persist(r, true);
@@ -312,6 +323,9 @@ export class ThreadManager {
       r.summary.status = 'needs-you';
       this.deps.approval(approval);
     }
+    // An error the engine reports during a turn makes that turn end "failed" rather than "done" (backlog N12).
+    // Only a turn's end reads it, and every turn starts with it cleared, so an error between turns changes nothing.
+    if (msg.t === 'event' && msg.name === 'message' && (msg.args[0] as { level?: unknown } | undefined)?.level === 'error') r.turnError = true;
     r.state = engineReducer(r.state, { type: 'outbound', msg });
     if (msg.t === 'event' && msg.name === 'ui_snapshot') {
       const current = (msg.args[0] as any)?.sessions?.find((s: any) => s.current);
@@ -337,7 +351,10 @@ export class ThreadManager {
       const choice = r.pending.get(RESUME_CHOICE_ID);
       finishedTurn = !choice && (r.summary.status === 'working' || r.summary.status === 'needs-you');
       // The turn is over, so the message it answered is settled.
-      if (finishedTurn) r.inputs = r.inputs.filter((input) => input.state !== 'sent');
+      if (finishedTurn) {
+        r.inputs = r.inputs.filter((input) => input.state !== 'sent');
+        r.summary.outcome = r.interruptAsked ? 'interrupted' : r.turnError ? 'failed' : 'completed';
+      }
       r.pending.clear();
       if (choice) {
         r.pending.set(RESUME_CHOICE_ID, choice);
@@ -361,6 +378,8 @@ export class ThreadManager {
     const r = this.records.get(id); if (!r?.engine) return;
     if (['failed','exited','restarting','stopping'].includes(phase)) {
       r.ready = false; r.pending.clear();
+      // A turn cut off by the engine: failed when the engine died, interrupted when it restarted or stopped (backlog N12).
+      if (r.summary.status === 'working' || r.summary.status === 'needs-you') r.summary.outcome = phase === 'failed' || phase === 'exited' ? 'failed' : 'interrupted';
       r.summary.status = phase === 'restarting' ? 'starting' : 'stopped';
       r.state = { ...r.state, request:null, spinner:{ state:'idle',message:'' }, engine:{ state:'exited',detail } };
       // A failed or restarting engine used to take the queue with it. Queued messages stay; the one being worked on is
@@ -396,6 +415,7 @@ export class ThreadManager {
     }
     if (msg.t === 'interrupt') {
       // An explicit interrupt cancels this turn and everything queued behind it.
+      r.interruptAsked = true;
       r.inputs = [];
       r.pending.clear();
       r.state = { ...r.state, request: null };
@@ -511,11 +531,42 @@ export class ThreadManager {
     this.persist(r);
   }
   approvals(): ThreadApproval[] { return [...this.records.values()].flatMap(r => [...r.pending.values()]); }
+  /** Drop the messages still waiting to be sent; the turn being worked on carries on (backlog N12). Returns how many. */
+  cancelQueued(id: string): number {
+    const r = this.records.get(id);
+    if (!r) throw new Error('Thread not found');
+    const dropped = r.inputs.filter((input) => input.state === 'queued');
+    if (!dropped.length) return 0;
+    r.inputs = r.inputs.filter((input) => input.state !== 'queued');
+    const what = dropped.length === 1 ? 'a queued message' : `${dropped.length} queued messages`;
+    this.appendNote(r, `Cancelled ${what}: ${dropped.map((input) => quoted(input.display)).join(', ')}.`, 'info', true);
+    this.persist(r, true);
+    return dropped.length;
+  }
+  /** Another task is working, waiting for a decision or still stopping in this folder, or in one inside or around it. */
+  private folderTaken(r: LiveThread): boolean {
+    const root = r.summary.root;
+    return [...this.records.values()].some(other => other !== r &&
+      (['working','needs-you'].includes(other.summary.status) || !!other.draining) &&
+      (root === other.summary.root || root.startsWith(other.summary.root + path.sep) || other.summary.root.startsWith(root + path.sep)));
+  }
+  /** A copy of a thread's summary for lists, with how many messages wait and why. Those two fields are never saved. */
+  private summaryOf(r: LiveThread): ThreadSummary {
+    const summary: ThreadSummary = { ...r.summary };
+    const queued = r.inputs.filter((input) => input.state === 'queued').length;
+    if (!queued) return summary;
+    summary.queued = queued;
+    if (!r.engine) summary.waiting = 'resume';
+    else if (r.draining || !r.ready) summary.waiting = 'engine';
+    else if (this.folderTaken(r)) summary.waiting = 'folder';
+    return summary;
+  }
   /** The user's Stop drops what was queued. `keepInputs` is for restarts and quitting, which must not lose messages. */
   stop(id: string, options: { keepInputs?: boolean } = {}): void {
     const r = this.records.get(id);
     if (!r) return;
     const engine = r.engine;
+    if (r.summary.status === 'working' || r.summary.status === 'needs-you') r.summary.outcome = 'interrupted';
     if (options.keepInputs) this.recoverInputs(r, 'the task was restarted', true);
     else r.inputs = [];
     r.engine = undefined; r.ready = false; r.pending.clear(); r.restartWanted = false;
