@@ -1,5 +1,14 @@
 # Bimax product reset
 
+## Context audit qualification — 2026-09-14
+
+[51_CONTEXT_UPGRADE_AUDIT.md](51_CONTEXT_UPGRADE_AUDIT.md) qualifies the later C0/C1 implementation
+claims in records 48/50: existing tests pass, but adversarial probes and a surviving budget mutant
+leave important contracts unresolved. The build-plan introduction below describes the earlier
+pre-implementation baseline. [52_NOVEL_FEATURE_RECOMMENDATIONS.md](52_NOVEL_FEATURE_RECOMMENDATIONS.md)
+contains ten researched proposals, all Target; it does not change the committed build order.
+
+
 ## Context Compiler build plan — 2026-09-14
 
 `50_CONTEXT_COMPILER_BUILD_PLAN.md` turns record 47 into ordered steps: acceptance tests for the eight reproduced

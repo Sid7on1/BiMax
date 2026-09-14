@@ -1,5 +1,21 @@
 # Competitive source ledger
 
+## Context audit and feature research — checked 2026-09-14
+
+[Record 51](../51_CONTEXT_UPGRADE_AUDIT.md) records inspected source at `333329f`, 25 passing Bun
+tests, a reproduced 26/33 local benchmark and controlled adversarial probes. A budget mutant
+survives both supplied suites and preserves the benchmark score. This qualifies earlier local
+C0/C1 completion claims; no live-provider, installed-app or competitive result was measured.
+
+[Record 52](../52_NOVEL_FEATURE_RECOMMENDATIONS.md#sources) records the checked primary-source
+bibliography: Cursor rules/search/security; Claude Code memory/context/hooks/checkpoints; Codex CLI;
+Aider maps/modes/testing; Cline checkpoints/compaction; the current Devin Desktop destination of
+Windsurf's memories documentation; OpenCode configuration; Stryker mutant classification; and
+Zeller/Hildebrandt's original reduction research. These establish adjacent capabilities and known
+algorithms, not market-wide absence. All ten proposed product contracts remain Target. No external
+source code or dependency was imported.
+
+
 ## Failure visibility — inspected 2026-09-12
 
 Owner-supplied `../../RETRIEVAL_TOOL_AUDIT.md` is the investigation input; its live-provider results

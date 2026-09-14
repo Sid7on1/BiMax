@@ -280,3 +280,17 @@ context repair, budgeted evidence selection, continuation/residency state, and b
 queries. Hybrid retrieval, reranking, graph context, document provenance, numeric FactStore, and
 outcome contracts already exist and should be extended. No runtime fix is claimed by this report;
 R02, mutation-qualified end states, and applicable release gates remain outstanding.
+
+
+## Context qualification audit — 2026-09-14
+
+The preceding RAG entry is the pre-implementation observation. Record 50 and backlog 48 subsequently
+recorded C0/C1 implementation. [Audit 51](../51_CONTEXT_UPGRADE_AUDIT.md) now qualifies that status:
+25 existing tests pass and 26/33 benchmark grades reproduce, but legacy version adoption, concurrent
+version binding, dependency lifetime/identity, archive handling and independent grading still need
+repair. Eleven reproduced findings and two source-based risks are separated in the audit. C0/C1
+are not fully qualified; live R02 and Product-ready remain Target. No competitive Win is claimed.
+
+[Record 52](../52_NOVEL_FEATURE_RECOMMENDATIONS.md) adds ten ranked research proposals with narrow
+contracts, existing-backlog distinctions and falsifiers. These are Target recommendations, not new
+implemented capabilities or an automatic expansion of the committed build sequence.
