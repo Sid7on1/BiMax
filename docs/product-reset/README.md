@@ -1,5 +1,16 @@
 # Bimax product reset
 
+## Folder triggers designed and built — 2026-09-14
+
+[53_FOLDER_TRIGGERS_DESIGN.md](53_FOLDER_TRIGGERS_DESIGN.md) designs the first part of backlog FL1 before any code:
+- what counts as an arrival;
+- how a run is kept from triggering itself;
+- the limits;
+- the change list.
+
+The first version is built: files that arrive directly in a folder start a ⌘2 task while Bimax is open. It is
+unit-tested with mutants and has not been tried against a real folder yet.
+
 ## Context Compiler built — 2026-09-14
 
 Record 50's steps 6–8 are built on top of the audit 51 repairs: a continuation state that survives compaction, one

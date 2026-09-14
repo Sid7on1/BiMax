@@ -73,11 +73,12 @@ Each item lists **Value** (high, medium, low), **Effort** (S: days, M: 1–2 wee
    Not Product-ready: the R02 deterministic journey fails on this Mac as it did before (FTS5 missing under Node 22), and
    the live-provider journey and model-graded held-out outcomes were not run. Record 50 lists what is still Target.
 4. **F1:** queued messages survive an engine restart and an app reload (T01). **Done 2026-09-14.**
-5. **Q1–Q4:** the quick fixes, about an hour together.
-6. **F9–F12:** the Threads reliability defects T02–T05.
-7. **N1:** approve from the notification.
-8. **N2:** `bimax://` links and Shortcuts actions.
-9. **FL1:** write the folder-trigger design (events, loop protection, undo, limits) before any code.
+5. **Q1–Q4:** the quick fixes, about an hour together. **Done 2026-09-14.**
+6. **F9–F12:** the Threads reliability defects T02–T05. **Done 2026-09-14.**
+7. **N1:** approve from the notification. **Built 2026-09-14.**
+8. **N2:** `bimax://` links and Shortcuts actions. **Built 2026-09-14.**
+9. **FL1:** write the folder-trigger design (events, loop protection, undo, limits) before any code. **Designed and
+   folder triggers built 2026-09-14** ([record 53](53_FOLDER_TRIGGERS_DESIGN.md)); folders with an outcome are still Target.
 
 ---
 
@@ -245,7 +246,20 @@ current build first. Value medium · Effort S.
 Grow into *folders with an outcome*: "keep this folder ready for my accountant", with a queue of what is ready and
 what needs you. Value high · Effort M then L · Needs F1, F4, F5 · Builds on folder rules, schedules and undo.
 *Must design first:* loop protection (a task's own edits must not re-trigger it), debouncing, and a
-reviewable change list.
+reviewable change list. **Designed and first version built 2026-09-14** ([record 53](53_FOLDER_TRIGGERS_DESIGN.md)).
+From a task's ⋯ menu: run it when any file, a PDF, an image or a document arrives directly in its folder, while Bimax
+is open. Each run is a new ⌘2 task on the new files. It asks before changing anything and ends with a list of what it
+changed.
+
+Loop protection:
+- a rename in place is not an arrival;
+- a run's journaled output is ignored;
+- any other new file gets one follow-up run, and a follow-up that leaves more files pauses the trigger.
+
+Limits: one run at a time, 6 runs an hour, 50 files per run.
+
+It is unit-tested with 23 mutants but **not verified live**. Still Target: files that arrive while Bimax is closed,
+subfolders, resuming the same task (F4), and folders with an outcome.
 
 **FL2. A preview you can rearrange.** Before organizing 300 files, show the proposed tree. Dragging one invoice
 leads to "Put all invoices here?", and the whole preview updates. *First version:* an editable organization

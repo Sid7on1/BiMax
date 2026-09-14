@@ -27,6 +27,8 @@ export interface AppSettings {
   folderRules?: Record<string, { text: string; protect: string[] }>;
   /** Repeating ⌘2 tasks (schedules.ts). */
   schedules?: import('./schedules').Schedule[];
+  /** ⌘2 tasks that run when files arrive in a folder (folder.triggers.ts). */
+  folderTriggers?: import('./folder.triggers').FolderTrigger[];
 }
 
 const MAX_RECENTS = 8;

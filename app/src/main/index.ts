@@ -8,7 +8,7 @@ import { createThreadBroker } from './thread.broker';
 import { finderContext } from './finder.context';
 import type { QuickContext, QuickThread } from '../shared/threads';
 import { QUICK_BAR, quickBarBounds, quickBarOrigin } from './quick.bar';
-import { lastUndoable, threadStateEnvironment, threadStateRoot, undoLast } from './thread.undo';
+import { journalFile, lastUndoable, threadStateEnvironment, threadStateRoot, undoLast } from './thread.undo';
 import { insideFolder, validAttachments, withContext } from './quick.context';
 import { nextQuickThread, trayEntries, trayTitle, trayTooltip } from './thread.tray';
 import { modelMenuItems, type CatalogModel, type ModelMenuItem, type ModelTime } from './thread.models';
@@ -16,13 +16,17 @@ import { cleanRules, rulesEnvironment } from './folder.rules';
 import { helperArguments, talkHelper, VoiceSessions, voiceHelperPath, voiceSupported } from './voice';
 import { TalkSession, talkModel, type TalkView } from './talk.session';
 import { describeSchedule, dueSchedules, newSchedule, type Cadence, type Schedule } from './schedules';
+import {
+  ARRIVAL_KINDS, FolderTriggers, MAX_TRIGGERS, arrivalLabel, changeListNote, changesDuring, describeTrigger, newTrigger, runMessage,
+  triggerFolderProblem, validTriggers, type FolderEntry, type FolderTrigger, type StartResult,
+} from './folder.triggers';
 import { randomUUID } from 'node:crypto';
 import { macBin } from './bin';
 import { answerFromNotification, notificationChoices } from './approval.notification';
 import { linkConfirmation, parseTaskLink } from './bimax.link';
 import os from 'node:os';
 import { spawn } from 'node:child_process';
-import { readFileSync, writeFileSync, renameSync, mkdirSync, realpathSync, existsSync, appendFileSync, statSync } from 'node:fs';
+import { readFileSync, writeFileSync, renameSync, mkdirSync, realpathSync, existsSync, appendFileSync, statSync, watch as watchFolder } from 'node:fs';
 import fsp from 'node:fs/promises';
 import {
   spawnEngineProcess, recentEngineLog, engineProcessProvenance,
@@ -469,7 +473,63 @@ function scheduleMenu(): Electron.MenuItemConstructorOptions[] {
     { type: 'separator' },
   ];
 }
-/** ⋯ in the ⌘2 bar: repeat this task on a schedule (schedules.ts), or edit this folder's rules (folder.rules.ts). */
+/** Watches folders for their triggers while Bimax is open; created once threads exist. */
+let folderTriggers: FolderTriggers | null = null;
+const loadTriggers = (): FolderTrigger[] => validTriggers(loadSettings().folderTriggers, os.homedir());
+function saveTriggers(list: FolderTrigger[]): void {
+  saveSettings({ folderTriggers: list });
+  updateTray();
+  void folderTriggers?.sync(list);
+}
+const removeTrigger = (id: string): void => saveTriggers(loadTriggers().filter((t) => t.id !== id));
+/** Resuming counts from now, like a schedule: files that arrived while it was paused are not run. */
+const setTriggerEnabled = (id: string, enabled: boolean): void =>
+  saveTriggers(loadTriggers().map((t) => (t.id === id ? { ...t, enabled, pausedReason: undefined } : t)));
+/**
+ * One run of a folder trigger (folder.triggers.ts, backlog FL1): a new ⌘2 task on the files that arrived, which asks
+ * before changing anything like every task. 'busy' (four tasks running, or a task working in or around the folder)
+ * creates nothing, so the files wait; a run never shares its folder, so the undo journal's entries are its own.
+ */
+function startTriggered(trigger: FolderTrigger, files: string[], followUp: boolean): StartResult {
+  const running = threads.list().filter((t) => ['working', 'starting', 'needs-you'].includes(t.status));
+  if (running.length >= 4 || running.some((t) => insideFolder(t.root, trigger.root) || insideFolder(trigger.root, t.root))) return 'busy';
+  try {
+    const id = threads.create(trigger.root, '', 'quick', trigger.model || loadSettings().quickModel || undefined);
+    threads.addNote(id, `${describeTrigger(trigger)} · folder trigger${followUp ? ' · these files appeared while its last run was working' : ''}`);
+    const { text, display } = runMessage(trigger, files);
+    threads.submit(id, text, display, true);
+    if (Notification.isSupported()) {
+      const what = files.length === 1 ? path.basename(files[0]) : `${files.length} new files`;
+      const note = new Notification({ title: `Started: ${trigger.title}`, subtitle: `${what} in ${path.basename(trigger.root)}`, body: 'It will ask before it changes anything.' });
+      note.on('click', () => openThread(id));
+      note.show();
+    }
+    return { threadId: id };
+  } catch (error) {
+    return { error: (error as Error).message };
+  }
+}
+/** The menu bar's "Folder triggers": each with why it is paused, Pause/Resume and Stop watching. */
+function triggerMenu(): Electron.MenuItemConstructorOptions[] {
+  const list = loadTriggers();
+  if (!list.length) return [];
+  return [
+    { label: 'Folder triggers', submenu: list.map((t): Electron.MenuItemConstructorOptions => ({
+      label: `${t.enabled ? '' : 'Paused · '}${t.title.slice(0, 48)} — ${describeTrigger(t)}`,
+      submenu: [
+        { label: t.enabled ? 'Watching while Bimax is open' : (t.pausedReason ?? 'Paused').slice(0, 90), enabled: false },
+        { label: t.enabled ? 'Pause' : 'Resume', click: () => setTriggerEnabled(t.id, !t.enabled) },
+        { type: 'separator' },
+        { label: 'Stop watching', click: () => removeTrigger(t.id) },
+      ],
+    })) },
+    { type: 'separator' },
+  ];
+}
+/**
+ * ⋯ in the ⌘2 bar: repeat this task on a schedule (schedules.ts), run it when files arrive (folder.triggers.ts), or edit
+ * this folder's rules (folder.rules.ts).
+ */
 function showMoreMenu(): void {
   if (!quickWindow || quickWindow.isDestroyed()) return;
   const snapshot = quickThreadSnapshot();
@@ -495,6 +555,29 @@ function showMoreMenu(): void {
   } else {
     template.push({ label: 'Repeat this task', enabled: false, sublabel: 'Send a task first' });
   }
+  if (snapshot && prompt) {
+    const watching = loadTriggers().find((t) => t.root === snapshot.root && t.prompt === prompt);
+    template.push({ type: 'separator' });
+    if (watching) {
+      template.push(
+        { label: `Runs ${describeTrigger(watching).replace(/^When/, 'when')}`, enabled: false },
+        { label: 'Stop watching', click: () => { removeTrigger(watching.id); threads.addNote(snapshot.id, 'This task no longer runs when files arrive.'); } },
+      );
+    } else {
+      const refusal = triggerFolderProblem(snapshot.root, os.homedir())
+        ?? (loadTriggers().length >= MAX_TRIGGERS ? `Bimax already watches ${MAX_TRIGGERS} folders` : null);
+      template.push({ label: `Run this task when files arrive in ${path.basename(snapshot.root)}`, enabled: false, ...(refusal ? { sublabel: refusal } : {}) });
+      if (!refusal) {
+        for (const kind of ARRIVAL_KINDS) {
+          const draft = newTrigger({ id: randomUUID(), title: snapshot.title, root: snapshot.root, prompt, model: threads.get(snapshot.id).summary.model, kind, now: Date.now() });
+          template.push({ label: arrivalLabel(kind), click: () => {
+            saveTriggers([...loadTriggers(), draft]);
+            threads.addNote(snapshot.id, `${describeTrigger(draft)}, Bimax runs this task on the new files while it is open. Each run starts a new task, asks before changing anything, and ends with a list of what it changed. Manage it from Bimax in the menu bar.`);
+          } });
+        }
+      }
+    }
+  }
   template.push({ type: 'separator' });
   template.push(root
     ? { label: `Rules for ${path.basename(root)}…`, click: () => quickWindow?.webContents.send('threads:open-rules') }
@@ -515,6 +598,7 @@ function updateTray(): void {
     ...(entries.length ? entries.map((entry) => ({ label: entry.label, click: () => openThread(entry.id) })) : [{ label: 'No tasks yet', enabled: false }]),
     { type: 'separator' },
     ...scheduleMenu(),
+    ...triggerMenu(),
     { label: 'New ⌘2 Task', click: () => { quickThreadId = null; if (quickWindow?.isVisible()) sendQuickThread(); else void showQuickBar(); } },
     { label: 'Open Bimax', click: () => revealMainWindow() },
     { type: 'separator' },
@@ -1112,12 +1196,59 @@ app.whenReady().then(async () => {
       notifyFinished(id);
       // Its folder's rules changed mid-turn: restart on them now that the turn is over (unless a message is queued).
       if (rulesStale.delete(id) && !threads.restartIfIdle(id)) rulesStale.add(id);
+      // A folder trigger's run may be over, or a trigger may have been waiting for this folder.
+      folderTriggers?.finished(id);
     },
   }, threadStorage.load());
   // Repeating ⌘2 tasks (schedules.ts): checked every minute, shortly after launch, and when the Mac wakes.
   setInterval(() => void runSchedules(), 60_000);
   setTimeout(() => void runSchedules(), 15_000);
   powerMonitor.on('resume', () => { setTimeout(() => void runSchedules(), 5_000); });
+  // Folder triggers (folder.triggers.ts, backlog FL1): watched while Bimax is open; each run is a new ⌘2 task.
+  folderTriggers = new FolderTriggers({
+    list: async (root) => {
+      const names = await fsp.readdir(root, { withFileTypes: true });
+      const entries = await Promise.all(names.filter((entry) => entry.isFile()).map(async (entry) => {
+        const stat = await fsp.lstat(path.join(root, entry.name)).catch(() => null);
+        return stat?.isFile() ? { name: entry.name, ino: stat.ino, size: stat.size, mtimeMs: stat.mtimeMs } : null;
+      }));
+      return entries.filter((entry): entry is FolderEntry => !!entry);
+    },
+    watch: (root, changed) => {
+      try {
+        const watcher = watchFolder(root, { persistent: false }, () => changed());
+        watcher.on('error', () => { /* the listing every minute still notices arrivals */ });
+        return () => watcher.close();
+      } catch {
+        return () => {};
+      }
+    },
+    timer: (fn, ms) => { const handle = setTimeout(fn, ms); return () => clearTimeout(handle); },
+    now: () => Date.now(),
+    start: startTriggered,
+    active: (id) => {
+      try {
+        const thread = threads.get(id);
+        return !!thread.inputs?.length || ['starting', 'working', 'needs-you'].includes(thread.summary.status);
+      } catch {
+        return false;
+      }
+    },
+    changes: (trigger, from, to) => {
+      let journal = '';
+      try { journal = readFileSync(journalFile(threadStateRoot(app.getPath('userData'), trigger.root, 'quick')), 'utf8'); } catch { /* nothing recorded yet */ }
+      return changesDuring(journal, from, to);
+    },
+    report: (id, titles) => { try { threads.addNote(id, changeListNote(titles)); } catch { /* the task is gone */ } },
+    paused: (trigger, reason, files) => {
+      saveTriggers(loadTriggers().map((t) => (t.id === trigger.id ? { ...t, enabled: false, pausedReason: reason } : t)));
+      if (!Notification.isSupported()) return;
+      const names = files.map((file) => path.basename(file));
+      const left = names.length ? ` Not handled: ${names.slice(0, 3).join(', ')}${names.length > 3 ? ` and ${names.length - 3} more` : ''}.` : '';
+      new Notification({ title: `Paused: ${trigger.title}`, subtitle: describeTrigger(trigger), body: `${reason}${left} Resume it from Bimax in the menu bar.` }).show();
+    },
+  });
+  void folderTriggers.sync(loadTriggers());
   threadBroker = await createThreadBroker(threads, async (from, to) => {
     const a = threads.get(from).summary, b = threads.get(to).summary;
     const result = await dialog.showMessageBox({ type: 'question', title: 'Link Bimax threads?',
