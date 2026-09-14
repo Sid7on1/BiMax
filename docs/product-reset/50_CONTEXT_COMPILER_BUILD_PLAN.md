@@ -377,6 +377,21 @@ outcomes than the baseline, on the same models and resource budget.
 - **Held-out caveat.** H1 and H2 were written before this step, but the rule was checked against them while it was
   chosen, so they no longer count as untouched. H3 and H4 have not been looked at for step 7b.
 
+**Part 7b, code search follows imports — done 2026-09-14** (`04ff712`).
+- Sync records each file's relative imports in the manifest (TypeScript and JavaScript in every import form, and
+  Python relative imports); an older entry gets them from its verified bytes without re-indexing.
+  `CodeIndex.connectedFiles` walks those edges both ways, at most two hops, nearest first, and `CodeSearchTool` lists
+  up to six such files after the results, marked as not matched by the query. This is the query-seeded bounded graph
+  walk of the plan; a comparison with a wider walk was not run.
+- **Proof.** Benchmark run `2026-09-14T11-25-22-748Z_04ff712`: **41 of 42**, up from 37; M1, M2 and the untouched held-out H3 and H4 pass
+  (multi-hop-code 5 of 5), and no family fell. Code search output for B3 grew from 470 to 572 tokens. Six mutants each
+  fail a test; a seventh survived until the limit test started from a file with more connections than the limit. Jest
+  over the 6 suites importing the changed modules: the same 15 failures before and after.
+- **Not built in step 7.** Selective counter-evidence for decisions and dates: the temporal family already passes 4 of
+  4 because recall injects both sides of a conflict, so no fixture asks for more yet. The join, aggregate and diff
+  operations over archived output: only select and fetch exist. Model-graded held-out task outcomes: none were run,
+  since the benchmark calls no model.
+
 ## Step 8: C4 qualification
 
 An evidence inspector in the app that reads the evidence record and holds no truth logic of its own, plain
