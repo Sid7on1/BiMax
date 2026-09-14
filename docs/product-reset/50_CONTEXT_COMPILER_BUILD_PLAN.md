@@ -1,6 +1,7 @@
 # 50 — Context Compiler: build plan and flow
 
-Date: 2026-09-14. Status: **in progress**. Steps 1–4 are done (the eight fixes and the baseline benchmark); steps 5–8 are still plan. It turns
+Date: 2026-09-14. Status: **in progress**. Steps 1–5 are done (the eight fixes, the baseline benchmark, the evidence foundation); steps 6–8
+are still plan. It turns
 [record 47](47_RAG_AND_CONTEXT_COMPILER_UPGRADE.md) into steps someone can follow, in order, on this repository.
 Backlog items C0–C4 in [record 48](48_FEATURE_BACKLOG_2026_09.md) point here.
 
@@ -199,7 +200,46 @@ source changes, long sessions, numeric documents, budget, and scope. Record the 
 versions and index completeness. Run the repaired code as **the baseline**. Everything after this has to beat it.
 If a later stage does not, keep the simpler code.
 
-## Step 5: C1 evidence foundation
+## Step 5: C1 evidence foundation — done 2026-09-14
+
+**What shipped.**
+- `src/context/evidence.ts`: `EvidenceSpan`, in record 47 §3.1's shape (source id, source version, locator, raw handle,
+  text, scope, observed time, optional validity fields, dependencies, kind), and `ContextEvidence`, the session's store,
+  owned by `ContextManager.evidence`. A version is a sha256 of the text as taken from its source, or `unknown`, and an
+  unknown version is never current. `sourceChanged` marks stale exactly the spans taken from another version of a source
+  and everything built from them, transitively. `refreshFileSources` re-reads files through record 42's bounded byte
+  reader in `src/core/workflow.evidence.ts`.
+- `src/context/output.archive.ts`: micro-compaction and the oversized-result cap archive a whole tool result under its
+  sha256 before cutting it, and the stub carries `archive:<id>`. `ContextArchiveTool` reads it back and checks the hash.
+  It takes a handle, never a path, so a folder-scoped thread can read its own cleared results without widening its
+  scope. Results under 512 characters keep the old short stub, because a stub with a handle is longer than they are.
+- Adapters where evidence is produced: code search hits (`CodeHit.evidence`); recalled memory chunks
+  (`RecalledMemory.evidence`, admitted by `AgentLoop` with a derived span for the recall block); restored files and
+  archived tool output, admitted by `ContextManager`.
+- `CodeIndex.search` admits a hit only while its file still holds the bytes it was indexed from. A stale hit triggers
+  one sync and a fresh search, and anything still stale is dropped.
+
+**Not done in this step, on purpose.** Fact rows and corpus chunks already carry their file, locator and corpus entry;
+their span adapters wait for step 6's consumer, so no adapter ships unused. Memory sources are versioned but not
+re-checked when a memory is edited. `FreeContextTool` releases are not archived. Only restoration reads staleness so
+far; the prompt compiler in step 6 is the real consumer.
+
+**Proof.**
+- Both exit conditions are tests in `src/__tests__/context.evidence.test.ts`: every pipeline path admits spans with a
+  source, a sha256 version and a scope, and changing one of two inputs invalidates only what was built from it,
+  transitively. Bun: 25 pass across the evidence and acceptance files. Jest: 54 pass, 4 skipped (FTS5).
+- Nine mutants, one per behaviour, each fail a test. The unknown-version mutant survived at first, because the test
+  compared unknown only with a known version; it now also checks unknown against unknown.
+- A regression was found and fixed before the commit: replacing a tiny result with a handle stub grew the context and
+  tipped a test's window into summarizing.
+- The 49 suites importing a changed file: 420 tests pass, and all 26 failures predate step 5. The one not seen in earlier
+  runs is `code.only.product.boundary`, which forbids `NSMicrophoneUsageDescription` in `app/electron-builder.yml`. That
+  key has been there since at least 2026-09-03 (commit `7693383`). The step 5 commit message blames voice dictation for
+  it; that is wrong.
+- Benchmark run `2026-09-14T07-12-45-710Z_3cc9dde` on commit `3cc9dde`: **26 of 33**, up from the baseline's 25. C4 now
+  passes, and no family's pass count fell. The retrieval eval's numbers are unchanged. ESLint: 0 errors.
+
+**The plan as it was written:**
 
 1. Add shared `EvidenceSpan` and `SourceLocator` types (record 47 §3.1) in one new module.
 2. Add adapters that turn code index hits, recall chunks, corpus chunks, FactStore rows and tool outputs into spans.

@@ -64,7 +64,7 @@ Each item lists **Value** (high, medium, low), **Effort** (S: days, M: 1–2 wee
 **The owner decided on 2026-09-14: the RAG upgrade comes first, then the other features.**
 
 1. **C0–C1:** record 50 steps 1–5: acceptance tests and fixes for all eight defects A01–A08 (steps 1–3, C0, done 2026-09-14), the
-   baseline benchmark (step 4, done 2026-09-14: 25 of 33 cases pass), then the evidence foundation.
+   baseline benchmark (step 4, done 2026-09-14: 25 of 33 cases pass), and the evidence foundation (step 5, done 2026-09-14: 26 of 33).
 2. **F8:** port the chat and tool cancellation fix from record 49. Record 50's step 6 edits the same files
    (`agent.loop.ts`, `base.persona.ts`), so the port has to land first.
 3. **C2–C4:** record 50 steps 6–8.
@@ -331,7 +331,7 @@ restores the defect. Value high · Effort M · Verdict Next · **Done 2026-09-14
 - **A08:** log compression keeps the first value and drops the maximum.
 
 **C1. Evidence foundation.** Shared evidence span, locator and version types; raw tool output archived; dependency
-invalidation, so a changed source dirties only what used it. Verdict Flagship · Effort L · Needs C0.
+invalidation, so a changed source dirties only what used it. Verdict Flagship · Effort L · Needs C0 · **Done 2026-09-14** (record 50 step 5).
 
 **C2. Prompt compiler.** One token budget for the whole request, a representation chosen per item (locator,
 signature, exact span or neighbourhood), a structured continuation state, and a ledger of what is actually in the
