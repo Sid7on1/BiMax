@@ -308,8 +308,28 @@ Built in slices, each measured against the version 2 baseline (26 of 33) before 
 - **Limit.** Lines are scored by shared query terms, so an answer phrased with none of the query's words is still missed;
   that is dense retrieval's job, not this excerpt's.
 
-**Next slices.** 6c: one allocator for the whole request at the final boundary. 6d: log statistics over archived raw
-output. S5 (abstaining when no memory answers) and M1, M2 (multi-file code evidence) belong to step 7.
+**Benchmark version 3.** Before the rest of step 6, nine cases were added for the remaining steps (see
+`benchmarks/context/DESIGN.md`): held-out H1–H4 for step 7, R1 and R2 for the request boundary, N6 for logs, A1 for
+the workspace and L5 for continuity. Its baseline on unchanged code is 31 of 42 (`f9da8b7`).
+
+**Slice 6c, one budget at the request boundary — done 2026-09-14** (`f4ec2c1`).
+- `src/context/request.budget.ts` measures the system prompt and tool schemas with the history's tokenizer and plans
+  `messageBudget = window − system − tools − reply reserve − margin` (reserve: 15% of the window, at most the output
+  budget; margin: 3%).
+- `ContextManager.fitWithin` fits the history to that budget, cheapest loss first: blocks rebuilt later (repo map,
+  restored files, nudges), old tool results, a summary, the oldest turns (through the continuation state), then a
+  shorter continuation render. The latest user message never leaves.
+- `AgentLoop` checks every request before sending it. A request that still does not fit is not sent, and the turn
+  says why with the numbers. A recall block removed by fitting is put back when room remains. Each request is
+  recorded with its budget, what gave way and the ids of the evidence resident in it (the residency ledger).
+- **Proof.** Benchmark run `2026-09-14T11-08-58-073Z_f4ec2c1`: **33 of 42**, up from 31; R1 (2,280 tokens sent into a 3,000-token window) and R2
+  pass, and no family fell. Bun: 47 context tests. Six mutants fail a test; a seventh survived because a loop guard
+  duplicated another, so the duplicate was removed and the remaining guard's mutant fails. Jest over the 23 suites
+  importing the changed modules: no new failure.
+- **Limit.** Tool schemas are counted but never trimmed, and the reserve is a fixed share rather than the provider's
+  own limit.
+
+**Next slice.** 6d: log statistics over archived raw output. S5, M1 and M2 belong to step 7.
 
 1. One allocator owns the whole request budget (record 47 §3.4) at the final request boundary.
 2. Each candidate gets several representations (locator, signature, exact span, neighbourhood). Pick them with a
