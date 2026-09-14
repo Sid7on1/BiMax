@@ -114,6 +114,44 @@ export class ContinuationState {
     }
   }
 
+  /** How much the state carries, for the evidence inspector. */
+  counts(): { instructions: number; evicted: number; commands: number; claims: number } {
+    return { instructions: this.instructions.length, evicted: this.evictedTotal, commands: this.commands.length, claims: this.claims.length };
+  }
+
+  /**
+   * Take over a state rendered by another context manager — one rebuilt mid-task, as on a model switch — from the text
+   * of its block (record 50 step 8, benchmark L5). A new manager started empty, and its first compaction stripped the
+   * old block as transient, so the user's constraint was lost. Only `render` writes this text, so it is read line by
+   * line and unrecognised lines are skipped. Adopts only into an empty state; returns whether anything was taken over.
+   */
+  adopt(text: string): boolean {
+    if (!this.isEmpty() || !text.startsWith(CONTINUATION_PREFIX)) return false;
+    let section = '';
+    for (const line of text.split('\n')) {
+      if (line.startsWith('## ')) { section = line; continue; }
+      if (section === '## What the user said') {
+        const archived = /^- (\d+) earlier messages? from the user, archived together as (archive:[0-9a-f]{32})/.exec(line);
+        if (archived) {
+          this.evicted.push(`(earlier messages, archived as ${archived[2]})`);
+          this.evictedTotal += Number(archived[1]);
+          continue;
+        }
+        const quoted = /^- "(.*)"(?: \(whole message: (archive:[0-9a-f]{32})\))?$/.exec(line);
+        if (quoted) this.instructions.push({ text: quoted[1], ...(quoted[2] ? { handle: quoted[2] } : {}), order: this.order++ });
+      } else if (section === '## Commands the engine ran') {
+        const ran = /^- (\S+) `(.*)` → (.+?)(?:; last line: (.*?))?(?: \(whole output: (archive:[0-9a-f]{32})\))?$/.exec(line);
+        if (ran) {
+          this.commands.push({ tool: ran[1], command: ran[2], status: ran[3], lastLine: ran[4] ?? '', ...(ran[5] ? { handle: ran[5] } : {}), order: this.order++ });
+        }
+      } else if (section === '## What the assistant said (claims, not verified)') {
+        const quoted = /^- "(.*)"$/.exec(line);
+        if (quoted) this.claims.push({ text: quoted[1], order: this.order++ });
+      }
+    }
+    return !this.isEmpty();
+  }
+
   isEmpty(): boolean {
     return !this.instructions.length && !this.claims.length && !this.commands.length && !this.evicted.length;
   }

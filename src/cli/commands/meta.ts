@@ -424,6 +424,7 @@ globalCommandRegistry.register({
         // — Context engine (the smart-sending machinery), in plain words. "Tools sent now" already
         //   states the mode (Full/Smart), so there's no separate "How tools are sent" row here —
         //   change the mode from the / settings hub. —
+        { label: 'Evidence and budget', value: '/evidence', desc: 'what the model was shown, what is out of date, and what gave way to fit', category: 'Context Engine' },
         { label: 'Tools sent now', value: '/context-mode', desc: toolsDesc, category: 'Context Engine' },
         { label: 'Instructions size', value: '/context-mode', desc: promptDesc, category: 'Context Engine' },
         { label: 'Memory limit (context window)', value: '/context-window', desc: windowDesc, category: 'Context Engine' },
@@ -444,6 +445,17 @@ globalCommandRegistry.register({
       onSelect: (opt: any) => { if (typeof opt.value === 'string' && opt.value.startsWith('/')) context.executeCommand(opt.value); },
     };
   }
+});
+
+globalCommandRegistry.register({
+  name: '/evidence',
+  description: 'Show what the model was shown, what is out of date, and what gave way to fit the last request',
+  category: 'Session & Context',
+  execute: async (_args, context) => {
+    // The report comes from the engine's own records; this command only shows it (record 50 step 8).
+    const report = context.contextReport?.() ?? context.options?.persona?.contextReport?.() ?? null;
+    return { type: 'message', level: 'info', content: report ?? 'The evidence record is not available in this session.' };
+  },
 });
 
 globalCommandRegistry.register({

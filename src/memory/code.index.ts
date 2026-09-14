@@ -453,6 +453,7 @@ export class CodeIndex {
     // fresh search, and whatever is still stale after that is dropped, not shown as current.
     let hits = await retrieve();
     let admission = await this.admitHits(hits);
+    let dropped = 0;
     if (admission.stale.size) {
       // A manifest can call a file current while its rows are not — one written by a build that adopted hashes
       // without re-indexing (audit 51, U01) — and then no sync would ever re-index it. Forget those entries so
@@ -461,8 +462,11 @@ export class CodeIndex {
       await this.sync().catch(() => undefined);
       hits = await retrieve();
       admission = await this.admitHits(hits);
+      const retrieved = hits.length;
       hits = hits.filter((hit) => admission.admitted.has(hit));
+      dropped = retrieved - hits.length;
     }
+    this.lastDroppedStale = dropped;
     for (const hit of hits) {
       hit.evidence = fileEvidence(path.join(this.root, hit.path), indexedBody(hit), admission.admitted.get(hit)!, {
         root: this.root, startLine: hit.startLine, endLine: hit.endLine, partial: true,
@@ -550,6 +554,12 @@ export class CodeIndex {
     }
     return connected;
   }
+
+  /**
+   * How many results the last search left out because their files no longer held the indexed text even after a sync,
+   * so a caller can say so instead of presenting fewer results as all there is (record 50 step 8).
+   */
+  lastDroppedStale = 0;
 
   /** Drop manifest entries so the next sync re-indexes those files. Saved by that sync, not here. */
   private async forgetEntries(rels: Set<string>): Promise<void> {

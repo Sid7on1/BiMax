@@ -36,6 +36,8 @@ export interface CommandContext {
    * computer session instead of a single shared one — see `isSessionRoutableDesktopRuntime`.
    */
   sessionId?: string;
+  /** The evidence inspector's plain-language report for the active conversation (see src/context/inspector.ts). */
+  contextReport?: () => string | null;
 }
 
 export interface Command {

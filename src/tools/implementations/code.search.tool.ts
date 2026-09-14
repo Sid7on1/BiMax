@@ -36,8 +36,15 @@ Prefer GrepTool when you know the exact token (error code, identifier, string li
       let hits;
       try { hits = await activeIndex.search(args.query, args.limit || 5, args.pathPrefix); }
       catch { return outcomeError('io', 'Code search failed. No conclusion about matching files can be drawn; use GrepTool or inspect index storage.'); }
+      // Results whose files changed and could not be re-verified are left out; say so rather than present the rest as all.
+      const dropped = typeof activeIndex.lastDroppedStale === 'number' ? activeIndex.lastDroppedStale : 0;
+      const droppedNote = dropped
+        ? `${dropped} result${dropped === 1 ? ' was' : 's were'} left out because ${dropped === 1 ? 'its file' : 'their files'} changed after indexing and the index has not caught up. Search again shortly, or read the files directly.`
+        : '';
       if (!hits.length) {
-        return 'No matching code found. The index may still be syncing (first run trickles in over a minute) — try GrepTool for exact tokens.';
+        return droppedNote
+          ? `No current match. ${droppedNote}`
+          : 'No matching code found. The index may still be syncing (first run trickles in over a minute) — try GrepTool for exact tokens.';
       }
       const mode = activeIndex.stats().lastMode;
       const coverage = activeIndex.coverage();
@@ -58,7 +65,7 @@ Prefer GrepTool when you know the exact token (error code, identifier, string li
             : '';
           return `${h.path}:${h.startLine}-${h.endLine} · ${h.symbol}${related}\n\`\`\`\n${h.text.split('\n').slice(0, 12).join('\n')}\n\`\`\``;
         })
-        .join('\n---\n') + connectedText + `\n(${pipeline}${incomplete ? '; index incomplete' : ''})`;
+        .join('\n---\n') + connectedText + (droppedNote ? `\n${droppedNote}` : '') + `\n(${pipeline}${incomplete ? '; index incomplete' : ''})`;
     },
   };
   return buildTool(def, governor);

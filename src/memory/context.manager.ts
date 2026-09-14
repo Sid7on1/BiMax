@@ -448,6 +448,7 @@ export class ContextManager {
    * never letting the kept window begin on an orphaned tool result.
    */
   private snip(messages: Message[]): Message[] {
+    this.adoptCarriedContinuation(messages);
     const nonSystem = messages.filter(m => m.role !== 'system');
     if (nonSystem.length <= this.SNIP_TRIGGER_MESSAGES) return messages;
 
@@ -499,6 +500,7 @@ export class ContextManager {
 
   /** Layer 4 — summarize older messages into a single system note (the one LLM-backed pass). */
   async compact(messages: Message[]): Promise<Message[]> {
+    this.adoptCarriedContinuation(messages);
     // Keep only DURABLE system messages (C2). Transients are either superseded by this compact
     // (the previous summary — folded into the new summarization input below — and the previous
     // file restorations) or regenerated fresh next turn (RepoMap, TurnContext, pressure nudges).
@@ -642,6 +644,16 @@ Comma-separated list of files created, modified, or important to the task.`,
     return compacted;
   }
 
+  /**
+   * A manager rebuilt mid-task — the persona makes a new one when the context window changes, as on a model switch —
+   * takes over the continuation state its predecessor left in the window, before anything strips that block (step 8).
+   */
+  private adoptCarriedContinuation(messages: Message[]): void {
+    if (!this.continuation.isEmpty()) return;
+    const carried = messages.find((m) => isContinuationMessage(m));
+    if (carried && typeof carried.content === 'string') this.continuation.adopt(carried.content);
+  }
+
   /** The continuation state as one system message, or nothing while it is empty. */
   private continuationMessages(maxChars?: number): Message[] {
     const text = this.continuation.render((saved) => this.archive(saved), maxChars);
@@ -689,6 +701,7 @@ Comma-separated list of files created, modified, or important to the task.`,
    * the result fits and refuses to send it when it does not.
    */
   async fitWithin(messages: Message[], budget: number): Promise<{ messages: Message[]; tokens: number; steps: string[] }> {
+    this.adoptCarriedContinuation(messages);
     const steps: string[] = [];
     let out = messages;
     const fits = (): boolean => this.requestTokens(out) <= budget;
@@ -778,6 +791,7 @@ Comma-separated list of files created, modified, or important to the task.`,
 
   /** Reactive recovery: fires when the API rejects a request as too long. Cuts the window hard. */
   async reactiveCompact(messages: Message[], error: any): Promise<Message[]> {
+    this.adoptCarriedContinuation(messages);
     // Match everything classifyStreamError treats as a context overflow (413s, "too large",
     // provider codes), not just two message spellings — a mismatch here meant the agent loop
     // decided "compact and retry" but this guard rethrew, killing the turn instead.

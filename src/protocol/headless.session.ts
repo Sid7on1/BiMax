@@ -365,6 +365,10 @@ export class HeadlessSession {
       },
       // Return the live conversation so /cost, /save, /sessions et al. work (was stubbed to [], which
       // made those commands silently show nothing).
+      contextReport: (): string | null => {
+        const active = this.deps.personas.bimax as { contextReport?: () => string } | undefined;
+        return typeof active?.contextReport === 'function' ? active.contextReport() : null;
+      },
       getMessages: () => {
         const active = this.deps.personas.bimax;
         return active && Array.isArray(active.messages) ? active.messages : [];

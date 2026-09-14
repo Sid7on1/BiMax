@@ -88,6 +88,20 @@ test('relative imports resolve to indexed files in every form; packages and unkn
     expect(await index.connectedFiles(['src/net/retry.ts'], 1)).toEqual([{ path: 'src/net/cancel.ts', relation: 'imported by src/net/retry.ts' }]);
   });
 
+  // Record 50 step 8: results dropped because their files changed are named, never silently missing.
+  test('a result left out because its file changed is said out loud', async () => {
+    const { root, index } = await build('dropped');
+    fs.writeFileSync(path.join(root, 'src/net/cancel.ts'), 'export class Renamed { stop(): void {} }\n');
+    (index as any).sync = async () => ({ indexed: 0, removed: 0, pending: 0 }); // the index cannot catch up
+    const text = String(await createCodeSearchTool(governor, index).execute({ query: 'CancellationToken', limit: 3 }, { cwd: root }));
+    expect(text).toContain('src/net/retry.ts');
+    expect(text).toContain('1 result was left out because its file changed after indexing and the index has not caught up.');
+    // Control: once the index is current, nothing is said.
+    delete (index as any).sync;
+    const current = String(await createCodeSearchTool(governor, index).execute({ query: 'CancellationToken', limit: 3 }, { cwd: root }));
+    expect(current).not.toContain('left out because');
+  });
+
   test('an index written before import edges gets them at the next sync without re-indexing', async () => {
     const { root, storePath } = await build('legacy-edges');
     const manifestPath = `${storePath}.manifest.json`;

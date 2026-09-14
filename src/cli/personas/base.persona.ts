@@ -72,6 +72,12 @@ export abstract class AgentPersona {
     return this.sessionContextManager;
   }
 
+  /** The evidence inspector's report for this session (`/evidence`), read from the session's context manager. */
+  public contextReport(): string {
+    const { describeContext } = require('../../context/inspector') as typeof import('../../context/inspector');
+    return describeContext(this.sessionContextManager);
+  }
+
   /** Explicit session boundary (/clear, session load): drop calibration + warning state. */
   public resetContextSession(): void {
     this.sessionContextManager = null;
