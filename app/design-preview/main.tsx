@@ -29,6 +29,8 @@ import '../src/renderer/src/styles.css';
     quickCurrent: async () => null,
     onQuickThread: () => () => {},
     onQuickMsg: () => () => {},
+    search: async () => [],
+    archived: async () => [],
   },
   // Only what the previewed components touch. The coach's IPC is stubbed so the overlay can be
   // looked at; anything it calls that is NOT stubbed must throw rather than be silently faked.

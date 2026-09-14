@@ -225,7 +225,17 @@ Value medium · Effort M.
 
 **N11. Remove, archive and search threads.** Creating a thread fails at 200 saved threads and tells the user to
 remove one, but record 46 found no way to remove one. Add archive, search, rename and a retention policy.
-Value high once Threads is used daily · Effort S.
+Value high once Threads is used daily · Effort S. **Built 2026-09-14:**
+- **Sidebar controls:** every thread has Rename; every stopped thread also has Archive and Bin.
+- **Search box:** matches a thread's name, its folder, and everything said in it.
+- **Archived list:** each archived thread has Restore and Bin.
+- **Where things go:** an archived thread moves to `threads/archive/` in Bimax's app data. Bin moves the conversation
+  file to the Bin after a confirmation whose default is Cancel. Nothing is deleted outright.
+- **Retention:** at 200 threads, a new task no longer fails. Bimax archives the least recently used thread that has no
+  engine, is not open in the main window, and has no unsent message. This matters now that each folder-trigger run
+  starts a thread.
+- **Tests:** 9 tests. 22 of 24 mutants fail a test; the two that survived were redundant lines, now removed.
+- **Not verified live:** nobody has used the sidebar controls or the Bin confirmation in a built app yet.
 
 **N12. Show why a task is waiting.** A task with queued work can show "idle". Separate idle, completed, failed,
 interrupted, waiting for a folder and waiting for approval, with the pending count and a cancel.

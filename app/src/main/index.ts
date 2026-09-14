@@ -6,7 +6,7 @@ import { ThreadManager, threadIndexEnvironment, threadVoiceEnvironment } from '.
 import { ThreadStorage } from './thread.storage';
 import { createThreadBroker } from './thread.broker';
 import { finderContext } from './finder.context';
-import type { QuickContext, QuickThread } from '../shared/threads';
+import type { QuickContext, QuickThread, ThreadSummary } from '../shared/threads';
 import { QUICK_BAR, quickBarBounds, quickBarOrigin } from './quick.bar';
 import { journalFile, lastUndoable, threadStateEnvironment, threadStateRoot, undoLast } from './thread.undo';
 import { insideFolder, validAttachments, withContext } from './quick.context';
@@ -96,7 +96,9 @@ let quickHeight: number = QUICK_BAR.collapsedHeight;
 let quickMoving = false;
 // A folder picker opened from the bar takes focus; that blur must not hide the bar it was opened from.
 let quickPicking = false;
-function threadList() { return { activeId: threads?.activeId ?? null, threads: threads?.list() ?? [], shortcutAvailable }; }
+function threadList() {
+  return { activeId: threads?.activeId ?? null, threads: threads?.list() ?? [], shortcutAvailable, archivedCount: threadStorage?.archivedCount() ?? 0 };
+}
 function threadChanged(): void {
   if (listTimer) return;
   listTimer = setTimeout(() => {
@@ -1186,6 +1188,10 @@ app.whenReady().then(async () => {
         note.show();
       }
     },
+    // A full list archives its least recently used thread instead of refusing a new task (backlog N11).
+    archive: (value) => {
+      threadStorage.archive(value).then(threadChanged, (error) => console.warn(`[threads] could not archive ${value.summary.id}: ${(error as Error).message}`));
+    },
     save: value => threadStorage.save(value),
     // An accepted or dispatched message is written before the manager returns (backlog F1).
     saveNow: value => threadStorage.saveNow(value),
@@ -1621,6 +1627,91 @@ app.whenReady().then(async () => {
     try { threads.send(id, { t: 'reply', id: requestId, value, approvalToken: token }); return true; } catch { return false; }
   });
   secureOn('threads:hide', event => BrowserWindow.fromWebContents(event.sender)?.hide());
+  // Rename, search, archive, restore and move threads to the Bin (backlog N11). Nothing is deleted outright: an archived
+  // thread stays in thread storage's archive folder, and a binned one can be put back from the Bin.
+  type ThreadAction = { ok: boolean; error?: string; cancelled?: boolean };
+  const refused = (error: unknown): ThreadAction => ({ ok: false, error: (error as Error).message });
+  const onScreen = 'This thread is open in the main window. Open another thread first.';
+  /** The ⌘2 bar was showing a thread that just left the list: it moves on to a new task. */
+  const leftBar = (id: string): void => { if (id === quickThreadId) { quickThreadId = null; sendQuickThread(); } };
+  secureHandle('threads:rename', { ok: false } as ThreadAction, (_e, id: unknown, title: unknown) => {
+    if (typeof id !== 'string' || typeof title !== 'string') return { ok: false, error: 'No thread was given.' };
+    try {
+      threads.rename(id, title);
+      if (id === quickThreadId) sendQuickThread();
+      return { ok: true };
+    } catch (error) {
+      return refused(error);
+    }
+  });
+  secureHandle('threads:search', [] as string[], (_e, query: unknown) => (typeof query === 'string' ? threads.search(query.slice(0, 200)) : []));
+  secureHandle('threads:archived', [] as ThreadSummary[], () => threadStorage.archived());
+  secureHandle('threads:archive', { ok: false } as ThreadAction, async (_e, id: unknown) => {
+    if (typeof id !== 'string') return { ok: false, error: 'No thread was given.' };
+    if (id === threads.activeId) return { ok: false, error: onScreen };
+    let saved: ReturnType<ThreadManager['release']>;
+    try { saved = threads.release(id); } catch (error) { return refused(error); }
+    leftBar(id);
+    try {
+      await threadStorage.archive(saved);
+      threadChanged();
+      return { ok: true };
+    } catch (error) {
+      try { threads.restore(saved); } catch { /* still on disk: it is back when Bimax opens */ }
+      return { ok: false, error: `Could not archive it: ${(error as Error).message}` };
+    }
+  });
+  secureHandle('threads:unarchive', { ok: false } as ThreadAction, async (_e, id: unknown) => {
+    if (typeof id !== 'string') return { ok: false, error: 'No thread was given.' };
+    try {
+      threads.ensureRoom();
+      threads.restore(await threadStorage.unarchive(id));
+      threadChanged();
+      return { ok: true };
+    } catch (error) {
+      return refused(error);
+    }
+  });
+  secureHandle('threads:bin', { ok: false } as ThreadAction, async (event, id: unknown, archived: unknown) => {
+    if (typeof id !== 'string' || typeof archived !== 'boolean') return { ok: false, error: 'No thread was given.' };
+    try {
+      let title: string;
+      if (archived) {
+        threadStorage.archivedFile(id);
+        title = (await threadStorage.archived()).find((t) => t.id === id)?.title ?? 'this thread';
+      } else {
+        if (id === threads.activeId) return { ok: false, error: onScreen };
+        if (threads.engine(id)) return { ok: false, error: 'Stop this thread first.' };
+        title = threads.get(id).summary.title;
+      }
+      const options: Electron.MessageBoxOptions = {
+        type: 'warning', message: `Move “${title}” to the Bin?`, buttons: ['Move to Bin', 'Cancel'], defaultId: 1, cancelId: 1,
+        detail: 'Its conversation goes to the Bin, and Finder can put it back from there. Files the thread changed stay as they are.',
+      };
+      const parent = BrowserWindow.fromWebContents(event.sender);
+      const { response } = parent ? await dialog.showMessageBox(parent, options) : await dialog.showMessageBox(options);
+      if (response !== 0) return { ok: false, cancelled: true };
+      if (archived) {
+        await macBin.moveToBin(threadStorage.archivedFile(id));
+      } else {
+        // Checked again: the thread may have been opened or started while the question was on screen.
+        if (id === threads.activeId) return { ok: false, error: onScreen };
+        const saved = threads.release(id);
+        leftBar(id);
+        try {
+          await macBin.moveToBin(await threadStorage.writeFinal(saved));
+        } catch (error) {
+          threadStorage.readmit(id);
+          try { threads.restore(saved); } catch { /* still on disk: it is back when Bimax opens */ }
+          return { ok: false, error: `Could not move it to the Bin: ${(error as Error).message}` };
+        }
+      }
+      threadChanged();
+      return { ok: true };
+    } catch (error) {
+      return refused(error);
+    }
+  });
 
   secureOn('engine:send', (_e, msg: unknown, threadId: unknown) => {
     if (!isProtocolFrame(msg)) throw new InvalidPayloadError('not a protocol frame');

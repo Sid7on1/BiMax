@@ -66,7 +66,12 @@ interface Dependencies {
   restarted?(id: string): void;
   /** Schedule `fn` after `ms`; returns a cancel function. Defaults to the process timer. */
   timer?(fn: () => void, ms: number): () => void;
+  /** A full list moved this thread out to make room: keep it in the archive (backlog N11). */
+  archive?(value: SavedThread): void;
 }
+
+/** How many threads the list holds. Past this, the least recently used one that can be put away is archived (backlog N11). */
+export const MAX_THREADS = 200;
 
 /** The id of the manager's own "resume failed" choice. The engine's request ids are positive. */
 const RESUME_CHOICE_ID = -1;
@@ -108,18 +113,21 @@ export class ThreadManager {
   private exchanges = new Map<string, number>();
   activeId: string | null = null;
   constructor(private deps: Dependencies, saved: SavedThread[] = []) {
-    for (const item of saved) {
-      if (!/^[\w-]{1,80}$/.test(item.summary?.id) || !path.isAbsolute(item.summary?.root ?? '')) continue;
-      const inputs = Array.isArray(item.inputs) ? item.inputs.filter(validInput) : [];
-      const r: LiveThread = {
-        summary: { ...item.summary, peers: [], status: 'stopped' },
-        state: { ...initialEngineState, ...item.state, threadId: item.summary.id, request: null, streaming: '', thinking: '', spinner: { state: 'idle', message: '' }, engine: { state: 'exited', detail: 'Saved thread. Send a message to resume.' } },
-        ready: false, inputs: inputs.map((input) => ({ ...input })), pending: new Map(), notes: [],
-      };
-      this.records.set(item.summary.id, r);
-      // Bimax closed with messages still open: say what happened to each, before anything else can happen to them.
-      if (inputs.length) this.recoverInputs(r, 'Bimax closed', false);
-    }
+    for (const item of saved) this.adopt(item);
+  }
+  /** A saved thread joins the list stopped, as when Bimax opens. False when the record is not a usable thread. */
+  private adopt(item: SavedThread): boolean {
+    if (!/^[\w-]{1,80}$/.test(item.summary?.id) || !path.isAbsolute(item.summary?.root ?? '')) return false;
+    const inputs = Array.isArray(item.inputs) ? item.inputs.filter(validInput) : [];
+    const r: LiveThread = {
+      summary: { ...item.summary, peers: [], status: 'stopped' },
+      state: { ...initialEngineState, ...item.state, threadId: item.summary.id, request: null, streaming: '', thinking: '', spinner: { state: 'idle', message: '' }, engine: { state: 'exited', detail: 'Saved thread. Send a message to resume.' } },
+      ready: false, inputs: inputs.map((input) => ({ ...input })), pending: new Map(), notes: [],
+    };
+    this.records.set(item.summary.id, r);
+    // Bimax closed with messages still open: say what happened to each, before anything else can happen to them.
+    if (inputs.length) this.recoverInputs(r, 'Bimax closed', false);
+    return true;
   }
   list(): ThreadSummary[] { return [...this.records.values()].map(r => ({ ...r.summary })).sort((a,b) => b.updatedAt-a.updatedAt); }
   get(id: string): SavedThread {
@@ -135,7 +143,7 @@ export class ThreadManager {
       .sort((a, b) => b.summary.updatedAt - a.summary.updatedAt)[0]?.summary.id;
   }
   create(root: string, prompt = '', origin: 'quick' | 'project' = 'quick', model?: string, voice = false): string {
-    if (this.records.size >= 200) throw new Error('Thread history is full. Remove an old stopped thread first.');
+    this.ensureRoom();
     const id = randomUUID();
     const r: LiveThread = {
       summary: { id, root, title: prompt.trim().slice(0, 80) || `New thread in ${path.basename(root)}`, updatedAt: Date.now(), status: 'idle', peers: [], origin, ...(model ? { model } : {}), ...(voice ? { voice: true } : {}) },
@@ -145,6 +153,72 @@ export class ThreadManager {
     this.persist(r);
     if (prompt.trim()) this.submit(id, prompt);
     return id;
+  }
+
+  /** Give a thread a name of the person's choosing (backlog N11). Its first message no longer renames it. */
+  rename(id: string, title: string): void {
+    const r = this.records.get(id);
+    if (!r) throw new Error('Thread not found');
+    const name = title.replace(/\s+/g, ' ').trim();
+    if (!name || name.length > 80) throw new Error('A thread name must have 1–80 characters.');
+    r.summary.title = name;
+    this.persist(r);
+  }
+
+  /** The threads whose name, folder or conversation contains every word of `query`, most recent first. */
+  search(query: string): string[] {
+    const words = query.toLowerCase().split(/\s+/).filter(Boolean).slice(0, 8);
+    return this.list().filter((summary) => {
+      if (!words.length) return true;
+      const said = this.records.get(summary.id)!.state.items
+        .map((item) => (item.kind === 'msg' && typeof item.msg.content === 'string' ? item.msg.content : ''));
+      const text = [summary.title, summary.root, ...said].join('\n').toLowerCase();
+      return words.every((word) => text.includes(word));
+    }).map((summary) => summary.id);
+  }
+
+  /**
+   * Take a thread out of the list, to archive it or move it to the Bin, and return its last state for the caller to
+   * keep on disk. Only a thread with no engine: a running one must be stopped first, and a stopping one keeps its folder
+   * taken until its process has exited (backlog F11).
+   */
+  release(id: string): SavedThread {
+    const r = this.records.get(id);
+    if (!r) throw new Error('Thread not found');
+    if (r.engine || r.draining) throw new Error('Stop this thread first.');
+    this.records.delete(id);
+    if (this.activeId === id) this.activeId = null;
+    for (const other of this.records.values()) {
+      if (!other.summary.peers.includes(id)) continue;
+      other.summary.peers = other.summary.peers.filter((peer) => peer !== id);
+      this.persist(other);
+    }
+    this.deps.changed();
+    return { summary: { ...r.summary }, state: r.state, inputs: r.inputs.map((input) => ({ ...input })) };
+  }
+
+  /** Put an archived thread back at the top of the list, stopped, with the messages it still had queued. */
+  restore(saved: SavedThread): string {
+    const id = saved.summary?.id;
+    if (typeof id === 'string' && this.records.has(id)) throw new Error('That thread is already in the list.');
+    this.ensureRoom();
+    if (!this.adopt(saved)) throw new Error('That archived thread cannot be read.');
+    this.persist(this.records.get(id)!);
+    return id;
+  }
+
+  /**
+   * Make room for one more thread. At the limit, the least recently used thread that has no engine, is not open in the
+   * main window and holds no unsent message is archived, so a new task (a folder trigger's run, say) is not refused while
+   * an old thread could be put away. Nothing is deleted.
+   */
+  ensureRoom(): void {
+    if (this.records.size < MAX_THREADS) return;
+    const oldest = [...this.records.values()]
+      .filter((r) => !r.engine && !r.draining && !r.inputs.length && r.summary.id !== this.activeId)
+      .sort((a, b) => a.summary.updatedAt - b.summary.updatedAt)[0];
+    if (!oldest || !this.deps.archive) throw new Error('Thread history is full. Stop or archive an old thread first.');
+    this.deps.archive(this.release(oldest.summary.id));
   }
   select(id: string): void {
     const r = this.records.get(id);

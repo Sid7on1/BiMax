@@ -19,7 +19,13 @@ export interface ThreadSummary {
 export interface ThreadSelection { id: string; state: EngineUiState }
 /** The tallest the ⌘2 bar may grow, as a share of its screen's work area (main clamps, the bar follows text at it). */
 export const QUICK_BAR_MAX_HEIGHT_SHARE = 0.72;
-export interface ThreadList { activeId: string | null; threads: ThreadSummary[]; shortcutAvailable: boolean }
+export interface ThreadList {
+  activeId: string | null;
+  threads: ThreadSummary[];
+  shortcutAvailable: boolean;
+  /** How many threads are archived (backlog N11); absent from older main processes. */
+  archivedCount?: number;
+}
 /** Something the person had open when they pressed ⌘2, or dropped on the bar, offered to the task as context. */
 export interface QuickAttachment { kind: 'file' | 'page' | 'document'; label: string; path?: string; url?: string }
 export interface QuickContext { root: string | null; source: string; error?: string; attachments?: QuickAttachment[] }

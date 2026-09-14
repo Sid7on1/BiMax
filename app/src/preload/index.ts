@@ -47,6 +47,13 @@ const api = {
     approvals: () => ipcRenderer.invoke('threads:approvals'),
     onApprovals: (cb: (value: any) => void) => subscribe('threads:approvals', cb),
     reply: (id: string, requestId: number, value: string, token: string) => ipcRenderer.invoke('threads:reply', id, requestId, value, token),
+    // Rename, search, archive, restore and move threads to the Bin (main/thread.manager.ts, backlog N11).
+    rename: (id: string, title: string) => ipcRenderer.invoke('threads:rename', id, title),
+    search: (query: string) => ipcRenderer.invoke('threads:search', query),
+    archived: () => ipcRenderer.invoke('threads:archived'),
+    archive: (id: string) => ipcRenderer.invoke('threads:archive', id),
+    unarchive: (id: string) => ipcRenderer.invoke('threads:unarchive', id),
+    moveToBin: (id: string, archived: boolean) => ipcRenderer.invoke('threads:bin', id, archived),
     // The ⌘2 bar: its own thread, its own message stream, and its size.
     quickCurrent: () => ipcRenderer.invoke('threads:quick-current'),
     onQuickThread: (cb: (value: any) => void) => subscribe('threads:quick-thread', cb),

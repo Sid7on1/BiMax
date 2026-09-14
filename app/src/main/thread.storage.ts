@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import path from 'node:path';
 import type { SavedThread } from './thread.manager';
+import type { ThreadSummary } from '../shared/threads';
 
 /**
  * Serialized atomic snapshots; streamed updates coalesce, completed history survives relaunch.
@@ -43,6 +44,85 @@ export class ThreadStorage {
       } catch { return []; }
     });
   }
+  private archiveDir(): string { return path.join(this.dir, 'archive'); }
+
+  /** How many threads are in the archive (backlog N11). */
+  archivedCount(): number {
+    try { return fs.readdirSync(this.archiveDir()).filter((n) => /^[\w-]+\.json$/.test(n)).length; } catch { return 0; }
+  }
+
+  /**
+   * Write a thread's final state and stop saving it, because it is leaving the list (archive or Bin). A save still
+   * pending or in flight, or a failed write retried later, can then never write its file again. Returns that file.
+   */
+  async writeFinal(value: SavedThread): Promise<string> {
+    const id = value.summary.id;
+    if (!/^[\w-]{1,80}$/.test(id)) throw new Error('Thread not found');
+    // From here every save of it (pending, in flight, or retried after a failed write) is skipped when its batch runs.
+    this.written.set(id, Number.MAX_SAFE_INTEGER);
+    await this.writes;
+    const file = path.join(this.dir, `${id}.json`);
+    const temporary = `${file}.final.tmp`;
+    await fsp.writeFile(temporary, this.text(this.copy(value)), { mode: 0o600 });
+    await fsp.rename(temporary, file);
+    return file;
+  }
+
+  /** The thread stays in the list after all (archiving or binning it failed): save it again. */
+  readmit(id: string): void {
+    this.written.delete(id);
+  }
+
+  /** Move a thread, with its final state, out of the list into `archive/`. Nothing is deleted. */
+  async archive(value: SavedThread): Promise<void> {
+    try {
+      const file = await this.writeFinal(value);
+      await fsp.mkdir(this.archiveDir(), { recursive: true, mode: 0o700 });
+      await fsp.rename(file, path.join(this.archiveDir(), path.basename(file)));
+    } catch (error) {
+      this.readmit(value.summary.id);
+      throw error;
+    }
+  }
+
+  /** Archived threads, most recently archived first, without their conversations. */
+  async archived(limit = 100): Promise<ThreadSummary[]> {
+    const names = await fsp.readdir(this.archiveDir()).catch(() => [] as string[]);
+    const files = await Promise.all(names.filter((n) => /^[\w-]+\.json$/.test(n)).map(async (n) => {
+      const file = path.join(this.archiveDir(), n);
+      const stat = await fsp.stat(file).catch(() => null);
+      return stat && stat.size <= 32 * 1024 * 1024 ? { file, name: n, mtimeMs: stat.mtimeMs } : null;
+    }));
+    const newest = files.filter((f): f is NonNullable<typeof f> => !!f).sort((a, b) => b.mtimeMs - a.mtimeMs).slice(0, limit);
+    const out: ThreadSummary[] = [];
+    for (const { file, name } of newest) {
+      try {
+        const value = JSON.parse(await fsp.readFile(file, 'utf8'));
+        if (value?.summary && `${value.summary.id}.json` === name) out.push({ ...value.summary, status: 'stopped', peers: [] });
+      } catch { /* unreadable: not listed */ }
+    }
+    return out;
+  }
+
+  /** An archived thread's file, for moving it to the Bin. */
+  archivedFile(id: string): string {
+    const file = path.join(this.archiveDir(), `${id}.json`);
+    if (!/^[\w-]{1,80}$/.test(id) || !fs.existsSync(file)) throw new Error('That archived thread was not found.');
+    return file;
+  }
+
+  /** Move an archived thread back into the list's folder and return it. */
+  async unarchive(id: string): Promise<SavedThread> {
+    const source = this.archivedFile(id);
+    const value = JSON.parse(await fsp.readFile(source, 'utf8'));
+    if (!value?.summary || value.summary.id !== id || !Array.isArray(value.state?.items)) throw new Error('That archived thread cannot be read.');
+    const target = path.join(this.dir, `${id}.json`);
+    if (fs.existsSync(target)) throw new Error('That thread is already in the list.');
+    await fsp.rename(source, target);
+    this.readmit(id);
+    return value;
+  }
+
   private copy(value: SavedThread): SavedThread {
     return { summary: { ...value.summary }, state: value.state, ...(value.inputs ? { inputs: value.inputs.map((input) => ({ ...input })) } : {}) };
   }
