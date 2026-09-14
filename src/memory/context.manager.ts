@@ -6,6 +6,7 @@ import { RECALL_PREFIX } from './recall';
 import { archiveOutput } from '../context/output.archive';
 import { ContextEvidence, evidenceSpan, fileEvidence, fileVersion, versionOfText } from '../context/evidence';
 import { CONTINUATION_PREFIX, ContinuationState, isContinuationMessage } from '../context/continuation';
+import { MESSAGE_FRAMING_TOKENS, countTokens, type RequestRecord } from '../context/request.budget';
 import { IGraphStore } from '../graph/models';
 import { crossRepoMapSync } from '../graph/cross.repo';
 import { compressBacklog, proxyCompress, recordCompression, looksLikeCode } from './headroom.compress';
@@ -637,9 +638,137 @@ Comma-separated list of files created, modified, or important to the task.`,
   }
 
   /** The continuation state as one system message, or nothing while it is empty. */
-  private continuationMessages(): Message[] {
-    const text = this.continuation.render((saved) => this.archive(saved));
+  private continuationMessages(maxChars?: number): Message[] {
+    const text = this.continuation.render((saved) => this.archive(saved), maxChars);
     return text ? [{ role: 'system', content: text }] : [];
+  }
+
+  /** The model's context window this manager budgets for, in tokens. */
+  get contextWindow(): number {
+    return this.MAX_TOKENS;
+  }
+
+  /** The last request's budget: what it held, what gave way, whether it was sent. Null before the first request. */
+  lastRequest: RequestRecord | null = null;
+
+  recordRequest(record: RequestRecord): void {
+    this.lastRequest = record;
+  }
+
+  private toolCallTokens = new WeakMap<object, number>();
+
+  /** Tokens the messages take in a request: their content, the tool calls they carry, and each message's framing. */
+  requestTokens(messages: Message[]): number {
+    let total = 0;
+    for (const m of messages) {
+      total += this.countMessageTokens(m) + MESSAGE_FRAMING_TOKENS;
+      const calls = (m as { tool_calls?: unknown[] }).tool_calls;
+      if (calls?.length) {
+        const key = calls as unknown as object;
+        let tokens = this.toolCallTokens.get(key);
+        if (tokens === undefined) {
+          tokens = countTokens(JSON.stringify(calls));
+          this.toolCallTokens.set(key, tokens);
+        }
+        total += tokens;
+      }
+    }
+    return total;
+  }
+
+  /**
+   * Fit `messages` into `budget` request tokens at the request boundary (record 50 step 6c), cheapest loss first:
+   * blocks that are rebuilt anyway (the repo map, restored files, nudges), then old tool results, then a summary of
+   * older turns, then the oldest turns themselves, and last the length of the continuation state. Everything that
+   * leaves goes through the continuation state, and the latest user message never leaves. The caller checks whether
+   * the result fits and refuses to send it when it does not.
+   */
+  async fitWithin(messages: Message[], budget: number): Promise<{ messages: Message[]; tokens: number; steps: string[] }> {
+    const steps: string[] = [];
+    let out = messages;
+    const fits = (): boolean => this.requestTokens(out) <= budget;
+    if (!fits()) {
+      const kept = out.filter((m) => !this.isRebuiltLater(m));
+      if (kept.length !== out.length) { out = kept; steps.push('removed the repo map and restored files, which are rebuilt later'); }
+    }
+    if (!fits()) {
+      const drained = this.reactiveDrain(out);
+      if (drained.changed) { out = drained.messages; steps.push('cleared old tool results'); }
+    }
+    if (!fits()) {
+      const compacted = await this.compact(out);
+      if (compacted !== out && this.requestTokens(compacted) < this.requestTokens(out)) { out = compacted; steps.push('summarized older turns'); }
+    }
+    if (!fits()) {
+      const trimmed = this.moveOldestTurnsOut(out, budget);
+      if (trimmed !== out) { out = trimmed; steps.push('moved the oldest turns into the continuation state'); }
+    }
+    if (!fits()) {
+      const shortened = this.shortenContinuation(out, budget);
+      if (shortened !== out) { out = shortened; steps.push('shortened the continuation state, archiving the rest'); }
+    }
+    return { messages: out, tokens: this.requestTokens(out), steps };
+  }
+
+  private isRebuiltLater(m: Message): boolean {
+    if (typeof m.content !== 'string') return false;
+    const content = m.content;
+    if (content.startsWith('[RepoMap]')) return m.role === 'system' || m.role === 'user';
+    return m.role === 'system' && ['[Post-Compact Restoration', '[TurnContext]', '[ContextManager]'].some((prefix) => content.startsWith(prefix));
+  }
+
+  /** Drop whole turns from the front, a call with its results, until the request fits or the latest user message is next. */
+  private moveOldestTurnsOut(messages: Message[], budget: number): Message[] {
+    const system = messages.filter((m) => m.role === 'system' && !isContinuationMessage(m));
+    let tail = messages.filter((m) => m.role !== 'system');
+    const latestUser = [...tail].reverse().find((m) => m.role === 'user');
+    let current = messages;
+    while (tail.length && this.requestTokens(current) > budget) {
+      let cut = 1;
+      while (cut < tail.length && tail[cut].role === 'tool') cut++;
+      const leaving = tail.slice(0, cut);
+      if (latestUser && leaving.includes(latestUser)) break;
+      this.continuation.absorb(leaving, (text) => this.archive(text));
+      tail = tail.slice(cut);
+      current = [...system, ...this.continuationMessages(), ...tail];
+    }
+    return current;
+  }
+
+  /** Re-render the continuation state short enough for the request to fit, when it is what stands in the way. */
+  private shortenContinuation(messages: Message[], budget: number): Message[] {
+    const at = messages.findIndex((m) => isContinuationMessage(m));
+    if (at < 0) return messages;
+    const over = this.requestTokens(messages) - budget;
+    const blockTokens = this.requestTokens([messages[at]]);
+    const [shortened] = this.continuationMessages(Math.max(0, (blockTokens - over) * 3));
+    if (!shortened || shortened.content === messages[at].content) return messages;
+    const out = [...messages];
+    out[at] = shortened;
+    return out;
+  }
+
+  /**
+   * The residency ledger (record 47 §3.5): ids of the admitted, current evidence spans whose text is in `messages` — a
+   * recall block and the memories it was built from, a restored file, a tool output named by its archive handle.
+   */
+  residentEvidence(messages: Message[]): string[] {
+    const contents = messages.map((m) => (typeof m.content === 'string' ? m.content : contentToText(m.content)));
+    const exact = new Set(contents);
+    const handles = new Set<string>();
+    for (const content of contents) for (const handle of content.match(/archive:[0-9a-f]{32}/g) ?? []) handles.add(handle);
+    const resident = new Set<string>();
+    for (const span of this.evidence.all()) {
+      if (this.evidence.isStale(span.id)) continue;
+      const locator = span.locator;
+      const present = (span.rawHandle !== undefined && handles.has(span.rawHandle))
+        || (locator.kind === 'derived' && exact.has(span.text))
+        || (locator.kind === 'file' && contents.some((content) => content.startsWith(`[Post-Compact Restoration — ${locator.path} —`)));
+      if (!present) continue;
+      resident.add(span.id);
+      for (const dep of span.derivedFrom) if (dep.sourceId.startsWith('span:')) resident.add(dep.sourceId.slice('span:'.length));
+    }
+    return [...resident];
   }
 
   /** Reactive recovery: fires when the API rejects a request as too long. Cuts the window hard. */

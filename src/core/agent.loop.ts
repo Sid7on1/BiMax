@@ -10,6 +10,7 @@ import { ContextManager, type ContextMode } from '../memory/context.manager';
 import type { VectorStore } from '../memory/vector.store';
 import { droppedRecall, recallForTurn, recallKey, recallQuery } from '../memory/recall';
 import { derivedEvidence } from '../context/evidence';
+import { overflowMessage, planRequest } from '../context/request.budget';
 import { cliEvents, ToolCallEntry } from '../cli/events';
 import { getActiveTodos, todosTouchedThisTurn } from '../tools/implementations/todo.tool';
 import { LoopDetector, LoopSignal } from './loop-detector';
@@ -437,6 +438,35 @@ export class AgentLoop {
       const forceRequiredTool = !operationTerminalBlocker
         && options?.requireTool && (!requiredToolUsed || forceRequiredToolNextRound);
       forceRequiredToolNextRound = false;
+      // The request boundary (record 50 step 6c): the system prompt, the tool schemas, the reply's reserve and the history
+      // share one budget, measured before the request leaves rather than learned from a usage report afterwards.
+      const plan = planRequest({
+        window: this.contextManager.contextWindow, systemPrompt, tools: schemas, outputBudget: callOutputTokenBudget ?? configuredBudget,
+      });
+      const fitted = plan.messageBudget > 0
+        ? await this.contextManager.fitWithin(this.messages, plan.messageBudget)
+        : { messages: this.messages, tokens: this.contextManager.requestTokens(this.messages), steps: [] as string[] };
+      const recallDropped = droppedRecall(this.messages, fitted.messages);
+      this.messages = fitted.messages;
+      let messageTokens = fitted.tokens;
+      if (recallDropped) {
+        // Fitting removed this round's recall block: put it back if there is still room for it (audit 51, U08).
+        this.recalled.clear();
+        const before = this.messages;
+        await this.injectRecall();
+        messageTokens = this.contextManager.requestTokens(this.messages);
+        if (messageTokens > plan.messageBudget) { this.messages = before; messageTokens = fitted.tokens; }
+      }
+      const sendable = plan.messageBudget > 0 && messageTokens <= plan.messageBudget;
+      this.contextManager.recordRequest({
+        ...plan, messages: messageTokens, sent: sendable, steps: fitted.steps,
+        residentEvidenceIds: this.contextManager.residentEvidence(this.messages), at: new Date().toISOString(),
+      });
+      if (!sendable) {
+        anyTextYielded = true;
+        yield overflowMessage(plan, messageTokens);
+        return;
+      }
       const generator = recordedLlm.chat(this.messages, {
         system: systemPrompt,
         tools: schemas as any,

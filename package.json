@@ -13,7 +13,7 @@
     "postinstall": "node -e \"try{require('fs').existsSync(require('path').join(process.cwd(),'.breakglass','config.json'))||require('./scripts/postinstall')()}catch(e){}\"",
     "test": "jest --coverage",
     "test:ci": "jest --coverage=false",
-    "test:context": "bun test ./src/__tests__/context.audit.acceptance.test.ts ./src/__tests__/context.evidence.test.ts ./src/__tests__/context.continuation.test.ts",
+    "test:context": "bun test ./src/__tests__/context.audit.acceptance.test.ts ./src/__tests__/context.evidence.test.ts ./src/__tests__/context.continuation.test.ts ./src/__tests__/context.request.budget.test.ts",
     "bench:context": "bun benchmarks/context/run.ts",
     "doctor": "bash scripts/doctor.sh",
     "app:dev": "npm --prefix app run dev",

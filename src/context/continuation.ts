@@ -118,33 +118,59 @@ export class ContinuationState {
     return !this.instructions.length && !this.claims.length && !this.commands.length && !this.evicted.length;
   }
 
-  /** The state as a system message's text, or null when there is nothing to carry. `archive` saves the evicted list. */
-  render(archive: Archiver): string | null {
+  /**
+   * The state as a system message's text, or null when there is nothing to carry. `archive` saves the list of the
+   * user's earlier messages. Past `maxChars`, the oldest claims and commands are left out first, then the user's
+   * messages after the first go into the archived list, so the task and the newest entries stay. Rendering small
+   * changes nothing: the state keeps every entry for the next render.
+   */
+  render(archive: Archiver, maxChars = Number.POSITIVE_INFINITY): string | null {
     if (this.isEmpty()) return null;
-    const lines = [
-      `${CONTINUATION_PREFIX} — kept from messages that compaction removed. It is not a summary: the user's messages are quoted exactly, commands are what the engine ran, and what the assistant said is a claim, not a verified fact.`,
-    ];
-    if (this.instructions.length || this.evicted.length) {
-      lines.push('', '## What the user said');
-      for (const entry of this.instructions) lines.push(`- "${entry.text}"${entry.handle ? ` (whole message: ${entry.handle})` : ''}`);
-      if (this.evicted.length) {
-        const handle = archive(`Earlier messages from the user, oldest first:\n${this.evicted.map((text) => `- ${text}`).join('\n')}`);
-        const dropped = this.evictedTotal - this.evicted.length;
-        const where = handle ? `archived together as ${handle} (read with ContextArchiveTool)` : 'not shown here, and could not be archived';
-        lines.push(`- ${this.evictedTotal} earlier message${this.evictedTotal === 1 ? '' : 's'} from the user, ${where}${dropped ? `; the oldest ${dropped} are no longer kept` : ''}.`);
+    const instructions = [...this.instructions];
+    const evicted = [...this.evicted];
+    let evictedTotal = this.evictedTotal;
+    let claims = [...this.claims];
+    let commands = [...this.commands];
+    let omitted = 0;
+    const placeholder = (): string => `archive:${'0'.repeat(32)}`;
+    const build = (listHandle: (list: string) => string | null): string => {
+      const lines = [
+        `${CONTINUATION_PREFIX} — kept from messages that compaction removed. It is not a summary: the user's messages are quoted exactly, commands are what the engine ran, and what the assistant said is a claim, not a verified fact.`,
+      ];
+      if (instructions.length || evicted.length) {
+        lines.push('', '## What the user said');
+        for (const entry of instructions) lines.push(`- "${entry.text}"${entry.handle ? ` (whole message: ${entry.handle})` : ''}`);
+        if (evicted.length) {
+          const handle = listHandle(`Earlier messages from the user, oldest first:\n${evicted.map((text) => `- ${text}`).join('\n')}`);
+          const dropped = evictedTotal - evicted.length;
+          const where = handle ? `archived together as ${handle} (read with ContextArchiveTool)` : 'not shown here, and could not be archived';
+          lines.push(`- ${evictedTotal} earlier message${evictedTotal === 1 ? '' : 's'} from the user, ${where}${dropped ? `; the oldest ${dropped} are no longer kept` : ''}.`);
+        }
       }
-    }
-    if (this.commands.length) {
-      lines.push('', '## Commands the engine ran');
-      for (const entry of this.commands) {
-        lines.push(`- ${entry.tool} \`${entry.command}\` → ${entry.status}${entry.lastLine ? `; last line: ${entry.lastLine}` : ''}${entry.handle ? ` (whole output: ${entry.handle})` : ''}`);
+      if (commands.length) {
+        lines.push('', '## Commands the engine ran');
+        for (const entry of commands) {
+          lines.push(`- ${entry.tool} \`${entry.command}\` → ${entry.status}${entry.lastLine ? `; last line: ${entry.lastLine}` : ''}${entry.handle ? ` (whole output: ${entry.handle})` : ''}`);
+        }
       }
+      if (claims.length) {
+        lines.push('', '## What the assistant said (claims, not verified)');
+        for (const entry of claims) lines.push(`- "${entry.text}"`);
+      }
+      if (omitted) lines.push('', `(${omitted} older command and claim entr${omitted === 1 ? 'y was' : 'ies were'} left out to fit the request.)`);
+      return lines.join('\n');
+    };
+    // Trim against a placeholder handle of the real length, so the list is archived once, at the end.
+    while (build(placeholder).length > maxChars) {
+      if (claims.length) { claims = claims.slice(1); omitted++; }
+      else if (commands.length) { commands = commands.slice(1); omitted++; }
+      else if (instructions.length > 1) {
+        const [moved] = instructions.splice(1, 1);
+        evicted.push(moved.handle ? `${moved.text} (whole message: ${moved.handle})` : moved.text);
+        evictedTotal++;
+      } else break;
     }
-    if (this.claims.length) {
-      lines.push('', '## What the assistant said (claims, not verified)');
-      for (const entry of this.claims) lines.push(`- "${entry.text}"`);
-    }
-    return lines.join('\n');
+    return build(archive);
   }
 
   private addInstruction(text: string, archive: Archiver): void {
