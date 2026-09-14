@@ -27,7 +27,7 @@ survives even if the Desktop copy is lost. Porting it is item F8 in `../../../48
 |---|---|---|
 | `src/protocol/host.ts` | matches: pure record-49 state | changed in `3a135b0` |
 | `src/cli/personas/base.persona.ts` | differs: the Threads session edited it afterwards | changed in `b68ebea` |
-| `src/core/agent.loop.ts` | differs: the Threads session edited it afterwards | changed in `cca5226` |
+| `src/core/agent.loop.ts` | differs: the Threads session edited it afterwards | changed in `cca5226`, and again by record 50 step 3 (`prepareContext`) |
 | `src/tools/tool.factory.ts` | differs: the Threads session edited it afterwards | changed in `725b28c` |
 
 Take these four files' edits from `codex-exec-calls.txt` (search for `Path('src/...')` naming each file), not from

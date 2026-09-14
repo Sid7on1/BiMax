@@ -63,8 +63,7 @@ Each item lists **Value** (high, medium, low), **Effort** (S: days, M: 1–2 wee
 
 **The owner decided on 2026-09-14: the RAG upgrade comes first, then the other features.**
 
-1. **C0–C1:** record 50 steps 1–5: acceptance tests for A01–A08 and fixes for A02, A05, A06, A07 and A08 (steps 1–2 done
-   2026-09-14), fixes for A01, A03 and A04, a
+1. **C0–C1:** record 50 steps 1–5: acceptance tests and fixes for all eight defects A01–A08 (steps 1–3, C0, done 2026-09-14), then a
    repaired baseline, and the evidence foundation.
 2. **F8:** port the chat and tool cancellation fix from record 49. Record 50's step 6 edits the same files
    (`agent.loop.ts`, `base.persona.ts`), so the port has to land first.
@@ -320,7 +319,7 @@ before it. The verdicts and efforts are this merge's proposals; record 47 gives 
 with the code location of each defect, is [record 50](50_CONTEXT_COMPILER_BUILD_PLAN.md).
 
 **C0. Repair the eight reproduced defects.** Each probe becomes an acceptance test, paired with a mutant that
-restores the defect. Value high · Effort M · Verdict Next.
+restores the defect. Value high · Effort M · Verdict Next · **Done 2026-09-14** (record 50 steps 1–3).
 - **A01:** a rewrite that keeps size and modification time is not re-indexed, and compaction restores the old
   bytes labelled "verified unchanged".
 - **A02:** the scope filter runs after the result limit, and the path prefix `wanted` also matches `wantedExtra/`.

@@ -1,6 +1,6 @@
 # 50 — Context Compiler: build plan and flow
 
-Date: 2026-09-14. Status: **plan**. Nothing here is built. It turns
+Date: 2026-09-14. Status: **in progress**. Steps 1–3 (the eight fixes, C0) are done; steps 4–8 are still plan. It turns
 [record 47](47_RAG_AND_CONTEXT_COMPILER_UPGRADE.md) into steps someone can follow, in order, on this repository.
 Backlog items C0–C4 in [record 48](48_FEATURE_BACKLOG_2026_09.md) point here.
 
@@ -108,7 +108,36 @@ evidence.
 5. **A06, `pagerank.ts`:** key the cache by a fingerprint of the actual edges (or a generation number bumped on
    every graph change), and redistribute dangling-node mass so the scores sum to 1.
 
-## Step 3: fixes that touch the shared flow (C0)
+## Step 3: fixes that touch the shared flow (C0) — done 2026-09-14
+
+**What shipped.**
+- **A03:** `SearchOptions.passages` makes the memory store return each result's matched chunks, on copies that
+  are never stored. Recall injects those chunks, best first within the budget and shown in document order with
+  their position, instead of the note's opening.
+- **A01:** three places trusted mtime. The code index manifest also records ctime and a content hash: when mtime
+  and size match but ctime moved, the file is hashed and re-indexed only if its bytes changed, and an older
+  manifest adopts hashes without re-indexing. The read cache stamps entries with mtime, size and ctime, so
+  `ReadFileTool` no longer serves a rewritten file from cache. Post-compact restoration re-reads the file and
+  compares a hash before saying "verified unchanged on disk"; a large file's preview is never restored as the
+  file.
+- **A04:** `[Recalled memory]` blocks are transient, so compaction drops them. `AgentLoop.prepareContext` runs
+  recall and then compaction each round, and clears the session's recall set when compaction drops a block, so
+  the question being worked on recalls its evidence again. The `test.todo` is a real test now.
+
+**Proof.**
+- Every acceptance test is a plain assertion; no `knownDefect` remains. Bun: 14 pass. Jest: 11 pass, 3 skipped
+  (FTS5).
+- Seven mutants, each putting one defect back, failed exactly their own tests. One of them re-indexes on every
+  ctime change, which would be a cost regression rather than a wrong answer.
+- The 47 suites that import any file changed in steps 2–3: 406 tests pass, and the only failures are the same 25
+  that failed before step 2. Of the six suites the audit named, five pass; `memory.retrieval` was already failing
+  before step 2.
+- The retrieval eval's numbers are unchanged (BM25 0.64/0.542, hybrid 0.61/0.488). ESLint: 0 errors.
+- Step 3 changed `agent.loop.ts` again, so the F8 hand port of record 49 must re-find its anchors there.
+
+**C0 is complete.** Next is step 4: the evaluation set and the repaired baseline.
+
+**The plan as it was written:**
 
 1. **A03, `recall.ts` and `vector.store.ts`:** inject the matching chunk plus its bounded neighbours, with a
    locator, instead of the document's opening text.

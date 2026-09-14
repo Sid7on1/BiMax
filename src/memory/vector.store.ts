@@ -64,6 +64,11 @@ export interface VectorDocument {
   /** Retrieval operates on these; the document is what gets returned. */
   chunks?: StoredChunk[];
   /**
+   * Only on search results requested with `SearchOptions.passages`: this document's chunks that matched,
+   * best first. Those results are copies, so this is never stored.
+   */
+  matchedChunks?: StoredChunk[];
+  /**
    * When this document was last *retrieved*, not when it was written.
    *
    * Eviction reads this. FIFO — the previous policy — discards the oldest record regardless of how
@@ -100,6 +105,12 @@ export interface SearchOptions {
    * nothing whenever out-of-scope documents ranked higher (record 47, A02).
    */
   where?: (tags: readonly string[]) => boolean;
+  /**
+   * Report which chunks of each result matched (`VectorDocument.matchedChunks`), best first, so a caller
+   * can quote the part of a long note that answers instead of its opening (record 47, A03). Honoured by
+   * VectorStore; the code store's documents are single chunks already.
+   */
+  passages?: boolean;
   /**
    * Which retrievers run. Default 'hybrid'. 'lexical' skips the embedding call entirely (no key,
    * or a caller that wants grep-class results fast); 'dense' skips BM25 — the diagnostic position
@@ -528,7 +539,7 @@ export class VectorStore {
           .map((hit) => {
             const doc = this.chunkOwner.get(hit.id);
             const chunk = doc?.chunks?.find((c) => c.id === hit.id);
-            return doc && chunk ? { id: hit.id, text: chunk.text, doc, fromDense: hit.ranks.dense !== undefined } : null;
+            return doc && chunk ? { id: hit.id, text: chunk.text, doc, chunk, fromDense: hit.ranks.dense !== undefined } : null;
           })
           .filter((c): c is NonNullable<typeof c> => c !== null),
       };
@@ -565,16 +576,25 @@ export class VectorStore {
     );
 
     // Chunks collapse to documents: several chunks of one note are one result, ranked by its best.
-    const seen = new Set<string>();
+    // With `passages`, each result also keeps the rest of its matching chunks, in rank order.
+    const matched = new Map<string, StoredChunk[]>();
     const results: VectorDocument[] = [];
     for (const candidate of ordered) {
-      if (seen.has(candidate.doc.id)) continue;
+      const chunks = matched.get(candidate.doc.id);
+      if (chunks && !options.passages) continue;
+      if (!chunks && results.length >= limit) {
+        if (options.passages) continue;
+        break;
+      }
       if (!candidate.fromDense && minScore > 0) {
         if (lexicalRelevance(query, candidate.text) < minScore) continue;
       }
-      seen.add(candidate.doc.id);
+      if (chunks) {
+        chunks.push(candidate.chunk);
+        continue;
+      }
+      matched.set(candidate.doc.id, [candidate.chunk]);
       results.push(candidate.doc);
-      if (results.length >= limit) break;
     }
 
     // Retrieval is what "used" means for eviction. Writing the file on EVERY search was the
@@ -596,7 +616,9 @@ export class VectorStore {
       this.scheduleRecencyFlush();
     }
 
-    return results;
+    return options.passages
+      ? results.map((doc) => ({ ...doc, matchedChunks: matched.get(doc.id) }))
+      : results;
   }
 
   private scheduleRecencyFlush(): void {

@@ -1,7 +1,8 @@
 import { LLMProvider, Message } from '../core/llm.provider';
 import { contentToText, isScreenshotObservationMessage } from '../core/multimodal';
 import { Logger } from '../utils/logger';
-import { fileStateCache } from './file-state-cache';
+import { fileStateCache, hashFileText } from './file-state-cache';
+import { RECALL_PREFIX } from './recall';
 import { IGraphStore } from '../graph/models';
 import { crossRepoMapSync } from '../graph/cross.repo';
 import { compressBacklog, proxyCompress, recordCompression, looksLikeCode } from './headroom.compress';
@@ -109,6 +110,10 @@ export class ContextManager {
     '[TurnContext]',
     '[ContextManager]',
     '[Older messages aggressively compacted',
+    // Recalled memory is evidence for the turn it was retrieved for. Kept durable, a recalled fact
+    // outlived its freshness and could never be refreshed (record 47, A04); AgentLoop forgets the
+    // session's recalls when compaction drops one, so a question still in play recalls again.
+    RECALL_PREFIX,
   ];
 
   private isTransientSystem(m: Message): boolean {
@@ -515,13 +520,20 @@ Comma-separated list of files created, modified, or important to the task.`,
     let restoreUsed = 0, restoreSkipped = 0, restoreStale = 0;
     for (const f of recentReads) {
       if (restoreUsed + f.content.length > this.RESTORE_BUDGET_CHARS) { restoreSkipped++; continue; }
-      // Re-stat before restoring: cached content whose file was edited externally (or deleted)
-      // since the read must NEVER be re-injected as current — that silently feeds the model a
-      // stale version of the file it is about to modify.
+      // Cached content whose file was edited externally (or deleted) since the read must NEVER be
+      // re-injected as current — that silently feeds the model a stale version of the file it is about
+      // to modify. "Verified unchanged on disk" is a claim about bytes, and a matching mtime is not
+      // proof: a rewrite that put the old mtime back was restored as current (record 47, A01). So the
+      // file is read now and compared with the hash taken when it was cached; a read cached without a
+      // hash is verified only when it was the complete file, by comparing the text itself. A preview of
+      // a large file has neither, so it is never restored as the file.
       try {
         // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const stat = (require('fs') as typeof import('fs')).statSync(f.path);
-        if (stat.mtimeMs !== f.mtime) { restoreStale++; continue; }
+        const fsSync = require('fs') as typeof import('fs');
+        if (fsSync.statSync(f.path).mtimeMs !== f.mtime) { restoreStale++; continue; }
+        const current = fsSync.readFileSync(f.path, 'utf8');
+        const verified = f.fileHash ? hashFileText(current) === f.fileHash : f.complete && current === f.content;
+        if (!verified) { restoreStale++; continue; }
       } catch { restoreStale++; continue; } // deleted/unreadable — do not restore
       restoreUsed += f.content.length;
       // A partial read is labeled as exactly that — never presented as the complete file.
@@ -535,7 +547,7 @@ Comma-separated list of files created, modified, or important to the task.`,
     }
 
     if (fileAttachments.length > 0 || restoreSkipped > 0 || restoreStale > 0) {
-      Logger.info(`[ContextManager] Restored ${fileAttachments.length} recently-read file(s) post-compact${restoreSkipped ? ` (${restoreSkipped} skipped — over the ${this.RESTORE_BUDGET_CHARS}-char budget)` : ''}${restoreStale ? ` (${restoreStale} not restored — changed on disk since the cached read)` : ''}.`);
+      Logger.info(`[ContextManager] Restored ${fileAttachments.length} recently-read file(s) post-compact${restoreSkipped ? ` (${restoreSkipped} skipped — over the ${this.RESTORE_BUDGET_CHARS}-char budget)` : ''}${restoreStale ? ` (${restoreStale} not restored — not verified unchanged on disk)` : ''}.`);
     }
 
     const compacted = [...systemMessages, summaryMsg, ...fileAttachments, ...recentMessages];

@@ -36,7 +36,7 @@ import { reportCapability } from '../core/capability.status';
  * given from what it was told.
  */
 
-import type { VectorStore } from './vector.store';
+import type { StoredChunk, VectorDocument, VectorStore } from './vector.store';
 
 export const RECALL_PREFIX = '[Recalled memory]';
 
@@ -110,7 +110,7 @@ export async function recallForTurn(
     // code is EXCLUDED for the same reason from the other side: source chunks belong to
     // CodeSearchTool, and auto-recall injecting a wall of code into a user turn is displacement,
     // not help. Recall is for durable knowledge; code has its own door.
-    documents = await store.semanticSearch(query, limit, 0, { excludeTags: ['project-memory', 'code'] });
+    documents = await store.semanticSearch(query, limit, 0, { excludeTags: ['project-memory', 'code'], passages: true });
   } catch {
     reportCapability({ id: 'memory-recall', label: 'Memory recall', state: 'degraded',
       reason: 'Memory lookup failed.', impact: 'This turn continues without recalled context.',
@@ -125,7 +125,7 @@ export async function recallForTurn(
   const ids: string[] = [];
   let budget = maxChars;
   for (const doc of documents) {
-    const content = (doc.metadata?.content || '').trim();
+    const content = passageOf(doc, budget);
     if (!content) continue;
     // Truncate the last one that fits rather than dropping it: a partial memory is usually still
     // the fact that was wanted, and the alternative is silently recalling less than the budget.
@@ -145,4 +145,50 @@ export async function recallForTurn(
       ...parts,
     ].join('\n'),
   };
+}
+
+/**
+ * The part of a recalled document worth injecting: its matched chunks, best first until `budget` is
+ * spent, shown in document order with their position when the document has several. Injecting the start
+ * of the document lost the answer whenever it sat further down a long note (record 47, A03). A result
+ * without matched chunks, from a store that does not report them, falls back to the whole content.
+ */
+function passageOf(doc: VectorDocument, budget: number): string {
+  const chunks = doc.chunks ?? [];
+  const matched = doc.matchedChunks ?? [];
+  if (!matched.length || !chunks.length) return (doc.metadata?.content || '').trim();
+  const picked: StoredChunk[] = [];
+  let used = 0;
+  for (const chunk of matched) {
+    const cost = chunk.text.length + 24;
+    // The best chunk always goes in; the caller truncates it if even that is over budget.
+    if (picked.length && used + cost > budget) continue;
+    picked.push(chunk);
+    used += cost;
+  }
+  return picked
+    .map((chunk) => ({ chunk, at: chunks.indexOf(chunk) }))
+    .sort((a, b) => a.at - b.at)
+    .map(({ chunk, at }) => `${chunks.length > 1 && at >= 0 ? `(part ${at + 1} of ${chunks.length}) ` : ''}${chunk.text.trim()}`)
+    .join('\n  ')
+    .trim();
+}
+
+/**
+ * Whether compaction dropped a recall block: `before` held one that `after` no longer contains.
+ *
+ * Compaction drops recall blocks because they are evidence for the turn they were retrieved for. The
+ * session's "already recalled" set has to forget when that happens, or a question whose evidence was
+ * compacted away could never recall again (record 47, A04).
+ */
+export function droppedRecall(
+  before: readonly { role: string; content?: unknown }[],
+  after: readonly { role: string; content?: unknown }[],
+): boolean {
+  const kept = new Set(after);
+  return before.some((message) =>
+    message.role === 'system'
+    && typeof message.content === 'string'
+    && message.content.startsWith(RECALL_PREFIX)
+    && !kept.has(message));
 }

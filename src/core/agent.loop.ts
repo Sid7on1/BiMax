@@ -5,9 +5,9 @@ import { extractTextToolCalls } from './tool.call.parser';
 import { ToolRegistry } from '../tools/tool.registry';
 import { IGovernor } from './interfaces';
 import { Logger } from '../utils';
-import { ContextManager } from '../memory/context.manager';
+import { ContextManager, type ContextMode } from '../memory/context.manager';
 import type { VectorStore } from '../memory/vector.store';
-import { recallForTurn, recallKey, recallQuery } from '../memory/recall';
+import { droppedRecall, recallForTurn, recallKey, recallQuery } from '../memory/recall';
 import { cliEvents, ToolCallEntry } from '../cli/events';
 import { getActiveTodos, todosTouchedThisTurn } from '../tools/implementations/todo.tool';
 import { LoopDetector, LoopSignal } from './loop-detector';
@@ -247,6 +247,19 @@ export class AgentLoop {
     this.messages.splice(at, 0, { role: 'system', content: recalled.text } as typeof last);
   }
 
+  /**
+   * One round's context: recall, then compaction. Compaction drops recall blocks (they are evidence for
+   * the turn they were retrieved for), so the session forgets what it recalled when that happens, and the
+   * question still being worked on recalls its evidence again on the next round instead of losing it for
+   * the rest of the session (record 47, A04).
+   */
+  private async prepareContext(contextMode: ContextMode): Promise<void> {
+    await this.injectRecall();
+    const beforeCompaction = this.messages;
+    this.messages = await this.contextManager.checkAndCompact(this.messages, contextMode);
+    if (droppedRecall(beforeCompaction, this.messages)) this.recalled.clear();
+  }
+
   private truncateContext(messages: Message[], keepRecentTurns = 4): Message[] {
     const systemMessages = messages.filter(message => message.role === 'system');
     const nonSystemMessages = messages.filter(message => message.role !== 'system');
@@ -383,8 +396,7 @@ export class AgentLoop {
       // 0. Automatic recall, BEFORE compaction so the injected block is subject to the same
       //    passes as everything else — a recall that could not be compacted would be the one thing
       //    in the window that grows without limit.
-      await this.injectRecall();
-      this.messages = await this.contextManager.checkAndCompact(this.messages, contextMode);
+      await this.prepareContext(contextMode);
       if (options?.skipRepoMap) {
         // ContextManager refreshes the code RepoMap on every round. It is valuable for coding, but
         // actively harmful during a visual-control loop: it adds thousands of irrelevant tokens and
@@ -573,6 +585,7 @@ export class AgentLoop {
               contextRecoveries++;
 
               if (strictlyShrank) {
+                if (droppedRecall(this.messages, recoveredMessages)) this.recalled.clear();
                 this.messages = recoveredMessages;
                 cliEvents.emit('status', `Context overflow — ${action} and retrying (${contextRecoveries}/${MAX_CONTEXT_RECOVERIES})…`);
                 cliEvents.emit('log', {

@@ -1,7 +1,6 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { strict as assert } from 'assert';
 import { CodeIndex } from '../memory/code.index';
 import { VectorStore } from '../memory/vector.store';
 import { recallForTurn, RECALL_PREFIX } from '../memory/recall';
@@ -13,32 +12,19 @@ import { planContext } from '../graph/context.planner';
 import { computePageRank, formatRepoMapOutline } from '../graph/pagerank';
 import { compressText } from '../memory/headroom.compress';
 import { openSqlite } from '../core/sqlite';
+import { AgentLoop } from '../core/agent.loop';
+import { ToolRegistry } from '../tools/tool.registry';
+import { createReadFileTool } from '../tools/implementations/file.tool';
 
 /**
- * Acceptance tests for the eight context defects reproduced in record 47 (A01–A08), from step 1 of
- * record 50's build plan.
+ * Acceptance tests for the eight context defects reproduced in record 47 (A01–A08), written in step 1 of
+ * record 50's build plan and turned into plain assertions as each fix landed: A02, A05, A06, A07 and A08 in
+ * step 2, A01, A03 and A04 in step 3. Every test states the behaviour we want, with a control that proves
+ * its fixture works, so an empty result can never pass for a fix.
  *
- * Every check asserts the behaviour we WANT. While a defect is still open, its check runs inside
- * `knownDefect`, which passes only while that check fails with an assertion. The day a fix lands,
- * `knownDefect` turns the test red on purpose, and the check becomes a plain assertion that guards the
- * fix from then on. Fixed so far (record 50, step 2): A02, A05, A06, A07, A08. Still open: A01, A03, A04.
- *
- * A broken fixture must never read as "still broken". Setup and controls run outside `knownDefect`,
- * and any error inside it that is not an assertion still fails the test.
- *
- * A01's index test and A02 need SQLite FTS5. Node 22's `node:sqlite` on the dev Mac has none, so Jest
- * skips them by name; `npm run test:context` runs this file under Bun, where all of them run.
+ * The code-index tests need SQLite FTS5. Node 22's `node:sqlite` on the dev Mac has none, so Jest skips
+ * them by name; `npm run test:context` runs this file under Bun, where all of them run.
  */
-
-async function knownDefect(check: () => unknown): Promise<void> {
-  try {
-    await check();
-  } catch (error) {
-    if (error instanceof assert.AssertionError) return;
-    throw error;
-  }
-  throw new Error('This defect now looks fixed: replace knownDefect with the plain check (record 50, step 3).');
-}
 
 function sqliteHasFts5(): boolean {
   const db = openSqlite(':memory:');
@@ -57,44 +43,59 @@ function sqliteHasFts5(): boolean {
 const summarizer = { async *chat() { yield { type: 'token', text: '## Goal\nFixture summary.' }; } } as any;
 const history = (turns: number) =>
   Array.from({ length: turns }, (_, i) => ({ role: i % 2 ? 'assistant' : 'user', content: `fixture turn ${i}` }));
+const JAN_1 = new Date('2026-01-01T00:00:00Z');
+
+/** Rewrites a file with same-length text and puts the old modification time back. */
+function rewriteKeepingSizeAndMtime(file: string, text: string): void {
+  const before = fs.statSync(file);
+  fs.writeFileSync(file, text);
+  fs.utimesSync(file, JAN_1, JAN_1);
+  const after = fs.statSync(file);
+  expect([after.mtimeMs, after.size]).toEqual([before.mtimeMs, before.size]);
+}
 
 let temp: string;
 beforeAll(() => { temp = fs.mkdtempSync(path.join(os.tmpdir(), 'bimax-context-acceptance-')); });
 afterAll(() => { fs.rmSync(temp, { recursive: true, force: true }); });
 
-describe('knownDefect', () => {
-  test('passes only while its check fails with an assertion', async () => {
-    await expect(knownDefect(() => assert.equal(1, 2))).resolves.toBeUndefined();
-    await expect(knownDefect(() => undefined)).rejects.toThrow(/looks fixed/);
-    await expect(knownDefect(() => { throw new Error('fixture broke'); })).rejects.toThrow('fixture broke');
-  });
-});
-
 describe('A01: a rewrite that keeps the size and modification time', () => {
   test('is never restored after compaction as the old bytes', async () => {
     const file = path.join(temp, 'restored.ts');
     const old = 'export const state = "oldsentinel";\n';
-    const stamp = new Date('2026-01-01T00:00:00Z');
     fs.writeFileSync(file, old);
-    fs.utimesSync(file, stamp, stamp);
-    const before = fs.statSync(file);
+    fs.utimesSync(file, JAN_1, JAN_1);
     const restorations = async () => (await new ContextManager(summarizer).compact(history(20) as any))
       .map(m => String(m.content))
       .filter(content => content.startsWith('[Post-Compact Restoration'));
     try {
-      fileStateCache.set(file, before.mtimeMs, old);
+      fileStateCache.set(file, fs.statSync(file).mtimeMs, old);
       // Control: while the bytes really are unchanged, restoring them as verified is correct.
       expect((await restorations()).some(c => c.includes('oldsentinel') && c.includes('verified unchanged'))).toBe(true);
 
-      fs.writeFileSync(file, 'export const state = "newsentinel";\n');
-      fs.utimesSync(file, stamp, stamp);
-      const after = fs.statSync(file);
-      expect([after.mtimeMs, after.size]).toEqual([before.mtimeMs, before.size]);
+      rewriteKeepingSizeAndMtime(file, 'export const state = "newsentinel";\n');
+      expect((await restorations()).some(c => c.includes('oldsentinel'))).toBe(false);
+    } finally {
+      fileStateCache.invalidate(file);
+    }
+  });
 
-      const afterRewrite = await restorations();
-      await knownDefect(() => {
-        assert.ok(!afterRewrite.some(c => c.includes('oldsentinel')), 'compaction restored bytes the file no longer has');
-      });
+  test('is not served from the read cache as the old bytes', async () => {
+    const dir = path.join(temp, 'read-cache');
+    fs.mkdirSync(dir);
+    const file = path.join(dir, 'read.ts');
+    fs.writeFileSync(file, 'export const state = "oldsentinel";\n');
+    fs.utimesSync(file, JAN_1, JAN_1);
+    const tool = createReadFileTool({ approveTaskExecution: async () => {} } as any);
+    const read = async (): Promise<string> => {
+      const result: any = await tool.execute({ path: 'read.ts' }, { cwd: dir });
+      return typeof result === 'string' ? result : JSON.stringify(result);
+    };
+    try {
+      expect(await read()).toContain('oldsentinel');
+      rewriteKeepingSizeAndMtime(file, 'export const state = "newsentinel";\n');
+      const second = await read();
+      expect(second).toContain('newsentinel');
+      expect(second).not.toContain('oldsentinel');
     } finally {
       fileStateCache.invalidate(file);
     }
@@ -106,27 +107,20 @@ describe('A01: a rewrite that keeps the size and modification time', () => {
     const dir = path.join(temp, 'stale');
     fs.mkdirSync(dir);
     const file = path.join(dir, 'state.ts');
-    const stamp = new Date('2026-01-01T00:00:00Z');
     fs.writeFileSync(file, 'export const state = "oldsentinel";\n');
-    fs.utimesSync(file, stamp, stamp);
-    const before = fs.statSync(file);
+    fs.utimesSync(file, JAN_1, JAN_1);
     const index = new CodeIndex(null, null, { root: dir, storePath: path.join(temp, 'stale.db') });
     expect((await index.sync()).indexed).toBe(1);
     // Control: the index works, so an empty result later cannot pass for a fix.
     expect((await index.search('oldsentinel', 3, undefined, 'lexical')).some(h => h.text.includes('oldsentinel'))).toBe(true);
+    // A moved ctime with the same bytes re-checks the file but does not re-index it.
+    fs.utimesSync(file, JAN_1, JAN_1);
+    expect((await index.sync()).indexed).toBe(0);
 
-    fs.writeFileSync(file, 'export const state = "newsentinel";\n');
-    fs.utimesSync(file, stamp, stamp);
-    const after = fs.statSync(file);
-    expect([after.mtimeMs, after.size]).toEqual([before.mtimeMs, before.size]);
-
-    await index.sync();
-    const stale = await index.search('oldsentinel', 3, undefined, 'lexical');
-    const current = await index.search('newsentinel', 3, undefined, 'lexical');
-    await knownDefect(() => {
-      assert.ok(!stale.some(h => h.text.includes('oldsentinel')), 'search returned text the file no longer has');
-      assert.ok(current.some(h => h.text.includes('newsentinel')), 'the file\'s current text is not searchable');
-    });
+    rewriteKeepingSizeAndMtime(file, 'export const state = "newsentinel";\n');
+    expect((await index.sync()).indexed).toBe(1);
+    expect((await index.search('oldsentinel', 3, undefined, 'lexical')).some(h => h.text.includes('oldsentinel'))).toBe(false);
+    expect((await index.search('newsentinel', 3, undefined, 'lexical')).some(h => h.text.includes('newsentinel'))).toBe(true);
   });
 
   describe('A02: a scoped search', () => {
@@ -166,11 +160,9 @@ describe('A03: automatic recall', () => {
       + '\nThe orchid launch passphrase is VIOLET-SENTINEL.\n';
     await store.storeDocument('long-note', content, ['note']);
     const recalled = await recallForTurn(store, 'What is the orchid launch passphrase?');
-    // Control: retrieval finds the right document; the loss happens after it.
+    // Control: retrieval finds the right document.
     expect(recalled?.ids).toEqual(['long-note']);
-    await knownDefect(() => {
-      assert.ok(recalled!.text.includes('VIOLET-SENTINEL'), 'the answering passage was not injected');
-    });
+    expect(recalled!.text).toContain('VIOLET-SENTINEL');
   });
 });
 
@@ -180,15 +172,40 @@ describe('A04: recalled memory and compaction', () => {
     const out = await new ContextManager(summarizer).compact([recall, ...history(20)] as any);
     // Control: this history is long enough to compact.
     expect(out.some(m => String(m.content).startsWith('[Previous Context Summary]'))).toBe(true);
-    await knownDefect(() => {
-      assert.ok(!out.some(m => String(m.content).startsWith(RECALL_PREFIX)), 'a recall block survived compaction unchanged');
-    });
+    expect(out.some(m => String(m.content).startsWith(RECALL_PREFIX))).toBe(false);
   });
 
-  // The other half of A04 lives in AgentLoop: `this.recalled` (src/core/agent.loop.ts) is never cleared, so once
-  // compaction removes a recall block, asking the same question again is still suppressed. A test here could only
-  // exercise a copy of that logic, not the loop. Step 3 of record 50 exposes the seam; this becomes real then.
-  test.todo('A04: after compaction removes a recall block, the same question recalls again');
+  test('after compaction removes a recall block, the same question recalls again', async () => {
+    const store = new VectorStore(null as any, null as any, { storePath: path.join(temp, 'recall-again.json'), dedup: false });
+    await store.storeDocument('coach', 'The permission coach polls once a second and blocks the main process', ['note']);
+    let searches = 0;
+    const search = store.semanticSearch.bind(store);
+    store.semanticSearch = (async (...args: Parameters<VectorStore['semanticSearch']>) => {
+      searches++;
+      return search(...args);
+    }) as VectorStore['semanticSearch'];
+
+    const question = 'why does the permission flow feel slow and blocked';
+    const twoRounds = async (manager: ContextManager): Promise<number> => {
+      searches = 0;
+      const loop = new AgentLoop(summarizer, new ToolRegistry(), undefined, undefined, manager, store, new Set<string>());
+      (loop as any).messages = [...history(20), { role: 'user', content: question }];
+      await (loop as any).prepareContext('smart');
+      await (loop as any).prepareContext('smart');
+      return searches;
+    };
+    const keepsEverything = new (class extends ContextManager {
+      async checkAndCompact(messages: any[]) { return messages; }
+    })(summarizer);
+    const compactsEveryRound = new (class extends ContextManager {
+      async checkAndCompact(messages: any[]) { return this.compact(messages); }
+    })(summarizer);
+
+    // Control: while the recall block stays in the prompt, the same question is not searched twice.
+    expect(await twoRounds(keepsEverything)).toBe(1);
+    // Compaction drops the block, so the next round recalls the evidence again.
+    expect(await twoRounds(compactsEveryRound)).toBe(2);
+  });
 });
 
 describe('A05: a graph context pack', () => {

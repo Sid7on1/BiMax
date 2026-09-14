@@ -11,7 +11,7 @@ import { requestDiffApproval } from '../../cli/diffApproval';
 import { checkBlastRadius } from '../../cli/blastGate';
 import { sliceLineRange } from '../file-range';
 import { detectCorruptWrite } from '../write-guard';
-import { fileStateCache } from '../../memory/file-state-cache';
+import { fileStateCache, statStamp, hashFileText } from '../../memory/file-state-cache';
 import { globalTransactionManager } from '../../core/transaction.manager';
 import { outcomeOk, outcomeError, outcomeRejected } from '../outcome';
 import { moveToBin } from '../thread.bin';
@@ -84,25 +84,28 @@ Use this tool to inspect source code, configuration files, or logs. It natively 
         return text ?? rawContent;
       }
 
-      // Get mtime for cache lookup and stale detection
-      const mtime = await fileStateCache.getMtime(fullPath);
-      if (mtime === null) return outcomeError('not_found', `Error: File not found at ${args.path}`);
+      // Stat once for the cache lookup and stale detection. The stamp adds size and ctime to mtime, so
+      // a rewrite that put the old mtime back is not served from the cache (record 47, A01).
+      const fileStat = await fileStateCache.getStat(fullPath);
+      if (fileStat === null) return outcomeError('not_found', `Error: File not found at ${args.path}`);
+      const mtime = fileStat.mtimeMs;
+      const stamp = statStamp(fileStat);
 
       // When a line range is requested, check the cache first
       if (args.startLine !== undefined || args.endLine !== undefined) {
-        const cached = fileStateCache.get(fullPath, mtime, args.startLine, args.endLine);
+        const cached = fileStateCache.get(fullPath, mtime, args.startLine, args.endLine, stamp);
         if (cached !== null) return cached;
 
         const rawContent = await fs.readFile(fullPath, 'utf8');
         const { text, error } = sliceLineRange(rawContent, args.startLine, args.endLine);
         if (error) return outcomeError('invalid_args', `Error: ${error}`);
         const slicedText = text ?? '';
-        fileStateCache.set(fullPath, mtime, slicedText, args.startLine, args.endLine);
+        fileStateCache.set(fullPath, mtime, slicedText, args.startLine, args.endLine, { stamp, fileHash: hashFileText(rawContent) });
         return slicedText;
       }
 
       // Full-file read — check cache first
-      const cached = fileStateCache.get(fullPath, mtime);
+      const cached = fileStateCache.get(fullPath, mtime, undefined, undefined, stamp);
       if (cached !== null) return cached;
 
       // Size check before reading large files
@@ -134,13 +137,14 @@ Use this tool to inspect source code, configuration files, or logs. It natively 
             (remaining > 0 ? `\n\n[... ${remaining} more lines truncated]` : '');
         }
 
-        // Cache the truncated result (the model only got the preview)
-        fileStateCache.set(fullPath, mtime, result);
+        // Cache the truncated result (the model only got the preview). No file hash: a preview is not
+        // the file, so post-compact restoration can never verify it and never restores it as the file.
+        fileStateCache.set(fullPath, mtime, result, undefined, undefined, { stamp });
         return result;
       }
 
       const content = await fs.readFile(fullPath, 'utf8');
-      fileStateCache.set(fullPath, mtime, content);
+      fileStateCache.set(fullPath, mtime, content, undefined, undefined, { stamp, fileHash: hashFileText(content) });
       return content;
     } catch (e: any) {
       if (e.code === 'ENOENT') {

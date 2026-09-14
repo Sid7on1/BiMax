@@ -22,8 +22,8 @@ import { reportCapability } from '../core/capability.status';
  *      (contextual embeddings) — a bare function body embeds as slightly-about everything it
  *      touches and strongly about nothing, which is the exact failure mode the memory pipeline's
  *      chunker exists to prevent, restated for code.
- *   2. **Sync is incremental and bounded.** A manifest of mtime+size per file decides what
- *      re-indexes; each sync processes a bounded batch so a first run over a large repo trickles
+ *   2. **Sync is incremental and bounded.** A manifest of mtime, size, ctime and a content hash
+ *      per file decides what re-indexes; each sync processes a bounded batch so a first run over a large repo trickles
  *      in over several turns instead of blocking boot behind hundreds of embedding calls. With no
  *      API key the chunks still index — BM25 over path+symbol+body — and gain vectors the moment
  *      a key exists (backfill), the same honest degradation as memory.
@@ -31,6 +31,7 @@ import { reportCapability } from '../core/capability.status';
 
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { createHash } from 'crypto';
 import type { VectorDocument } from './vector.store';
 import { SqliteCodeVectorStore } from './sqlite.code.store';
 import type { EmbeddingBackend } from './embeddings';
@@ -130,7 +131,8 @@ export interface CodeHit {
 export type HitExpander = (hit: CodeHit) => Promise<string[]>;
 
 interface Manifest {
-  [relPath: string]: { m: number; s: number };
+  /** mtime, size, ctime and a hash of the text when indexed; `c` and `h` are absent in older manifests. */
+  [relPath: string]: { m: number; s: number; c?: number; h?: string };
 }
 
 /**
@@ -245,10 +247,33 @@ export class CodeIndex {
         }
       }
 
-      const changed = files.filter((f) => {
+      // mtime and size decide cheaply, as before. When both match but ctime moved, the bytes are hashed:
+      // a rewrite that put the old mtime and size back kept serving the old chunks (record 47, A01).
+      // ctime also moves without a content change (chmod, xattrs, cloud sync), so a moved ctime with an
+      // unchanged hash only updates the manifest. An entry written before hashes existed adopts one
+      // without re-indexing, so upgrading never re-embeds a repository.
+      const changed: typeof files = [];
+      let manifestTouched = false;
+      let hashSliceStart = Date.now();
+      for (const f of files) {
         const prev = this.manifest![f.rel];
-        return !prev || prev.m !== f.mtimeMs || prev.s !== f.size;
-      });
+        if (!prev || prev.m !== f.mtimeMs || prev.s !== f.size) { changed.push(f); continue; }
+        if (prev.h && prev.c === f.ctimeMs) continue;
+        let hash: string;
+        try {
+          hash = hashSource(await fs.readFile(f.abs, 'utf-8'));
+        } catch {
+          continue; // raced away: the next sync reconsiders it
+        }
+        if (prev.h && prev.h !== hash) { changed.push(f); continue; }
+        prev.c = f.ctimeMs;
+        prev.h = hash;
+        manifestTouched = true;
+        if (Date.now() - hashSliceStart >= this.sliceBudgetMs) {
+          await new Promise<void>((resolve) => setImmediate(resolve));
+          hashSliceStart = Date.now();
+        }
+      }
       this.pendingFiles = changed.length;
       if (changed.length) this.reportIndex(`Indexing ${changed.length} changed or new files.`);
       const batch = changed.slice(0, Math.max(0, budgetFiles));
@@ -266,7 +291,7 @@ export class CodeIndex {
         const rescanned = new Set<string>();
         const currentIds = new Set<string>();
         const nextManifest: Manifest = {};
-        let sliceFiles: { rel: string; m: number; s: number }[] = [];
+        let sliceFiles: { rel: string; m: number; s: number; c: number; h: string }[] = [];
         let sliceTags = new Set<string>();
         let sliceDocs: { id: string; text: string; tags: string[] }[] = [];
         let sliceStart = Date.now();
@@ -281,7 +306,7 @@ export class CodeIndex {
             if (await this.store.storeDocuments(sliceDocs)) {
               for (const d of sliceDocs) currentIds.add(d.id);
               for (const t of sliceTags) rescanned.add(t);
-              for (const f of sliceFiles) nextManifest[f.rel] = { m: f.m, s: f.s };
+              for (const f of sliceFiles) nextManifest[f.rel] = { m: f.m, s: f.s, c: f.c, h: f.h };
             }
           }
           sliceFiles = [];
@@ -302,7 +327,7 @@ export class CodeIndex {
                 tags: ['code', fileTag(file.rel), `sym:${chunk.symbol}`, `lines:${chunk.startLine}-${chunk.endLine}`],
               });
             }
-            sliceFiles.push({ rel: file.rel, m: file.mtimeMs, s: file.size });
+            sliceFiles.push({ rel: file.rel, m: file.mtimeMs, s: file.size, c: file.ctimeMs, h: hashSource(source) });
           } catch {
             // Unreadable mid-sync (deleted, permissions): skip; next sync reconsiders it.
           }
@@ -319,10 +344,14 @@ export class CodeIndex {
           Object.assign(this.manifest!, nextManifest);
           indexed = Object.keys(nextManifest).length;
           await this.saveManifest();
+          manifestTouched = false;
         }
       } else if (removed > 0) {
         await this.saveManifest();
+        manifestTouched = false;
       }
+      // Hashes adopted or ctimes refreshed above, with nothing re-indexed to carry them to disk.
+      if (manifestTouched) await this.saveManifest();
       // Chunks stored keyless gain vectors incrementally: one bounded batch per sync, so a
       // large backlog drains across syncs instead of one giant embedding run.
       if (this.store.stats().pending > 0) {
@@ -403,8 +432,8 @@ export class CodeIndex {
     }
   }
 
-  private async walkSources(): Promise<{ abs: string; rel: string; mtimeMs: number; size: number }[]> {
-    const out: { abs: string; rel: string; mtimeMs: number; size: number }[] = [];
+  private async walkSources(): Promise<{ abs: string; rel: string; mtimeMs: number; size: number; ctimeMs: number }[]> {
+    const out: { abs: string; rel: string; mtimeMs: number; size: number; ctimeMs: number }[] = [];
     // The walk gets the same liveness floor as the indexing phase. SLICE_BUDGET_MS used to guard
     // only the indexing loop, so a repo large enough to make the WALK take tens of seconds starved
     // the heartbeat before a single file was indexed — the supervisor then killed the engine during
@@ -435,7 +464,7 @@ export class CodeIndex {
             if (stat.size > MAX_FILE_BYTES) continue;
             const rel = path.relative(this.root, abs).replace(/\\/g, '/');
             if (this.excludePath?.(rel)) continue;
-            out.push({ abs, rel, mtimeMs: stat.mtimeMs, size: stat.size });
+            out.push({ abs, rel, mtimeMs: stat.mtimeMs, size: stat.size, ctimeMs: stat.ctimeMs });
           } catch { /* raced away */ }
         }
       }
@@ -443,6 +472,11 @@ export class CodeIndex {
     await walk(this.root);
     return out;
   }
+}
+
+/** Content identity of a source file's text, recorded in the manifest. */
+function hashSource(source: string): string {
+  return createHash('sha256').update(source).digest('hex');
 }
 
 function fileTag(rel: string): string {
