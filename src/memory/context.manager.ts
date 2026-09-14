@@ -7,6 +7,7 @@ import { archiveOutput } from '../context/output.archive';
 import { ContextEvidence, evidenceSpan, fileEvidence, fileVersion, versionOfText } from '../context/evidence';
 import { CONTINUATION_PREFIX, ContinuationState, isContinuationMessage } from '../context/continuation';
 import { MESSAGE_FRAMING_TOKENS, countTokens, type RequestRecord } from '../context/request.budget';
+import { carriedSummary, summarizeLog } from '../context/log.summary';
 import { IGraphStore } from '../graph/models';
 import { crossRepoMapSync } from '../graph/cross.repo';
 import { compressBacklog, proxyCompress, recordCompression, looksLikeCode } from './headroom.compress';
@@ -328,7 +329,9 @@ export class ContextManager {
       if (raw.length < this.MIN_ARCHIVED_RESULT_CHARS || rawHandleIn(m.content)) return m;
       const handle = this.archive(raw);
       if (!handle) return m;
-      const content = `${m.content}\n[${RAW_OUTPUT_NOTE} ${handle} (ContextArchiveTool)]`;
+      // A log keeps its shape: the line count and first failures of the raw output lead the compressed form (step 6d).
+      const summary = carriedSummary(m.content) ? null : summarizeLog(raw);
+      const content = `${summary ? `${summary}\n` : ''}${m.content}\n[${RAW_OUTPUT_NOTE} ${handle} (ContextArchiveTool)]`;
       return content.length < raw.length ? { ...m, content } : m;
     });
   }
@@ -347,7 +350,8 @@ export class ContextManager {
       // compression already archived raw keeps that handle: the raw output is the better original.
       const archived = rawHandleIn(m.content) ?? this.archive(m.content);
       const where = archived ? `; the full result is archived as ${archived} (ContextArchiveTool)` : '';
-      return { ...m, content: `${head}\n\n… [${elided} chars elided to save context${where}] …\n\n${tail}` };
+      const summary = carriedSummary(m.content) ? null : summarizeLog(m.content);
+      return { ...m, content: `${summary ? `${summary}\n` : ''}${head}\n\n… [${elided} chars elided to save context${where}] …\n\n${tail}` };
     });
     if (trimmed) Logger.info(`[ContextManager] Capped ${trimmed} oversized tool result(s).`);
     return out;
@@ -412,12 +416,13 @@ export class ContextManager {
             : `[tool result cleared to save context — code output; re-run the tool for a current result, which may differ from the cleared one.${saved}]`,
         };
       }
-      return {
-        ...m,
-        content: archived
-          ? `[tool result cleared to save context — archived as ${archived}; read it back with ContextArchiveTool]`
-          : '[tool result cleared to save context]',
-      };
+      const stub = archived
+        ? `[tool result cleared to save context — archived as ${archived}; read it back with ContextArchiveTool]`
+        : '[tool result cleared to save context]';
+      // A cleared log keeps its one-line summary, when the stub stays well under what it replaces (step 6d).
+      const summary = archived && typeof m.content === 'string' ? carriedSummary(m.content) ?? summarizeLog(m.content) : null;
+      const withSummary = summary ? `${stub}\n${summary}` : stub;
+      return { ...m, content: typeof m.content === 'string' && withSummary.length * 2 <= m.content.length ? withSummary : stub };
     });
     if (cleared) Logger.info(`[ContextManager] Micro-compacted ${cleared} old tool result(s).`);
     return out;
