@@ -38,6 +38,12 @@ extraResources:
 
 asar: true
 
+# bimax://task?folder=…&prompt=… opens a ⌘2 task after a confirmation (backlog N2; app/src/main/bimax.link.ts).
+protocols:
+  - name: Bimax task link
+    schemes:
+      - bimax
+
 mac:
   category: public.app-category.developer-tools
   target:

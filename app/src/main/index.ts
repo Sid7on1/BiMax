@@ -19,6 +19,7 @@ import { describeSchedule, dueSchedules, newSchedule, type Cadence, type Schedul
 import { randomUUID } from 'node:crypto';
 import { macBin } from './bin';
 import { answerFromNotification, notificationChoices } from './approval.notification';
+import { linkConfirmation, parseTaskLink } from './bimax.link';
 import os from 'node:os';
 import { spawn } from 'node:child_process';
 import { readFileSync, writeFileSync, renameSync, mkdirSync, realpathSync, existsSync, appendFileSync, statSync } from 'node:fs';
@@ -577,6 +578,44 @@ function revealMainWindow(): void {
 
 app.on('second-instance', revealMainWindow);
 
+// ── bimax://task links (backlog N2) ──────────────────────────────────────────────────────────────
+// macOS delivers a link that launched Bimax before the app is ready, so links wait until threads exist.
+const pendingTaskLinks: string[] = [];
+let taskLinksReady = false;
+app.on('open-url', (event, url) => {
+  event.preventDefault();
+  if (taskLinksReady) void openTaskLink(url);
+  else pendingTaskLinks.push(url);
+});
+
+/** Read a task link, check its folder, and start the task only if the person clicks Start (see bimax.link.ts). */
+async function openTaskLink(raw: string): Promise<void> {
+  const refuse = (detail: string) => { void dialog.showMessageBox({ type: 'warning', message: 'Bimax could not open that link', detail }); };
+  const link = parseTaskLink(raw, os.homedir());
+  if (!link.ok) { refuse(link.error); return; }
+  let root: string;
+  try {
+    root = await fsp.realpath(link.folder);
+    if (!(await fsp.stat(root)).isDirectory()) throw new Error('not a folder');
+  } catch {
+    refuse(`That folder does not exist: ${link.folder}`);
+    return;
+  }
+  if (root === '/' || root === os.homedir()) { refuse('Choose a specific folder rather than your whole home folder.'); return; }
+  const { options, startIndex } = linkConfirmation(root, link.prompt);
+  app.focus({ steal: true });
+  const { response } = await dialog.showMessageBox(options);
+  if (response !== startIndex) return;
+  try {
+    const id = threads.create(root, '', 'quick', loadSettings().quickModel || undefined);
+    if (link.prompt) threads.submit(id, link.prompt);
+    else threads.start(id);
+    showQuickThread(id);
+  } catch (error) {
+    refuse((error as Error).message);
+  }
+}
+
 function currentRuntimeSignals(): RuntimeSignals {
   const totalMb = os.totalmem() / (1024 * 1024);
   const availableMemoryMb = Math.max(0, Math.round(os.freemem() / (1024 * 1024)));
@@ -1106,6 +1145,10 @@ app.whenReady().then(async () => {
       return { moved, error: null };
     },
   });
+  // Task links can be handled now that threads exist; one that launched Bimax has been waiting (backlog N2).
+  taskLinksReady = true;
+  for (const url of pendingTaskLinks.splice(0)) void openTaskLink(url);
+  if (app.isPackaged) app.setAsDefaultProtocolClient('bimax');
   createWindow();
   updateTray();
   shortcutAvailable = globalShortcut.register('CommandOrControl+2', () => { void showQuickBar(); });

@@ -190,7 +190,13 @@ when Bimax's notifications use the Alerts style, or under Options on a banner.
 
 **N2. `bimax://` links and Shortcuts actions.** Start a ⌘2 task in a folder with a prompt from Shortcuts, Raycast,
 Stream Deck or a Focus mode. Value high · Effort S. *Why:* every other tool can then trigger Bimax.
-A link must never run anything unconfirmed.
+A link must never run anything unconfirmed. **Built 2026-09-14:** `bimax://task?folder=~/Downloads&prompt=…`
+(scheme registered in `app/electron-builder.yml`). Only `folder` (a full path, never `/` or the home folder) and
+`prompt` (at most 2,000 characters, no control characters) are read; anything else in a link is ignored. Bimax shows
+the folder and the whole prompt in a confirmation whose default is Cancel, and starts a ⌘2 task only when Start is
+clicked; its actions still ask as usual. A link that launches Bimax waits until the app is ready. From Shortcuts: an
+"Open URLs" action with that link. Four mutants fail a test. **Not verified live:** the installed app has not been
+rebuilt with the scheme yet, and real App Intents (Shortcuts actions with their own fields) are not built.
 
 **N3. Finder Quick Action: "Ask Bimax".** Opens the ⌘2 bar with the selected files attached, using the existing
 attachment path. Value medium · Effort S.
