@@ -1,0 +1,720 @@
+{
+  "schema_version": "1.0",
+  "benchmark": "context-bench@2",
+  "run_id": "2026-09-14T10-44-45-007Z_2209888",
+  "started_at": "2026-09-14T10:44:45.007Z",
+  "ended_at": "2026-09-14T10:44:46.002Z",
+  "fixture_version": "sha256:aba84a97523bd848135c7f2c223c1c862e444495cbca99a881a33e00b927200d",
+  "product": "bimax-engine",
+  "product_version": "1.1.0",
+  "build_hash": "22098888349ba63e65966ff6f3c23dcacdb90e96",
+  "build_dirty": false,
+  "runtime": {
+    "bun": "1.3.14",
+    "node_compat": "v24.3.0",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "machine": {
+    "cpu": "Apple M3",
+    "cores": 8,
+    "memory_gb": 8,
+    "os_release": "25.5.0"
+  },
+  "retrieval": {
+    "generation_model": "none: no model is called",
+    "embedding": "none: the dense stage is off, the local default",
+    "reranker": "none",
+    "code_lexical": "SQLite FTS5 bm25",
+    "memory_lexical": "in-process BM25",
+    "summarizer": "a fixture that keeps nothing"
+  },
+  "validity": {
+    "valid": true,
+    "invalid_reasons": [],
+    "fts5": true,
+    "network_calls": 0
+  },
+  "grader": {
+    "version": "context-graders@2",
+    "self_check_passed": true,
+    "self_check": [
+      {
+        "name": "the expected state passes",
+        "ok": true
+      },
+      {
+        "name": "an empty observation fails",
+        "ok": true
+      },
+      {
+        "name": "no required spans is never a pass",
+        "ok": true
+      },
+      {
+        "name": "a wrong target fails",
+        "ok": true
+      },
+      {
+        "name": "a longer number is not the expected number",
+        "ok": true
+      },
+      {
+        "name": "every required span is needed",
+        "ok": true
+      },
+      {
+        "name": "a sibling directory is not the scoped one",
+        "ok": true
+      },
+      {
+        "name": "stale content is detected",
+        "ok": true
+      },
+      {
+        "name": "absent stale content passes",
+        "ok": true
+      },
+      {
+        "name": "a non-Latin span matches the whole word",
+        "ok": true
+      },
+      {
+        "name": "a non-Latin prefix is not the word",
+        "ok": true
+      },
+      {
+        "name": "a partial recall scores as partial",
+        "ok": true
+      },
+      {
+        "name": "an error message does not satisfy an expected span",
+        "ok": true
+      },
+      {
+        "name": "a text within its budget passes",
+        "ok": true
+      },
+      {
+        "name": "a text over its budget fails, whatever size it reports",
+        "ok": true
+      },
+      {
+        "name": "an empty text is not a pack within budget",
+        "ok": true
+      }
+    ]
+  },
+  "summary": {
+    "cases": 36,
+    "graded": 33,
+    "passed": 29,
+    "failed": 4,
+    "measured": 3,
+    "by_family": {
+      "single-hop": {
+        "passed": 4,
+        "graded": 5,
+        "measured": 0,
+        "errors": 0
+      },
+      "multi-hop-code": {
+        "passed": 1,
+        "graded": 3,
+        "measured": 0,
+        "errors": 0
+      },
+      "temporal": {
+        "passed": 4,
+        "graded": 4,
+        "measured": 0,
+        "errors": 0
+      },
+      "source-change": {
+        "passed": 5,
+        "graded": 5,
+        "measured": 0,
+        "errors": 0
+      },
+      "long-session": {
+        "passed": 3,
+        "graded": 3,
+        "measured": 1,
+        "errors": 0
+      },
+      "numeric": {
+        "passed": 5,
+        "graded": 5,
+        "measured": 0,
+        "errors": 0
+      },
+      "budget": {
+        "passed": 2,
+        "graded": 3,
+        "measured": 2,
+        "errors": 0
+      },
+      "scope": {
+        "passed": 5,
+        "graded": 5,
+        "measured": 0,
+        "errors": 0
+      }
+    }
+  },
+  "cases": [
+    {
+      "id": "S1",
+      "family": "single-hop",
+      "title": "answer at the end of a long note",
+      "outcome": "pass",
+      "metrics": {
+        "expected": "VIOLET-SENTINEL",
+        "recalled": true,
+        "wallMs": 31
+      },
+      "graded": {
+        "sha256": "887188ed25a3d40239e2e1c45dd94b6688f8f704ec4540339614fae12184a9b7",
+        "tokens": 167,
+        "excerpt": "[Recalled memory] — retrieved for this turn, not stated by the user. May be outdated; verify before relying on it. - (part 8 of 8) Background section 91: ordinary operational details unrelated to the question. Background section 92: ordinary operational details unrelated to the q"
+      }
+    },
+    {
+      "id": "S2",
+      "family": "single-hop",
+      "title": "duplicate headings, the distinguishing note wins",
+      "outcome": "pass",
+      "metrics": {
+        "expected": "api-rollback-3",
+        "recalled": true,
+        "wallMs": 2
+      },
+      "graded": {
+        "sha256": "1b38df56f33864621857d70b2e1d3b4092ecca4118804245744742ebf0c74668",
+        "tokens": 93,
+        "excerpt": "[Recalled memory] — retrieved for this turn, not stated by the user. May be outdated; verify before relying on it. - ## Deployment The API deploys from main through the canary pipeline. To roll back the API, redeploy tag api-rollback-3. - ## Deployment The web app deploys from th"
+      }
+    },
+    {
+      "id": "S3",
+      "family": "single-hop",
+      "title": "a non-Latin query finds its note",
+      "outcome": "pass",
+      "metrics": {
+        "expected": "15 तारीख",
+        "recalled": true,
+        "wallMs": 1
+      },
+      "graded": {
+        "sha256": "ec6d8e49a3450d615d21541f7c10dd883805fa21cbaf4196837f97311825e37f",
+        "tokens": 52,
+        "excerpt": "[Recalled memory] — retrieved for this turn, not stated by the user. May be outdated; verify before relying on it. - भुगतान विवरण: मासिक भुगतान की अंतिम तिथि 15 तारीख है। देर से भुगतान पर शुल्क लगता है।"
+      }
+    },
+    {
+      "id": "S4",
+      "family": "single-hop",
+      "title": "the answer among topical distractors",
+      "outcome": "pass",
+      "metrics": {
+        "expected": "45 minutes",
+        "recalled": true,
+        "wallMs": 2
+      },
+      "graded": {
+        "sha256": "10e8a7917e9d8274576af8bd0945e515d9a3aa2f24acfdd6f4f59cc48df0c480",
+        "tokens": 68,
+        "excerpt": "[Recalled memory] — retrieved for this turn, not stated by the user. May be outdated; verify before relying on it. - The cache eviction window is 45 minutes for session data. - Cache eviction counts are exported as a Prometheus metric every minute. - The cache holds at most 2 GB "
+      }
+    },
+    {
+      "id": "S5",
+      "family": "single-hop",
+      "title": "no answer exists, so nothing is injected",
+      "outcome": "fail",
+      "metrics": {
+        "abstained": false,
+        "injectedChars": 189,
+        "wallMs": 0
+      },
+      "graded": {
+        "sha256": "86b3fec4825521008971ec031ad432b67eb5d8926acb3abfb0416b2ae8e9506a",
+        "tokens": 44,
+        "excerpt": "[Recalled memory] — retrieved for this turn, not stated by the user. May be outdated; verify before relying on it. - The office moves to the third floor in May; guests sign in at reception."
+      }
+    },
+    {
+      "id": "M1",
+      "family": "multi-hop-code",
+      "title": "retry change needs the retry code, the cancellation contract and the test",
+      "outcome": "fail",
+      "metrics": {
+        "itemRecall": 0.3333333333333333,
+        "wallMs": 25
+      },
+      "graded": {
+        "sha256": "e7502542652dbf7bd1413a8006727a7b6f9a2396bb252e5c9291780162a13498",
+        "tokens": 470,
+        "excerpt": "src/net/cancel.ts:1-9 · CancellationToken ``` src/net/cancel.ts :: CancellationToken (lines 1-9) /** Cooperative cancellation shared by every network call. */ export class CancellationToken { private cancelled = false; private listeners: Array<() => void> = []; cancel(): void { t"
+      }
+    },
+    {
+      "id": "M2",
+      "family": "multi-hop-code",
+      "title": "a low-similarity config limit behind a behaviour question",
+      "outcome": "fail",
+      "metrics": {
+        "itemRecall": 0.5,
+        "wallMs": 2
+      },
+      "graded": {
+        "sha256": "9ec68172819d08267a3fc460af888c41c20c2891b3a28b37088e48db45a4ab1b",
+        "tokens": 450,
+        "excerpt": "src/config/limits.ts:1-3 · limits.ts ``` src/config/limits.ts :: limits.ts (lines 1-3) /** How many attempts a request makes before it gives up. */ export const RETRY_LIMIT = 3; ``` --- src/net/retry.test.ts:1-11 · stopsRetryingOnceCancelled ``` src/net/retry.test.ts :: stopsRetr"
+      }
+    },
+    {
+      "id": "M3",
+      "family": "multi-hop-code",
+      "title": "the context pack carries the body, the caller and the test caller",
+      "outcome": "pass",
+      "metrics": {
+        "itemRecall": 1,
+        "packError": false,
+        "wallMs": 586
+      },
+      "graded": {
+        "sha256": "7bf57f4e909d2be0519d23049456525f4fee802512c2e55bbcfb558a103dc92b",
+        "tokens": 202,
+        "excerpt": "===== CONTEXT PACK: FUNCTION retryWithBackoff ===== // src/net/retry.ts:5-15 --- TARGET (full source) --- 5: export async function retryWithBackoff<T>(operation: () => Promise<T>, token: CancellationToken): Promise<T> { 6: for (let attempt = 1; ; attempt++) { 7: token.throwIfCanc"
+      }
+    },
+    {
+      "id": "T1",
+      "family": "temporal",
+      "title": "the current value of a changed decision",
+      "outcome": "pass",
+      "metrics": {
+        "required": "60 seconds",
+        "requiredRecall": 1,
+        "wallMs": 7
+      },
+      "graded": {
+        "sha256": "41feccc873e5f898c641ce04cc134d911df6e8e4822a73d5ce6750f4e32165d3",
+        "tokens": 81,
+        "excerpt": "[Recalled memory] — retrieved for this turn, not stated by the user. May be outdated; verify before relying on it. - 2026-03-01 decision: the request timeout is 30 seconds. - 2026-06-10 decision: the request timeout is now 60 seconds, replacing the earlier value. - The connect ti"
+      }
+    },
+    {
+      "id": "T2",
+      "family": "temporal",
+      "title": "the historical value when asked for it",
+      "outcome": "pass",
+      "metrics": {
+        "required": "30 seconds",
+        "requiredRecall": 1,
+        "wallMs": 0
+      },
+      "graded": {
+        "sha256": "45ff83da905ff50922df8d0b49b7b0e87fda30d550dfc7896c4032d69fba2a1b",
+        "tokens": 86,
+        "excerpt": "[Recalled memory] — retrieved for this turn, not stated by the user. May be outdated; verify before relying on it. - 2026-03-01 decision: the request timeout is 30 seconds. - 2026-06-10 decision: the request timeout is now 60 seconds, replacing the earlier value. - 2026-09-11 ann"
+      }
+    },
+    {
+      "id": "T3",
+      "family": "temporal",
+      "title": "both sides of a conflict between current sources",
+      "outcome": "pass",
+      "metrics": {
+        "required": "9464 | 9100",
+        "requiredRecall": 1,
+        "wallMs": 2
+      },
+      "graded": {
+        "sha256": "70ff9fd4931c4d4ef7b705e02042ed60a4d1f51cf6b0f602b976325f3360f31e",
+        "tokens": 59,
+        "excerpt": "[Recalled memory] — retrieved for this turn, not stated by the user. May be outdated; verify before relying on it. - Runbook, current: the metrics exporter listens on port 9464. - Owner note, current: the metrics exporter listens on port 9100."
+      }
+    },
+    {
+      "id": "T4",
+      "family": "temporal",
+      "title": "the latest of two identically worded notes",
+      "outcome": "pass",
+      "metrics": {
+        "required": "2026-09-11",
+        "requiredRecall": 1,
+        "wallMs": 1
+      },
+      "graded": {
+        "sha256": "53717097f80ad65b563dea878d8379fbdf67ff2d146745cc3aeab86b761617f1",
+        "tokens": 77,
+        "excerpt": "[Recalled memory] — retrieved for this turn, not stated by the user. May be outdated; verify before relying on it. - 2025-11-20 announcement: the release freeze starts on Friday. - 2026-09-11 announcement: the release freeze starts on Friday. - Runbook, current: the metrics expor"
+      }
+    },
+    {
+      "id": "C1",
+      "family": "source-change",
+      "title": "a same-size, same-mtime rewrite",
+      "outcome": "pass",
+      "metrics": {
+        "staleAdmitted": false,
+        "wallMs": 8
+      },
+      "graded": {
+        "sha256": "20bc035e3aedb827a84c55d02e6ac87f26a8550a3b863b38e0fc2b20147a9e94",
+        "tokens": 70,
+        "excerpt": "No matching code found. The index may still be syncing (first run trickles in over a minute) — try GrepTool for exact tokens. src/state.ts:1-2 · state.ts ``` src/state.ts :: state.ts (lines 1-2) export const state = \"newsentinel\"; ``` (lexical)"
+      }
+    },
+    {
+      "id": "C2",
+      "family": "source-change",
+      "title": "a renamed file",
+      "outcome": "pass",
+      "metrics": {
+        "staleAdmitted": false,
+        "wallMs": 11
+      },
+      "graded": {
+        "sha256": "470e0e0aedffd6e99b30d1afc12546ed98dc884b6cd183af6de6f03ce4128dc7",
+        "tokens": 47,
+        "excerpt": "src/b/renamed.ts:1-2 · renamed.ts ``` src/b/renamed.ts :: renamed.ts (lines 1-2) export const renamesentinel = 1; ``` (lexical)"
+      }
+    },
+    {
+      "id": "C3",
+      "family": "source-change",
+      "title": "a deleted file",
+      "outcome": "pass",
+      "metrics": {
+        "staleAdmitted": false,
+        "liveFound": true,
+        "wallMs": 5
+      },
+      "graded": {
+        "sha256": "85e9ce4783970351bc37aebcae8d0ee9e82f408c6236cee309575c98988618e4",
+        "tokens": 73,
+        "excerpt": "No matching code found. The index may still be syncing (first run trickles in over a minute) — try GrepTool for exact tokens. src/kept.ts:1-2 · kept.ts ``` src/kept.ts :: kept.ts (lines 1-2) export const kept = 1; ``` (lexical)"
+      }
+    },
+    {
+      "id": "C4",
+      "family": "source-change",
+      "title": "a change the index has not synced yet",
+      "outcome": "pass",
+      "metrics": {
+        "staleAdmitted": false,
+        "currentFound": true,
+        "wallMs": 10
+      },
+      "graded": {
+        "sha256": "39ef0e38ff640ca43cc053bf4441241eeb8a62aa663b447ca81c025adafffb0d",
+        "tokens": 88,
+        "excerpt": "No matching code found. The index may still be syncing (first run trickles in over a minute) — try GrepTool for exact tokens. src/unsynced.ts:1-2 · unsynced.ts ``` src/unsynced.ts :: unsynced.ts (lines 1-2) export const marker = \"aftersentinel, rewritten while the index was idle\""
+      }
+    },
+    {
+      "id": "C5",
+      "family": "source-change",
+      "title": "a read-cache hit after a same-size, same-mtime rewrite",
+      "outcome": "pass",
+      "metrics": {
+        "staleAdmitted": false,
+        "wallMs": 1
+      },
+      "graded": {
+        "sha256": "9e9627c7a9082365f0245866d448737d1eda297fed8123ed489be2506d16e6a9",
+        "tokens": 8,
+        "excerpt": "export const state = \"newsentinel\";"
+      }
+    },
+    {
+      "id": "L1",
+      "family": "long-session",
+      "title": "the user's constraint survives ten compactions",
+      "outcome": "pass",
+      "metrics": {
+        "wallMs": 7
+      },
+      "graded": {
+        "sha256": "1742dacb5cea2847471fecd030021a3940c2da865efd6a1c60d123252a25e190",
+        "tokens": 558,
+        "excerpt": "You are Bimax, a coding agent. [Previous Context Summary] ## Goal Continue the task. [Continuation State] — kept from messages that compaction removed. It is not a summary: the user's messages are quoted exactly, commands are what the engine ran, and what the assistant said is a "
+      }
+    },
+    {
+      "id": "L2",
+      "family": "long-session",
+      "title": "the tested revision survives ten compactions",
+      "outcome": "pass",
+      "metrics": {
+        "wallMs": 1
+      },
+      "graded": {
+        "sha256": "1742dacb5cea2847471fecd030021a3940c2da865efd6a1c60d123252a25e190",
+        "tokens": 558,
+        "excerpt": "You are Bimax, a coding agent. [Previous Context Summary] ## Goal Continue the task. [Continuation State] — kept from messages that compaction removed. It is not a summary: the user's messages are quoted exactly, commands are what the engine ran, and what the assistant said is a "
+      }
+    },
+    {
+      "id": "L3",
+      "family": "long-session",
+      "title": "a failed attempt survives ten compactions",
+      "outcome": "pass",
+      "metrics": {
+        "wallMs": 1
+      },
+      "graded": {
+        "sha256": "1742dacb5cea2847471fecd030021a3940c2da865efd6a1c60d123252a25e190",
+        "tokens": 558,
+        "excerpt": "You are Bimax, a coding agent. [Previous Context Summary] ## Goal Continue the task. [Continuation State] — kept from messages that compaction removed. It is not a summary: the user's messages are quoted exactly, commands are what the engine ran, and what the assistant said is a "
+      }
+    },
+    {
+      "id": "L4",
+      "family": "long-session",
+      "title": "context size after ten compactions",
+      "outcome": "measured",
+      "metrics": {
+        "messages": 18,
+        "estimatedTokens": 576,
+        "wallMs": 0
+      },
+      "graded": {
+        "sha256": "1742dacb5cea2847471fecd030021a3940c2da865efd6a1c60d123252a25e190",
+        "tokens": 558,
+        "excerpt": "You are Bimax, a coding agent. [Previous Context Summary] ## Goal Continue the task. [Continuation State] — kept from messages that compaction removed. It is not a summary: the user's messages are quoted exactly, commands are what the engine ran, and what the assistant said is a "
+      }
+    },
+    {
+      "id": "N1",
+      "family": "numeric",
+      "title": "an exact value below a threshold, with its source row",
+      "outcome": "pass",
+      "metrics": {
+        "rows": 3,
+        "wallMs": 4
+      },
+      "graded": {
+        "sha256": "a2b889f0bee1c2ff24cdcacd9f55170a39bf129a848b7ca6bf437613124503df",
+        "tokens": 195,
+        "excerpt": "[{\"subject\":\"E-206\",\"property\":\"thickness\",\"value\":6.2,\"unit\":\"mm\",\"measuredOn\":\"2026-05-03\",\"sourceFile\":\"shell-inspection.xlsx\",\"sourceName\":\"shell-inspection.xlsx\",\"locator\":\"sheet Shell thickness\",\"entryId\":\"shell-inspection.xlsx\"},{\"subject\":\"P-310\",\"property\":\"thickness\",\"v"
+      }
+    },
+    {
+      "id": "N2",
+      "family": "numeric",
+      "title": "units stay visible and unconverted when two tables differ",
+      "outcome": "pass",
+      "metrics": {
+        "units": "mm,in",
+        "wallMs": 0
+      },
+      "graded": {
+        "sha256": "4a3540d8ca52bd175cb23c39596c4323df154aa41b69828938ff2b581a7ed3fb",
+        "tokens": 376,
+        "excerpt": "[{\"subject\":\"E-204\",\"property\":\"thickness\",\"value\":7.8,\"unit\":\"mm\",\"measuredOn\":\"2026-05-01\",\"sourceFile\":\"shell-inspection.xlsx\",\"sourceName\":\"shell-inspection.xlsx\",\"locator\":\"sheet Shell thickness\",\"entryId\":\"shell-inspection.xlsx\"},{\"subject\":\"E-205\",\"property\":\"thickness\",\"v"
+      }
+    },
+    {
+      "id": "N3",
+      "family": "numeric",
+      "title": "a missing date is not invented",
+      "outcome": "pass",
+      "metrics": {
+        "wallMs": 0
+      },
+      "graded": {
+        "sha256": "e351b689f3c3a3ca53ca613ea795bc05bc7479cc2d1e183f8cf6dada2c45af4b",
+        "tokens": 60,
+        "excerpt": "[{\"subject\":\"E-207\",\"property\":\"thickness\",\"value\":8.4,\"unit\":\"mm\",\"measuredOn\":null,\"sourceFile\":\"shell-inspection.xlsx\",\"sourceName\":\"shell-inspection.xlsx\",\"locator\":\"sheet Shell thickness\",\"entryId\":\"shell-inspection.xlsx\"}]"
+      }
+    },
+    {
+      "id": "N4",
+      "family": "numeric",
+      "title": "a full-domain question returns every row",
+      "outcome": "pass",
+      "metrics": {
+        "rows": 6,
+        "wallMs": 0
+      },
+      "graded": {
+        "sha256": "4a3540d8ca52bd175cb23c39596c4323df154aa41b69828938ff2b581a7ed3fb",
+        "tokens": 376,
+        "excerpt": "[{\"subject\":\"E-204\",\"property\":\"thickness\",\"value\":7.8,\"unit\":\"mm\",\"measuredOn\":\"2026-05-01\",\"sourceFile\":\"shell-inspection.xlsx\",\"sourceName\":\"shell-inspection.xlsx\",\"locator\":\"sheet Shell thickness\",\"entryId\":\"shell-inspection.xlsx\"},{\"subject\":\"E-205\",\"property\":\"thickness\",\"v"
+      }
+    },
+    {
+      "id": "N5",
+      "family": "numeric",
+      "title": "compression keeps the outlier in a numeric log",
+      "outcome": "pass",
+      "metrics": {
+        "compressedChars": 89,
+        "originalChars": 599,
+        "wallMs": 1
+      },
+      "graded": {
+        "sha256": "0815ad356d677106099be754aad20c740e0cbf6eedfba46547a7dded74a76cd0",
+        "tokens": 30,
+        "excerpt": "latency 100 ms latency 900 ms … (×38 more similar lines elided; numbers ranged 100–900) …"
+      }
+    },
+    {
+      "id": "B1",
+      "family": "budget",
+      "title": "context packs fit 100, 300, 800 and 1500 tokens measured from their text, and 10 is refused",
+      "outcome": "pass",
+      "metrics": {
+        "failures": 0,
+        "refused": true,
+        "at100": 95,
+        "at300": 294,
+        "at800": 799,
+        "at1500": 1499,
+        "at10": "error",
+        "wallMs": 4
+      },
+      "graded": {
+        "sha256": "dc7f043b81634f7f7497051987c2ef20941e62d1c752eb69968c6d770fc4fe4b",
+        "tokens": 28,
+        "excerpt": "{\"at100\":95,\"at300\":294,\"at800\":799,\"at1500\":1499,\"at10\":\"error\"}"
+      }
+    },
+    {
+      "id": "B2",
+      "family": "budget",
+      "title": "a recall block stays within its character budget",
+      "outcome": "pass",
+      "metrics": {
+        "maxChars": 600,
+        "bodyChars": 602,
+        "wallMs": 1
+      },
+      "graded": {
+        "sha256": "3846607655be4a99949a23b56428c4bee41664ec9d67b7688b80750b648cc518",
+        "tokens": 134,
+        "excerpt": "[Recalled memory] — retrieved for this turn, not stated by the user. May be outdated; verify before relying on it. - (part 8 of 8) Background section 91: ordinary operational details unrelated to the question. Background section 92: ordinary operational details unrelated to the q"
+      }
+    },
+    {
+      "id": "B3",
+      "family": "budget",
+      "title": "code search output size for a five-result query",
+      "outcome": "measured",
+      "metrics": {
+        "outputTokens": 470,
+        "wallMs": 1
+      },
+      "graded": {
+        "sha256": "e7502542652dbf7bd1413a8006727a7b6f9a2396bb252e5c9291780162a13498",
+        "tokens": 470,
+        "excerpt": "src/net/cancel.ts:1-9 · CancellationToken ``` src/net/cancel.ts :: CancellationToken (lines 1-9) /** Cooperative cancellation shared by every network call. */ export class CancellationToken { private cancelled = false; private listeners: Array<() => void> = []; cancel(): void { t"
+      }
+    },
+    {
+      "id": "B4",
+      "family": "budget",
+      "title": "recall block size for a long-note answer",
+      "outcome": "measured",
+      "metrics": {
+        "recallTokens": 167,
+        "wallMs": 0
+      },
+      "graded": {
+        "sha256": "887188ed25a3d40239e2e1c45dd94b6688f8f704ec4540339614fae12184a9b7",
+        "tokens": 167,
+        "excerpt": "[Recalled memory] — retrieved for this turn, not stated by the user. May be outdated; verify before relying on it. - (part 8 of 8) Background section 91: ordinary operational details unrelated to the question. Background section 92: ordinary operational details unrelated to the q"
+      }
+    },
+    {
+      "id": "B5",
+      "family": "budget",
+      "title": "the answer survives a 600-character recall budget",
+      "outcome": "fail",
+      "metrics": {
+        "maxChars": 600,
+        "wallMs": 0
+      },
+      "graded": {
+        "sha256": "3846607655be4a99949a23b56428c4bee41664ec9d67b7688b80750b648cc518",
+        "tokens": 134,
+        "excerpt": "[Recalled memory] — retrieved for this turn, not stated by the user. May be outdated; verify before relying on it. - (part 8 of 8) Background section 91: ordinary operational details unrelated to the question. Background section 92: ordinary operational details unrelated to the q"
+      }
+    },
+    {
+      "id": "SC1",
+      "family": "scope",
+      "title": "a scoped search finds the in-scope hit under out-of-scope pressure",
+      "outcome": "pass",
+      "metrics": {
+        "wallMs": 8
+      },
+      "graded": {
+        "sha256": "990ed2b885caa14b23010b9c7f65cc2583569d8a875de270e1fad7d5adba7e3c",
+        "tokens": 244,
+        "excerpt": "wanted/target.ts:1-3 · target.ts ``` wanted/target.ts :: target.ts (lines 1-3) export const needle = \"needle\"; /* padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding padding paddin"
+      }
+    },
+    {
+      "id": "SC2",
+      "family": "scope",
+      "title": "a sibling directory with the same prefix stays out",
+      "outcome": "pass",
+      "metrics": {
+        "siblingFoundUnscoped": true,
+        "wallMs": 1
+      },
+      "graded": {
+        "sha256": "02603130d1c12822dafd3356295c5d0067cfc99ef3b648cacea2850d180e01a8",
+        "tokens": 75,
+        "excerpt": "No matching code found. The index may still be syncing (first run trickles in over a minute) — try GrepTool for exact tokens. wantedExtra/leak.ts:1-2 · leak.ts ``` wantedExtra/leak.ts :: leak.ts (lines 1-2) export const boundarysentinel = 1; ``` (lexical)"
+      }
+    },
+    {
+      "id": "SC3",
+      "family": "scope",
+      "title": "results from an incomplete index say the index is incomplete",
+      "outcome": "pass",
+      "metrics": {
+        "wallMs": 5
+      },
+      "graded": {
+        "sha256": "ce2a60f51d8633a70b3babaa36ac93ed4ec6552fa1aa750f86013b5fc6587846",
+        "tokens": 44,
+        "excerpt": "src/b.ts:1-2 · b.ts ``` src/b.ts :: b.ts (lines 1-2) export const betasentinel = 2; ``` (lexical; index incomplete)"
+      }
+    },
+    {
+      "id": "SC4",
+      "family": "scope",
+      "title": "no results from an incomplete index are not presented as absence",
+      "outcome": "pass",
+      "metrics": {
+        "wallMs": 1
+      },
+      "graded": {
+        "sha256": "4c387e752b5f14bcbe8ce0b2f8c42f80628351965544c05415f0a19d10eec890",
+        "tokens": 30,
+        "excerpt": "No matching code found. The index may still be syncing (first run trickles in over a minute) — try GrepTool for exact tokens."
+      }
+    },
+    {
+      "id": "SC5",
+      "family": "scope",
+      "title": "automatic recall leaves code-tagged documents to code search",
+      "outcome": "pass",
+      "metrics": {
+        "wallMs": 2
+      },
+      "graded": {
+        "sha256": "4cd4122706cc52c665301ca6814e077e8143b386ffc50a35ebfe75087f3d2e9a",
+        "tokens": 38,
+        "excerpt": "[Recalled memory] — retrieved for this turn, not stated by the user. May be outdated; verify before relying on it. - Invoices are exported nightly to the finance share."
+      }
+    }
+  ]
+}

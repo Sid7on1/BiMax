@@ -281,6 +281,25 @@ are unmeasured risks, not reproduced defects.
 F8 (record 49's fix) was ported first, in `6d602d1`, because both touch `agent.loop.ts` and `base.persona.ts`. This
 step also takes audit 51's U08.
 
+Built in slices, each measured against the version 2 baseline (26 of 33) before the next begins.
+
+**Slice 6a, continuation state and recall at the request boundary — done 2026-09-14** (`2209888`).
+- `src/context/continuation.ts` keeps what compaction, snip and overflow recovery remove: the user's messages quoted
+  exactly (the first always kept; past the cap the rest are archived together under one handle), commands the engine
+  ran with their exit status and a handle to the whole output, and the assistant's outcome sentences labelled as
+  claims, never as verified facts. `ContextManager` renders it as one `[Continuation State]` block in every compacted
+  window. Decisions, open questions and the next action still come from the summary and the task list.
+- U08: when compaction removes the round's recall block, `AgentLoop.prepareContext` recalls it again before the
+  request. A04 now grades the messages about to be sent, not the number of searches.
+- **Proof.** Benchmark run `2026-09-14T10-44-45-007Z_2209888`: **29 of 33**, up from 26; L1, L2 and L3 pass and no family
+  fell. Bun: 40 context tests. Eleven mutants each fail a test. Jest over the 23 suites importing the changed modules:
+  the only failure, in `memory.wiring`, fails on the previous commit too.
+- **Cost.** The long-session context after ten compactions is 576 estimated tokens against the baseline's 263. A first
+  version gave each evicted message its own archive handle and reached 894; sixteen handles were 40% of the block.
+
+**Next slices.** 6b: recall chooses a representation (the answering sentences, not the head of a chunk the budget cuts),
+for B5. 6c: one allocator for the whole request at the final boundary. 6d: log statistics over archived raw output.
+
 1. One allocator owns the whole request budget (record 47 §3.4) at the final request boundary.
 2. Each candidate gets several representations (locator, signature, exact span, neighbourhood). Pick them with a
    gain-per-token heuristic, and measure its regret against exact answers on small fixtures.
