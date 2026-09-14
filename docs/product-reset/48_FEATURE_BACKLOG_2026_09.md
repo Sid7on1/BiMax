@@ -270,7 +270,20 @@ non-bypassable floors must still run first.
 
 **N14. Make Threads discoverable.** Record 46 saw no way into Threads from the installed app's welcome screen. Add
 "Start a task in a folder" and a configurable shortcut, and check ⌘2 against other apps' shortcuts. Check the
-current build first. Value medium · Effort S.
+current build first. Value medium · Effort S. **Built 2026-09-15.** Checked first: the sidebar that lists Threads only exists once
+a project is open, so the welcome screen had no way into ⌘2 tasks.
+- **Welcome screen:** a **Start a task in a folder** button. It asks for a folder and opens the ⌘2 bar on it. Next to
+  it is the current shortcut, or a note that another app holds it.
+- **Choosing the shortcut:** Bimax in the menu bar → **Keyboard shortcut** offers ⌘2 (the default), ⇧⌘2, ⌃⌥Space and
+  ⌥Space.
+  - A choice another app holds is refused, and the bar keeps the shortcut it had.
+  - The choice is saved (`quickShortcut`), and the sidebar and menu bar hints show it.
+- **Honest limits:**
+  - A global ⌘2 takes the key from every app (a browser's second tab, Finder's list view). That is why it can now be
+    changed.
+  - Electron says registering a shortcut another app already holds can fail silently, so a refusal is not always
+    detected. If the bar does not open, choose another shortcut.
+- **Tests:** 3 tests; 5 mutants each fail one. **Not verified live.**
 
 ## Flagships: weeks, in suggested order
 

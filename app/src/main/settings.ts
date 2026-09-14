@@ -29,6 +29,8 @@ export interface AppSettings {
   schedules?: import('./schedules').Schedule[];
   /** ⌘2 tasks that run when files arrive in a folder (folder.triggers.ts). */
   folderTriggers?: import('./folder.triggers').FolderTrigger[];
+  /** The global shortcut that opens the ⌘2 bar, one of quick.shortcut.ts's choices; absent means ⌘2. */
+  quickShortcut?: string;
 }
 
 const MAX_RECENTS = 8;

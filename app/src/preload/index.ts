@@ -42,6 +42,8 @@ const api = {
     context: () => ipcRenderer.invoke('threads:context'),
     onContext: (cb: (value: any) => void) => subscribe('threads:context', cb),
     pickFolder: () => ipcRenderer.invoke('threads:pick-folder'),
+    // The welcome screen: choose a folder and open the ⌘2 bar on it (backlog N14).
+    startInFolder: () => ipcRenderer.invoke('threads:start-in-folder'),
     quickSubmit: (prompt: string, options?: { attachments?: unknown[]; root?: string }) => ipcRenderer.invoke('threads:quick-submit', prompt, options),
     hide: () => ipcRenderer.send('threads:hide'),
     approvals: () => ipcRenderer.invoke('threads:approvals'),

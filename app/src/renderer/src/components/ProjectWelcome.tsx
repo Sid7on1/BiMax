@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowRight, FolderOpen, History } from 'lucide-react';
+import { ArrowRight, FolderOpen, History, MessageSquare } from 'lucide-react';
+import type { ThreadList } from '../../../shared/threads';
 import { BrandMark } from './BrandMark';
 
 function projectName(project: string): string {
@@ -29,7 +30,30 @@ export function ProjectWelcome(): React.ReactElement {
     return () => { live = false; };
   }, []);
 
+  // The ⌘2 bar's shortcut, which can be changed from the menu bar (backlog N14).
+  const [shortcut, setShortcut] = useState({ label: '⌘2', available: true });
+  useEffect(() => {
+    let live = true;
+    const adopt = (list: ThreadList): void => { if (live) setShortcut({ label: list.shortcut ?? '⌘2', available: list.shortcutAvailable }); };
+    void window.bimax.threads.list().then(adopt).catch(() => undefined);
+    const off = window.bimax.threads.onList(adopt);
+    return () => { live = false; off(); };
+  }, []);
+
   const visibleRecents = useMemo(() => recents.slice(0, 6), [recents]);
+
+  // Threads live in the sidebar, which only exists once a project is open: this is the way in from here (backlog N14).
+  const startTask = async (): Promise<void> => {
+    setOpening('task');
+    setError('');
+    try {
+      await window.bimax.threads.startInFolder();
+    } catch {
+      setError('Bimax could not open the ⌘2 bar. Try again.');
+    } finally {
+      setOpening(null);
+    }
+  };
 
   const chooseFolder = async (): Promise<void> => {
     setOpening('picker');
@@ -84,6 +108,25 @@ export function ProjectWelcome(): React.ReactElement {
           </button>
           <span className="flex items-center px-1 text-xs text-faint">or press ⌘O anywhere</span>
         </div>
+
+        <div className="anim-fade-up mt-3 flex flex-wrap items-center gap-2.5" style={{ animationDelay: '150ms' }}>
+          <button
+            onClick={() => void startTask()}
+            disabled={opening !== null}
+            className="flex cursor-pointer items-center gap-2 rounded-xl border border-line bg-raise/55 px-4 py-2.5 text-[13px] font-medium text-ink transition hover:-translate-y-0.5 hover:bg-hover disabled:cursor-wait disabled:opacity-60"
+          >
+            <MessageSquare size={16} />
+            {opening === 'task' ? 'Choosing a folder…' : 'Start a task in a folder'}
+          </button>
+          <span className="flex items-center px-1 text-xs text-faint">
+            {shortcut.available
+              ? `or press ${shortcut.label} anywhere`
+              : `${shortcut.label} is used by another app. Choose another shortcut from Bimax in the menu bar.`}
+          </span>
+        </div>
+        <p className="anim-fade-up mt-2 max-w-[620px] text-xs leading-relaxed text-faint" style={{ animationDelay: '170ms' }}>
+          For everyday work in any folder, like sorting Downloads or renaming photos. A task asks before it changes anything.
+        </p>
 
         {error && (
           <div className="anim-fade-up mt-4 max-w-[620px] rounded-lg border border-rust/30 bg-rust/10 px-3 py-2 text-xs text-rust">

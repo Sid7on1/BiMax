@@ -64,9 +64,9 @@ export function ThreadsList(): React.ReactElement {
       <Search size={11} className="shrink-0" aria-hidden/>
       <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search threads" aria-label="Search threads" className="min-w-0 flex-1 bg-transparent text-ink outline-none"/>
     </label>}
-    {quick.length === 0 && <p className="px-2.5 py-1.5 text-[12px] text-faint">No threads yet. Press ⌘2 anywhere to start one.</p>}
+    {quick.length === 0 && <p className="px-2.5 py-1.5 text-[12px] text-faint">No threads yet. Press {data.shortcut ?? '⌘2'} anywhere to start one.</p>}
     {quick.length > 0 && shown.length === 0 && <p className="px-2.5 py-1.5 text-[12px] text-faint">No thread matches “{query.trim()}”.</p>}
-    {!data.shortcutAvailable && <p className="px-2 text-xs text-rust">⌘2 is in use by another app.</p>}
+    {!data.shortcutAvailable && <p className="px-2 text-xs text-rust">{data.shortcut ?? '⌘2'} is used by another app. Choose another shortcut from Bimax in the menu bar.</p>}
     {shown.map(thread => <div key={thread.id} className={`group rounded-lg ${thread.id === data.activeId ? 'bg-hover' : ''}`}>
       {renaming?.id === thread.id
         ? <div className="px-2 py-2">

@@ -25,6 +25,7 @@ import { randomUUID } from 'node:crypto';
 import { macBin } from './bin';
 import { answerFromNotification, notificationChoices } from './approval.notification';
 import { linkConfirmation, parseTaskLink } from './bimax.link';
+import { DEFAULT_SHORTCUT, SHORTCUT_CHOICES, chosenShortcut, shortcutLabel, switchShortcut } from './quick.shortcut';
 import os from 'node:os';
 import { spawn } from 'node:child_process';
 import { readFileSync, writeFileSync, renameSync, mkdirSync, realpathSync, existsSync, appendFileSync, statSync, watch as watchFolder } from 'node:fs';
@@ -89,6 +90,12 @@ let quickWindow: BrowserWindow | null = null;
 let approvalWindow: BrowserWindow | null = null;
 let quickContext: QuickContext = { root: null, source: 'Choose a folder' };
 let shortcutAvailable = false;
+/** The shortcut chosen for the ⌘2 bar (quick.shortcut.ts), kept even while another app holds it. */
+let wantedShortcut = DEFAULT_SHORTCUT;
+const shortcutRegistry = {
+  register: (accelerator: string, callback: () => void): boolean => globalShortcut.register(accelerator, callback),
+  unregister: (accelerator: string): void => globalShortcut.unregister(accelerator),
+};
 let listTimer: ReturnType<typeof setTimeout> | undefined;
 // The ⌘2 bar's own conversation, where the user last put it, and how tall it currently is.
 let quickThreadId: string | null = null;
@@ -98,7 +105,10 @@ let quickMoving = false;
 // A folder picker opened from the bar takes focus; that blur must not hide the bar it was opened from.
 let quickPicking = false;
 function threadList() {
-  return { activeId: threads?.activeId ?? null, threads: threads?.list() ?? [], shortcutAvailable, archivedCount: threadStorage?.archivedCount() ?? 0 };
+  return {
+    activeId: threads?.activeId ?? null, threads: threads?.list() ?? [], shortcutAvailable, shortcut: shortcutLabel(wantedShortcut),
+    archivedCount: threadStorage?.archivedCount() ?? 0,
+  };
 }
 function threadChanged(): void {
   if (listTimer) return;
@@ -226,11 +236,13 @@ function applyQuickBounds(requestedHeight: number): void {
   quickWindow.setBounds(next, process.platform === 'darwin' && Math.abs(next.height - current.height) > 48);
   setTimeout(() => { quickMoving = false; }, 250);
 }
-async function showQuickBar(): Promise<void> {
-  if (quickWindow?.isVisible()) { quickWindow.hide(); return; }
+/** `context`: a folder chosen in Bimax itself (the welcome screen), used instead of Finder's; it never hides the bar. */
+async function showQuickBar(context?: QuickContext): Promise<void> {
+  if (quickWindow?.isVisible() && !context) { quickWindow.hide(); return; }
   // Freeze the Finder folder BEFORE taking keyboard focus, so the bar never reads its own window. A bar that
   // is already running a task keeps that task's folder.
-  if (!quickThreadId) quickContext = await finderContext();
+  if (context) quickContext = context;
+  else if (!quickThreadId) quickContext = await finderContext();
   if (!quickWindow || quickWindow.isDestroyed()) quickWindow = auxiliaryWindow('quick');
   const cursorArea = screen.getDisplayNearestPoint(screen.getCursorScreenPoint()).workArea;
   quickAnchor = quickBarOrigin(loadSettings().quickBar, screen.getAllDisplays().map(d => d.workArea), cursorArea);
@@ -599,6 +611,23 @@ function showMoreMenu(): void {
     : { label: 'Rules for this folder…', enabled: false, sublabel: 'Choose a folder first' });
   Menu.buildFromTemplate(template).popup({ window: quickWindow });
 }
+/** The menu bar's Keyboard shortcut menu (quick.shortcut.ts, backlog N14). A refused choice keeps the shortcut the bar had. */
+function chooseShortcut(accelerator: string): void {
+  const result = switchShortcut(shortcutRegistry, shortcutAvailable ? wantedShortcut : null, accelerator, () => { void showQuickBar(); });
+  if (result.ok) {
+    wantedShortcut = accelerator;
+    shortcutAvailable = true;
+    saveSettings({ quickShortcut: accelerator });
+  } else {
+    shortcutAvailable = result.active !== null;
+    void dialog.showMessageBox({
+      type: 'info', message: `${shortcutLabel(accelerator)} is used by another app.`,
+      detail: result.active ? `Bimax kept ${shortcutLabel(result.active)}.` : 'Choose another shortcut from Bimax in the menu bar.',
+    });
+  }
+  threadChanged();
+  updateTray();
+}
 let tray: Tray | null = null;
 /** The menu bar item: running and waiting tasks at a glance, and a menu of recent ones (thread.tray.ts). */
 function updateTray(): void {
@@ -606,7 +635,7 @@ function updateTray(): void {
   const list = threads.list();
   if (!tray) tray = new Tray(nativeImage.createEmpty());
   tray.setTitle(trayTitle(list));
-  tray.setToolTip(trayTooltip(list));
+  tray.setToolTip(trayTooltip(list, shortcutLabel(wantedShortcut)));
   const entries = trayEntries(list);
   const template: Electron.MenuItemConstructorOptions[] = [
     { label: 'Bimax tasks', enabled: false },
@@ -615,6 +644,12 @@ function updateTray(): void {
     ...scheduleMenu(),
     ...triggerMenu(),
     { label: 'New ⌘2 Task', click: () => { quickThreadId = null; if (quickWindow?.isVisible()) sendQuickThread(); else void showQuickBar(); } },
+    { label: `Keyboard shortcut: ${shortcutLabel(wantedShortcut)}`, submenu: [
+      ...(shortcutAvailable ? [] : [{ label: `${shortcutLabel(wantedShortcut)} is used by another app. Choose another:`, enabled: false }]),
+      ...SHORTCUT_CHOICES.map((choice): Electron.MenuItemConstructorOptions => ({
+        label: choice.label, type: 'radio', checked: choice.accelerator === wantedShortcut, click: () => chooseShortcut(choice.accelerator),
+      })),
+    ] },
     { label: 'Open Bimax', click: () => revealMainWindow() },
     { type: 'separator' },
     { label: 'Quit Bimax', role: 'quit' },
@@ -1301,8 +1336,9 @@ app.whenReady().then(async () => {
   if (app.isPackaged) app.setAsDefaultProtocolClient('bimax');
   createWindow();
   updateTray();
-  shortcutAvailable = globalShortcut.register('CommandOrControl+2', () => { void showQuickBar(); });
-  if (!shortcutAvailable) console.warn('[threads] Cmd+2 is already registered by another application.');
+  wantedShortcut = chosenShortcut(loadSettings().quickShortcut);
+  shortcutAvailable = switchShortcut(shortcutRegistry, null, wantedShortcut, () => { void showQuickBar(); }).ok;
+  if (!shortcutAvailable) console.warn(`[threads] ${wantedShortcut} is already registered by another application.`);
   // The embedded browser attaches its BrowserViews to this window. A BrowserView is an OS-level
   // overlay painted ABOVE the renderer, not a DOM node, so it needs the real BrowserWindow and it
   // needs to be told where the React layout wants it (see 'browser:bounds' below).
@@ -1398,6 +1434,18 @@ app.whenReady().then(async () => {
     if (result.canceled || !result.filePaths[0]) return null;
     const root = await fsp.realpath(result.filePaths[0]);
     quickContext = { root, source: 'Selected folder' }; return root;
+  });
+  // The welcome screen's "Start a task in a folder" (backlog N14): choose a folder, and the ⌘2 bar opens on it.
+  secureHandle('threads:start-in-folder', false, async (event) => {
+    const options: Electron.OpenDialogOptions = { properties: ['openDirectory'], title: 'Choose a folder for the task', buttonLabel: 'Start here' };
+    const parent = BrowserWindow.fromWebContents(event.sender);
+    const result = parent ? await dialog.showOpenDialog(parent, options) : await dialog.showOpenDialog(options);
+    if (result.canceled || !result.filePaths[0]) return false;
+    const root = await fsp.realpath(result.filePaths[0]);
+    if (talkOwner === 'quick') talk.end();
+    quickThreadId = null;
+    await showQuickBar({ root, source: 'Selected folder' });
+    return true;
   });
   secureHandle('threads:quick-submit', { ok: false } as any, async (_e, prompt: unknown, options: unknown) => {
     if (typeof prompt !== 'string' || !prompt.trim() || prompt.length > 200000) return { ok: false, error: 'Enter a prompt.' };

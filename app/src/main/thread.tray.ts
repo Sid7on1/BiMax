@@ -18,9 +18,9 @@ export function trayTitle(threads: readonly ThreadSummary[]): string {
   return waiting ? `⌘2 ${active} · ${waiting} waiting` : `⌘2 ${active}`;
 }
 
-export function trayTooltip(threads: readonly ThreadSummary[]): string {
+export function trayTooltip(threads: readonly ThreadSummary[], shortcut = '⌘2'): string {
   const { active, waiting } = counts(threads);
-  if (!active) return 'Bimax — no tasks running. Press ⌘2 anywhere to start one.';
+  if (!active) return `Bimax — no tasks running. Press ${shortcut} anywhere to start one.`;
   return `Bimax — ${active} task${active === 1 ? '' : 's'} running${waiting ? `, ${waiting} waiting for your decision` : ''}`;
 }
 

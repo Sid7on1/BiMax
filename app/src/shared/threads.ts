@@ -31,6 +31,8 @@ export interface ThreadList {
   shortcutAvailable: boolean;
   /** How many threads are archived (backlog N11); absent from older main processes. */
   archivedCount?: number;
+  /** The shortcut that opens the ⌘2 bar, as shown to people, e.g. "⌘2" (backlog N14). */
+  shortcut?: string;
 }
 /** Something the person had open when they pressed ⌘2, or dropped on the bar, offered to the task as context. */
 export interface QuickAttachment { kind: 'file' | 'page' | 'document'; label: string; path?: string; url?: string }
