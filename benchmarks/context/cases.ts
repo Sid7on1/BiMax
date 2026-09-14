@@ -9,6 +9,11 @@ import { createCodeSearchTool } from '../../src/tools/implementations/code.searc
 import { createReadFileTool } from '../../src/tools/implementations/file.tool';
 import { ContextManager } from '../../src/memory/context.manager';
 import { fileStateCache } from '../../src/memory/file-state-cache';
+import { AgentLoop } from '../../src/core/agent.loop';
+import { ToolRegistry } from '../../src/tools/tool.registry';
+import { buildTool } from '../../src/tools/tool.factory';
+import { archiveOutput } from '../../src/context/output.archive';
+import { createContextArchiveTool } from '../../src/tools/implementations/context-archive.tool';
 import { GraphStore } from '../../src/graph/graph.store';
 import { StaticAnalyzer } from '../../src/graph/static.analyzer';
 import { planContext } from '../../src/graph/context.planner';
@@ -23,14 +28,14 @@ import { estimatedTokens, hasAll, hasNone, hasSpan, spanRecall, withinBudget } f
  * measure.
  */
 
-export const BENCHMARK_VERSION = 'context-bench@2';
+export const BENCHMARK_VERSION = 'context-bench@3';
 
 export type Family =
   | 'single-hop' | 'multi-hop-code' | 'temporal' | 'source-change'
-  | 'long-session' | 'numeric' | 'budget' | 'scope';
+  | 'long-session' | 'numeric' | 'budget' | 'scope' | 'workspace';
 
 export const FAMILIES: Family[] = [
-  'single-hop', 'multi-hop-code', 'temporal', 'source-change', 'long-session', 'numeric', 'budget', 'scope',
+  'single-hop', 'multi-hop-code', 'temporal', 'source-change', 'long-session', 'numeric', 'budget', 'scope', 'workspace',
 ];
 
 export interface GradedText {
@@ -210,6 +215,88 @@ const SCOPED_REPO: Record<string, string> = {
   'wantedExtra/leak.ts': 'export const boundarysentinel = 1;\n',
 };
 
+// Held out (version 3): written before record 50 step 7 and never tuned against. They vary the shape of S5, M1 and M2.
+const HELD_OUT_NOTES: Record<string, string> = {
+  'parking-hours': 'The parking garage closes at 10 pm on weekdays and at 6 pm on weekends.',
+  'reception': 'Visitors sign in at the reception desk on the ground floor.',
+  'badges': 'Replacement badges are issued by the security office on the second floor.',
+  'meeting-rooms': 'Meeting rooms are booked through the calendar and released after ten idle minutes.',
+};
+
+const BILLING_REPO: Record<string, string> = {
+  'tsconfig.json': JSON.stringify({ compilerOptions: { target: 'ES2020', module: 'CommonJS', strict: false }, include: ['src/**/*.ts'] }),
+  'src/currency/round.ts': `/** Money helpers: amounts are held as numbers of whole units. */
+export function roundCents(amount: number): number {
+  return Math.round(amount * 100) / 100;
+}
+`,
+  'src/tax/rates.ts': `/** The value added tax applied to every invoice line. */
+export const VAT_RATE = 0.2;
+`,
+  'src/billing/invoice.ts': `import { roundCents } from '../currency/round';
+import { VAT_RATE } from '../tax/rates';
+
+/** The amount a customer pays for these line amounts. */
+export function invoiceTotal(lines: number[]): number {
+  const net = lines.reduce((sum, line) => sum + line, 0);
+  return roundCents(net * (1 + VAT_RATE));
+}
+`,
+  'src/billing/invoice.test.ts': `import { invoiceTotal } from './invoice';
+
+// Ten units of goods cost twelve with tax.
+export function chargesTaxOnTopOfLines(): boolean {
+  return invoiceTotal([10]) === 12;
+}
+`,
+  ...Object.fromEntries(Array.from({ length: 10 }, (_, i) => [
+    `src/reports/report${i + 1}.ts`,
+    `/** Report ${i + 1}: prints the invoice totals for the month, rounded for display. */\nexport function printReport${i + 1}(): void {\n  console.log('invoice totals, rounded');\n}\n`,
+  ])),
+};
+
+const UPLOAD_REPO: Record<string, string> = {
+  'tsconfig.json': JSON.stringify({ compilerOptions: { target: 'ES2020', module: 'CommonJS', strict: false }, include: ['src/**/*.ts'] }),
+  'src/config/upload.ts': `/** The largest file accepted, in megabytes. */
+export const MAX_UPLOAD_MB = 5;
+`,
+  'src/upload/handler.ts': `import { MAX_UPLOAD_MB } from '../config/upload';
+
+export function acceptFile(sizeBytes: number): boolean {
+  return sizeBytes <= MAX_UPLOAD_MB * 1024 * 1024;
+}
+`,
+  ...Object.fromEntries(Array.from({ length: 8 }, (_, i) => [
+    `src/ui/banner${i + 1}.ts`,
+    `/** Banner ${i + 1}: tells the user an upload was rejected or is still in progress. */\nexport function banner${i + 1}(): string {\n  return 'upload rejected or in progress';\n}\n`,
+  ])),
+};
+
+const FAILED_CHUNKS = [37, 180, 311];
+const BOUNDARY_QUESTION = 'Which file sets the retry limit for uploads?';
+
+/** Natural text of about `chars` characters, so a tokenizer and a four-characters estimate roughly agree. */
+function prose(chars: number): string {
+  const sentence = 'Follow the project rules carefully and verify every change before reporting it. ';
+  return sentence.repeat(Math.ceil(chars / sentence.length)).slice(0, chars);
+}
+
+/** A shell call and its result, as the loop records them. */
+function shellExchange(id: string, content: string): any[] {
+  return [
+    { role: 'assistant', content: '', tool_calls: [{ id, type: 'function', function: { name: 'BashTool', arguments: JSON.stringify({ command: 'npm run upload' }) } }] },
+    { role: 'tool', tool_call_id: id, content },
+  ];
+}
+
+/** Tokens in a request as sent: system prompt, tool schemas and each message's content, measured with a real tokenizer. */
+function requestTokens(request: { messages: any[]; options: any }): number {
+  return encode(String(request.options.system ?? '')).length
+    + encode(JSON.stringify(request.options.tools ?? [])).length
+    + request.messages.reduce((sum, m) => sum + 4 + encode(typeof m.content === 'string' ? m.content : JSON.stringify(m.content ?? '')).length
+      + (m.tool_calls ? encode(JSON.stringify(m.tool_calls)).length : 0), 0);
+}
+
 // ───────────────────────────── cases ─────────────────────────────
 
 export function buildCases(temp: string): BenchCase[] {
@@ -324,6 +411,33 @@ export function buildCases(temp: string): BenchCase[] {
       miss: outputs.find((o) => o.text.startsWith('No matching code found')),
     };
   });
+
+  const heldOutNotes = memoryStore('held-out-notes', HELD_OUT_NOTES);
+  const billingRepo = once(() => codeIndex('billing-repo', BILLING_REPO));
+  const uploadRepo = once(() => codeIndex('upload-repo', UPLOAD_REPO));
+
+  /** One turn through the real AgentLoop with a model that records each main request instead of calling a provider. */
+  const boundaryTurn = async (shape: { window: number; systemChars: number; toolChars: number; history: number }) => {
+    const requests: Array<{ messages: any[]; options: any }> = [];
+    const llm = {
+      async *chat(messages: any[], options: any = {}) {
+        const main = options.system !== undefined;
+        if (main) requests.push({ messages: messages.map((m) => ({ ...m })), options });
+        yield { type: 'token', text: main ? 'The retry limit lives in src/config/limits.ts.' : '## Goal\nContinue the task.' };
+      },
+    } as any;
+    const tools = new ToolRegistry();
+    tools.register(buildTool({
+      name: 'GrepTool', description: prose(shape.toolChars), isDestructive: false,
+      schema: { type: 'object', properties: { pattern: { type: 'string', description: 'What to search for.' } }, required: ['pattern'] },
+      execute: async () => 'no matches',
+    }, governor));
+    const history = Array.from({ length: shape.history }, (_, i) => ({ role: i % 2 ? 'assistant' : 'user', content: `Earlier turn ${i}: ${prose(200)}` }));
+    const loop = new AgentLoop(llm, tools, undefined, shape.window);
+    let text = '';
+    for await (const chunk of loop.execute([...history, { role: 'user', content: BOUNDARY_QUESTION }], prose(shape.systemChars), { maxIterations: 1 })) text += chunk;
+    return { requests, text };
+  };
 
   return [
     // ── single-hop: the answering span reaches the recall block
@@ -604,6 +718,112 @@ export function buildCases(temp: string): BenchCase[] {
         const store = await codeTaggedStore();
         const text = await recallText(store, 'What does parseInvoiceTotals return for invoices?');
         return graded(!hasSpan(text, 'grouped by currency'), text);
+      },
+    },
+
+    // ── version 3: held out for record 50 step 7, written before it and never tuned against
+    {
+      id: 'H1', family: 'single-hop', title: 'held out: no note answers, so nothing is injected',
+      run: async () => {
+        const text = await recallText(await heldOutNotes(), 'What is the door code for the third floor conference room?');
+        return graded(text === '', text, { abstained: text === '', injectedChars: text.length });
+      },
+    },
+    {
+      id: 'H2', family: 'single-hop', title: 'held out: a note that answers is still injected',
+      run: async () => {
+        const text = await recallText(await heldOutNotes(), 'When does the parking garage close on weekdays?');
+        return graded(hasSpan(text, '10 pm'), text);
+      },
+    },
+    {
+      id: 'H3', family: 'multi-hop-code', title: 'held out: a rounding change needs the invoice code, the rounding helper and the test',
+      run: async () => {
+        const { root, index } = await billingRepo();
+        const text = await search(index, root, 'change how invoice totals are rounded without breaking the tax');
+        const required = ['src/billing/invoice.ts', 'src/currency/round.ts', 'src/billing/invoice.test.ts'];
+        return graded(hasAll(text, required), text, { itemRecall: spanRecall(text, required) });
+      },
+    },
+    {
+      id: 'H4', family: 'multi-hop-code', title: 'held out: an upload limit behind a behaviour question',
+      run: async () => {
+        const { root, index } = await uploadRepo();
+        const text = await search(index, root, 'why is a file rejected above five megabytes');
+        const required = ['src/config/upload.ts', 'src/upload/handler.ts'];
+        return graded(hasAll(text, required), text, { itemRecall: spanRecall(text, required) });
+      },
+    },
+
+    // ── version 3: the request boundary (record 50 step 6)
+    {
+      id: 'R1', family: 'budget', title: 'the request sent to the model fits its context window',
+      run: async () => {
+        const window = 3000;
+        const { requests, text } = await boundaryTurn({ window, systemChars: 6000, toolChars: 6000, history: 30 });
+        const main = requests[0];
+        if (!main) return graded(false, text, { sent: false });
+        const tokens = requestTokens(main);
+        const questionSent = main.messages.some((m) => m.role === 'user' && String(m.content).includes(BOUNDARY_QUESTION));
+        return graded(tokens <= window && questionSent, `${tokens} tokens\n${text}`, { requestTokens: tokens, window, questionSent });
+      },
+    },
+    {
+      id: 'R2', family: 'budget', title: 'a request that cannot fit is not sent, and the turn says why',
+      run: async () => {
+        const { requests, text } = await boundaryTurn({ window: 1000, systemChars: 8000, toolChars: 400, history: 2 });
+        return graded(requests.length === 0 && /does not fit|cannot fit/i.test(text), text, { requestsSent: requests.length });
+      },
+    },
+
+    // ── version 3: logs keep their shape (record 50 step 6)
+    {
+      id: 'N6', family: 'numeric', title: 'a compacted log keeps its line count, its failures and a route to the raw output',
+      run: async () => {
+        const manager = new ContextManager(summarizerKeepsNothing, 2000);
+        const log = Array.from({ length: 400 }, (_, i) => (FAILED_CHUNKS.includes(i)
+          ? `ERROR upload chunk ${i} failed: connection reset`
+          : `INFO upload chunk ${i} stored in ${100 + (i % 9)} ms`)).join('\n');
+        const messages = [
+          { role: 'user', content: 'Upload the release assets and report what failed.' },
+          ...shellExchange('c0', log),
+          ...Array.from({ length: 9 }, (_, i) => shellExchange(`c${i + 1}`, `filler result ${i}`)).flat(),
+        ];
+        const out = await manager.checkAndCompact(messages as any);
+        const text = String(out.find((m: any) => m.role === 'tool' && m.tool_call_id === 'c0')?.content ?? '');
+        const ok = hasSpan(text, '400 lines') && hasSpan(text, 'ERROR upload chunk 37 failed') && /archive:[0-9a-f]{32}/.test(text);
+        return graded(ok, text, { chars: text.length, rawChars: log.length });
+      },
+    },
+
+    // ── version 3: a large output is a queryable workspace (record 47 §3.6, record 50 step 7)
+    {
+      id: 'A1', family: 'workspace', title: 'a question about a large archived output is answered by searching it, not by reading it whole',
+      run: async () => {
+        const log = Array.from({ length: 2000 }, (_, i) => ([412, 1207, 1880].includes(i)
+          ? `ERROR shard ${i} checksum mismatch`
+          : `INFO shard ${i} verified`)).join('\n');
+        const archived = archiveOutput(log);
+        if (!archived) throw new Error('the archive could not be written');
+        const text = textOf(await createContextArchiveTool(governor).execute({ handle: archived.handle, pattern: 'ERROR' }, { cwd: temp }));
+        const expected = ['413: ERROR shard 412 checksum mismatch', '1208: ERROR shard 1207 checksum mismatch', '1881: ERROR shard 1880 checksum mismatch'];
+        return graded(expected.every((line) => text.includes(line)) && text.length < 1000, text.slice(0, 4000), { chars: text.length });
+      },
+    },
+
+    // ── version 3: continuity when the context manager is rebuilt (record 50 step 8)
+    {
+      id: 'L5', family: 'long-session', title: "the user's constraint survives a context manager rebuilt mid-task, as on a model switch",
+      run: async () => {
+        const { messages } = await longSession();
+        const rebuilt = new ContextManager(summarizerKeepsNothing, 64000);
+        let next: any[] = [...messages];
+        for (let turn = 0; turn < 20; turn++) {
+          next.push({ role: turn % 2 ? 'assistant' : 'user', content: `After the switch, turn ${turn}: routine progress on the upload module.` });
+        }
+        next = await rebuilt.compact(next);
+        const text = next.map((m) => String(m.content)).join('\n');
+        return graded(hasSpan(text, 'never modify package.json'), text);
       },
     },
   ];
