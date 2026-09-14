@@ -329,7 +329,19 @@ the workspace and L5 for continuity. Its baseline on unchanged code is 31 of 42 
 - **Limit.** Tool schemas are counted but never trimmed, and the reserve is a fixed share rather than the provider's
   own limit.
 
-**Next slice.** 6d: log statistics over archived raw output. S5, M1 and M2 belong to step 7.
+**Slice 6d, logs keep their shape — done 2026-09-14** (`4486faf`).
+- `src/context/log.summary.ts` takes one line from a whole log before anything is cut: its line count, how many lines
+  report a failure, and the first failure of each kind with its line number. The line leads the compressed form next to
+  the raw output's archive handle, leads a cut result, and follows a cleared stub when the stub stays under half of
+  what it replaces. Code and output under 20 lines get no summary.
+- **Proof.** Benchmark run `2026-09-14T11-14-19-562Z_4486faf`: **34 of 42**, up from 33; N6 passes, numeric is 6 of 6, and no family fell. Bun: 50
+  context tests. Four mutants each fail a test. Jest over the 24 suites importing the changed modules: no new failure.
+- **Limit.** The summary answers only what it states. Percentiles and event order need the raw output, read through
+  its handle (step 7 adds a search over it).
+
+**Step 6 is complete.** Every slice beat the result before it with no family falling: version 2 went from 26 to 30 of
+33, and version 3 from 31 to 34 of 42. S5, M1 and M2 and the held-out H1, H3 and H4 belong to step 7; A1 to step 7's
+workspace; L5 to step 8.
 
 1. One allocator owns the whole request budget (record 47 §3.4) at the final request boundary.
 2. Each candidate gets several representations (locator, signature, exact span, neighbourhood). Pick them with a
