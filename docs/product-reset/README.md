@@ -1,5 +1,14 @@
 # Bimax product reset
 
+## Context Compiler built — 2026-09-14
+
+Record 50's steps 6–8 are built on top of the audit 51 repairs: a continuation state that survives compaction, one
+budget at the request boundary, recall that shows the answering lines and abstains when memory does not know the
+subject, log summaries, import-following code search, pattern search over archived output, `/evidence`, and continuity
+across a rebuilt context manager. The context benchmark (version 3) passes 42 of 42. It is **not Product-ready**: the
+R02 deterministic journey fails on this Mac as it did before (FTS5 missing under Node 22), and the live-provider and
+model-graded journeys were not run. See [record 50](50_CONTEXT_COMPILER_BUILD_PLAN.md).
+
 ## Context audit qualification — 2026-09-14
 
 [51_CONTEXT_UPGRADE_AUDIT.md](51_CONTEXT_UPGRADE_AUDIT.md) qualifies the later C0/C1 implementation

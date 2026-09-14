@@ -69,7 +69,9 @@ Each item lists **Value** (high, medium, low), **Effort** (S: days, M: 1–2 wee
    same day (U01–U07 and U09–U11; record 50, "Audit 51 repairs"). U08 moves into step 6.
 2. **F8:** port the chat and tool cancellation fix from record 49. **Done 2026-09-14** (`6d602d1`), before step 6,
    which edits the same files.
-3. **C2–C4:** record 50 steps 6–8.
+3. **C2–C4:** record 50 steps 6–8. **Built 2026-09-14**: the context benchmark (version 3) passes 42 of 42, up from 31.
+   Not Product-ready: the R02 deterministic journey fails on this Mac as it did before (FTS5 missing under Node 22), and
+   the live-provider journey and model-graded held-out outcomes were not run. Record 50 lists what is still Target.
 4. **F1:** queued messages survive an engine restart and an app reload (T01).
 5. **Q1–Q4:** the quick fixes, about an hour together.
 6. **F9–F12:** the Threads reliability defects T02–T05.
@@ -340,14 +342,19 @@ audit 51 found gaps in freshness, dependency tracking and the archive, repaired 
 
 **C2. Prompt compiler.** One token budget for the whole request, a representation chosen per item (locator,
 signature, exact span or neighbourhood), a structured continuation state, and a ledger of what is actually in the
-prompt. Verdict Flagship · Effort L · Needs C1 · Shares its continuation state with F2.
+prompt. Verdict Flagship · Effort L · Needs C1 · Shares its continuation state with F2. **Built 2026-09-14** (record 50 step 6):
+continuation state, one request-boundary budget, recall excerpts, log summaries. F2 can build on
+`src/context/continuation.ts`.
 
 **C3. Adaptive retrieval.** Evidence requirements per step, query-seeded graph search, selective counter-evidence,
 and bounded read-only operations over large outputs (select, fetch, join, aggregate, diff).
-Verdict Later · Effort L · Needs C2.
+Verdict Later · Effort L · Needs C2. **Partly built 2026-09-14** (record 50 step 7): recall abstention, import-following
+code search, pattern search over archived output. Join, aggregate, diff and counter-evidence are not built.
 
 **C4. Qualification.** An evidence inspector, explanations for stale or missing evidence, restart behaviour,
-packaged integration and the R02 journey. Verdict Later · Needs C3.
+packaged integration and the R02 journey. Verdict Later · Needs C3. **Engine side built 2026-09-14** (record 50 step 8):
+`/evidence`, plain stale explanations, continuity across a rebuilt context manager, a packaged local build. The R02
+journeys do not pass yet; see record 50.
 
 ## Parked: needs Computer Use back, or research
 

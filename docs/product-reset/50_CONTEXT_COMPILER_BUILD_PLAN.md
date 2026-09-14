@@ -412,8 +412,26 @@ with the acceptance gates. Only then call it Product-ready.
   the session recorder, so its compaction reads the user's messages again.
 - **Proof.** Benchmark run `2026-09-14T14-52-03-452Z_d86e5e3`: **42 of 42**, up from 41; L5 passes and no family fell. Bun: 62 context tests. Six
   mutants each fail a test. Jest over the suites importing the changed modules: the same 17 failures before and after across 48 suites.
-- The packaged build, the R02 journey and what still keeps this short of Product-ready are recorded below, after the
-  build.
+- **Packaged build.** The engine was rebuilt from this tree (`npm run build:engine`; the previous binary kept as
+  `.engine-local/bimax-engine.before-rag-20260914-202255`), and the desktop app built with `app/scripts/build-local-mac.sh arm64`
+  into `/private/tmp/bimax-build/release-rag-20260914-202255`, where its package gates, including the one that runs the packaged
+  engine, passed. Before installing, the bundle was checked for strings from this work in both the packaged engine and
+  `app.asar`. Install: installed to /Applications/Bimax.app and opened with a window 6 seconds after launch; the previous app is at /private/tmp/bimax-build/Bimax.app.before-rag-20260914-202255, which a reboot clears. The previous app was moved aside, not deleted.
+- **R02 deterministic journey.** Its five suites under Jest, as the record specifies: 23 of 37 tests pass. The 14
+  failures are the same 14, by name, on `333329f`, before this session's work, run in a detached worktree: SQLite FTS5 is
+  missing from Node 22's `node:sqlite` on this Mac. Under Bun, which has FTS5, 30 of 37 pass; the 7 failures there are
+  tests written for Node and Jest timers. So the deterministic journey does not pass on this machine, and it did not
+  before either. The live-provider journey needs a provider key and network and was not run.
+
+**Status: every step of this plan is built, and it is not Product-ready.** What the benchmark shows is that the evidence
+a task needs reaches the prompt on 42 of 42 fixtures, with no model called. Still Target:
+- the R02 deterministic journey passing on this machine (a Node runtime with FTS5, or the suites moved to Bun), and the
+  live-provider journey with a preserved passing artifact;
+- model-graded outcomes on held-out tasks, which step 7's exit asks for; the benchmark grades evidence, not answers;
+- the join, aggregate and diff operations over archived output (select and fetch exist), and selective
+  counter-evidence beyond what temporal recall already injects;
+- an evidence panel in the app beyond the `/evidence` message, and a clean-Mac install;
+- S01 and S02 from audit 51, unmeasured resource and cache risks.
 
 ## How this fits the backlog
 
