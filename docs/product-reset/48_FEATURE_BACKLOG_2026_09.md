@@ -72,7 +72,7 @@ Each item lists **Value** (high, medium, low), **Effort** (S: days, M: 1–2 wee
 3. **C2–C4:** record 50 steps 6–8. **Built 2026-09-14**: the context benchmark (version 3) passes 42 of 42, up from 31.
    Not Product-ready: the R02 deterministic journey fails on this Mac as it did before (FTS5 missing under Node 22), and
    the live-provider journey and model-graded held-out outcomes were not run. Record 50 lists what is still Target.
-4. **F1:** queued messages survive an engine restart and an app reload (T01).
+4. **F1:** queued messages survive an engine restart and an app reload (T01). **Done 2026-09-14.**
 5. **Q1–Q4:** the quick fixes, about an hour together.
 6. **F9–F12:** the Threads reliability defects T02–T05.
 7. **N1:** approve from the notification.
@@ -89,7 +89,10 @@ loses it too. Save each accepted input with a queued, dispatched or settled stat
 recovery, show what was never sent, and check whether anything may already have run before retrying it. Drop the
 queue only on an explicit Stop.
 Value high · Effort S–M · Needs nothing. *Why:* the talk-mode restart work showed how easily this loses words;
-overnight work would lose instructions.
+overnight work would lose instructions. **Done 2026-09-14:** each message is saved as queued before it is accepted and as sent before
+it reaches the engine; a finished turn settles it. A crash, engine restart, model switch, credential restart, quit or
+reload keeps the queue, and a message cut off mid-turn is reported in the thread and never sent again on its own.
+Only Stop and interrupt drop the queue. Tests in `app/src/__tests__/thread.queue.test.ts`, with six mutants.
 
 **F2. Durable task state.** Goal, milestones, progress, blockers and next step survive an app restart and a full
 context window. *First version:* a per-thread state file the engine reads on resume.

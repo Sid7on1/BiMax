@@ -9,12 +9,26 @@ export interface ThreadEngine {
   sendFromRenderer(msg: unknown): void;
   dispose(): void;
 }
-export interface SavedThread { summary: ThreadSummary; state: EngineUiState }
+/**
+ * A message the user sent, kept until its turn is over (backlog F1, record 46 T01). `queued`: accepted, not yet handed to
+ * the engine. `sent`: handed over, and its turn has not finished. A settled turn removes it.
+ */
+export interface SavedInput {
+  id: string;
+  /** What the engine receives, which may carry notes about undone changes. */
+  text: string;
+  /** The person's own words, as the thread shows them. */
+  display: string;
+  state: 'queued' | 'sent';
+  at: number;
+}
+export interface SavedThread { summary: ThreadSummary; state: EngineUiState; inputs?: SavedInput[] }
 interface LiveThread extends SavedThread {
   engine?: ThreadEngine;
   ready: boolean;
   resumeWanted?: string;
-  queue: Array<{ text: string; display: string }>;
+  /** Messages accepted and not yet settled, oldest first. Saved with the thread, so a crash, restart or reload keeps them. */
+  inputs: SavedInput[];
   pending: Map<number, ThreadApproval>;
   /** File changes the user undid from the app since the engine's last turn; told to it with the next message. */
   notes: string[];
@@ -37,6 +51,8 @@ interface Dependencies {
   message(id: string, msg: Outbound): void;
   approval(value: ThreadApproval): void;
   save(value: SavedThread): void;
+  /** Write now, before returning: used when a message is accepted or handed to the engine. Falls back to `save`. */
+  saveNow?(value: SavedThread): void;
   /** A turn ended (working → idle). The app notifies when the thread is not on screen. */
   finished?(id: string, tookMs?: number): void;
   /** The manager restarted this thread's engine itself (a talk change), so the window showing it can re-attach. */
@@ -58,6 +74,15 @@ export function threadVoiceEnvironment(voice: ThreadSummary['voice']): Record<st
   return voice ? { BIMAX_THREAD_VOICE: '1' } : {};
 }
 
+const validInput = (input: any): input is SavedInput =>
+  !!input && typeof input.id === 'string' && input.id.length <= 80 && typeof input.text === 'string' && input.text.length <= 200_000
+  && typeof input.display === 'string' && (input.state === 'queued' || input.state === 'sent') && typeof input.at === 'number';
+
+const quoted = (text: string): string => {
+  const flat = text.replace(/\s+/g, ' ').trim();
+  return `“${flat.length > 160 ? `${flat.slice(0, 159)}…` : flat}”`;
+};
+
 /** One process, state, queue and approval namespace per folder-bound conversation. */
 export class ThreadManager {
   private records = new Map<string, LiveThread>();
@@ -66,11 +91,15 @@ export class ThreadManager {
   constructor(private deps: Dependencies, saved: SavedThread[] = []) {
     for (const item of saved) {
       if (!/^[\w-]{1,80}$/.test(item.summary?.id) || !path.isAbsolute(item.summary?.root ?? '')) continue;
-      this.records.set(item.summary.id, {
+      const inputs = Array.isArray(item.inputs) ? item.inputs.filter(validInput) : [];
+      const r: LiveThread = {
         summary: { ...item.summary, peers: [], status: 'stopped' },
         state: { ...initialEngineState, ...item.state, threadId: item.summary.id, request: null, streaming: '', thinking: '', spinner: { state: 'idle', message: '' }, engine: { state: 'exited', detail: 'Saved thread. Send a message to resume.' } },
-        ready: false, queue: [], pending: new Map(), notes: [],
-      });
+        ready: false, inputs: inputs.map((input) => ({ ...input })), pending: new Map(), notes: [],
+      };
+      this.records.set(item.summary.id, r);
+      // Bimax closed with messages still open: say what happened to each, before anything else can happen to them.
+      if (inputs.length) this.recoverInputs(r, 'Bimax closed', false);
     }
   }
   list(): ThreadSummary[] { return [...this.records.values()].map(r => ({ ...r.summary })).sort((a,b) => b.updatedAt-a.updatedAt); }
@@ -91,7 +120,7 @@ export class ThreadManager {
     const id = randomUUID();
     const r: LiveThread = {
       summary: { id, root, title: prompt.trim().slice(0, 80) || `New thread in ${path.basename(root)}`, updatedAt: Date.now(), status: 'idle', peers: [], origin, ...(model ? { model } : {}), ...(voice ? { voice: true } : {}) },
-      state: { ...initialEngineState, project: root, threadId: id }, ready: false, queue: [], pending: new Map(), notes: [],
+      state: { ...initialEngineState, project: root, threadId: id }, ready: false, inputs: [], pending: new Map(), notes: [],
     };
     this.records.set(id, r);
     this.persist(r);
@@ -125,7 +154,7 @@ export class ThreadManager {
     const r = this.records.get(id);
     if (!r) throw new Error('Thread not found');
     if (!text.trim() || text.length > 200_000) throw new Error('Prompt must contain 1–200,000 characters');
-    if (r.queue.length >= 20) throw new Error('This thread already has 20 queued messages');
+    if (r.inputs.filter((input) => input.state === 'queued').length >= 20) throw new Error('This thread already has 20 queued messages');
     this.start(id);
     if (r.summary.title.startsWith('New thread in ')) r.summary.title = display.trim().slice(0,80);
     // Recorded when submitted, not when dispatched: a queued or not-yet-started thread still shows the turn.
@@ -137,20 +166,25 @@ export class ThreadManager {
       ? `[Before this message, the user undid these file changes from the Bimax app, so the files are back as they were: ${r.notes.join('; ')}]\n\n${text}`
       : text;
     r.notes = [];
-    r.queue.push({ text: engineText, display });
+    r.inputs.push({ id: randomUUID(), text: engineText, display, state: 'queued', at: Date.now() });
+    // Saved before this returns: an accepted message must survive a crash, a restart or a reload (backlog F1, T01).
+    this.persist(r, true);
     this.pump(r);
     this.persist(r);
   }
   private pump(r: LiveThread): void {
-    if (!r.ready || r.pending.size || r.summary.status === 'working' || !r.queue.length) return;
+    const next = r.inputs.find((input) => input.state === 'queued');
+    if (!r.ready || r.pending.size || r.summary.status === 'working' || !next) return;
     const root = r.summary.root;
     const conflict = [...this.records.values()].some(other => other !== r &&
       ['working','needs-you'].includes(other.summary.status) &&
       (root === other.summary.root || root.startsWith(other.summary.root + path.sep) || other.summary.root.startsWith(root + path.sep)));
     if (conflict) return;
-    const next = r.queue.shift()!;
+    next.state = 'sent';
     r.summary.status = 'working';
     r.turnStartedAt = Date.now();
+    // Recorded as sent before it is sent: after a crash in between, the message is reported as possibly run, never repeated.
+    this.persist(r, true);
     r.engine!.sendFromRenderer({ t: 'input', text: next.text });
   }
   receive(id: string, msg: Outbound): void {
@@ -187,6 +221,8 @@ export class ThreadManager {
     let finishedTurn = false;
     if (msg.t === 'event' && msg.name === 'spinner_state' && msg.args[0] === 'idle') {
       finishedTurn = r.summary.status === 'working' || r.summary.status === 'needs-you';
+      // The turn is over, so the message it answered is settled.
+      if (finishedTurn) r.inputs = r.inputs.filter((input) => input.state !== 'sent');
       r.pending.clear();
       r.state = { ...r.state, request: null };
       r.summary.status = 'idle';
@@ -205,9 +241,12 @@ export class ThreadManager {
   lifecycle(id: string, phase: string, detail: string): void {
     const r = this.records.get(id); if (!r?.engine) return;
     if (['failed','exited','restarting','stopping'].includes(phase)) {
-      r.ready = false; r.pending.clear(); r.queue = [];
+      r.ready = false; r.pending.clear();
       r.summary.status = phase === 'restarting' ? 'starting' : 'stopped';
       r.state = { ...r.state, request:null, spinner:{ state:'idle',message:'' }, engine:{ state:'exited',detail } };
+      // A failed or restarting engine used to take the queue with it. Queued messages stay; the one being worked on is
+      // reported, not repeated.
+      this.recoverInputs(r, phase === 'restarting' ? 'the engine restarted' : 'the engine stopped', true);
       this.persist(r);
     }
   }
@@ -224,7 +263,8 @@ export class ThreadManager {
       r.summary.status = 'working';
     }
     if (msg.t === 'interrupt') {
-      r.queue = [];
+      // An explicit interrupt cancels this turn and everything queued behind it.
+      r.inputs = [];
       r.pending.clear();
       r.state = { ...r.state, request: null };
     }
@@ -234,8 +274,8 @@ export class ThreadManager {
   /** Restart an idle task's engine so it starts with fresh settings (folder rules); a busy one is never cut off. */
   restartIfIdle(id: string): boolean {
     const r = this.records.get(id);
-    if (!r?.engine || r.summary.status !== 'idle' || r.queue.length || r.pending.size) return false;
-    this.stop(id);
+    if (!r?.engine || r.summary.status !== 'idle' || r.inputs.length || r.pending.size) return false;
+    this.stop(id, { keepInputs: true });
     this.start(id);
     return true;
   }
@@ -265,10 +305,10 @@ export class ThreadManager {
   }
 
   private restartIfWanted(r: LiveThread): void {
-    if (!r.restartWanted || !r.engine || !r.ready || r.summary.status !== 'idle' || r.queue.length || r.pending.size) return;
+    if (!r.restartWanted || !r.engine || !r.ready || r.summary.status !== 'idle' || r.inputs.length || r.pending.size) return;
     r.restartWanted = false;
     const id = r.summary.id;
-    this.stop(id);
+    this.stop(id, { keepInputs: true });
     this.start(id);
     r.quietResume = true;
     this.deps.restarted?.(id);
@@ -281,7 +321,8 @@ export class ThreadManager {
     const next = model || undefined;
     if (r.summary.model === next) return;
     r.summary.model = next;
-    if (r.engine) { this.stop(id); this.start(id); }
+    // A restart for a new model is not the user's Stop: what they queued is still sent.
+    if (r.engine) { this.stop(id, { keepInputs: true }); this.start(id); }
     this.persist(r);
   }
 
@@ -301,10 +342,30 @@ export class ThreadManager {
   /** A line in the thread from the app itself (not the engine), shown in the bar and the main window. */
   addNote(id: string, content: string): void {
     const r = this.records.get(id)!;
-    const msg = { t: 'event', name: 'message', args: [{ id: randomUUID(), role: 'system', level: 'info', content, payload: { threadNote: true }, timestamp: new Date().toISOString() }] } as Outbound;
-    r.state = engineReducer(r.state, { type: 'outbound', msg });
-    this.deps.message(id, msg);
+    this.appendNote(r, content, 'info', true);
     this.persist(r);
+  }
+
+  private appendNote(r: LiveThread, content: string, level: 'info' | 'warning', show: boolean): void {
+    const msg = { t: 'event', name: 'message', args: [{ id: randomUUID(), role: 'system', level, content, payload: { threadNote: true }, timestamp: new Date().toISOString() }] } as Outbound;
+    r.state = engineReducer(r.state, { type: 'outbound', msg });
+    if (show) this.deps.message(r.summary.id, msg);
+  }
+
+  /**
+   * After `why` (a crash, a restart, a quit), keep the queued messages and settle the one that was being worked on: it
+   * may have partly run, so it is shown to the user and not sent again on its own (backlog F1).
+   */
+  private recoverInputs(r: LiveThread, why: string, show: boolean): void {
+    const interrupted = r.inputs.filter((input) => input.state === 'sent');
+    r.inputs = r.inputs.filter((input) => input.state === 'queued');
+    for (const input of interrupted) {
+      this.appendNote(r, `This message was being worked on when ${why}, so it may have partly run. It was not sent again: ${quoted(input.display)}. Send it again if it still needs doing.`, 'warning', show);
+    }
+    if (r.inputs.length && why === 'Bimax closed') {
+      const n = r.inputs.length;
+      this.appendNote(r, `Kept ${n} message${n === 1 ? '' : 's'} that had not been sent when Bimax closed. ${n === 1 ? 'It is' : 'They are'} sent when this task resumes.`, 'info', show);
+    }
   }
 
   /** A change was undone from the app: show it in the thread, and tell the engine with the next message. */
@@ -318,11 +379,14 @@ export class ThreadManager {
     this.persist(r);
   }
   approvals(): ThreadApproval[] { return [...this.records.values()].flatMap(r => [...r.pending.values()]); }
-  stop(id: string): void {
+  /** The user's Stop drops what was queued. `keepInputs` is for restarts and quitting, which must not lose messages. */
+  stop(id: string, options: { keepInputs?: boolean } = {}): void {
     const r = this.records.get(id);
     if (!r) return;
     const engine = r.engine;
-    r.engine = undefined; r.ready = false; r.queue = []; r.pending.clear(); r.restartWanted = false;
+    if (options.keepInputs) this.recoverInputs(r, 'the task was restarted', true);
+    else r.inputs = [];
+    r.engine = undefined; r.ready = false; r.pending.clear(); r.restartWanted = false;
     engine?.dispose();
     r.summary.status = 'stopped';
     r.state = { ...r.state, request: null, spinner: { state: 'idle', message: '' }, engine: { state: 'exited', detail: 'Thread stopped' } };
@@ -353,18 +417,30 @@ export class ThreadManager {
     this.persist(source);
     return 'Message queued for the linked thread. Its workspace and approval scope are unchanged.';
   }
-  dispose(): void { for (const id of this.records.keys()) this.stop(id); }
-  private persist(r: LiveThread): void {
+  /** Quitting keeps every thread's queued messages for next time. */
+  dispose(): void { for (const id of this.records.keys()) this.stop(id, { keepInputs: true }); }
+  private persist(r: LiveThread, now = false): void {
     // An idle engine emits a heartbeat every few seconds that changes nothing a thread stores. Stamping and
     // saving on each one rewrote every live thread's file every 3s and kept bumping `updatedAt`, which also
     // floated idle threads up the list. The reducer returns the same state object for such events, so only
     // a real change — a new state or a changed summary — is written.
-    const summary = JSON.stringify({ ...r.summary, updatedAt: 0 });
+    const summary = JSON.stringify({ ...r.summary, updatedAt: 0, inputs: r.inputs });
     if (r.state === r.savedState && summary === r.savedSummary) return;
     r.savedState = r.state;
     r.savedSummary = summary;
     r.summary.updatedAt = Date.now();
-    this.deps.save({ summary: r.summary, state: r.state });
+    const value: SavedThread = { summary: r.summary, state: r.state, inputs: r.inputs.map((input) => ({ ...input })) };
+    if (now && this.deps.saveNow) {
+      try {
+        this.deps.saveNow(value);
+      } catch (error) {
+        // Could not write at once: keep the message and save it the ordinary way rather than refuse it.
+        console.warn(`[threads] could not save thread ${r.summary.id} at once: ${(error as Error).message}`);
+        this.deps.save(value);
+      }
+    } else {
+      this.deps.save(value);
+    }
     this.deps.changed();
   }
 }

@@ -859,7 +859,8 @@ function startEngine(projectDir: string, options: { restart?: boolean } = {}): v
   const root = realpathSync(projectDir);
   const existing = threads.projectThread(root);
   const id = existing ?? threads.create(root, '', 'project');
-  if (existing && options.restart) threads.stop(id);
+  // A restart for new credentials is not the user's Stop: queued messages are kept and sent afterwards.
+  if (existing && options.restart) threads.stop(id, { keepInputs: true });
   threads.start(id);
   selectThread(id);
 }
@@ -1037,6 +1038,8 @@ app.whenReady().then(async () => {
       }
     },
     save: value => threadStorage.save(value),
+    // An accepted or dispatched message is written before the manager returns (backlog F1).
+    saveNow: value => threadStorage.saveNow(value),
     // A talk change restarted this thread's engine: re-attach the main window when it is the one on screen.
     restarted: (id) => { if (id === threads.activeId) selectThread(id); },
     finished: (id, tookMs) => {
@@ -1445,7 +1448,7 @@ app.whenReady().then(async () => {
     // the welcome (never boot $HOME).
     if (threads.activeId) {
       const id = threads.activeId;
-      threads.stop(id); threads.start(id); selectThread(id);
+      threads.stop(id, { keepInputs: true }); threads.start(id); selectThread(id);
       return projectDir();
     }
     const dir = pickInitialProject(loadSettings().lastProject);
