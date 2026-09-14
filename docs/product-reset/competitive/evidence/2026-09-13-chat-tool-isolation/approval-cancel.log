@@ -1,0 +1,28 @@
+FAIL src/__tests__/tools.test.ts
+  ● does not write when cancellation arrives during approval
+
+    expect(received).rejects.toThrow()
+
+    Received promise resolved instead of rejected
+    Resolved to value: "Created /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-tools-enI3Ow/cancelled.txt:
+    @@ -1,0 +1,1 @@
+    \\ No newline at end of file
+    +must not land
+    \\ No newline at end of file"
+
+      364 |   const tool = createWriteFileTool(approval);
+      365 |   const target = path.join(dir, 'cancelled.txt');
+    > 366 |   await expect(tool.execute({ path: target, content: 'must not land' }, {
+          |         ^
+      367 |     cwd: dir, signal: controller.signal,
+      368 |   })).rejects.toThrow();
+      369 |   await expect(fs.stat(target)).rejects.toMatchObject({ code: 'ENOENT' });
+
+      at expect (node_modules/expect/build/index.js:2116:15)
+      at Object.<anonymous> (src/__tests__/tools.test.ts:366:9)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 33 skipped, 34 total
+Snapshots:   0 total
+Time:        2.168 s
+Ran all test suites matching src/__tests__/tools.test.ts with tests matching "does not write when cancellation".

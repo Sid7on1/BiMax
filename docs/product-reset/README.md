@@ -6,7 +6,35 @@
 work (queued messages surviving a restart first), quick fixes found while shipping talk mode, small integrations
 (approve from a notification, `bimax://` links and Shortcuts), flagships (folders that act, an editable preview,
 "Actually…", Night Shift, muscle memory), later bets and ideas parked until Computer Use returns. Every item is
-Target, rated against commit `0dc3a6e`.
+Target, rated against commit `0dc3a6e`. It also carries the open items from records 46, 47 and 49.
+
+## RAG and context audit and upgrade proposal — 2026-09-14
+
+[Record 47](47_RAG_AND_CONTEXT_COMPILER_UPGRADE.md) inspects retrieval and prompt assembly,
+reproduces eight synthetic limitations, and proposes a versioned Context Compiler using the
+existing configured models. Six focused suites passed 56 tests. The report includes primary
+papers, five pinned upstream repositories, integration stages, and falsifiable evaluation plans.
+All proposed runtime upgrades remain **Target**; no live quality or release claim is made.
+
+
+## Computer Use return strategy and Threads audit — 2026-09-13
+
+`46_COMPUTER_USE_RETURN_AND_THREADS_STRATEGY.md` assesses the owner's request to reconsider Computer
+Use as an optional Desktop task capability. It locates the external archive, reviews existing Threads,
+records six local defect/limitation probes and proposes an ordered implementation program plus novel
+feature experiments. This is **Target strategy**, not runtime activation. Existing tests passed
+64/64 across four suites and Desktop typecheck passed; native CU and installed Threads qualification
+remain unmeasured. Current code-only gates remain active until an explicit implementation changes them.
+The record also identifies the missing competitive capability matrix and current topology-doc conflicts.
+
+## Chat/tool isolation — 2026-09-13
+
+`49_CHAT_TOOL_ISOLATION_RECORD.md` (numbered 45 in the stale `~/Desktop/Bimax` copy, where it was
+written) records cancellation-drained chat clearing, truthful history
+reset, pending-approval cancellation, interruptible provider backoff and direct document-tool
+steering. Deterministic regressions and three rejected mutants are local evidence. Live-provider
+tool-count/latency and installed-app qualification remain Target. **The code is not in this repository yet;**
+porting it is item F8 in record 48.
 
 ## Capability failure visibility — 2026-09-12
 

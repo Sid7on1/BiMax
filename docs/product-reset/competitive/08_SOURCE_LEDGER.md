@@ -435,3 +435,76 @@ one captured claim; no-file failure, cancellation and an intervening write resol
 probe observed unchanged bytes/inode/mtime with changed ctime; its cause is unverified. The guard
 therefore uses content hash, inode and modification time, not ctime. See record 37 for the exact
 limitations, failed attempts, mutants and remaining Targets. No new external/platform claim.
+
+## Computer Use return strategy — checked 2026-09-13
+
+These sources support [record 46](../46_COMPUTER_USE_RETURN_AND_THREADS_STRATEGY.md), a Target strategy.
+No benchmark score, current rival superiority or universal novelty claim is imported.
+
+| Source | Inspected evidence | Bounded use |
+|---|---|---|
+| [Anthropic computer use documentation](https://platform.claude.com/docs/en/agents-and-tools/tool-use/computer-use-tool) | Host executes desktop tool calls; webpage-only tasks have a separate browser surface; observations can carry prompt injection | Separate browser/native execution and keep host authority; no Bimax performance inference |
+| [Apple SCContentSharingPicker](https://developer.apple.com/documentation/screencapturekit/sccontentsharingpicker) | System-provided capture picker and stream selection configuration | Prefer supported system capture selection; minimum-OS and fallback qualification still required |
+| [MCP tools, 2025-11-25](https://modelcontextprotocol.io/specification/2025-11-25/server/tools) | Tool discovery/call contract and host control/security considerations | Generic capability seam; MCP is not an OS sandbox |
+| [OSWorld-MCP](https://arxiv.org/abs/2510.24563) | Research benchmark studies tool invocation and GUI operations together | Evaluate hybrid routing; does not demonstrate a Bimax benefit |
+
+Local evidence: current manager/storage/broker/supervisor/sandbox source hashes and six probes in
+`../evidence/2026-09-13-threads-audit/results.json`; external archive at
+`/Users/vishsiddharth/Developer/bimax-archive/`; native logical adapter and input interlock inspected.
+Archive instructions disagree with actual external layout and historical package records. Current
+source wins for this audit; native rebuild and provenance qualification remain Target.
+
+## Feature ideation references — checked 2026-09-14
+
+Owner-requested research for additional feature ideas. Inspected paper abstracts, official project
+documentation and repository READMEs; no full-paper replication, code execution, license clearance,
+or competitive evaluation. These are mechanisms to explore, not evidence of Bimax implementation,
+market uniqueness or performance. All proposed combinations remain **Target**. Existing code-only
+gates remain active; native observation/control proposals require a separate Desktop-owned slice.
+
+| Primary source | Bounded evidence and proposed use |
+|---|---|
+| [DynaSaur paper](https://arxiv.org/abs/2411.01747), [official repository](https://github.com/adobe-research/dynasaur) | Dynamic programmatic action creation and reuse; inspiration for promoting tested task helpers into reusable personal capabilities. No automatic self-improvement or latency claim. |
+| [Proactive Agent paper](https://arxiv.org/abs/2410.12361), [official repository](https://github.com/thunlp/ProactiveAgent) | Proactive task prediction and accepted/rejected assistance; inspiration for an opt-in repeated-friction detector. User acceptance and interruption cost need local evaluation. |
+| [Pare](https://arxiv.org/abs/2604.00842) | Evaluates proactive assistants with simulated active users; supports testing intervention timing, not assuming that observation implies permission. |
+| [Sketch-n-Sketch tutorial](https://ravichugh.github.io/sketch-n-sketch/tutorial/02.html), [repository](https://github.com/ravichugh/sketch-n-sketch) | Direct manipulation of computed output can imply multiple program updates; inspiration for constrained result-to-source editing with visible alternatives. General cross-app inversion is not established. |
+| [AppWorld](https://arxiv.org/abs/2407.18901) | Controllable app environment for interactive coding-agent evaluation; inspiration for bounded rehearsal against fixture state, not a complete clone of a user's Mac. |
+| [WebArena repository](https://github.com/web-arena-x/webarena), [Generative Agents](https://arxiv.org/abs/2304.03442) | Functional web-task evaluation and simulated behavior respectively; inspiration for synthetic exploratory testers. Such agents cannot certify real-user usability or conversion. |
+| [Microsoft UFO](https://github.com/microsoft/UFO) | Desktop/device orchestration research reference; possible inspiration for cross-surface semantic handoff. Windows implementation is not a qualified Mac executor. |
+| [Screenpipe](https://github.com/screenpipe/screenpipe) | Local computer-history infrastructure reference; inspiration for explicit, scoped task provenance. Continuous capture is not required or enabled by this proposal. |
+| [Apple FastVLM](https://github.com/apple-aiml-research/ml-fastvlm) | Official vision-language implementation; candidate for bounded visual interpretation experiments. No Bimax device latency, energy, privacy or grounding claim follows. |
+
+Guidance: product-reset README, product examples/frontend plan, Mac Buddy vision, record 46,
+competitive README/rival studies/model-independent strategy/gap register, and acceptance gates.
+The previously recorded missing capability matrix remains unresolved. Only this source ledger was
+updated; no product capability or gap status changed. Verification: primary-source URL inspection
+and review of the appended record; no runtime tests warranted for this documentation-only entry.
+
+### Long-running agent follow-up — checked 2026-09-14
+
+Inspected [Anthropic's Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)
+(published 2025-11-26). The article reports incremental work, explicit feature requirements,
+persisted handoff artifacts and end-to-end browser checks as responses to context loss and premature
+completion. It explicitly says compaction alone is insufficient. Use as support for evaluating
+durable Bimax missions with independently checked milestones; it does not prove Bimax reliability,
+general Mac automation, or that multiple agents outperform one. Proposed mission features remain
+**Target**. Record 46's queue/restart/storage findings remain audit evidence, not newly reproduced
+results. No runtime or product-status changes; verification was source inspection only. Existing
+acceptance gates and the missing capability matrix/topology conflicts remain unresolved.
+
+
+## RAG and context compiler research — checked 2026-09-14
+
+See [record 47, research ledger](../47_RAG_AND_CONTEXT_COMPILER_UPGRADE.md#7-research-and-inspected-open-source-ledger)
+for exact primary-source URLs, inspected paper versions, pinned code links, applicability and limits.
+The research covers LongMemEval, HippoRAG 2, Recursive Language Models, Sufficient Context,
+Lin–Bilmes submodular summarization, and Build Systems à la Carte verifying traces. Five upstream
+repositories were inspected: HippoRAG, RLM, Aider, Graphiti and QMD. Their exact commits, file hashes
+and license metadata are preserved in
+[evidence manifest](evidence/2026-09-14-context-audit/upstream-index.json). No upstream code was
+executed or incorporated. Paper benchmark results are not transferred to Bimax.
+
+Local evidence: eight synthetic audit limitations reproduced under Bun, source hashes preserved;
+56 existing focused tests passed. Initial Node FTS5 failures are retained as invalid SQLite probe
+results. All compiler mechanisms remain **Target**, with no measured quality or competitive claim.
+Guidance and unresolved missing capability-matrix/topology documentation are recorded in record 47.

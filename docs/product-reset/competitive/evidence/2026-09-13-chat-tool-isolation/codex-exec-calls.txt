@@ -1,0 +1,195 @@
+
+
+######## CALL 0
+text(await tools.exec_command({cmd:"cat docs/product-reset/README.md","max_output_tokens":7000}));
+text(await tools.exec_command({cmd:"git status --short; pwd","max_output_tokens":2000}));
+
+
+######## CALL 1
+text(await tools.write_stdin({session_id:30727,chars:"","yield_time_ms":1000,max_output_tokens:7000}));
+text(await tools.write_stdin({session_id:82684,chars:"","yield_time_ms":1000,max_output_tokens:2000}));
+
+
+######## CALL 2
+text(await tools.exec_command({cmd:"cat docs/product-reset/README.md",login:false,max_output_tokens:6000,yield_time_ms:1000}));
+
+
+######## CALL 3
+text(await tools.exec_command({cmd:"cat docs/product-reset/{03_PRODUCT_EXAMPLES,04_FRONTEND_PLAN,05_TARGET_ARCHITECTURE,08_ACCEPTANCE_GATES}.md docs/product-reset/competitive/06_HEAD_TO_HEAD_EVALS.md docs/product-reset/vision/BIMAX_MAC_BUDDY_PRODUCT_VISION.md",login:false,max_output_tokens:24000}));
+text(await tools.exec_command({cmd:"git status --short; ls; rg --files -g '*chat*' -g '*session*' -g '*tool*' -g 'AGENTS.md' | head -100",login:false,max_output_tokens:6000}));
+
+
+######## CALL 4
+text(await tools.write_stdin({session_id:96733,chars:"",yield_time_ms:1000,max_output_tokens:24000}));
+text(await tools.exec_command({cmd:"rg -n 'tool_start|tool_result|tool_call|sessionId|newChat' app/src/renderer/src/stores* app/src/main src/protocol/headless.session.ts | head -160",login:false,max_output_tokens:6000}));
+
+
+######## CALL 5
+text(await tools.exec_command({cmd:"rg --files app/src | head -70; cat package.json",login:false,max_output_tokens:5000}));
+text(await tools.exec_command({cmd:"cat docs/product-reset/04_FRONTEND_PLAN.md docs/product-reset/05_TARGET_ARCHITECTURE.md docs/product-reset/08_ACCEPTANCE_GATES.md",login:false,max_output_tokens:14000,yield_time_ms:1000}));
+
+
+######## CALL 6
+text(await tools.exec_command({cmd:"cat app/src/renderer/src/task.state.ts app/src/renderer/src/useEngine.ts app/src/__tests__/task.isolation.test.ts",login:false,max_output_tokens:16000,yield_time_ms:1000}));
+text(await tools.exec_command({cmd:"cat src/tools/implementations/document.tool.ts; rg -n 'session|tool|reset|clear' src/protocol/headless.session.ts | head -100",login:false,max_output_tokens:7000,yield_time_ms:1000}));
+text(await tools.write_stdin({session_id:36494,chars:"",yield_time_ms:1000,max_output_tokens:14000}));
+
+
+######## CALL 7
+text(await tools.exec_command({cmd:"head -200 app/src/renderer/src/useEngine.ts",login:false,yield_time_ms:1000,max_output_tokens:8000}));
+text(await tools.exec_command({cmd:"cat docs/product-reset/vision/BIMAX_MAC_BUDDY_PRODUCT_VISION.md",login:false,yield_time_ms:1000,max_output_tokens:12000}));
+text(await tools.exec_command({cmd:"cat docs/product-reset/competitive/examples/P01_FAST_CODE_AND_COWORK.md docs/product-reset/competitive/06_HEAD_TO_HEAD_EVALS.md",login:false,yield_time_ms:1000,max_output_tokens:10000}));
+
+
+######## CALL 8
+text(await tools.exec_command({cmd:"cat app/src/renderer/src/engine.state.ts",login:false,yield_time_ms:1000,max_output_tokens:15000}));
+text(await tools.exec_command({cmd:"cat src/protocol/headless.session.ts",login:false,yield_time_ms:1000,max_output_tokens:10000}));
+text(await tools.write_stdin({session_id:64895,chars:"",yield_time_ms:1000,max_output_tokens:10000}));
+text(await tools.write_stdin({session_id:99396,chars:"",yield_time_ms:1000,max_output_tokens:7000}));
+
+
+######## CALL 9
+text(await tools.exec_command({cmd:"cat app/src/__tests__/task.isolation.test.ts; rg -n 'clear|tool|fence|turnStarted' app/src/renderer/src/engine.state.ts; rg -n 'clear|history' src/cli/commands/session.ts",login:false,yield_time_ms:1000,max_output_tokens:7000}));
+text(await tools.write_stdin({session_id:36494,chars:"",yield_time_ms:1000,max_output_tokens:16000}));
+text(await tools.write_stdin({session_id:35144,chars:"",yield_time_ms:1000,max_output_tokens:10000}));
+text(await tools.write_stdin({session_id:9405,chars:"",yield_time_ms:1000,max_output_tokens:10000}));
+
+
+######## CALL 10
+text(await tools.exec_command({cmd:"sed -n '325,380p' src/protocol/headless.session.ts; rg -n 'clear force|name:.*clear|clear_history' src/cli/commands app/src/renderer/src; rg -n 'DocumentTool|document|pdf|selfCritic|adversarial' src/cli/personas/base.persona.ts src/core/agent* src/tools/tool.registry.ts",login:false,max_output_tokens:6000,yield_time_ms:1000}));
+text(await tools.exec_command({cmd:"cat docs/product-reset/08_ACCEPTANCE_GATES.md",login:false,max_output_tokens:7000,yield_time_ms:1000}));
+text(await tools.write_stdin({session_id:9405,chars:"",yield_time_ms:1000,max_output_tokens:7000}));
+
+
+######## CALL 11
+text(await tools.exec_command({cmd:"sed -n '150,190p' app/src/renderer/src/App.tsx; rg -n \"name: 'clear'|clear_history|emit\\('clear'\" src/cli; rg -n 'DocumentTool|document|pdf|critic|adversarial' src/cli/personas/base.persona.ts src/tools/tool.registry.ts; cat src/__tests__/headless.session.test.ts | head -100",login:false,yield_time_ms:1000,max_output_tokens:7000}));
+text(await tools.write_stdin({session_id:19051,chars:"",yield_time_ms:1000,max_output_tokens:4000}));
+
+
+######## CALL 12
+text(await tools.exec_command({cmd:"sed -n '490,525p' src/cli/commands/meta.ts; sed -n '300,580p' src/cli/personas/base.persona.ts; cat src/tools/tool.registry.ts | head -180",login:false,yield_time_ms:1000,max_output_tokens:11000}));
+text(await tools.exec_command({cmd:"cat src/__tests__/headless.session.test.ts",login:false,yield_time_ms:1000,max_output_tokens:10000}));
+
+
+######## CALL 13
+text(await tools.exec_command({cmd:"rg -n 'dispatch\\(|case .input|interrupt' src/protocol/host.ts; rg -n 'sleep|delay|timeout|backoff' src/tools/tool.factory.ts src/core/agent.loop.ts src/tools/implementations/bash.tool.ts; rg -n 'document|PDF|TodoWriteTool|PlanTool' src/cli/personas/bimax* src/cli/prompts* src/core/agent.loop.ts",login:false,yield_time_ms:1000,max_output_tokens:6000}));
+
+
+######## CALL 14
+text(await tools.exec_command({cmd:"sed -n '530,565p' src/core/agent.loop.ts; sed -n '140,172p' src/protocol/host.ts; head -100 src/cli/personas/bimax.persona.ts; rg -n 'abortable|abort.*sleep|sleep.*abort' src; cat src/cli/prompts/output.ts",login:false,yield_time_ms:1000,max_output_tokens:5000}));
+
+
+######## CALL 15
+text(await tools.exec_command({cmd:"ls src/cli/personas; sed -n '150,240p' src/cli/personas/base.persona.ts; rg -n 'signal' src/core/agent.loop.ts | head -25; rg -n 'clear' src/__tests__/session.commands.test.ts",login:false,yield_time_ms:1000,max_output_tokens:5000}));
+
+
+######## CALL 16
+text(await tools.exec_command({cmd:"python3 - <<'PY'\nfrom pathlib import Path\np=Path('src/protocol/headless.session.ts');s=p.read_text();s=s.replace('  private busy = false;','  private busy = false;\\n  private turnFinished: Promise<void> = Promise.resolve();\\n  private finishTurn: (() => void) | null = null;\\n  private clearing: Promise<void> | null = null;');s=s.replace(\"    if (query.startsWith('/')) { await this.runCommand(query); return; }\", \"\"\"    if (/^\\/clear\\s+force(?:\\s|$)/i.test(query)) {\n      if (!this.clearing) {\n        this.interrupt();\n        this.clearing = this.turnFinished.then(() => this.runCommand(query));\n      }\n      try { await this.clearing; } finally { this.clearing = null; }\n      return;\n    }\n    if (this.clearing) await this.clearing;\n    if (query.startsWith('/')) { await this.runCommand(query); return; }\"\"\");s=s.replace(\"    if (!query || query.startsWith('/')) return 'failed';\", \"    if (!query || query.startsWith('/')) return 'failed';\\n    if (this.clearing) return 'busy';\");s=s.replace('    this.busy = true;','    this.busy = true;\\n    this.turnFinished = new Promise(resolve => { this.finishTurn = resolve; });');s=s.replace(\"      cliEvents.emit('spinner_state', 'idle', 'Ready');\", \"      cliEvents.emit('spinner_state', 'idle', 'Ready');\\n      this.finishTurn?.();\\n      this.finishTurn = null;\");s=s.replace('        const active = this.deps.personas.bimax;\\n        if (active && Array.isArray(msgs)) {', '        const active = this.deps.personas.bimax;\\n        if (Array.isArray(msgs)) {\\n          for (const persona of new Set(Object.values(this.deps.personas))) {\\n            persona.messages = [];\\n            try { persona.resetContextSession?.(); } catch { /* best-effort */ }\\n          }\\n        }\\n        if (active && Array.isArray(msgs)) {');p.write_text(s)\np=Path('src/cli/commands/meta.ts');s=p.read_text();s=s.replace(\"      try { context.restoreMessages?.([]); } catch { /* best-effort */ }\", \"      if (context.restoreMessages?.([]) === false) {\\n        return { type: 'message', level: 'warning', content: 'Conversation is still busy; interrupt it before clearing.' };\\n      }\");p.write_text(s)\np=Path('src/core/agent.loop.ts');s=p.read_text();s=\"import { setTimeout as delay } from 'node:timers/promises';\\n\"+s;s=s.replace('            await new Promise(r => setTimeout(r, backoffMs));', \"            try { await delay(backoffMs, undefined, { signal }); } catch (error) {\\n              if (signal?.aborted) return;\\n              throw error;\\n            }\");p.write_text(s)\np=Path('src/cli/personas/base.persona.ts');s=p.read_text();s=s.replace('Workflow:\\n  0)', 'For a simple document/file deliverable, use the relevant file tool directly with the supplied content; only read sources or research when the requested content needs them. A one-step PDF does not need a plan, todo list, repository exploration, package installation, or code tests. Use DocumentTool for PDF/Word/decks/spreadsheets, then report the resulting path. The following workflow applies to CODE work:\\n  0)');p.write_text(s)\nPY",login:false,max_output_tokens:2000}));
+
+
+######## CALL 17
+text(await tools.exec_command({cmd:"python3 - <<'PY'\nfrom pathlib import Path\np=Path('src/__tests__/headless.session.test.ts');s=p.read_text();s+='''\n\ndescribe('HeadlessSession — clear drains the previous turn', () => {\n  it('clears every persona after cancellation settles before admitting the next input', async () => {\n    let started!: () => void;\n    const ready = new Promise<void>(resolve => { started = resolve; });\n    let release!: () => void;\n    const drain = new Promise<void>(resolve => { release = resolve; });\n    let oldSignal!: AbortSignal;\n    const persona: any = { messages: [{ role: 'user', content: 'old task' }], resetContextSession: jest.fn() };\n    persona.execute = jest.fn(async (prompt: string, onToken: any, options: any) => {\n      if (prompt === 'perform the old coding task') {\n        oldSignal = options.signal;\n        started();\n        await drain;\n        persona.messages.push({ role: 'assistant', content: 'late old result' });\n        onToken('late old result');\n      } else {\n        expect(persona.messages).toEqual([]);\n        onToken('new result');\n      }\n    });\n    const other: any = { messages: [{ role: 'assistant', content: 'other old task' }], resetContextSession: jest.fn() };\n    const session = new HeadlessSession({ personas: { bimax: persona, other }, options: {\n      llmAdapter: { userModel: 'model', liteModel: 'model' }, governor: { mode: 'default' },\n    }, graphStore: {} as any });\n    const events: string[] = [];\n    const onClear = () => events.push('clear');\n    const onToken = (token: string) => events.push(token);\n    cliEvents.on('clear', onClear);\n    cliEvents.on('stream_token', onToken);\n    try {\n      const old = session.dispatch('perform the old coding task');\n      await ready;\n      const clear = session.dispatch('/clear force');\n      const next = session.dispatch('perform the new coding task');\n      expect(oldSignal.aborted).toBe(true);\n      expect(events).toEqual([]);\n      release();\n      await Promise.all([old, clear, next]);\n      expect(events).toEqual(['late old result', 'clear', 'new result']);\n      expect(other.messages).toEqual([]);\n      expect(persona.execute).toHaveBeenCalledTimes(2);\n      expect(other.resetContextSession).toHaveBeenCalled();\n    } finally {\n      cliEvents.off('clear', onClear);\n      cliEvents.off('stream_token', onToken);\n    }\n  });\n});\n''';p.write_text(s)\nPY\n./node_modules/.bin/jest --runInBand --coverage=false src/__tests__/headless.session.test.ts src/__tests__/document.tool.test.ts src/__tests__/session.commands.test.ts",login:false,yield_time_ms:1000,max_output_tokens:3000}));
+text(await tools.exec_command({cmd:"./node_modules/.bin/tsc --noEmit",login:false,yield_time_ms:1000,max_output_tokens:2000}));
+
+
+######## CALL 18
+text(await tools.exec_command({cmd:"rg -n 'transient|retryAfterSecs' src/__tests__/*test.ts | head -45; rg -n 'resetContextSession' src/cli/personas/base.persona.ts; cat app/package.json | head -55; rg -n 'critique|self.critic' src/__tests__/*persona* src/cli/selfCritic.ts",login:false,yield_time_ms:1000,max_output_tokens:4000}));
+text(await tools.write_stdin({session_id:79112,chars:"",yield_time_ms:1000,max_output_tokens:3000}));
+text(await tools.write_stdin({session_id:82103,chars:"",yield_time_ms:1000,max_output_tokens:2000}));
+
+
+######## CALL 19
+text(await tools.exec_command({cmd:"sed -n '369,406p' src/__tests__/agent.loop.recovery.test.ts; head -35 src/__tests__/agent.loop.recovery.test.ts; cat src/__tests__/document.tool.visible.test.ts | head -100; rg -n 'getSystemPromptParts|triage' src/__tests__/persona* | head -20",login:false,max_output_tokens:5000}));
+text(await tools.exec_command({cmd:"python3 - <<'PY'\nfrom pathlib import Path\np=Path('src/cli/commands/meta.ts');s=p.read_text().replace(\"level: 'warning', content: 'Conversation is still busy\", \"level: 'info', content: 'Conversation is still busy\");p.write_text(s)\np=Path('src/protocol/headless.session.ts');s=p.read_text().replace(\"        } catch {\\n          streamed = '';\", \"        } catch (error) {\\n          if (this.turnAbort.signal.aborted) throw error;\\n          streamed = '';\");p.write_text(s)\nPY",login:false,max_output_tokens:1000}));
+
+
+######## CALL 20
+text(await tools.exec_command({cmd:"python3 - <<'PY'\nfrom pathlib import Path\np=Path('src/__tests__/agent.loop.recovery.test.ts');s=p.read_text();s+='''\n\nit('interrupts a 30-second provider backoff without another model request', async () => {\n  const controller = new AbortController();\n  let calls = 0;\n  const llm: LLMProvider = { async *chat(): AsyncGenerator<ChatEvent> {\n    calls++;\n    yield { type: 'error', message: 'rate limit', kind: 'transient', recoverable: true, retryAfterSecs: 30 };\n  } };\n  const onStatus = (status: string) => {\n    if (status.includes('retrying in')) setImmediate(() => controller.abort());\n  };\n  cliEvents.on('status', onStatus);\n  try {\n    const loop = new AgentLoop(llm, new ToolRegistry(), null as any);\n    for await (const _ of loop.execute([{ role: 'user', content: 'test' }], 'sys', {\n      signal: controller.signal, maxIterations: 3,\n    })) { /* drain */ }\n    expect(controller.signal.aborted).toBe(true);\n    expect(calls).toBe(1);\n  } finally { cliEvents.off('status', onStatus); }\n}, 1500);\n''';p.write_text(s)\nPY\n./node_modules/.bin/jest --runInBand --coverage=false src/__tests__/headless.session.test.ts src/__tests__/agent.loop.recovery.test.ts src/__tests__/agent.loop.fallback.test.ts src/__tests__/document.tool.test.ts src/__tests__/session.commands.test.ts src/__tests__/persona.prompt.split.test.ts",login:false,yield_time_ms:1000,max_output_tokens:3000}));
+text(await tools.exec_command({cmd:"./node_modules/.bin/tsc --noEmit; rg -n 'engine-local|BIMAX_ENGINE' app/src/main/engine.ts app/src/main/coding.runtime.paths.ts app/scripts/prepare-engine.sh",login:false,yield_time_ms:1000,max_output_tokens:2000}));
+
+
+######## CALL 21
+text(await tools.write_stdin({session_id:39497,chars:"",yield_time_ms:1000,max_output_tokens:3500}));
+text(await tools.write_stdin({session_id:6160,chars:"",yield_time_ms:1000,max_output_tokens:2500}));
+text(await tools.exec_command({cmd:"cat src/__tests__/persona.prompt.split.test.ts | head -50; rg -n 'onInput|onInterrupt|session.dispatch' src/protocol/headless.entry.ts; cat jest.config.ts | head -100; ls -d /Applications/Bimax.app .engine-local 2>/dev/null",login:false,yield_time_ms:1000,max_output_tokens:3000}));
+
+
+######## CALL 22
+text(await tools.exec_command({cmd:"cat app/scripts/prepare-engine.sh; sed -n '30,75p' app/src/main/coding.runtime.paths.ts; ls scripts/*install* scripts/*local* 2>/dev/null",login:false,yield_time_ms:1000,max_output_tokens:3000}));
+text(await tools.write_stdin({session_id:39497,chars:"",yield_time_ms:1000,max_output_tokens:3000}));
+
+
+######## CALL 23
+text(await tools.exec_command({cmd:"sed -n '650,710p' src/cli/personas/base.persona.ts; cat src/cli/selfCritic.ts 2>/dev/null; rg -n 'BIMAX_ENGINE_LOCAL_OVERRIDE|manifest' app/scripts/resolve-engine-artifact.mjs | head -45; ls .engine-local",login:false,yield_time_ms:1000,max_output_tokens:3000}));
+text(await tools.exec_command({cmd:"python3 - <<'PY'\nfrom pathlib import Path\nimport subprocess\nroot=Path('docs/product-reset/competitive/evidence/2026-09-13-chat-tool-isolation');root.mkdir(parents=True,exist_ok=True)\ncases=[('clear-drain','src/protocol/headless.session.ts','this.turnFinished.then(() => this.runCommand(query))','Promise.resolve().then(() => this.runCommand(query))','src/__tests__/headless.session.test.ts','clears every persona'),('cancel-backoff','src/core/agent.loop.ts','await delay(backoffMs, undefined, { signal })','await delay(backoffMs)','src/__tests__/agent.loop.recovery.test.ts','interrupts a 30-second')]\nfor name,file,old,new,test,pattern in cases:\n p=Path(file); original=p.read_text(); assert old in original\n try:\n  p.write_text(original.replace(old,new))\n  result=subprocess.run(['./node_modules/.bin/jest','--runInBand','--coverage=false',test,'-t',pattern,'--forceExit'],capture_output=True,text=True,timeout=60)\n  (root/(name+'.log')).write_text(result.stdout+result.stderr)\n  print(name, 'rejected' if result.returncode else 'SURVIVED')\n finally: p.write_text(original)\nPY",login:false,yield_time_ms:1000,max_output_tokens:1000}));
+
+
+######## CALL 24
+text(await tools.write_stdin({session_id:33491,chars:"",yield_time_ms:1000,max_output_tokens:1000}));
+text(await tools.exec_command({cmd:"sed -n '1,170p' app/scripts/resolve-engine-artifact.mjs; cat app/electron-builder.yml 2>/dev/null | head -100; cat src/tools/implementations/bash.tool.ts | sed -n '110,135p'",login:false,yield_time_ms:1000,max_output_tokens:5000}));
+
+
+######## CALL 25
+text(await tools.exec_command({cmd:"python3 - <<'PY'\nfrom pathlib import Path\np=Path('src/cli/personas/base.persona.ts');s=p.read_text().replace('Create/overwrite a file → WriteFileTool', 'Create a PDF/Word/deck/spreadsheet → DocumentTool. Create/overwrite a text or source file → WriteFileTool');p.write_text(s)\np=Path('src/__tests__/headless.session.test.ts');s=p.read_text();s=s.replace(\"import '../cli/commands/meta';\", \"import '../cli/commands/meta';\\nimport { globalCommandRegistry } from '../cli/commands/registry';\");s+='''\n\nit('does not announce or emit clear when history replacement is refused', async () => {\n  const onClear = jest.fn();\n  cliEvents.on('clear', onClear);\n  try {\n    const result = await globalCommandRegistry.execute('/clear force', {\n      restoreMessages: () => false,\n    } as any);\n    expect(onClear).not.toHaveBeenCalled();\n    expect(result).toMatchObject({ type: 'message', level: 'info' });\n    expect((result as any).content).toContain('still busy');\n  } finally { cliEvents.off('clear', onClear); }\n});\n''';p.write_text(s)\nPY\n./node_modules/.bin/jest --runInBand --coverage=false src/__tests__/headless.session.test.ts app/src/__tests__/task.isolation.test.ts src/__tests__/document.tool.visible.test.ts src/__tests__/persona.prompt.split.test.ts > /tmp/bimax-chat-final-tests.log 2>&1\n tail -8 /tmp/bimax-chat-final-tests.log",login:false,yield_time_ms:1000,max_output_tokens:1500}));
+text(await tools.exec_command({cmd:"npm run build:engine > /tmp/bimax-chat-engine-build.log 2>&1",login:false,yield_time_ms:1000,max_output_tokens:1000}));
+text(await tools.exec_command({cmd:"./node_modules/.bin/tsc --noEmit; ./node_modules/.bin/eslint src/protocol/headless.session.ts src/cli/commands/meta.ts src/core/agent.loop.ts src/cli/personas/base.persona.ts > /tmp/bimax-chat-lint.log 2>&1",login:false,yield_time_ms:1000,max_output_tokens:1000}));
+
+
+######## CALL 26
+text(await tools.exec_command({cmd:"BIMAX_ENGINE_LOCAL_OVERRIDE=/Users/vishsiddharth/Desktop/Bimax/.engine-local/bimax-engine bash app/scripts/prepare-engine.sh darwin-arm64; .engine-local/bimax-engine --version; cat /tmp/bimax-chat-engine-build.log; tail -8 /tmp/bimax-chat-lint.log",login:false,yield_time_ms:1000,max_output_tokens:1500}));
+text(await tools.write_stdin({session_id:82443,chars:"",yield_time_ms:1000,max_output_tokens:2000}));
+text(await tools.write_stdin({session_id:15164,chars:"",yield_time_ms:1000,max_output_tokens:1000}));
+
+
+######## CALL 27
+text(await tools.exec_command({cmd:"ls docs/product-reset/*RECORD.md | tail -10; sed -n '1,80p' docs/product-reset/competitive/evidence/2026-09-13-chat-tool-isolation/clear-drain.log; tail -22 docs/product-reset/competitive/evidence/2026-09-13-chat-tool-isolation/cancel-backoff.log; rg -n 'cancelPending|interrupt' src/protocol/headless.entry.ts src/protocol/host.ts | head -30",login:false,max_output_tokens:3000}));
+text(await tools.write_stdin({session_id:28935,chars:"",yield_time_ms:1000,max_output_tokens:1500}));
+
+
+######## CALL 28
+text(await tools.exec_command({cmd:"rg -n 'signal|abort' src/tools/tool.factory.ts src/core/governor.ts; sed -n '45,82p' src/protocol/host.ts; sed -n '240,268p' src/protocol/host.ts; rg -n 'interrupt|abort' src/core/governor* src/cli/events.ts",login:false,yield_time_ms:1000,max_output_tokens:2500}));
+
+
+######## CALL 29
+text(await tools.exec_command({cmd:"rg -n 'approval|interrupt|pendingCount' src/__tests__/protocol* | head -35; cat src/tools/tool.factory.ts | sed -n '55,120p'; sed -n '82,135p' src/protocol/host.ts",login:false,max_output_tokens:4000}));
+
+
+######## CALL 30
+text(await tools.exec_command({cmd:"python3 - <<'PY'\nfrom pathlib import Path\np=Path('src/protocol/host.ts');s=p.read_text().replace(\"      case 'input':\\n        this.handlers\", \"      case 'input':\\n        if (/^\\\\/clear\\\\s+force(?:\\\\s|$)/i.test(msg.text.trim())) {\\n          this.handlers.onInterrupt?.();\\n          this.cancelPending();\\n        }\\n        this.handlers\").replace(\"        this.handlers.onInterrupt?.();\\n        return;\", \"        this.handlers.onInterrupt?.();\\n        this.cancelPending();\\n        return;\");s=s.replace('  /** Number of approval requests', \"  private cancelPending(): void {\\n    const pending = [...this.pending.entries()];\\n    this.pending.clear();\\n    for (const [id, resolve] of pending) {\\n      this.announceResolved(id, '', true);\\n      resolve('');\\n    }\\n  }\\n\\n  /** Number of approval requests\");p.write_text(s)\np=Path('src/tools/tool.factory.ts');s=p.read_text().replace('    execute: async (args: any, context?: any) => {','    execute: async (args: any, context?: any) => {\\n      context?.signal?.throwIfAborted();').replace(\"        recordGuard('governor:approve', Date.now() - tApprove);\", \"        recordGuard('governor:approve', Date.now() - tApprove);\\n        context?.signal?.throwIfAborted();\");p.write_text(s)\nPY\nhead -14 src/__tests__/protocol.test.ts; head -25 src/__tests__/tools.test.ts",login:false,max_output_tokens:2000}));
+text(await tools.write_stdin({session_id:28935,chars:"",yield_time_ms:1000,max_output_tokens:1500}));
+
+
+######## CALL 31
+text(await tools.exec_command({cmd:"python3 - <<'PY'\nfrom pathlib import Path\np=Path('src/__tests__/protocol.test.ts');s=p.read_text();s+='''\n\ndescribe('pending approvals at a task boundary', () => {\n  it.each([{ t: 'interrupt' }, { t: 'input', text: '/clear force' }])('cancels requests for %j and ignores late approval', (message) => {\n    const emitter = new EventEmitter();\n    const resolve = jest.fn();\n    const resolved = jest.fn();\n    const interrupt = jest.fn();\n    const wire: Outbound[] = [];\n    const host = new ProtocolHost(msg => wire.push(msg), { onInterrupt: interrupt });\n    host.attach(emitter);\n    emitter.on('request_resolved', resolved);\n    try {\n      emitter.emit('veto_prompt', 'Write file?', ['Approve', 'Reject'], resolve);\n      const request = wire.find(msg => msg.t === 'request') as any;\n      host.ingest(message as Inbound);\n      expect(interrupt).toHaveBeenCalledTimes(1);\n      expect(resolve).toHaveBeenCalledWith('');\n      expect(host.pendingCount()).toBe(0);\n      expect(resolved).toHaveBeenCalledWith(expect.objectContaining({ interrupted: true }));\n      host.ingest({ t: 'reply', id: request.id, value: 'Approve' });\n      expect(resolve).toHaveBeenCalledTimes(1);\n    } finally { host.detach(); }\n  });\n});\n''';p.write_text(s)\np=Path('src/__tests__/tools.test.ts');s=p.read_text();s+='''\n\nit('does not write when cancellation arrives during approval', async () => {\n  const controller = new AbortController();\n  const approval = { approveTaskExecution: jest.fn(async () => { controller.abort(); }) } as unknown as IGovernor;\n  const tool = createWriteFileTool(approval);\n  const target = path.join(dir, 'cancelled.txt');\n  await expect(tool.execute({ path: target, content: 'must not land' }, {\n    cwd: dir, signal: controller.signal,\n  })).rejects.toThrow();\n  await expect(fs.stat(target)).rejects.toMatchObject({ code: 'ENOENT' });\n});\n''';p.write_text(s)\nPY\n./node_modules/.bin/jest --runInBand --coverage=false src/__tests__/protocol.test.ts src/__tests__/tools.test.ts src/__tests__/headless.session.test.ts > /tmp/bimax-chat-approval-tests.log 2>&1\n tail -12 /tmp/bimax-chat-approval-tests.log",login:false,yield_time_ms:1000,max_output_tokens:2000}));
+text(await tools.exec_command({cmd:"./node_modules/.bin/tsc --noEmit; npm run build:engine > /tmp/bimax-chat-engine-build.log 2>&1",login:false,yield_time_ms:1000,max_output_tokens:1000}));
+
+
+######## CALL 32
+text(await tools.write_stdin({session_id:54628,chars:"",yield_time_ms:1000,max_output_tokens:2000}));
+text(await tools.write_stdin({session_id:35069,chars:"",yield_time_ms:1000,max_output_tokens:1000}));
+text(await tools.exec_command({cmd:"./node_modules/.bin/eslint src/protocol/host.ts src/tools/tool.factory.ts > /tmp/bimax-chat-approval-lint.log 2>&1; node scripts/check-protocol-mirror.mjs",login:false,yield_time_ms:1000,max_output_tokens:1000}));
+
+
+######## CALL 33
+text(await tools.exec_command({cmd:"python3 - <<'PY'\nfrom pathlib import Path\nimport subprocess\np=Path('src/tools/tool.factory.ts');original=p.read_text()\ntry:\n p.write_text(original.replace(\"        context?.signal?.throwIfAborted();\",''))\n result=subprocess.run(['./node_modules/.bin/jest','--runInBand','--coverage=false','src/__tests__/tools.test.ts','-t','does not write when cancellation'],capture_output=True,text=True,timeout=60)\n Path('docs/product-reset/competitive/evidence/2026-09-13-chat-tool-isolation/approval-cancel.log').write_text(result.stdout+result.stderr)\n print('approval-cancel', 'rejected' if result.returncode else 'SURVIVED')\nfinally: p.write_text(original)\nPY",login:false,yield_time_ms:1000,max_output_tokens:1000}));
+
+
+######## CALL 34
+text(await tools.write_stdin({session_id:68311,chars:"",yield_time_ms:1000,max_output_tokens:1000}));
+text(await tools.write_stdin({session_id:79159,chars:"",yield_time_ms:1000,max_output_tokens:1000}));
+text(await tools.exec_command({cmd:"BIMAX_ENGINE_LOCAL_OVERRIDE=/Users/vishsiddharth/Desktop/Bimax/.engine-local/bimax-engine bash app/scripts/prepare-engine.sh darwin-arm64",login:false,yield_time_ms:1000,max_output_tokens:1000}));
+
+
+######## CALL 35
+text(await tools.exec_command({cmd:"./node_modules/.bin/jest --runInBand --coverage=false src/__tests__/headless.session.test.ts src/__tests__/agent.loop.recovery.test.ts src/__tests__/agent.loop.fallback.test.ts src/__tests__/document.tool.test.ts src/__tests__/session.commands.test.ts src/__tests__/persona.prompt.split.test.ts src/__tests__/protocol.test.ts src/__tests__/tools.test.ts app/src/__tests__/task.isolation.test.ts src/__tests__/document.tool.visible.test.ts > docs/product-reset/competitive/evidence/2026-09-13-chat-tool-isolation/final-tests.log 2>&1",login:false,yield_time_ms:1000,max_output_tokens:1000}));
+text(await tools.exec_command({cmd:"python3 - <<'PY'\nfrom pathlib import Path\nimport hashlib,json\nfiles=['src/protocol/headless.session.ts','src/protocol/host.ts','src/cli/commands/meta.ts','src/cli/personas/base.persona.ts','src/core/agent.loop.ts','src/tools/tool.factory.ts','.engine-local/bimax-engine']\nPath('docs/product-reset/competitive/evidence/2026-09-13-chat-tool-isolation/hashes.json').write_text(json.dumps({f:hashlib.sha256(Path(f).read_bytes()).hexdigest() for f in files},indent=2)+'\\n')\nPY",login:false,max_output_tokens:1000}));
+
+
+######## CALL 36
+text(await tools.exec_command({cmd:"python3 - <<'PY'\nfrom pathlib import Path\np=Path('docs/product-reset/45_CHAT_TOOL_ISOLATION_RECORD.md');p.write_text('''# Chat isolation and tool cancellation — 2026-09-13\n\nStatus: **Implemented, locally verified** for the deterministic cases below. Healthy-provider\nPDF tool-count/latency, detached background work and installed-app qualification remain **Target**.\n\nGuidance: README, 03_PRODUCT_EXAMPLES, 04_FRONTEND_PLAN, 05_TARGET_ARCHITECTURE,\n08_ACCEPTANCE_GATES, vision/BIMAX_MAC_BUDDY_PRODUCT_VISION, competitive/06_HEAD_TO_HEAD_EVALS,\nand competitive/examples/P01_FAST_CODE_AND_COWORK. Applicable journeys: C04 cancellation/resume\nand P01 correct work without unnecessary delay. This change adds no Computer Use capability.\n\n## Corrected behavior\n\n- `/clear force` previously ignored a refused history replacement and still announced success.\n  A blank transcript could retain the old model conversation. The headless session now aborts and\n  drains the old turn before clearing, holds arriving inputs behind that boundary, and resets all\n  personas rather than only the default persona. A refused replacement no longer emits `clear`.\n- Stop and forced clear resolve outstanding protocol prompts without approval. Late replies are\n  ignored. Tools check cancellation before admission and after the governor wait, before effects.\n- Provider retry backoff (up to 30 seconds) now observes cancellation. An aborted conversational\n  request no longer falls back into a fresh full-harness request.\n- The generic task prompt previously instructed PDF tasks to orient in the repository, investigate\n  code and run builds/tests. Those instructions now apply to code work. Simple document output is\n  directed to the existing DocumentTool using supplied content, with source reading/research only\n  when necessary. Text/source output is distinguished from PDF/Word/deck/spreadsheet output.\n\nThe document change is prompt steering, not a hard tool allowlist or a measured reduction in model\ncalls. It preserves access to research and source tools when a document actually needs them.\n\n## Verification and evidence\n\n`competitive/evidence/2026-09-13-chat-tool-isolation/` retains final suite output, hashes and three\nrejected mutants: remove clear draining; ignore cancellation during provider backoff; remove the\npost-approval cancellation check. The last mutant writes the protected fixture file and is rejected.\n\nTypeScript no-emit check passed. Scoped ESLint passed with existing-style warnings and no errors.\nThe Bun compiled engine build passed and `--version` returned 1.1.0. The binary is staged in\n`app/engine` through the explicit contributor override with a regenerated digest manifest. This is\nnot a release pin update. `/Applications/Bimax.app` has not been replaced.\n\nRegression coverage includes old late output before clear/new output after clear; empty history\nfor the next input across personas; refusal without false clear; cancelled pending approval and\nignored late reply; no file mutation when cancellation arrives during approval; cancellation of a\n30-second backoff within the test deadline; existing document creation and visibility, renderer\nisolation, protocol, recovery and fallback suites. See final-tests.log for exact counts.\n\nNo live provider was invoked; no broad tool-latency speedup is claimed. Slow model inference,\nexternal MCP tools, non-cooperative tools and independent background tasks are not qualified by\nthese tests. Clear intentionally waits for active work to settle instead of falsely declaring a\nsafe boundary while effects may continue. Full packaged C04/P01 runs remain Target.\n''')\np=Path('docs/product-reset/README.md');s=p.read_text();s=s.replace('# Bimax product reset\\n','# Bimax product reset\\n\\n## Chat/tool isolation — 2026-09-13\\n\\n`45_CHAT_TOOL_ISOLATION_RECORD.md` records cancellation-drained chat clearing, truthful history\\nreset, pending-approval cancellation, interruptible provider backoff and direct document-tool\\nsteering. Deterministic regressions and three rejected mutants are local evidence. Live-provider\\ntool-count/latency and installed-app qualification remain Target.\\n',1);p.write_text(s)\nPY",login:false,max_output_tokens:1000}));
+text(await tools.write_stdin({session_id:79159,chars:"",yield_time_ms:1000,max_output_tokens:1000}));
+text(await tools.write_stdin({session_id:76131,chars:"",yield_time_ms:1000,max_output_tokens:1000}));
+
+
+######## CALL 37
+text(await tools.exec_command({cmd:"tail -7 docs/product-reset/competitive/evidence/2026-09-13-chat-tool-isolation/final-tests.log; tail -4 /tmp/bimax-chat-approval-lint.log; sed -n '98,126p' src/protocol/headless.session.ts",login:false,max_output_tokens:1500}));

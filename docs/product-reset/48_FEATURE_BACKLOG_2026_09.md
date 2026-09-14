@@ -8,6 +8,12 @@ three research write-ups pasted into that session: "Bimax Missions", "app superp
 "edit the outcome". The ratings are that session's judgement against the code at commit `0dc3a6e`. They are
 proposals, not measurements.
 
+**Merged later on 2026-09-14:** the open items from three records that were written into the stale
+`~/Desktop/Bimax` copy and are now copied here: [46](46_COMPUTER_USE_RETURN_AND_THREADS_STRATEGY.md) (Threads audit
+and a Computer Use return), [47](47_RAG_AND_CONTEXT_COMPILER_UPGRADE.md) (RAG and a context compiler) and
+[49](49_CHAT_TOOL_ISOLATION_RECORD.md) (a chat and tool cancellation fix that was never ported). Items from them
+carry those records' finding IDs (T01–T06, A01–A08).
+
 ## Verdicts
 
 | Verdict | Meaning |
@@ -40,27 +46,47 @@ Each item lists **Value** (high, medium, low), **Effort** (S: days, M: 1–2 wee
 - **This Mac has 8 GB of RAM.** Features that run several builds or browsers at once must budget for that.
 - **Talk mode's `openai/gpt-oss-20b`:** time from question to speech ranged 1.3–17 s across test runs, and once
   the model called a tool named `AskUserTool<|channel|>commentary`.
+- **Records 46 and 47 audited the older Desktop copy.** Checked against this repository without rerunning their
+  probes:
+  - T01 and T03 still hold. `lifecycle()` empties the queue on failure and does not clear `r.engine`, `start()`
+    returns early while `r.engine` is set, and `thread.storage.ts` never mentions the queue.
+  - T05 still applies: `app/src/main/thread.storage.ts` is byte-identical to the audited file.
+  - T02, T04 and T06 were not re-checked.
+  - A01–A08: `pagerank.ts`, `context.planner.ts`, `bm25.ts`, `headroom.compress.ts`, `file-state-cache.ts` and
+    `context.manager.ts` are byte-identical to the audited files. `recall.ts`, `code.index.ts`, `vector.store.ts`
+    and `sqlite.code.store.ts` changed here only for capability notices and the state directory.
+- **Record 49's fix is not in this repository.** In the Desktop copy, `headless.session.ts`, `host.ts` and
+  `meta.ts` match the record's hashes exactly; here none of them has its edits.
 
 ## Start here on 2026-09-15
 
-1. **F1:** queued messages survive an engine restart.
+1. **F1:** queued messages survive an engine restart and an app reload (T01).
 2. **Q1–Q4:** the quick fixes, about an hour together.
-3. **N1:** approve from the notification.
-4. **N2:** `bimax://` links and Shortcuts actions.
-5. **FL1:** write the folder-trigger design (events, loop protection, undo, limits) before any code.
+3. **F8:** port the chat and tool cancellation fix from record 49.
+4. **F9–F12:** the Threads reliability defects T02–T05.
+5. **N1:** approve from the notification.
+6. **N2:** `bimax://` links and Shortcuts actions.
+7. **FL1:** write the folder-trigger design (events, loop protection, undo, limits) before any code.
+
+The context work (C0 onward) mostly touches `src/memory` and `src/graph`, so it can run alongside the Threads
+items instead of waiting for them.
 
 ---
 
 ## Foundations: Must
 
-**F1. Queued messages survive an engine restart.** A crash or restart silently throws away whatever the user
-queued. Keep the queue across `restarting`, and drop it only on an explicit Stop.
-Value high · Effort S · Needs nothing. *Why:* the talk-mode restart work showed how easily this loses words;
+**F1. Queued messages survive an engine restart and a reload (T01).** A crash or restart silently throws away
+whatever the user queued. Record 46 found it is wider than restarts: the queue is never saved, so reloading the app
+loses it too. Save each accepted input with a queued, dispatched or settled state before acknowledging it; on
+recovery, show what was never sent, and check whether anything may already have run before retrying it. Drop the
+queue only on an explicit Stop.
+Value high · Effort S–M · Needs nothing. *Why:* the talk-mode restart work showed how easily this loses words;
 overnight work would lose instructions.
 
 **F2. Durable task state.** Goal, milestones, progress, blockers and next step survive an app restart and a full
 context window. *First version:* a per-thread state file the engine reads on resume.
-Value high · Effort M · Needs F1. *Why:* Night Shift, Guardian and living deliverables all depend on it.
+Value high · Effort M · Needs F1. *Why:* Night Shift, Guardian and living deliverables all depend on it. Design it
+together with C2's continuation state; they are the same record.
 
 **F3. Completion checks.** "Done" means a stated check passed (tests, file present, output validated),
 recorded as evidence. Value high · Effort M · Needs F2.
@@ -77,6 +103,35 @@ undo journal as the record. Value medium · Effort M.
 
 **F7. Mid-run steering.** Change a running task's scope or priority without restarting it.
 Value medium · Effort M.
+
+**F8. Port the chat and tool cancellation fix (record 49).** Written and tested in the stale Desktop copy on
+2026-09-13 and never ported. It makes `/clear force` wait for the running turn to finish instead of announcing a
+clear that did not happen, resets every persona's history, resolves pending approvals on Stop, lets provider retry
+backoff be cancelled, checks cancellation again after an approval before a tool acts, and stops telling PDF tasks
+to investigate code and run builds. Record 49's third mutant shows why the post-approval check matters: without
+it, a cancelled tool wrote the protected fixture file.
+Value high · Effort S–M · Needs an edit-by-edit port, not a file copy: `agent.loop.ts`, `base.persona.ts` and
+`tool.factory.ts` have changed here since. `competitive/evidence/2026-09-13-chat-tool-isolation/UNPORTED.md`
+says where the exact edits are.
+
+**F9. A resume that can fail visibly (T02).** When a saved session is missing or unreadable, the thread waits for a
+`session_restore` that never arrives, and a queued Continue never resolves. Add a typed success or failure with a
+deadline, keep the prompt, and offer: resume failed, start fresh, or inspect. Value high · Effort S–M.
+
+**F10. One restart path (T03).** After an engine failure, the sidebar's Resume does nothing, because the dead
+engine reference makes `start()` return early. Value high · Effort S.
+
+**F11. Stop waits for the engine to exit (T04).** `stop()` starts the next task in the same folder before the old
+process is confirmed gone. Release the folder only after termination is confirmed. Value medium–high · Effort M.
+The probe proved the early dispatch, not an actual collision between two processes.
+
+**F12. Storage survives one write error (T05).** One failed write rejects the save chain, so no later save runs,
+even after the disk problem is fixed. Retry within bounds, keep pending writes, show unsaved state, and wait for the
+final flush on quit. Value high · Effort S.
+
+**F13. State the folder scope honestly (T06).** A thread's shell can read files outside its folder; the folder
+limits writes, not reads. Say so now, and design declared read roots and a task-private temp folder before making
+any privacy claim. Value medium, high before any privacy claim · Effort S to document, L to enforce.
 
 ## Quick fixes: Next (about an hour together)
 
@@ -127,6 +182,23 @@ Value low–medium · Effort S.
 on?", with sample applications shown before saving. Preferences stay visible, editable and scoped.
 Value medium · Effort M.
 
+**N11. Remove, archive and search threads.** Creating a thread fails at 200 saved threads and tells the user to
+remove one, but record 46 found no way to remove one. Add archive, search, rename and a retention policy.
+Value high once Threads is used daily · Effort S.
+
+**N12. Show why a task is waiting.** A task with queued work can show "idle". Separate idle, completed, failed,
+interrupted, waiting for a folder and waiting for approval, with the pending count and a cancel.
+Value medium · Effort S.
+
+**N13. Approve a described change set once.** Threads ask afresh for every existing-file write and mutating
+command, even under bypass or persistent rules. Offer task-scoped permission for an explicitly described change,
+reused while the target, scope and risk stay the same. Value medium–high · Effort M · The governor's
+non-bypassable floors must still run first.
+
+**N14. Make Threads discoverable.** Record 46 saw no way into Threads from the installed app's welcome screen. Add
+"Start a task in a folder" and a configurable shortcut, and check ⌘2 against other apps' shortcuts. Check the
+current build first. Value medium · Effort S.
+
 ## Flagships: weeks, in suggested order
 
 **FL1. Folders that act.** Start with folder triggers ("when a PDF lands in Downloads, rename it and file it").
@@ -144,7 +216,9 @@ the changes from the current state and keeps the user's manual edits. *First ver
 Value high · Effort M–L · Needs FL2, the undo journal.
 
 **FL4. Change history, then selective undo.** A timeline to restore any point, then "undo the renames but keep the
-conversions", which needs dependency detection between actions. Value medium–high · Effort M then L.
+conversions", which needs dependency detection between actions. Record 46's *honest undo* adds reversibility
+classes: say which changes can be restored and which cannot (a sent message), and keep later human edits during a
+rollback. Value medium–high · Effort M then L.
 
 **FL5. Night Shift.** "Work on this migration tonight, at most $12, a reviewable branch by morning." Milestones,
 an isolated checkout, a check per milestone, and a morning briefing. Independent work continues while one
@@ -176,7 +250,8 @@ Value low–medium · Effort M.
 
 **L1. Living deliverables.** "Keep this report accurate until Friday": when a source spreadsheet changes, only
 the affected chart and conclusions are flagged and updated. *First version:* one CSV to one report.
-Value high · Effort L · Needs F4, dependency tracking (42 record).
+Value high · Effort L · Needs F4, dependency tracking (42 record), and C1's dependency invalidation, which is the
+same mechanism.
 
 **L2. Contradiction radar.** "What doesn't agree?" across a folder's documents: amounts, dates, names, versions,
 each finding opening both sources. Value medium · Effort M–L.
@@ -213,6 +288,57 @@ Needs explicit privacy choices.
 **L12. Find repeated work from Bimax's own task history.** Suggest shortcuts from patterns in past
 tasks, in a quiet review queue. Value low–medium · Effort M.
 
+**L13. App Relay, code-only first.** One task's output is handed to another as a typed artifact (hash, source,
+purpose, freshness), with a separate grant for each receiving task; tampering or unlinking before dispatch stops
+the delivery. The native-app leg is parked with Computer Use. Value medium · Effort M · Needs F2, L14.
+
+**L14. Typed messages between linked threads.** Peer messages are ordinary input carrying a warning string, which
+labels them but is not a boundary. Add provenance, message IDs, expiry, acknowledgements and a link check at
+dispatch; unlinking should also retract messages still queued. Value medium · Effort M.
+
+**L15. Who can see other threads.** The broker's `list` shows every thread's title before any link exists. That is
+fine for one person's Mac; shared or private tasks would need discovery scopes. Value low now · Effort S.
+
+**L16. Budget by workload, not engine count.** Four engines plus their workers is heavy on 8 GB. Schedule by CPU,
+memory and model budget; allow independent reads and isolated checkouts, and lock only shared writes. Benchmark
+before choosing limits. Value medium · Effort M–L.
+
+**L17. An isolated-checkout mode for threads.** Threads always work in the live folder, and the engine's sub-agent
+worktrees are a different feature. Offer a worktree mode and keep the changes on handoff.
+Value medium · Effort M · Shares its mechanism with L6.
+
+## Context and retrieval (record 47)
+
+Record 47 proposes a **Context Compiler**: a bounded, versioned package of evidence for each step, built from the
+existing stores and tools with the models already configured. The stages are in order, and each needs the one
+before it. The verdicts and efforts are this merge's proposals; record 47 gives none.
+
+**C0. Repair the eight reproduced defects.** Each probe becomes an acceptance test, paired with a mutant that
+restores the defect. Value high · Effort M · Verdict Next.
+- **A01:** a rewrite that keeps size and modification time is not re-indexed, and compaction restores the old
+  bytes labelled "verified unchanged".
+- **A02:** the scope filter runs after the result limit, and the path prefix `wanted` also matches `wantedExtra/`.
+- **A03:** recall retrieves the right document but injects its beginning, not the chunk that answers.
+- **A04:** recalled text survives compaction with no freshness check, and asking again is suppressed.
+- **A05:** a 100-token graph context request returns about 1,805 tokens, marked not truncated.
+- **A06:** the graph rank cache misses rewired edges, and dangling-node mass is not conserved.
+- **A07:** a Hindi query tokenizes to nothing and gets no lexical hit.
+- **A08:** log compression keeps the first value and drops the maximum.
+
+**C1. Evidence foundation.** Shared evidence span, locator and version types; raw tool output archived; dependency
+invalidation, so a changed source dirties only what used it. Verdict Flagship · Effort L · Needs C0.
+
+**C2. Prompt compiler.** One token budget for the whole request, a representation chosen per item (locator,
+signature, exact span or neighbourhood), a structured continuation state, and a ledger of what is actually in the
+prompt. Verdict Flagship · Effort L · Needs C1 · Shares its continuation state with F2.
+
+**C3. Adaptive retrieval.** Evidence requirements per step, query-seeded graph search, selective counter-evidence,
+and bounded read-only operations over large outputs (select, fetch, join, aggregate, diff).
+Verdict Later · Effort L · Needs C2.
+
+**C4. Qualification.** An evidence inspector, explanations for stale or missing evidence, restart behaviour,
+packaged integration and the R02 journey. Verdict Later · Needs C3.
+
 ## Parked: needs Computer Use back, or research
 
 - **P1. "Show me the bug" → verified fix** by demonstrating in a native app. A local-web version could become
@@ -221,27 +347,41 @@ tasks, in a quiet review queue. Value low–medium · Effort M.
 - **P3. Teach a job by demonstrating it across other apps.**
 - **P4. Observing other apps to find repeated work.**
 - **P5. Semantic paste into other apps' forms.**
+- **P6. "Borrow my screen politely"**: prepare work in the background, then ask for a bounded turn in the
+  foreground and hand control back (record 46).
+- **P7. The Computer Use return program** in record 46, slices 0–6: reconcile the docs, dependable Threads, bounded
+  observation, one safe mutation journey, build → run → prove, app packs, selective expansion. Its slice 1
+  (dependable Threads) is F1, F9–F12, N11–N13 and L14 here, and needs no Computer Use.
 
 ## Overlaps merged
 
 | Kept as | Also appeared as |
 |---|---|
 | FL1 Folders that act | run tasks when a folder changes; folders with an outcome attached |
-| FL4 Change history | undo one decision, keep everything else |
+| FL4 Change history | undo one decision, keep everything else; record 46's honest undo |
 | FL6 Muscle memory | teach Bimax a job once; make this happen from a before/after example |
-| L1 Living deliverables | a report that knows when it becomes wrong |
-| L6 Parallel futures | three possible futures |
+| L1 Living deliverables | a report that knows when it becomes wrong; record 46's Living Threads |
+| L6 Parallel futures | three possible futures; record 46's parallel possible futures |
 | L7 Rehearsal mode | practice on a fake version first |
+| P1 Show me the bug | record 46's Show me the bug |
+| P3 Teach a job by demonstrating | record 46's teach a result once |
+| F1 Queue survives | record 46's T01 |
 
 ## Where the research lives
 
-The three write-ups say they were document research plus web checks, with no implementation and no tests. They cite
-documents that were written into the stale `~/Desktop/Bimax` copy, not this repository:
+Records 46, 47 and 49, their evidence, and the additions to the source ledger and gap register were copied from the
+stale `~/Desktop/Bimax` copy on 2026-09-14 and checked byte for byte:
 
-- `docs/product-reset/46_COMPUTER_USE_RETURN_AND_THREADS_STRATEGY.md`
-- `docs/product-reset/47_RAG_AND_CONTEXT_COMPILER_UPGRADE.md`
-- `docs/product-reset/competitive/08_SOURCE_LEDGER.md`: 52 KB there versus 45 KB here, so it needs a merge,
-  not a copy
+- `46_COMPUTER_USE_RETURN_AND_THREADS_STRATEGY.md`, evidence in `evidence/2026-09-13-threads-audit/`
+- `47_RAG_AND_CONTEXT_COMPILER_UPGRADE.md`, evidence in `competitive/evidence/2026-09-14-context-audit/`
+- `49_CHAT_TOOL_ISOLATION_RECORD.md` (numbered 45 there), evidence in
+  `competitive/evidence/2026-09-13-chat-tool-isolation/`
+- `competitive/08_SOURCE_LEDGER.md` and `competitive/05_GAP_REGISTER.md`: both copies' sections merged, with nothing
+  dropped from either
+
+The probes in 46 and 47 ran against the Desktop copy, not this repository; see the facts above for what was
+re-checked. The three write-ups say they were document research plus web checks, with no implementation and no
+tests.
 
 External references as the write-ups cited them, not re-checked here:
 

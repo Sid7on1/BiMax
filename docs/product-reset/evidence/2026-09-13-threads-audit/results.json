@@ -1,0 +1,45 @@
+{
+  "date": "2026-09-13T14:14:30.965Z",
+  "platform": "darwin",
+  "arch": "arm64",
+  "scope": "Six targeted current-behavior probes; no live model, native CU, crash-kill, or competitive qualification.",
+  "sourceHashes": {
+    "app/src/main/thread.manager.ts": "dca4dbcf281738f01104ad251b30106bf92eaf2ccf45f0712abfe2237beb1bea",
+    "app/src/main/thread.storage.ts": "cd01f973ed84b7257714eb034a693185a6f5dadf13a4113853917180d1e2f4ad",
+    "app/src/main/thread.broker.ts": "5209e9102063a7b9b7ed745d928f7e5371d03121e578d33a53b127003c34ea24",
+    "app/src/main/supervisor/supervisor.ts": "3c1ae60d6def2f44b377d954ff4bc8c70a158b80468853d04bb60bb20d20d67e",
+    "src/sandbox/exec.sandbox.ts": "2797fd04061f6c37576dce57af3ea2ebbb4e538bab8ccbc2fc59500740fd2904"
+  },
+  "results": [
+    {
+      "id": "T01",
+      "reproduced": true,
+      "observation": "Accepted queued prompt absent from persisted snapshot and absent after restoration."
+    },
+    {
+      "id": "T02",
+      "reproduced": true,
+      "observation": "Resume error plus idle leaves ready=false and Continue undispatched; no manager timeout/failure transition."
+    },
+    {
+      "id": "T03",
+      "reproduced": true,
+      "observation": "Thread start/Resume after terminal failed lifecycle does not create an engine; stale reference remains."
+    },
+    {
+      "id": "T04",
+      "reproduced": true,
+      "observation": "Second same-folder writer dispatches immediately when stop returns, without a child-exit/drain acknowledgement. Real lingering-process overlap is not exercised here."
+    },
+    {
+      "id": "T05",
+      "reproduced": true,
+      "observation": "One actual storage write failure prevents later flushes even after the filesystem is repaired."
+    },
+    {
+      "id": "T06",
+      "reproduced": true,
+      "observation": "Real thread shell sandbox can read a synthetic sibling file outside its folder; it is a write boundary, not read confidentiality."
+    }
+  ]
+}

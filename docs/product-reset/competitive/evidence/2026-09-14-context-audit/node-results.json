@@ -1,0 +1,84 @@
+{
+  "timestamp": "2026-09-13T20:29:52.721Z",
+  "runtime": "v22.13.1",
+  "statusMeaning": "Reproduced current limitation; not an acceptance pass or performance measurement",
+  "providerCalls": 0,
+  "sourceHashes": {
+    "src/memory/code.index.ts": "0fb44f2e1394e53964ecfe6d58dc26f8f0d7651fa6b422218f6c3bac9dbc19d3",
+    "src/memory/sqlite.code.store.ts": "43964d94a96a94f8a96c887531c2bd84bb8fac8dab150b55f86ffcd15ae48b1c",
+    "src/memory/vector.store.ts": "d53b3cd88aef0522a9999bf684aac095d1b752670de1014d1e1e64bf6046b697",
+    "src/memory/recall.ts": "085ac44c51e370bb38e494d98044c675086fef73e6396e3836bc47a47d633dcc",
+    "src/memory/context.manager.ts": "03c67b8945b10e8b8dcd82d9559aac39c2baeb2263f25dfd1311bd8a599de8bd",
+    "src/memory/file-state-cache.ts": "35e21442ecb088dc3be1dd858d5159d228017c98f60f2e606e0d2b7877e39b83",
+    "src/memory/bm25.ts": "711cb63d66d4d1a243ce905b02d57f2e6a163ee98a2de33f6098e93ec8a58329",
+    "src/memory/headroom.compress.ts": "3df6370bd112d032b52ec7238c76907d0f578123dba7c441eda8da7277806878",
+    "src/graph/context.planner.ts": "25839a1e786e5116d26903a58a1f743c25c399607b4a116862ce9dfa238e5f94",
+    "src/graph/pagerank.ts": "d641b1cae3f286a6e991aa578fafd50d7fc0e32edec9a3ba54c735a20500bf57"
+  },
+  "results": [
+    {
+      "id": "A01_same_metadata_stale_index_and_restoration",
+      "status": "not_reproduced_or_error",
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n0 !== 1\n"
+    },
+    {
+      "id": "A02_path_filter_candidate_starvation_and_prefix_boundary",
+      "status": "not_reproduced_or_error",
+      "error": "AssertionError [ERR_ASSERTION]: false == true"
+    },
+    {
+      "id": "A03_matching_chunk_lost_when_whole_document_prefix_is_injected",
+      "status": "reproduced",
+      "evidence": {
+        "correctDocumentRetrieved": true,
+        "answerPresentInStoredDocument": true,
+        "answerAbsentFromInjectedContext": true,
+        "injectedChars": 1917
+      }
+    },
+    {
+      "id": "A04_recall_survives_compaction_as_durable_system_text",
+      "status": "reproduced",
+      "evidence": {
+        "recalledBlockRetainedUnchanged": true,
+        "repeatQuerySuppressedWithoutVersionOrResidencyCheck": true
+      }
+    },
+    {
+      "id": "A05_declared_context_pack_budget_exceeded",
+      "status": "reproduced",
+      "evidence": {
+        "requestedBudget": 100,
+        "reportedTokens": 1805,
+        "truncated": false
+      }
+    },
+    {
+      "id": "A06_graph_cache_reuses_changed_same_shape_graph",
+      "status": "reproduced",
+      "evidence": {
+        "sameCachedObject": true,
+        "oldTargetStillRanksAboveNewTarget": true,
+        "scoreMass": 0.19250000000000006
+      }
+    },
+    {
+      "id": "A07_non_latin_lexical_query_disappears",
+      "status": "reproduced",
+      "evidence": {
+        "exactMatchingDocument": true,
+        "tokens": [],
+        "hits": 0
+      }
+    },
+    {
+      "id": "A08_numeric_log_compression_removes_distinct_observations",
+      "status": "reproduced",
+      "evidence": {
+        "input": "latency 100 ms\nlatency 200 ms\nlatency 900 ms\nlatency 300 ms",
+        "output": "latency 100 ms\n… (×3 more similar lines elided) …",
+        "maximumObservationRemoved": true
+      }
+    }
+  ]
+}

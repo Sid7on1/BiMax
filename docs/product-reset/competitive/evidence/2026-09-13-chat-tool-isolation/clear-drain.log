@@ -1,0 +1,30 @@
+FAIL src/__tests__/headless.session.test.ts
+  ● HeadlessSession — clear drains the previous turn › clears every persona after cancellation settles before admitting the next input
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 2
+    + Received  + 0
+
+      Array [
+        "late old result",
+    -   "clear",
+    -   "new result",
+      ]
+
+      172 |       release();
+      173 |       await Promise.all([old, clear, next]);
+    > 174 |       expect(events).toEqual(['late old result', 'clear', 'new result']);
+          |                      ^
+      175 |       expect(other.messages).toEqual([]);
+      176 |       expect(persona.execute).toHaveBeenCalledTimes(2);
+      177 |       expect(other.resetContextSession).toHaveBeenCalled();
+
+      at Object.<anonymous> (src/__tests__/headless.session.test.ts:174:22)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 6 skipped, 7 total
+Snapshots:   0 total
+Time:        2.572 s, estimated 3 s
+Ran all test suites matching src/__tests__/headless.session.test.ts with tests matching "clears every persona".
+Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?

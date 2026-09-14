@@ -1,0 +1,22 @@
+FAIL src/__tests__/agent.loop.recovery.test.ts
+  ● interrupts a 30-second provider backoff without another model request
+
+    thrown: "Exceeded timeout of 1500 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      463 |
+      464 |
+    > 465 | it('interrupts a 30-second provider backoff without another model request', async () => {
+          | ^
+      466 |   const controller = new AbortController();
+      467 |   let calls = 0;
+      468 |   const llm: LLMProvider = { async *chat(): AsyncGenerator<ChatEvent> {
+
+      at Object.<anonymous> (src/__tests__/agent.loop.recovery.test.ts:465:1)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 12 skipped, 13 total
+Snapshots:   0 total
+Time:        3.765 s, estimated 19 s
+Ran all test suites matching src/__tests__/agent.loop.recovery.test.ts with tests matching "interrupts a 30-second".
+Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?

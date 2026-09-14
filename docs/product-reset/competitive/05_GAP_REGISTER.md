@@ -1,5 +1,28 @@
 # Bimax gap register
 
+## Threads audit and proposed Computer Use return — 2026-09-13
+
+[Record 46](../46_COMPUTER_USE_RETURN_AND_THREADS_STRATEGY.md) records the owner's strategy request.
+Computer Use remains disabled; the optional Desktop return is **Target**, not Implemented.
+Current Threads has process separation, scoped tools, nonce-bound approvals, linked messaging and
+snapshot history. Four existing suites passed 64 tests; Desktop typecheck passed. Six additional
+audit probes reproduced current defects/limitations; no Product-ready or competitive Win is claimed.
+
+| New finding | Evidence / required next step | Status |
+|---|---|---|
+| Queued inputs disappear from persisted thread state | T01; persist input lifecycle before acknowledging acceptance | Reproduced defect; fix Target |
+| Missing session acknowledgement strands Continue; failed engine reference blocks sidebar Resume | T02/T03; typed restore failure/deadline and one restart authority | Reproduced defects; fixes Target |
+| Stop releases same-folder writer ownership before process-drain confirmation | T04 and supervisor dispose source; await termination before releasing lease | Early dispatch reproduced; actual lingering-process collision unmeasured |
+| One storage failure rejects subsequent flushes after filesystem repair | T05; recover promise chain, retain pending writes and surface unsaved state | Reproduced defect; fix Target |
+| Thread shell is not a read-confidentiality boundary | T06 real sandbox with synthetic sibling file; define explicit read/connector/temp authority | Confirmed limitation; stronger scope Target |
+| History caps at 200 without remove/archive controls; blocked queues appear idle | Manager/IPC/UI source; lifecycle UX and retention controls | Implemented limitation; correction Target |
+| Peer context uses ordinary input plus prose warning | Typed provenance, link-generation validation and revocable pending handoffs | Target hardening |
+| Native CU archive and active ownership docs disagree | External archive dependency/hash inventory; reconcile one active Desktop product with Desktop-only permission ownership; missing `03_CAPABILITY_MATRIX.md` | Target documentation/reintegration work |
+
+Raw probes and source hashes:
+[`../evidence/2026-09-13-threads-audit/results.json`](../evidence/2026-09-13-threads-audit/results.json).
+Historical CU results below remain historical; no capability was restored by this audit.
+
 ## Silent failure update — 2026-09-12
 
 **Implemented, locally verified within record 45's stated boundaries:** retrieval fallback and
@@ -242,3 +265,18 @@ and a composer Send/Stop column. Typecheck/build and 26 composer tests pass; loc
 and installed-app launch/files checks are recorded in `../44_DESKTOP_VISUAL_REFRESH_RECORD.md`.
 **Target / unmeasured:** visual usability study, rendering/energy budgets, full U01 and live-model
 release journeys. No competitive Win or Product-ready status is inferred from this visual refresh.
+
+
+## RAG and context evidence contracts — 2026-09-14
+
+[Record 47](../47_RAG_AND_CONTEXT_COMPILER_UPGRADE.md) records eight reproduced synthetic
+limitations: metadata-only freshness, scoped-candidate starvation/path boundary, lost matching
+memory span, durable stale recall, context-budget overflow, graph-cache invalidation, non-Latin
+lexical loss, and numeric compression loss. These are local audit observations, not a measured
+prevalence or live quality score. Existing six focused suites passed 56 tests.
+
+**Target:** repair those contracts, then introduce shared versioned evidence, dependency-driven
+context repair, budgeted evidence selection, continuation/residency state, and bounded evidence
+queries. Hybrid retrieval, reranking, graph context, document provenance, numeric FactStore, and
+outcome contracts already exist and should be extended. No runtime fix is claimed by this report;
+R02, mutation-qualified end states, and applicable release gates remain outstanding.

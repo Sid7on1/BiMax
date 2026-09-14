@@ -1,0 +1,35 @@
+[INFO] 2026-09-12T19:55:12.500Z - [ToolRegistry] Registered tool: WriteFileTool (Destructive: false)
+[33m[WARN] 2026-09-12T19:55:13.152Z - [AgentLoop] Recovered 1 tool call(s) the model emitted as text.[0m
+[INFO] 2026-09-12T19:55:13.174Z - [ToolRegistry] Registered tool: WriteFileTool (Destructive: true)
+[INFO] 2026-09-12T19:55:13.174Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-09-12T19:55:13.183Z - [ToolRegistry] Registered tool: WriteFileTool (Destructive: false)
+[INFO] 2026-09-12T19:55:13.204Z - [ToolRegistry] Registered tool: ComputerTool (Destructive: false)
+[INFO] 2026-09-12T19:55:13.211Z - [ToolRegistry] Registered tool: TodoWriteTool (Destructive: false)
+[INFO] 2026-09-12T19:55:13.211Z - [ToolRegistry] Registered tool: ComputerTool (Destructive: false)
+[INFO] 2026-09-12T19:55:13.218Z - [ToolRegistry] Registered tool: WriteFileTool (Destructive: false)
+(node:6188) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[INFO] 2026-09-12T19:55:17.304Z - [ToolRegistry] Registered tool: noop (Destructive: false)
+[33m[WARN] 2026-09-12T19:55:24.487Z - [AgentLoop] Configured fallback model "known-dead-model" was rejected by the provider this session; deriving one instead.[0m
+[33m[WARN] 2026-09-12T19:55:24.518Z - [AgentLoop] Configured fallback model "meta/muse-glimmer-30b" was rejected by the provider this session; deriving one instead.[0m
+[INFO] 2026-09-12T19:55:27.698Z - [ToolRegistry] Registered tool: BashTool (Destructive: true)
+[INFO] 2026-09-12T19:55:27.698Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-09-12T19:55:27.698Z - [ToolRegistry] Registered tool: WebFetchTool (Destructive: false)
+[INFO] 2026-09-12T19:55:27.698Z - [ToolRegistry] Registered tool: MemoryQueryTool (Destructive: false)
+[INFO] 2026-09-12T19:55:27.714Z - [ToolRegistry] Registered tool: BashTool (Destructive: true)
+[INFO] 2026-09-12T19:55:27.715Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-09-12T19:55:27.715Z - [ToolRegistry] Registered tool: WebFetchTool (Destructive: false)
+[INFO] 2026-09-12T19:55:27.715Z - [ToolRegistry] Registered tool: MemoryQueryTool (Destructive: false)
+[INFO] 2026-09-12T19:55:27.719Z - [ToolRegistry] Registered tool: BashTool (Destructive: true)
+[INFO] 2026-09-12T19:55:27.719Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-09-12T19:55:27.719Z - [ToolRegistry] Registered tool: WebFetchTool (Destructive: false)
+[INFO] 2026-09-12T19:55:27.719Z - [ToolRegistry] Registered tool: MemoryQueryTool (Destructive: false)
+[INFO] 2026-09-12T19:55:27.859Z - [ToolRegistry] Registered tool: DocumentTool (Destructive: false)
+[INFO] 2026-09-12T19:55:27.859Z - [ToolRegistry] Registered tool: WriteFileTool (Destructive: false)
+[INFO] 2026-09-12T19:55:27.859Z - [ToolRegistry] Registered tool: TrainLaunchTool (Destructive: false)
+
+Test Suites: 10 passed, 10 total
+Tests:       106 passed, 106 total
+Snapshots:   0 total
+Time:        17.755 s, estimated 22 s
+Ran all test suites matching src/__tests__/headless.session.test.ts|src/__tests__/agent.loop.recovery.test.ts|src/__tests__/agent.loop.fallback.test.ts|src/__tests__/document.tool.test.ts|src/__tests__/session.commands.test.ts|src/__tests__/persona.prompt.split.test.ts|src/__tests__/protocol.test.ts|src/__tests__/tools.test.ts|app/src/__tests__/task.isolation.test.ts|src/__tests__/document.tool.visible.test.ts.
