@@ -93,7 +93,7 @@ export function ThreadsList(): React.ReactElement {
         </>}
       </div>
     </div>)}
-    {shown.length > 1 && !query.trim() && <p className="px-2 py-1 text-[10px] text-faint">Link threads to let them exchange messages. Each keeps its own folder and permissions.</p>}
+    {shown.length > 1 && !query.trim() && <p className="px-2 py-1 text-[10px] text-faint">Link threads to let them exchange messages. Each changes files only in its own folder and asks for its own permissions.</p>}
     {archivedCount > 0 && <button aria-expanded={showArchived} className="flex w-full cursor-pointer items-center gap-1.5 px-2.5 py-1 text-left text-[10px] text-dim" onClick={() => setShowArchived(v => !v)}>
       <Archive size={10}/>{showArchived ? 'Hide archived' : `Archived (${archivedCount})`}
     </button>}

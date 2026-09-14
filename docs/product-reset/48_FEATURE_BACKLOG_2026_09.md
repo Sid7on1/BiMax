@@ -155,7 +155,19 @@ writes.
 
 **F13. State the folder scope honestly (T06).** A thread's shell can read files outside its folder; the folder
 limits writes, not reads. Say so now, and design declared read roots and a task-private temp folder before making
-any privacy claim. Value medium, high before any privacy claim · Effort S to document, L to enforce.
+any privacy claim. Value medium, high before any privacy claim · Effort S to document, L to enforce. **Documented 2026-09-14**
+([record 54](54_TASK_FOLDER_SCOPE.md)). The code shows two facts:
+- File tools refuse paths outside the folder, and the shell sandbox refuses writes outside it (the shared temp
+  folders excepted). So changes stay in the folder.
+- Shell commands can read anything the user can, and they can use the network.
+
+Bimax now says so:
+- the sidebar's line about linked threads;
+- a note in the folder rules editor;
+- a section in `PRIVACY.md`.
+
+Record 54 also designs declared read roots and a task-private temp folder, with the measurements they need first.
+That design is not built, and no read-privacy claim is made.
 
 ## Quick fixes: Next (about an hour together)
 

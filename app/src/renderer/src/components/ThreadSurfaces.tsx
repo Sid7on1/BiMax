@@ -582,6 +582,8 @@ function QuickRules({ value, onChange, onPick, onSave, onCancel }: {
   return (
     <section className="quick-request quick-rules" aria-label="Folder rules">
       <p className="quick-request-question">Rules for {folderName(value.root)}</p>
+      {/* Backlog F13 (record 54): the folder limits what a task changes, not what its commands can read. */}
+      <p className="quick-note">Tasks change files only in this folder. Commands they run can still read other files on this Mac.</p>
       <textarea
         autoFocus
         rows={3}

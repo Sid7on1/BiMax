@@ -1,5 +1,13 @@
 # Bimax product reset
 
+## What a task's folder limits — 2026-09-14
+
+[54_TASK_FOLDER_SCOPE.md](54_TASK_FOLDER_SCOPE.md) states today's guarantee (backlog F13, record 46 T06):
+- a ⌘2 task changes files only in its folder;
+- its shell commands can still read any file the user can, and use the network.
+
+The app and `PRIVACY.md` now say so. The record also designs a read limit, which is not built.
+
 ## Folder triggers designed and built — 2026-09-14
 
 [53_FOLDER_TRIGGERS_DESIGN.md](53_FOLDER_TRIGGERS_DESIGN.md) designs the first part of backlog FL1 before any code:
