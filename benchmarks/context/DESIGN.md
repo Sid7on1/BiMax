@@ -55,6 +55,22 @@ benchmark and grader versions, a hash of the benchmark source, the product versi
 the tree was dirty, runtime and machine, the retrieval configuration, validity, the grader self-check, a
 per-family summary, and every case with its outcome, metrics and a hash plus a short excerpt of the graded text.
 
+## Version 2 (2026-09-14)
+
+Audit 51 (U09) showed version 1 passing broken code: B1 trusted each pack's own `tokenEstimate` and counted
+an error as staying within budget, and C3, C4, SC2 and SC4 checked only that stale or out-of-scope text was
+absent, which a search returning nothing satisfies. In `context-bench@2` with `context-graders@2`:
+
+- B1 measures every pack from its text under the planner's declared estimator (four characters per token),
+  requires a pack holding the target at each feasible budget, and requires a worded refusal at 10 tokens.
+- C3, C4 and SC2 pair the negative check with a positive one from the same index: the live file, the new text,
+  and the sibling found without the scope. SC4 needs some term of the partial index to be found.
+- Three mutants now fail cases that passed them before: a pack that lies about its size (B1), a planner that
+  always errors (B1, M3), and a search that always returns nothing (C3, C4, SC2, SC4 among others).
+
+Scores from version 1 and version 2 are not compared with each other. Version 2's baseline is re-run on the
+same code before any fix is measured against it.
+
 ## How later stages use it
 
 A later stage counts as better only when the number of passing cases rises and **no family's pass count

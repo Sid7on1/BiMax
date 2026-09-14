@@ -225,7 +225,10 @@ describe('A05: a graph context pack', () => {
     // A tight budget keeps the leading lines, stays under the cap, and says what it left out.
     const tight = await planContext(graph, 'budget-target', { cwd: dir, maxTokens: 100 });
     if ('error' in tight) throw new Error(tight.error);
-    expect(tight.tokenEstimate).toBeLessThanOrEqual(100);
+    // Measured from the text, never from the pack's own report of its size (audit 51, U09).
+    expect(Math.ceil(tight.text.length / 4)).toBeLessThanOrEqual(100);
+    expect(tight.tokenEstimate).toBe(Math.ceil(tight.text.length / 4));
+    expect(tight.text).toContain('descriptiveVariable');
     expect(tight.truncated).toBe(true);
     expect(tight.text).toContain('omitted to fit the 100-token budget');
 

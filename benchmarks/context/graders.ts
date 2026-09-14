@@ -7,7 +7,7 @@
  * (06_HEAD_TO_HEAD_EVALS, grader requirements). A run whose self-check fails is invalid, not failed.
  */
 
-export const GRADER_VERSION = 'context-graders@1';
+export const GRADER_VERSION = 'context-graders@2';
 
 const WORD_CHAR = /[\p{L}\p{M}\p{N}]/u;
 
@@ -47,6 +47,20 @@ export function spanRecall(text: string, spans: string[]): number {
   return spans.filter((span) => hasSpan(text, span)).length / spans.length;
 }
 
+/**
+ * Tokens in `text` under the planner's declared estimator, four characters per token (src/graph/context.planner.ts),
+ * measured from the text itself. A budget grade never takes a component's own report of its size: a pack that
+ * appended ten thousand words and reported one token passed every budget check (audit 51, U09).
+ */
+export function estimatedTokens(text: string): number {
+  return Math.ceil(text.length / 4);
+}
+
+/** Whether `text` is non-empty and fits `budget` tokens, measured by {@link estimatedTokens}. */
+export function withinBudget(text: string, budget: number): boolean {
+  return text.length > 0 && estimatedTokens(text) <= budget;
+}
+
 export interface GraderCheck {
   name: string;
   ok: boolean;
@@ -69,5 +83,8 @@ export function graderSelfCheck(): GraderCheck[] {
     check('a non-Latin prefix is not the word', !hasSpan('भुगतानों का सारांश', 'भुगतान')),
     check('a partial recall scores as partial', spanRecall('retry.ts and cancel.ts', ['retry.ts', 'cancel.ts', 'retry.test.ts']) === 2 / 3),
     check('an error message does not satisfy an expected span', !hasAll('Error: provider unavailable', ['VIOLET-SENTINEL'])),
+    check('a text within its budget passes', withinBudget('x'.repeat(400), 100)),
+    check('a text over its budget fails, whatever size it reports', !withinBudget('x'.repeat(401), 100)),
+    check('an empty text is not a pack within budget', !withinBudget('', 100)),
   ];
 }

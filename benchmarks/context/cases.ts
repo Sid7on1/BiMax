@@ -15,7 +15,7 @@ import { planContext } from '../../src/graph/context.planner';
 import { FactStore, factsFromSegment } from '../../src/memory/facts';
 import { compressText } from '../../src/memory/headroom.compress';
 import type { Segment } from '../../src/documents/extract';
-import { hasAll, hasNone, hasSpan, spanRecall } from './graders';
+import { estimatedTokens, hasAll, hasNone, hasSpan, spanRecall, withinBudget } from './graders';
 
 /**
  * The context benchmark's cases: small fixed fixtures, each run through the real pipeline stage that feeds
@@ -23,7 +23,7 @@ import { hasAll, hasNone, hasSpan, spanRecall } from './graders';
  * measure.
  */
 
-export const BENCHMARK_VERSION = 'context-bench@1';
+export const BENCHMARK_VERSION = 'context-bench@2';
 
 export type Family =
   | 'single-hop' | 'multi-hop-code' | 'temporal' | 'source-change'
@@ -408,7 +408,9 @@ export function buildCases(temp: string): BenchCase[] {
         fs.unlinkSync(path.join(root, 'src/deleted.ts'));
         await index.sync();
         const text = await search(index, root, 'deletesentinel');
-        return graded(!hasSpan(text, 'deletesentinel'), text, { staleAdmitted: hasSpan(text, 'deletesentinel') });
+        // Paired with a live file in the same index, so a search that returns nothing cannot pass.
+        const kept = await search(index, root, 'kept');
+        return graded(!hasSpan(text, 'deletesentinel') && hasSpan(kept, 'src/kept.ts'), `${text}\n${kept}`, { staleAdmitted: hasSpan(text, 'deletesentinel'), liveFound: hasSpan(kept, 'src/kept.ts') });
       },
     },
     {
@@ -417,7 +419,9 @@ export function buildCases(temp: string): BenchCase[] {
         const { root, index } = await codeIndex('change-unsynced', { 'src/unsynced.ts': 'export const marker = "beforesentinel";\n' });
         fs.writeFileSync(path.join(root, 'src/unsynced.ts'), 'export const marker = "aftersentinel, rewritten while the index was idle";\n');
         const text = await search(index, root, 'beforesentinel');
-        return graded(!hasSpan(text, 'beforesentinel'), text, { staleAdmitted: hasSpan(text, 'beforesentinel') });
+        // The new text must be found, so a search that returns nothing cannot pass.
+        const current = await search(index, root, 'aftersentinel');
+        return graded(!hasSpan(text, 'beforesentinel') && hasSpan(current, 'aftersentinel'), `${text}\n${current}`, { staleAdmitted: hasSpan(text, 'beforesentinel'), currentFound: hasSpan(current, 'aftersentinel') });
       },
     },
     {
@@ -504,18 +508,24 @@ export function buildCases(temp: string): BenchCase[] {
 
     // ── budget: stated budgets hold; sizes recorded
     {
-      id: 'B1', family: 'budget', title: 'context packs stay within 100, 300, 800 and 1500 tokens',
+      id: 'B1', family: 'budget', title: 'context packs fit 100, 300, 800 and 1500 tokens measured from their text, and 10 is refused',
       run: async () => {
         const { root, store } = await largeTargetGraph();
+        // Sizes are measured from the returned text, never taken from the pack's own tokenEstimate, and every one of
+        // these budgets fits the target's headers, so an error is a failure here (audit 51, U09).
         const sizes: Record<string, number | string> = {};
-        let overflows = 0;
+        let failures = 0;
         for (const budget of [100, 300, 800, 1500]) {
           const pack = await planContext(store, 'budget-target', { cwd: root, maxTokens: budget });
-          if ('error' in pack) { sizes[`at${budget}`] = 'error'; continue; }
-          sizes[`at${budget}`] = pack.tokenEstimate;
-          if (pack.tokenEstimate > budget) overflows++;
+          if ('error' in pack) { sizes[`at${budget}`] = 'error'; failures++; continue; }
+          sizes[`at${budget}`] = estimatedTokens(pack.text);
+          if (!withinBudget(pack.text, budget) || !hasSpan(pack.text, 'target') || !hasSpan(pack.text, 'descriptiveVariable')) failures++;
         }
-        return graded(overflows === 0, JSON.stringify(sizes), { overflows, ...sizes });
+        // A budget below the headers must be refused in words, never answered with an oversized pack.
+        const impossible = await planContext(store, 'budget-target', { cwd: root, maxTokens: 10 });
+        const refused = 'error' in impossible && /cannot fit in 10 tokens/.test(impossible.error);
+        sizes.at10 = 'error' in impossible ? 'error' : estimatedTokens(impossible.text);
+        return graded(failures === 0 && refused, JSON.stringify(sizes), { failures, refused, ...sizes });
       },
     },
     {
@@ -565,7 +575,9 @@ export function buildCases(temp: string): BenchCase[] {
       run: async () => {
         const { root, index } = await scopedRepo();
         const text = await search(index, root, 'boundarysentinel', 5, 'wanted');
-        return graded(!hasSpan(text, 'wantedExtra/leak.ts'), text);
+        // Control: without the scope the sibling is found, so its absence above is the scope, not an empty search.
+        const unscoped = await search(index, root, 'boundarysentinel', 5);
+        return graded(!hasSpan(text, 'wantedExtra/leak.ts') && hasSpan(unscoped, 'wantedExtra/leak.ts'), `${text}\n${unscoped}`, { siblingFoundUnscoped: hasSpan(unscoped, 'wantedExtra/leak.ts') });
       },
     },
     {
@@ -579,8 +591,10 @@ export function buildCases(temp: string): BenchCase[] {
     {
       id: 'SC4', family: 'scope', title: 'no results from an incomplete index are not presented as absence',
       run: async () => {
-        const { miss } = await partialIndex();
+        const { hit, miss } = await partialIndex();
         if (!miss) throw new Error('partial index found every term; the fixture is not partial');
+        // A search that finds nothing at all is not an incomplete index: some term must be found.
+        if (!hit) throw new Error('partial index returned no hits for any term; retrieval is not working');
         return graded(hasSpan(miss.text, 'syncing') || hasSpan(miss.text, 'incomplete'), miss.text);
       },
     },
