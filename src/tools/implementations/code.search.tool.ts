@@ -43,6 +43,14 @@ Prefer GrepTool when you know the exact token (error code, identifier, string li
       const coverage = activeIndex.coverage();
       const incomplete = coverage.syncing || coverage.pending === null || coverage.pending > 0;
       const pipeline = `lexical${mode.dense ? '+dense' : ''}${mode.reranked ? '+rerank' : ''}`;
+      // Files the results import, or that import them: a behaviour question rarely names the helper, contract or test a
+      // change needs (record 50 step 7, benchmark M1 and M2).
+      const connected = typeof activeIndex.connectedFiles === 'function'
+        ? await activeIndex.connectedFiles(hits.map((h) => h.path)).catch(() => [])
+        : [];
+      const connectedText = connected.length
+        ? `\nConnected by imports (not matched by the query; read them before changing the results above):\n${connected.map((c) => `- ${c.path} — ${c.relation}`).join('\n')}`
+        : '';
       return hits
         .map((h) => {
           const related = h.related?.length
@@ -50,7 +58,7 @@ Prefer GrepTool when you know the exact token (error code, identifier, string li
             : '';
           return `${h.path}:${h.startLine}-${h.endLine} · ${h.symbol}${related}\n\`\`\`\n${h.text.split('\n').slice(0, 12).join('\n')}\n\`\`\``;
         })
-        .join('\n---\n') + `\n(${pipeline}${incomplete ? '; index incomplete' : ''})`;
+        .join('\n---\n') + connectedText + `\n(${pipeline}${incomplete ? '; index incomplete' : ''})`;
     },
   };
   return buildTool(def, governor);

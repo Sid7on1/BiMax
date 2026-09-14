@@ -135,8 +135,45 @@ export interface CodeHit {
 export type HitExpander = (hit: CodeHit) => Promise<string[]>;
 
 interface Manifest {
-  /** mtime, size, ctime and a hash of the text when indexed; `c` and `h` are absent in older manifests. */
-  [relPath: string]: { m: number; s: number; c?: number; h?: string };
+  /**
+   * mtime, size, ctime and a hash of the bytes when indexed, and `i`, the indexed files this one imports. `c`, `h` and
+   * `i` are absent in older manifests.
+   */
+  [relPath: string]: { m: number; s: number; c?: number; h?: string; i?: string[] };
+}
+
+/** How an import specifier may name a file: as written, with a source extension, or as a directory's index. */
+const IMPORT_SUFFIXES = ['', '.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.mts', '.cts', '.py', '/index.ts', '/index.tsx', '/index.js', '/index.jsx', '/__init__.py'];
+/** Relative imports in TypeScript and JavaScript: import … from, export … from, side-effect import, require, import(). */
+const JS_IMPORT = /(?:\bimport\s+(?:[^'";]*?\s+from\s+)?|\bexport\s+[^'";]*?\s+from\s+|\brequire\(\s*|\bimport\(\s*)['"](\.{1,2}\/[^'"]+)['"]/g;
+/** Relative imports in Python: from .module import name, from .. import module. */
+const PY_IMPORT = /^[ \t]*from[ \t]+(\.+)([\w.]*)[ \t]+import[ \t]+([\w*, ()]+)/gm;
+
+/**
+ * The indexed files `rel` imports, resolved from its relative import specifiers against `known`, the indexed files.
+ * Package imports are not followed: they are not this repository's files.
+ */
+export function importedFiles(rel: string, source: string, known: ReadonlySet<string>): string[] {
+  const dir = path.posix.dirname(rel);
+  const found = new Set<string>();
+  const resolve = (target: string): void => {
+    for (const base of new Set([target, target.replace(/\.(?:js|jsx|mjs|cjs)$/, '')])) {
+      for (const suffix of IMPORT_SUFFIXES) {
+        const candidate = `${base}${suffix}`;
+        if (candidate !== rel && known.has(candidate)) { found.add(candidate); return; }
+      }
+    }
+  };
+  for (const match of source.matchAll(JS_IMPORT)) resolve(path.posix.normalize(path.posix.join(dir, match[1])));
+  if (rel.endsWith('.py')) {
+    for (const match of source.matchAll(PY_IMPORT)) {
+      let base = dir;
+      for (let up = 1; up < match[1].length; up++) base = path.posix.dirname(base);
+      if (match[2]) resolve(path.posix.join(base, ...match[2].split('.')));
+      else for (const name of match[3].replace(/[()]/g, '').split(',').map((n) => n.trim().split(/\s+/)[0]).filter(Boolean)) resolve(path.posix.join(base, name));
+    }
+  }
+  return [...found].sort();
 }
 
 /**
@@ -263,15 +300,17 @@ export class CodeIndex {
       for (const f of files) {
         const prev = this.manifest![f.rel];
         if (!prev || prev.m !== f.mtimeMs || prev.s !== f.size) { changed.push(f); continue; }
-        if (prev.h && prev.c === f.ctimeMs) continue;
-        let hash: string;
+        if (prev.h && prev.c === f.ctimeMs && prev.i) continue;
+        let bytes: Buffer;
         try {
-          hash = hashSource(await fs.readFile(f.abs));
+          bytes = await fs.readFile(f.abs);
         } catch {
           continue; // raced away: the next sync reconsiders it
         }
-        if (prev.h !== hash) { changed.push(f); continue; }
+        if (prev.h !== hashSource(bytes)) { changed.push(f); continue; }
         prev.c = f.ctimeMs;
+        // An entry from before import edges were recorded gets them from these same verified bytes, without re-indexing.
+        prev.i = importedFiles(f.rel, bytes.toString('utf-8'), known);
         manifestTouched = true;
         if (Date.now() - hashSliceStart >= this.sliceBudgetMs) {
           await new Promise<void>((resolve) => setImmediate(resolve));
@@ -295,7 +334,7 @@ export class CodeIndex {
         const rescanned = new Set<string>();
         const currentIds = new Set<string>();
         const nextManifest: Manifest = {};
-        let sliceFiles: { rel: string; m: number; s: number; c: number; h: string }[] = [];
+        let sliceFiles: { rel: string; m: number; s: number; c: number; h: string; i: string[] }[] = [];
         let sliceTags = new Set<string>();
         let sliceDocs: { id: string; text: string; tags: string[] }[] = [];
         let sliceStart = Date.now();
@@ -310,7 +349,7 @@ export class CodeIndex {
             if (await this.store.storeDocuments(sliceDocs)) {
               for (const d of sliceDocs) currentIds.add(d.id);
               for (const t of sliceTags) rescanned.add(t);
-              for (const f of sliceFiles) nextManifest[f.rel] = { m: f.m, s: f.s, c: f.c, h: f.h };
+              for (const f of sliceFiles) nextManifest[f.rel] = { m: f.m, s: f.s, c: f.c, h: f.h, i: f.i };
             }
           }
           sliceFiles = [];
@@ -332,7 +371,7 @@ export class CodeIndex {
                 tags: ['code', fileTag(file.rel), `sym:${chunk.symbol}`, `lines:${chunk.startLine}-${chunk.endLine}`],
               });
             }
-            sliceFiles.push({ rel: file.rel, m: file.mtimeMs, s: file.size, c: file.ctimeMs, h: hashSource(bytes) });
+            sliceFiles.push({ rel: file.rel, m: file.mtimeMs, s: file.size, c: file.ctimeMs, h: hashSource(bytes), i: importedFiles(file.rel, source, known) });
           } catch {
             // Unreadable mid-sync (deleted, permissions): skip; next sync reconsiders it.
           }
@@ -470,6 +509,46 @@ export class CodeIndex {
       if (file) readable.add(hit.path);
     }
     return { admitted, stale, readable };
+  }
+
+  /**
+   * Files connected to `paths` by imports, both ways, within two hops, nearest first (record 47 §3.3, record 50 step 7):
+   * what a change to a search result most likely needs read with it — the helper it calls, the contract it relies on,
+   * the test that exercises it — which a query about behaviour rarely names. Edges come from the last sync, so a file
+   * edited since keeps its old imports until the next one.
+   */
+  async connectedFiles(paths: readonly string[], limit = 6): Promise<Array<{ path: string; relation: string }>> {
+    await this.loadManifest();
+    const manifest = this.manifest!;
+    const importers = new Map<string, string[]>();
+    for (const [file, entry] of Object.entries(manifest)) {
+      for (const target of entry.i ?? []) {
+        let list = importers.get(target);
+        if (!list) importers.set(target, list = []);
+        list.push(file);
+      }
+    }
+    const seen = new Set(paths);
+    const connected: Array<{ path: string; relation: string }> = [];
+    let frontier = [...new Set(paths)];
+    for (let hop = 1; hop <= 2 && frontier.length && connected.length < limit; hop++) {
+      const next: string[] = [];
+      for (const from of frontier) {
+        const edges = [
+          ...(manifest[from]?.i ?? []).map((to) => ({ path: to, relation: `imported by ${from}` })),
+          ...(importers.get(from) ?? []).map((by) => ({ path: by, relation: `imports ${from}` })),
+        ];
+        for (const edge of edges) {
+          if (connected.length >= limit) break;
+          if (seen.has(edge.path) || !manifest[edge.path]) continue;
+          seen.add(edge.path);
+          connected.push(edge);
+          next.push(edge.path);
+        }
+      }
+      frontier = next;
+    }
+    return connected;
   }
 
   /** Drop manifest entries so the next sync re-indexes those files. Saved by that sync, not here. */
