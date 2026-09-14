@@ -398,6 +398,23 @@ An evidence inspector in the app that reads the evidence record and holds no tru
 explanations when evidence is stale or missing, cancel and restart behaviour, a packaged build, and the R02 journey
 with the acceptance gates. Only then call it Product-ready.
 
+**Step 8 as built — 2026-09-14** (`d86e5e3`).
+- **Evidence inspector.** `/evidence`, also the first row of `/context`, shows the engine's own record in plain words:
+  the last request's budget and whether it was sent, what gave way to fit it, how many tracked pieces of evidence it
+  carried, which recorded evidence no longer matches its source and why, and what the continuation state carries.
+  `src/context/inspector.ts` only phrases what `ContextManager` records; the app shows the command's message.
+- **Stale and missing evidence, explained.** Stale reasons become sentences ("it changed after the model saw it", "it was
+  deleted or can no longer be read"). Code search says when results were left out because their files changed and the
+  index had not caught up, instead of presenting fewer results as all there is.
+- **Cancel and restart.** Cancellation is F8 (`6d602d1`) plus the request boundary: a refused request is never sent. A
+  context manager rebuilt mid-task, as the persona does when the context window changes on a model switch, takes over
+  the continuation state its predecessor left in the window (L5). A resumed session rebuilds the whole transcript from
+  the session recorder, so its compaction reads the user's messages again.
+- **Proof.** Benchmark run `2026-09-14T14-52-03-452Z_d86e5e3`: **42 of 42**, up from 41; L5 passes and no family fell. Bun: 62 context tests. Six
+  mutants each fail a test. Jest over the suites importing the changed modules: the same 17 failures before and after across 48 suites.
+- The packaged build, the R02 journey and what still keeps this short of Product-ready are recorded below, after the
+  build.
+
 ## How this fits the backlog
 
 - The owner decided on 2026-09-14 to build this plan before the other features. The one interruption is F8
