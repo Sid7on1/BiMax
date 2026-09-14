@@ -38,6 +38,7 @@ import { reportCapability } from '../core/capability.status';
 
 import type { StoredChunk, VectorDocument, VectorStore } from './vector.store';
 import { evidenceSpan, versionOfText, type EvidenceSpan } from '../context/evidence';
+import { tokenize } from './bm25';
 
 export const RECALL_PREFIX = '[Recalled memory]';
 
@@ -129,7 +130,7 @@ export async function recallForTurn(
   const evidence: EvidenceSpan[] = [];
   let budget = maxChars;
   for (const doc of documents) {
-    const passage = passageOf(doc, budget);
+    const passage = passageOf(doc, budget, query);
     const content = passage.text;
     if (!content) continue;
     // Truncate the last one that fits rather than dropping it: a partial memory is usually still
@@ -163,32 +164,93 @@ export async function recallForTurn(
  */
 interface Passage {
   text: string;
-  /** What `text` is made of, in order, joined by PASSAGE_JOINER: each chunk's position label and its trimmed text. */
-  segments: Array<{ chunk: StoredChunk | null; label: string; body: string }>;
+  /**
+   * What `text` is made of, in order, joined by PASSAGE_JOINER: each chunk's position label and the text shown from it,
+   * which is an excerpt (`partial`) when the whole chunk did not fit.
+   */
+  segments: Array<{ chunk: StoredChunk | null; label: string; body: string; partial?: boolean }>;
+}
+
+/** Room left for a label such as "(part 12 of 12, excerpt) " and the joiner, per segment. */
+const LABEL_ALLOWANCE = 28;
+/** A later chunk is excerpted only when at least this much of the budget is left for it. */
+const MIN_EXCERPT_CHARS = 120;
+
+/**
+ * The lines of `text` that best answer `query`, contiguous and within `budget` characters: the line holding the most
+ * weight of query terms, widened by its neighbours while they fit. A term weighs more the fewer lines hold it, so a
+ * word on every line does not choose the line. With no query term in `text`, its head, as before.
+ *
+ * This is the "exact span" representation of record 47 §3.4 for recall. Showing the head of a chunk the budget could
+ * not hold cut the answer whenever it sat at the chunk's end (context benchmark case B5).
+ */
+export function answeringExcerpt(text: string, query: string, budget: number): string {
+  if (budget <= 0) return '';
+  if (text.length <= budget) return text;
+  const lines = text.split('\n');
+  const terms = [...new Set(tokenize(query))];
+  const lineTerms = lines.map((line) => new Set(tokenize(line)));
+  const weight = new Map(terms.map((term) => {
+    const holding = lineTerms.filter((set) => set.has(term)).length;
+    return [term, holding ? Math.log(1 + lines.length / holding) : 0] as const;
+  }));
+  let best = -1;
+  let bestScore = 0;
+  lineTerms.forEach((set, i) => {
+    let score = 0;
+    for (const term of terms) if (set.has(term)) score += weight.get(term)!;
+    if (score > bestScore) { bestScore = score; best = i; }
+  });
+  if (best < 0) return text.slice(0, budget).trimEnd();
+  if (lines[best].length > budget) return lines[best].slice(0, budget).trimEnd();
+  let start = best;
+  let end = best + 1;
+  let length = lines[best].length;
+  for (let grew = true; grew;) {
+    grew = false;
+    if (end < lines.length && length + 1 + lines[end].length <= budget) { length += 1 + lines[end].length; end++; grew = true; }
+    if (start > 0 && length + 1 + lines[start - 1].length <= budget) { start--; length += 1 + lines[start].length; grew = true; }
+  }
+  return lines.slice(start, end).join('\n').trim();
 }
 
 const PASSAGE_JOINER = '\n  ';
 
-function passageOf(doc: VectorDocument, budget: number): Passage {
+function passageOf(doc: VectorDocument, budget: number, query: string): Passage {
   const chunks = doc.chunks ?? [];
   const matched = doc.matchedChunks ?? [];
   if (!matched.length || !chunks.length) {
-    const body = (doc.metadata?.content || '').trim();
-    return { text: body, segments: body ? [{ chunk: null, label: '', body }] : [] };
+    const whole = (doc.metadata?.content || '').trim();
+    const body = whole.length > budget ? answeringExcerpt(whole, query, Math.max(0, budget - LABEL_ALLOWANCE)) : whole;
+    const partial = body.length < whole.length;
+    return { text: `${partial ? '(excerpt) ' : ''}${body}`, segments: body ? [{ chunk: null, label: partial ? '(excerpt) ' : '', body, partial }] : [] };
   }
-  const picked: StoredChunk[] = [];
+  const picked: Array<{ chunk: StoredChunk; body: string }> = [];
   let used = 0;
   for (const chunk of matched) {
-    const cost = chunk.text.length + 24;
-    // The best chunk always goes in; the caller truncates it if even that is over budget.
-    if (picked.length && used + cost > budget) continue;
-    picked.push(chunk);
-    used += cost;
+    const whole = chunk.text.trim();
+    if (used + whole.length + LABEL_ALLOWANCE <= budget) {
+      picked.push({ chunk, body: whole });
+      used += whole.length + LABEL_ALLOWANCE;
+      continue;
+    }
+    // A chunk the budget cannot hold is shown as the lines that answer the query. The best chunk always gets its
+    // excerpt; a later one only when enough budget is left to say something.
+    const room = budget - used - LABEL_ALLOWANCE;
+    if (picked.length && room < MIN_EXCERPT_CHARS) continue;
+    const body = answeringExcerpt(whole, query, Math.max(0, room));
+    if (!body) continue;
+    picked.push({ chunk, body });
+    used += body.length + LABEL_ALLOWANCE;
   }
   const segments = picked
-    .map((chunk) => ({ chunk, at: chunks.indexOf(chunk) }))
+    .map(({ chunk, body }) => ({ chunk, body, at: chunks.indexOf(chunk), partial: body.length < chunk.text.trim().length }))
     .sort((a, b) => a.at - b.at)
-    .map(({ chunk, at }) => ({ chunk, label: chunks.length > 1 && at >= 0 ? `(part ${at + 1} of ${chunks.length}) ` : '', body: chunk.text.trim() }))
+    .map(({ chunk, body, at, partial }) => {
+      const position = chunks.length > 1 && at >= 0 ? `part ${at + 1} of ${chunks.length}` : '';
+      const label = position || partial ? `(${[position, partial ? 'excerpt' : ''].filter(Boolean).join(', ')}) ` : '';
+      return { chunk, body, label, partial };
+    })
     .filter((segment) => segment.body);
   return { text: segments.map((segment) => segment.label + segment.body).join(PASSAGE_JOINER), segments };
 }
@@ -218,7 +280,7 @@ function memoryEvidence(doc: VectorDocument, passage: Passage, shownChars: numbe
     offset = start + segment.body.length;
     const text = segment.body.slice(0, Math.max(0, Math.min(segment.body.length, shownChars - start))).trimEnd();
     if (!text) return;
-    const partial = text.length < segment.body.length ? { partial: true } : {};
+    const partial = text.length < segment.body.length || segment.partial ? { partial: true } : {};
     const locator = segment.chunk
       ? { kind: 'memory' as const, documentId: doc.id, part: chunks.indexOf(segment.chunk) + 1, parts: chunks.length, ...partial }
       : { kind: 'memory' as const, documentId: doc.id, ...partial };

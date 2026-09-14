@@ -9,7 +9,7 @@ import { createContextArchiveTool } from '../tools/implementations/context-archi
 import { createReadFileTool } from '../tools/implementations/file.tool';
 import { ContextManager } from '../memory/context.manager';
 import { VectorStore } from '../memory/vector.store';
-import { recallForTurn } from '../memory/recall';
+import { answeringExcerpt, recallForTurn } from '../memory/recall';
 import { fileStateCache, hashFileText } from '../memory/file-state-cache';
 import { CodeIndex } from '../memory/code.index';
 import { openSqlite } from '../core/sqlite';
@@ -337,6 +337,38 @@ describe('admitted evidence from the pipeline', () => {
       expect(recalled.text).toContain(span.text);
     }
     expect(recalled.evidence.some((span) => span.locator.kind === 'memory' && span.locator.partial)).toBe(true);
+  });
+
+  // Record 50 step 6b: a chunk the budget could not hold was shown as its head, which cut an answer at its end (B5).
+  test('a chunk the budget cannot hold is shown as the lines that answer, recorded as a partial span', async () => {
+    const store = new VectorStore(null as any, null as any, { storePath: path.join(temp, 'recall-excerpt.json'), dedup: false });
+    const note = Array.from({ length: 100 }, (_, i) => `Background section ${i}: ordinary operational details unrelated to the question.\n`).join('\n')
+      + '\nThe orchid launch passphrase is VIOLET-SENTINEL.\n';
+    await store.storeDocument('orchid-excerpt', note, ['note']);
+    const recalled = (await recallForTurn(store, 'What is the orchid launch passphrase?', { maxChars: 600 }))!;
+    expect(recalled.text).toContain('VIOLET-SENTINEL');
+    expect(recalled.text.split('\n').slice(1).join('\n').length).toBeLessThanOrEqual(608);
+    const span = recalled.evidence.find((s) => s.text.includes('VIOLET-SENTINEL'))!;
+    expect(span.locator).toMatchObject({ kind: 'memory', documentId: 'orchid-excerpt', partial: true });
+    expect(note).toContain(span.text);
+    expect(recalled.text).toContain(span.text);
+  });
+
+  test('an excerpt centres on the rarest query terms, and without any it keeps the head', () => {
+    const text = [
+      ...Array.from({ length: 30 }, (_, i) => `The release notes for week ${i} list the usual fixes.`),
+      'The deploy freeze starts on 2026-09-11 and lasts a week.',
+      ...Array.from({ length: 30 }, (_, i) => `The release checklist item ${i} is routine.`),
+    ].join('\n');
+    // "release" is on 60 of the 61 lines and "freeze" on one, so the rarer term chooses the line.
+    const excerpt = answeringExcerpt(text, 'When does the release freeze start?', 200);
+    expect(excerpt).toContain('The deploy freeze starts on 2026-09-11');
+    expect(excerpt.length).toBeLessThanOrEqual(200);
+    // Widened by its neighbours while they fit, not the bare line.
+    expect(excerpt.split('\n').length).toBeGreaterThan(1);
+    expect(text).toContain(excerpt);
+    // Control: a query sharing no term with the text keeps its head.
+    expect(answeringExcerpt(text, 'zebra quokka', 120)).toBe(text.slice(0, 120).trimEnd());
   });
 
   // Audit 51, U11: compression ran before any archive, so the raw result was never saved.
