@@ -1,5 +1,12 @@
 # Bimax product reset
 
+## Context Compiler build plan — 2026-09-14
+
+`50_CONTEXT_COMPILER_BUILD_PLAN.md` turns record 47 into ordered steps: acceptance tests for the eight reproduced
+defects, one-file fixes, shared-flow fixes, a repaired baseline, then the evidence foundation, prompt compiler,
+adaptive retrieval and qualification, each with an exit check. The eight probes were rerun against this repository
+and all still reproduce. Everything is **Target**.
+
 ## Feature backlog — 2026-09-14
 
 `48_FEATURE_BACKLOG_2026_09.md` is the owner's next major build, starting 2026-09-15: foundations for unattended

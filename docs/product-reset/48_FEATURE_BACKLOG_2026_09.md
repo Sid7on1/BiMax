@@ -46,8 +46,7 @@ Each item lists **Value** (high, medium, low), **Effort** (S: days, M: 1–2 wee
 - **This Mac has 8 GB of RAM.** Features that run several builds or browsers at once must budget for that.
 - **Talk mode's `openai/gpt-oss-20b`:** time from question to speech ranged 1.3–17 s across test runs, and once
   the model called a tool named `AskUserTool<|channel|>commentary`.
-- **Records 46 and 47 audited the older Desktop copy.** Checked against this repository without rerunning their
-  probes:
+- **Records 46 and 47 audited the older Desktop copy.** Checked against this repository:
   - T01 and T03 still hold. `lifecycle()` empties the queue on failure and does not clear `r.engine`, `start()`
     returns early while `r.engine` is set, and `thread.storage.ts` never mentions the queue.
   - T05 still applies: `app/src/main/thread.storage.ts` is byte-identical to the audited file.
@@ -55,6 +54,8 @@ Each item lists **Value** (high, medium, low), **Effort** (S: days, M: 1–2 wee
   - A01–A08: `pagerank.ts`, `context.planner.ts`, `bm25.ts`, `headroom.compress.ts`, `file-state-cache.ts` and
     `context.manager.ts` are byte-identical to the audited files. `recall.ts`, `code.index.ts`, `vector.store.ts`
     and `sqlite.code.store.ts` changed here only for capability notices and the state directory.
+  - The eight A probes were rerun here on 2026-09-14 and **all eight still reproduce**
+    (`competitive/evidence/2026-09-14-context-audit/rerun-results-in-bimax.json`). The T probes were not rerun.
 - **Record 49's fix is not in this repository.** In the Desktop copy, `headless.session.ts`, `host.ts` and
   `meta.ts` match the record's hashes exactly; here none of them has its edits.
 
@@ -69,7 +70,7 @@ Each item lists **Value** (high, medium, low), **Effort** (S: days, M: 1–2 wee
 7. **FL1:** write the folder-trigger design (events, loop protection, undo, limits) before any code.
 
 The context work (C0 onward) mostly touches `src/memory` and `src/graph`, so it can run alongside the Threads
-items instead of waiting for them.
+items instead of waiting for them. Its build flow is record 50.
 
 ---
 
@@ -311,7 +312,8 @@ Value medium · Effort M · Shares its mechanism with L6.
 
 Record 47 proposes a **Context Compiler**: a bounded, versioned package of evidence for each step, built from the
 existing stores and tools with the models already configured. The stages are in order, and each needs the one
-before it. The verdicts and efforts are this merge's proposals; record 47 gives none.
+before it. The verdicts and efforts are this merge's proposals; record 47 gives none. The step-by-step build flow,
+with the code location of each defect, is [record 50](50_CONTEXT_COMPILER_BUILD_PLAN.md).
 
 **C0. Repair the eight reproduced defects.** Each probe becomes an acceptance test, paired with a mutant that
 restores the defect. Value high · Effort M · Verdict Next.

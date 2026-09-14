@@ -1,0 +1,98 @@
+{
+  "timestamp": "2026-09-14T05:45:02.255Z",
+  "runtime": "v24.3.0",
+  "statusMeaning": "Reproduced current limitation; not an acceptance pass or performance measurement",
+  "providerCalls": 0,
+  "sourceHashes": {
+    "src/memory/code.index.ts": "8b98c4c2809cfd8f038c55b3cd627582f5f879e07c15fa107a4e96cc51c51390",
+    "src/memory/sqlite.code.store.ts": "5b56e762fac4fb6ee76c416d8d868e84d4963d302e544b349e9949e6c9263c4d",
+    "src/memory/vector.store.ts": "b04e90c23c2cf9d64969d3d9c6b7a981de184c0a196e12acabec160fbb2232c5",
+    "src/memory/recall.ts": "169e90a530ed466d2ec2edb80246702e7ef30789de73c90f9a451c3ecaaa5d2e",
+    "src/memory/context.manager.ts": "03c67b8945b10e8b8dcd82d9559aac39c2baeb2263f25dfd1311bd8a599de8bd",
+    "src/memory/file-state-cache.ts": "35e21442ecb088dc3be1dd858d5159d228017c98f60f2e606e0d2b7877e39b83",
+    "src/memory/bm25.ts": "711cb63d66d4d1a243ce905b02d57f2e6a163ee98a2de33f6098e93ec8a58329",
+    "src/memory/headroom.compress.ts": "3df6370bd112d032b52ec7238c76907d0f578123dba7c441eda8da7277806878",
+    "src/graph/context.planner.ts": "25839a1e786e5116d26903a58a1f743c25c399607b4a116862ce9dfa238e5f94",
+    "src/graph/pagerank.ts": "d641b1cae3f286a6e991aa578fafd50d7fc0e32edec9a3ba54c735a20500bf57"
+  },
+  "results": [
+    {
+      "id": "A01_same_metadata_stale_index_and_restoration",
+      "status": "reproduced",
+      "evidence": {
+        "sameMtimeAndSize": true,
+        "actualBytesChanged": true,
+        "sync": {
+          "indexed": 0,
+          "removed": 0,
+          "pending": 0
+        },
+        "staleSearch": true,
+        "staleRestorationLabelledVerified": true
+      }
+    },
+    {
+      "id": "A02_path_filter_candidate_starvation_and_prefix_boundary",
+      "status": "reproduced",
+      "evidence": {
+        "requestedTop1": 0,
+        "intendedHitExistsInBroaderResults": true,
+        "siblingPrefixReturned": "wantedExtra/leak.ts"
+      }
+    },
+    {
+      "id": "A03_matching_chunk_lost_when_whole_document_prefix_is_injected",
+      "status": "reproduced",
+      "evidence": {
+        "correctDocumentRetrieved": true,
+        "answerPresentInStoredDocument": true,
+        "answerAbsentFromInjectedContext": true,
+        "injectedChars": 1917
+      }
+    },
+    {
+      "id": "A04_recall_survives_compaction_as_durable_system_text",
+      "status": "reproduced",
+      "evidence": {
+        "recalledBlockRetainedUnchanged": true,
+        "repeatQuerySuppressedWithoutVersionOrResidencyCheck": true
+      }
+    },
+    {
+      "id": "A05_declared_context_pack_budget_exceeded",
+      "status": "reproduced",
+      "evidence": {
+        "requestedBudget": 100,
+        "reportedTokens": 1805,
+        "truncated": false
+      }
+    },
+    {
+      "id": "A06_graph_cache_reuses_changed_same_shape_graph",
+      "status": "reproduced",
+      "evidence": {
+        "sameCachedObject": true,
+        "oldTargetStillRanksAboveNewTarget": true,
+        "scoreMass": 0.19250000000000006
+      }
+    },
+    {
+      "id": "A07_non_latin_lexical_query_disappears",
+      "status": "reproduced",
+      "evidence": {
+        "exactMatchingDocument": true,
+        "tokens": [],
+        "hits": 0
+      }
+    },
+    {
+      "id": "A08_numeric_log_compression_removes_distinct_observations",
+      "status": "reproduced",
+      "evidence": {
+        "input": "latency 100 ms\nlatency 200 ms\nlatency 900 ms\nlatency 300 ms",
+        "output": "latency 100 ms\n… (×3 more similar lines elided) …",
+        "maximumObservationRemoved": true
+      }
+    }
+  ]
+}
