@@ -64,6 +64,9 @@ export interface HeadlessDeps {
  */
 export class HeadlessSession {
   private busy = false;
+  private turnFinished: Promise<void> = Promise.resolve();
+  private finishTurn: (() => void) | null = null;
+  private clearing: Promise<void> | null = null;
   // Aborts the in-flight turn when the front-end sends an interrupt. Non-null only while a turn runs.
   private turnAbort: AbortController | null = null;
   // Manual model-tier pin (the /tier command / Ctrl+T). null = automatic routing. Mirrors the
@@ -96,6 +99,15 @@ export class HeadlessSession {
   async dispatch(text: string): Promise<void> {
     const query = (text || '').trim();
     if (!query) return;
+    if (/^\/clear\s+force(?:\s|$)/i.test(query)) {
+      if (!this.clearing) {
+        this.interrupt();
+        this.clearing = this.turnFinished.then(() => this.runCommand(query));
+      }
+      try { await this.clearing; } finally { this.clearing = null; }
+      return;
+    }
+    if (this.clearing) await this.clearing;
     if (query.startsWith('/')) { await this.runCommand(query); return; }
     await this.runTurn(query);
   }
@@ -104,6 +116,7 @@ export class HeadlessSession {
   async dispatchAutonomous(text: string): Promise<'completed' | 'busy' | 'failed' | 'interrupted'> {
     const query = (text || '').trim();
     if (!query || query.startsWith('/')) return 'failed';
+    if (this.clearing) return 'busy';
     return this.runTurn(query, { autonomous: true });
   }
 
@@ -123,6 +136,7 @@ export class HeadlessSession {
       return 'busy';
     }
     this.busy = true;
+    this.turnFinished = new Promise(resolve => { this.finishTurn = resolve; });
     this.turnAbort = new AbortController();
     const turnStart = Date.now();
     // A fresh user instruction legitimizes repetition — failure-memory counters reset so the
@@ -165,7 +179,8 @@ export class HeadlessSession {
         markAssembled();
         try {
           await active.converse(query, onToken, { useLite: true, signal: this.turnAbort.signal });
-        } catch {
+        } catch (error) {
+          if (this.turnAbort.signal.aborted) throw error;
           streamed = ''; // discard any partial lite output; the full harness re-runs the turn cleanly
           // forceHeavy: the lite lane just failed, and the router would send this same trivial query
           // straight back to the same lite model. Retrying the thing that just broke is not a
@@ -240,6 +255,8 @@ export class HeadlessSession {
         } catch { /* ledger best-effort */ }
       }
       cliEvents.emit('spinner_state', 'idle', 'Ready');
+      this.finishTurn?.();
+      this.finishTurn = null;
     }
     return result;
   }
@@ -332,6 +349,12 @@ export class HeadlessSession {
         // and replacing it mid-flight corrupts the conversation. Same guard as runTurn().
         if (this.busy) { cliEvents.emit('status', 'Busy — finish the current turn before loading a session.'); return false; }
         const active = this.deps.personas.bimax;
+        if (Array.isArray(msgs)) {
+          for (const persona of new Set(Object.values(this.deps.personas))) {
+            persona.messages = [];
+            try { persona.resetContextSession?.(); } catch { /* best-effort */ }
+          }
+        }
         if (active && Array.isArray(msgs)) {
           active.messages = msgs.slice() as any;
           // Explicit session boundary (/clear, session load/resume): the session-scoped

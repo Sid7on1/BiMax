@@ -156,6 +156,11 @@ export class ProtocolHost {
         return; // a reply with no pending id is a late/duplicate answer — drop it
       }
       case 'input':
+        // A forced clear ends the task that is running, like Stop, before the clear itself is dispatched.
+        if (/^\/clear\s+force(?:\s|$)/i.test(String(msg.text ?? '').trim())) {
+          this.handlers.onInterrupt?.();
+          this.cancelPending();
+        }
         this.handlers.onInput?.(msg.text);
         return;
       case 'menuSelect': {
@@ -165,6 +170,7 @@ export class ProtocolHost {
       }
       case 'interrupt':
         this.handlers.onInterrupt?.();
+        this.cancelPending();
         return;
       case 'ping':
         // Answered synchronously from the ingest path — no engine work is awaited, so a pong only
@@ -249,6 +255,19 @@ export class ProtocolHost {
         t: 'catalogResult', id, providers: [], models: [],
         error: String(e?.message || e || 'The catalogue could not be read.'),
       }));
+  }
+
+  /**
+   * Resolve every unanswered prompt as interrupted. Stop and a forced clear end the task that asked, so a late
+   * "Approve" must not reach it (record 49); a reply that arrives afterwards finds nothing pending and is ignored.
+   */
+  private cancelPending(): void {
+    const pending = [...this.pending.entries()];
+    this.pending.clear();
+    for (const [id, resolve] of pending) {
+      this.announceResolved(id, '', true);
+      try { resolve(''); } catch { /* ignore */ }
+    }
   }
 
   /** Number of approval requests still awaiting an answer (for diagnostics / tests). */

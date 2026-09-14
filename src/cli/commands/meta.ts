@@ -503,7 +503,9 @@ globalCommandRegistry.register({
     // the work here. `/clear force` resets the conversation history and emits the `clear` event the Go
     // TUI consumes to wipe its transcript; bare `/clear` asks first.
     if ((args[0] || '').toLowerCase() === 'force') {
-      try { context.restoreMessages?.([]); } catch { /* best-effort */ }
+      if (context.restoreMessages?.([]) === false) {
+        return { type: 'message', level: 'info', content: 'Conversation is still busy; interrupt it before clearing.' };
+      }
       // The untrusted content leaves the window with the history — taint lifts with it.
       try { getTaintTracker().clear('conversation cleared'); } catch { /* best-effort */ }
       // Forget the durable task list too, so a fresh conversation doesn't inherit stale phases.

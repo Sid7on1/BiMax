@@ -171,3 +171,28 @@ describe('ProtocolHost', () => {
     expect(emitter.listenerCount('status')).toBe(0);
   });
 });
+
+
+describe('pending approvals at a task boundary', () => {
+  it.each([{ t: 'interrupt' }, { t: 'input', text: '/clear force' }])('cancels requests for %j and ignores late approval', (message) => {
+    const emitter = new EventEmitter();
+    const resolve = jest.fn();
+    const resolved = jest.fn();
+    const interrupt = jest.fn();
+    const wire: Outbound[] = [];
+    const host = new ProtocolHost(msg => wire.push(msg), { onInterrupt: interrupt });
+    host.attach(emitter);
+    emitter.on('request_resolved', resolved);
+    try {
+      emitter.emit('veto_prompt', 'Write file?', ['Approve', 'Reject'], resolve);
+      const request = wire.find(msg => msg.t === 'request') as any;
+      host.ingest(message as Inbound);
+      expect(interrupt).toHaveBeenCalledTimes(1);
+      expect(resolve).toHaveBeenCalledWith('');
+      expect(host.pendingCount()).toBe(0);
+      expect(resolved).toHaveBeenCalledWith(expect.objectContaining({ interrupted: true }));
+      host.ingest({ t: 'reply', id: request.id, value: 'Approve' });
+      expect(resolve).toHaveBeenCalledTimes(1);
+    } finally { host.detach(); }
+  });
+});

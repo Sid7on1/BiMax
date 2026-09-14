@@ -1,6 +1,7 @@
 import { cliEvents } from '../cli/events';
 import { HeadlessSession } from '../protocol/headless.session';
 import '../cli/commands/meta';
+import { globalCommandRegistry } from '../cli/commands/registry';
 
 // The headless session must honor /tier identically to Ink's FullScreen: a set_tier event pins the
 // model tier and reflects it in the footer via a model_tier emit. (Routing itself is exercised at
@@ -130,4 +131,68 @@ describe('HeadlessSession — menu id + label contract', () => {
     expect(entry.payload.options.map((o: any) => o.label)).toEqual(['Start Indexing', 'Skip']);
     expect(entry.payload.options[0].value).toBe('/index force');
   });
+});
+
+
+describe('HeadlessSession — clear drains the previous turn', () => {
+  it('clears every persona after cancellation settles before admitting the next input', async () => {
+    let started!: () => void;
+    const ready = new Promise<void>(resolve => { started = resolve; });
+    let release!: () => void;
+    const drain = new Promise<void>(resolve => { release = resolve; });
+    let oldSignal!: AbortSignal;
+    const persona: any = { messages: [{ role: 'user', content: 'old task' }], resetContextSession: jest.fn() };
+    persona.execute = jest.fn(async (prompt: string, onToken: any, options: any) => {
+      if (prompt === 'perform the old coding task') {
+        oldSignal = options.signal;
+        started();
+        await drain;
+        persona.messages.push({ role: 'assistant', content: 'late old result' });
+        onToken('late old result');
+      } else {
+        expect(persona.messages).toEqual([]);
+        onToken('new result');
+      }
+    });
+    const other: any = { messages: [{ role: 'assistant', content: 'other old task' }], resetContextSession: jest.fn() };
+    const session = new HeadlessSession({ personas: { bimax: persona, other }, options: {
+      llmAdapter: { userModel: 'model', liteModel: 'model' }, governor: { mode: 'default' },
+    }, graphStore: {} as any });
+    const events: string[] = [];
+    const onClear = () => events.push('clear');
+    const onToken = (token: string) => events.push(token);
+    cliEvents.on('clear', onClear);
+    cliEvents.on('stream_token', onToken);
+    try {
+      const old = session.dispatch('perform the old coding task');
+      await ready;
+      const clear = session.dispatch('/clear force');
+      const next = session.dispatch('perform the new coding task');
+      expect(oldSignal.aborted).toBe(true);
+      expect(events).toEqual([]);
+      release();
+      await Promise.all([old, clear, next]);
+      expect(events).toEqual(['late old result', 'clear', 'new result']);
+      expect(other.messages).toEqual([]);
+      expect(persona.execute).toHaveBeenCalledTimes(2);
+      expect(other.resetContextSession).toHaveBeenCalled();
+    } finally {
+      cliEvents.off('clear', onClear);
+      cliEvents.off('stream_token', onToken);
+    }
+  });
+});
+
+
+it('does not announce or emit clear when history replacement is refused', async () => {
+  const onClear = jest.fn();
+  cliEvents.on('clear', onClear);
+  try {
+    const result = await globalCommandRegistry.execute('/clear force', {
+      restoreMessages: () => false,
+    } as any);
+    expect(onClear).not.toHaveBeenCalled();
+    expect(result).toMatchObject({ type: 'message', level: 'info' });
+    expect((result as any).content).toContain('still busy');
+  } finally { cliEvents.off('clear', onClear); }
 });

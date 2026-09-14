@@ -1,3 +1,4 @@
+import { setTimeout as delay } from 'node:timers/promises';
 import { reportCapability } from './capability.status';
 import { LLMProvider, Message, ChatEvent } from './llm.provider';
 import { responseSanitizer } from './response.sanitizer';
@@ -628,7 +629,12 @@ export class AgentLoop {
               : Math.min(1000 * 2 ** (transientRetries - 1), 8000);
             cliEvents.emit('status', `Provider hiccup — retrying in ${Math.round(backoffMs / 1000)}s (${transientRetries}/${MAX_TRANSIENT_RETRIES})`);
             cliEvents.emit('log', { id: Date.now(), level: 'warn', text: `Transient API error (${event.message}); backing off ${Math.round(backoffMs / 1000)}s.`, timestamp: new Date() });
-            await new Promise(r => setTimeout(r, backoffMs));
+            // The wait observes cancellation: a 30-second Retry-After used to hold Stop until it ran out
+            // (record 49).
+            try { await delay(backoffMs, undefined, { signal }); } catch (error) {
+              if (signal?.aborted) return;
+              throw error;
+            }
             discardTurn = true;
             break;
           } else {

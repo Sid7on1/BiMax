@@ -460,3 +460,25 @@ describe('AgentLoop — retries transient errors then gives up', () => {
     expect(out).not.toContain('provider returned an error');
   }, 15000); // 3 transient backoffs (~1s each) of real wait
 });
+
+
+it('interrupts a 30-second provider backoff without another model request', async () => {
+  const controller = new AbortController();
+  let calls = 0;
+  const llm: LLMProvider = { async *chat(): AsyncGenerator<ChatEvent> {
+    calls++;
+    yield { type: 'error', message: 'rate limit', kind: 'transient', recoverable: true, retryAfterSecs: 30 };
+  } };
+  const onStatus = (status: string) => {
+    if (status.includes('retrying in')) setImmediate(() => controller.abort());
+  };
+  cliEvents.on('status', onStatus);
+  try {
+    const loop = new AgentLoop(llm, new ToolRegistry(), null as any);
+    for await (const _ of loop.execute([{ role: 'user', content: 'test' }], 'sys', {
+      signal: controller.signal, maxIterations: 3,
+    })) { /* drain */ }
+    expect(controller.signal.aborted).toBe(true);
+    expect(calls).toBe(1);
+  } finally { cliEvents.off('status', onStatus); }
+}, 1500);
