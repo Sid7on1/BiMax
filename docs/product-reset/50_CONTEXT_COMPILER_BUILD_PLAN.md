@@ -297,8 +297,19 @@ Built in slices, each measured against the version 2 baseline (26 of 33) before 
 - **Cost.** The long-session context after ten compactions is 576 estimated tokens against the baseline's 263. A first
   version gave each evicted message its own archive handle and reached 894; sixteen handles were 40% of the block.
 
-**Next slices.** 6b: recall chooses a representation (the answering sentences, not the head of a chunk the budget cuts),
-for B5. 6c: one allocator for the whole request at the final boundary. 6d: log statistics over archived raw output.
+**Slice 6b, recall shows the answering lines — done 2026-09-14** (`d9c1b75`).
+- `answeringExcerpt` in `src/memory/recall.ts` is the exact-span representation for recall. A chunk the budget cannot
+  hold is shown as the line holding the most weight of query terms, where a term weighs more the fewer lines hold it,
+  widened by its neighbours while they fit. The excerpt is labelled, stays within the budget, and is recorded as a
+  partial span. With no query term in the text, the head is kept as before.
+- **Proof.** Benchmark run `2026-09-14T10-49-59-896Z_d9c1b75`: **30 of 33**, up from 29; B5 passes, the budget family is 3 of 3, and no family fell.
+  Bun: 42 context tests. Four mutants (head instead of excerpt, equal term weights, no widening, excerpt recorded as
+  whole) each fail a test. Jest over the 25 suites importing recall, the loop or the manager: no new failure.
+- **Limit.** Lines are scored by shared query terms, so an answer phrased with none of the query's words is still missed;
+  that is dense retrieval's job, not this excerpt's.
+
+**Next slices.** 6c: one allocator for the whole request at the final boundary. 6d: log statistics over archived raw
+output. S5 (abstaining when no memory answers) and M1, M2 (multi-file code evidence) belong to step 7.
 
 1. One allocator owns the whole request budget (record 47 §3.4) at the final request boundary.
 2. Each candidate gets several representations (locator, signature, exact span, neighbourhood). Pick them with a
