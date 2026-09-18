@@ -4,7 +4,7 @@ import type { CatalogModelEntry, CatalogResultMsg, ProviderEntry } from './proto
  * The provider + model catalogue behind protocol `catalogGet` / `providerSet`.
  *
  * Why this exists as a wire message rather than a static list in the front-end: a model id is only
- * meaningful against a provider. The curated catalogue in cli/models.ts is a *recommendation*,
+ * meaningful against a provider. The curated catalogue in engine/models.ts is a *recommendation*,
  * while the provider's `/models` endpoint is what will actually be accepted, and the two disagree
  * constantly (NVIDIA lists ids it then 404s; a rotated catalogue silently orphans a saved pin).
  * A picker built from either one alone is wrong in a way the user cannot see, so both cross the

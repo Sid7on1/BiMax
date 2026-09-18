@@ -1,11 +1,11 @@
 import { buildTool, BuiltTool } from '../tool.factory';
 import { IGovernor } from '../../core/interfaces';
 import { LlmAdapter } from '../../core/llm.adapter';
-import { saveConfig, getConfig } from '../../cli/config';
-import { getProviders, getCurrentProvider, setProvider } from '../../cli/provider';
-import { MODEL_CATALOG } from '../../cli/models';
-import { saveApiKeyToEnv } from '../../cli/env.loader';
-import { cliEvents } from '../../cli/events';
+import { saveConfig, getConfig } from '../../engine/config';
+import { getProviders, getCurrentProvider, setProvider } from '../../engine/provider';
+import { MODEL_CATALOG } from '../../engine/models';
+import { saveApiKeyToEnv } from '../../engine/env.loader';
+import { engineEvents } from '../../engine/events';
 
 /**
  * Gives the AGENT self-service over its own model API — the brain it runs on — instead of that being
@@ -107,7 +107,7 @@ export function createModelManageTool(governor: IGovernor, llmAdapter: LlmAdapte
           llmAdapter.applyConfig({ liteModel: args.model });
           await saveConfig({ liteModel: args.model });
         }
-        try { cliEvents.emit('config_changed'); } catch { /* UI refresh best-effort */ }
+        try { engineEvents.emit('config_changed'); } catch { /* UI refresh best-effort */ }
         return `Switched ${slot} model → ${args.model} (live + saved).`;
       }
 
@@ -117,7 +117,7 @@ export function createModelManageTool(governor: IGovernor, llmAdapter: LlmAdapte
         if (!found) return `Unknown provider "${args.provider}". Available: ${getProviders().map(p => p.name).join(', ')}.`;
         try { saveApiKeyToEnv('BGW_PROVIDER', found.name); } catch { /* persistence optional */ }
         const hasKey = !!process.env[found.apiKeyEnv];
-        try { cliEvents.emit('config_changed'); } catch { /* best-effort */ }
+        try { engineEvents.emit('config_changed'); } catch { /* best-effort */ }
         return `Switched provider → ${found.name}.${hasKey ? '' : ` ⚠ No ${found.apiKeyEnv} set — add the key or calls will fail.`} ` +
           `Now set a served model with action="use" (default: ${found.defaultModel}).`;
       }

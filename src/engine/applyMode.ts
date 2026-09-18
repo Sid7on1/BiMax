@@ -1,4 +1,4 @@
-import { cliEvents } from './events';
+import { engineEvents } from './events';
 import { AgentMode, setAgentMode, setExploreEngagedGate, didExploreEngageGate } from './agentMode';
 
 // Single source of truth for switching the agent's behavioral mode, shared by the /mode command,
@@ -20,7 +20,7 @@ export function applyAgentMode(mode: AgentMode, governor: any): void {
       governor.mode = 'plan'; // reuse the proven write-gate for read-only enforcement
       setExploreEngagedGate(true);
     }
-    cliEvents.emit('mode_change', mode === 'sketch' ? 'SKETCH' : 'EXPLORE');
+    engineEvents.emit('mode_change', mode === 'sketch' ? 'SKETCH' : 'EXPLORE');
     return;
   }
 
@@ -30,5 +30,5 @@ export function applyAgentMode(mode: AgentMode, governor: any): void {
   }
   setExploreEngagedGate(false);
   _priorGovernorMode = null;
-  cliEvents.emit('mode_change', mode === 'code' ? 'CODE' : mode === 'beast' ? 'BEAST' : '');
+  engineEvents.emit('mode_change', mode === 'code' ? 'CODE' : mode === 'beast' ? 'BEAST' : '');
 }

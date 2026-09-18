@@ -2,7 +2,7 @@ import { stateDir } from '../utils/state.dir';
 import { Logger } from '../utils';
 import { SafetyPolicy } from './policy.engine';
 import { GovernorVetoError } from '../core/errors';
-import { cliEvents } from '../cli/events';
+import { engineEvents } from '../engine/events';
 import * as fsSync from 'fs';
 import * as fs from 'fs/promises';
 import * as path from 'path';
@@ -126,7 +126,7 @@ export class BudgetVeto {
     this.warnedOn = this.spendDate;
     const remaining = Math.max(0, cap - this.currentDailySpend);
     try {
-      cliEvents.emit('status',
+      engineEvents.emit('status',
         `Daily budget ${Math.round((this.currentDailySpend / cap) * 100)}% used `
         + `($${this.currentDailySpend.toFixed(2)} of $${cap.toFixed(2)}, $${remaining.toFixed(2)} left). `
         + `Raise it with MAX_DAILY_SPEND or disable the cap with /governor off before starting long work.`);

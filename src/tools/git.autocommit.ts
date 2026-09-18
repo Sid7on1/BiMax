@@ -1,5 +1,5 @@
 import { execFileSync } from 'child_process';
-import { isGitRepo } from '../cli/git';
+import { isGitRepo } from '../engine/git';
 import { Logger } from '../utils/logger';
 
 // B1 (opt-in) — auto-commit each successful edit, Aider-style. Off by default; toggled via

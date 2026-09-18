@@ -6,8 +6,8 @@ import { LLMProvider, Message, ChatOptions, ChatEvent } from './llm.provider';
 import { capabilitiesFor, ModelCapabilities, anthropicBetaHeaders } from './capabilities';
 import { contentToText } from './multimodal';
 import { globalTelemetry } from '../telemetry/telemetry';
-import { cliEvents } from '../cli/events';
-import { autoSelectCandidates } from '../cli/models';
+import { engineEvents } from '../engine/events';
+import { autoSelectCandidates } from '../engine/models';
 
 // Streaming & response-parsing helpers now live in ./llm.stream (extracted to keep this file
 // focused on the adapter class). Imported for internal use and re-exported so existing importers
@@ -921,7 +921,7 @@ export class LlmAdapter implements LLMProvider {
       const caps = capabilitiesFor(kr.provider, model);
       const primary = (options.lite && this.quickModel()) || this.userModel || kr.model || this.defaultModel;
       if (LlmAdapter.messagesHaveImages(finalMessages) && model !== primary) {
-        cliEvents.emit('status', `Vision → ${model}`);
+        engineEvents.emit('status', `Vision → ${model}`);
       }
 
       // Vision safety net: only if the RESOLVED model (after any vision-slot reroute) still can't

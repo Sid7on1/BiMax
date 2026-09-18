@@ -16,7 +16,7 @@ startBootCapture();
 
 import * as fs from 'fs';
 import dotenv from 'dotenv';
-import { loadGlobalEnv } from './cli/env.loader';
+import { loadGlobalEnv } from './engine/env.loader';
 loadGlobalEnv();
 dotenv.config();
 // The egress perimeter goes up the instant the environment is readable and before any other module
@@ -27,10 +27,10 @@ installEgressPerimeter();
 import { Command } from 'commander';
 import { createContainer } from './core/container';
 import { readPackageVersion } from './core/self.update';
-import { resolveTheme } from './cli/themes';
-import { loadConfig, getConfig } from './cli/config';
-import { setCustomRoutingRules } from './cli/agentRouter';
-import { cliEvents } from './cli/events';
+import { resolveTheme } from './engine/themes';
+import { loadConfig, getConfig } from './engine/config';
+import { setCustomRoutingRules } from './engine/agentRouter';
+import { engineEvents } from './engine/events';
 import { setGlobalPatternStore, GenomePatternStore } from './genome/pattern.store';
 import { setGlobalRecipeLoader, RecipeLoader } from './recipes/recipe.loader';
 import { setBlueprintEngine, BlueprintEngine } from './blueprints/blueprint.engine';
@@ -97,7 +97,7 @@ function replayBootLogs() {
   // Give the front-end a moment to attach before replaying buffered boot logs as events
   setTimeout(() => {
     for (const msg of bootLogs) {
-      cliEvents.emit('log', { id: 0, level: 'info', text: msg, timestamp: new Date() });
+      engineEvents.emit('log', { id: 0, level: 'info', text: msg, timestamp: new Date() });
     }
     bootLogs.length = 0;
   }, 100);
@@ -115,7 +115,7 @@ process.on('uncaughtException', (err) => {
   if (bootLogs.length > 0) {
     originalConsoleError(msg);
   } else {
-    cliEvents.emit('message', { id: `crash-${Date.now()}`, role: 'assistant', content: `❌ **CRITICAL CRASH:** ${err.message}`, timestamp: new Date() });
+    engineEvents.emit('message', { id: `crash-${Date.now()}`, role: 'assistant', content: `❌ **CRITICAL CRASH:** ${err.message}`, timestamp: new Date() });
   }
   process.exit(1);
 });
@@ -126,7 +126,7 @@ process.on('unhandledRejection', (reason, promise) => {
   if (bootLogs.length > 0) {
     originalConsoleError(msg);
   } else {
-    cliEvents.emit('message', { id: `crash-${Date.now()}`, role: 'assistant', content: `❌ **UNHANDLED REJECTION:** ${reason}`, timestamp: new Date() });
+    engineEvents.emit('message', { id: `crash-${Date.now()}`, role: 'assistant', content: `❌ **UNHANDLED REJECTION:** ${reason}`, timestamp: new Date() });
   }
 });
 
@@ -135,7 +135,7 @@ async function main() {
   // run a sub-agent (worker_threads can't carry their deps inside a bun --compile binary; a full
   // re-exec can). Intercept before ANY engine boot — this process is a one-shot worker, not the CLI.
   if (process.env.BIMAX_SUBAGENT_CONFIG) {
-    const { runAsSubprocess } = await import('./cli/worker.entry');
+    const { runAsSubprocess } = await import('./engine/worker.entry');
     await runAsSubprocess();
     return;
   }
@@ -188,7 +188,7 @@ async function main() {
   if (graphStore) setContextManagerGraphStore(graphStore);
 
   if (prompt && cliFlags.print) {
-    const { executePrintMode } = await import('./cli/print');
+    const { executePrintMode } = await import('./engine/print');
     await executePrintMode(prompt, {
       agent: effectiveAgent,
       model: effectiveModel,
@@ -218,7 +218,14 @@ async function main() {
     // it so the front-end shows progress instead of appearing hung between the container and ready.
     reportBootPhase('loading_interface');
     const { startHeadless } = await import('./protocol/headless.entry');
-    await startHeadless(container, config);
+    // Transport is DETECTED, not configured, and this stays the only boot path. The desktop can
+    // host this same engine either as an OS child process (stdin/stdout) or as an Electron
+    // utilityProcess (MessagePort inbound, piped stdout outbound) — and a second entry file for the
+    // second case is exactly how desktop.runtime.ts and the two env builders came to drift, with
+    // the copy nobody ran quietly losing features the other had. One file, one boot, one place a
+    // fix lands.
+    const { underUtilityProcess, parentPortInput } = await import('./protocol/parent.port');
+    await startHeadless(container, config, underUtilityProcess() ? { input: parentPortInput() } : {});
     process.exit(0);
   }
 

@@ -11,7 +11,7 @@ import { carriedSummary, summarizeLog } from '../context/log.summary';
 import { IGraphStore } from '../graph/models';
 import { crossRepoMapSync } from '../graph/cross.repo';
 import { compressBacklog, proxyCompress, recordCompression, looksLikeCode } from './headroom.compress';
-import { cliEvents } from '../cli/events';
+import { engineEvents } from '../engine/events';
 import { encode } from 'gpt-tokenizer';
 
 
@@ -207,7 +207,7 @@ export class ContextManager {
     if (process.env.BIMAX_DISABLE_COMPRESSION !== '1' && pressureRatio >= this.COMPACT_THRESHOLD) {
       // Which model the saving is attributed to (for the per-model /headroom report).
       let model = 'unknown';
-      try { const c = require('../cli/config').getConfig(); model = c.model || c.liteModel || 'unknown'; } catch { /* config optional */ }
+      try { const c = require('../engine/config').getConfig(); model = c.model || c.liteModel || 'unknown'; } catch { /* config optional */ }
 
       let saved = 0;
       let usedProxy = false;
@@ -246,7 +246,7 @@ export class ContextManager {
         Logger.info(`[Headroom] ${usedProxy ? 'Kompress proxy' : 'native'} compression saved ~${saved} tokens (model ${model})`);
         // Token-meter refresh only. This must NOT be 'graph_changed' — the TUI renders that as
         // "code graph updated", which is a lie for a context-token refresh.
-        try { cliEvents.emit('context_changed'); } catch { /* best-effort */ }
+        try { engineEvents.emit('context_changed'); } catch { /* best-effort */ }
       }
     }
 

@@ -3,7 +3,7 @@ import { BuiltTool } from '../../tools/tool.factory';
 import { LlmAdapter } from '../../core/llm.adapter';
 import { ModelCapabilities } from '../../core/capabilities';
 import { buildUserContent, isScreenshotObservationMessage } from '../../core/multimodal';
-import { cliEvents } from '../events';
+import { engineEvents } from '../events';
 import * as os from 'os';
 import { AgentLoop } from '../../core/agent.loop';
 import { globalProjectMemory } from '../../memory/project.memory';

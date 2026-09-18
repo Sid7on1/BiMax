@@ -11,7 +11,7 @@ import type { VectorStore } from '../memory/vector.store';
 import { droppedRecall, recallForTurn, recallKey, recallQuery } from '../memory/recall';
 import { derivedEvidence } from '../context/evidence';
 import { overflowMessage, planRequest } from '../context/request.budget';
-import { cliEvents, ToolCallEntry } from '../cli/events';
+import { engineEvents, ToolCallEntry } from '../engine/events';
 import { getActiveTodos, todosTouchedThisTurn } from '../tools/implementations/todo.tool';
 import { LoopDetector, LoopSignal } from './loop-detector';
 import { getGlobalPatternStore } from '../genome/pattern.store';
@@ -40,12 +40,12 @@ import { planToolBatches, runWithConcurrencyLimit, maxParallelToolCalls } from '
  * verbs rather than an allow-list of acting ones: a new acting verb must count as progress the day
  * it ships, whereas a new preparatory verb merely delays a nudge by one round.
  */
-export const PREPARATORY_CAPABILITY_ACTIONS = new Set([
+export const PREPARATORY_MOTION_ACTIONS = new Set([
   'open', 'focus', 'status', 'observe', 'screenshot', 'apps', 'windows',
   'cursor', 'frontmost', 'desktop', 'record_status',
 ]);
 
-const RECOVERABLE_CAPABILITY_BLOCKS = new Set([
+const RECOVERABLE_MOTION_BLOCKS = new Set([
   'invalid_arguments',
   'postcondition_required',
   'native_target_required',
@@ -65,7 +65,7 @@ export function terminalCapabilityBlocker(result: string): string | null {
     const value = JSON.parse(result);
     if (value?.ok !== false || value?.blocked !== true || value?.executor !== 'stop') return null;
     const code = typeof value.code === 'string' ? value.code : 'native_operation_blocked';
-    if (RECOVERABLE_CAPABILITY_BLOCKS.has(code)) return null;
+    if (RECOVERABLE_MOTION_BLOCKS.has(code)) return null;
     const reason = [value.reason, value.error].find(candidate => typeof candidate === 'string' && candidate.trim());
     return `${code}: ${reason || 'the native provider stopped the operation'}`;
   } catch { return null; }
@@ -177,7 +177,7 @@ export class AgentLoop {
     if (!fb) {
       try {
         // eslint-disable-next-line @typescript-eslint/no-require-imports
-        fb = String((require('../cli/config') as typeof import('../cli/config')).getConfig().fallbackModel || '').trim();
+        fb = String((require('../engine/config') as typeof import('../engine/config')).getConfig().fallbackModel || '').trim();
       } catch { return null; }
     }
     const llm = this.llm as any;
@@ -204,7 +204,7 @@ export class AgentLoop {
     if (!fb) {
       try {
         // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const { autoSelectCandidates } = require('../cli/models') as typeof import('../cli/models');
+        const { autoSelectCandidates } = require('../engine/models') as typeof import('../engine/models');
         const served = await llm?.listProviderModels?.();
         if (Array.isArray(served) && served.length) {
           fb = autoSelectCandidates('coding', served).find((id: string) => id !== current) || '';
@@ -559,7 +559,7 @@ export class AgentLoop {
         } else if (event.type === 'thinking') {
           // Internal reasoning: surface to the UI status area, never into the reply
           if (event.replay) replayableReasoning += event.text;
-          cliEvents.emit('thinking', event.text);
+          engineEvents.emit('thinking', event.text);
         } else if (event.type === 'tool_call') {
           // gpt-oss can glue harmony tokens to the name; the call and the history keep the clean one (backlog Q1).
           toolCalls.push({ ...event, name: cleanToolName(event.name) });
@@ -567,7 +567,7 @@ export class AgentLoop {
           // Live activity only: show the call forming in the UI while args still stream. The
           // authoritative entry is (re-)emitted by executeTool with the same id, which the UI
           // dedupes, so this never double-runs anything.
-          cliEvents.emit('tool_call', {
+          engineEvents.emit('tool_call', {
             id: event.id,
             toolName: event.name,
             input: event.args || '',
@@ -629,8 +629,8 @@ export class AgentLoop {
               if (strictlyShrank) {
                 if (droppedRecall(this.messages, recoveredMessages)) this.recalled.clear();
                 this.messages = recoveredMessages;
-                cliEvents.emit('status', `Context overflow — ${action} and retrying (${contextRecoveries}/${MAX_CONTEXT_RECOVERIES})…`);
-                cliEvents.emit('log', {
+                engineEvents.emit('status', `Context overflow — ${action} and retrying (${contextRecoveries}/${MAX_CONTEXT_RECOVERIES})…`);
+                engineEvents.emit('log', {
                   id: Date.now(),
                   level: 'warn',
                   text: `Context recovery tier ${tier} (${action}) reduced the estimate ${beforeTokens} → ${afterTokens} tokens; re-asking.`,
@@ -640,7 +640,7 @@ export class AgentLoop {
                 break;
               }
 
-              cliEvents.emit('log', {
+              engineEvents.emit('log', {
                 id: Date.now(),
                 level: 'warn',
                 text: `Context recovery tier ${tier} (${action}) did not shrink the estimate (${beforeTokens} → ${afterTokens} tokens); advancing immediately.`,
@@ -663,8 +663,8 @@ export class AgentLoop {
             const backoffMs = event.retryAfterSecs != null
               ? Math.min(event.retryAfterSecs * 1000, 30_000)
               : Math.min(1000 * 2 ** (transientRetries - 1), 8000);
-            cliEvents.emit('status', `Provider hiccup — retrying in ${Math.round(backoffMs / 1000)}s (${transientRetries}/${MAX_TRANSIENT_RETRIES})`);
-            cliEvents.emit('log', { id: Date.now(), level: 'warn', text: `Transient API error (${event.message}); backing off ${Math.round(backoffMs / 1000)}s.`, timestamp: new Date() });
+            engineEvents.emit('status', `Provider hiccup — retrying in ${Math.round(backoffMs / 1000)}s (${transientRetries}/${MAX_TRANSIENT_RETRIES})`);
+            engineEvents.emit('log', { id: Date.now(), level: 'warn', text: `Transient API error (${event.message}); backing off ${Math.round(backoffMs / 1000)}s.`, timestamp: new Date() });
             // The wait observes cancellation: a 30-second Retry-After used to hold Stop until it ran out
             // (record 49).
             try { await delay(backoffMs, undefined, { signal }); } catch (error) {
@@ -683,15 +683,15 @@ export class AgentLoop {
               this.fallbackApplied = true;
               (this.llm as any).applyConfig?.({ model: fb });
               transientRetries = 0;
-              cliEvents.emit('status', `Model failing — switched to fallback "${fb}"`);
-              cliEvents.emit('log', { id: Date.now(), level: 'warn', text: `Active model kept failing (${event.message}); failed over to fallback model "${fb}".`, timestamp: new Date() });
+              engineEvents.emit('status', `Model failing — switched to fallback "${fb}"`);
+              engineEvents.emit('log', { id: Date.now(), level: 'warn', text: `Active model kept failing (${event.message}); failed over to fallback model "${fb}".`, timestamp: new Date() });
               // Session-scoped, exactly like the boot healer. This used to persist `fb` so a dead
               // pin would not survive restart — but `fb` is frequently DERIVED (autoSelectCandidates
               // below), so persisting it wrote a machine guess over the model the user chose in the
               // picker, permanently and silently. One failing turn was enough. The user's stored
               // choice is theirs; the failover keeps THIS session alive and says so in the status
               // line, and the next launch starts from what they actually picked.
-              cliEvents.emit('config_changed');
+              engineEvents.emit('config_changed');
               discardTurn = true;
               break;
             }
@@ -771,8 +771,8 @@ export class AgentLoop {
           const message =
             `Reasoning exceeded output budget — raising to ${nextOutputTokenBudget} and retrying ` +
             `(${reasoningEscalations}/${MAX_REASONING_ESCALATIONS}).`;
-          cliEvents.emit('status', message);
-          cliEvents.emit('log', {
+          engineEvents.emit('status', message);
+          engineEvents.emit('log', {
             id: Date.now(),
             level: 'warn',
             text: message,
@@ -801,8 +801,8 @@ export class AgentLoop {
               'large files, write them in several smaller pieces (write the first part, then ' +
               'append the rest) so no single call hits the limit.',
           });
-          cliEvents.emit('status', `Output limit hit — continuing automatically (${truncationContinues}/${MAX_TRUNCATION_CONTINUES})`);
-          cliEvents.emit('log', { id: Date.now(), level: 'warn', text: `Response hit the output-token ceiling; auto-continuing (${truncationContinues}/${MAX_TRUNCATION_CONTINUES}).`, timestamp: new Date() });
+          engineEvents.emit('status', `Output limit hit — continuing automatically (${truncationContinues}/${MAX_TRUNCATION_CONTINUES})`);
+          engineEvents.emit('log', { id: Date.now(), level: 'warn', text: `Response hit the output-token ceiling; auto-continuing (${truncationContinues}/${MAX_TRUNCATION_CONTINUES}).`, timestamp: new Date() });
           continue;
         }
         if (toolCalls.length === 0) {
@@ -863,7 +863,7 @@ export class AgentLoop {
               `instructions or claim you lack access. Call ${options.requireTool} now with the ` +
               `smallest safe first action grounded in the user's request.`,
           });
-          cliEvents.emit('status', `Activating ${options.requireTool} for this operation…`);
+          engineEvents.emit('status', `Activating ${options.requireTool} for this operation…`);
           continue;
         } else {
           reportCapability({ id: 'tool-activation', label: 'Requested capability', state: 'unavailable',
@@ -901,7 +901,7 @@ export class AgentLoop {
               `the user's request, or state the one concrete blocker the newest result proves. If ` +
               `the request was only to open or inspect something, say so plainly in one sentence.`,
           });
-          cliEvents.emit('status', 'Completing the requested operation…');
+          engineEvents.emit('status', 'Completing the requested operation…');
           continue;
         }
         Logger.warn('[AgentLoop] Operation ended after preparatory capability calls only.');
@@ -1010,7 +1010,7 @@ export class AgentLoop {
             // as progress, but must not block the turn either — the bounded nudge below decides.
             try {
               const action = String(JSON.parse(tc.args || '{}')?.action || '').toLowerCase();
-              if (action && !PREPARATORY_CAPABILITY_ACTIONS.has(action)) sawAdvancingAction = true;
+              if (action && !PREPARATORY_MOTION_ACTIONS.has(action)) sawAdvancingAction = true;
             } catch { /* unparseable args are judged by the runtime, not here */ }
           }
           const toolSpan = tracer.startSpan(`execute_tool ${tc.name}`, {
@@ -1026,7 +1026,7 @@ export class AgentLoop {
             status: 'running',
             startTime: new Date(),
           };
-          cliEvents.emit('tool_call', entry);
+          engineEvents.emit('tool_call', entry);
 
           const finish = (result: string, isError: boolean, typed?: TypedOutcome) => {
             // A preparatory call that FAILED is a legitimate place to stop: the honest answer is the
@@ -1114,7 +1114,7 @@ export class AgentLoop {
               if (outcome === 'ok' && CLAIMING_TOOLS.has(tc.name)) {
                 const claimFile = pathOf(tc.args || '{}');
                 // Review records every successful mutation, including prose/media artifacts.
-                cliEvents.emit('review_change', { tool: tc.name, file: claimFile, callId: tc.id });
+                engineEvents.emit('review_change', { tool: tc.name, file: claimFile, callId: tc.id });
                 // Build/test verification is meaningful only for code/config-like artifacts. A
                 // story.txt or image still appears in Review, but must not open a claim that ends
                 // the turn with the nonsensical instruction to run a build/test.
@@ -1128,10 +1128,10 @@ export class AgentLoop {
                   background: argsObj?.background === true,
                   cwd: context?.cwd || process.cwd(),
                 });
-                if (resolution) cliEvents.emit('review_evidence', { command: bashCmd, ...resolution });
+                if (resolution) engineEvents.emit('review_evidence', { command: bashCmd, ...resolution });
               }
             } catch { /* observers are best-effort */ }
-            cliEvents.emit('tool_call_result', {
+            engineEvents.emit('tool_call_result', {
               ...entry,
               output: result,
               status: isError ? 'error' : 'success',
@@ -1294,7 +1294,7 @@ export class AgentLoop {
               `${operationTerminalBlocker}. Do not call or invent another tool and do not retry ` +
               `open/focus/observe. Tell the user this concrete blocker plainly.`,
           });
-          cliEvents.emit('status', 'Mac operation blocked — reporting the verified blocker');
+          engineEvents.emit('status', 'Mac operation blocked — reporting the verified blocker');
         }
 
         // Vision observation loop: a browser screenshot this batch produced becomes an image the
@@ -1321,7 +1321,7 @@ export class AgentLoop {
 
         // One mind-strip refresh per tool batch (not per call): the footer's 🧠 counters
         // (weak spots / drive deviations / habits) re-snapshot after the batch lands.
-        try { cliEvents.emit('mind_changed' as any); } catch { /* best-effort */ }
+        try { engineEvents.emit('mind_changed' as any); } catch { /* best-effort */ }
 
         // Handle any loop signals collected this turn
         if (loopSignals.length > 0) {
@@ -1331,8 +1331,8 @@ export class AgentLoop {
           if (worst.severity === 'hard') {
             // The loop_detected event renders its own visible line in the TUI — no reply-stream
             // narration on top of it (the answer must stay the model's voice alone).
-            cliEvents.emit('status', `Loop broken — "${worst.tool}" repeated ${worst.count}×, steering the model away`);
-            cliEvents.emit('loop_detected' as any, worst);
+            engineEvents.emit('status', `Loop broken — "${worst.tool}" repeated ${worst.count}×, steering the model away`);
+            engineEvents.emit('loop_detected' as any, worst);
             this.messages.push({
               role: 'user',
               content: worst.type === 'error_thrashing'

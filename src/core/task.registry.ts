@@ -1,4 +1,4 @@
-import { cliEvents } from '../cli/events';
+import { engineEvents } from '../engine/events';
 import { getExecutionLedger, TaskState, TERMINAL_STATES } from './execution.ledger';
 
 // ─── Task registry: the live half of task workspaces ────────────────────────────────────────────
@@ -231,7 +231,7 @@ export class TaskRegistry {
   }
 
   private changed(): void {
-    try { cliEvents.emit('tasks_changed'); } catch { /* wiring optional in tests */ }
+    try { engineEvents.emit('tasks_changed'); } catch { /* wiring optional in tests */ }
   }
 }
 

@@ -116,7 +116,7 @@ const ALTERNATIVES: Record<string, string> = {
 export function currentModelKey(): string {
   try {
     // Lazy require avoids a config→mind→config cycle and tolerates config not loaded yet.
-    const { getConfig } = require('../cli/config');
+    const { getConfig } = require('../engine/config');
     const id = String(getConfig().model || '');
     if (!id) return '-';
     return id.split('/').pop()!.slice(0, 40);

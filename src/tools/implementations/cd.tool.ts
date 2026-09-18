@@ -1,6 +1,6 @@
 import { IGovernor } from '../../core/interfaces';
 import { buildTool } from '../tool.factory';
-import { cliEvents } from '../../cli/events';
+import { engineEvents } from '../../engine/events';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
@@ -49,7 +49,7 @@ export const createCdTool = (governor: IGovernor) => buildTool({
 
     // Tell the UI the project changed so it reloads the per-project graph / map panel — otherwise
     // the panel keeps showing whatever was indexed at launch (e.g. a stale home-dir map).
-    cliEvents.emit('cwd_changed', absolutePath);
+    engineEvents.emit('cwd_changed', absolutePath);
 
     // Return a single concise line (not a 23-line JSON blob) — enough for the model to know where it
     // landed and roughly what's there; it can `ls` for the full listing if it actually needs it.

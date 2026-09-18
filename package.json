@@ -1,7 +1,7 @@
 {
   "name": "bimax",
   "version": "1.1.0",
-  "description": "Bimax engine — the headless agent core the Bimax desktop app spawns",
+  "description": "Bimax engine \u2014 the headless agent core the Bimax desktop app spawns",
   "main": "dist/index.js",
   "engines": {
     "node": ">=22.5.0"
@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "tsx src/index.ts",
     "build": "tsc",
-    "build:engine": "bun build src/index.ts --compile --minify-whitespace --minify-syntax --outfile .engine-local/bimax-engine && rm -f .*.bun-build",
+    "build:engine": "bash app/scripts/prepare-engine.sh",
     "postinstall": "node -e \"try{require('fs').existsSync(require('path').join(process.cwd(),'.breakglass','config.json'))||require('./scripts/postinstall')()}catch(e){}\"",
     "test": "jest --coverage",
     "test:ci": "jest --coverage=false",
@@ -37,9 +37,6 @@
     "@octokit/rest": "^22.0.1",
     "@types/pg": "^8.23.1",
     "async-mutex": "^0.5.0",
-    "chalk": "^4.1.2",
-    "cli-highlight": "^2.1.11",
-    "cli-spinners": "^3.4.0",
     "commander": "^12.1.0",
     "cron-parser": "^5.5.0",
     "diff": "^4.0.4",
@@ -51,7 +48,6 @@
     "express-rate-limit": "^8.5.2",
     "fuzzysort": "^3.1.0",
     "gpt-tokenizer": "^3.4.0",
-    "gradient-string": "^3.0.0",
     "js-yaml": "^5.4.1",
     "jsonwebtoken": "^9.0.3",
     "marked": "^18.0.5",

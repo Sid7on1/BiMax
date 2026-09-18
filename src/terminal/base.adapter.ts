@@ -1,6 +1,6 @@
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import { Logger } from '../utils';
-import { cliEvents } from '../cli/events';
+import { engineEvents } from '../engine/events';
 
 /**
  * Base adapter that all CLI tool adapters must extend.
@@ -62,7 +62,7 @@ export abstract class BaseAdapter {
       const onStdErr = (data: Buffer) => {
         const text = data.toString().trimEnd();
         if (text) {
-          cliEvents.emit('log', `\x1b[31m[${this.toolName} ERROR]\x1b[0m ${text}`);
+          engineEvents.emit('log', `\x1b[31m[${this.toolName} ERROR]\x1b[0m ${text}`);
         }
       };
 
@@ -93,7 +93,7 @@ export abstract class BaseAdapter {
           resolve(cleanOutput);
         } else {
           // Stream live output to UI
-          cliEvents.emit('log', `\x1b[90m[${this.toolName}]\x1b[0m ${text.trimEnd()}`);
+          engineEvents.emit('log', `\x1b[90m[${this.toolName}]\x1b[0m ${text.trimEnd()}`);
         }
       };
 

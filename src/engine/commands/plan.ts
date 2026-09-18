@@ -1,5 +1,5 @@
 import { globalCommandRegistry } from './registry';
-import { cliEvents } from '../events';
+import { engineEvents } from '../events';
 import { getPlanManager } from '../../memory/plan.manager';
 
 /**
@@ -21,7 +21,7 @@ globalCommandRegistry.register({
     // --- Plan mode toggle ---
     if (sub === 'off' || sub === 'exit') {
       governor.mode = context.options.dangerouslySkipPermissions ? 'bypass' : 'interactive';
-      cliEvents.emit('mode_change', '');
+      engineEvents.emit('mode_change', '');
       return { type: 'message', level: 'success', content: 'Plan mode OFF — agent can make changes again. Ask it to execute the plan.' };
     }
 
@@ -30,7 +30,7 @@ globalCommandRegistry.register({
         return { type: 'message', level: 'info', content: 'Already in plan mode. Use /plan off to allow changes.' };
       }
       governor.mode = 'plan';
-      cliEvents.emit('mode_change', 'PLAN');
+      engineEvents.emit('mode_change', 'PLAN');
       return {
         type: 'message',
         level: 'success',

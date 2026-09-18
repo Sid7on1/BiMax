@@ -1,7 +1,7 @@
 import { spawn } from 'child_process';
 import type { SpanContext } from '../telemetry/trace';
 import { beginBackgroundEvidence } from '../mind/background.evidence';
-import { cliEvents } from '../cli/events';
+import { engineEvents } from '../engine/events';
 import { getTaskRegistry, WorkspaceTask } from './task.registry';
 
 // ─── Background shell tasks ─────────────────────────────────────────────────────────────────────
@@ -128,7 +128,7 @@ function notifyDone(taskId: string): void {
       ? `⏹ Background task cancelled: ${t.title}`
       : `✘ Background task ${t.state === 'failed-resumable' ? 'failed (resumable)' : 'failed'}: ${t.title} — ${t.failure || ''} (last output via /tasks show ${t.id})`;
   try {
-    cliEvents.emit('message', {
+    engineEvents.emit('message', {
       id: `task-${taskId}-${Date.now()}`, role: 'system',
       level: t.state === 'completed' ? 'info' : 'warn',
       content: text, timestamp: new Date(),

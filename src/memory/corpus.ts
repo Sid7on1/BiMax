@@ -321,7 +321,7 @@ export class ComposerCorpus {
     // Best-effort: the corpus is usable without a front-end attached.
     try {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
-      (require('../cli/events') as typeof import('../cli/events')).cliEvents.emit('composer_changed');
+      (require('../engine/events') as typeof import('../engine/events')).engineEvents.emit('composer_changed');
     } catch { /* no event bus in this context */ }
     return report;
   }

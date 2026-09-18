@@ -2,7 +2,7 @@ import { globalCommandRegistry } from './registry';
 import { getProviders, setProvider, getCurrentProvider, buildKeyPool } from '../provider';
 import { saveApiKeyToEnv } from '../env.loader';
 import { curatedModelMenuOptions, isReasoningModel, DEFAULT_LITE_MODEL } from '../models';
-import { cliEvents } from '../events';
+import { engineEvents } from '../events';
 
 /**
  * /setup — the guided first-run wizard: provider → API key → model, three explicit steps.
@@ -63,7 +63,7 @@ function stepModel(context: any): void {
       context.options.model = model;
       (context.options as any).liteModel = lite;
       context.saveConfig({ model, liteModel: lite, subagentModel: '', onboardingKeysDone: true });
-      cliEvents.emit('config_changed');
+      engineEvents.emit('config_changed');
       context.addSystemMessage('success', lite === model
         ? `You're set: everything runs on ${model}.`
         : `You're set: ${model} does the work · ${lite} answers quick replies instantly.`);

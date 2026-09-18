@@ -4,7 +4,7 @@ import * as fsSync from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 import jwt from 'jsonwebtoken';
-import { ensureJwtSecret } from '../cli/env.loader';
+import { ensureJwtSecret } from '../engine/env.loader';
 
 export class AuthAutomator {
   private readonly AUTH_DIR = path.join(os.homedir(), '.breakglass', 'auth');

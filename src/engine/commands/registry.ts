@@ -81,6 +81,16 @@ export const PALETTE_HIDDEN = new Set<string>([
   // Already represented by primary product surfaces: Map panel and Security settings/status.
   'map', 'governor',
   'pipelines', 'recipe', 'selection', 'shortcuts', 'headroom',
+  // Diagnostic readouts → demoted on the same rule that demoted 'route' above: a thing you run to
+  // CHECK the product is not a verb you reach for to DO work. All three stay runnable when typed.
+  //   retrieval — "prove semantic search is live: one real embedding call, with the margin"
+  //   trace     — recent OTel GenAI spans + where they exported to
+  //   sidecars  — optional Python-backed capabilities, i.e. configuring infrastructure
+  // The surface had drifted to 33 against a documented ceiling of 30; these are the three least
+  // verb-like on it. /evidence and /compliance were the other candidates and are deliberately KEPT —
+  // "what the model was shown" and "check documents against a rule set" are things a user wants to
+  // find by browsing, not diagnostics.
+  'retrieval', 'trace', 'sidecars',
 ]);
 
 /** Is this command demoted from the browsable palette / autocomplete? (names may carry a leading /) */

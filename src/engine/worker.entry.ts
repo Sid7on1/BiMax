@@ -42,7 +42,7 @@ import { globalProjectMemory } from '../memory/project.memory';
 // McpManageTool is excluded: MCP connections belong to the parent process; re-connecting in every
 // worker thread would race against the parent's connections and create duplicate sessions.
 import { GraphStore } from '../graph/graph.store';
-import { cliEvents } from './events';
+import { engineEvents } from './events';
 import { floorRoot } from '../sandbox/exec.sandbox';
 import { SafetyPolicy } from '../governor/policy.engine';
 import { OutcomeManager, __setOutcomeManager } from '../outcome/outcome.manager';
@@ -132,8 +132,8 @@ async function runSubAgentCore(
     __setOutcomeManager(workerOutcome);
     const onReviewChange = () => workerOutcome.onMutation();
     const onReviewEvidence = (event: any) => workerOutcome.onBuildEvidence(event);
-    cliEvents.on('review_change', onReviewChange);
-    cliEvents.on('review_evidence', onReviewEvidence);
+    engineEvents.on('review_change', onReviewChange);
+    engineEvents.on('review_evidence', onReviewEvidence);
     // Must match the parent's graph backend (container.ts uses createGraphStore: SQLite when
     // available, legacy JSON otherwise), keyed off the sub-agent's project cwd — NOT
     // ~/.breakglass/graph.json, which left workers querying an empty/stale store.
@@ -230,13 +230,13 @@ async function runSubAgentCore(
     agent.cwd = config.cwd;
 
     // Forward this sub-agent's tool activity to the parent so the UI can nest it under the spawn
-    // (T3). cliEvents here is the process/thread-local singleton the agent loop emits on; the
+    // (T3). engineEvents here is the process/thread-local singleton the agent loop emits on; the
     // transport-specific emitEvent relays it (postMessage for a thread, a stdout sentinel for a
     // subprocess). The parent (SubAgentManager) tags it with parentId/agentLabel.
     const onCall = (call: any) => emitEvent('tool_call', call);
     const onResult = (call: any) => emitEvent('tool_call_result', call);
-    cliEvents.on('tool_call', onCall);
-    cliEvents.on('tool_call_result', onResult);
+    engineEvents.on('tool_call', onCall);
+    engineEvents.on('tool_call_result', onResult);
 
     // Boot done — everything above (key pool, config, graph store, ~18 tools, persona/system-prompt)
     // is the fixable per-spawn overhead WS2 measures. Signal it NOW, before the first llm call, so
@@ -247,10 +247,10 @@ async function runSubAgentCore(
     try {
       return await agent.execute(config.prompt, () => { /* streaming ignored in sub-agents */ });
     } finally {
-      cliEvents.off('tool_call', onCall);
-      cliEvents.off('tool_call_result', onResult);
-      cliEvents.off('review_change', onReviewChange);
-      cliEvents.off('review_evidence', onReviewEvidence);
+      engineEvents.off('tool_call', onCall);
+      engineEvents.off('tool_call_result', onResult);
+      engineEvents.off('review_change', onReviewChange);
+      engineEvents.off('review_evidence', onReviewEvidence);
       workerOutcome.shutdown();
       __setOutcomeManager(null);
     }

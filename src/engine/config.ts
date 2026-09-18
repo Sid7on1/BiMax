@@ -28,11 +28,11 @@ const projectDir = () => path.join(process.cwd(), '.breakglass');
 const projectPath = () => path.join(projectDir(), 'config.json');
 
 // Fields that belong to the project, not to the user's global preferences.
-const PROJECT_KEYS: (keyof CliConfig)[] = ['onboardingComplete', 'workspaceRoot'];
+const PROJECT_KEYS: (keyof EngineConfig)[] = ['onboardingComplete', 'workspaceRoot'];
 
 // Environment overrides: the volatile scope. Maps config key → env var. Parsed on load; tracked
 // as provenance 'env'; refused persistence for runtime-origin writes.
-const ENV_OVERRIDES: Partial<Record<keyof CliConfig, string>> = {
+const ENV_OVERRIDES: Partial<Record<keyof EngineConfig, string>> = {
   model: 'BGW_MODEL',
   liteModel: 'BGW_LITE_MODEL',
   visionModel: 'BGW_VISION_MODEL',
@@ -43,7 +43,7 @@ const ENV_OVERRIDES: Partial<Record<keyof CliConfig, string>> = {
   computerApprovals: 'BIMAX_COMPUTER_APPROVALS',
 };
 
-const STRICT_MODEL_KEYS: readonly (keyof CliConfig)[] = [
+const STRICT_MODEL_KEYS: readonly (keyof EngineConfig)[] = [
   'model',
   'liteModel',
   'visionModel',
@@ -54,7 +54,7 @@ const desktopStrictModel = (): string => String(process.env.BIMAX_DESKTOP_STRICT
 
 export type ConfigSource = 'default' | 'global' | 'project' | 'env';
 
-export interface CliConfig {
+export interface EngineConfig {
   defaultAgent: string;
   model: string; // the CODING model — drives the main agent loop
   liteModel: string; // the LITE model — used for cheap aux calls (summaries, self-critic, ask-user)
@@ -104,7 +104,7 @@ export interface CliConfig {
    */
   maxThinkingTokens: number;
   /**
-   * The active LLM provider (see cli/provider.ts). Persisted so a choice made in the UI survives a
+   * The active LLM provider (see engine/provider.ts). Persisted so a choice made in the UI survives a
    * restart: this used to be a module-level variable set only by the /provider command, so every
    * launch silently reverted to BGW_PROVIDER or 'nvidia' regardless of what the user had picked.
    * Precedence is unchanged — a runtime /provider override still wins, then this, then the env var.
@@ -163,14 +163,14 @@ export interface CliConfig {
   codeIndexRemoteEmbeddings: boolean;
 }
 
-export const DEFAULTS: CliConfig = {
+export const DEFAULTS: EngineConfig = {
   defaultAgent: 'bimax',
   // Work: Kimi K3 is the requested current NVIDIA default. The authenticated provider catalogue
   // served this exact id on 2026-08-29, and NVIDIA documents multimodal input, tool calling,
   // structured output and a 1M context window. Real Bimax task quality and latency remain Target;
   // the bounded local first-token probe did not answer within 60 seconds.
   //
-  // These MUST equal the DEFAULT_* constants in cli/models.ts (enforced by models.test.ts).
+  // These MUST equal the DEFAULT_* constants in engine/models.ts (enforced by models.test.ts).
   // Re-measure with `npm run benchmark:models` — that script, not this comment, is the authority.
   model: 'moonshotai/kimi-k3',
   // Quick stays a plain instruct route; Kimi K3 always thinks and would defeat this slot's purpose.
@@ -179,7 +179,7 @@ export const DEFAULTS: CliConfig = {
   visionModel: 'moonshotai/kimi-k3',
   fallbackModel: '', // off by default — set to a second NIM id to survive mid-run model outages
   subagentModel: '', // '' = sub-agents use the main model
-  provider: '', // '' = follow BGW_PROVIDER, else 'nvidia' (see cli/provider.ts)
+  provider: '', // '' = follow BGW_PROVIDER, else 'nvidia' (see engine/provider.ts)
   providerBaseURL: '', // '' = the provider's own endpoint
   maxThinkingTokens: 0, // 0 = the provider's default reasoning budget
 
@@ -227,11 +227,11 @@ export const DEFAULTS: CliConfig = {
   codeIndexRemoteEmbeddings: false,
 };
 
-let cached: CliConfig | null = null;
-let sources: Partial<Record<keyof CliConfig, ConfigSource>> = {};
+let cached: EngineConfig | null = null;
+let sources: Partial<Record<keyof EngineConfig, ConfigSource>> = {};
 
 /** Where the effective value of `key` came from. 'default' until loadConfig() has run. */
-export function configSource(key: keyof CliConfig): ConfigSource {
+export function configSource(key: keyof EngineConfig): ConfigSource {
   return sources[key] || 'default';
 }
 
@@ -244,7 +244,7 @@ export function __resetConfigForTests(): void {
 // Distinguishes "file absent" (normal) from "file corrupt" (must not be silently treated as
 // empty — a later save would then rewrite the file from just the update, losing every other
 // key). A corrupt file is preserved to config.json.corrupt-<ts> and an empty scope returned.
-async function readJson(file: string): Promise<Partial<CliConfig>> {
+async function readJson(file: string): Promise<Partial<EngineConfig>> {
   let raw: string;
   try {
     raw = await fs.readFile(file, 'utf-8');
@@ -290,7 +290,7 @@ async function writeJsonAtomic(file: string, value: unknown): Promise<void> {
   }
 }
 
-function parseEnvValue(key: keyof CliConfig, raw: string): unknown {
+function parseEnvValue(key: keyof EngineConfig, raw: string): unknown {
   // Union-typed keys cannot take an arbitrary string: the declared type would be a lie, and an
   // unrecognized approval mode must fail SAFE (ask about everything) rather than silently widening
   // what runs unattended. Matches the capability provider's own config.
@@ -304,7 +304,7 @@ function parseEnvValue(key: keyof CliConfig, raw: string): unknown {
   return raw;
 }
 
-export async function loadConfig(): Promise<CliConfig> {
+export async function loadConfig(): Promise<EngineConfig> {
   if (cached) return cached;
   const globalCfg = await readJson(globalPath());
   const rawProjectCfg = await readJson(projectPath());
@@ -314,11 +314,11 @@ export async function loadConfig(): Promise<CliConfig> {
   // fields may flow from this file.
   const projectCfg = Object.fromEntries(
     PROJECT_KEYS.filter((key) => key in rawProjectCfg).map((key) => [key, rawProjectCfg[key]]),
-  ) as Partial<CliConfig>;
+  ) as Partial<EngineConfig>;
   // Compose the scopes in precedence order, recording where each effective value came from.
-  const merged: CliConfig = { ...DEFAULTS, ...globalCfg, ...projectCfg };
+  const merged: EngineConfig = { ...DEFAULTS, ...globalCfg, ...projectCfg };
   sources = {};
-  for (const key of Object.keys(DEFAULTS) as (keyof CliConfig)[]) {
+  for (const key of Object.keys(DEFAULTS) as (keyof EngineConfig)[]) {
     if (key in projectCfg) sources[key] = 'project';
     else if (key in globalCfg) sources[key] = 'global';
     else sources[key] = 'default';
@@ -327,7 +327,7 @@ export async function loadConfig(): Promise<CliConfig> {
   // never written back. (Previously config.model silently clobbered BGW_MODEL — the precedence
   // was backwards, and the mock benchmark only worked because healModel then "healed" the config
   // model to the mock id and persisted it into the user's real config.)
-  for (const [key, envVar] of Object.entries(ENV_OVERRIDES) as [keyof CliConfig, string][]) {
+  for (const [key, envVar] of Object.entries(ENV_OVERRIDES) as [keyof EngineConfig, string][]) {
     const raw = process.env[envVar];
     if (raw !== undefined && raw !== '') {
       const v = parseEnvValue(key, raw);
@@ -370,7 +370,7 @@ export async function loadConfig(): Promise<CliConfig> {
   return cached;
 }
 
-export function getConfig(): CliConfig {
+export function getConfig(): EngineConfig {
   if (!cached) throw new Error('Config not loaded. Call loadConfig() first.');
   return cached;
 }
@@ -391,7 +391,7 @@ export interface SaveOptions {
 // read-merge-write cycles (each write still lands atomically; this makes the MERGE atomic too).
 let saveChain: Promise<unknown> = Promise.resolve();
 
-export function saveConfig(updates: Partial<CliConfig>, opts: SaveOptions = {}): Promise<CliConfig> {
+export function saveConfig(updates: Partial<EngineConfig>, opts: SaveOptions = {}): Promise<EngineConfig> {
   const run = saveChain.then(
     () => doSave(updates, opts),
     () => doSave(updates, opts),
@@ -400,7 +400,7 @@ export function saveConfig(updates: Partial<CliConfig>, opts: SaveOptions = {}):
   return run;
 }
 
-async function doSave(updates: Partial<CliConfig>, opts: SaveOptions = {}): Promise<CliConfig> {
+async function doSave(updates: Partial<EngineConfig>, opts: SaveOptions = {}): Promise<EngineConfig> {
   const origin = opts.origin || 'user';
   const current = await loadConfig();
 
@@ -433,17 +433,17 @@ async function doSave(updates: Partial<CliConfig>, opts: SaveOptions = {}): Prom
   // Model controls are read-only in the single-model Desktop build. Drop these writes entirely:
   // persisting them would mutate the user's separate Terminal preferences even though the app
   // cannot honor them. Non-model settings in the same patch still save normally.
-  const effectiveUpdates: Partial<CliConfig> = { ...updates };
+  const effectiveUpdates: Partial<EngineConfig> = { ...updates };
   if (desktopStrictModel()) {
     for (const key of STRICT_MODEL_KEYS) delete (effectiveUpdates as any)[key];
   }
 
   // The volatility guard: runtime-origin writes to env-overridden keys are dropped (in-memory
   // state still updates, so the session keeps working with the recovered value).
-  let accepted: Partial<CliConfig> = effectiveUpdates;
+  let accepted: Partial<EngineConfig> = effectiveUpdates;
   if (origin === 'runtime') {
     accepted = {};
-    for (const [key, value] of Object.entries(effectiveUpdates) as [keyof CliConfig, any][]) {
+    for (const [key, value] of Object.entries(effectiveUpdates) as [keyof EngineConfig, any][]) {
       if (sources[key] === 'env') {
         console.warn(
           `[Config] Not persisting runtime change to "${key}" — its value came from ${ENV_OVERRIDES[key] || 'the environment'} and is session-scoped.`,
@@ -460,10 +460,10 @@ async function doSave(updates: Partial<CliConfig>, opts: SaveOptions = {}): Prom
   const globalUpdates: Record<string, any> = {};
   const projectUpdates: Record<string, any> = {};
   for (const [key, value] of Object.entries(accepted)) {
-    if (PROJECT_KEYS.includes(key as keyof CliConfig)) projectUpdates[key] = value;
+    if (PROJECT_KEYS.includes(key as keyof EngineConfig)) projectUpdates[key] = value;
     else globalUpdates[key] = value;
     // A persisted value's provenance becomes its destination scope.
-    sources[key as keyof CliConfig] = PROJECT_KEYS.includes(key as keyof CliConfig) ? 'project' : 'global';
+    sources[key as keyof EngineConfig] = PROJECT_KEYS.includes(key as keyof EngineConfig) ? 'project' : 'global';
   }
 
   try {

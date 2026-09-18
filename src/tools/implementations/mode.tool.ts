@@ -1,7 +1,7 @@
 import { IGovernor } from '../../core/interfaces';
 import { buildTool } from '../tool.factory';
-import { getAgentMode, AgentMode } from '../../cli/agentMode';
-import { applyAgentMode } from '../../cli/applyMode';
+import { getAgentMode, AgentMode } from '../../engine/agentMode';
+import { applyAgentMode } from '../../engine/applyMode';
 
 interface ModeArgs {
   mode: AgentMode;

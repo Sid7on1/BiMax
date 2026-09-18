@@ -180,7 +180,7 @@ function readConfigIfLoaded(): SettingsConfigView {
   try {
     // Late require: avoids a boot-order dependency on loadConfig() having run.
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { getConfig } = require('../cli/config') as typeof import('../cli/config');
+    const { getConfig } = require('../engine/config') as typeof import('../engine/config');
     return getConfig();
   } catch {
     return {};

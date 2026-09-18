@@ -1,5 +1,5 @@
 import { Command, globalCommandRegistry } from './registry';
-import { cliEvents } from '../events';
+import { engineEvents } from '../events';
 import { getConfig } from '../config';
 import { setBlastGateEnabled, isBlastGateEnabled } from '../blastGate';
 import { setVerifyEnabled, isVerifyEnabled } from '../../sandbox/verify.loop';
@@ -199,8 +199,8 @@ globalCommandRegistry.register({
     // Re-run the first-launch onboarding flow (the TUI listens and re-offers the graph build).
     if (args[0] === 'onboard' && args.length === 1) {
       await context.saveConfig({ onboardingComplete: false });
-      cliEvents.emit('config_changed');
-      cliEvents.emit('rerun_onboarding');
+      engineEvents.emit('config_changed');
+      engineEvents.emit('rerun_onboarding');
       return { type: 'message', level: 'info', content: 'Re-running onboarding — choose whether to rebuild the map graph, then the AI graph.' };
     }
 
@@ -322,7 +322,7 @@ globalCommandRegistry.register({
       Object.assign(context.options, updates);
       await context.saveConfig(updates);
       // Live-refresh the UI panels (the FullScreen listener re-reads these flags).
-      cliEvents.emit('config_changed');
+      engineEvents.emit('config_changed');
       return { type: 'message', level: 'success', content: `Config saved: ${key}=${val}` };
     }
     
@@ -373,7 +373,7 @@ globalCommandRegistry.register({
     if (sub === 'smart' || sub === 'full') {
       await context.saveConfig({ contextMode: sub });
       (context.options as any).contextMode = sub;
-      cliEvents.emit('config_changed');
+      engineEvents.emit('config_changed');
       return {
         type: 'message',
         level: 'success',

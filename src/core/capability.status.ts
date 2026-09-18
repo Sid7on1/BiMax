@@ -1,4 +1,4 @@
-import { cliEvents } from '../cli/events';
+import { engineEvents } from '../engine/events';
 
 export type CapabilityState = 'degraded' | 'unavailable' | 'ready';
 export interface CapabilityStatus {
@@ -41,7 +41,7 @@ export function reportCapability(input: Omit<CapabilityStatus, 'observedAt'>): v
   if (previous && previous.state === status.state && previous.reason === status.reason
     && previous.impact === status.impact && previous.action === status.action) return;
   states.set(status.id, status);
-  cliEvents.emit('message', capabilityMessage(status));
+  engineEvents.emit('message', capabilityMessage(status));
 }
 export function capabilitySnapshot(): CapabilityStatus[] { return [...states.values()]; }
 export function resetCapabilityStatus(): void { states.clear(); }

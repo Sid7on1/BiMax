@@ -1,6 +1,6 @@
 import { IGovernor } from '../../core/interfaces';
 import { buildTool } from '../tool.factory';
-import { cliEvents } from '../../cli/events';
+import { engineEvents } from '../../engine/events';
 
 export interface TodoItem {
   content: string;
@@ -40,7 +40,7 @@ export function retireCompletedTodos(): void {
   if (lastTodos.length > 0 && lastTodos.every(t => t.status === 'completed')) {
     lastTodos = [];
     touchedThisTurn = false;
-    try { cliEvents.emit('todo_update', []); } catch { /* best-effort */ }
+    try { engineEvents.emit('todo_update', []); } catch { /* best-effort */ }
   }
 }
 
@@ -107,11 +107,11 @@ export const createTodoWriteTool = (governor: IGovernor) => buildTool({
     lastTodos = todos;      // durable: re-injected into the prompt every turn (task memory)
     touchedThisTurn = true; // this turn is actively working a checklist → persistence may auto-continue
     // Push to the UI: full list into app state, compact progress into the status bar.
-    cliEvents.emit('todo_update', todos);
+    engineEvents.emit('todo_update', todos);
     const done = todos.filter(t => t.status === 'completed').length;
     const current = todos.find(t => t.status === 'in_progress');
     if (todos.length > 0) {
-      cliEvents.emit('status', `Tasks: ${done}/${todos.length} done${current ? ` · now: ${current.content.slice(0, 50)}` : ''}`);
+      engineEvents.emit('status', `Tasks: ${done}/${todos.length} done${current ? ` · now: ${current.content.slice(0, 50)}` : ''}`);
     }
 
     return renderTodoList(todos);

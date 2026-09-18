@@ -11,7 +11,7 @@ import { LlmAdapter } from '../../core/llm.adapter';
  * schema enum — dragged in `base.persona` and its whole graph: the agent loop, the code-memory
  * backend and the entire mind subsystem. Measured: 0.18s of a 0.35s engine start.
  *
- * That edge is also what made `base.persona` reach back to `cli/agentRouter` and expose a
+ * That edge is also what made `base.persona` reach back to `engine/agentRouter` and expose a
  * half-initialized `AgentPersona` under CommonJS (`Class extends value undefined`), the hazard
  * `agentRouter.getKnownAgents()` still guards with a lazy require. Splitting the class out lets
  * `SkillLoader` keep only a type-level reference to `PersonaConfig`, so reading skill names costs

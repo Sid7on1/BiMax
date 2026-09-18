@@ -35,7 +35,7 @@ export interface HostHandlers {
 }
 
 /**
- * Engine-side endpoint of the UI protocol. It bridges the in-process `cliEvents` emitter +
+ * Engine-side endpoint of the UI protocol. It bridges the in-process `engineEvents` emitter +
  * GlobalPrompter approval round-trip to an out-of-process front-end, transport-agnostically:
  * you give it a `write` sink (stdout, a socket, a test buffer) and feed it inbound lines.
  *

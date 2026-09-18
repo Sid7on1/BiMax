@@ -2,7 +2,7 @@ import { Worker } from 'worker_threads';
 import * as path from 'path';
 import { existsSync } from 'fs';
 import { Logger } from '../utils/logger';
-import { cliEvents } from '../cli/events';
+import { engineEvents } from '../engine/events';
 import { FLOOR_ENV } from '../sandbox/exec.sandbox';
 import { globalSubAgentBlackboard } from './subagent.blackboard';
 import { getTracer } from '../telemetry/trace';
@@ -98,15 +98,15 @@ export class SubAgentManager {
     // fails to register the ESM hooks, which surfaced as "Cannot find package 'minimatch'" /
     // "Unknown file extension '.ts'" and killed EVERY sub-agent whenever the engine ran from source.
     // A plain .js worker under plain node needs no loader and just works.
-    // Candidates: the sibling .js when we're already compiled (dist/core → dist/cli), and the dist
-    // copy when running from source (src/core → ../../dist/cli). Fall back to the .ts entry + tsx
+    // Candidates: the sibling .js when we're already compiled (dist/core → dist/engine), and the dist
+    // copy when running from source (src/core → ../../dist/engine). Fall back to the .ts entry + tsx
     // only if no compiled worker exists at all (pure-source checkout with no build).
     const compiledCandidates = [
-      path.resolve(__dirname, '../cli/worker.entry.js'),
-      path.resolve(__dirname, '../../dist/cli/worker.entry.js'),
+      path.resolve(__dirname, '../engine/worker.entry.js'),
+      path.resolve(__dirname, '../../dist/engine/worker.entry.js'),
     ];
     const compiledJs = compiledCandidates.find(existsSync);
-    const tsPath = path.resolve(__dirname, '../cli/worker.entry.ts');
+    const tsPath = path.resolve(__dirname, '../engine/worker.entry.ts');
     this.hasScriptOverride = !!opts?.workerScriptPath;
     if (opts?.workerScriptPath) {
       this.workerScriptPath = opts.workerScriptPath;
@@ -179,7 +179,7 @@ export class SubAgentManager {
    * AND checkpoint the agent tree to disk (so a crashed parent's swarm is recoverable).
    */
   private emitBoard(): void {
-    try { cliEvents.emit('subagent_update', globalSubAgentBlackboard.all()); } catch { /* best-effort */ }
+    try { engineEvents.emit('subagent_update', globalSubAgentBlackboard.all()); } catch { /* best-effort */ }
     try {
       const agents: CheckpointedAgent[] = globalSubAgentBlackboard.all()
         .filter(c => this.spawnConfigs.has(c.taskId))
@@ -471,7 +471,7 @@ export class SubAgentManager {
             journalSubagent({ taskId, phase: 'tool_call', tool: message.call.toolName, ms: Date.now() - t0 });
           }
           const call = { ...message.call, parentId: taskId, agentLabel: config.agentType };
-          cliEvents.emit(message.subtype === 'tool_call_result' ? 'tool_call_result' : 'tool_call', call);
+          engineEvents.emit(message.subtype === 'tool_call_result' ? 'tool_call_result' : 'tool_call', call);
         }
       });
 

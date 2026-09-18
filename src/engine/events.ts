@@ -58,16 +58,16 @@ class AppEventEmitter extends EventEmitter {
   }
 }
 
-export const cliEvents = new AppEventEmitter();
+export const engineEvents = new AppEventEmitter();
 // Several components subscribe per-render/per-turn; raise the cap so Node
 // doesn't print MaxListenersExceededWarning during long sessions.
-cliEvents.setMaxListeners(50);
+engineEvents.setMaxListeners(50);
 
 // Central session-usage accumulator. `cost_update` fires the streamed-char count at the end of
 // every turn; the Footer renders the live rate, but commands (e.g. /cost) need the running total
 // too — so we accumulate it once here instead of locking the number inside one component.
 let _sessionChars = 0;
-cliEvents.on('cost_update', (chars: number) => { if (typeof chars === 'number' && chars > 0) _sessionChars += chars; });
+engineEvents.on('cost_update', (chars: number) => { if (typeof chars === 'number' && chars > 0) _sessionChars += chars; });
 /** Rough running token estimate for the session (≈ chars/4). 0 before any output streams. */
 export function getSessionTokenEstimate(): number {
   return Math.round(_sessionChars / 4);

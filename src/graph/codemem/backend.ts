@@ -12,7 +12,7 @@
 
 import * as fs from 'fs';
 import { Logger } from '../../utils/logger';
-import { cliEvents } from '../../cli/events';
+import { engineEvents } from '../../engine/events';
 import { openClient } from '../../mcp/client';
 import { ensureBinary, SERVER_NAME } from '../../mcp/builtin/codebaseMemory';
 import { projectNameFromPath } from './projectName';
@@ -112,7 +112,7 @@ export class CodememBackend {
   /** Flip to ready and nudge the UI snapshot (footer/map badge) + tool-gating to refresh. */
   private markReady(): void {
     this.ready = true;
-    try { cliEvents.emit('graph_changed'); } catch { /* events optional */ }
+    try { engineEvents.emit('graph_changed'); } catch { /* events optional */ }
   }
 
   /** list_projects → name of the entry whose root_path matches `wantReal`, with nodes>0. */

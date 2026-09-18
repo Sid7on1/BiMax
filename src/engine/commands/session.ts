@@ -4,7 +4,7 @@ import { saveApiKeyToEnv } from '../env.loader';
 import { SessionStore, messageEntriesToLLM } from '../session';
 import { getSessionRecorder } from '../session.recorder';
 import { listSessionMeta } from '../../db/session.meta';
-import { cliEvents } from '../events';
+import { engineEvents } from '../events';
 
 /** "2026-06-17_02-30-15.jsonl" → "2026-06-17 02:30:15" for display. */
 function prettySessionName(file: string): string {
@@ -37,7 +37,7 @@ async function previewSession(file: string, context: any): Promise<void> {
  */
 async function resumeSession(file: string, context: any, store: SessionStore): Promise<void> {
   const entries = await store.loadSession(file);
-  const failed = (reason: string): void => { cliEvents.emit('session_restore_failed', { id: file.replace(/\.jsonl$/, ''), reason }); };
+  const failed = (reason: string): void => { engineEvents.emit('session_restore_failed', { id: file.replace(/\.jsonl$/, ''), reason }); };
   if (entries.length === 0) {
     failed('the saved conversation is empty or unreadable');
     context.addSystemMessage('error', `Session ${prettySessionName(file)} is empty or unreadable.`);
@@ -55,7 +55,7 @@ async function resumeSession(file: string, context: any, store: SessionStore): P
   const chatCount = entries.filter((m: any) => m.role === 'user' || m.role === 'assistant').length;
   try { getSessionRecorder()?.switchTo(id, chatCount, firstUser?.content); } catch { /* recorder optional */ }
   // Replay the transcript for graphical front-ends (capped: a day-long thread stays renderable).
-  cliEvents.emit('session_restore', { id, entries: entries.slice(-400) });
+  engineEvents.emit('session_restore', { id, entries: entries.slice(-400) });
   context.addSystemMessage('success', `Resumed "${prettySessionName(file)}" · ${llm.length} turn(s) restored — continuing this thread.`);
 
   // Inject GoalManager continuation prompt so the model picks up the active goal
@@ -238,12 +238,12 @@ globalCommandRegistry.register({
         if (prefixed.length === 1) {
           match = prefixed[0];
         } else if (prefixed.length > 1) {
-          cliEvents.emit('session_restore_failed', { id: args[0], reason: `more than one saved conversation starts with "${args[0]}"` });
+          engineEvents.emit('session_restore_failed', { id: args[0], reason: `more than one saved conversation starts with "${args[0]}"` });
           return { type: 'message', level: 'error', content: `"${args[0]}" matches ${prefixed.length} sessions (${prefixed.slice(0, 5).join(', ')}…). Be more specific or open /sessions.` };
         }
       }
       if (!match) {
-        cliEvents.emit('session_restore_failed', { id: args[0], reason: 'no saved conversation has that id' });
+        engineEvents.emit('session_restore_failed', { id: args[0], reason: 'no saved conversation has that id' });
         return { type: 'message', level: 'error', content: `No session matching "${args[0]}". Open /sessions to browse.` };
       }
       await resumeSession(match, context, store);
@@ -293,7 +293,7 @@ globalCommandRegistry.register({
       }
       const tail = messageEntriesToLLM(msgs).slice(-40);
       if (context.restoreMessages(tail) === false) return { type: 'none' };
-      cliEvents.emit('session_restore', { id: `branch:${name}`, entries: msgs.slice(-400) });
+      engineEvents.emit('session_restore', { id: `branch:${name}`, entries: msgs.slice(-400) });
       return { type: 'message', level: 'success', content: `Switched to branch "${name}" · ${tail.length} turn(s) loaded.` };
     }
 
@@ -310,7 +310,7 @@ globalCommandRegistry.register({
         const tail = messageEntriesToLLM(msgs).slice(-40);
         if (context.restoreMessages) {
           if (context.restoreMessages(tail) === false) return;
-          cliEvents.emit('session_restore', { id: `branch:${opt.value}`, entries: msgs.slice(-400) });
+          engineEvents.emit('session_restore', { id: `branch:${opt.value}`, entries: msgs.slice(-400) });
           context.addSystemMessage('success', `Switched to branch "${opt.value}" · ${tail.length} turn(s) loaded.`);
         } else {
           context.addSystemMessage('error', 'Branch restore not available.');

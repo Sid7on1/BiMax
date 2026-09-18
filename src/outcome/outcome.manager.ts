@@ -1,9 +1,9 @@
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
-import { cliEvents } from '../cli/events';
-import { getSessionRecorder } from '../cli/session.recorder';
-import { sessionDir } from '../cli/session';
+import { engineEvents } from '../engine/events';
+import { getSessionRecorder } from '../engine/session.recorder';
+import { sessionDir } from '../engine/session';
 import {
   CompletionGate,
   CriterionStatus,
@@ -350,7 +350,7 @@ export class OutcomeManager {
     this.touch();
     this.saveNow();
     if (!this.io.silent) {
-      cliEvents.emit('outcome_continuation_requested', {
+      engineEvents.emit('outcome_continuation_requested', {
         sessionId: contract.sessionId,
         revision: contract.continuation.revision,
         taskIds: [...contract.continuation.taskIds],
@@ -556,7 +556,7 @@ export class OutcomeManager {
         }
       }
       contract.phase = 'executing';
-      for (const file of result.paths) cliEvents.emit('review_change', { tool: 'SubAgentIntegration', file });
+      for (const file of result.paths) engineEvents.emit('review_change', { tool: 'SubAgentIntegration', file });
       this.touch();
       this.saveNow();
       return JSON.parse(JSON.stringify(receipt));
@@ -788,7 +788,7 @@ export class OutcomeManager {
 
   private publishNow(): void {
     if (this.io.silent) return;
-    cliEvents.emit('outcome_update', this.snapshot());
+    engineEvents.emit('outcome_update', this.snapshot());
   }
 
   private load(sessionId: string): OutcomeContract | null {
@@ -849,12 +849,12 @@ let manager: OutcomeManager | null = null;
 export function startOutcomeManager(): OutcomeManager {
   if (manager) return manager;
   manager = new OutcomeManager();
-  cliEvents.on('session_changed', () => manager?.syncSession());
-  cliEvents.on('review_change', () => manager?.onMutation());
-  cliEvents.on('review_evidence', (event: any) => manager?.onBuildEvidence(event));
-  cliEvents.on('browser_evidence', (event: any) => manager?.onBrowserEvidence(event));
-  cliEvents.on('todo_update', (todos: any) => manager?.onTodos(todos));
-  cliEvents.on('shutdown', () => manager?.shutdown());
+  engineEvents.on('session_changed', () => manager?.syncSession());
+  engineEvents.on('review_change', () => manager?.onMutation());
+  engineEvents.on('review_evidence', (event: any) => manager?.onBuildEvidence(event));
+  engineEvents.on('browser_evidence', (event: any) => manager?.onBrowserEvidence(event));
+  engineEvents.on('todo_update', (todos: any) => manager?.onTodos(todos));
+  engineEvents.on('shutdown', () => manager?.shutdown());
   manager.syncSession();
   return manager;
 }

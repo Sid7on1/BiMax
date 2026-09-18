@@ -1,5 +1,5 @@
 import { Logger } from '../utils/logger';
-import { cliEvents } from '../cli/events';
+import { engineEvents } from '../engine/events';
 
 /**
  * MCP Tasks extension support (spec 2025-11-25, carried into the 2026-07-28 RC): a server may
@@ -78,7 +78,7 @@ export async function awaitTaskResult(
     status = String(t.status || 'working');
     statusMessage = typeof t.statusMessage === 'string' ? t.statusMessage : '';
     try {
-      cliEvents.emit('status', `MCP task ${serverName}/${toolName}: ${status}${statusMessage ? ` — ${statusMessage.slice(0, 80)}` : ''}`);
+      engineEvents.emit('status', `MCP task ${serverName}/${toolName}: ${status}${statusMessage ? ` — ${statusMessage.slice(0, 80)}` : ''}`);
     } catch { /* UI is best-effort */ }
   }
 

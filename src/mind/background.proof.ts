@@ -27,7 +27,7 @@ async function main() {
   const { getEpistemicLedger } = await import('./epistemic.ledger');
   const { getEventLedger } = await import('./event.ledger');
   const { getTaskRegistry, TaskRegistry } = await import('../core/task.registry');
-  const { cliEvents } = await import('../cli/events');
+  const { engineEvents } = await import('../engine/events');
   const { shutdownTracer } = await import('../telemetry/trace');
   const { mindSingletonRoot } = await import('./self.model');
   assert.strictEqual(mindSingletonRoot(), root);
@@ -98,10 +98,10 @@ test('addition', async () => {
     const done = new Promise<void>(resolve => {
       const check = () => {
         if (['completed', 'failed-resumable', 'cancelled', 'failed'].includes(task.state)) {
-          cliEvents.off('tasks_changed', check); resolve();
+          engineEvents.off('tasks_changed', check); resolve();
         }
       };
-      cliEvents.on('tasks_changed', check); check();
+      engineEvents.on('tasks_changed', check); check();
     });
     if (mode === 'changed') fs.writeFileSync(file, after.replace('1 + 1, 3', '1 + 1, 4'));
     if (mode === 'cancel') tasks.cancel(task.id);

@@ -398,7 +398,7 @@ export const MODEL_CATALOG: ModelEntry[] = [
 ];
 
 /**
- * Slot defaults. These MUST equal `DEFAULTS` in cli/config.ts and MUST NOT be `avoidAutoSelect` —
+ * Slot defaults. These MUST equal `DEFAULTS` in engine/config.ts and MUST NOT be `avoidAutoSelect` —
  * both are enforced by `src/__tests__/models.test.ts`, because the two files drifted apart once
  * already: the catalog kept calling mistral-nemotron the default long after config.ts had moved
  * away from it for declaring no Function Calling, and the failover path reads the catalog.

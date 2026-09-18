@@ -146,7 +146,7 @@ interface LiveProviderSetup {
 
 async function createLiveProvider(): Promise<LiveProviderSetup> {
   // Match CLI startup order: global BiMax env first, then the launch directory's .env.
-  const { loadGlobalEnv } = await import('../../src/cli/env.loader');
+  const { loadGlobalEnv } = await import('../../src/engine/env.loader');
   loadGlobalEnv();
   dotenv.config({ path: path.join(REPO_ROOT, '.env') });
 
@@ -156,8 +156,8 @@ async function createLiveProvider(): Promise<LiveProviderSetup> {
     { ApiKeyManager },
     { LlmAdapter },
   ] = await Promise.all([
-    import('../../src/cli/config'),
-    import('../../src/cli/provider'),
+    import('../../src/engine/config'),
+    import('../../src/engine/provider'),
     import('../../src/credits/api.key.manager'),
     import('../../src/core/llm.adapter'),
   ]);
@@ -310,7 +310,7 @@ async function runTask(
       import('../../src/tools/implementations/file.tool'),
       import('../../src/tools/implementations/edit.tool'),
       import('../../src/tools/implementations/bash.tool'),
-      import('../../src/cli/events'),
+      import('../../src/engine/events'),
     ]);
 
     const onLog = (entry: any): void => {

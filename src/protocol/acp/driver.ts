@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { cliEvents } from '../../cli/events';
+import { engineEvents } from '../../engine/events';
 import { AcpSessionDriver } from './agent';
 import { StopReason, McpServerConfig } from './types';
 
@@ -13,7 +13,7 @@ export interface TurnEngine {
 /**
  * Live ACP session driver: maps the protocol's session lifecycle onto the single turn engine.
  *
- * Bimax's engine is one global conversation (the agent loop, cliEvents, personas are singletons),
+ * Bimax's engine is one global conversation (the agent loop, engineEvents, personas are singletons),
  * so sessions are neither isolated nor concurrent — the advertised capability meta says exactly
  * that (`sessions: { concurrent: false, isolated: false, model: 'single-supersede' }`):
  *   - a NEW session supersedes the previous one (history reset, old id invalidated);
@@ -21,7 +21,7 @@ export interface TurnEngine {
  *   - a new session cannot be created mid-turn.
  */
 export class HeadlessAcpDriver implements AcpSessionDriver {
-  readonly events = cliEvents;
+  readonly events = engineEvents;
   private counter = 0;
   /** The one live session id. */
   private currentSessionId: string | null = null;

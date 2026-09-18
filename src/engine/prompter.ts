@@ -1,8 +1,8 @@
-import { cliEvents } from './events';
+import { engineEvents } from './events';
 
 /** The spinner a permission prompt interrupts, so answering it resumes the turn instead of ending it. */
 let spinnerBeforePrompt: { state: string; message: string } = { state: 'idle', message: 'Ready' };
-cliEvents.on('spinner_state', (state: string, message?: string) => {
+engineEvents.on('spinner_state', (state: string, message?: string) => {
   if (state !== 'vetoing') spinnerBeforePrompt = { state: String(state), message: String(message ?? '') };
 });
 
@@ -25,7 +25,7 @@ export class GlobalPrompter {
     const resume = spinnerBeforePrompt;
 
     try {
-      cliEvents.emit('spinner_state', 'vetoing', 'Governor is evaluating safety constraints...');
+      engineEvents.emit('spinner_state', 'vetoing', 'Governor is evaluating safety constraints...');
     } catch {
       this.isPrompting = false;
       throw new Error('[GlobalPrompter] Failed to emit spinner state.');
@@ -33,14 +33,14 @@ export class GlobalPrompter {
 
     return new Promise((resolve) => {
       try {
-        cliEvents.emit('veto_prompt', question, options, (answer: string) => {
+        engineEvents.emit('veto_prompt', question, options, (answer: string) => {
           this.isPrompting = false;
-          cliEvents.emit('spinner_state', resume.state, resume.message);
+          engineEvents.emit('spinner_state', resume.state, resume.message);
           resolve(answer.trim());
         }, false, false, extra?.body);
       } catch (e) {
         this.isPrompting = false;
-        cliEvents.emit('spinner_state', resume.state, resume.message);
+        engineEvents.emit('spinner_state', resume.state, resume.message);
         throw e;
       }
     });

@@ -10,7 +10,7 @@
  *   genuinely changed, so the front-end's read-back compared its own request against its own
  *   request and reported "applied" every time. But `LlmAdapter` caches the model slots at boot
  *   (`userModel` / `defaultModel`), and nothing here ever told it. Every other write path —
- *   `/model` (cli/commands/meta.ts), `/config set` (cli/commands/builtins.ts), ModelTool — follows
+ *   `/model` (engine/commands/meta.ts), `/config set` (engine/commands/builtins.ts), ModelTool — follows
  *   its save with an `applyConfig`. This one did not, so the desktop's model picker changed the
  *   file, said it worked, and every request kept going to the model loaded at startup.
  *
@@ -22,7 +22,7 @@
  */
 
 /**
- * The allowlisted, JSON-safe subset of `CliConfig` a front-end may read and write directly.
+ * The allowlisted, JSON-safe subset of `EngineConfig` a front-end may read and write directly.
  * Sensitive / engine-internal keys (API keys, workspaceRoot, dangerouslySkipPermissions,
  * onboarding flags) stay OFF the wire on purpose.
  */

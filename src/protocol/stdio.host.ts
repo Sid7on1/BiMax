@@ -6,7 +6,7 @@ import { Inbound, Outbound } from './protocol';
 import { WireQueue, WireQueueStats, outboundClass } from './wire.queue';
 
 export interface StdioHostOptions extends HostHandlers {
-  emitter: EventEmitter;            // the engine's cliEvents
+  emitter: EventEmitter;            // the engine's engineEvents
   input?: NodeJS.ReadableStream;    // defaults to process.stdin
   output?: NodeJS.WritableStream;   // defaults to process.stdout
   /** Transport limits. Defaults live in WireQueue; tests and hosts with tighter budgets override. */

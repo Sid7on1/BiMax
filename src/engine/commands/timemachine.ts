@@ -1,6 +1,6 @@
 import { globalCommandRegistry } from './registry';
 import { globalCheckpointManager, Checkpoint } from '../../sandbox/checkpoint.manager';
-import { cliEvents } from '../events';
+import { engineEvents } from '../events';
 
 function rel(ts: number): string {
   const s = Math.round((Date.now() - ts) / 1000);
@@ -31,10 +31,10 @@ globalCommandRegistry.register({
     const label = args.join(' ').trim() || 'manual checkpoint';
     const cp = globalCheckpointManager.create(label, false);
     if (!cp) {
-      cliEvents.emit('checkpoint_failed', label); // review domain records the failed attempt
+      engineEvents.emit('checkpoint_failed', label); // review domain records the failed attempt
       return { type: 'message', level: 'error', content: 'Failed to create checkpoint.' };
     }
-    cliEvents.emit('timemachine_changed'); // ui_snapshot.checkpoints → front-end History strips
+    engineEvents.emit('timemachine_changed'); // ui_snapshot.checkpoints → front-end History strips
     return { type: 'message', level: 'success', content: `📸 Checkpoint ${cp.id} saved — "${cp.label}". Use /rewind to restore.` };
   }
 });
@@ -70,7 +70,7 @@ globalCommandRegistry.register({
     if (!result) {
       return { type: 'message', level: 'error', content: `Checkpoint "${id}" not found. Use /checkpoint list.` };
     }
-    cliEvents.emit('timemachine_changed');
+    engineEvents.emit('timemachine_changed');
     const safetyNote = result.safety ? ` A safety checkpoint (${result.safety.id}) of your previous state was saved — /rewind it to undo this.` : '';
     return {
       type: 'message',

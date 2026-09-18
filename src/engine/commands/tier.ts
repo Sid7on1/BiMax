@@ -1,5 +1,5 @@
 import { globalCommandRegistry } from './registry';
-import { cliEvents } from '../events';
+import { engineEvents } from '../events';
 
 // /tier — manual model-tier control, the discoverable twin of the Ctrl+T chord. BiMax routes each
 // turn to the LITE model and auto-escalates to the HEAVY coding model when a turn needs it. This
@@ -20,7 +20,7 @@ globalCommandRegistry.register({
       // set_tier already emits a `status` (shown in the footer) AND `model_tier` (flips the footer's
       // model pointer), so the change is visible without a transcript line. Returning a message too
       // means rapid Ctrl+T cycling stacks redundant "Routing pinned →" lines in the chat — so we don't.
-      cliEvents.emit('set_tier', sub as 'auto' | 'lite' | 'heavy');
+      engineEvents.emit('set_tier', sub as 'auto' | 'lite' | 'heavy');
       return { type: 'none' } as any;
     }
 

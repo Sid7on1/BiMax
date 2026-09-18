@@ -1,7 +1,7 @@
 import { globalCommandRegistry } from './registry';
 import { getCustomRules, addCustomRule, removeCustomRule, getKnownAgents } from '../agentRouter';
 import { getCurrentProvider } from '../provider';
-import { cliEvents, getSessionTokenEstimate } from '../events';
+import { engineEvents, getSessionTokenEstimate } from '../events';
 import { globalMcpManager } from '../../mcp/manager';
 import { globalSkillService } from '../../skills/skill.service';
 import { getTaintTracker } from '../../mind/taint';
@@ -130,7 +130,7 @@ globalCommandRegistry.register({
       try { context.options.llmAdapter?.applyConfig({ model }); } catch { /* adapter optional */ }
       context.options.model = model;
       context.saveConfig({ model });
-      cliEvents.emit('config_changed'); // refresh the live UI (token meter + model display)
+      engineEvents.emit('config_changed'); // refresh the live UI (token meter + model display)
       context.addSystemMessage('success', `Work model → ${model}`);
       warnIfUnserved(model);
     };
@@ -138,7 +138,7 @@ globalCommandRegistry.register({
       try { context.options.llmAdapter?.applyConfig({ liteModel: model }); } catch { /* adapter optional */ }
       (context.options as any).liteModel = model;
       context.saveConfig({ liteModel: model });
-      cliEvents.emit('config_changed');
+      engineEvents.emit('config_changed');
       context.addSystemMessage('success', `Quick model → ${model}`);
       warnIfUnserved(model);
     };
@@ -154,7 +154,7 @@ globalCommandRegistry.register({
     const applySubagent = (model: string) => {
       const val = model === '__inherit__' ? '' : model;
       context.saveConfig({ subagentModel: val });
-      cliEvents.emit('config_changed');
+      engineEvents.emit('config_changed');
       context.addSystemMessage('success', val ? `Sub-agent model → ${val}` : 'Sub-agent model → (inherits main model)');
       if (val) warnIfUnserved(val);
     };
@@ -164,7 +164,7 @@ globalCommandRegistry.register({
       const val = model === '__none__' ? '' : model;
       try { context.options.llmAdapter?.applyConfig({ visionModel: val }); } catch { /* adapter optional */ }
       context.saveConfig({ visionModel: val });
-      cliEvents.emit('config_changed');
+      engineEvents.emit('config_changed');
       context.addSystemMessage('success', val
         ? `Vision model → ${val} — screenshots and images go here; your work model is untouched`
         : 'Vision model → none (images are dropped unless the work model can see them)');
@@ -184,7 +184,7 @@ globalCommandRegistry.register({
       context.options.model = model;
       (context.options as any).liteModel = lite;
       context.saveConfig({ model, liteModel: lite, subagentModel: '' });
-      cliEvents.emit('config_changed');
+      engineEvents.emit('config_changed');
       context.addSystemMessage('success', lite === model
         ? `One model everywhere → ${model} (work · quick · sub-agents)`
         : `Work model → ${model} (sub-agents too) · quick replies stay on ${lite} (instant)`);
@@ -522,7 +522,7 @@ globalCommandRegistry.register({
       try { getTaintTracker().clear('conversation cleared'); } catch { /* best-effort */ }
       // Forget the durable task list too, so a fresh conversation doesn't inherit stale phases.
       try { clearActiveTodos(); } catch { /* best-effort */ }
-      cliEvents.emit('clear');
+      engineEvents.emit('clear');
       return { type: 'message', level: 'success', content: 'Conversation cleared.' };
     }
     return {

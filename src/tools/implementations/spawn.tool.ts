@@ -2,11 +2,11 @@ import { ToolDef, buildTool, BuiltTool } from '../tool.factory';
 import { IGovernor } from '../../core/interfaces';
 import { ToolRegistry } from '../tool.registry';
 import { LlmAdapter } from '../../core/llm.adapter';
-import { SkillLoader } from '../../cli/skills.loader';
+import { SkillLoader } from '../../engine/skills.loader';
 import { Logger } from '../../utils/logger';
 import { SubAgentManager, globalSubAgentManager, MAX_SUBAGENT_DEPTH } from '../../core/subagent.manager';
 import { globalSubAgentBlackboard } from '../../core/subagent.blackboard';
-import { cliEvents } from '../../cli/events';
+import { engineEvents } from '../../engine/events';
 import { randomUUID } from 'crypto';
 import { getOutcomeManager, OutcomeManager } from '../../outcome/outcome.manager';
 import {
@@ -100,7 +100,7 @@ Use it when work can genuinely run in parallel (independent sub-tasks across dis
       // Model resolution: per-spawn arg > config.subagentModel > inherit (worker loads config.model).
       let model = (args.model || '').trim();
       if (!model) {
-        try { model = ((await (await import('../../cli/config')).loadConfig()).subagentModel || '').trim(); }
+        try { model = ((await (await import('../../engine/config')).loadConfig()).subagentModel || '').trim(); }
         catch { /* config optional — inherit */ }
       }
       // Coordination: warn (don't block) if this scope collides with an already-running sibling, so
@@ -184,7 +184,7 @@ Use it when work can genuinely run in parallel (independent sub-tasks across dis
         if (outcomeManager && outcomeTask) {
           try { outcomeManager.settleAssignmentForSession(outcomeSessionId, outcomeTask.id, taskId, true, result); } catch { /* surfaced by task state */ }
         }
-        cliEvents.emit('message', {
+        engineEvents.emit('message', {
           id: `subagent-result-${taskId}`,
           role: 'system',
           level: 'success',
@@ -196,7 +196,7 @@ Use it when work can genuinely run in parallel (independent sub-tasks across dis
           try { outcomeManager.settleAssignmentForSession(outcomeSessionId, outcomeTask.id, taskId, false, err.message); } catch { /* surfaced by task state */ }
         }
         Logger.error(`[SpawnSubagentTool] Sub-agent ${taskId} failed: ${err.message}`);
-        cliEvents.emit('message', {
+        engineEvents.emit('message', {
           id: `subagent-result-${taskId}`,
           role: 'system',
           level: 'error',

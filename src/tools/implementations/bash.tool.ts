@@ -22,7 +22,7 @@ const MAX_OUTPUT_CHARS = 50_000;
  * asynchronously after eligibility is decided, so a value snapshotted when BashTool is built would
  * be undefined for the entire session and the guard would never engage.
  */
-function desktopCapabilityToolName(resolveToolNames?: () => readonly string[]): string | undefined {
+function motionToolName(resolveToolNames?: () => readonly string[]): string | undefined {
   try {
     const names = resolveToolNames?.() ?? [];
     return names.find(name => name === 'mcp__bimax-mac__mac_control'
@@ -80,7 +80,7 @@ Reserve BashTool for actual shell operations (installs, builds, git, processes, 
     // the whole task. Clamp to a finite integer in [0, 600000]ms.
     // Shell is not a Computer Use channel. Refused BEFORE the sandbox, the governor, or any
     // execution, so a GUI-automation command never reaches the window server by this path.
-    const guiRefusal = guiAutomationRefusal(args.command, desktopCapabilityToolName(resolveToolNames));
+    const guiRefusal = guiAutomationRefusal(args.command, motionToolName(resolveToolNames));
     if (guiRefusal.refused) {
       throw classifiedError(`Command blocked: ${guiRefusal.reason}`, 'permission', 'blocked');
     }

@@ -71,7 +71,7 @@ else
 fi
 
 # 3) API keys — an empty pool means every turn fails silently. The engine reads them from the GLOBAL
-# ~/.breakglass/.env (see src/cli/env.loader.ts), or the process env.
+# ~/.breakglass/.env (see src/engine/env.loader.ts), or the process env.
 printf '\n\033[1mConfiguration\033[0m\n'
 KEY_RE='(NVIDIA|OPENAI|ANTHROPIC|OPENROUTER|DEEPSEEK|GOOGLE)_API_KEY'
 if env | grep -qE "$KEY_RE" || grep -qE "$KEY_RE" "$HOME/.breakglass/.env" .env 2>/dev/null; then

@@ -1,4 +1,4 @@
-import { cliEvents } from '../cli/events';
+import { engineEvents } from '../engine/events';
 import { IGraphStore } from '../graph/models';
 import { summarizeGraph, isCodebase } from '../graph/graph.summary';
 import { isCodememReady } from '../graph/codemem/backend';
@@ -195,7 +195,7 @@ export function buildUiSnapshot(graphStore?: IGraphStore, toolRegistry?: ToolReg
   let contextWindow = 0;
   let contextMode: ContextMode = 'smart';
   try {
-    const { getConfig } = require('../cli/config');
+    const { getConfig } = require('../engine/config');
     const c = getConfig();
     models = { coding: c.model, lite: c.liteModel, vision: c.visionModel || undefined };
     contextWindow = c.contextWindowTokens || 0;
@@ -312,7 +312,7 @@ export function buildUiSnapshot(graphStore?: IGraphStore, toolRegistry?: ToolReg
 
   let git: UiSnapshotGit | undefined;
   try {
-    const { getGitStatus } = require('../cli/git');
+    const { getGitStatus } = require('../engine/git');
     const s = getGitStatus(process.cwd());
     if (s) {
       git = {
@@ -382,37 +382,37 @@ export function startUiSnapshot(graphStore?: IGraphStore, toolRegistry?: ToolReg
   // First snapshot is synchronous (the front-end needs footer state with the `ready` handshake);
   // afterwards a trailing 80ms debounce coalesces change bursts — a /beast step can fire
   // config+goals+graph+mind together, and each snapshot walks the whole graph summary.
-  cliEvents.emit('ui_snapshot', buildUiSnapshot(graphStore, toolRegistry));
+  engineEvents.emit('ui_snapshot', buildUiSnapshot(graphStore, toolRegistry));
   let timer: ReturnType<typeof setTimeout> | null = null;
   const emit = () => {
     if (timer) return;
     timer = setTimeout(() => {
       timer = null;
-      cliEvents.emit('ui_snapshot', buildUiSnapshot(graphStore, toolRegistry));
+      engineEvents.emit('ui_snapshot', buildUiSnapshot(graphStore, toolRegistry));
     }, 80);
     timer.unref?.();
   };
-  cliEvents.on('config_changed', emit);
-  cliEvents.on('goals_changed', emit);
-  cliEvents.on('graph_changed', emit);
+  engineEvents.on('config_changed', emit);
+  engineEvents.on('goals_changed', emit);
+  engineEvents.on('graph_changed', emit);
   // Context-token refresh (compression/compaction changed the estimate). Deliberately its own
   // event: it refreshes the footer meter WITHOUT the TUI printing "code graph updated".
-  cliEvents.on('context_changed', emit);
-  cliEvents.on('mcp_changed', emit);
-  cliEvents.on('tools_changed', emit);
+  engineEvents.on('context_changed', emit);
+  engineEvents.on('mcp_changed', emit);
+  engineEvents.on('tools_changed', emit);
   // Mind layer: re-snapshot when self-model / drives / habits change so the footer's 🧠 strip
   // stays live.
-  cliEvents.on('mind_changed', emit);
+  engineEvents.on('mind_changed', emit);
   // Workspace: repo registered / scoped / ignored → status-bar repo chip updates.
-  cliEvents.on('workspace_changed', emit);
+  engineEvents.on('workspace_changed', emit);
   // v2: checkpoint created / rewound → History strip updates; clear/resume → session list updates.
-  cliEvents.on('timemachine_changed', emit);
-  cliEvents.on('clear', emit);
+  engineEvents.on('timemachine_changed', emit);
+  engineEvents.on('clear', emit);
   // Session recorder: thread created / titled / rotated / resumed → sidebar session list updates.
-  cliEvents.on('session_changed', emit);
+  engineEvents.on('session_changed', emit);
   // Task workspaces: create / transition / output activity → task panel updates.
-  cliEvents.on('tasks_changed', emit);
+  engineEvents.on('tasks_changed', emit);
   // Composer: a drop finished ingesting → the corpus chip updates without waiting for a config or
   // graph event that may never come during a document-only session.
-  cliEvents.on('composer_changed', emit);
+  engineEvents.on('composer_changed', emit);
 }

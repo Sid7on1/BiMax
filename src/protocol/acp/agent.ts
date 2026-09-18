@@ -2,7 +2,7 @@
  * The Bimax ACP agent: bridges Agent Client Protocol requests to Bimax's turn engine.
  *
  * This is the ACP counterpart of ProtocolHost (host.ts). Where ProtocolHost forwards Bimax's
- * `cliEvents` over Bimax's own wire protocol, this forwards them as ACP `session/update`
+ * `engineEvents` over Bimax's own wire protocol, this forwards them as ACP `session/update`
  * notifications, and maps inbound ACP methods (initialize / session-new / session-prompt /
  * session-cancel) onto a session driver. Tool-approval prompts (`veto_prompt`) are bridged to ACP's
  * `session/request_permission` so approvals render natively in the editor.
@@ -24,7 +24,7 @@ import {
 
 /** Engine abstraction the agent drives. Backed by HeadlessSession in production, a fake in tests. */
 export interface AcpSessionDriver {
-  /** The engine event seam (Bimax's `cliEvents`) — the agent streams its events as updates. */
+  /** The engine event seam (Bimax's `engineEvents`) — the agent streams its events as updates. */
   readonly events: EventEmitter;
   /** Prepare a session for `cwd`; return its id. */
   newSession(params: { cwd: string; mcpServers?: McpServerConfig[] }): Promise<string> | string;
@@ -44,10 +44,10 @@ export interface AcpAgentOptions {
 }
 
 export class AcpAgent {
-  /** The session currently streaming, so global cliEvents route to the right sessionId. */
+  /** The session currently streaming, so global engineEvents route to the right sessionId. */
   private activeSessionId: string | null = null;
   private activeAbort: AbortController | null = null;
-  /** Detach fns for the cliEvents listeners bound for the active turn. */
+  /** Detach fns for the engineEvents listeners bound for the active turn. */
   private turnListeners: Array<() => void> = [];
 
   constructor(
@@ -134,9 +134,9 @@ export class AcpAgent {
     }
   }
 
-  // ---- streaming: cliEvents → session/update --------------------------------------------------
+  // ---- streaming: engineEvents → session/update --------------------------------------------------
 
-  /** Bind cliEvents listeners for the duration of one turn, routing to `sessionId`. */
+  /** Bind engineEvents listeners for the duration of one turn, routing to `sessionId`. */
   private bindTurnStreaming(sessionId: string): void {
     const events = this.driver.events;
 

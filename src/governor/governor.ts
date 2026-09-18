@@ -3,9 +3,9 @@ import { FileSystemVeto } from './fs.veto';
 import { Logger } from '../utils';
 import { GovernorVetoError } from '../core/errors';
 import { IGovernor, IEventBus } from '../core/interfaces';
-import { GlobalPrompter } from '../cli/prompter';
+import { GlobalPrompter } from '../engine/prompter';
 import { YoloClassifier } from '../security/yolo.classifier';
-import { cliEvents } from '../cli/events';
+import { engineEvents } from '../engine/events';
 import { BashStaticAnalyzer } from './bash.analyzer';
 import * as fsp from 'fs/promises';
 import { isReadOnlyShellCommand } from '../tools/shell.readonly';
@@ -178,7 +178,7 @@ export class Governor implements IGovernor {
 
     if (this.mode === 'bypass') {
       Logger.info(`[Governor] ⚠️ Bypassed completely for task: ${taskType}`);
-      cliEvents.emit('status', `Approved (Bypassed): ${taskType}`);
+      engineEvents.emit('status', `Approved (Bypassed): ${taskType}`);
       return;
     }
 
@@ -202,7 +202,7 @@ export class Governor implements IGovernor {
         );
       }
       // Read-only work is allowed through; fall past the destructive prompt below.
-      cliEvents.emit('status', `Approved (Plan/read-only): ${taskType}`);
+      engineEvents.emit('status', `Approved (Plan/read-only): ${taskType}`);
       return;
     }
 
@@ -225,7 +225,7 @@ export class Governor implements IGovernor {
       // High-impact computer control (uploads, sends, purchases) never rides a blanket allow —
       // each occurrence faces the human individually.
       if (matchingRule.effect === 'allow' && !taintCut && !(taskType === 'COMPUTER_CONTROL' && payload.highImpact)) {
-        cliEvents.emit('status', `Approved (Rule): ${taskType}`);
+        engineEvents.emit('status', `Approved (Rule): ${taskType}`);
         return;
       }
     }
@@ -235,7 +235,7 @@ export class Governor implements IGovernor {
     // only; high-impact actions and tainted contexts still prompt.
     const computerGrantKey = taskType === 'COMPUTER_CONTROL' ? Governor.computerGrantKey(payload) : null;
     if (computerGrantKey && !payload.highImpact && !taintCut && this.sessionGrants.has(computerGrantKey)) {
-      cliEvents.emit('status', `Approved (session grant ${computerGrantKey}): ${payload.action || taskType}`);
+      engineEvents.emit('status', `Approved (session grant ${computerGrantKey}): ${payload.action || taskType}`);
       return;
     }
 
@@ -255,7 +255,7 @@ export class Governor implements IGovernor {
         if (analysis.category === 'read' && analysis.risk === 'none' && this.mode !== 'strict' && !taintCut) {
           // Auto-approve read-only safe commands
           Logger.info(`[Governor] Auto-approved safe read command: ${payload.command}`);
-          cliEvents.emit('status', `Approved (Static Analysis): ${taskType}`);
+          engineEvents.emit('status', `Approved (Static Analysis): ${taskType}`);
           return;
         }
 
@@ -264,7 +264,7 @@ export class Governor implements IGovernor {
         if (this.yolo && this.mode === 'auto' && !taintCut) {
           const isSafe = await this.yolo.evaluateAction(payload.command, payload.context);
           if (isSafe) {
-             cliEvents.emit('status', `Approved (ML Classifier): ${taskType}`);
+             engineEvents.emit('status', `Approved (ML Classifier): ${taskType}`);
              return;
           }
         }
@@ -323,6 +323,6 @@ export class Governor implements IGovernor {
     }
 
     Logger.info(`[Governor] ✅ Veto cleared. Task approved.`);
-    cliEvents.emit('status', `Approved: ${taskType}`);
+    engineEvents.emit('status', `Approved: ${taskType}`);
   }
 }

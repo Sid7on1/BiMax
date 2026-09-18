@@ -8,8 +8,8 @@
 // Usage: node scripts/measure-greeting.mjs [runs] [prompt]
 import { LlmAdapter } from '../dist/core/llm.adapter.js';
 import { ApiKeyManager } from '../dist/credits/api.key.manager.js';
-import { loadGlobalEnv } from '../dist/cli/env.loader.js';
-import { buildKeyPool } from '../dist/cli/provider.js';
+import { loadGlobalEnv } from '../dist/engine/env.loader.js';
+import { buildKeyPool } from '../dist/engine/provider.js';
 import * as perf from '../dist/telemetry/perf.js';
 
 const RUNS = parseInt(process.argv[2] || '10', 10);

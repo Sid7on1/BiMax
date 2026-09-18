@@ -13,7 +13,7 @@
 import { stateDir } from '../utils/state.dir';
 import { EventBus } from './event.bus';
 import { Logger } from '../utils/logger';
-import { cliEvents } from '../cli/events';
+import { engineEvents } from '../engine/events';
 import { GraphStore } from '../graph/graph.store';
 import { CodebaseIndexer } from '../graph/indexer';
 import { StaticAnalyzer } from '../graph/static.analyzer';
@@ -90,12 +90,12 @@ import { createScoutTool } from '../tools/implementations/scout.tool';
 import { createOutcomeTool } from '../tools/implementations/outcome.tool';
 
 import { Governor } from '../governor/governor';
-import { CliConfig } from '../cli/config';
-import { buildKeyPool } from '../cli/provider';
+import { EngineConfig } from '../engine/config';
+import { buildKeyPool } from '../engine/provider';
 
 let shutdownWired = false;
 
-export async function createContainer(config?: Partial<CliConfig>): Promise<{
+export async function createContainer(config?: Partial<EngineConfig>): Promise<{
   governor: Governor;
   toolRegistry: ToolRegistry;
   graphStore: GraphStore;
@@ -164,7 +164,7 @@ export async function createContainer(config?: Partial<CliConfig>): Promise<{
     const loadGraph = graphStore.loadFromDisk().then(() => {
       // A deferred provider load becomes visible as soon as it settles. The initial snapshot either
       // sees the populated graph or this event schedules the next one; no polling is required.
-      cliEvents.emit('graph_changed');
+      engineEvents.emit('graph_changed');
     }).catch((err: any) => {
       Logger.warn(`[Graph] persisted graph load failed; continuing with an empty graph: ${err?.message || err}`);
     });
@@ -404,7 +404,7 @@ export async function createContainer(config?: Partial<CliConfig>): Promise<{
   setTimeout(() => {
     try {
       globalSkillService.load(projectRoot);
-      cliEvents.emit('skills_changed');
+      engineEvents.emit('skills_changed');
     } catch (e: any) {
       Logger.warn(`[Skills] background discovery failed: ${e?.message ?? e}`);
     }
@@ -424,7 +424,7 @@ export async function createContainer(config?: Partial<CliConfig>): Promise<{
   toolRegistry.register(createWebSearchTool(governor));
   if (!shutdownWired) {
     shutdownWired = true;
-    cliEvents.once('shutdown', () => {
+    engineEvents.once('shutdown', () => {
       void shutdownTracer();
     });
   }
@@ -455,8 +455,8 @@ export async function createContainer(config?: Partial<CliConfig>): Promise<{
     import('./agent.checkpoint').then(m => {
       const n = m.detectCrashedTree();
       if (n > 0) {
-        cliEvents.emit('status', `${n} interrupted assignment(s) found — checking safe recovery…`);
-        cliEvents.emit('agent_recovery_available', { count: n });
+        engineEvents.emit('status', `${n} interrupted assignment(s) found — checking safe recovery…`);
+        engineEvents.emit('agent_recovery_available', { count: n });
       }
     }).catch(() => {});
   }, Math.max(0, backgroundDelayMs));

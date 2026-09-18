@@ -2,28 +2,28 @@
 // security/egress.perimeter.ts for why the guard lives beneath the code rather than beside it.
 import { installEgressPerimeter } from '../security/egress.perimeter';
 installEgressPerimeter();
-import { cliEvents, MessageEntry } from '../cli/events';
+import { engineEvents, MessageEntry } from '../engine/events';
 import { goalEvents } from '../memory/goal.manager';
-import { buildPersonas } from '../cli/personas/factory';
+import { buildPersonas } from '../engine/personas/factory';
 import { HeadlessSession } from './headless.session';
 import { startStdioHost } from './stdio.host';
 import { createConfigWire } from './config.wire';
 import { buildCatalog, type CatalogDeps } from './catalog.wire';
-import { getProviders, getProvider, getCurrentProvider, setProvider } from '../cli/provider';
-import { saveApiKeyToEnv } from '../cli/env.loader';
-import { MODEL_CATALOG } from '../cli/models';
+import { getProviders, getProvider, getCurrentProvider, setProvider } from '../engine/provider';
+import { saveApiKeyToEnv } from '../engine/env.loader';
+import { MODEL_CATALOG } from '../engine/models';
 import { capabilitiesFor } from '../core/capabilities';
 import { startUiSnapshot, setTokensBaseline } from './ui.snapshot';
 import { completeInput } from './completions';
 import { isCodebase, summarizeGraph } from '../graph/graph.summary';
-import { getConfig, saveConfig } from '../cli/config';
+import { getConfig, saveConfig } from '../engine/config';
 import { estimateTokens } from '../graph/context.planner';
 import type { OutcomeTask } from '../outcome/outcome.model';
 // Register every slash command for its side effect. Commands self-register on import (each module
 // calls globalCommandRegistry.register at top level), and the Ink path got them via FullScreen's
 // imports — but headless imports only the bare registry, so without this the palette is EMPTY:
 // no autocomplete for "/", and every slash command falls through as "Unknown command".
-import '../cli/commands';
+import '../engine/commands';
 
 /**
  * Run BiMax headless: no Ink, no TTY. The engine's events stream out as NDJSON on stdout and
@@ -35,8 +35,38 @@ import '../cli/commands';
  * `container` is the createContainer() result; `config` the loaded config. Resolves only when the
  * session shuts down (the stdio host keeps the process alive while stdin is open).
  */
-export async function startHeadless(container: any, config: any): Promise<void> {
+/**
+ * Where the protocol's bytes come from and go to. Omitted means the process's own stdin/stdout,
+ * which is the OS-child-process transport. The desktop passes a port-backed `input` when it hosts
+ * the engine as an Electron utilityProcess, which cannot be given a stdin — see protocol/parent.port.ts.
+ */
+export interface HeadlessTransport {
+  input?: NodeJS.ReadableStream;
+  output?: NodeJS.WritableStream;
+}
+
+export async function startHeadless(container: any, config: any, transport: HeadlessTransport = {}): Promise<void> {
   const { toolRegistry, llmAdapter, governor, graphStore, codebaseIndexer } = container;
+
+  // User-defined slash commands: `.bimax/commands/<name>.md` in the project (winning) then
+  // ~/.bimax/commands. The loader has existed and been unit-tested since A1, and nothing ever
+  // called it — commands/index.ts imports its 53 siblings for their registration side effects, but
+  // this one registers from the FILESYSTEM, so it needs invoking rather than importing. The feature
+  // was complete and unreachable.
+  //
+  // Called here because it must run after the engine has chdir'd to the project (index.ts honours
+  // BIMAX_CWD before the container is built), and before the first `query` can ask for completions.
+  // A command body is dispatched as `redirect`, i.e. exactly as if the user had typed it, so it
+  // faces the same governor and approval ladder as anything else — a project-supplied command still
+  // cannot act without the user invoking it by name and approving what it does.
+  try {
+    const { loadCustomCommands } = require('../engine/commands/custom.loader') as typeof import('../engine/commands/custom.loader');
+    const custom = loadCustomCommands();
+    if (custom.length) {
+      const { Logger } = require('../utils/logger') as typeof import('../utils/logger');
+      Logger.info(`[commands] loaded ${custom.length} custom command(s): ${custom.join(' ')}`);
+    }
+  } catch { /* best-effort: a broken command file must never stop the engine booting */ }
 
   const options = {
     toolRegistry,
@@ -52,7 +82,7 @@ export async function startHeadless(container: any, config: any): Promise<void> 
   // have real data. Attach BEFORE the host so nothing emitted during boot is lost.
   const { reportBootPhase } = require('./boot.status') as typeof import('./boot.status');
   reportBootPhase('restoring_session');
-  const { startSessionRecorder } = require('../cli/session.recorder');
+  const { startSessionRecorder } = require('../engine/session.recorder');
   const sessionRecorder = startSessionRecorder();
 
   // Review domain: fold approvals / attributed changes / verification evidence / checkpoints into
@@ -89,7 +119,7 @@ export async function startHeadless(container: any, config: any): Promise<void> 
       enabled: config.autoResumeAgents !== false && process.env.BIMAX_AUTO_RESUME_AGENTS !== '0',
     });
     if (!plan.automatic || !plan.sessionId) {
-      cliEvents.emit('status', `${plan.reason} Use /subagents resume after reviewing the interrupted work.`);
+      engineEvents.emit('status', `${plan.reason} Use /subagents resume after reviewing the interrupted work.`);
       return;
     }
     if (session.isBusy) {
@@ -98,7 +128,7 @@ export async function startHeadless(container: any, config: any): Promise<void> 
           void attemptAutomaticRecovery(attempt + 1);
         }, 1000);
       else
-        cliEvents.emit(
+        engineEvents.emit(
           'status',
           'Automatic assignment recovery deferred because the current turn stayed busy; use /subagents resume later.',
         );
@@ -112,30 +142,30 @@ export async function startHeadless(container: any, config: any): Promise<void> 
     // Automatic recovery is only safe when the CURRENT session already is the crashed one.
     const activeSession = outcomeManager.activeSessionId();
     if (activeSession !== plan.sessionId) {
-      cliEvents.emit(
+      engineEvents.emit(
         'status',
         `${plan.agents.length} interrupted assignment(s) from a previous session (${plan.sessionId}) can be recovered — run /resume ${plan.sessionId} then /subagents resume to pick them back up.`,
       );
       return;
     }
     recoveryStarted = true;
-    cliEvents.emit('status', `Recovering ${plan.agents.length} interrupted assignment(s) from ${plan.sessionId}…`);
+    engineEvents.emit('status', `Recovering ${plan.agents.length} interrupted assignment(s) from ${plan.sessionId}…`);
     await session.dispatch(`/resume ${plan.sessionId}`);
     if (outcomeManager.activeSessionId() !== plan.sessionId) {
       recoveryStarted = false;
-      cliEvents.emit(
+      engineEvents.emit(
         'status',
         `Could not restore outcome session ${plan.sessionId}; interrupted agents were not restarted.`,
       );
       return;
     }
     await session.dispatch('/subagents resume');
-    cliEvents.emit('status', `${plan.agents.length} interrupted assignment(s) resumed safely.`);
+    engineEvents.emit('status', `${plan.agents.length} interrupted assignment(s) resumed safely.`);
   };
   const onAgentRecoveryAvailable = () => {
     void attemptAutomaticRecovery();
   };
-  cliEvents.on('agent_recovery_available', onAgentRecoveryAvailable);
+  engineEvents.on('agent_recovery_available', onAgentRecoveryAvailable);
 
   // Durable outcome convergence: a background assignment settling queues a receipt in the
   // contract. Once the interactive turn is idle, wake the parent coordinator to integrate,
@@ -198,7 +228,7 @@ export async function startHeadless(container: any, config: any): Promise<void> 
     if (pending.state === 'halted') {
       if (reportedHaltRevision !== pending.revision) {
         reportedHaltRevision = pending.revision;
-        cliEvents.emit('message', {
+        engineEvents.emit('message', {
           id: `outcome-halt-${Date.now()}`,
           role: 'system',
           level: 'warn',
@@ -221,7 +251,7 @@ export async function startHeadless(container: any, config: any): Promise<void> 
     }
     continuationRunning = true;
     const before = outcomeManager.progressFingerprint();
-    cliEvents.emit(
+    engineEvents.emit(
       'status',
       `Outcome loop ${claim.wakeups}: coordinating ${claim.taskIds.length || 'remaining'} task(s)…`,
     );
@@ -237,7 +267,7 @@ export async function startHeadless(container: any, config: any): Promise<void> 
     continuationRunning = false;
 
     if (result === 'interrupted') {
-      cliEvents.emit('status', 'Outcome auto-continuation paused by user interruption.');
+      engineEvents.emit('status', 'Outcome auto-continuation paused by user interruption.');
       return;
     }
     const after = outcomeManager.continuation();
@@ -258,8 +288,8 @@ export async function startHeadless(container: any, config: any): Promise<void> 
     scheduleOutcomeContinuation();
   };
   const onContinuationSessionChanged = () => scheduleOutcomeContinuation(100);
-  cliEvents.on('outcome_continuation_requested', onOutcomeContinuation);
-  cliEvents.on('session_changed', onContinuationSessionChanged);
+  engineEvents.on('outcome_continuation_requested', onOutcomeContinuation);
+  engineEvents.on('session_changed', onContinuationSessionChanged);
   scheduleOutcomeContinuation(100);
 
   // Token-meter baseline = system prompt + tool-schema JSON (the fixed per-request cost), recomputed
@@ -281,7 +311,7 @@ export async function startHeadless(container: any, config: any): Promise<void> 
     }
   });
 
-  // Settings surface (protocol v3): the allowlisted, JSON-safe subset of CliConfig a graphical
+  // Settings surface (protocol v3): the allowlisted, JSON-safe subset of EngineConfig a graphical
   // front-end may read and write directly — the silent path behind settings pages, replacing
   // transcript menus. The allowlist, the persistence and the live-adapter application all live in
   // protocol/config.wire.ts so the seam is testable without booting a container; see that file for
@@ -290,7 +320,7 @@ export async function startHeadless(container: any, config: any): Promise<void> 
     getConfig: () => getConfig() as any,
     saveConfig: (updates) => saveConfig(updates as any),
     llmAdapter,
-    onChanged: () => cliEvents.emit('config_changed'), // re-snapshot + notify every front-end
+    onChanged: () => engineEvents.emit('config_changed'), // re-snapshot + notify every front-end
   });
   const configSubset = (): Record<string, any> => configWire.read();
 
@@ -320,7 +350,9 @@ export async function startHeadless(container: any, config: any): Promise<void> 
   const buildVisibleCatalog = (refresh: boolean) => buildCatalog(catalogDeps, 0, refresh);
 
   const dispose = startStdioHost({
-    emitter: cliEvents,
+    emitter: engineEvents,
+    ...(transport.input ? { input: transport.input } : {}),
+    ...(transport.output ? { output: transport.output } : {}),
     onInput: (text) => {
       void session.dispatch(text);
     },
@@ -375,7 +407,7 @@ export async function startHeadless(container: any, config: any): Promise<void> 
       // One wire message, one serialized sequence. In particular, every non-plan autonomy preset
       // exits plan mode first, so the chrome can never claim edits are enabled while PLAN still
       // blocks them in the governor.
-      const { getAgentMode } = require('../cli/agentMode') as typeof import('../cli/agentMode');
+      const { getAgentMode } = require('../engine/agentMode') as typeof import('../engine/agentMode');
       const preservedMode = getAgentMode();
       const commands: Record<string, string[]> = {
         ask: ['/plan off', '/governor on', '/diff-approval on'],
@@ -420,7 +452,7 @@ export async function startHeadless(container: any, config: any): Promise<void> 
       // A new provider means a new key pool, a new endpoint and a different served-model list; the
       // session cache belongs to the old one, so force a refresh rather than answering from it.
       const { t, id, ...rest } = await buildVisibleCatalog(true);
-      cliEvents.emit('config_changed');
+      engineEvents.emit('config_changed');
       return rest;
     },
   });
@@ -466,20 +498,20 @@ export async function startHeadless(container: any, config: any): Promise<void> 
 
   // Register the inline diff-approval gate over the protocol (Ink registers its own in FullScreen).
   // When the user enables /diff-approval, mutating tools surface their diff and wait for a reply.
-  const { registerDiffApprover } = require('../cli/diffApproval');
+  const { registerDiffApprover } = require('../engine/diffApproval');
   registerDiffApprover(
     (summary: string, diff: string) =>
       new Promise<boolean>((resolve) => {
-        cliEvents.emit('diff_prompt', summary, diff, (answer: string) =>
+        engineEvents.emit('diff_prompt', summary, diff, (answer: string) =>
           resolve(/^(a|y|approve|accept)/i.test(answer)),
         );
       }),
   );
 
-  // Goal mutations land on a separate emitter; FullScreen bridges it to cliEvents for Ink, so the
+  // Goal mutations land on a separate emitter; FullScreen bridges it to engineEvents for Ink, so the
   // headless path must too — otherwise the footer goal counter (refreshed by ui_snapshot on
   // goals_changed) never updates out-of-process.
-  const onGoals = () => cliEvents.emit('goals_changed');
+  const onGoals = () => engineEvents.emit('goals_changed');
   goalEvents.on('goals_changed', onGoals);
 
   // Push footer + map-panel + token-meter state the Go front-end can't read from engine singletons.
@@ -492,7 +524,7 @@ export async function startHeadless(container: any, config: any): Promise<void> 
   // interrupting it. BIMAX_SKIP_KEY_ONBOARDING=1 is available for hermetic embeds/tests.
   if (process.env.BIMAX_SKIP_KEY_ONBOARDING !== '1') {
     try {
-      const { buildKeyPool } = require('../cli/provider') as typeof import('../cli/provider');
+      const { buildKeyPool } = require('../engine/provider') as typeof import('../engine/provider');
       if (buildKeyPool().length === 0) {
         const offerKeys = (attempt = 0) => {
           if (session.isBusy && attempt < 20) {
@@ -519,7 +551,7 @@ export async function startHeadless(container: any, config: any): Promise<void> 
       try {
         const { getDrivesEngine } = require('../mind/drives.engine');
         await getDrivesEngine().check({ quick: true });
-        cliEvents.emit('mind_changed');
+        engineEvents.emit('mind_changed');
       } catch {
         /* best-effort */
       }
@@ -547,7 +579,7 @@ export async function startHeadless(container: any, config: any): Promise<void> 
       const lines = interrupted
         .slice(0, 5)
         .map((t: any) => `  ✗ ${t.title}${t.resumable ? ` — retry with /tasks retry ${t.taskId}` : ''}`);
-      cliEvents.emit('message', {
+      engineEvents.emit('message', {
         id: `task-recovery-${Date.now()}`,
         role: 'system',
         level: 'warn',
@@ -584,7 +616,7 @@ export async function startHeadless(container: any, config: any): Promise<void> 
         const lines = (healed as Array<{ slot: string; from: string; to: string }>).map(
           (h) => `  • ${h.slot}: "${h.from}" → "${h.to}"`,
         );
-        cliEvents.emit('message', {
+        engineEvents.emit('message', {
           id: `heal-${Date.now()}`,
           role: 'system',
           level: 'info',
@@ -594,7 +626,7 @@ export async function startHeadless(container: any, config: any): Promise<void> 
           content: `${healed.length === 1 ? "A model pinned in your config can't run here" : `${healed.length} models pinned in your config can't run here`} — switched:\n${lines.join('\n')}\nUse /model to choose another.`,
           timestamp: new Date(),
         } as MessageEntry);
-        cliEvents.emit('config_changed');
+        engineEvents.emit('config_changed');
       }
     } catch {
       /* best-effort */
@@ -639,7 +671,7 @@ export async function startHeadless(container: any, config: any): Promise<void> 
   };
 
   // After a map is built, offer the AI graph once (the indexer emits graph_changed on completion).
-  cliEvents.on('graph_changed', () => {
+  engineEvents.on('graph_changed', () => {
     if (aiOffered || onboardingDone()) return;
     let s;
     try {
@@ -654,7 +686,7 @@ export async function startHeadless(container: any, config: any): Promise<void> 
       } catch {
         /* best-effort */
       }
-      cliEvents.emit(
+      engineEvents.emit(
         'message',
         uiMenu('Add the AI graph? (semantic layer: purpose + risk per symbol)', [
           { label: 'Build AI graph', value: '/index-ai force', desc: 'Makes API calls — richer impact analysis' },
@@ -681,7 +713,7 @@ export async function startHeadless(container: any, config: any): Promise<void> 
       // no-ops if a graph already exists on disk). THIS is what unlocks the repo map + GraphContext/
       // GraphQuery tools without the user clicking a menu or running /index. Previously "autoIndex"
       // only flipped an enabled flag and nothing ever called it, so the graph stayed empty.
-      cliEvents.emit('status', 'Indexing codebase for symbol-level navigation…');
+      engineEvents.emit('status', 'Indexing codebase for symbol-level navigation…');
       void codebaseIndexer.autoIndex(false, false).catch(() => {
         /* best-effort; /index retries */
       });
@@ -705,7 +737,7 @@ export async function startHeadless(container: any, config: any): Promise<void> 
         } catch {
           /* best-effort — an unwritable project dir must not block the prompt itself */
         }
-        cliEvents.emit(
+        engineEvents.emit(
           'message',
           // Labels are DATA, not presentation. These carried literal square brackets —
           // "[ Build map graph ]" — which is terminal decoration, and the desktop app renders the
@@ -729,7 +761,7 @@ export async function startHeadless(container: any, config: any): Promise<void> 
     const shutdown = () => {
       if (done) return;
       done = true;
-      // Signals/stdin loss do not necessarily travel through cliEvents. Flush every durable
+      // Signals/stdin loss do not necessarily travel through engineEvents. Flush every durable
       // thread domain directly so the latest assignment/evidence cannot vanish on terminal close.
       try {
         outcomeManager.shutdown();
@@ -749,14 +781,14 @@ export async function startHeadless(container: any, config: any): Promise<void> 
       stopHeartbeat?.();
       if (recoveryTimer) clearTimeout(recoveryTimer);
       if (continuationTimer) clearTimeout(continuationTimer);
-      cliEvents.off('agent_recovery_available', onAgentRecoveryAvailable);
-      cliEvents.off('outcome_continuation_requested', onOutcomeContinuation);
-      cliEvents.off('session_changed', onContinuationSessionChanged);
+      engineEvents.off('agent_recovery_available', onAgentRecoveryAvailable);
+      engineEvents.off('outcome_continuation_requested', onOutcomeContinuation);
+      engineEvents.off('session_changed', onContinuationSessionChanged);
       goalEvents.off('goals_changed', onGoals);
       dispose();
       resolve();
     };
-    cliEvents.once('shutdown', shutdown);
+    engineEvents.once('shutdown', shutdown);
     process.once('SIGINT', shutdown);
     process.once('SIGTERM', shutdown);
     // If the front-end (our stdin) goes away, the parent process is gone — exit cleanly.

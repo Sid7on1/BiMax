@@ -5,7 +5,7 @@ import { Governor } from '../governor/governor';
 import { TaskPipeline } from '../task';
 import { CodebaseIndexer } from '../graph/indexer';
 import { GraphStore } from '../graph/graph.store';
-import { cliEvents, ToolCallEntry } from './events';
+import { engineEvents, ToolCallEntry } from './events';
 
 export async function executePrintMode(prompt: string, options: {
   agent: string;
@@ -48,10 +48,10 @@ export async function executePrintMode(prompt: string, options: {
   const onCapability = (message: any) => {
     if (message?.payload?.capabilityStatus) process.stderr.write(`${message.content}\n`);
   };
-  cliEvents.on('message', onCapability);
+  engineEvents.on('message', onCapability);
   for (const status of capabilitySnapshot().filter(s => s.state !== 'ready')) onCapability(capabilityMessage(status));
-  cliEvents.on('tool_call', onToolStart);
-  cliEvents.on('tool_call_result', onToolResult);
+  engineEvents.on('tool_call', onToolStart);
+  engineEvents.on('tool_call_result', onToolResult);
 
   const originalLog = console.log;
   console.log = (...args) => {
@@ -64,8 +64,8 @@ export async function executePrintMode(prompt: string, options: {
     process.stdout.write('\n');
   } finally {
     console.log = originalLog;
-    cliEvents.off('message', onCapability);
-    cliEvents.off('tool_call', onToolStart);
-    cliEvents.off('tool_call_result', onToolResult);
+    engineEvents.off('message', onCapability);
+    engineEvents.off('tool_call', onToolStart);
+    engineEvents.off('tool_call_result', onToolResult);
   }
 }

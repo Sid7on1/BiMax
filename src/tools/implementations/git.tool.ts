@@ -1,7 +1,7 @@
 import { execFileSync } from 'child_process';
 import { IGovernor } from '../../core/interfaces';
 import { buildTool } from '../tool.factory';
-import { getGitStatus, gitDiff, gitLog, isGitRepo } from '../../cli/git';
+import { getGitStatus, gitDiff, gitLog, isGitRepo } from '../../engine/git';
 
 // B1 — agent-callable git. Read actions (status/diff/log) run freely; mutating actions
 // (add/commit) are routed through the Governor's OS_COMMAND path (reusing its veto / plan-mode

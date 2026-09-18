@@ -243,9 +243,19 @@ export function isDeadConnectionError(e: any): boolean {
  */
 export type McpHealer = (serverName: string) => Promise<any | null>;
 
-/** Acting on the host computer is outside the code-only Bimax product boundary, even when an
- * arbitrary MCP server advertises the old tool name under a different server id. */
-export function isDisabledComputerUseToolName(name: string): boolean {
+/**
+ * Acting on the host computer is outside the code-only Bimax product boundary, even when an
+ * arbitrary MCP server advertises the old tool name under a different server id.
+ *
+ * This and `approvalHandledByMotionProvider` below are the two live re-entry points for Bimax
+ * Motion: `grep -rn Motion src/` finds every seam the archived provider has to meet. The
+ * IDENTIFIERS carry the product's own vocabulary; the STRINGS deliberately do not. `mac_control`,
+ * `computer_control`, `computer` and the `bimax-mac` server id are what the provider in
+ * ~/Developer/bimax-archive actually registers over MCP, so renaming them here would not rename
+ * anything — it would only stop this gate recognising the thing it exists to refuse. They change
+ * when the provider changes, on the same commit, and not before.
+ */
+export function isDisabledMotionToolName(name: string): boolean {
   return /^(?:mac_control|computer_control|computer)$/i.test(String(name || '').trim());
 }
 
@@ -258,7 +268,7 @@ export function isDisabledComputerUseToolName(name: string): boolean {
  * one task ask "Run mac_control?" before every observation and click. That was duplicate consent,
  * not an additional safety boundary. Keep every other MCP tool fail-closed.
  */
-export function approvalHandledByAppOwnedProvider(serverName: string, toolName: string): boolean {
+export function approvalHandledByMotionProvider(serverName: string, toolName: string): boolean {
   return serverName === 'bimax-mac' && toolName === 'mac_control';
 }
 
@@ -269,7 +279,7 @@ export function mcpToolCallRequest(
 ): Record<string, unknown> {
   // This used to attach a signed `_meta.bimaxTrustedPlan` envelope for the app-owned `mac_control`
   // entrypoint. Bimax is a code-only agentic IDE (see archive/computer-use/): no Computer Use
-  // provider is ever registered, and `isDisabledComputerUseToolName` above refuses `mac_control`
+  // provider is ever registered, and `isDisabledMotionToolName` above refuses `mac_control`
   // at registration, so the envelope had no reachable consumer. Keep the request shape plain.
   return { name: toolName, arguments: args };
 }
@@ -295,7 +305,7 @@ export async function connectAndRegister(
     const listed = await listAllMcpTools(client);
     const toolNames: string[] = [];
     for (const t of listed) {
-      if (isDisabledComputerUseToolName(String(t.name || ''))) {
+      if (isDisabledMotionToolName(String(t.name || ''))) {
         Logger.warn(`[MCP] Skipping disabled Computer Use tool '${spec.name}/${t.name}'.`);
         continue;
       }
@@ -306,7 +316,7 @@ export async function connectAndRegister(
         description: `[MCP:${spec.name}] ${t.description || t.name}`,
         schema: t.inputSchema || { type: 'object', properties: {} },
         isDestructive: true, // external tools are fail-closed under the Governor
-        approvalHandledInternally: approvalHandledByAppOwnedProvider(spec.name, String(t.name || '')),
+        approvalHandledInternally: approvalHandledByMotionProvider(spec.name, String(t.name || '')),
         execute: async (args: any) => {
           // Weak models routinely emit numbers/booleans as strings ("1", "true"). MCP servers
           // validate strictly (zod) and reject those, so coerce each arg to its declared schema

@@ -1,6 +1,6 @@
 // BiMax UI protocol — the wire contract between the engine (Node) and the out-of-process
 // front-end (the Go / Bubble Tea TUI in tui/). It exists so the engine's UI seam — the
-// `cliEvents` emitter (src/cli/events.ts) + the GlobalPrompter approval round-trip — can be
+// `engineEvents` emitter (src/engine/events.ts) + the GlobalPrompter approval round-trip — can be
 // driven over a pipe instead of in-process, WITHOUT touching engine logic. This is the sole
 // interactive path; it activates in headless mode, which the TUI always spawns.
 //
@@ -44,7 +44,7 @@ export type JsonValue = string | number | boolean | null | JsonValue[] | { [k: s
 
 // --- Outbound: engine → front-end ----------------------------------------------------------
 
-/** A forwarded `cliEvents` emit. `name` is the event, `args` its (sanitized) payload. */
+/** A forwarded `engineEvents` emit. `name` is the event, `args` its (sanitized) payload. */
 export interface EventMsg {
   t: 'event';
   name: string;
@@ -115,7 +115,7 @@ export interface PongMsg {
 
 /**
  * The engine's settings, answering a {@link ConfigGetMsg} or {@link ConfigSetMsg} — only the
- * allowlisted, JSON-safe subset of CliConfig crosses the wire (headless.entry owns the list).
+ * allowlisted, JSON-safe subset of EngineConfig crosses the wire (headless.entry owns the list).
  */
 export interface ConfigResultMsg {
   t: 'configResult';
@@ -371,7 +371,7 @@ export type Inbound =
 // --- Event vocabulary ----------------------------------------------------------------------
 
 // The serializable engine→UI signals forwarded verbatim (kept in sync with the contract block at
-// the bottom of src/cli/events.ts). `veto_prompt` is intentionally absent — it carries a callback
+// the bottom of src/engine/events.ts). `veto_prompt` is intentionally absent — it carries a callback
 // and is translated to a RequestMsg by the host instead.
 export const FORWARDED_EVENTS: readonly string[] = [
   'log',

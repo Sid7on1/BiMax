@@ -1,6 +1,6 @@
 import { globalCommandRegistry } from './registry';
 import { globalSubAgentBlackboard, SubAgentClaim } from '../../core/subagent.blackboard';
-import { cliEvents } from '../events';
+import { engineEvents } from '../events';
 import { formatSubAgentResult } from '../../core/subagent.result';
 
 const ICON: Record<SubAgentClaim['status'], string> = { running: '◍', done: '✓', failed: '✗' };
@@ -116,7 +116,7 @@ globalCommandRegistry.register({
           if (config.outcomeTaskId && config.outcomeSessionId && outcomeManager) {
             try { outcomeManager.settleAssignmentForSession(config.outcomeSessionId, config.outcomeTaskId, taskId, true, result); } catch { /* task remains inspectable */ }
           }
-          cliEvents.emit('message', {
+          engineEvents.emit('message', {
             id: `subagent-result-${taskId}`, role: 'system', level: 'success',
             content: `✓ Resumed sub-agent ${config.agentType} (${taskId}) finished:\n\n${text.slice(0, 4000)}`,
             timestamp: new Date(),

@@ -1,6 +1,6 @@
 import { IGovernor } from '../core/interfaces';
 import { Logger } from '../utils/logger';
-import { cliEvents } from '../cli/events';
+import { engineEvents } from '../engine/events';
 import { runPreHooks, runPostHooks } from './hooks';
 import { isTypedOutcome, outcomeBlocked, outcomeError, TypedOutcome } from './outcome';
 import { recordGuard } from './guard.timing';
@@ -156,7 +156,7 @@ export function buildTool(def: ToolDef, governor: IGovernor): BuiltTool {
           // active (more tools / more text may follow, and tools run in parallel). Only runTurn's
           // finally emits 'idle'. Emitting idle per-tool flipped the front-end's busy flag off between
           // tools, which killed the "working" indicator AND the esc-to-interrupt gate mid-turn.
-          cliEvents.emit('spinner_state', 'executing', `${def.name}...`);
+          engineEvents.emit('spinner_state', 'executing', `${def.name}...`);
           // Reuse is offered only by the workflow runtime, after all current guards/pre-hooks ran.
           // Cache raw implementation output so post-hooks still execute exactly once on every call.
           const reused = def.workflowReadOnly === true ? await context?.workflowReuse?.() : undefined;

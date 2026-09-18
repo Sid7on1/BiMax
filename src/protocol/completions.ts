@@ -1,5 +1,5 @@
-import { globalCommandRegistry } from '../cli/commands/registry';
-import { suggestAtSymbols, suggestPaths, looksLikePath } from '../cli/atMention';
+import { globalCommandRegistry } from '../engine/commands/registry';
+import { suggestAtSymbols, suggestPaths, looksLikePath } from '../engine/atMention';
 import { IGraphStore } from '../graph/models';
 import { CompletionItem } from './protocol';
 

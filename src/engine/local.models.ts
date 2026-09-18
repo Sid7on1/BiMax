@@ -1,7 +1,7 @@
 /**
  * Discovery of the models an on-premises server is actually holding.
  *
- * The shipped catalogue (`cli/models.ts`) is a curated list of hosted model ids. On an air-gapped
+ * The shipped catalogue (`engine/models.ts`) is a curated list of hosted model ids. On an air-gapped
  * box that list is not merely wrong, it is unusable: the operator has whatever they pulled onto the
  * GPU server, under whatever names that server gives them, and no amount of curation can know that
  * in advance. So the local presets ask.

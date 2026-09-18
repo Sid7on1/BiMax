@@ -1,6 +1,6 @@
 import { globalCommandRegistry } from './registry';
 import { getConfig } from '../config';
-import { cliEvents } from '../events';
+import { engineEvents } from '../events';
 
 // /a11y — accessibility / reduced-motion toggle. Turns off the animated spinner + thinking shimmer
 // in favor of calm static glyphs, which are easier on screen readers and low-noise terminals. The
@@ -18,7 +18,7 @@ globalCommandRegistry.register({
     if (sub === 'on' || sub === 'off') {
       const on = sub === 'on';
       await context.saveConfig({ reducedMotion: on });
-      cliEvents.emit('config_changed');
+      engineEvents.emit('config_changed');
       return { type: 'message', level: 'success', content: `Reduced motion is ${on ? 'ON — spinner & shimmer are static' : 'OFF — animations restored'}.` };
     }
 

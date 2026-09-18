@@ -7,7 +7,7 @@ import { IGovernor } from '../core/interfaces';
 import { Logger } from '../utils/logger';
 import { McpServerSpec, loadHostCapabilityServers, loadMcpServers, normalizeArgs, missingPathArgs } from './config';
 import { connectAndRegister, ConnectedMcp } from './client';
-import { cliEvents } from '../cli/events';
+import { engineEvents } from '../engine/events';
 import { codebaseMemorySpec } from './builtin/codebaseMemory';
 import { withTimeout } from '../utils/withTimeout';
 import { serverCallSummary } from './stats';
@@ -152,15 +152,15 @@ export class McpManager {
       if (spec.disabled) return false;
       const connection = await this.connectSpec(spec, registry, governor);
       if (connection) {
-        cliEvents.emit('status', `Host capability '${spec.name}' connected — ${connection.toolNames.length} tool(s)`);
+        engineEvents.emit('status', `Host capability '${spec.name}' connected — ${connection.toolNames.length} tool(s)`);
         return true;
       }
       const why = this.lastErrorFor(spec.name);
-      if (why) cliEvents.emit('status', `Host capability '${spec.name}' failed: ${why}`);
+      if (why) engineEvents.emit('status', `Host capability '${spec.name}' failed: ${why}`);
       return false;
     }));
     const connected = results.filter(result => result.status === 'fulfilled' && result.value).length;
-    if (connected > 0) cliEvents.emit('mcp_changed');
+    if (connected > 0) engineEvents.emit('mcp_changed');
     return connected;
   }
 
@@ -202,20 +202,20 @@ export class McpManager {
       if (missing.length) {
         this.reportConnection(spec.name, false);
         Logger.warn(`[MCP] Skipping '${spec.name}': path(s) do not exist: ${missing.join(', ')}`);
-        cliEvents.emit('status', `MCP '${spec.name}' skipped — missing path(s): ${missing.join(', ')}`);
+        engineEvents.emit('status', `MCP '${spec.name}' skipped — missing path(s): ${missing.join(', ')}`);
         return false;
       }
       const c = await this.connectSpec(spec, registry, governor);
       if (c) {
-        cliEvents.emit('status', `MCP '${spec.name}' connected — ${c.toolNames.length} tool(s)`);
+        engineEvents.emit('status', `MCP '${spec.name}' connected — ${c.toolNames.length} tool(s)`);
         return true;
       }
       const why = this.lastErrorFor(spec.name);
-      if (why) cliEvents.emit('status', `MCP '${spec.name}' failed: ${why}`);
+      if (why) engineEvents.emit('status', `MCP '${spec.name}' failed: ${why}`);
       return false;
     }));
     const n = results.filter(r => r.status === 'fulfilled' && r.value).length;
-    if (n > 0) cliEvents.emit('mcp_changed');
+    if (n > 0) engineEvents.emit('mcp_changed');
     return n;
   }
 
@@ -230,7 +230,7 @@ export class McpManager {
     fs.mkdirSync(path.dirname(file), { recursive: true });
     fs.writeFileSync(file, JSON.stringify({ servers: specs }, null, 2), 'utf8');
     if (!enabled) await this.disconnect(name, registry);
-    cliEvents.emit('mcp_changed');
+    engineEvents.emit('mcp_changed');
     return true;
   }
 
@@ -374,12 +374,12 @@ export class McpManager {
             const fresh = await this.connectSpec(conn.spec, registry, governor);
             if (fresh) {
               this.healFailures.delete(conn.name);
-              cliEvents.emit('status', `MCP '${conn.name}' auto-healed — ${fresh.toolNames.length} tool(s) back.`);
-              cliEvents.emit('mcp_changed');
+              engineEvents.emit('status', `MCP '${conn.name}' auto-healed — ${fresh.toolNames.length} tool(s) back.`);
+              engineEvents.emit('mcp_changed');
             } else {
               this.healFailures.set(conn.name, attempts + 1);
               if (attempts + 1 >= McpManager.MAX_HEAL_ATTEMPTS) {
-                cliEvents.emit('status', `MCP '${conn.name}' is down (${McpManager.MAX_HEAL_ATTEMPTS} heal attempts failed) — run /mcp doctor.`);
+                engineEvents.emit('status', `MCP '${conn.name}' is down (${McpManager.MAX_HEAL_ATTEMPTS} heal attempts failed) — run /mcp doctor.`);
               }
             }
           }

@@ -6,7 +6,7 @@ import * as http from 'http';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { TaskPipeline } from '../task';
-import { ensureJwtSecret } from '../cli/env.loader';
+import { ensureJwtSecret } from '../engine/env.loader';
 
 export class WebhookReceiver {
   private server?: http.Server;

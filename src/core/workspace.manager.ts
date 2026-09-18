@@ -54,8 +54,34 @@ export class WorkspaceManager {
   private load(): void {
     try {
       const m = JSON.parse(fs.readFileSync(this.manifestPath, 'utf8')) as Manifest;
-      if (Array.isArray(m.repos)) this.repos = m.repos;
+      if (Array.isArray(m.repos)) this.repos = this.dedupe(m.repos);
     } catch { /* first run — no manifest yet */ }
+  }
+
+  /**
+   * Collapse entries that are the same repo under different paths.
+   *
+   * Preventing new duplicates is not enough: a manifest written before aliases were understood
+   * already holds them, and this one did — ~/Bimax and ~/Desktop/Bimax (a symlink to it) were both
+   * listed write-scope, so every repo walk counted one checkout twice. Healing on load means the
+   * next session is correct without anyone editing JSON by hand.
+   *
+   * The survivor is the entry whose own path IS the canonical one, so the real location wins over
+   * the alias and the stored path stays meaningful. Failing that, the first entry — which for the
+   * primary repo is the one `refresh` unshifts.
+   */
+  private dedupe(repos: WorkspaceRepo[]): WorkspaceRepo[] {
+    const byIdentity = new Map<string, WorkspaceRepo>();
+    for (const repo of repos) {
+      const identity = this.canonical(repo.path);
+      const held = byIdentity.get(identity);
+      if (!held) { byIdentity.set(identity, repo); continue; }
+      if (path.resolve(repo.path) === identity && path.resolve(held.path) !== identity) {
+        byIdentity.set(identity, repo);
+      }
+      Logger.info(`[Workspace] Collapsed duplicate repo entry (same checkout via another path): ${repo.path}`);
+    }
+    return [...byIdentity.values()];
   }
 
   private save(): void {
@@ -67,7 +93,7 @@ export class WorkspaceManager {
       Logger.warn(`[Workspace] Could not save manifest: ${e?.message ?? e}`);
     }
     // Nudge the UI (status-bar repo chip) — lazy require keeps core free of the CLI layer.
-    try { require('../cli/events').cliEvents.emit('workspace_changed'); } catch { /* headless-boot ok */ }
+    try { require('../engine/events').engineEvents.emit('workspace_changed'); } catch { /* headless-boot ok */ }
   }
 
   // ---- git helpers (best-effort, never throw) ------------------------------------------
@@ -125,7 +151,7 @@ export class WorkspaceManager {
         if (!entry.isDirectory() || entry.name.startsWith('.') || entry.name === 'node_modules') continue;
         const full = path.join(dir, entry.name);
         if (full === this.primaryRoot) continue;
-        if (this.isGitRepo(full) && !this.find(full) && !this.candidates.includes(full)) {
+        if (this.isGitRepo(full) && !this.find(full) && !this.candidates.some(c => this.canonical(c) === this.canonical(full))) {
           this.candidates.push(full);
         }
       }
@@ -153,13 +179,58 @@ export class WorkspaceManager {
 
   // ---- registration --------------------------------------------------------------------
 
+  /**
+   * One repo, one identity — even when reached through a symlink.
+   *
+   * `path.resolve` normalises `..` and relative segments but does NOT follow symlinks, so a repo
+   * opened as ~/Desktop/Bimax and the same repo opened as ~/Bimax registered as two separate
+   * write-scope repos. Observed live: workspace.json listed both, and everything that iterates repos
+   * — the drives measurement, scope checks, clone candidates — then did it twice for one checkout.
+   * That is not hypothetical here; ~/Desktop/Bimax has been a symlink to ~/Bimax since 2026-09-14.
+   *
+   * realpath is the identity, with `path.resolve` as the fallback: a path that does not exist yet
+   * (a clone still settling, a scope set ahead of time) cannot be realpath'd and must not throw.
+   */
+  private canonical(repoPath: string): string {
+    const resolved = path.resolve(this.primaryRoot, repoPath);
+    try {
+      return fs.realpathSync(resolved);
+    } catch {
+      return resolved;
+    }
+  }
+
+  /**
+   * The same identity rule for a FILE path, including one that does not exist yet.
+   *
+   * realpath needs the target to exist, and the common case here is a write CREATING a file — so the
+   * directory is canonicalised (it exists) and the basename rejoined. Without this, a read-only repo
+   * reached through a symlinked alias matched no registered root at all, fell through to the
+   * additive "not in any repo, allow" default, and its read-only scope was simply bypassed.
+   *
+   * Both sides of the containment test are canonicalised, so this only ever makes the match MORE
+   * accurate: an alias now resolves onto the repo that actually governs it. It does not widen what
+   * is writable — a path outside every registered repo is still allowed, exactly as before.
+   */
+  private canonicalFile(filePath: string): string {
+    const resolved = path.resolve(filePath);
+    try {
+      return fs.realpathSync(resolved);
+    } catch { /* does not exist yet — canonicalise the directory instead */ }
+    try {
+      return path.join(fs.realpathSync(path.dirname(resolved)), path.basename(resolved));
+    } catch {
+      return resolved;
+    }
+  }
+
   public find(repoPath: string): WorkspaceRepo | undefined {
-    const norm = path.resolve(repoPath);
-    return this.repos.find(r => path.resolve(r.path) === norm);
+    const norm = this.canonical(repoPath);
+    return this.repos.find(r => this.canonical(r.path) === norm);
   }
 
   public register(repoPath: string, opts?: { purpose?: string; scope?: RepoScope; name?: string }): WorkspaceRepo {
-    const full = path.resolve(this.primaryRoot, repoPath);
+    const full = this.canonical(repoPath);
     const existing = this.find(full);
     if (existing) {
       if (opts?.purpose) existing.purpose = opts.purpose;
@@ -178,25 +249,25 @@ export class WorkspaceManager {
       registeredAt: new Date().toISOString(),
     };
     this.repos.push(repo);
-    this.candidates = this.candidates.filter(c => path.resolve(c) !== full);
+    this.candidates = this.candidates.filter(c => this.canonical(c) !== full);
     this.save();
     return repo;
   }
 
   /** The ask-once "no": remembered in the manifest so the repo is never suggested again. */
   public ignore(repoPath: string): void {
-    const full = path.resolve(this.primaryRoot, repoPath);
+    const full = this.canonical(repoPath);
     const existing = this.find(full);
     if (existing) existing.scope = 'ignored';
     else this.repos.push({
       path: full, name: path.basename(full), scope: 'ignored', registeredAt: new Date().toISOString(),
     });
-    this.candidates = this.candidates.filter(c => path.resolve(c) !== full);
+    this.candidates = this.candidates.filter(c => this.canonical(c) !== full);
     this.save();
   }
 
   public setScope(repoPath: string, scope: RepoScope): WorkspaceRepo | undefined {
-    const r = this.find(path.resolve(this.primaryRoot, repoPath));
+    const r = this.find(repoPath);
     if (r) { r.scope = scope; this.save(); }
     return r;
   }
@@ -221,7 +292,7 @@ export class WorkspaceManager {
    * reverse by accident.
    */
   public checkWrite(filePath: string): { allowed: boolean; reason?: string } {
-    const full = path.resolve(filePath);
+    const full = this.canonicalFile(filePath);
     // The INNERMOST containing repo governs scope: a read-only repo nested inside the
     // writable primary (a clone landed in a subdir) must win over the primary, or its
     // files would be writable because the primary's root prefix-matches first. Pick the
@@ -229,7 +300,7 @@ export class WorkspaceManager {
     let best: WorkspaceRepo | undefined;
     let bestLen = -1;
     for (const r of this.active()) {
-      const root = path.resolve(r.path);
+      const root = this.canonical(r.path);
       if ((full === root || full.startsWith(root + path.sep)) && root.length > bestLen) {
         best = r;
         bestLen = root.length;

@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { cliEvents, MessageEntry, ToolCallEntry, getSessionTokenEstimate } from './events';
+import { engineEvents, MessageEntry, ToolCallEntry, getSessionTokenEstimate } from './events';
 import { sessionDir, newSessionId } from './session';
 import {
   startSessionMeta, recordFirstUserMessage, recordSessionProgress, endSessionMeta, resumeSessionMeta,
@@ -8,7 +8,7 @@ import {
 
 /**
  * The session recorder — the single producer behind every session surface (/sessions, /resume,
- * the desktop sidebar/gallery/home, ui_snapshot.sessions). It listens on cliEvents and appends the
+ * the desktop sidebar/gallery/home, ui_snapshot.sessions). It listens on engineEvents and appends the
  * live transcript to `<project>/.breakglass/sessions/<id>.jsonl`, one JSON line per entry:
  *
  *   - chat messages as their MessageEntry shape (the format SessionStore has always read), and
@@ -46,7 +46,7 @@ export class SessionRecorder {
     if (!this.id && msg.role !== 'user' && msg.role !== 'assistant') return;
     this.append(msg);
     if (msg.role === 'user' && typeof msg.content === 'string') {
-      if (recordFirstUserMessage(msg.content)) cliEvents.emit('session_changed');
+      if (recordFirstUserMessage(msg.content)) engineEvents.emit('session_changed');
     }
     if (msg.role === 'user' || msg.role === 'assistant') {
       this.msgCount++;
@@ -77,7 +77,7 @@ export class SessionRecorder {
     endSessionMeta();
     this.id = null;
     this.msgCount = 0;
-    cliEvents.emit('session_changed');
+    engineEvents.emit('session_changed');
   }
 
   /** True resume: continue an EXISTING thread — new entries append to its file, meta reattaches. */
@@ -87,7 +87,7 @@ export class SessionRecorder {
     this.id = id;
     this.msgCount = msgCount;
     resumeSessionMeta(id, fallbackTitle);
-    cliEvents.emit('session_changed');
+    engineEvents.emit('session_changed');
   }
 
   /** Engine shutdown — flush the meta record's final counts and mark the session ended. */
@@ -112,21 +112,21 @@ export class SessionRecorder {
     this.id = id;
     this.msgCount = 0;
     startSessionMeta(this.id, process.cwd());
-    cliEvents.emit('session_changed');
+    engineEvents.emit('session_changed');
     return this.id;
   }
 }
 
 let recorder: SessionRecorder | null = null;
 
-/** Attach the recorder to cliEvents (idempotent). Called once from the headless entry. */
+/** Attach the recorder to engineEvents (idempotent). Called once from the headless entry. */
 export function startSessionRecorder(): SessionRecorder {
   if (recorder) return recorder;
   recorder = new SessionRecorder();
-  cliEvents.on('message', (m: MessageEntry) => recorder?.onMessage(m));
-  cliEvents.on('tool_call_result', (c: ToolCallEntry) => recorder?.onToolResult(c));
-  cliEvents.on('clear', () => recorder?.rotate());
-  cliEvents.on('shutdown', () => recorder?.shutdown());
+  engineEvents.on('message', (m: MessageEntry) => recorder?.onMessage(m));
+  engineEvents.on('tool_call_result', (c: ToolCallEntry) => recorder?.onToolResult(c));
+  engineEvents.on('clear', () => recorder?.rotate());
+  engineEvents.on('shutdown', () => recorder?.shutdown());
   return recorder;
 }
 

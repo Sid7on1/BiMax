@@ -1,5 +1,5 @@
 import { globalCommandRegistry } from './registry';
-import { cliEvents } from '../events';
+import { engineEvents } from '../events';
 import { runTypeCheck, runLint, formatErrors } from '../lintFixLoop';
 
 globalCommandRegistry.register({
@@ -12,7 +12,7 @@ globalCommandRegistry.register({
       try {
         context.graphStore?.clear?.();
         await context.graphStore?.saveToDisk?.();
-        cliEvents.emit('graph_changed');
+        engineEvents.emit('graph_changed');
         return { type: 'message', level: 'success', content: 'Codebase map cleared. cd into a specific project and run /index to build a focused one.' };
       } catch (err: any) {
         return { type: 'message', level: 'error', content: `Could not clear the map: ${err.message}` };
@@ -38,7 +38,7 @@ globalCommandRegistry.register({
     context.addSystemMessage('info', 'Building AST codebase index...');
     try {
       const count = await context.codebaseIndexer.buildAstIndex();
-      cliEvents.emit('graph_changed');
+      engineEvents.emit('graph_changed');
       // A graph this big almost always means a parent/home folder was indexed (dependencies, other
       // projects). Point the user at running inside the specific project for a focused, useful map.
       if (count > 20000) {
@@ -87,7 +87,7 @@ globalCommandRegistry.register({
     context.addSystemMessage('info', 'Running Semantic AI index...');
     try {
       await context.codebaseIndexer.buildSemanticIndex();
-      cliEvents.emit('graph_changed');
+      engineEvents.emit('graph_changed');
       return { type: 'message', level: 'success', content: 'Semantic AI Indexing complete! The graph now has full semantic intelligence.' };
     } catch (err: any) {
       return { type: 'message', level: 'error', content: `Semantic indexing failed: ${err.message}` };

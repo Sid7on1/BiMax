@@ -14,9 +14,9 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 
-import { loadConfig } from '../src/cli/config';
+import { loadConfig } from '../src/engine/config';
 import { ApiKeyManager } from '../src/credits/api.key.manager';
-import { buildKeyPool } from '../src/cli/provider';
+import { buildKeyPool } from '../src/engine/provider';
 import { CodeIndex } from '../src/memory/code.index';
 import { RemoteEmbeddingBackend, dot } from '../src/memory/embeddings';
 import { RemoteReranker } from '../src/memory/rerank';
@@ -26,7 +26,7 @@ const MIN_MARGIN = 0.05;
 const SOURCE_ROOT = path.resolve(__dirname, '..');
 const SOURCES = [
   'src/memory/fusion.ts',
-  'src/cli/commands/retrieval.ts',
+  'src/engine/commands/retrieval.ts',
   'src/memory/vector.store.ts',
   'src/memory/code.index.ts',
   'src/memory/sqlite.code.store.ts',
@@ -36,7 +36,7 @@ const SOURCES = [
 ];
 const CASES = [
   { query: 'where do ranked lists from two retrievers become one', expected: 'src/memory/fusion.ts' },
-  { query: 'the probe command proving embeddings are live', expected: 'src/cli/commands/retrieval.ts' },
+  { query: 'the probe command proving embeddings are live', expected: 'src/engine/commands/retrieval.ts' },
   { query: 'keep two copies of the same fact from filling the store', expected: 'src/memory/vector.store.ts' },
 ];
 
