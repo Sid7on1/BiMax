@@ -1,8 +1,8 @@
 import {
   getProviders, getProvider, localProviders, buildKeyPool, setProvider,
   sovereignProviderRefusal, LOCAL_PLACEHOLDER_KEY,
-} from '../cli/provider';
-import { discoverLocalModels, discoverAllLocalModels } from '../cli/local.models';
+} from '../engine/provider';
+import { discoverLocalModels, discoverAllLocalModels } from '../engine/local.models';
 import { setSovereignMode, resetSovereignMode } from '../security/sovereign';
 
 const KEY_ENVS = ['NVIDIA_API_KEY', 'OPENAI_API_KEY', 'ANTHROPIC_API_KEY', 'OPENROUTER_API_KEY',

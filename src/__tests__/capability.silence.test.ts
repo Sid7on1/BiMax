@@ -1,10 +1,11 @@
 import * as http from 'http';
+import { testWithFts5 } from './fts5.support';
 import * as fs from 'fs';
 import * as path from 'path';
 import { PassThrough } from 'stream';
 import { RemoteEmbeddingBackend } from '../memory/embeddings';
 import { RemoteReranker } from '../memory/rerank';
-import { cliEvents } from '../cli/events';
+import { engineEvents } from '../engine/events';
 import { capabilitySnapshot, resetCapabilityStatus, reportCapability } from '../core/capability.status';
 import { startStdioHost } from '../protocol/stdio.host';
 import { engineReducer, initialEngineState } from '../../app/src/renderer/src/engine.state';
@@ -32,7 +33,7 @@ beforeEach(async () => {
   wire = []; requests = 0;
   input = new PassThrough(); output = new PassThrough();
   output.on('data', chunk => { for (const line of chunk.toString().trim().split('\n')) wire.push(JSON.parse(line)); });
-  dispose = startStdioHost({ emitter: cliEvents, input, output });
+  dispose = startStdioHost({ emitter: engineEvents, input, output });
   root = fs.mkdtempSync(path.join(process.cwd(), '.silence-test-'));
   oldWorkspace = SafetyPolicy.allowedWorkspace;
   SafetyPolicy.allowedWorkspace = root;
@@ -139,7 +140,7 @@ test('reranker outage, duplicate indices, partial coverage, and recovery are exp
   expect(ui().capabilities.reranking).toBeUndefined();
 });
 
-test('partial index is visible; lexical-only completion does not claim missing embeddings', async () => {
+testWithFts5('partial index is visible; lexical-only completion does not claim missing embeddings', async () => {
   fs.writeFileSync(path.join(root, 'a.ts'), 'export const apple = 1;');
   fs.writeFileSync(path.join(root, 'b.ts'), 'export const banana = 2;');
   const index = new CodeIndex(null, null, { root });
@@ -150,7 +151,7 @@ test('partial index is visible; lexical-only completion does not claim missing e
   expect(Object.values(ui().capabilities).some(n => n.label === 'Code index')).toBe(false);
 });
 
-test('overlapping sync calls share actual coverage instead of reporting false zero pending', async () => {
+testWithFts5('overlapping sync calls share actual coverage instead of reporting false zero pending', async () => {
   fs.writeFileSync(path.join(root, 'a.ts'), 'export const apple = 1;');
   fs.writeFileSync(path.join(root, 'b.ts'), 'export const banana = 2;');
   const index = new CodeIndex(null, null, { root });
@@ -207,7 +208,7 @@ test('pre-host failures replay and capability messages have reserved transport c
   dispose();
   reportCapability({ id: 'early', label: 'Early capability', state: 'unavailable', reason: 'Failed before attachment.', impact: '', action: '' });
   wire = [];
-  dispose = startStdioHost({ emitter: cliEvents, input, output });
+  dispose = startStdioHost({ emitter: engineEvents, input, output });
   expect(ui().capabilities.early).toBeDefined();
   expect(outboundClass(notices('early')[0])).toBe('critical');
   expect(capabilitySnapshot().some(n => n.id === 'early')).toBe(true);

@@ -1,5 +1,5 @@
-import '../cli/commands/session';
-import { globalCommandRegistry } from '../cli/commands/registry';
+import '../engine/commands/session';
+import { globalCommandRegistry } from '../engine/commands/registry';
 
 function getCmd(name: string): any {
   return (globalCommandRegistry as any).commands.get(name);

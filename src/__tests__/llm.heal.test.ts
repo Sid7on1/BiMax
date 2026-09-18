@@ -1,5 +1,5 @@
 import { LlmAdapter } from '../core/llm.adapter';
-import { MODEL_CATALOG, autoSelectCandidates } from '../cli/models';
+import { MODEL_CATALOG, autoSelectCandidates } from '../engine/models';
 
 // Regression suite for the silent-no-reply bug: a config pinned to models the provider no longer
 // serves. Healing only the WORK slot left the QUICK slot pointing at a dead model, and because a

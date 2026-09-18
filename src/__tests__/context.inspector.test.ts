@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import '../cli/commands/meta';
-import { globalCommandRegistry } from '../cli/commands/registry';
+import '../engine/commands/meta';
+import { globalCommandRegistry } from '../engine/commands/registry';
 import { describeContext } from '../context/inspector';
 import { derivedEvidence, fileEvidence, fileVersion } from '../context/evidence';
 import { CONTINUATION_PREFIX, ContinuationState } from '../context/continuation';

@@ -1,7 +1,7 @@
-import { cliEvents } from '../cli/events';
+import { engineEvents } from '../engine/events';
 import { HeadlessSession } from '../protocol/headless.session';
-import '../cli/commands/meta';
-import { globalCommandRegistry } from '../cli/commands/registry';
+import '../engine/commands/meta';
+import { globalCommandRegistry } from '../engine/commands/registry';
 
 // The headless session must honor /tier identically to Ink's FullScreen: a set_tier event pins the
 // model tier and reflects it in the footer via a model_tier emit. (Routing itself is exercised at
@@ -13,12 +13,12 @@ describe('HeadlessSession — set_tier routing parity', () => {
 
     const seen: any[] = [];
     const onTier = (p: any) => seen.push(p);
-    cliEvents.on('model_tier', onTier);
+    engineEvents.on('model_tier', onTier);
     try {
-      cliEvents.emit('set_tier', 'heavy');
-      cliEvents.emit('set_tier', 'auto');
+      engineEvents.emit('set_tier', 'heavy');
+      engineEvents.emit('set_tier', 'auto');
     } finally {
-      cliEvents.off('model_tier', onTier);
+      engineEvents.off('model_tier', onTier);
     }
 
     expect(seen).toEqual([
@@ -42,11 +42,11 @@ describe('HeadlessSession — set_tier routing parity', () => {
     });
     const messages: any[] = [];
     const onMessage = (message: any) => messages.push(message);
-    cliEvents.on('message', onMessage);
+    engineEvents.on('message', onMessage);
     try {
       await expect(session.dispatchAutonomous('Implement the next outcome step.')).resolves.toBe('completed');
     } finally {
-      cliEvents.off('message', onMessage);
+      engineEvents.off('message', onMessage);
     }
     expect(execute).toHaveBeenCalledTimes(1);
     expect(messages.some(message => message.role === 'user')).toBe(false);
@@ -96,11 +96,11 @@ describe('HeadlessSession — menu id + label contract', () => {
     const session = new HeadlessSession({ personas: {}, options: {}, graphStore: {} as any });
     const seen: any[] = [];
     const onMessage = (m: any) => { if (m.uiComponent === 'menu') seen.push(m); };
-    cliEvents.on('message', onMessage);
+    engineEvents.on('message', onMessage);
     try {
       (session as any).emitMenu(menu);
     } finally {
-      cliEvents.off('message', onMessage);
+      engineEvents.off('message', onMessage);
     }
     return { entry: seen[0], session };
   }
@@ -161,8 +161,8 @@ describe('HeadlessSession — clear drains the previous turn', () => {
     const events: string[] = [];
     const onClear = () => events.push('clear');
     const onToken = (token: string) => events.push(token);
-    cliEvents.on('clear', onClear);
-    cliEvents.on('stream_token', onToken);
+    engineEvents.on('clear', onClear);
+    engineEvents.on('stream_token', onToken);
     try {
       const old = session.dispatch('perform the old coding task');
       await ready;
@@ -177,8 +177,8 @@ describe('HeadlessSession — clear drains the previous turn', () => {
       expect(persona.execute).toHaveBeenCalledTimes(2);
       expect(other.resetContextSession).toHaveBeenCalled();
     } finally {
-      cliEvents.off('clear', onClear);
-      cliEvents.off('stream_token', onToken);
+      engineEvents.off('clear', onClear);
+      engineEvents.off('stream_token', onToken);
     }
   });
 });
@@ -186,7 +186,7 @@ describe('HeadlessSession — clear drains the previous turn', () => {
 
 it('does not announce or emit clear when history replacement is refused', async () => {
   const onClear = jest.fn();
-  cliEvents.on('clear', onClear);
+  engineEvents.on('clear', onClear);
   try {
     const result = await globalCommandRegistry.execute('/clear force', {
       restoreMessages: () => false,
@@ -194,5 +194,5 @@ it('does not announce or emit clear when history replacement is refused', async 
     expect(onClear).not.toHaveBeenCalled();
     expect(result).toMatchObject({ type: 'message', level: 'info' });
     expect((result as any).content).toContain('still busy');
-  } finally { cliEvents.off('clear', onClear); }
+  } finally { engineEvents.off('clear', onClear); }
 });

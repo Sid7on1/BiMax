@@ -1,5 +1,5 @@
-import '../cli/commands/sovereign';
-import { globalCommandRegistry } from '../cli/commands/registry';
+import '../engine/commands/sovereign';
+import { globalCommandRegistry } from '../engine/commands/registry';
 import { setSovereignMode, resetSovereignMode, setSovereignAllowlist } from '../security/sovereign';
 import { installEgressPerimeter, uninstallEgressPerimeter } from '../security/egress.perimeter';
 import { resetSessionEgress } from '../security/egress.ledger';

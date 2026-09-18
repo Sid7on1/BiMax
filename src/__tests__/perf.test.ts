@@ -5,7 +5,7 @@ import {
   recordProviderRound, attachRoundUsage, providerRounds,
 } from '../telemetry/perf';
 import { providerUsage, USAGE_UNAVAILABLE } from '../telemetry/measure';
-import { renderPerf } from '../cli/commands/perf';
+import { renderPerf } from '../engine/commands/perf';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';

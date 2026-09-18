@@ -7,7 +7,7 @@ jest.mock('os', () => {
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { loadGlobalEnv, saveApiKeyToEnv } from '../cli/env.loader';
+import { loadGlobalEnv, saveApiKeyToEnv } from '../engine/env.loader';
 
 describe('global provider credential permissions', () => {
   let home: string;

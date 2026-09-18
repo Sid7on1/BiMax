@@ -74,7 +74,7 @@ describe('ProtocolHost', () => {
     expect(sent[1]).toEqual({ t: 'ready', protocol: PROTOCOL_VERSION });
   });
 
-  it('forwards a cliEvents emit as an event message with sanitized args', () => {
+  it('forwards a engineEvents emit as an event message with sanitized args', () => {
     emitter.emit('status', 'Indexing…');
     expect(sent).toContainEqual({ t: 'event', name: 'status', args: ['Indexing…'] });
   });

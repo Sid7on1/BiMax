@@ -1,6 +1,6 @@
 import { SubAgentManager } from '../core/subagent.manager';
 import { globalSubAgentBlackboard } from '../core/subagent.blackboard';
-import { cliEvents, ToolCallEntry } from '../cli/events';
+import { engineEvents, ToolCallEntry } from '../engine/events';
 import { createWorktree } from '../core/worktree.manager';
 import { execFileSync } from 'child_process';
 import * as fs from 'fs';
@@ -95,14 +95,14 @@ describe('SubAgentManager — T3 sub-agent tool-event relay', () => {
     const results: ToolCallEntry[] = [];
     const onCall = (c: ToolCallEntry) => calls.push(c);
     const onResult = (c: ToolCallEntry) => results.push(c);
-    cliEvents.on('tool_call', onCall);
-    cliEvents.on('tool_call_result', onResult);
+    engineEvents.on('tool_call', onCall);
+    engineEvents.on('tool_call_result', onResult);
     try {
       const mgr = new SubAgentManager({ workerScriptPath: toolScript, timeoutMs: 5000 });
       await mgr.spawnWorker('t-relay', { agentType: 'Hermes', prompt: 'x', cwd: os.tmpdir(), parentMode: 'safe' });
     } finally {
-      cliEvents.off('tool_call', onCall);
-      cliEvents.off('tool_call_result', onResult);
+      engineEvents.off('tool_call', onCall);
+      engineEvents.off('tool_call_result', onResult);
     }
 
     const tagged = calls.find(c => c.id === 'c1');

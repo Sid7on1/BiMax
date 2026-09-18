@@ -149,7 +149,7 @@ describe('AgentLoop — fallback model chain', () => {
       // (6.7s, calls tools) for carrying the note "task probe pending", and derived a replacement
       // the provider does not serve — turning a working fallback into a dead turn.
       // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const { MODEL_CATALOG } = require('../cli/models') as typeof import('../cli/models');
+      const { MODEL_CATALOG } = require('../engine/models') as typeof import('../engine/models');
       const avoided = MODEL_CATALOG.find(m => m.avoidAutoSelect)!.value;
       process.env.BIMAX_FALLBACK_MODEL = avoided;
       const { llm, applied } = makeFailoverLlm(hardFail);
@@ -166,7 +166,7 @@ describe('AgentLoop — fallback model chain', () => {
       // it is disqualified and derivation takes over — and derivation DOES respect the catalogue
       // bar, so it must not land on the avoided model even though the provider serves it.
       // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const { MODEL_CATALOG, autoSelectCandidates } = require('../cli/models') as typeof import('../cli/models');
+      const { MODEL_CATALOG, autoSelectCandidates } = require('../engine/models') as typeof import('../engine/models');
       const avoided = MODEL_CATALOG.find(m => m.avoidAutoSelect)!.value;
       // Ask the policy which model it would pick, rather than restating the rule with a different one.
       const good = autoSelectCandidates('coding', MODEL_CATALOG.map(m => m.value))[0];

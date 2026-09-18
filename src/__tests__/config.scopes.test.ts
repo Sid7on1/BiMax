@@ -25,7 +25,7 @@ const savedEnv: Record<string, string | undefined> = {};
 function freshConfigModule() {
   jest.resetModules();
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  return require('../cli/config') as typeof import('../cli/config');
+  return require('../engine/config') as typeof import('../engine/config');
 }
 
 beforeEach(async () => {

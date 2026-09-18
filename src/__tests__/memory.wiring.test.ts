@@ -4,7 +4,7 @@ import * as path from 'path';
 import { RemoteEmbeddingBackend, type EmbeddingTransport } from '../memory/embeddings';
 import { VectorStore } from '../memory/vector.store';
 import { ProjectMemory, globalProjectMemory } from '../memory/project.memory';
-import { AgentPersona } from '../cli/personas/base.persona';
+import { AgentPersona } from '../engine/personas/base.persona';
 import { ToolRegistry } from '../tools/tool.registry';
 import { LlmAdapter } from '../core/llm.adapter';
 import { ChatEvent } from '../core/llm.provider';
@@ -102,7 +102,7 @@ class WiringPersona extends AgentPersona {}
 describe('Persona → AgentLoop memory wiring', () => {
   beforeAll(async () => {
     // execute() reads config (context window, iteration caps) before building the loop.
-    const { loadConfig } = await import('../cli/config');
+    const { loadConfig } = await import('../engine/config');
     await loadConfig();
   });
 
@@ -135,7 +135,23 @@ describe('Persona → AgentLoop memory wiring', () => {
     expect(secondArgs[6]).toBe(args[6]);
   });
 
-  it('bridges read-only RAG tools into CU while keeping acting authority on mac_control', async () => {
+  /**
+   * THE BIMAX MOTION CONTRACT — skipped until Motion returns, not deleted.
+   *
+   * This asserts persona-level routing that computed `requireTool: 'mcp__bimax-mac__mac_control'`
+   * and bridged the read-only RAG tools alongside it. That routing went out with the code-only reset;
+   * `base.persona` still accepts `toolNames` but no longer sets `requireTool`, so the assertion has
+   * been red ever since and became background noise.
+   *
+   * It is kept, and kept accurate, for the same reason the seams in mcp/client.ts were kept: it is
+   * the specification the archived provider has to meet when Bimax Motion comes back. Deleting it
+   * would mean rediscovering this contract from scratch.
+   *
+   * Nothing is left unguarded by skipping it. The `requireTool` + `toolNames` mechanism itself is
+   * exercised directly by agent.loop.completion.gate.test.ts, and the live user of it — DocumentTool
+   * routing at agent.loop.ts:296 — has its own coverage.
+   */
+  it.skip('bridges read-only RAG tools into CU while keeping acting authority on mac_control', async () => {
     const registry = new ToolRegistry();
     const register = (name: string, description: string): void => registry.register({
       name,

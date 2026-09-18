@@ -1,5 +1,5 @@
-import { decideSlot, routeToModel, catalogueSlotFor, explainRoute } from '../cli/task.router';
-import { ModelEntry } from '../cli/models';
+import { decideSlot, routeToModel, catalogueSlotFor, explainRoute } from '../engine/task.router';
+import { ModelEntry } from '../engine/models';
 
 const slot = (prompt: string, attachments?: string[]) => decideSlot(prompt, { attachments }).slot;
 

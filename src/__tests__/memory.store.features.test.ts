@@ -4,7 +4,7 @@ import * as path from 'path';
 import { VectorStore } from '../memory/vector.store';
 import { RemoteEmbeddingBackend, type EmbeddingTransport } from '../memory/embeddings';
 import { resolveMemorySettings, DEFAULT_EMBEDDING_MODEL, DEFAULT_EMBEDDING_DIMENSIONS } from '../memory/settings';
-import { DEFAULTS } from '../cli/config';
+import { DEFAULTS } from '../engine/config';
 
 /**
  * Store-level behaviours added with the second retrieval pass: dedup-before-store, tag scoping

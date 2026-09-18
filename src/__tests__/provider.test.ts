@@ -9,7 +9,7 @@ function freshProvider(env: Record<string, string | undefined>) {
   jest.resetModules();
   for (const k of KEY_VARS) delete process.env[k];
   for (const [k, v] of Object.entries(env)) if (v !== undefined) process.env[k] = v;
-  return require('../cli/provider');
+  return require('../engine/provider');
 }
 
 afterEach(() => { for (const k of KEY_VARS) delete process.env[k]; });

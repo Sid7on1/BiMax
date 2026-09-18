@@ -1,12 +1,12 @@
 import { Governor } from '../governor/governor';
 import { GovernorVetoError } from '../core/errors';
 import { EventBus } from '../core/event.bus';
-import { GlobalPrompter } from '../cli/prompter';
-import { cliEvents } from '../cli/events';
+import { GlobalPrompter } from '../engine/prompter';
+import { engineEvents } from '../engine/events';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 
-jest.mock('../cli/prompter', () => ({
+jest.mock('../engine/prompter', () => ({
   GlobalPrompter: {
     ask: jest.fn().mockResolvedValue('y'),
     isBusy: jest.fn().mockReturnValue(false),
@@ -66,7 +66,7 @@ describe('Governor', () => {
     it('warns once as the cap approaches, while there is still budget to act on', async () => {
       const seen: string[] = [];
       const onStatus = (m: string) => seen.push(m);
-      cliEvents.on('status', onStatus);
+      engineEvents.on('status', onStatus);
       try {
         await governor.budget.recordSpend(3.0);   // 60% — too early to warn
         expect(seen.filter(m => /Daily budget/.test(m))).toHaveLength(0);
@@ -81,21 +81,21 @@ describe('Governor', () => {
         await governor.budget.recordSpend(0.2);   // still under the cap — must not nag
         expect(seen.filter(m => /Daily budget/.test(m))).toHaveLength(1);
       } finally {
-        cliEvents.off('status', onStatus);
+        engineEvents.off('status', onStatus);
       }
     });
 
     it('stays quiet when the governor is disabled — nothing will be blocked', async () => {
       const seen: string[] = [];
       const onStatus = (m: string) => seen.push(m);
-      cliEvents.on('status', onStatus);
+      engineEvents.on('status', onStatus);
       governor.budget.enabled = false;
       try {
         await governor.budget.recordSpend(4.9);
         expect(seen.filter(m => /Daily budget/.test(m))).toHaveLength(0);
       } finally {
         governor.budget.enabled = true;
-        cliEvents.off('status', onStatus);
+        engineEvents.off('status', onStatus);
       }
     });
   });

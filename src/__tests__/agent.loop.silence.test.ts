@@ -2,7 +2,7 @@ import { AgentLoop } from '../core/agent.loop';
 import { ToolRegistry } from '../tools/tool.registry';
 import { buildTool } from '../tools/tool.factory';
 import { outcomeError } from '../tools/outcome';
-import { cliEvents } from '../cli/events';
+import { engineEvents } from '../engine/events';
 import { capabilitySnapshot, resetCapabilityStatus } from '../core/capability.status';
 import type { LLMProvider } from '../core/llm.provider';
 
@@ -34,9 +34,9 @@ test('typed tool error is painted as error, not a successful tool call', async (
     yield { type: 'done' };
   } } as LLMProvider;
   const calls: any[] = []; const capture = (call: any) => calls.push(call);
-  cliEvents.on('tool_call_result', capture);
+  engineEvents.on('tool_call_result', capture);
   try {
     for await (const _ of new AgentLoop(llm, registry).execute([{ role: 'user', content: 'Run the fixture.' }], '', { maxIterations: 3 })) { /* drain */ }
     expect(calls.find(call => call.id === 'failed-call')).toMatchObject({ status: 'error', outcome: 'error', errorClass: 'io' });
-  } finally { cliEvents.off('tool_call_result', capture); }
+  } finally { engineEvents.off('tool_call_result', capture); }
 });

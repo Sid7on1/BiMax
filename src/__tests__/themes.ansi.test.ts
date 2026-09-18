@@ -1,4 +1,4 @@
-import { parseColor, toAnsi, getTheme } from '../cli/themes';
+import { parseColor, toAnsi, getTheme } from '../engine/themes';
 
 describe('parseColor', () => {
   it('parses rgb() and #hex (long + short)', () => {

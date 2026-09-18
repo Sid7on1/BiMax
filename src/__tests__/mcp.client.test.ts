@@ -3,7 +3,7 @@ import * as os from 'os';
 import * as path from 'path';
 import { loadMcpServers } from '../mcp/config';
 import {
-  approvalHandledByAppOwnedProvider,
+  approvalHandledByMotionProvider,
   listAllMcpTools,
   mcpToolCallRequest,
   registerMcpTools,
@@ -90,9 +90,9 @@ describe('registerMcpTools (A3, integration)', () => {
 
 describe('host-provider catalog contract', () => {
   test('only the app-owned Mac entrypoint skips the duplicate generic governor prompt', () => {
-    expect(approvalHandledByAppOwnedProvider('bimax-mac', 'mac_control')).toBe(true);
-    expect(approvalHandledByAppOwnedProvider('bimax-mac', 'other_tool')).toBe(false);
-    expect(approvalHandledByAppOwnedProvider('third-party', 'mac_control')).toBe(false);
+    expect(approvalHandledByMotionProvider('bimax-mac', 'mac_control')).toBe(true);
+    expect(approvalHandledByMotionProvider('bimax-mac', 'other_tool')).toBe(false);
+    expect(approvalHandledByMotionProvider('third-party', 'mac_control')).toBe(false);
   });
 
   test('a tool call request carries no Computer Use plan envelope', () => {

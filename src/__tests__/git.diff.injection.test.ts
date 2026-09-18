@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { execFileSync } from 'child_process';
-import { gitDiff, gitLog } from '../cli/git';
+import { gitDiff, gitLog } from '../engine/git';
 
 // Security regression: gitDiff/gitLog used to build a shell string with the caller's value
 // interpolated (`git diff -- "${file}"`). GitTool feeds `file` straight from the model's `paths`

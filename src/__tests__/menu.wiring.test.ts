@@ -1,7 +1,7 @@
-import '../cli/commands/meta';
-import '../cli/commands/file';
-import { globalCommandRegistry } from '../cli/commands/registry';
-import { getKnownAgents } from '../cli/agentRouter';
+import '../engine/commands/meta';
+import '../engine/commands/file';
+import { globalCommandRegistry } from '../engine/commands/registry';
+import { getKnownAgents } from '../engine/agentRouter';
 
 // These menus previously returned `type: 'menu'` with NO onSelect — so selecting a row in the TUI
 // did nothing (the legacy menuType branches in FullScreen only fire for hand-built menus, not
@@ -89,7 +89,7 @@ describe('backup menus (/undo, /diff-file, /backups) wiring', () => {
   // These return a menu only when backups exist; mock getBackups via the fileEditor module so the
   // menu branch runs deterministically without touching the filesystem.
   beforeAll(() => {
-    jest.spyOn(require('../cli/fileEditor'), 'getBackups').mockResolvedValue([
+    jest.spyOn(require('../engine/fileEditor'), 'getBackups').mockResolvedValue([
       { file: 'src_app.ts_1700000000000', original: '', timestamp: 0 },
     ]);
   });

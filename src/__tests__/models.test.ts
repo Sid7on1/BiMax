@@ -7,7 +7,7 @@ import {
   isReasoningModel,
   isRecommendedFor,
   slotModelMenuOptions,
-} from '../cli/models';
+} from '../engine/models';
 
 describe('model catalog', () => {
   it('includes the current curated NVIDIA agent routes across tiers', () => {
@@ -96,7 +96,7 @@ describe('model catalog', () => {
     // the CATALOG to decide whether a model is safe to select automatically, so a default the
     // catalog silently disagrees with is handed to every new user while the guard reports itself
     // satisfied. Asserting the agreement is what keeps one of these edits from moving alone.
-    const { DEFAULTS } = require('../cli/config') as typeof import('../cli/config');
+    const { DEFAULTS } = require('../engine/config') as typeof import('../engine/config');
     const avoided = new Set(MODEL_CATALOG.filter((m) => m.avoidAutoSelect).map((m) => m.value));
 
     expect(DEFAULTS.model).toBe(DEFAULT_CODING_MODEL);

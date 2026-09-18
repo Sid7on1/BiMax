@@ -1,9 +1,9 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import '../cli/commands/session';
-import { globalCommandRegistry } from '../cli/commands/registry';
-import { cliEvents } from '../cli/events';
+import '../engine/commands/session';
+import { globalCommandRegistry } from '../engine/commands/registry';
+import { engineEvents } from '../engine/events';
 
 /**
  * Backlog F9 (record 46, T02): when a resume cannot happen, the engine says so on the wire with the id it was asked for,
@@ -26,16 +26,16 @@ afterAll(() => {
 test('/resume of a saved conversation that is not there emits session_restore_failed with its id and reason', async () => {
   const failed = jest.fn();
   const restored = jest.fn();
-  cliEvents.on('session_restore_failed', failed);
-  cliEvents.on('session_restore', restored);
+  engineEvents.on('session_restore_failed', failed);
+  engineEvents.on('session_restore', restored);
   try {
     const result = await globalCommandRegistry.execute('/resume 2026-01-01_00-00-00', { restoreMessages: () => true, addSystemMessage: () => {} } as any);
     expect(failed).toHaveBeenCalledWith({ id: '2026-01-01_00-00-00', reason: 'no saved conversation has that id' });
     expect(restored).not.toHaveBeenCalled();
     expect((result as any).content).toContain('No session matching');
   } finally {
-    cliEvents.off('session_restore_failed', failed);
-    cliEvents.off('session_restore', restored);
+    engineEvents.off('session_restore_failed', failed);
+    engineEvents.off('session_restore', restored);
   }
 });
 

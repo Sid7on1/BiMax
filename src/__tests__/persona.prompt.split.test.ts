@@ -1,8 +1,8 @@
 import { IGovernor } from '../core/interfaces';
 import { ToolRegistry } from '../tools/tool.registry';
 import { LlmAdapter } from '../core/llm.adapter';
-import { BiMaxPersona } from '../cli/personas/implementations';
-import { AgentPersona } from '../cli/personas/base.persona';
+import { BiMaxPersona } from '../engine/personas/implementations';
+import { AgentPersona } from '../engine/personas/base.persona';
 import { createBashTool } from '../tools/implementations/bash.tool';
 import { createReadFileTool } from '../tools/implementations/file.tool';
 import { createWebFetchTool } from '../tools/implementations/webfetch.tool';

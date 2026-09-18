@@ -48,7 +48,7 @@ describe('session-scoped ContextManager', () => {
 
   it('persona keeps one ContextManager across turns and resets it only on an explicit boundary', () => {
     // Minimal harness around the persona helpers (avoid booting a full persona).
-    const { AgentPersona } = require('../cli/personas/base.persona');
+    const { AgentPersona } = require('../engine/personas/base.persona');
     const persona = Object.create(AgentPersona.prototype);
     persona.llmAdapter = fakeLlm;
     persona.sessionContextManager = null;

@@ -92,7 +92,7 @@ describe('fault injection harness', () => {
     process.env.BIMAX_BREAKGLASS_DIR = dir;
     try {
       fs.writeFileSync(path.join(dir, 'config.json'), JSON.stringify({ model: 'before' }), 'utf-8');
-      const cfg = require('../cli/config') as typeof import('../cli/config');
+      const cfg = require('../engine/config') as typeof import('../engine/config');
       cfg.__resetConfigForTests?.();
       await cfg.loadConfig();
       process.env.BIMAX_FAULT = 'config.write';

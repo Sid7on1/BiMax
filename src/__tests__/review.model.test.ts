@@ -2,7 +2,7 @@ import {
   ReviewFacts, deriveReviewState, emptyFacts, readsAsApproved, toSnapshot,
 } from '../review/review.model';
 import { ReviewManager } from '../review/review.manager';
-import { ToolCallEntry } from '../cli/events';
+import { ToolCallEntry } from '../engine/events';
 import { requiresBuildVerification } from '../review/verification.scope';
 
 function facts(): ReviewFacts {

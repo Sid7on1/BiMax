@@ -32,8 +32,8 @@ describe('an explicit model pick is not rewritten by healing', () => {
     // Pins WHY this matters: every heal lands on the same id, so a persisted heal is a one-way
     // door. If the catalogue ranking changes this test still passes for the right reason —
     // the guarantee is that *some* single id dominates, not that it is kimi.
-    const { autoSelectCandidates } = require('../cli/models');
-    const { MODEL_CATALOG } = require('../cli/models');
+    const { autoSelectCandidates } = require('../engine/models');
+    const { MODEL_CATALOG } = require('../engine/models');
     const all = MODEL_CATALOG.map((m: any) => m.value);
     const top = autoSelectCandidates('coding', all)[0];
     expect(typeof top).toBe('string');
@@ -48,13 +48,13 @@ describe('an explicit model pick is not rewritten by healing', () => {
     process.env.HOME = dir;
     jest.resetModules();
     try {
-      const config = require('../cli/config');
+      const config = require('../engine/config');
       await config.loadConfig();
       await config.saveConfig({ model: 'nvidia/nemotron-3-nano-30b-a3b' }, { origin: 'user' });
       expect(config.getConfig().model).toBe('nvidia/nemotron-3-nano-30b-a3b');
 
       jest.resetModules();
-      const reread = require('../cli/config');
+      const reread = require('../engine/config');
       await reread.loadConfig();
       expect(reread.getConfig().model).toBe('nvidia/nemotron-3-nano-30b-a3b');
     } finally {

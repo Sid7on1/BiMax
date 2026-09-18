@@ -1,5 +1,5 @@
-import '../cli/commands';
-import { globalCommandRegistry } from '../cli/commands/registry';
+import '../engine/commands';
+import { globalCommandRegistry } from '../engine/commands/registry';
 
 // Phase D consolidation: the model/routing cluster lives under one primary verb. /model dispatches
 // tier|provider|reasoning|routes|arms to the dedicated (palette-hidden) commands via redirect, while

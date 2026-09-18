@@ -1,7 +1,7 @@
 import { AgentLoop } from '../core/agent.loop';
 import { ToolRegistry } from '../tools/tool.registry';
 import { LLMProvider, ChatEvent, Message } from '../core/llm.provider';
-import { cliEvents, ToolCallEntry } from '../cli/events';
+import { engineEvents, ToolCallEntry } from '../engine/events';
 
 /**
  * End-to-end: when the model writes a tool call as plain text instead of using the
@@ -141,13 +141,13 @@ describe('AgentLoop — live tool-arg streaming (tool_call_partial)', () => {
 
     const seen: ToolCallEntry[] = [];
     const onCall = (c: ToolCallEntry) => seen.push(c);
-    cliEvents.on('tool_call', onCall);
+    engineEvents.on('tool_call', onCall);
     try {
       const loop = new AgentLoop(mockLlm, registry, null as any);
       // eslint-disable-next-line no-empty
       for await (const _ of loop.execute([{ role: 'user', content: 'go' }], 'sys', { maxIterations: 2 })) {}
     } finally {
-      cliEvents.off('tool_call', onCall);
+      engineEvents.off('tool_call', onCall);
     }
 
     // The partials surfaced as running entries (live activity) with the growing args...
@@ -384,14 +384,14 @@ describe('AgentLoop — retries transient errors then gives up', () => {
     const loop = new AgentLoop(mockLlm, new ToolRegistry(), null as any);
     const statuses: string[] = [];
     const onStatus = (s: string) => statuses.push(String(s));
-    cliEvents.on('status', onStatus);
+    engineEvents.on('status', onStatus);
     let out = '';
     try {
       for await (const t of loop.execute([{ role: 'user', content: 'hi' }], 'sys', { maxIterations: 5 })) {
         out += t;
       }
     } finally {
-      cliEvents.off('status', onStatus);
+      engineEvents.off('status', onStatus);
     }
 
     expect(call).toBe(2); // retried exactly once
@@ -472,7 +472,7 @@ it('interrupts a 30-second provider backoff without another model request', asyn
   const onStatus = (status: string) => {
     if (status.includes('retrying in')) setImmediate(() => controller.abort());
   };
-  cliEvents.on('status', onStatus);
+  engineEvents.on('status', onStatus);
   try {
     const loop = new AgentLoop(llm, new ToolRegistry(), null as any);
     for await (const _ of loop.execute([{ role: 'user', content: 'test' }], 'sys', {
@@ -480,5 +480,5 @@ it('interrupts a 30-second provider backoff without another model request', asyn
     })) { /* drain */ }
     expect(controller.signal.aborted).toBe(true);
     expect(calls).toBe(1);
-  } finally { cliEvents.off('status', onStatus); }
+  } finally { engineEvents.off('status', onStatus); }
 }, 1500);

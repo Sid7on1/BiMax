@@ -1,7 +1,7 @@
 import * as os from 'os';
 import * as path from 'path';
 import { createCdTool } from '../tools/implementations/cd.tool';
-import { cliEvents } from '../cli/events';
+import { engineEvents } from '../engine/events';
 
 const governor: any = { approveTaskExecution: jest.fn().mockResolvedValue(undefined) };
 
@@ -18,13 +18,13 @@ describe('ChangeDirectoryTool — already-there is a no-op', () => {
     const cwd = os.tmpdir();
     const seen: string[] = [];
     const onChanged = (dir: string) => seen.push(dir);
-    cliEvents.on('cwd_changed', onChanged);
+    engineEvents.on('cwd_changed', onChanged);
     try {
       const out = await cd()({ targetPath: cwd }, { cwd });
       expect(out).toMatch(/Already in/);
       expect(out).toContain(path.resolve(cwd));
     } finally {
-      cliEvents.off('cwd_changed', onChanged);
+      engineEvents.off('cwd_changed', onChanged);
     }
     expect(seen).toEqual([]);
   });
@@ -39,13 +39,13 @@ describe('ChangeDirectoryTool — already-there is a no-op', () => {
     const ctx = { cwd };
     const seen: string[] = [];
     const onChanged = (dir: string) => seen.push(dir);
-    cliEvents.on('cwd_changed', onChanged);
+    engineEvents.on('cwd_changed', onChanged);
     try {
       const out = await cd()({ targetPath: os.homedir() }, ctx);
       expect(out).toMatch(/^Now in /);
       expect(ctx.cwd).toBe(os.homedir());
     } finally {
-      cliEvents.off('cwd_changed', onChanged);
+      engineEvents.off('cwd_changed', onChanged);
     }
     expect(seen).toEqual([os.homedir()]);
   });

@@ -5,7 +5,7 @@ import { McpManager } from '../mcp/manager';
 import { loadMcpServers, normalizeArgs, missingPathArgs } from '../mcp/config';
 import { ToolRegistry } from '../tools/tool.registry';
 import { IGovernor } from '../core/interfaces';
-import { cliEvents } from '../cli/events';
+import { engineEvents } from '../engine/events';
 
 const governor = { approveTaskExecution: jest.fn().mockResolvedValue(undefined) } as unknown as IGovernor;
 const FIXTURE = path.join(__dirname, 'fixtures', 'mcp-echo-server.js');
@@ -47,7 +47,7 @@ describe('McpManager config persistence', () => {
     mgr.addToConfig({ name: 'seq', command: 'node', args: [FIXTURE] }, dir);
 
     const changed = jest.fn();
-    cliEvents.on('mcp_changed', changed);
+    engineEvents.on('mcp_changed', changed);
     try {
       await mgr.setEnabled('seq', false, undefined, dir);
       expect(changed).toHaveBeenCalledTimes(1);
@@ -57,7 +57,7 @@ describe('McpManager config persistence', () => {
       await mgr.setEnabled('nope', false, undefined, dir);
       expect(changed).toHaveBeenCalledTimes(2);
     } finally {
-      cliEvents.off('mcp_changed', changed);
+      engineEvents.off('mcp_changed', changed);
     }
   });
 

@@ -4,7 +4,7 @@ import * as path from 'path';
 import { execFileSync } from 'child_process';
 import { enforceThreadScope } from '../tools/thread.scope';
 import { Governor } from '../governor/governor';
-import { GlobalPrompter } from '../cli/prompter';
+import { GlobalPrompter } from '../engine/prompter';
 import { sandboxArgv, sandboxBin } from '../sandbox/exec.sandbox';
 import { createDocumentTool } from '../tools/implementations/document.tool';
 import { countWords } from '../tools/implementations/file.tool';

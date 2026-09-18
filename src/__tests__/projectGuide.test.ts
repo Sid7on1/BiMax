@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { loadProjectGuide } from '../cli/projectGuide';
+import { loadProjectGuide } from '../engine/projectGuide';
 
 describe('loadProjectGuide', () => {
   let dir: string;

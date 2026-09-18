@@ -1,7 +1,8 @@
 import * as fs from 'fs';
+import { itWithFts5 } from './fts5.support';
 import * as os from 'os';
 import * as path from 'path';
-import { expandFileAtMentions } from '../cli/atMention';
+import { expandFileAtMentions } from '../engine/atMention';
 import { ComposerCorpus, setComposerCorpus, createComposerStore } from '../memory/corpus';
 
 /**
@@ -57,7 +58,7 @@ describe('attachments route by kind and size, not by hope', () => {
     expect(result.injected).toContain(`@${file}`);
   });
 
-  it('ingests a large text file instead of silently skipping it', async () => {
+  itWithFts5('ingests a large text file instead of silently skipping it', async () => {
     // The old behaviour: `if (stat.size > MAX) continue` — the user saw no error and no content.
     const big = `Corrosion observed at nozzle N2 on exchanger E-204.\n${'padding line\n'.repeat(20_000)}`;
     const file = await write('long-report.txt', big);
@@ -72,7 +73,7 @@ describe('attachments route by kind and size, not by hope', () => {
     expect(hits[0].name).toBe('long-report.txt');
   });
 
-  it('injects relevant passages but never the whole document', async () => {
+  itWithFts5('injects relevant passages but never the whole document', async () => {
     // The property is BOUNDED, not absent. Retrieved passages are the point — a pointer with no
     // content is what made a small model go poking at the file with shell commands. What must never
     // happen is the 200 KB arriving whole.
@@ -85,7 +86,7 @@ describe('attachments route by kind and size, not by hope', () => {
     expect(result.text.length).toBeLessThan(20_000);
   });
 
-  it('routes a document FORMAT to the corpus even when it is small', async () => {
+  itWithFts5('routes a document FORMAT to the corpus even when it is small', async () => {
     // A 4 KB spreadsheet would have passed the size check and been inlined as binary garbage.
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const ExcelJS = require('exceljs');
@@ -130,7 +131,7 @@ describe('attachments route by kind and size, not by hope', () => {
     expect(result.text).toMatch(/Do NOT inspect this file with shell commands/);
   });
 
-  it('MUTANT — the old size check would have returned nothing at all', async () => {
+  itWithFts5('MUTANT — the old size check would have returned nothing at all', async () => {
     const file = await write('huge.txt', 'FINDING: wall loss 4.2 mm\n' + 'y'.repeat(150_000));
     const stat = await fs.promises.stat(file);
     const oldBehaviour = stat.size > 100 * 1024 ? null : 'inlined';

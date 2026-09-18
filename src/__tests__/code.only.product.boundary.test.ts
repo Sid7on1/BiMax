@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { isDisabledProductCapabilityName, loadHostCapabilityServers } from '../mcp/config';
-import { isDisabledComputerUseToolName } from '../mcp/client';
+import { isDisabledMotionToolName } from '../mcp/client';
 import { buildEngineChildEnv } from '../../app/src/main/coding.runtime.paths';
 
 const root = path.resolve(__dirname, '..', '..');
@@ -31,9 +31,9 @@ describe('code-only product boundary', () => {
       servers: [{ name: 'bimax-mac', command: '/Applications/Bimax.app/Contents/MacOS/provider' }],
     }))).toEqual([]);
     for (const name of ['mac_control', 'computer_control', 'computer']) {
-      expect(isDisabledComputerUseToolName(name)).toBe(true);
+      expect(isDisabledMotionToolName(name)).toBe(true);
     }
-    expect(isDisabledComputerUseToolName('edit_file')).toBe(false);
+    expect(isDisabledMotionToolName('edit_file')).toBe(false);
   });
 
   test('Desktop launches the engine without a host Computer Use capability', () => {
@@ -72,7 +72,18 @@ describe('code-only product boundary', () => {
     }
     const builder = read('app/electron-builder.yml');
     expect(builder).not.toMatch(/BimaxCuService|bimax-cu-bridge|bimax-desktop-helper|bimax-live-pip|bimax-mac-capability/);
-    expect(builder).not.toMatch(/NSMicrophoneUsageDescription/);
+    // This used to ban NSMicrophoneUsageDescription outright, as a proxy for the entitlements the
+    // native provider needed. Voice dictation (app/native/voice/main.swift) shipped afterwards and
+    // legitimately asks for the microphone, so the guard began failing on a feature that is
+    // supposed to be present — a stale assertion, not a boundary violation. The line above already
+    // covers the real payload, which is binaries.
+    //
+    // Assert the exact SET of declared capabilities rather than banning one member of it. That is
+    // strictly stronger: any new capability string — including one Bimax Motion introduces — fails
+    // here and has to be added deliberately, which is the review this test exists to force.
+    const declaredCapabilities = [...builder.matchAll(/NS([A-Za-z]+)UsageDescription/g)]
+      .map((m) => m[1]).sort();
+    expect(declaredCapabilities).toEqual(['AppleEvents', 'Microphone']);
   });
 
   test('the primary UI has one code task lane and no Computer Use entry point', () => {

@@ -1,4 +1,4 @@
-import { AgentPersona } from '../cli/personas/base.persona';
+import { AgentPersona } from '../engine/personas/base.persona';
 import { ToolRegistry } from '../tools/tool.registry';
 import { LlmAdapter } from '../core/llm.adapter';
 import { ChatEvent } from '../core/llm.provider';
