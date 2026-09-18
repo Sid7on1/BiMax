@@ -4,7 +4,7 @@
 // `npm run gen:app-protocol` and let the CI gate (npm run check:protocol-mirror) enforce it.
 //
 // This file re-exports the generated contract and adds the RENDERER-ONLY payload shapes the app
-// consumes off the wire (event payloads from src/cli/events.ts, the ui_snapshot from
+// consumes off the wire (event payloads from src/engine/events.ts, the ui_snapshot from
 // src/protocol/ui.snapshot.ts) — types the engine doesn't publish in its protocol module.
 export * from './protocol.gen';
 

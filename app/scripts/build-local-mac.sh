@@ -30,7 +30,6 @@ cd "$(dirname "$0")/.."
 
 ARCH="${1:-arm64}"
 OUT="${BIMAX_LOCAL_BUILD_DIR:-/private/tmp/bimax-build/release}"
-ENGINE="${BIMAX_ENGINE_LOCAL_OVERRIDE:-}"
 
 case "$ARCH" in arm64) target=darwin-arm64 ;; x64) target=darwin-x64 ;; *) echo "usage: $0 [arm64|x64]" >&2; exit 1 ;; esac
 case "$OUT" in "$PWD"/*|"$HOME"/Desktop/*|"$HOME"/Documents/*) echo "error: output dir is inside the synced tree: $OUT" >&2; exit 1 ;; esac
@@ -40,46 +39,23 @@ npx electron-vite build
 
 echo "→ engine"
 #
-# THE ENGINE IS A VERSIONED INPUT TO THIS BUILD, NOT DESKTOP SOURCE.
+# THE ENGINE IS THIS REPO'S OWN SOURCE, BUILT HERE.
 #
-# The desktop app embeds the `bimax` CLI as its engine, but it consumes it as a finished BINARY and
-# never as source. This build therefore does not compile the CLI, does not cd into its tree, and
-# does not care how it was produced — it takes a path to an executable and stages it. Whoever owns
-# the CLI owns building it.
+# It used to be a versioned binary input: an earlier script compiled ../src/index.ts inline, that was
+# replaced by consuming a published `bun --compile` artifact, and the path of last resort downloaded
+# the release engine.lock.json pinned. That lock pinned v1.1.0 of Sid7on1/bimax-releases, which was
+# never published — and because GitHub answers 404 for "asset missing" and "no permission" alike, the
+# failure read as an auth problem and sent people hunting for a token they did not need.
 #
-# An earlier version of this script compiled ../src/index.ts inline. That made a CLI build a step of
-# the desktop build: the app could not be built without the CLI's source checked out and its
-# toolchain (bun) installed, and a CLI-side break surfaced as a desktop packaging failure. One
-# product, one build.
-#
-# Where the binary comes from, in order:
-#   1. BIMAX_ENGINE_LOCAL_OVERRIDE — an explicit path you supply.
-#   2. ../.engine-local/bimax-engine — where the CLI's `npm run build:engine` puts it.
-#   3. engine.lock.json's pinned release — the release path, over the network.
-#
-# (3) is currently broken and is why this ordering matters: the lock pins v1.1.0 of
-# Sid7on1/bimax-releases and that release was never published — the repo stops at v1.0.8, which also
-# uses the older per-platform tarball scheme rather than the manifest scheme the lock expects. The
-# download 404s, and because GitHub returns 404 for "asset missing" and "no permission" alike, it
-# reads as an auth failure and sends you hunting for a token you do not need.
-#
-# Release builds are untouched: they set BIMAX_RELEASE_BUILD=1, under which
-# resolve-engine-artifact.mjs refuses an override outright and (3) is the only path.
-if [ -z "$ENGINE" ] && [ -x "../.engine-local/bimax-engine" ]; then
-  ENGINE="$(cd .. && pwd)/.engine-local/bimax-engine"
-fi
-if [ -n "$ENGINE" ]; then
-  [ -x "$ENGINE" ] || { echo "error: engine is not an executable file: $ENGINE" >&2; exit 1; }
-  # Always regenerate the staged binary + manifest atomically. Reusing `app/engine` let an old
-  # compiled runtime survive beside a newer renderer/provider/native stack.
-  BIMAX_ENGINE_LOCAL_OVERRIDE="$ENGINE" bash scripts/prepare-engine.sh "$target"
-else
-  # Say exactly which command produces the missing input, in the product that owns it.
-  echo "   no local engine found — resolving the pinned release from engine.lock.json"
-  echo "   (if that 404s: build the CLI's engine with \`npm run build:engine\` in the repo root,"
-  echo "    or pass BIMAX_ENGINE_LOCAL_OVERRIDE=/path/to/bimax-engine)"
-  bash scripts/prepare-engine.sh "$target"
-fi
+# There is no binary and no download any more. prepare-engine.sh bundles ../src/index.ts to
+# app/engine/index.js (23 MB, ~0.3s) and Electron's own Node runs it in a utilityProcess. The bundle
+# is architecture-independent, so `target` no longer selects anything here.
+bash scripts/prepare-engine.sh "$target"
+
+# Run the artifact this build is about to ship, and refuse to package one that cannot answer. Reading
+# a script to check what it says is not the same as executing what it produced — that gap is how a
+# sidecar stub that exited 1 got shipped in v1.1.0 with every gate green.
+npx electron scripts/verify-engine.js
 
 # Computer Use staging removed 2026-09-04. Bimax has shipped code-only since the 2026-09-02 reset,
 # and electron-builder.yml declares no `mac.extraFiles`, so the four binaries prepare-native.sh

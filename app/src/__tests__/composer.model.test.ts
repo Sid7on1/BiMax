@@ -5,7 +5,7 @@ import {
 } from '../renderer/src/composer.model';
 
 /**
- * The engine's own parser, copied verbatim from `src/cli/atMention.ts` (FILE_AT_RE). A reference
+ * The engine's own parser, copied verbatim from `src/engine/atMention.ts` (FILE_AT_RE). A reference
  * is only correct if THIS reads back the path we meant — asserting on our own output shape would
  * just be checking that the composer agrees with itself.
  */

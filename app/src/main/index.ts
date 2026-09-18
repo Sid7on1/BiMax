@@ -2,7 +2,7 @@ import { CapabilityReplay } from './capability.replay';
 import { app, BrowserWindow, ipcMain, dialog, shell, session, systemPreferences, powerMonitor, net, nativeTheme, globalShortcut, screen, Menu, Notification, Tray, nativeImage, webContents as electronWebContents } from 'electron';
 import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron';
 import path from 'node:path';
-import { ThreadManager, threadIndexEnvironment, threadVoiceEnvironment } from './thread.manager';
+import { ThreadManager, threadCapabilityEnvironment, threadIndexEnvironment, threadVoiceEnvironment } from './thread.manager';
 import { ThreadStorage } from './thread.storage';
 import { createThreadBroker } from './thread.broker';
 import { finderContext } from './finder.context';
@@ -31,15 +31,16 @@ import { spawn } from 'node:child_process';
 import { readFileSync, writeFileSync, renameSync, mkdirSync, realpathSync, existsSync, appendFileSync, statSync, watch as watchFolder } from 'node:fs';
 import fsp from 'node:fs/promises';
 import {
-  spawnEngineProcess, recentEngineLog, engineProcessProvenance,
+  spawnEngine, recentEngineLog, engineProcessProvenance,
 } from './engine';
 import { buildDiagnosticExport } from './diagnostic.export';
 import { DesktopEvidenceStore } from './evidence.store';
 import { buildEvidenceTimeline, retentionControls } from '../shared/evidence.timeline';
 import type { WindowChromeState } from '../shared/window.chrome';
 import { EngineSupervisor } from './supervisor/supervisor';
-import { CrashJournal } from './supervisor/journal';
+import { CrashJournal, redactSecrets } from './supervisor/journal';
 import { SupervisorStatus } from './supervisor/types';
+import { availableBytes, type SystemMemorySample } from './supervisor/resources';
 import { gitDiff, gitBranches, gitLog, gitRemoteInfo, gitFetch, gitPull, gitPush, stampedGitStatus } from './git';
 import { discoverLocalModels } from './local.models';
 import { listDir, readFilePreview, writeFileContent, readSessionMeta, watchProject, searchFiles, ProjectWatch } from './files';
@@ -79,6 +80,25 @@ import {
  *                     'supervisor:status' (full typed lifecycle), 'app:project',
  *                     'files:changed', 'pty:data', 'pty:exit'
  */
+
+// A development run must not BE the installed app. `productName` is "Bimax" in both, so both
+// resolved userData to the same ~/Library/Application Support/Bimax — with two consequences that
+// look nothing alike. The single-instance lock below is keyed on that directory, so starting
+// `npm run dev` while the installed Bimax was open took the `!ownsSingleInstance` branch and
+// quit: the dev process exited 0 having printed nothing after "starting electron app...", which
+// reads as a broken electron-vite rather than a refusal. And on the runs where dev DID own the
+// lock, it read and wrote the user's real threads, settings, provider credentials and
+// engine.log — the same hazard the jest suite had when it blanked the configured model, one
+// level up and with no BIMAX_BREAKGLASS_DIR in the path.
+//
+// Separating the directory fixes both. It must happen before requestSingleInstanceLock (which is
+// keyed on it) and before anything resolves a path under userData, so it lives here at the top of
+// module scope rather than in an app-ready handler.
+if (!app.isPackaged) {
+  const devUserData = path.join(app.getPath('appData'), 'Bimax (dev)');
+  mkdirSync(devUserData, { recursive: true });
+  app.setPath('userData', devUserData);
+}
 
 let win: BrowserWindow | null = null;
 let supervisor: EngineSupervisor | null = null;
@@ -699,7 +719,15 @@ async function workspaceCapabilities(): Promise<{
 
 // One packaged Bimax process owns the coding engine. A second launch only brings it forward.
 const ownsSingleInstance = app.requestSingleInstanceLock();
-if (!ownsSingleInstance) app.quit();
+if (!ownsSingleInstance) {
+  // Quitting silently made a refusal indistinguishable from a broken build: the terminal printed
+  // "starting electron app..." and then exited 0, with nothing anywhere saying a second instance
+  // had been declined. Name the directory that is contended, because that is the actionable part
+  // — the holder is frequently the INSTALLED Bimax rather than another dev run, and before the
+  // block at the top of this file the two resolved to the very same userData.
+  console.error(`[bimax] another Bimax already owns ${app.getPath('userData')} — bringing that one forward instead of starting a second.`);
+  app.quit();
+}
 
 function revealMainWindow(): void {
   if (win && !win.isDestroyed()) {
@@ -750,9 +778,23 @@ async function openTaskLink(raw: string): Promise<void> {
   }
 }
 
+/**
+ * Available system memory, counting the page cache macOS will hand back — see availableBytes() in
+ * supervisor/resources.ts for the measurement that made this necessary. Falls back to os.freemem()
+ * where `process.getSystemMemoryInfo` is absent (it exists in Electron, not in a bare jest run), so
+ * the fallback is under-reporting rather than nothing.
+ */
+function availableMemoryBytes(): number {
+  try {
+    const sample = (process as unknown as { getSystemMemoryInfo?: () => SystemMemorySample }).getSystemMemoryInfo;
+    if (typeof sample === 'function') return availableBytes(sample.call(process));
+  } catch { /* fall through to the conservative reading */ }
+  return os.freemem();
+}
+
 function currentRuntimeSignals(): RuntimeSignals {
   const totalMb = os.totalmem() / (1024 * 1024);
-  const availableMemoryMb = Math.max(0, Math.round(os.freemem() / (1024 * 1024)));
+  const availableMemoryMb = Math.max(0, Math.round(availableMemoryBytes() / (1024 * 1024)));
   const freeRatio = totalMb > 0 ? availableMemoryMb / totalMb : 0;
   return {
     observedAt: Date.now(),
@@ -948,14 +990,17 @@ function createSupervisor(threadId?: string): EngineSupervisor {
   return new EngineSupervisor({
     spawn: (project, extraEnv, callbacks) => {
       const adaptive = adaptiveSnapshot();
-      return spawnEngineProcess(project, {
+      return spawnEngine(project, {
         ...extraEnv,
         ...adaptivePolicy.engineEnvironment(adaptive.decision),
         // Keychain-backed secrets enter only at the child boundary. They never pass through the
         // renderer or the engine protocol and are not written to diagnostics.
         ...providerCredentialEnvironment(),
         ...(threadId ? { ...threadBroker.environment(threadId), BIMAX_THREAD_ROOT: project, WORKSPACE_ROOT: project,
-          BIMAX_AUTO_INDEX: '0', BIMAX_DISABLE_CODEMEM: '1', BIMAX_DISABLE_CODEBASE_MEMORY: '1', BIMAX_DRIVES_BOOT: '0',
+          // Which optional subsystems this thread may run, by origin — see threadCapabilityEnvironment.
+          // These four used to be pinned off here for every thread, which silenced codebase memory and
+          // the drives boot across the whole product once every conversation became a thread.
+          ...threadCapabilityEnvironment(threads.get(threadId).summary.origin),
           ...threadIndexEnvironment(threads.get(threadId).summary.origin),
           ...threadStateEnvironment(app.getPath('userData'), project, threads.get(threadId).summary.origin),
           ...rulesEnvironment(loadSettings().folderRules?.[project]),
@@ -969,7 +1014,7 @@ function createSupervisor(threadId?: string): EngineSupervisor {
     setInterval: (fn, ms) => setInterval(fn, ms),
     clearInterval: (h) => clearInterval(h as NodeJS.Timeout),
     random: () => Math.random(),
-    memory: () => ({ freeBytes: os.freemem(), totalBytes: os.totalmem() }),
+    memory: () => ({ freeBytes: availableMemoryBytes(), totalBytes: os.totalmem() }),
     env: process.env,
     journal,
     logTail: () => recentEngineLog(),
@@ -1195,6 +1240,9 @@ app.whenReady().then(async () => {
   });
   threads = new ThreadManager({
     engine: id => createSupervisor(id), changed: threadChanged,
+    // The live-engine budget reads the same corrected availability the capability ladder does, so
+    // the two memory decisions in this app cannot disagree about how much room the machine has.
+    memory: () => ({ freeBytes: availableMemoryBytes() }),
     selected: value => broadcast('threads:selected', value),
     message: (id, msg) => {
       // A model list this process asked for (the ⌘2 model menu) is answered here, not shown in a window.
@@ -1843,6 +1891,12 @@ app.whenReady().then(async () => {
     supervisor?.handleAction(asSupervisorAction(raw)) ?? false);
   secureHandle<unknown[]>('supervisor:crash-history', [], () => supervisor?.crashHistory() ?? []);
   secureHandle<string>('supervisor:diagnostics', '', () => supervisor?.diagnosticsText() ?? '');
+  // The engine's stderr, live — not only after a crash. A CrashRecord carries a logTail, so the
+  // reason a DEAD engine died was already recoverable; the reason a LIVE one is misbehaving was
+  // not reachable from inside the app at all. It went to <userData>/engine.log and stayed there,
+  // which is why an engine-side fault presented as a spinner that never resolved. Same redaction
+  // the crash journal applies, because this tail is read and pasted by the same people.
+  secureHandle<string>('supervisor:engine-log', '', () => redactSecrets(recentEngineLog()));
 
   // Phase 9 runtime intelligence is read-only across the renderer boundary. Process provenance is
   // limited to children Bimax launched itself; no system-wide inspection or Endpoint Security

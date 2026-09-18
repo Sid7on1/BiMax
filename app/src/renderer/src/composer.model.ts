@@ -72,7 +72,7 @@ export function pushHistory(project: string, entry: string): string[] {
 /* ------------------------------------------------------------------ *
  * @-references
  *
- * The engine parses a bare `@token` with `FILE_AT_RE` in `src/cli/atMention.ts`, whose path
+ * The engine parses a bare `@token` with `FILE_AT_RE` in `src/engine/atMention.ts`, whose path
  * alternative STOPS at whitespace and at `,;"'`()[]{}`. So `@./notes/Team report.md` is read as
  * the token `./notes/Team`, which does not exist, and `expandFileAtMentions` drops it with
  * `continue` — no block, no `injected` entry, no error. The user sees their file named in their

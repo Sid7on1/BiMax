@@ -199,6 +199,8 @@ declare global {
         action: (action: { action: RecoveryActionName; sessionId?: string }) => Promise<boolean>;
         crashHistory: () => Promise<CrashRecord[]>;
         diagnostics: () => Promise<string>;
+        /** The engine's recent stderr, redacted and bounded. Live — does not require a crash. */
+        engineLog: () => Promise<string>;
       };
       setAppearance: (appearance: 'auto' | 'moonlight' | 'starlight') => void;
       windowChrome: {

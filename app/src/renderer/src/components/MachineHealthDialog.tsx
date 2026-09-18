@@ -1,5 +1,8 @@
-import React from 'react';
-import { Cpu, HardDrive, Thermometer, CheckCircle2, ShieldCheck, Activity, X } from 'lucide-react';
+import React, { useCallback, useState } from 'react';
+import {
+  Cpu, HardDrive, Thermometer, CheckCircle2, ShieldCheck, Activity, X,
+  ScrollText, ChevronRight, ChevronDown, Copy, Check, RefreshCcw,
+} from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from './ui/dialog';
 import type { Phase9View } from '../usePhase9';
 import type { WorkspaceToolStatus } from '../../../phase9/workspace.capabilities';
@@ -82,6 +85,111 @@ function ToolRow({ tool }: { tool: WorkspaceToolStatus }): React.ReactElement {
           {tool.state === 'missing' ? 'not found' : 'unverified'}
         </span>
       )}
+    </div>
+  );
+}
+
+/**
+ * The engine's recent stderr, on demand.
+ *
+ * A crashed engine already left a redacted `logTail` in the crash journal, so the reason a DEAD
+ * engine died was recoverable. The reason a LIVE one was misbehaving was not reachable from
+ * inside the app at all: engine stderr is diverted to <userData>/engine.log precisely so it can
+ * never corrupt the NDJSON protocol stream, and no surface ever read it back. `crashHistory()`
+ * and `diagnostics()` have both been on the preload bridge since Phase 2 with no caller. So an
+ * engine-side fault presented as a task that had quietly stopped responding, and the only way to
+ * learn why was to know that file existed and go read it in a terminal.
+ *
+ * Collapsed by default, and fetched only when it is opened rather than on every dialog open —
+ * this is several KB of text nobody needs while they are reading the memory tile.
+ */
+function EngineLog(): React.ReactElement {
+  const [shown, setShown] = useState(false);
+  const [text, setText] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const load = useCallback(async (): Promise<void> => {
+    setLoading(true);
+    try { setText(await window.bimax.supervisor.engineLog()); }
+    catch { setText(''); }
+    finally { setLoading(false); }
+  }, []);
+
+  const toggle = useCallback((): void => {
+    setShown((was) => {
+      if (!was && text === null) void load();
+      return !was;
+    });
+  }, [load, text]);
+
+  const copy = useCallback((): void => {
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(
+      () => { setCopied(true); window.setTimeout(() => setCopied(false), 1500); },
+      () => { /* a refused clipboard is not worth an error state in a support panel */ },
+    );
+  }, [text]);
+
+  return (
+    <div>
+      <div className="flex items-baseline justify-between gap-3 mb-2">
+        <button
+          onClick={toggle}
+          aria-expanded={shown}
+          className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+        >
+          {shown ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+          Engine log
+        </button>
+        {shown ? (
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => void load()}
+              aria-label="Refresh engine log"
+              className="flex items-center gap-1 rounded-lg px-1.5 py-1 text-[10px] text-zinc-400 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
+            >
+              <RefreshCcw size={10} /> Refresh
+            </button>
+            <button
+              onClick={copy}
+              disabled={!text}
+              aria-label="Copy engine log"
+              className="flex items-center gap-1 rounded-lg px-1.5 py-1 text-[10px] text-zinc-400 hover:bg-white/10 hover:text-white transition-colors cursor-pointer disabled:opacity-40 disabled:hover:bg-transparent"
+            >
+              {copied ? <Check size={10} className="text-emerald-400" /> : <Copy size={10} />}
+              {copied ? 'Copied' : 'Copy'}
+            </button>
+          </div>
+        ) : null}
+      </div>
+
+      {shown ? (
+        <>
+          <div className="rounded-xl border border-white/10 bg-black/30 max-h-56 overflow-auto">
+            {loading && text === null ? (
+              <div className="px-3.5 py-3 text-[11.5px] text-zinc-500">Reading the engine log…</div>
+            ) : text ? (
+              <pre className="px-3.5 py-2.5 text-[10.5px] leading-relaxed font-mono text-zinc-300 whitespace-pre-wrap break-words">
+                {text}
+              </pre>
+            ) : (
+              // Said plainly rather than dressed as success: an empty ring buffer means no engine
+              // has run in this session yet, which is information, not a clean bill of health.
+              <div className="px-3.5 py-3 text-[11.5px] text-zinc-500">
+                Nothing logged yet. The engine writes here as it starts and runs.
+              </div>
+            )}
+          </div>
+          <div className="mt-2 flex items-center gap-1.5 text-[10px] text-zinc-500">
+            <ScrollText size={10} className="shrink-0" />
+            <span>
+              Recent engine output, newest last. Keys and tokens are redacted. This is not included
+              in the diagnostics export — copy it deliberately if you are sharing it.
+            </span>
+          </div>
+        </>
+      ) : null}
     </div>
   );
 }
@@ -229,6 +337,8 @@ export function MachineHealthDialog({
               </div>
             </div>
           </div>
+
+          <EngineLog />
 
           {environment ? (
             <div className="flex items-center gap-1.5 text-[10px] text-zinc-500">

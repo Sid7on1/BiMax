@@ -18,6 +18,39 @@ import { CapabilityDecision, CapabilityPlan, MemoryInfo, ProfileId } from './typ
 const CONSERVATIVE_FREE_BYTES = 1.5 * 1024 * 1024 * 1024;
 const MINIMAL_FREE_BYTES = 700 * 1024 * 1024;
 
+/** What Electron's `process.getSystemMemoryInfo()` returns. All figures are KILOBYTES. */
+export interface SystemMemorySample {
+  total: number;
+  free: number;
+  /** Page cache. macOS hands this back on demand, so it is available, not used. */
+  fileBacked?: number;
+  purgeable?: number;
+}
+
+/**
+ * How much memory is actually AVAILABLE, rather than how much is untouched.
+ *
+ * `os.freemem()` counts only wholly free pages, and macOS deliberately keeps almost none: it fills
+ * spare RAM with file cache and evicts on demand. Measured on this 8 GB machine, both at once:
+ *
+ *     os.freemem()                     0.07 GB
+ *     free + fileBacked + purgeable    1.97 GB
+ *
+ * The thresholds above are 1.5 GB and 700 MB, so feeding them os.freemem() pinned `profileForMemory`
+ * to `minimal` permanently — codebaseMemory, autoIndex and drivesBoot all deferred, on a machine
+ * with nearly 2 GB free. Worse, it was silent by design: EngineStatusBanner suppresses `degraded`
+ * because it was believed to be the adaptive path working as intended on a small Mac. It was not
+ * adapting. It was reading the wrong number, by a factor of 26.
+ *
+ * This is the same failure as measuring our own bookkeeping field and shipping backwards advice:
+ * a policy is only as good as the sensor under it, and this one has to be checked against what the
+ * operating system actually thinks is available.
+ */
+export function availableBytes(sample: SystemMemorySample): number {
+  const kilobytes = sample.free + (sample.fileBacked ?? 0) + (sample.purgeable ?? 0);
+  return Math.max(0, kilobytes) * 1024;
+}
+
 export function profileForMemory(mem: MemoryInfo): ProfileId {
   if (mem.freeBytes < MINIMAL_FREE_BYTES) return 'minimal';
   if (mem.freeBytes < CONSERVATIVE_FREE_BYTES) return 'conservative';

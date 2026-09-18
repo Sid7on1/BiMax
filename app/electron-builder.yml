@@ -1,7 +1,8 @@
 # Bimax agentic IDE packaging — DMG for macOS only.
-# The headless engine (bun --compile, standalone — no Node on the host) is bundled as an
-# extraResource; scripts/prepare-engine.sh must have compiled it for the TARGET platform/arch
-# before electron-builder runs (the dist:* npm scripts sequence this).
+# The headless engine is a JavaScript bundle of this repo's src/index.ts, built by
+# scripts/prepare-engine.sh and shipped as an extraResource. Electron's own Node runs it in a
+# utilityProcess, so no bun runtime is shipped and the artifact is architecture-independent —
+# one engine/ serves arm64 and x64 alike (the dist:* npm scripts still sequence the build).
 appId: ai.bimax.app
 productName: Bimax
 # Runs after the app is packed and BEFORE it is signed. Clears the extended attributes an
@@ -27,8 +28,7 @@ asarUnpack:
   - node_modules/@lydell/**
   - node_modules/electron-liquid-glass/**
 
-# engine/ holds exactly one binary: bimax-engine, compiled for the
-# same platform+arch this build targets.
+# engine/ holds index.js (the bundle) plus the tree-sitter .wasm assets it loads at runtime.
 extraResources:
   - from: engine
     to: engine

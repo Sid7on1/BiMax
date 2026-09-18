@@ -112,6 +112,7 @@ const api = {
       ipcRenderer.invoke('supervisor:action', action),
     crashHistory: (): Promise<unknown[]> => ipcRenderer.invoke('supervisor:crash-history'),
     diagnostics: (): Promise<string> => ipcRenderer.invoke('supervisor:diagnostics'),
+    engineLog: (): Promise<string> => ipcRenderer.invoke('supervisor:engine-log'),
   },
   /** Tells main which appearance is showing, so the native vibrancy material matches it. */
   setAppearance: (appearance: 'auto' | 'moonlight' | 'starlight'): void =>

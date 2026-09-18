@@ -72,10 +72,53 @@ interface Dependencies {
   timer?(fn: () => void, ms: number): () => void;
   /** A full list moved this thread out to make room: keep it in the archive (backlog N11). */
   archive?(value: SavedThread): void;
+  /**
+   * Free memory right now, for the live-engine budget (see maxLiveEngines). Optional: without it
+   * the cap is the historical fixed MAX_LIVE_ENGINES, so existing hosts and tests are unaffected.
+   * The desktop supplies a reading that counts reclaimable pages, not os.freemem().
+   */
+  memory?(): { freeBytes: number };
 }
 
 /** How many threads the list holds. Past this, the least recently used one that can be put away is archived (backlog N11). */
 export const MAX_THREADS = 200;
+
+/**
+ * How many threads may hold a live engine at once.
+ *
+ * The ceiling stays 4 — that is the product's behaviour and raising it is a separate decision — but
+ * on a machine without the memory for 4 it now comes DOWN instead of letting the user start engines
+ * until the OS starts killing them. The supervisor has computed a memory-aware profile per launch
+ * for a long while (supervisor/resources.ts, "adaptive, not hardcoded"); this cap sat beside it as a
+ * bare `4` and consulted none of it.
+ *
+ * BOTH constants are measured, 2026-09-18 on this source, because a guessed one here silently costs
+ * the user concurrent tasks:
+ *
+ *   engine RSS at idle    295 MB shipped bundle · 272 MB the bun binary it replaced · 214 MB tsc dev
+ *   Electron's own tree   242 MB across 6 processes in development, 85 MB packaged and idle
+ *
+ * So 320 MB per engine — a little above the worst engine reading, since an engine mid-turn is not an
+ * engine at idle — and a 512 MB reserve, which is the measured Electron shell plus roughly as much
+ * again for the OS. The first reserve written here was 1 GB, picked by feel; that is four times what
+ * Electron actually uses and it cut this machine from four concurrent tasks to one. Measure the
+ * thing, including the part that looks too obvious to measure.
+ *
+ * Deliberately NOT a ratio of total RAM: what matters is what is free right now, which on macOS
+ * means counting reclaimable pages (see availableBytes in supervisor/resources.ts — reading
+ * os.freemem() here would put every 8 GB Mac at the floor permanently, which is the bug that
+ * policy had).
+ */
+export const MAX_LIVE_ENGINES = 4;
+const ENGINE_BUDGET_BYTES = 320 * 1024 * 1024;
+const RESERVE_BYTES = 512 * 1024 * 1024;
+
+export function maxLiveEngines(availableBytes: number): number {
+  const affordable = Math.floor((availableBytes - RESERVE_BYTES) / ENGINE_BUDGET_BYTES);
+  // Never below 1: refusing to start any thread at all is worse than starting one and letting the
+  // supervisor shed capabilities or restart it. The floor is what keeps this a budget, not a gate.
+  return Math.max(1, Math.min(MAX_LIVE_ENGINES, affordable));
+}
 
 /** The id of the manager's own "resume failed" choice. The engine's request ids are positive. */
 const RESUME_CHOICE_ID = -1;
@@ -95,6 +138,40 @@ export const RESUME_CHOICES = {
  */
 export function threadIndexEnvironment(origin: ThreadSummary['origin']): Record<string, string> {
   return origin === 'project' ? {} : { BIMAX_CODE_INDEX: '0' };
+}
+
+/**
+ * The optional engine subsystems a thread may run: codebase memory (the semantic layer), background
+ * indexing, and the drives boot the learning loop rides on.
+ *
+ * These were switched off for EVERY thread at the spawn site, which was right when a thread meant a
+ * ⌘2 task: a folder-bound job dropped on Downloads must not index Downloads or boot drives to do it.
+ * But `createSupervisor` is only ever called with a thread id, so once every conversation became a
+ * thread the override quietly became product-wide — codebase memory and drives were off everywhere,
+ * which is why the learning substrate measured 0 claims and semantic retrieval was hard to observe.
+ *
+ * A project thread is the opposite case: the user opened a repo to work in it, and indexing it is
+ * the point. So the distinction follows `origin`, exactly as threadIndexEnvironment above already
+ * does for the code index — this extends an accepted split rather than inventing one.
+ *
+ * Returning `{}` for a project thread does not force anything ON. It declines to override, and lets
+ * supervisor/resources.ts decide from measured free memory — a ladder that only started reading the
+ * right number once availableBytes() replaced os.freemem(). If that judgement is wrong on a given
+ * machine, policy.ts shedProfile steps the next launch down after a single resource death and to
+ * `minimal` after two, so the failure mode is a quieter engine rather than a crash loop.
+ */
+export function threadCapabilityEnvironment(origin: ThreadSummary['origin']): Record<string, string> {
+  // Carried so engine.log can say WHY a plan looks the way it does. A ⌘2 task's "all off" and a
+  // starved project thread's "all off" are the same four values meaning entirely different things,
+  // and reading one as the other is exactly the confusion that hid this override in the first place.
+  if (origin === 'project') return { BIMAX_THREAD_ORIGIN: 'project' };
+  return {
+    BIMAX_THREAD_ORIGIN: 'quick',
+    BIMAX_AUTO_INDEX: '0',
+    BIMAX_DISABLE_CODEMEM: '1',
+    BIMAX_DISABLE_CODEBASE_MEMORY: '1',
+    BIMAX_DRIVES_BOOT: '0',
+  };
 }
 
 /** A talk-mode task's engine writes every reply to be heard (src/tools/thread.voice.ts). */
@@ -241,10 +318,19 @@ export class ThreadManager {
   start(id: string): void {
     const r = this.records.get(id)!;
     if (r.engine) return;
-    if ([...this.records.values()].filter(t => t.engine).length >= 4) {
+    // What this machine can afford right now, never more than MAX_LIVE_ENGINES. Without an injected
+    // memory reading (tests, and any host that does not supply one) this is the historical fixed 4.
+    const limit = this.deps.memory ? maxLiveEngines(this.deps.memory().freeBytes) : MAX_LIVE_ENGINES;
+    if ([...this.records.values()].filter(t => t.engine).length >= limit) {
       const idle = [...this.records.values()].find(t => t.engine && t.summary.status === 'idle');
       if (idle) this.stop(idle.summary.id);
-      else throw new Error('Four threads are active. Stop a thread before starting another.');
+      // Name the real limit and why it is what it is. The old wording said "Four threads are active"
+      // unconditionally, which would be a plain untruth the moment the limit moved with memory.
+      else if (limit < MAX_LIVE_ENGINES) {
+        throw new Error(`${limit} ${limit === 1 ? 'task is' : 'tasks are'} running, which is what this Mac has memory for right now. Stop one to start another.`);
+      } else {
+        throw new Error(`${limit} tasks are active. Stop a task before starting another.`);
+      }
     }
     r.ready = false;
     r.resumeWanted = r.summary.sessionId;
