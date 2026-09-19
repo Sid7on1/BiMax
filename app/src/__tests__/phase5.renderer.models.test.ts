@@ -194,6 +194,40 @@ describe('the one tabbed workbench', () => {
 });
 
 /**
+ * The one control that opens the right panel is at the top RIGHT.
+ *
+ * It lived in the sidebar's footer, which put "show the panel on the right" in the bottom-left
+ * corner — the furthest point in the window from the thing it opens, and gone entirely whenever the
+ * sidebar was hidden. The owner asked for it at the top right and nowhere else, so "nowhere else"
+ * is asserted too: a second copy is how it drifts back.
+ */
+describe('the control that opens the right panel', () => {
+  const read = (rel: string): string =>
+    readFileSync(join(__dirname, '..', 'renderer', 'src', rel), 'utf8');
+
+  test('CanvasChrome owns it, after the spacer that pushes it to the right edge', () => {
+    const chrome = read('components/TitleBar.tsx');
+    const spacer = chrome.indexOf('<span className="flex-1" />');
+    const toggle = chrome.indexOf('onToggleInspector');
+    expect(spacer).toBeGreaterThan(-1);
+    expect(chrome.indexOf('onClick={onToggleInspector}')).toBeGreaterThan(spacer);
+    expect(toggle).toBeGreaterThan(-1);
+  });
+
+  test('App hands it to CanvasChrome and to nothing else', () => {
+    const app = read('App.tsx');
+    const chrome = app.slice(app.indexOf('<CanvasChrome'), app.indexOf('/>', app.indexOf('<CanvasChrome')));
+    expect(chrome).toContain('onToggleInspector');
+    // One handler in the whole shell, and it is the one above.
+    expect(app.match(/onToggleInspector=/g)).toHaveLength(1);
+  });
+
+  test('the sidebar footer does not carry it any more', () => {
+    expect(read('components/TaskSidebar.tsx')).not.toContain('onToggleInspector');
+  });
+});
+
+/**
  * The collapse animation keys off the PANEL ELEMENT, by id.
  *
  * The right side used to mount as `editor` or `inspector` depending on a mode flag, so `pane.flight.ts`

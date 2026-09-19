@@ -1,7 +1,8 @@
 # 13 — The right panel, merged
 
-What `12-right-panel-plan.md` asked for, built 2026-09-19. The editor and the inspector are one
-tabbed workbench: **three rows, and only the third scrolls.**
+What `12-right-panel-plan.md` asked for, built 2026-09-19, then corrected the same day by the owner:
+the editor and the inspector are one workbench, and it has **one picker, not a strip of chips**.
+Three rows, and only the third scrolls.
 
 ## What landed
 
@@ -11,16 +12,44 @@ gone — `showEditor = inspectorOpen && openFiles.length > 0 && activeFile !== n
 does not exist any more, and neither does the second meaning of "no lane requested" that made opening
 a file from the Files lane look like a dead click. Selecting a tab is the only state.
 
-**B. Row 1, the tab strip.** The four lanes and every open file, as chips, in one scroller. Active
-chip on `--raise-veil`. File chips keep their dirty dot and close affordance. Right-aligned: widen
-and hide (⌘J). It replaced both the `<select>` and `EditorPane`'s own strip.
+**B. Row 1, the picker.** One control stating what the panel is showing — a lane with its count, or
+a file with its unsaved dot — and a grouped menu behind it: **Evidence** (the four lanes, each with
+one line saying what it is for, unavailable ones disabled with the reason) and **Open files** (name
+plus its folder, the unsaved dot). Right-aligned: widen and hide (⌘J).
 
-**C. Row 2, the contextual toolbar.** For a file: `←` `→` through the open files, the breadcrumb,
-the save state, `Source | Preview` for markdown (rendered from the LIVE document, so an unsaved edit
-shows), find-in-file, `@path` into the composer, Reveal in Finder.
+This replaced the `<select>`, `EditorPane`'s own strip — and the chip strip that was built first.
+See *Round 2* below.
+
+**C. Row 2, the contextual toolbar.** For a file: `←` `→` through the open files, the folder it
+lives in, `modified — ⌘S` while that is true, `Source | Preview` for markdown (rendered from the LIVE
+document, so an unsaved edit shows), find-in-file, and one overflow holding `@path`, Reveal in
+Finder and Close this file.
+
+Row 2 carries the FOLDER, not the file name: the picker beside it already states the name, and a
+two-row header that says the same thing twice is where clutter starts.
 
 **D. The title block is gone.** Icon, title, subtitle and lane `<select>` deleted; the header went
 from 54pt to 34pt. The active chip is the title.
+
+## Round 2 — one picker, not a strip
+
+The first build followed the plan exactly: lane chips and file chips side by side in one scroller.
+The owner's verdict was that the panel was **not organised** and that the `<select>` it replaced had
+at least been clean. That is the correct reading. Four lanes plus a chip per open file is eight
+controls competing for 430pt; the strip had already needed a container query to drop the lane labels
+and a scroll-into-view to keep the selected chip on screen — two mechanisms whose only job was to
+manage crowding the design had created.
+
+So the strip is gone and the picker is one control, with everything inside it, grouped and described.
+It is the calm of the old `<select>` with the two things that control never had: the open files are
+in it, and every row says what it is for. `.workbench-chip`, `.workbench-strip-divider` and the
+`[data-files]` container query went with it.
+
+**The control that OPENS the panel moved too.** It was in the sidebar's footer — "show the panel on
+the RIGHT", in the bottom-LEFT corner, as far from the thing it opens as the window allows, and
+invisible whenever the sidebar was hidden. It is now the last control in `CanvasChrome`, at the top
+right, 12pt from the window's right edge (measured), and it is the only one: three tests pin it
+there, pin App to a single handler, and fail if the sidebar ever grows one back.
 
 ## Deliberately not built, and why
 
@@ -28,8 +57,8 @@ from 54pt to 34pt. The active chip is the title.
   exists *inside* its panel — Files its filter, Review its refresh and branch row, Terminal its
   restart, GitHub its fetch/pull/push — so a second bar above them would duplicate the chrome that
   deleting the title block was meant to remove. Row 2 appears for a file tab only.
-- **The `+` menu.** All four lanes are already chips on the strip, including the unavailable ones
-  (with the reason in the tooltip), so the menu's only entry would be a button already on screen.
+- **The `+` menu.** Every lane and every open file is already one click away in the picker, so a
+  second menu would list what the first one lists.
 - **"Expand to full width" is a widen.** The task column's `minSize` is 34%, so a full-width panel
   would have to evict the conversation from the layout. The control widens the panel to the widest
   the layout allows — 65% alone, less with the sidebar pinned — and restores the previous width.
@@ -37,15 +66,13 @@ from 54pt to 34pt. The active chip is the title.
 
 ## What measuring changed
 
-Four labelled lane chips take ~350pt. The panel opens at 34% and its minimum is 320pt, so with a
-file open the **file chips were scrolled clean off the end of the strip** — the tab you were looking
-at had no chip on screen. Seen in `app/design-preview#workbench` at 430pt, which is the width the
-panel actually opens at.
+Four labelled lane chips take ~350pt, and the panel opens at 430pt — so with a file open the file
+chips were scrolled clean off the end of the strip and the tab you were looking at had no chip on
+screen. That measurement, taken in `app/design-preview#workbench` at the width the panel actually
+opens at, is what the round-2 rework came from: the crowding was not a tuning problem.
 
-The fix measures the **panel**, not the window: `.evidence-studio` is now a query container, and
-under 640pt an inactive lane chip drops to its icon *when files are competing for the room*
-(`.workbench-strip[data-files]`). Drag the splitter wider and the names come back — verified at
-900pt in the same preview. The selected chip also scrolls itself into view.
+`.evidence-studio` is still a query container, with one rule left: under 360pt row 2 drops the
+folder, because the picker already identifies the file and row 2 must never wrap.
 
 ## The trap the plan named
 
@@ -95,13 +122,15 @@ requested while a lane is selected wins, and the mode flag is gone for good.
 
 ## Verification
 
-- `app/src/__tests__` — 62 suites, 523 tests, green, including the three new flight-id guards and
-  the six new workbench-tab tests; 5 mutants killed, each named above.
+- `app/src/__tests__` — 62 suites, 526 tests, green: the three flight-id guards, the six
+  workbench-tab tests and the three that pin the open control to the top right; 5 mutants killed,
+  each named above.
 - `npx tsc --noEmit` in `app/` (86 renderer files in the program) and `npm run build` — green.
 - `npm run check:design-preview` — green; `npm run check:glass-contrast` — green, now covering the
   new surface.
 - Looked at in `app/design-preview#workbench`: file tab, every lane, both themes, both window
-  states, at 430pt and 900pt.
+  states, at 430pt and 900pt — and the picker's menu opened, with both groups on screen.
+- The open control measured in place: 12pt from the right edge of the chrome row, after the spacer.
 
 ## Still Target
 

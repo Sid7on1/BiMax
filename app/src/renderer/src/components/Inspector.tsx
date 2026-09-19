@@ -1,7 +1,7 @@
 import React from 'react';
 import {
-  AtSign, ChevronLeft, ChevronRight, Circle, Code2, Compass, Eye, FileCode2, FolderTree, GitBranch,
-  Maximize2, Minimize2, PanelRightClose, Search, TerminalSquare, X,
+  AtSign, ChevronDown, ChevronLeft, ChevronRight, Circle, Code2, Compass, Eye, FileCode2, FolderTree,
+  GitBranch, Maximize2, Minimize2, MoreHorizontal, PanelRightClose, Search, TerminalSquare, X,
 } from 'lucide-react';
 import { cn } from '../lib/cn';
 import type { InspectorTab, InspectorTabId, WorkbenchTab } from '../inspector.model';
@@ -13,35 +13,89 @@ import { FilesPanel, insertIntoComposer } from './FilesPanel';
 import { TerminalPanel } from './TerminalPanel';
 import { GitHubPanel } from './GitHubPanel';
 import { EditorPane, openEditorSearch } from './EditorPane';
+import { SeedMenu, SeedMenuItem, SeedMenuLabel, SeedMenuSeparator } from './ui/morph/SeedMenu';
 
 /**
- * The right panel: one tabbed workbench.
+ * The right panel: one workbench with one way in.
  *
- * It used to be two chromes in one slot — this component with an icon, a title, a subtitle and a
- * `<select>` lane picker, and `EditorPane` with a tab strip of its own — swapped by a mode flag.
- * Two mental models for one piece of screen, and ~54pt of the panel's height spent on a title that
- * the selected tab already states.
+ * It was two chromes in one slot — this component with an icon, a title, a subtitle and a `<select>`,
+ * and `EditorPane` with a tab strip of its own — swapped by a mode flag. The merge into one tabbed
+ * strip fixed the state and made the chrome worse: four lane chips plus a chip per open file is
+ * eight controls fighting over 430pt, and the owner's verdict was the right one — the panel read as
+ * cluttered, and the `<select>` it replaced had at least been calm.
  *
- * Now there are three rows and only the third scrolls, which is the shape measured on Cursor's
- * right panel (`front inspo/10-cursor`, plan `12-right-panel-plan.md`):
+ * So: ONE picker, and everything is in it, grouped.
  *
- *   1. one tab strip — the lanes and every open file, side by side, as chips;
- *   2. a contextual toolbar for the selected tab;
+ *   1. the picker — what the panel is showing, and the menu that changes it: the four lanes under
+ *      Evidence, every open file under Open files. Plus the two panel controls, widen and hide.
+ *   2. a contextual toolbar, for a file tab only: step, breadcrumb, save state, Source|Preview for
+ *      markdown, find, and the secondary verbs behind one overflow.
  *   3. the content, flush to the panel's edges.
  *
- * The active chip IS the title. Nothing else names the panel.
+ * The picker states the current view, so it is the panel's title as well as its control — which is
+ * why there is no title block above it. See `front inspo/13-right-panel-applied.md`.
  */
 
 const LANE_ICON: Record<InspectorTabId, React.ReactNode> = {
-  files: <FolderTree size={12} />,
-  review: <Code2 size={12} />,
-  terminal: <TerminalSquare size={12} />,
-  github: <GitBranch size={12} />,
+  files: <FolderTree size={13} />,
+  review: <Code2 size={13} />,
+  terminal: <TerminalSquare size={13} />,
+  github: <GitBranch size={13} />,
+};
+
+/** What each lane is for, one line, shown under its name in the picker. */
+const LANE_DESC: Record<InspectorTabId, string> = {
+  files: 'Browse and open project files',
+  review: 'Every uncommitted change, yours and Bimax’s',
+  terminal: 'A shell in this project folder',
+  github: 'Branch position, fetch, pull and push',
 };
 
 function isMarkdown(path: string): boolean {
   const ext = path.split('.').pop()?.toLowerCase() ?? '';
   return ext === 'md' || ext === 'markdown';
+}
+
+function fileName(path: string): string {
+  return path.split('/').pop() ?? path;
+}
+
+function fileDir(path: string): string {
+  return path.split('/').slice(0, -1).join(' › ');
+}
+
+/**
+ * The picker's face: what the panel is showing right now.
+ *
+ * Same grammar as the composer's pills — rounded, quiet at rest, ember while its menu is open —
+ * one size up, because here it is also the panel's title.
+ */
+function PickerTrigger({
+  open, icon, label, count, attention, dirty, mono,
+}: {
+  open: boolean;
+  icon: React.ReactNode;
+  label: string;
+  count?: number | null;
+  attention?: boolean;
+  dirty?: boolean;
+  mono?: boolean;
+}): React.ReactElement {
+  return (
+    <span
+      className={cn(
+        'flex min-w-0 max-w-[260px] items-center gap-2 overflow-hidden rounded-xl px-2.5 py-1.5 transition-colors',
+        open ? 'bg-ember/12 text-ember' : 'text-ink hover:bg-hover',
+      )}
+    >
+      <span className={cn('shrink-0', open ? 'text-ember' : 'text-faint')}>{icon}</span>
+      <span className={cn('truncate text-[12.5px] font-medium', mono && 'font-mono text-[11.5px]')}>{label}</span>
+      {count !== null && count !== undefined ? <span className="evidence-count shrink-0">{count}</span> : null}
+      {attention ? <span className="size-1.5 shrink-0 rounded-full bg-amber" aria-label="Needs attention" /> : null}
+      {dirty ? <Circle size={7} fill="currentColor" className="shrink-0 text-ember" aria-label="Unsaved changes" /> : null}
+      <ChevronDown size={11} className={cn('shrink-0 transition-transform', open ? 'rotate-180 text-ember' : 'text-faint')} />
+    </span>
+  );
 }
 
 export function Inspector({
@@ -63,11 +117,11 @@ export function Inspector({
   project: string;
   onOpenFile: (rel: string) => void;
   /** The last file this panel showed. The Files tree marks it, so switching to that lane still
-      says where you are — which an open-order guess gets wrong as soon as you change chips. */
+      says where you are — which an open-order guess gets wrong as soon as you change files. */
   lastFile: string | null;
-  /** Open files, in the order they were opened — the second half of the tab strip. */
+  /** Open files, in the order they were opened — the picker's second group. */
   openFiles: string[];
-  /** Which of them have unsaved edits. Drawn as the chip's dot, and as row 2's save state. */
+  /** Which of them have unsaved edits. Drawn on the picker and in the menu. */
   dirtyFiles: ReadonlySet<string>;
   onCloseFile: (rel: string) => void;
   onDirty: (rel: string, dirty: boolean) => void;
@@ -76,7 +130,8 @@ export function Inspector({
 }): React.ReactElement {
   const activeLane = active?.kind === 'lane' ? tabs.find((tab) => tab.id === active.id) ?? null : null;
   const activeFile = active?.kind === 'file' ? active.path : null;
-  // Preview is per file: switching tabs must not carry one file's preview state onto another's
+
+  // Preview is per file: switching views must not carry one file's preview state onto another's
   // source. A file that is not markdown can never be in preview.
   const [previewing, setPreviewing] = React.useState<Set<string>>(new Set());
   const preview = activeFile !== null && isMarkdown(activeFile) && previewing.has(activeFile);
@@ -85,13 +140,6 @@ export function Inspector({
     if (next.has(path)) next.delete(path); else next.add(path);
     return next;
   });
-
-  // The selected chip must be ON SCREEN, which a horizontally scrolling strip does not guarantee:
-  // opening the eighth file left the strip showing the first four.
-  const activeChip = React.useRef<HTMLElement | null>(null);
-  React.useEffect(() => {
-    activeChip.current?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-  }, [activeFile, activeLane?.id]);
 
   const index = activeFile ? openFiles.indexOf(activeFile) : -1;
   const step = (delta: number): void => {
@@ -105,104 +153,96 @@ export function Inspector({
     <aside /* Neither the lens ring nor the left border: both drew a line down the join with the
         canvas. See TaskSidebar for the ring, and styles.css for why value alone separates panes now. */
     className="evidence-studio flex h-full min-w-0 flex-col" aria-label="Workbench">
-      {/* --- Row 1: every open thing, as one strip ------------------------------------------- */}
-      {/*
-        `data-files` is what the container query keys off (styles.css): four labelled lane chips
-        plus file chips do not fit a 430pt panel, which is the width this one opens at — measured in
-        `app/design-preview#workbench`, where the file chips were scrolled clean off the end. Narrow
-        AND competing for the room is the condition, so an inactive lane sheds its label only then.
-        The selected lane keeps its name because it is the panel's title, and a file always keeps
-        its name because the name is the only thing that tells two files apart.
-      */}
-      <div className="workbench-strip" data-files={openFiles.length > 0 ? '' : undefined}>
-        <div className="no-scrollbar flex min-w-0 flex-1 items-center gap-0.5 overflow-x-auto" role="tablist" aria-label="Workbench tabs">
-          {tabs.map((tab) => {
-            const isActive = active?.kind === 'lane' && active.id === tab.id;
-            return (
-              <button
-                key={tab.id}
-                ref={(node) => { if (isActive) activeChip.current = node; }}
-                role="tab"
-                type="button"
-                aria-selected={isActive}
-                disabled={!tab.available}
-                title={tab.available ? tab.label : tab.emptyReason}
-                /* The label can disappear; the name must not. */
-                aria-label={tab.label}
-                onClick={() => onTab({ kind: 'lane', id: tab.id })}
-                className="workbench-chip"
-                data-active={isActive ? '' : undefined}
-              >
-                <span className="shrink-0 opacity-80" aria-hidden>{LANE_ICON[tab.id]}</span>
-                <span className="workbench-chip-label truncate">{tab.label}</span>
-                {tab.count !== null ? <span className="evidence-count">{tab.count}</span> : null}
-                {tab.attention ? <span className="size-1.5 shrink-0 rounded-full bg-amber" aria-label="Needs attention" /> : null}
-              </button>
-            );
-          })}
+      {/* --- Row 1: the picker, and the two controls that belong to the panel itself ---------- */}
+      <div className="workbench-strip">
+        <SeedMenu
+          label="Choose what this panel shows"
+          width={300}
+          triggerClassName="min-w-0"
+          trigger={(open) => (
+            activeFile !== null ? (
+              <PickerTrigger
+                open={open}
+                mono
+                icon={<FileCode2 size={13} />}
+                label={fileName(activeFile)}
+                dirty={dirtyFiles.has(activeFile)}
+              />
+            ) : (
+              <PickerTrigger
+                open={open}
+                icon={activeLane ? LANE_ICON[activeLane.id] : <Search size={13} />}
+                label={activeLane?.label ?? 'Nothing to show'}
+                count={activeLane?.count ?? null}
+                attention={activeLane?.attention}
+              />
+            )
+          )}
+        >
+          {(close) => (
+            <>
+              <SeedMenuLabel>Evidence</SeedMenuLabel>
+              {tabs.map((tab) => (
+                <SeedMenuItem
+                  key={tab.id}
+                  icon={LANE_ICON[tab.id]}
+                  selected={active?.kind === 'lane' && active.id === tab.id}
+                  disabled={!tab.available}
+                  label={tab.label}
+                  /* An unavailable lane stays on the list and says WHY it is empty, rather than
+                     disappearing — a lane that vanishes when it has nothing to say reads as a bug.
+                     See inspector.model.ts. */
+                  desc={tab.available ? LANE_DESC[tab.id] : tab.emptyReason}
+                  trailing={
+                    tab.count !== null ? <span className="evidence-count">{tab.count}</span>
+                      : tab.attention ? <span className="block size-1.5 rounded-full bg-amber" /> : null
+                  }
+                  onClick={() => { onTab({ kind: 'lane', id: tab.id }); close(); }}
+                />
+              ))}
 
-          {openFiles.length > 0 && <span className="workbench-strip-divider" aria-hidden />}
+              {openFiles.length > 0 && (
+                <>
+                  <SeedMenuSeparator />
+                  <SeedMenuLabel>Open files</SeedMenuLabel>
+                  {openFiles.map((path) => (
+                    <SeedMenuItem
+                      key={path}
+                      icon={<FileCode2 size={13} />}
+                      selected={sameTab(active, { kind: 'file', path })}
+                      label={fileName(path)}
+                      desc={fileDir(path) || 'project root'}
+                      trailing={dirtyFiles.has(path)
+                        ? <Circle size={7} fill="currentColor" className="text-ember" /> : null}
+                      onClick={() => { onTab({ kind: 'file', path }); close(); }}
+                    />
+                  ))}
+                </>
+              )}
+            </>
+          )}
+        </SeedMenu>
 
-          {openFiles.map((path) => {
-            const name = path.split('/').pop() ?? path;
-            const isActive = sameTab(active, { kind: 'file', path });
-            const isDirty = dirtyFiles.has(path);
-            return (
-              <span
-                key={path}
-                ref={(node) => { if (isActive) activeChip.current = node; }}
-                className="workbench-chip group"
-                data-active={isActive ? '' : undefined}
-                title={path}
-              >
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  onClick={() => onTab({ kind: 'file', path })}
-                  className="flex min-w-0 cursor-pointer items-center gap-1.5"
-                >
-                  <FileCode2 size={12} className={cn('shrink-0', isActive ? 'text-ember' : 'text-faint')} />
-                  <span className="max-w-[150px] truncate font-mono">{name}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onCloseFile(path)}
-                  title={isDirty ? 'Close (unsaved changes will be lost)' : 'Close'}
-                  aria-label={`Close ${name}`}
-                  className="flex size-4 shrink-0 cursor-pointer items-center justify-center rounded text-faint hover:bg-line hover:text-ink"
-                >
-                  {isDirty ? (
-                    <>
-                      <Circle size={7} fill="currentColor" className="text-ember group-hover:hidden" />
-                      <X size={11} className="hidden group-hover:block" />
-                    </>
-                  ) : <X size={11} />}
-                </button>
-              </span>
-            );
-          })}
-        </div>
+        <span className="min-w-0 flex-1" />
 
-        <span className="flex shrink-0 items-center gap-0.5 pl-1">
-          <button
-            type="button"
-            onClick={onToggleWide}
-            title={wide ? 'Give the width back to the conversation' : 'Widen this panel'}
-            aria-label={wide ? 'Restore the panel width' : 'Widen the panel'}
-            className="evidence-close pressable"
-          >
-            {wide ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
-          </button>
-          <button
-            onClick={onClose}
-            title="Hide the panel (⌘J)"
-            aria-label="Hide the panel"
-            className="evidence-close pressable"
-          >
-            <PanelRightClose size={15} />
-          </button>
-        </span>
+        <button
+          type="button"
+          onClick={onToggleWide}
+          title={wide ? 'Give the width back to the conversation' : 'Widen this panel'}
+          aria-label={wide ? 'Restore the panel width' : 'Widen the panel'}
+          aria-pressed={wide}
+          className="evidence-close pressable"
+        >
+          {wide ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+        </button>
+        <button
+          onClick={onClose}
+          title="Hide the panel (⌘J)"
+          aria-label="Hide the panel"
+          className="evidence-close pressable"
+        >
+          <PanelRightClose size={15} />
+        </button>
       </div>
 
       {/* --- Row 2: the selected tab's own controls ------------------------------------------
@@ -214,27 +254,27 @@ export function Inspector({
         <div className="workbench-toolbar">
           <button
             type="button" onClick={() => step(-1)} disabled={index <= 0}
-            title="Previous file" aria-label="Previous file" className="workbench-tool"
+            title="Previous open file" aria-label="Previous open file" className="workbench-tool"
           >
             <ChevronLeft size={14} />
           </button>
           <button
             type="button" onClick={() => step(1)} disabled={index < 0 || index >= openFiles.length - 1}
-            title="Next file" aria-label="Next file" className="workbench-tool"
+            title="Next open file" aria-label="Next open file" className="workbench-tool"
           >
             <ChevronRight size={14} />
           </button>
 
-          <span className="min-w-0 flex-1 truncate pl-1 text-[11px] text-faint">
-            {activeFile.split('/').slice(0, -1).map((part, i) => (
-              <React.Fragment key={i}>{part}<span className="px-1 opacity-50">›</span></React.Fragment>
-            ))}
-            <span className="font-medium text-dim">{activeFile.split('/').pop()}</span>
+          {/* Where the file lives, NOT what it is called: the picker beside it already states the
+              name, and row 2 repeating it is how a two-row header starts to read as clutter. */}
+          <span className="workbench-crumb min-w-0 flex-1 truncate pl-1 text-[11px] text-faint" title={activeFile}>
+            {fileDir(activeFile) || 'project root'}
           </span>
 
-          <span className="shrink-0 text-[10px] text-faint">
-            {dirtyFiles.has(activeFile) ? 'modified — ⌘S' : 'saved'}
-          </span>
+          {/* Only while it is true. A permanent "saved" is a label that never means anything. */}
+          {dirtyFiles.has(activeFile) && (
+            <span className="shrink-0 text-[10px] text-ember">modified — ⌘S</span>
+          )}
 
           {isMarkdown(activeFile) && (
             <span className="workbench-segment">
@@ -259,18 +299,43 @@ export function Inspector({
           >
             <Search size={13} />
           </button>
-          <button
-            type="button" onClick={() => insertIntoComposer(`@${activeFile} `)}
-            title="Insert @path into the composer" aria-label="Insert path into the composer" className="workbench-tool"
+
+          {/* The secondary verbs, behind one control. They are real actions, not settings, so this
+              menu declines the seed flight — see `SeedMenu`'s `motion` note. */}
+          <SeedMenu
+            label="More actions for this file"
+            width={232}
+            motion="standard"
+            triggerClassName="shrink-0"
+            trigger={(open) => (
+              <span className={cn('workbench-tool', open && 'bg-hover text-ink')} title="More actions">
+                <MoreHorizontal size={14} />
+              </span>
+            )}
           >
-            <AtSign size={13} />
-          </button>
-          <button
-            type="button" onClick={() => void window.bimax.files.reveal(activeFile)}
-            title="Reveal in Finder" aria-label="Reveal in Finder" className="workbench-tool"
-          >
-            <Compass size={13} />
-          </button>
+            {(close) => (
+              <>
+                <SeedMenuItem
+                  icon={<AtSign size={13} />}
+                  label="Insert @path"
+                  desc="Reference this file in the composer"
+                  onClick={() => { insertIntoComposer(`@${activeFile} `); close(); }}
+                />
+                <SeedMenuItem
+                  icon={<Compass size={13} />}
+                  label="Reveal in Finder"
+                  onClick={() => { void window.bimax.files.reveal(activeFile); close(); }}
+                />
+                <SeedMenuSeparator />
+                <SeedMenuItem
+                  icon={<X size={13} />}
+                  label="Close this file"
+                  desc={dirtyFiles.has(activeFile) ? 'Unsaved changes will be lost' : undefined}
+                  onClick={() => { onCloseFile(activeFile); close(); }}
+                />
+              </>
+            )}
+          </SeedMenu>
         </div>
       )}
 

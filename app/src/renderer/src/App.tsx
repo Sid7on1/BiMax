@@ -322,8 +322,6 @@ export function App(): React.ReactElement {
       onOpenMachineHealth={() => setMachineHealthOpen(true)}
       sidebarOpen={sidebarOpen}
       onToggleSidebar={() => { setSidebarPinned((v) => !v); setSidebarPeek(false); }}
-      inspectorOpen={inspectorOpen}
-      onToggleInspector={() => setInspectorOpen((v) => !v)}
       appearance={appearance}
       onAppearance={setAppearance}
     />
@@ -404,6 +402,10 @@ export function App(): React.ReactElement {
                 sidebarHoldsEdge={hasProject && sidebarMounted && sidebarPinned}
                 onToggleSidebar={() => { setSidebarPinned((v) => !v); setSidebarPeek(false); }}
                 onPeekSidebar={() => setSidebarPeek(true)}
+                /* The one control that opens the right panel, at the top right — where the panel
+                   is. It used to be in the sidebar's footer, bottom left. */
+                inspectorOpen={inspectorOpen}
+                onToggleInspector={() => setInspectorOpen((v) => !v)}
               />
               <CapabilityBanner notices={Object.values(state.capabilities)} />
               {!hasProject ? (

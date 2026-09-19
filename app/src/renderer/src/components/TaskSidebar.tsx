@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  ChevronRight, PenLine, PanelLeft, PanelRight, Palette, Sun, Moon, Monitor,
+  ChevronRight, PenLine, PanelLeft, Palette, Sun, Moon, Monitor,
   Search, Users, Cpu, Settings2, HardDrive, FlaskConical,
 } from 'lucide-react';
 import { ThreadsList } from './ThreadsList';
@@ -82,8 +82,6 @@ export function TaskSidebar({
   onOpenMachineHealth,
   sidebarOpen = true,
   onToggleSidebar,
-  inspectorOpen,
-  onToggleInspector,
   appearance,
   onAppearance,
 }: {
@@ -100,8 +98,6 @@ export function TaskSidebar({
   onToggleSidebar?: () => void;
   /* Evidence and appearance live down in the footer now, not in a bar across the top: the top of
      the window is the one place the shell deliberately keeps empty. See TitleBar.tsx. */
-  inspectorOpen?: boolean;
-  onToggleInspector?: () => void;
   appearance?: Appearance;
   onAppearance?: (appearance: Appearance) => void;
 }): React.ReactElement {
@@ -234,8 +230,6 @@ export function TaskSidebar({
       <MachineFooter
         items={machine}
         onOpenSettings={onOpenSettings}
-        inspectorOpen={inspectorOpen}
-        onToggleInspector={onToggleInspector}
         appearance={appearance}
         onAppearance={onAppearance}
       />
@@ -255,12 +249,10 @@ export function TaskSidebar({
  * closes on Escape or when focus leaves.
  */
 function MachineFooter({
-  items, onOpenSettings, inspectorOpen, onToggleInspector, appearance, onAppearance,
+  items, onOpenSettings, appearance, onAppearance,
 }: {
   items: NavItem[];
   onOpenSettings: () => void;
-  inspectorOpen?: boolean;
-  onToggleInspector?: () => void;
   appearance?: Appearance;
   onAppearance?: (appearance: Appearance) => void;
 }): React.ReactElement {
@@ -302,8 +294,9 @@ function MachineFooter({
         </div>
       )}
 
-      {/* Settings, then the two controls the top bar used to own. Keeping them on one row is what
-          lets the top of the window stay empty without losing anything. */}
+      {/* Settings and appearance. The right panel's toggle used to sit here too, which put "show
+          the panel on the RIGHT" in the bottom-LEFT corner — and hid it entirely whenever the
+          sidebar was away. It is at the top right of the canvas now (`CanvasChrome`). */}
       <div className="flex items-center gap-1">
         <button
           onClick={onOpenSettings}
@@ -316,21 +309,6 @@ function MachineFooter({
               A truncated label costs more than a shortcut hint that ⌘, already teaches. */}
           <span className="flex-1 truncate">Settings</span>
         </button>
-
-        {onToggleInspector && (
-          <button
-            onClick={onToggleInspector}
-            title="Show or hide evidence (⌘J)"
-            aria-label="Show or hide evidence"
-            aria-pressed={inspectorOpen}
-            className={cn(
-              'flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-lg transition-colors focus-visible:outline-2 focus-visible:outline-ember',
-              inspectorOpen ? 'text-ink' : 'text-faint hover:text-ink',
-            )}
-          >
-            <PanelRight size={15} />
-          </button>
-        )}
 
         {appearance && onAppearance && (
           <SeedMenu

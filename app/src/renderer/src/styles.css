@@ -981,7 +981,7 @@
   position: relative;
   isolation: isolate;
   /* The tab strip's width budget is this panel's width, not the window's — the panel is resizable
-     and the window is not the same thing. See `.workbench-chip-label`. */
+     and the window is not the same thing. See `.workbench-crumb-dir`. */
   container-type: inline-size;
   /* `--pane-veil`, not `--glass-veil`: this is a side pane, and painting it in the sidebar's tint
      put the two lightest surfaces on either side of the darkest one. No top sheen, for the same
@@ -1021,40 +1021,9 @@
   background: color-mix(in srgb, var(--color-ink) 3%, transparent);
 }
 
-.workbench-chip {
-  display: flex;
-  max-width: 190px;
-  flex: 0 0 auto;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  border-radius: 8px;
-  padding: 3px 7px;
-  color: var(--color-dim);
-  font-size: 11.5px;
-  transition: background-color 140ms ease, color 140ms ease;
-}
-.workbench-chip:hover:not(:disabled) { color: var(--color-ink); background: var(--color-hover); }
-/* `--raise-veil`, like every other raised surface in the shell: an active tab is a lifted sheet of
-   the same glass, not a painted highlight. */
-.workbench-chip[data-active] { color: var(--color-ink); background: var(--raise-veil); }
-/* An unavailable lane stays on the strip with the reason in its tooltip. A lane that vanishes when
-   it has nothing to say reads as a bug, and nothing may auto-open one — see inspector.model.ts. */
-.workbench-chip:disabled { cursor: default; color: var(--color-faint); opacity: 0.55; }
-/* The strip is the one place in the panel that runs out of room. `.evidence-studio` is the query
-   container (below), so this measures the PANEL, not the window: drag the splitter wider and the
-   lane names come back. */
-@container (max-width: 640px) {
-  .workbench-strip[data-files] .workbench-chip:not([data-active]) .workbench-chip-label { display: none; }
-}
-.workbench-strip-divider {
-  width: 1px;
-  height: 15px;
-  flex: 0 0 auto;
-  margin: 0 3px;
-  background: var(--color-line);
-}
-
+/* The picker is the panel's title as well as its control, so the strip is one row of it plus the
+   two controls that belong to the panel itself. It replaced a chip per lane AND a chip per open
+   file — eight controls competing for 430pt, which is what "not organised" meant. */
 /* Row 2: the selected tab's own controls. Present only for a file — the four lanes carry their
    controls inside their panels, and a second copy in a bar above them would be exactly the chrome
    row 1 was shortened to remove. */
@@ -1100,6 +1069,14 @@
   font-size: 10.5px;
 }
 .workbench-segment button[data-active] { color: var(--color-ink); background: var(--raise-veil); }
+
+/* The path is the first thing to go when the panel is narrow — the picker states which file this
+   is, so row 2's folder is context rather than identity, and row 2 must never wrap.
+   `.evidence-studio` is the query container, so this measures the PANEL: drag the splitter wider
+   and the path comes back. */
+@container (max-width: 360px) {
+  .workbench-crumb { display: none; }
+}
 
 .inspector-hero-icon, .settings-capability-icon {
   display: flex;

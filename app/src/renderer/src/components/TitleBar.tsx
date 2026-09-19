@@ -1,5 +1,5 @@
 import React from 'react';
-import { PanelLeft } from 'lucide-react';
+import { PanelLeft, PanelRight } from 'lucide-react';
 import { cn } from '../lib/cn';
 import { BrandMark } from './BrandMark';
 
@@ -25,6 +25,7 @@ import { BrandMark } from './BrandMark';
  */
 export function CanvasChrome({
   project, protocolMismatch, sidebarHoldsEdge, onToggleSidebar, onPeekSidebar,
+  inspectorOpen, onToggleInspector,
 }: {
   project: string;
   protocolMismatch: number | null;
@@ -42,6 +43,9 @@ export function CanvasChrome({
   sidebarHoldsEdge: boolean;
   onToggleSidebar: () => void;
   onPeekSidebar?: () => void;
+  /** The right panel's state, and the one control that opens it. */
+  inspectorOpen?: boolean;
+  onToggleInspector?: () => void;
 }): React.ReactElement {
   return (
     /*
@@ -54,6 +58,9 @@ export function CanvasChrome({
       Two things stay, and both are structural rather than decorative:
         - the pin toggle, ONLY while the sidebar is away — it is otherwise the sole way back, and a
           panel you cannot reopen is a panel you have lost;
+        - the right panel's toggle, at the far right (owner, 2026-09-19). It lived in the sidebar's
+          footer, which put "show the panel on the RIGHT" in the bottom-LEFT corner — as far from
+          the thing it opens as the window allows, and invisible whenever the sidebar was away;
         - the protocol-mismatch badge, which is a refusal to run, not a control.
 
       The row itself still earns its height: it is the `drag-region` that replaces the title bar, and
@@ -82,6 +89,15 @@ export function CanvasChrome({
         </IconBtn>
       )}
       <span className="flex-1" />
+      {project && onToggleInspector && (
+        <IconBtn
+          title="Show or hide the right panel (⌘J)"
+          onClick={onToggleInspector}
+          active={inspectorOpen}
+        >
+          <PanelRight size={16} />
+        </IconBtn>
+      )}
       {protocolMismatch !== null && (
         <span className="no-drag shrink-0 rounded-lg px-2 py-1 text-xs text-rust">
           Bimax needs an update
