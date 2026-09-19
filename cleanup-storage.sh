@@ -45,9 +45,11 @@ for p in \
   "$HOME/.gradle/caches" \
   "$HOME/.nuget/packages" \
   "$HOME/.expo" \
-  "$HOME/.cargo/registry" \
+  "$HOME/.cargo/registry/cache" \
   "$HOME/Library/Caches/Homebrew" \
-  "$HOME/Library/Caches/go-build" ; do
+  "$HOME/Library/Caches/go-build" \
+  "/private/tmp/bimax-build" \
+  "${TMPDIR%T/}X/com.google.Chrome.code_sign_clone" ; do
   printf '  %6s  %s\n' "$(sizeof "$p")" "${p/#$HOME/~}"
 done
 hr
@@ -71,13 +73,20 @@ command -v pnpm >/dev/null 2>&1 && pnpm store prune 2>/dev/null
 command -v yarn >/dev/null 2>&1 && yarn cache clean 2>/dev/null
 command -v bun  >/dev/null 2>&1 && rm -rf "$HOME/.bun/install/cache" 2>/dev/null
 command -v pip3 >/dev/null 2>&1 && pip3 cache purge 2>/dev/null
+command -v uv   >/dev/null 2>&1 && uv cache clean 2>/dev/null
 command -v go   >/dev/null 2>&1 && go clean -cache -modcache 2>/dev/null
 command -v brew >/dev/null 2>&1 && brew cleanup -s 2>/dev/null
+rm -rf "$HOME/.cargo/registry/cache/"* 2>/dev/null
+rm -rf "$HOME/.nuget/packages/"* 2>/dev/null
 rm -rf "$HOME/.gradle/caches/"* 2>/dev/null
 rm -rf "$HOME/.expo/"* 2>/dev/null
 rm -rf "$HOME/.gemini/tmp/"* 2>/dev/null
+# Stale build & updater artifacts in /tmp and $TMPDIR
+rm -rf /private/tmp/bimax-build /private/tmp/claude-* 2>/dev/null
+rm -rf "${TMPDIR}"com.anthropic.claudefordesktop.ShipIt.* 2>/dev/null
+rm -rf "${TMPDIR%T/}X/com.google.Chrome.code_sign_clone" 2>/dev/null
 # Empty Trash
-rm -rf "$HOME/.Trash/"* 2>/dev/null
+osascript -e 'tell application "Finder" to empty trash' 2>/dev/null || rm -rf "$HOME/.Trash/"* 2>/dev/null
 echo "Cache cleanup done."
 hr
 

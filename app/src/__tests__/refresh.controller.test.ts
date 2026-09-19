@@ -313,12 +313,28 @@ describe('watchProject — a closed watcher is silent', () => {
 
   const wait = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
 
+  /**
+   * Waits for a condition instead of for a duration.
+   *
+   * The positive test below used a flat 700 ms and failed intermittently — `fired` was 0 — which
+   * reads like a broken watcher and is really two timing facts: FSEvents arms ASYNCHRONOUSLY, so a
+   * write issued in the same tick as watchProject() can land before anything is listening; and the
+   * suite runs several workers on an 8 GB box, where a 400 ms debounce plus scheduling delay does
+   * not reliably fit in 700 ms. Polling returns the instant the event arrives (usually well under
+   * 100 ms) and only spends the long deadline on a machine that needs it.
+   */
+  const until = async (done: () => boolean, timeoutMs = 5_000): Promise<void> => {
+    const deadline = Date.now() + timeoutMs;
+    while (!done() && Date.now() < deadline) await wait(25);
+  };
+
   it('fires for a project change while open', async () => {
     let fired = 0;
     const watch = watchProject(dir, () => { fired++; });
     if (!watch) return; // recursive watch unavailable on this platform
+    await wait(150);     // let the recursive watch arm before producing the event it must catch
     await fsp.writeFile(pathMod.join(dir, 'a.txt'), 'x');
-    await wait(700);
+    await until(() => fired > 0);
     expect(fired).toBeGreaterThan(0);
     watch.close();
   });

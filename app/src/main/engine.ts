@@ -181,6 +181,18 @@ export function recentEngineLog(maxChars = 6000): string {
  * Appends rather than truncates: a force-killed child cannot flush a final message, so retaining
  * the previous boot and the desktop-owned lifecycle lines is essential crash evidence.
  */
+/**
+ * Where V8 keeps the engine bundle's compiled code between launches.
+ *
+ * Under userData because it is disposable per-user state: deleting it costs one slower boot. See
+ * buildEngineChildEnv's `compileCacheDir` for the measurement that justifies it.
+ */
+function engineCompileCacheDir(): string {
+  const dir = path.join(app.getPath('userData'), 'v8-compile-cache');
+  try { mkdirSync(dir, { recursive: true }); } catch { /* a cache is best-effort by definition */ }
+  return dir;
+}
+
 function openEngineLog(projectDir: string, command: string): {
   logLine: (line: string) => void;
   closeLog: () => void;
@@ -254,6 +266,7 @@ export function spawnEngineProcess(projectDir: string, extraEnv: Record<string, 
       extraEnv: { ...extraEnv, ...engineReleaseEnv(cmd) },
       path: userShellPath(),
       projectDir,
+      compileCacheDir: engineCompileCacheDir(),
     }),
     stdio: ['pipe', 'pipe', 'pipe'],
   });
@@ -400,6 +413,7 @@ export function spawnEngineUtilityProcess(
     extraEnv,
     path: userShellPath(),
     projectDir,
+    compileCacheDir: engineCompileCacheDir(),
   });
   // Electron's Env type admits no undefined values, unlike process.env.
   const env: Record<string, string> = {};

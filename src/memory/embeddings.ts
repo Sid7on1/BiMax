@@ -173,7 +173,9 @@ export class RemoteEmbeddingBackend implements EmbeddingBackend {
 
     const credentials = await capabilityDeadline(() => this.resolve(), this.timeoutMs).catch(() => null);
     if (!credentials?.apiKey) {
-      return this.fail('Embedding credentials are unavailable.', true);
+      // Named, not hedged: this reason is printed by /retrieval when semantic search is off, and
+      // "credentials are unavailable" does not tell anyone what to do about it.
+      return this.fail('no API key for embeddings — set one for the configured provider.', true);
     }
 
     const out: number[][] = [];

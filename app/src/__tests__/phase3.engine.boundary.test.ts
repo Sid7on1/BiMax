@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { supportsProtocolMajor } from '../shared/protocol.compat.gen';
+import { supportsProtocolMajor } from '../shared/protocol.compat';
 
 const repo = path.resolve(__dirname, '..', '..', '..');
 const read = (file: string) => fs.readFileSync(path.join(repo, file), 'utf8');

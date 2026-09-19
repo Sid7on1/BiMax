@@ -68,22 +68,46 @@ const conceptBackend: EmbeddingBackend = {
  * sees the query and the passage together. Scored as concept overlap PLUS exact-token overlap, so
  * it can promote a passage that both retrievers ranked mid-list.
  */
+/**
+ * A stand-in cross-encoder that speaks BOTH rerank dialects.
+ *
+ * It used to read `body.query.text` and `body.passages` only — NVIDIA's shape. Its own URL
+ * (`…/v1` → `…/v1/rerank`) resolves to the OTHER dialect, so once rerankDialectFor landed, this
+ * fixture received `{query, documents}`, threw on the undefined `passages`, and the reranker fell
+ * back to the retrieval order. The eval below then measured a rerank stage that was doing NOTHING,
+ * and reported it as an exact MRR tie rather than as a failure to rerank. Handling both shapes —
+ * and answering in the one it was asked in — is what makes "each stage earns its place" a real
+ * measurement instead of a tautology.
+ */
 function conceptReranker(): RemoteReranker {
   const transport: RerankTransport = async (_url, init) => {
-    const body = JSON.parse(init.body) as { query: { text: string }; passages: { text: string }[] };
-    const q = conceptVector(body.query.text);
-    const qWords = new Set(body.query.text.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter((w) => w.length > 2));
-    const rankings = body.passages.map((passage, index) => {
-      const p = conceptVector(passage.text);
+    const body = JSON.parse(init.body) as {
+      query: string | { text: string };
+      passages?: { text: string }[];
+      documents?: string[];
+    };
+    const nvidia = Array.isArray(body.passages);
+    const queryText = typeof body.query === 'string' ? body.query : body.query.text;
+    const texts = nvidia ? body.passages!.map((p) => p.text) : body.documents!;
+    const q = conceptVector(queryText);
+    const qWords = new Set(queryText.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter((w) => w.length > 2));
+    const scored = texts.map((text, index) => {
+      const p = conceptVector(text);
       let concept = 0;
       for (let i = 0; i < q.length; i++) concept += q[i] * p[i];
-      const pWords = new Set(passage.text.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/));
+      const pWords = new Set(text.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/));
       let overlap = 0;
       for (const w of qWords) if (pWords.has(w)) overlap++;
-      return { index, logit: concept * 4 + overlap * 0.35 };
+      return { index, score: concept * 4 + overlap * 0.35 };
     });
-    rankings.sort((a, b) => b.logit - a.logit);
-    return { ok: true, status: 200, json: async () => ({ rankings }) };
+    scored.sort((a, b) => b.score - a.score);
+    return {
+      ok: true,
+      status: 200,
+      json: async () => (nvidia
+        ? { rankings: scored.map((r) => ({ index: r.index, logit: r.score })) }
+        : { results: scored.map((r) => ({ index: r.index, relevance_score: r.score })) }),
+    };
   };
   return new RemoteReranker({ resolve: async () => ({ apiKey: 'k', baseURL: 'https://x.invalid/v1' }), transport });
 }
@@ -249,19 +273,41 @@ describe('reranking', () => {
     expect(reranker.unavailableReason()).toContain('422');
   });
 
-  test('passages are sent as { text } objects, and truncate is END', async () => {
-    // This endpoint is NOT the OpenAI-compatible one. Sending bare strings returns a 422 that
-    // reads like a model error, and truncate defaults to NONE which errors on a long passage.
-    let body: any;
-    const transport: RerankTransport = async (_u, init) => {
-      body = JSON.parse(init.body);
-      return { ok: true, status: 200, json: async () => ({ rankings: [{ index: 0, logit: 1 }] }) };
+  test('each endpoint gets ITS OWN dialect — the wrong shape is a 422 that reads like a model error', async () => {
+    // Two incompatible dialects exist in the wild, and rerankDialectFor picks by URL. This test used
+    // to pin NVIDIA's shape for every endpoint, which was the shape before the split existed; it
+    // then failed against a generic URL and looked like a broken reranker. Both are pinned now,
+    // because sending one to the other returns a 422 blaming the MODEL, which is how a dead
+    // reranker stayed invisible once already.
+    const capture = (payload: unknown): { transport: RerankTransport; body: () => any } => {
+      let body: any;
+      const transport: RerankTransport = async (_u, init) => {
+        body = JSON.parse(init.body);
+        return { ok: true, status: 200, json: async () => payload };
+      };
+      return { transport, body: () => body };
     };
-    await new RemoteReranker({ resolve: async () => ({ apiKey: 'k', baseURL: 'https://x/v1' }), transport })
-      .rerank('q', [{ id: 'a', text: 'hello' }]);
-    expect(body.passages).toEqual([{ text: 'hello' }]);
-    expect(body.query).toEqual({ text: 'q' });
-    expect(body.truncate).toBe('END');
+
+    // NVIDIA's /ranking: {query:{text}, passages:[{text}]}, and truncate must be END because the
+    // default NONE errors on an over-length passage rather than trimming it.
+    const nvidia = capture({ rankings: [{ index: 0, logit: 1 }] });
+    await new RemoteReranker({
+      resolve: async () => ({ apiKey: 'k', baseURL: 'https://x', rerankURL: 'https://x/v1/ranking' }),
+      transport: nvidia.transport,
+    }).rerank('q', [{ id: 'a', text: 'hello' }]);
+    expect(nvidia.body().passages).toEqual([{ text: 'hello' }]);
+    expect(nvidia.body().query).toEqual({ text: 'q' });
+    expect(nvidia.body().truncate).toBe('END');
+
+    // Everyone else (vLLM, Infinity, TEI, Cohere, Jina): {query, documents:[string]}.
+    const cohere = capture({ results: [{ index: 0, relevance_score: 1 }] });
+    await new RemoteReranker({
+      resolve: async () => ({ apiKey: 'k', baseURL: 'https://x/v1' }),
+      transport: cohere.transport,
+    }).rerank('q', [{ id: 'a', text: 'hello' }]);
+    expect(cohere.body().documents).toEqual(['hello']);
+    expect(cohere.body().query).toBe('q');
+    expect(cohere.body().passages).toBeUndefined();
   });
 
   test('an out-of-range index is refused rather than silently dropped', async () => {

@@ -76,6 +76,20 @@ export function buildEngineChildEnv(input: {
   extraEnv: Record<string, string>;
   path: string;
   projectDir: string;
+  /**
+   * Where V8 may keep compiled code for the engine bundle (NODE_COMPILE_CACHE).
+   *
+   * MEASURED 2026-09-19 on this Mac, Electron 43 / Node 24: an engine reaches `ready` in ~424 ms,
+   * and ~394 ms of that is spent BEFORE the first boot phase reports — V8 parsing the 22 MB bundle,
+   * of which only 2.1 MB is our own source. With the cache the same boot is ~330 ms (parse ~300 ms),
+   * a 22% cut for one environment variable. Threads pays this PER TASK, because every task gets its
+   * own engine, so it is 94 ms × every ⌘2 run, not once.
+   *
+   * The first boot after a new bundle is ~60 ms slower while the cache is written, and Node keys
+   * entries by file, so an engine update simply misses and repopulates rather than running stale
+   * code. Omitted (no directory) means no cache: never guess a path inside a shared env builder.
+   */
+  compileCacheDir?: string;
 }): Record<string, string | undefined> {
   const env: Record<string, string | undefined> = {
     ...input.parentEnv,
@@ -84,6 +98,7 @@ export function buildEngineChildEnv(input: {
     BIMAX_HEADLESS: '1',
     BIMAX_CWD: input.projectDir,
     BGW_FIRST_CHUNK_TIMEOUT_MS: '45000',
+    ...(input.compileCacheDir ? { NODE_COMPILE_CACHE: input.compileCacheDir } : {}),
   };
   for (const variable of [
     'BIMAX_MAC_CAPABILITY_PROVIDER',

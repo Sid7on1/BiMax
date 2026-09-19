@@ -39,3 +39,19 @@ test('these tests cover the builder the app really spawns engines with', () => {
   const engine = readFileSync(path.join(__dirname, '..', 'main', 'engine.ts'), 'utf8');
   expect(engine).toMatch(/buildEngineChildEnv,[\s\S]*?\} from '\.\/coding\.runtime\.paths';/);
 });
+
+test('the engine bundle gets a V8 compile cache when one is offered, and none when it is not', () => {
+  // 22 MB of bundle is parsed on EVERY engine spawn, and Threads spawns one per task: measured
+  // 424 ms to ready, ~394 ms of it before our first boot phase, falling to ~330 ms with the cache.
+  // The directory is the caller's to choose — a shared env builder must not invent a path.
+  const base = { parentEnv: {}, path: '/usr/bin', projectDir: '/x' };
+  const cached = buildEngineChildEnv({ ...base, extraEnv: {}, compileCacheDir: '/tmp/v8cc' } as any);
+  expect(cached.NODE_COMPILE_CACHE).toBe('/tmp/v8cc');
+  const plainEnv = buildEngineChildEnv({ ...base, extraEnv: {} } as any);
+  expect(plainEnv.NODE_COMPILE_CACHE).toBeUndefined();
+});
+
+test('both engine transports ask for the cache — a per-task cost fixed on only one path is fixed nowhere', () => {
+  const engine = require('fs').readFileSync(require('path').join(__dirname, '..', 'main', 'engine.ts'), 'utf8');
+  expect(engine.match(/compileCacheDir: engineCompileCacheDir\(\)/g)?.length).toBe(2);
+});

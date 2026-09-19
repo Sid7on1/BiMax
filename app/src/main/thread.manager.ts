@@ -70,6 +70,14 @@ interface Dependencies {
   restarted?(id: string): void;
   /** Schedule `fn` after `ms`; returns a cancel function. Defaults to the process timer. */
   timer?(fn: () => void, ms: number): () => void;
+  /**
+   * Threads the user can see right now, which the idle reaper must not reclaim.
+   *
+   * `activeId` is the MAIN window's selection and does not cover the ⌘2 bar, which tracks its own
+   * thread in the host (quickThreadId). Without this, a bar left open on a quiet thread could have
+   * its engine taken out from under it, and the next message would pay a restart for no reason.
+   */
+  onScreen?(): Array<string | null>;
   /** A full list moved this thread out to make room: keep it in the archive (backlog N11). */
   archive?(value: SavedThread): void;
   /**
@@ -109,6 +117,27 @@ export const MAX_THREADS = 200;
  * os.freemem() here would put every 8 GB Mac at the floor permanently, which is the bug that
  * policy had).
  */
+/**
+ * How long an engine may sit idle before it is handed back.
+ *
+ * MEASURED 2026-09-19: an engine costs **227 MB** whatever it is doing — a finished ⌘2 task's engine
+ * weighs exactly as much as a project engine mid-turn, because that figure is the bundle, the V8
+ * heap and the tool registry, not the optional subsystems (the ⌘2 capability profile saves nothing
+ * at all on this number). Until now nothing reclaimed one: `start()` evicted an idle engine only
+ * when a NEW task hit the limit, so four finished tasks sat on 868 MB of an 8 GB machine
+ * indefinitely, doing nothing.
+ *
+ * Ten minutes, because restarting is cheap and non-destructive: the thread's state is already
+ * persisted, `start()` resumes its session, and the manager marks its own restarts quiet so the
+ * transcript does not grow a "Resumed …" line the user did not ask for. The user-visible cost of
+ * being wrong is ~350 ms on the next message; the cost of not reaping is a quarter of a gigabyte
+ * per abandoned task.
+ */
+export const IDLE_ENGINE_TTL_MS = 10 * 60_000;
+
+/** How often the sweep runs. Cheap: it walks the record map and compares two numbers. */
+export const IDLE_ENGINE_SWEEP_MS = 60_000;
+
 export const MAX_LIVE_ENGINES = 4;
 const ENGINE_BUDGET_BYTES = 320 * 1024 * 1024;
 const RESERVE_BYTES = 512 * 1024 * 1024;
@@ -191,6 +220,8 @@ const quoted = (text: string): string => {
 /** One process, state, queue and approval namespace per folder-bound conversation. */
 export class ThreadManager {
   private records = new Map<string, LiveThread>();
+  /** Cancels the pending idle sweep, when one is armed (see startIdleReaper). */
+  private reapCancel?: () => void;
   private exchanges = new Map<string, number>();
   activeId: string | null = null;
   constructor(private deps: Dependencies, saved: SavedThread[] = []) {
@@ -648,7 +679,7 @@ export class ThreadManager {
     return summary;
   }
   /** The user's Stop drops what was queued. `keepInputs` is for restarts and quitting, which must not lose messages. */
-  stop(id: string, options: { keepInputs?: boolean } = {}): void {
+  stop(id: string, options: { keepInputs?: boolean; reason?: string } = {}): void {
     const r = this.records.get(id);
     if (!r) return;
     const engine = r.engine;
@@ -659,10 +690,52 @@ export class ThreadManager {
     r.resumeDeadline?.(); r.resumeDeadline = undefined; r.holdInputs = false;
     this.drain(r, engine);
     r.summary.status = 'stopped';
-    r.state = { ...r.state, request: null, spinner: { state: 'idle', message: '' }, engine: { state: 'exited', detail: 'Thread stopped' } };
+    r.state = { ...r.state, request: null, spinner: { state: 'idle', message: '' }, engine: { state: 'exited', detail: options.reason ?? 'Thread stopped' } };
     this.persist(r);
     for (const other of this.records.values()) this.pump(other);
   }
+  /**
+   * Hand back the memory of engines that are sitting doing nothing.
+   *
+   * Deliberately conservative — an engine is reclaimed only when every one of these holds, because a
+   * wrong reap costs the user a restart mid-thought:
+   *   • it is not on screen — neither the main window's selection nor the ⌘2 bar's thread;
+   *   • its status is exactly `idle` — never working, needs-you or starting;
+   *   • nothing is queued or in flight, and no approval is waiting on the user;
+   *   • its previous engine is not still draining;
+   *   • and it has been untouched for the full TTL.
+   *
+   * `now` is a parameter so this is testable without timers at all.
+   */
+  reapIdleEngines(now: number = Date.now()): string[] {
+    const reaped: string[] = [];
+    for (const r of this.records.values()) {
+      if (!r.engine) continue;
+      if (r.summary.id === this.activeId) continue;
+      if (this.deps.onScreen?.().includes(r.summary.id)) continue;
+      if (r.summary.status !== 'idle') continue;
+      if (r.inputs.length || r.pending.size || r.draining) continue;
+      if (now - r.summary.updatedAt < IDLE_ENGINE_TTL_MS) continue;
+      // keepInputs is belt-and-braces: the guard above already proved there are none.
+      this.stop(r.summary.id, { keepInputs: true, reason: 'Stopped to free memory. Send a message to pick it up again.' });
+      reaped.push(r.summary.id);
+    }
+    return reaped;
+  }
+
+  /**
+   * Start the periodic sweep. NOT started by the constructor on purpose: a manager built in a test
+   * would then arm a real timer that outlives the suite, which is precisely how a jest worker ends
+   * up force-killed. The app starts it; tests call reapIdleEngines directly.
+   */
+  startIdleReaper(): void {
+    if (this.reapCancel) return;
+    const tick = (): void => {
+      this.reapCancel = this.timer(() => { this.reapIdleEngines(); this.reapCancel = undefined; tick(); }, IDLE_ENGINE_SWEEP_MS);
+    };
+    tick();
+  }
+
   link(a: string, b: string, enabled: boolean): void {
     if (a === b) throw new Error('Choose another thread');
     const left = this.records.get(a), right = this.records.get(b);
@@ -762,7 +835,10 @@ export class ThreadManager {
   }
 
   /** Quitting keeps every thread's queued messages for next time. */
-  dispose(): void { for (const id of this.records.keys()) this.stop(id, { keepInputs: true }); }
+  dispose(): void {
+    this.reapCancel?.(); this.reapCancel = undefined;
+    for (const id of this.records.keys()) this.stop(id, { keepInputs: true });
+  }
   private persist(r: LiveThread, now = false): void {
     // An idle engine emits a heartbeat every few seconds that changes nothing a thread stores. Stamping and
     // saving on each one rewrote every live thread's file every 3s and kept bumping `updatedAt`, which also

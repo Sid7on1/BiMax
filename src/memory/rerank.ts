@@ -118,7 +118,8 @@ export class RemoteReranker {
 
     const credentials = await capabilityDeadline(() => this.resolve(), this.timeoutMs).catch(() => null);
     if (!credentials?.apiKey) {
-      return this.fail('Reranking credentials are unavailable.', true);
+      // Same reason as embeddings: /retrieval prints this line, so it names the missing thing.
+      return this.fail('no API key for reranking — set one for the configured provider.', true);
     }
 
     const window = candidates.slice(0, this.maxCandidates);

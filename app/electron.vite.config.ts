@@ -1,3 +1,4 @@
+import { resolve } from 'node:path';
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
@@ -27,5 +28,10 @@ export default defineConfig({
   },
   renderer: {
     plugins: [react(), tailwindcss()],
+    // The renderer imports the engine's wire contract (src/protocol/protocol.ts) and evidence
+    // vocabulary (src/evidence/schema.ts) DIRECTLY — one definition, no generated mirror. Both sit
+    // above this config's root, so the dev server has to be told they are inside the project.
+    // Production builds don't care; `npm run dev` 403s without it.
+    server: { fs: { allow: [resolve(__dirname, '..')] } },
   },
 });

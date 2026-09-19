@@ -223,6 +223,30 @@ async function tryLayoutPdf(file: string): Promise<LayoutRead | null> {
   }
 }
 
+/**
+ * OCR, without letting its failure cost the pages that were already read.
+ *
+ * ocr.ts reports rather than degrades, on purpose: an OCR layer that quietly returns empty text
+ * makes a scanned report look like a blank one. That is right for the page it could not read — and
+ * wrong for every other page, which is what actually happened. The macOS helper is COMPILED on
+ * first use, so anything that breaks swiftc (an Xcode licence reset after an update is enough)
+ * threw straight out of extractPdf, and a 40-page born-digital report with one scanned page
+ * returned ZERO pages, ok:false, with the compiler's command line as the only explanation.
+ *
+ * So the failure is still reported — as a note naming the pages nobody could read — and the pages
+ * the text layer or the converter already produced are kept. When OCR was the only possible source,
+ * the caller sees no segments and the note, which is the honest "this document was not read".
+ */
+async function ocrOrNote(images: string[]): Promise<{ pages: Array<{ imagePath: string; text: string; confidence?: number }>; note?: string }> {
+  try {
+    const { pages } = await ocrPages(images);
+    return { pages };
+  } catch (error) {
+    const reason = (error as Error).message.split('\n')[0];
+    return { pages: [], note: `${images.length} page(s) needed OCR and it was unavailable: ${reason}` };
+  }
+}
+
 /** Letters and digits only — the same measure `hasTextLayer` uses, for the same reason. */
 function meaningfulLength(value: string | undefined): number {
   if (!value) return 0;
@@ -257,14 +281,14 @@ const LAYOUT_FLOOR = 0.5;
  * born-digital page. Rasterising is only paid for pages that end up needing OCR, which keeps the
  * cost of a healthy conversion identical to before.
  */
-async function mergeLayoutPages(file: string, byPage: Map<number, Segment>): Promise<Segment[]> {
+async function mergeLayoutPages(file: string, byPage: Map<number, Segment>): Promise<{ segments: Segment[]; note?: string }> {
   let layers: string[];
   try {
     layers = await extractTextLayer(file);
   } catch {
     // No poppler, or an unreadable PDF. There is no floor to compare against, so the layout result
     // stands on its own rather than being discarded over a missing comparison.
-    return [...byPage.values()].sort((a, b) => (a.locator.page ?? 0) - (b.locator.page ?? 0));
+    return { segments: [...byPage.values()].sort((a, b) => (a.locator.page ?? 0) - (b.locator.page ?? 0)) };
   }
 
   const lastPage = Math.max(layers.length, ...(byPage.size ? [...byPage.keys()] : [0]));
@@ -302,15 +326,15 @@ async function mergeLayoutPages(file: string, byPage: Map<number, Segment>): Pro
     needOcr.push(page);
   }
 
-  if (needOcr.length === 0) return segments;
+  if (needOcr.length === 0) return { segments };
 
   // Only now is rasterising justified, and only these pages are recognised.
   const wanted = new Set(needOcr);
   const result = await readPdf(file);
   const images = result.pages.filter((p) => wanted.has(p.page) && p.imagePath);
-  if (images.length === 0) return segments.sort((a, b) => (a.locator.page ?? 0) - (b.locator.page ?? 0));
+  if (images.length === 0) return { segments: segments.sort((a, b) => (a.locator.page ?? 0) - (b.locator.page ?? 0)) };
 
-  const { pages: recognised } = await ocrPages(images.map((p) => p.imagePath!));
+  const { pages: recognised, note } = await ocrOrNote(images.map((p) => p.imagePath!));
   const byImage = new Map(recognised.map((p) => [p.imagePath, p]));
   for (const page of images) {
     const hit = byImage.get(page.imagePath!);
@@ -321,10 +345,10 @@ async function mergeLayoutPages(file: string, byPage: Map<number, Segment>): Pro
       confidence: hit.confidence, context: leadingContext(cleaned),
     });
   }
-  return segments.sort((a, b) => (a.locator.page ?? 0) - (b.locator.page ?? 0));
+  return { segments: segments.sort((a, b) => (a.locator.page ?? 0) - (b.locator.page ?? 0)), note };
 }
 
-async function extractPdf(file: string): Promise<Segment[]> {
+async function extractPdf(file: string): Promise<{ segments: Segment[]; note?: string }> {
   // Preference order, decided per page: layout model, then the text layer, then OCR. The first is
   // optional and the other two always work, so this only ever adds structure — it can never lose a
   // page that one of the other two could have read.
@@ -332,7 +356,7 @@ async function extractPdf(file: string): Promise<Segment[]> {
   if (layout) {
     // Unpaged conversions cannot be aligned against the text layer page by page, so they stay
     // all-or-nothing. Inventing an alignment would attach one page's floor to another page's text.
-    if (!layout.paged) return layout.segments;
+    if (!layout.paged) return { segments: layout.segments };
     return mergeLayoutPages(file, layout.byPage);
   }
 
@@ -341,9 +365,11 @@ async function extractPdf(file: string): Promise<Segment[]> {
   const result = await readPdf(file);
   const needOcr = result.pages.filter((p) => !p.text && p.imagePath);
   const recognized = new Map<string, { text: string; confidence?: number }>();
+  let note: string | undefined;
   if (needOcr.length) {
-    const { pages } = await ocrPages(needOcr.map((p) => p.imagePath!));
-    for (const page of pages) recognized.set(page.imagePath, { text: page.text, confidence: page.confidence });
+    const ocr = await ocrOrNote(needOcr.map((p) => p.imagePath!));
+    note = ocr.note;
+    for (const page of ocr.pages) recognized.set(page.imagePath, { text: page.text, confidence: page.confidence });
   }
   const segments: Segment[] = [];
   for (const page of result.pages) {
@@ -358,7 +384,7 @@ async function extractPdf(file: string): Promise<Segment[]> {
       segments.push({ text: cleaned, locator: { page: page.page }, via: 'ocr', confidence: hit.confidence, context: leadingContext(cleaned) });
     }
   }
-  return segments;
+  return { segments, note };
 }
 
 async function extractImage(file: string): Promise<Segment[]> {
@@ -490,7 +516,12 @@ export async function extractFile(file: string): Promise<ExtractionResult> {
   }
 
   try {
-    if (PDF.has(kind)) return { ...base, ok: true, segments: await extractPdf(file) };
+    if (PDF.has(kind)) {
+      // A PDF that produced nothing is not ok, whatever the reason — and when a page needed OCR
+      // that could not run, the note says so instead of the extraction silently coming back empty.
+      const { segments, note } = await extractPdf(file);
+      return { ...base, ok: segments.length > 0, segments, note };
+    }
     if (IMAGE.has(kind)) return { ...base, ok: true, segments: await extractImage(file) };
     if (SHEET.has(kind)) return { ...base, ok: true, segments: await extractSheet(file, false) };
     if (CSVISH.has(kind)) return { ...base, ok: true, segments: await extractSheet(file, true) };

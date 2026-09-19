@@ -85,22 +85,43 @@ function conceptVector(text: string): number[] {
   return normalize(combined.some((v) => v > 0) ? combined : combined.map(() => 0.001));
 }
 
+/**
+ * The stand-in cross-encoder, speaking BOTH rerank dialects.
+ *
+ * It read `body.query.text` / `body.passages` — NVIDIA's shape — while its own URL resolves to the
+ * other dialect, so after rerankDialectFor landed it threw on every call and the reranker fell back
+ * to the retrieval order. That is why the "shipped (+rerank)" position printed numbers IDENTICAL to
+ * hybrid: this benchmark was not measuring reranking at all. Same bug, same fix, as the memory eval.
+ */
 function conceptReranker(): RemoteReranker {
   const transport: RerankTransport = async (_url, init) => {
-    const body = JSON.parse(init.body) as { query: { text: string }; passages: RerankCandidate[] };
-    const q = conceptVector(body.query.text);
-    const qWords = new Set(body.query.text.toLowerCase().replace(/[^a-z0-9\s.]/g, ' ').split(/\s+/).filter((w: string) => w.length > 2));
-    const rankings = body.passages.map((p, index: number) => {
-      const pv = conceptVector(p.text);
+    const body = JSON.parse(init.body) as {
+      query: string | { text: string };
+      passages?: RerankCandidate[];
+      documents?: string[];
+    };
+    const nvidia = Array.isArray(body.passages);
+    const queryText = typeof body.query === 'string' ? body.query : body.query.text;
+    const texts = nvidia ? body.passages!.map((p) => p.text) : body.documents!;
+    const q = conceptVector(queryText);
+    const qWords = new Set(queryText.toLowerCase().replace(/[^a-z0-9\s.]/g, ' ').split(/\s+/).filter((w: string) => w.length > 2));
+    const scored = texts.map((text: string, index: number) => {
+      const pv = conceptVector(text);
       let concept = 0;
       for (let i = 0; i < q.length; i++) concept += q[i] * pv[i];
-      const pWords = new Set(p.text.toLowerCase().replace(/[^a-z0-9\s.]/g, ' ').split(/\s+/));
+      const pWords = new Set(text.toLowerCase().replace(/[^a-z0-9\s.]/g, ' ').split(/\s+/));
       let overlap = 0;
       for (const w of qWords) if (pWords.has(w)) overlap++;
-      return { index, logit: concept * 4 + overlap * 0.35 };
+      return { index, score: concept * 4 + overlap * 0.35 };
     });
-    rankings.sort((a, b) => b.logit - a.logit);
-    return { ok: true, status: 200, json: async () => ({ rankings }) };
+    scored.sort((a, b) => b.score - a.score);
+    return {
+      ok: true,
+      status: 200,
+      json: async () => (nvidia
+        ? { rankings: scored.map((r) => ({ index: r.index, logit: r.score })) }
+        : { results: scored.map((r) => ({ index: r.index, relevance_score: r.score })) }),
+    };
   };
   return new RemoteReranker({ resolve: async () => ({ apiKey: 'k', baseURL: 'https://x.invalid/v1' }), transport });
 }

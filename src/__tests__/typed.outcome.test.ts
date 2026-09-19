@@ -9,6 +9,7 @@ import { IGovernor } from '../core/interfaces';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
+import { classifyOutcome, labelOutcome } from '../mind/self.model';
 
 const governor = { approveTaskExecution: jest.fn().mockResolvedValue(undefined) } as unknown as IGovernor;
 
@@ -26,7 +27,7 @@ describe('typed tool outcomes (v2 Phase 0)', () => {
     expect(reported?.confidence).toBe('high');
   });
 
-  it('legacy tools (plain string return) report nothing — callers fall back to the regex classifier', async () => {
+  it('legacy tools (plain string return) are reported LOW confidence, so callers fall back to the regex classifier', async () => {
     const tool = buildTool({
       name: 'LegacyTool', description: 't', schema: { type: 'object', properties: {} },
       execute: async () => 'Error: something prose-y',
@@ -34,7 +35,30 @@ describe('typed tool outcomes (v2 Phase 0)', () => {
     let reported: TypedOutcome | undefined;
     const res = await tool.execute({}, { reportOutcome: (o: TypedOutcome) => { reported = o; } });
     expect(res).toBe('Error: something prose-y');
-    expect(reported).toBeUndefined();
+    // The factory wraps the prose so the call is not painted as success, but it marks the wrap as a
+    // GUESS: errorClass 'unknown' at low confidence. That flag is the whole contract — it is what
+    // tells the agent loop to ask classifyOutcome instead of believing this.
+    expect(reported?.confidence).toBe('low');
+    expect(reported?.errorClass).toBe('unknown');
+  });
+
+  it('a user rejection in legacy prose is preference data, never an agent failure', () => {
+    // The bug this pins: the loop preferred any typed outcome over the classifier, so an unswept or
+    // MCP tool answering "Error: … rejected by user …" was filed as 'err' — an agent-failure sample
+    // in the self-model's rates — while the same rejection from a swept tool was correctly
+    // 'rejected'. self.model.ts states rejections must not poison the failure rates.
+    const text = 'Error: Edit to a.ts rejected by user. No changes were made.';
+    const guess: TypedOutcome = { __typedOutcome: true, status: 'error', errorClass: 'unknown', text, confidence: 'low' };
+    expect(labelOutcome(guess, text, false)).toBe('rejected');
+
+    // A tool that really declared an error still wins: high confidence is ground truth.
+    const real: TypedOutcome = { __typedOutcome: true, status: 'error', errorClass: 'not_found', text: 'Error: nope', confidence: 'high' };
+    expect(labelOutcome(real, 'Error: nope', false)).toBe('err');
+    // And a swept tool's rejection is unchanged — it was always right.
+    const swept: TypedOutcome = { __typedOutcome: true, status: 'rejected', text: 'rejected by user', confidence: 'high' };
+    expect(labelOutcome(swept, 'rejected by user', false)).toBe('rejected');
+    // No outcome at all still falls through to the classifier, as it always did.
+    expect(labelOutcome(undefined, 'Error: boom', false)).toBe('err');
   });
 
   it('typedFromError recovers classification from classified throws and governor vetoes', () => {

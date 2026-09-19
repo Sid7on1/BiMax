@@ -29,6 +29,9 @@ import { promisify } from 'util';
 
 const run = promisify(execFile);
 
+/** The Command Line Tools' own toolchain, which has no Xcode licence gate. */
+const CLT_DEVELOPER_DIR = '/Library/Developer/CommandLineTools';
+
 export interface OcrPage {
   imagePath: string;
   text: string;
@@ -66,17 +69,35 @@ export class VisionOcrBackend implements OcrBackend {
   readonly name = 'vision' as const;
   private binary: string | null = null;
 
+  /**
+   * A swiftc that will actually compile, or null.
+   *
+   * `swiftc` on PATH is a shim that dispatches through whatever `xcode-select` points at. When that
+   * is Xcode.app, EVERY invocation is refused until someone runs `sudo xcodebuild -license` — which
+   * an Xcode update silently re-arms. The refusal is not ENOENT, so a plain "does swiftc exist"
+   * probe answered YES and the compile then failed, which is how one scanned page in an otherwise
+   * readable report ended the whole extraction. The Command Line Tools carry their own swiftc with
+   * no such gate and build this helper identically, so they are the fallback rather than a prompt
+   * for the user's password. Measured 2026-09-19; app/scripts/build-voice.sh does the same thing.
+   */
+  private static async workingSwiftc(): Promise<{ env?: NodeJS.ProcessEnv } | null> {
+    const candidates: Array<{ env?: NodeJS.ProcessEnv }> = [
+      {},
+      { env: { ...process.env, DEVELOPER_DIR: CLT_DEVELOPER_DIR } },
+    ];
+    for (const candidate of candidates) {
+      try {
+        await run('swiftc', ['--version'], { timeout: 15_000, ...candidate });
+        return candidate;
+      } catch { /* try the next toolchain */ }
+    }
+    return null;
+  }
+
   async available(): Promise<boolean> {
     if (process.platform !== 'darwin') return false;
     if (!fs.existsSync(helperSource())) return false;
-    // Run it rather than asking the shell: `command -v` through execFile is a shell builtin and
-    // reports absent on machines that have the binary. ENOENT is the only true "not installed".
-    try {
-      await run('swiftc', ['--version'], { timeout: 15_000 });
-      return true;
-    } catch (error: unknown) {
-      return (error as { code?: string }).code !== 'ENOENT';
-    }
+    return (await VisionOcrBackend.workingSwiftc()) !== null;
   }
 
   /** Compile once per source revision; reuse thereafter. */
@@ -86,8 +107,10 @@ export class VisionOcrBackend implements OcrBackend {
     const hash = crypto.createHash('sha256').update(fs.readFileSync(source)).digest('hex');
     const target = helperPath(hash);
     if (!fs.existsSync(target)) {
+      const toolchain = await VisionOcrBackend.workingSwiftc();
+      if (!toolchain) throw new Error('swiftc is unavailable (install the Xcode Command Line Tools: xcode-select --install)');
       // -O because recognition is the cost, but the compile itself should not be gratuitously slow.
-      await run('swiftc', ['-O', '-o', target, source], { timeout: 120_000 });
+      await run('swiftc', ['-O', '-o', target, source], { timeout: 120_000, ...toolchain });
     }
     this.binary = target;
     return target;

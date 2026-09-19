@@ -1,9 +1,20 @@
 # Bimax Desktop
 
-The Bimax agent as a native macOS desktop app. An Electron shell that
-spawns a pinned Bimax Terminal headless-engine release (`BIMAX_HEADLESS=1`, NDJSON over stdio).
-The versioned contract is represented by `engine.lock.json` and the generated compatibility module
-in `src/shared/protocol.compat.gen.ts`; the app refuses an incompatible or incorrectly hashed engine.
+The Bimax agent as a native macOS desktop app. An Electron shell that hosts the engine itself
+(`BIMAX_HEADLESS=1`, NDJSON) in an Electron `utilityProcess` — MessagePort in, piped stdout out.
+`BIMAX_ENGINE_TRANSPORT=child` selects the older OS-child-process path instead; it needs an explicit
+`BIMAX_ENGINE_CMD` and exists for bisecting against an older engine build.
+
+The engine is **the app's own source**, not a downloaded release. `scripts/prepare-engine.sh` runs
+`bun build src/index.ts` into `app/engine/index.js` (23 MB, architecture-independent), which
+electron-builder copies to `<resources>/engine/`. There is no pinned binary, no `engine.lock.json`
+and no download; both are in `~/Developer/bimax-archive`.
+
+The wire contract is not mirrored either: `src/shared/protocol.compat.ts`,
+`src/shared/evidence.schema.ts` and `src/renderer/src/protocol.ts` import
+`src/protocol/protocol.ts` and `src/evidence/schema.ts` from the repository root directly. Those two
+files have zero imports, so taking them does not drag the engine's module graph into the app build.
+A contract change now breaks the typecheck rather than a drift gate.
 
 ## Layout
 
@@ -13,23 +24,23 @@ src/main/      Electron main — window + Engine host (ports tui/engine.go: spaw
 src/preload/   contextBridge: the renderer's only door to the engine
 src/renderer/  React chat UI — transcript, streaming, tool cards, approval/diff/ask modals,
                engine menus, slash/@ completions, ui_snapshot footer
-scripts/       prepare-engine.sh — verifies/stages the pinned per-architecture engine artifact
-               prepare-native.sh — builds Desktop-owned XPC/bridge/helper components
+scripts/       prepare-engine.sh — bundles the repo's src/index.ts into app/engine/index.js
+               verify-engine.js  — forks that bundle with the real utilityProcess and speaks the
+                                   real protocol to it (the packaged artifact is otherwise untested)
 ```
 
 ## Dev
 
 ```bash
 npm install
-npm run prepare:engine # verify/stage the pinned host-architecture engine
-npm run dev          # Vite HMR renderer + Electron; engine runs from the staged artifact
+npm run prepare:engine # bun-bundle the repo source into app/engine/index.js (requires bun)
+npm run verify:engine  # run that bundle the way Bimax runs it and require it to answer
+npm run dev            # Vite HMR renderer + Electron; engine runs from app/engine/index.js
 ```
 
-Engine resolution uses `app/engine/bimax-engine`, verified against `engine.lock.json`. CI/offline
-builds set `BIMAX_ENGINE_ARTIFACT_DIR`; normal preparation downloads the pinned release asset.
-Contributors can deliberately override the launch command with `BIMAX_ENGINE_CMD`, but release
-builds refuse the preparation-time `BIMAX_ENGINE_LOCAL_OVERRIDE`. There is no implicit Terminal
-source fallback.
+Engine resolution uses `app/engine/index.js`. Contributors can deliberately override the launch
+command with `BIMAX_ENGINE_CMD`. `npm run dev:source` runs the engine from `src/` through tsx
+instead of the bundle, so an engine change does not need a rebundle.
 
 ## Package
 

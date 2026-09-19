@@ -1,6 +1,6 @@
 // Desktop's view of the causal evidence timeline — Phase 8, owner section 28.
 //
-// This is the renderer-facing half of the shared vocabulary in `evidence.gen.ts` (generated from the
+// This is the renderer-facing half of the shared vocabulary in `evidence.schema.ts` (generated from the
 // engine's `src/evidence/schema.ts`; regenerate with `npm run gen:app-protocol`). It is a pure view
 // model: it takes evidence records and produces rows the evidence panel renders, and it holds the line
 // on the two things 08_ACCEPTANCE_GATES.md says the section 28 surface must never do.
@@ -18,7 +18,7 @@
 import {
   ActionReceipt, Decision, EvidenceBasis, EvidenceRecord, Finding, Observation, OperationIntent,
   TaskIntent, Verification, admissible,
-} from './evidence.gen';
+} from './evidence.schema';
 
 /** How much weight the UI may give a row. Derived, never supplied. */
 export type RowConfidence =

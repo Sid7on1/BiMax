@@ -150,6 +150,26 @@ export function classifyOutcome(result: string, isError: boolean): 'ok' | 'err' 
 }
 
 /**
+ * The single rule for labelling a tool call, used by every observer that learns from one.
+ *
+ * A typed outcome is ground truth ONLY when the tool itself declared it. `confidence: 'low'` marks
+ * the factory's own guess at legacy "Error: …" prose (tool.factory.ts wraps it as errorClass
+ * 'unknown'), and preferring that guess over {@link classifyOutcome} is how a "rejected by user"
+ * coming back from an unswept or MCP tool got filed as an agent failure — while the identical
+ * rejection from a swept tool was correctly preference data. Low confidence means "ask the
+ * classifier", which is the only reason the classifier was kept.
+ */
+export function labelOutcome(
+  typed: { status: 'ok' | 'error' | 'rejected' | 'blocked'; confidence?: 'high' | 'low' } | undefined,
+  result: string,
+  isError: boolean,
+): 'ok' | 'err' | 'rejected' {
+  const declared = typed && typed.confidence !== 'low' ? typed : undefined;
+  if (!declared) return classifyOutcome(result, isError);
+  return declared.status === 'ok' ? 'ok' : declared.status === 'error' ? 'err' : 'rejected';
+}
+
+/**
  * Derive the outcome domain from a tool call's raw JSON args: file extension for
  * path-taking tools, the shell program for BashTool, '-' otherwise.
  */

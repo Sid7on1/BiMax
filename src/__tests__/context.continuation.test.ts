@@ -106,7 +106,7 @@ test('past its cap the state keeps the task and the newest messages, and archive
   expect(text).toContain('20 earlier messages from the user, archived together as');
   const handles = text.match(/archive:[0-9a-f]{32}/g) ?? [];
   expect(handles).toHaveLength(1);
-  const list = archived.get(handles[0])!;
+  const list = archived.get(handles[0]!)!;
   expect(list).toContain('- instruction number 1\n');
   expect(list).toContain('- instruction number 20');
   expect(list).not.toContain('instruction number 21');

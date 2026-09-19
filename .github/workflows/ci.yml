@@ -39,11 +39,18 @@ jobs:
           npm run gen:protocol
           git diff --exit-code -- src/protocol || {
             echo "::error::protocol fixtures drifted — run 'npm run gen:protocol' and commit"; exit 1; }
+      # `test:ci` is jest AND `test:bun`. The 12 retrieval/tool-registry suites run under bun because
+      # plain Node's `node:sqlite` has no FTS5 module, while bun and Electron — the runtime that
+      # actually hosts the shipped engine — both do. Without bun on the runner the second half of the
+      # command is a `bun: not found` failure, not a skip. See jest.config.ts.
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
       - name: Test
         run: npm run test:ci
 
   app:
-    name: App (typecheck · build · protocol mirror)
+    name: App (typecheck · build · design preview · motion)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -52,10 +59,12 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: app/package-lock.json
-      # The app's wire contract is generated from src/protocol (app/src/renderer/src/protocol.gen.ts);
-      # this gate regenerates and fails the build if the committed file is stale.
-      - name: Protocol mirror in sync with engine
-        run: npm run check:protocol-mirror
+      # There is no protocol-mirror gate any more. The app used to hold a GENERATED copy of the
+      # engine's wire contract (protocol.gen.ts, evidence.gen.ts, protocol.compat.gen.ts) because the
+      # two halves were separate TypeScript projects; a gate regenerated the copies and failed on
+      # drift. They are one codebase now, so the renderer imports src/protocol/protocol.ts and
+      # src/evidence/schema.ts directly and a contract change breaks the TYPECHECK below instead of
+      # a drift check. Generators, gate and copies are in ~/Developer/bimax-archive (2026-09-19).
       - run: npm ci
         working-directory: app
       - name: Typecheck

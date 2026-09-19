@@ -1243,6 +1243,8 @@ app.whenReady().then(async () => {
     // The live-engine budget reads the same corrected availability the capability ladder does, so
     // the two memory decisions in this app cannot disagree about how much room the machine has.
     memory: () => ({ freeBytes: availableMemoryBytes() }),
+    // The ⌘2 bar's thread is not `activeId`, so the idle reaper has to be told about it.
+    onScreen: () => [quickThreadId],
     selected: value => broadcast('threads:selected', value),
     message: (id, msg) => {
       // A model list this process asked for (the ⌘2 model menu) is answered here, not shown in a window.
@@ -1302,6 +1304,9 @@ app.whenReady().then(async () => {
       folderTriggers?.finished(id);
     },
   }, threadStorage.load());
+  // Hand back the memory of engines nobody is using. An engine costs 227 MB whether it is mid-turn
+  // or finished, and before this nothing reclaimed one until a NEW task hit the live-engine limit.
+  threads.startIdleReaper();
   // Repeating ⌘2 tasks (schedules.ts): checked every minute, shortly after launch, and when the Mac wakes.
   setInterval(() => void runSchedules(), 60_000);
   setTimeout(() => void runSchedules(), 15_000);

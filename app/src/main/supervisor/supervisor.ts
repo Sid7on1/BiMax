@@ -10,7 +10,7 @@ import { degradedCapabilities, minProfile, planCapabilities } from './resources'
 import { CrashJournal } from './journal';
 import {
   CLIENT_MAX_COMPATIBLE_MAJOR, CLIENT_MIN_COMPATIBLE_MAJOR, supportsProtocolMajor,
-} from '../../shared/protocol.compat.gen';
+} from '../../shared/protocol.compat';
 
 /**
  * EngineSupervisor — the authoritative engine lifecycle for the desktop app. Starts, monitors,

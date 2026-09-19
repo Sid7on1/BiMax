@@ -14,6 +14,7 @@ import { BASIC_VOICE_TIP, talkIsStatus, talkLine, useTalk } from '../useTalk';
 import { approvalShortcut, denyOption } from '../approval.keys';
 import { PathLinkContext } from '../path.links';
 import { loadHistory, remember, stepHistory } from '../quick.history';
+import { shouldSubmitQuickPrompt } from '../quick.submit';
 
 /**
  * The two floating surfaces of Bimax Threads: the ⌘2 bar and the approval popup.
@@ -332,7 +333,7 @@ export function ThreadQuickBar(): React.ReactElement {
           onChange={(e) => { historyCursor.current = null; setPrompt(e.target.value); }}
           onKeyDown={(e) => {
             // Enter while dictating stops listening (the last words settle); Enter again sends.
-            if (e.key === 'Enter' && !e.shiftKey && !e.metaKey && !e.ctrlKey && !e.nativeEvent.isComposing) { e.preventDefault(); if (dictation.state !== 'idle') dictation.stop(); else void submit(); }
+            if (shouldSubmitQuickPrompt(e.nativeEvent)) { e.preventDefault(); if (dictation.state !== 'idle') dictation.stop(); else void submit(); }
             // ↑ at the start (or in an empty field) recalls earlier prompts; ↓ walks back to what was being typed.
             const field = e.currentTarget;
             const atStart = field.selectionStart === 0 && field.selectionEnd === 0;

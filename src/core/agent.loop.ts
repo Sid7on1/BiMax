@@ -17,7 +17,7 @@ import { LoopDetector, LoopSignal } from './loop-detector';
 import { getGlobalPatternStore } from '../genome/pattern.store';
 import { globalTelemetry } from '../telemetry/telemetry';
 import { taskMetrics } from '../telemetry/task.metrics';
-import { getSelfModel, domainOf, pathOf, classifyOutcome, currentModelKey } from '../mind/self.model';
+import { getSelfModel, domainOf, pathOf, labelOutcome, currentModelKey } from '../mind/self.model';
 import { TypedOutcome, typedFromError } from '../tools/outcome';
 import { getEventLedger } from '../mind/event.ledger';
 import { markToolTaint } from '../mind/taint';
@@ -1050,12 +1050,15 @@ export class AgentLoop {
             // of the SAME action exhaust a per-operation-class retry budget, and the model is told
             // to change strategy instead of looping. BrowserTool is excluded — its runtime has a
             // page-state-aware loop detector that sees URL/element state this layer can't.
+            // ONE label for every observer below — see labelOutcome in mind/self.model.ts for why a
+            // low-confidence outcome defers to the classifier instead of overruling it.
+            const outcomeLabel = labelOutcome(typed, result, isError);
             if (tc.name !== 'BrowserTool') try {
               const { getFailureMemory } = require('./failure.memory');
               const verdict = getFailureMemory().report(
                 { tool: tc.name, args: tc.args || '{}' },
                 {
-                  ok: !isError && typed?.status !== 'error',
+                  ok: outcomeLabel !== 'err',
                   errorClass: typed?.errorClass,
                   exitCode: typed?.exitCode,
                   resultSample: isError ? result.slice(0, 500) : undefined,
@@ -1073,9 +1076,7 @@ export class AgentLoop {
               // The regex classifier is the explicit low-confidence fallback for unswept/MCP tools.
               // 'blocked' (policy said no) joins 'rejected' as preference/policy data, never a
               // failure-rate sample.
-              const outcome: 'ok' | 'err' | 'rejected' = typed
-                ? (typed.status === 'ok' ? 'ok' : typed.status === 'error' ? 'err' : 'rejected')
-                : classifyOutcome(result, isError);
+              const outcome: 'ok' | 'err' | 'rejected' = outcomeLabel;
               const domain = domainOf(tc.name, tc.args || '{}');
               // Taint (v2 D3): web/MCP output entering the conversation marks the session
               // untrusted — the governor then denies network capability until a human clears it.

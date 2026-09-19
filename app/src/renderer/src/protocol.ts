@@ -1,16 +1,23 @@
 // The desktop app's protocol module. The WIRE CONTRACT half (PROTOCOL_VERSION, the message
-// interfaces, Inbound/Outbound, FORWARDED_EVENTS, sanitizeArgs) is GENERATED verbatim from the
-// engine's src/protocol/protocol.ts into ./protocol.gen.ts — never hand-edit that mirror; run
-// `npm run gen:app-protocol` and let the CI gate (npm run check:protocol-mirror) enforce it.
+// interfaces, Inbound/Outbound, FORWARDED_EVENTS, sanitizeArgs) is imported STRAIGHT FROM THE
+// ENGINE — one file, one definition, nothing to keep in step.
 //
-// This file re-exports the generated contract and adds the RENDERER-ONLY payload shapes the app
-// consumes off the wire (event payloads from src/engine/events.ts, the ui_snapshot from
+// It used to be a generated mirror (protocol.gen.ts) with a drift gate, because the app and the
+// engine were two TypeScript projects that could not import each other. They are one codebase now,
+// so the copy, its generator and its gate are gone (archived 2026-09-19). This is safe precisely
+// here: src/protocol/protocol.ts has ZERO imports and zero require() calls, so taking it does not
+// drag the engine's module graph into the app build — the thing electron.vite.config.ts's header
+// warns about at length. Keep it that way; if that file ever grows an import, this stops being a
+// free lunch.
+//
+// This file re-exports that contract and adds the RENDERER-ONLY payload shapes the app consumes
+// off the wire (event payloads from src/engine/events.ts, the ui_snapshot from
 // src/protocol/ui.snapshot.ts) — types the engine doesn't publish in its protocol module.
-export * from './protocol.gen';
+export * from '../../../../src/protocol/protocol';
 
 // --- Renderer-only payload shapes ------------------------------------------------------------
 
-import type { CatalogModelEntry, ProviderEntry } from './protocol.gen';
+import type { CatalogModelEntry, ProviderEntry } from '../../../../src/protocol/protocol';
 
 /**
  * A `catalogResult` with the wire envelope (`t`, `id`) stripped — what the model window actually

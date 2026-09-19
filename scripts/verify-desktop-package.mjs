@@ -12,7 +12,7 @@
 
 import { execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
-import { existsSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
 
 const require = createRequire(import.meta.url);
@@ -32,7 +32,7 @@ if (!bundle.endsWith('.app') || !existsSync(bundle)) fail(`not an app bundle: ${
 const contents = path.join(bundle, 'Contents');
 const files = {
   appExecutable: path.join(contents, 'MacOS', 'Bimax'),
-  engine: path.join(contents, 'Resources', 'engine', 'bimax-engine'),
+  engine: path.join(contents, 'Resources', 'engine', 'index.js'),
   asar: path.join(contents, 'Resources', 'app.asar'),
 };
 
@@ -40,14 +40,23 @@ for (const [name, file] of Object.entries(files)) {
   if (!existsSync(file)) fail(`missing ${name}: ${file}`);
 }
 
-for (const name of ['appExecutable', 'engine']) {
-  const file = files[name];
-  if ((statSync(file).mode & 0o111) === 0) fail(`${name} is not executable: ${file}`);
-  const description = execFileSync('file', [file], { encoding: 'utf8' }).trim();
-  if (!description.includes(expectedArchitecture)) {
-    fail(`${name} is not ${expectedArchitecture}: ${description}`);
-  }
+// The app executable is a Mach-O binary and must match the target architecture.
+if ((statSync(files.appExecutable).mode & 0o111) === 0) fail(`appExecutable is not executable: ${files.appExecutable}`);
+const appDescription = execFileSync('file', [files.appExecutable], { encoding: 'utf8' }).trim();
+if (!appDescription.includes(expectedArchitecture)) {
+  fail(`appExecutable is not ${expectedArchitecture}: ${appDescription}`);
 }
+
+// The engine is JAVASCRIPT now, not a per-chip Mach-O binary — Electron's own Node runs it in a
+// utilityProcess, so there is no architecture to check and one artifact serves arm64 and x64. An
+// arch assertion here would fail every build for the wrong reason. What matters instead is that the
+// bundle is real and complete: a non-trivial module plus the tree-sitter .wasm assets it loads at
+// runtime, which are emitted beside it and are exactly the kind of thing a bundler silently drops.
+const engineBytes = statSync(files.engine).size;
+if (engineBytes < 1_000_000) fail(`engine bundle looks truncated: ${engineBytes} bytes at ${files.engine}`);
+const engineDir = path.dirname(files.engine);
+const wasm = readdirSync(engineDir).filter((f) => f.endsWith('.wasm'));
+if (!wasm.length) fail(`engine bundle ships no .wasm assets; tree-sitter will not load: ${engineDir}`);
 
 // The product is code-only. A packaged bundle that has grown a Computer Use sidecar back is a
 // regression, so assert their ABSENCE rather than their presence.

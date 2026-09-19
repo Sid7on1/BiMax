@@ -284,6 +284,7 @@ a project is open, so the welcome screen had no way into ⌘2 tasks.
   - Electron says registering a shortcut another app already holds can fail silently, so a refusal is not always
     detected. If the bar does not open, choose another shortcut.
 - **Tests:** 3 tests; 5 mutants each fail one. **Not verified live.**
+  The ⌘2 bar also keeps the main composer's send keys: Enter, ⌘↩ and Ctrl+↩ send; ⇧↩ adds a newline. This is covered by a focused keyboard-contract test; installed-app verification remains unmeasured.
 
 ## Flagships: weeks, in suggested order
 

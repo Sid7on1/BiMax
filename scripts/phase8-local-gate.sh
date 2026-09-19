@@ -23,20 +23,20 @@ EVIDENCE_SUITES=(
   src/__tests__/capability.broker.test.ts
 )
 
-echo "[1/6] engine typecheck"
+# One typecheck now covers both halves: the app imports src/protocol/protocol.ts and
+# src/evidence/schema.ts directly, so a contract change breaks the build instead of
+# needing a drift gate to notice a stale generated copy.
+echo "[1/5] engine typecheck"
 npx tsc --noEmit
 
-echo "[2/6] shared evidence vocabulary is mirrored into Desktop without drift"
-npm run check:protocol-mirror
-
-echo "[3/6] Phase 8 engine suites (S28-A, S29-A, S29-B)"
+echo "[2/5] Phase 8 engine suites (S28-A, S29-A, S29-B)"
 npx jest --coverage=false --runInBand --no-cache "${EVIDENCE_SUITES[@]}"
 
-echo "[4/6] Desktop typecheck and Trust Center evidence surface"
+echo "[3/5] Desktop typecheck and Trust Center evidence surface"
 npm --prefix app run typecheck
-(cd app && npx jest --config jest.capabilities.config.ts --coverage=false --runInBand src/shared)
+npx jest --coverage=false --runInBand app/src/shared
 
-echo "[5/6] mutation: each honesty invariant must be load-bearing"
+echo "[4/5] mutation: each honesty invariant must be load-bearing"
 mutate() {
   local label="$1" file="$2" old="$3" new="$4"
   cp "$file" "$file.gatebak"
@@ -92,7 +92,7 @@ mutate "a narrowed authority does not reach an outstanding handle" src/capabilit
 mutate "a signed manifest does not bound its MCP server" src/evidence/task.guard.ts \
   "      manifest: this.authorityFor(operation.operation)," "      manifest: null,"
 
-echo "[6/6] Terminal ships no new macOS permission for this phase"
+echo "[5/5] Terminal ships no new macOS permission for this phase"
 if grep -RIl "endpoint-security\|com.apple.developer.networking.networkextension" --include="*.plist" --include="*.entitlements" . 2>/dev/null | grep -v node_modules | grep -q .; then
   echo "  a privileged entitlement appeared; Phase 8 must not request one" >&2
   exit 1

@@ -1,7 +1,7 @@
 // The Desktop evidence store — Phase 8, owner section 28.
 //
 // The engine owns its own ledger (`src/evidence/ledger.ts`); Desktop owns this one. They share the
-// vocabulary in `app/src/shared/evidence.gen.ts` and nothing else, which is the whole point of §9's
+// vocabulary in `app/src/shared/evidence.schema.ts` and nothing else, which is the whole point of §9's
 // process architecture: "the renderer receives typed findings and approvals, not raw native handles,
 // unrestricted paths, audit tokens, secrets, or network payloads."
 //
@@ -22,7 +22,7 @@
 import { createHash } from 'node:crypto';
 import {
   EvidenceRecord, Retention, canonicalJson, validate,
-} from '../shared/evidence.gen';
+} from '../shared/evidence.schema';
 
 export interface EvictionNote {
   at: number;

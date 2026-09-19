@@ -2,7 +2,7 @@ import {
   Outbound, RequestMsg, CompletionItem, MessageEntry, ToolCallEntry, UiSnapshot, SubAgentClaim,
   ReviewSnapshot,
 } from './protocol';
-import { supportsProtocolMajor } from '../../shared/protocol.compat.gen';
+import { supportsProtocolMajor } from '../../shared/protocol.compat';
 import { withoutTalkHint } from '../../shared/talk';
 import {
   normalizeUiSnapshot, normalizeReviewSnapshot, normalizeSubAgents, normalizeTodos,

@@ -1,5 +1,18 @@
 # Bimax product reset
 
+## One codebase, one engine — 2026-09-19
+
+[55_ONE_CODEBASE_ENGINE_RECORD.md](55_ONE_CODEBASE_ENGINE_RECORD.md) records that the pinned
+engine artifact and the generated protocol mirror are gone. Electron now hosts the engine itself in a
+`utilityProcess`, built from this repository's own source by `bun build` (23 MB, architecture-
+independent) instead of downloading a `bun --compile` release that was never published. The app
+imports `src/protocol/protocol.ts` and `src/evidence/schema.ts` directly, so a contract change breaks
+the typecheck rather than a drift gate. Boot is measured (~424 ms to `ready`, ~330 ms with
+`NODE_COMPILE_CACHE`). **This supersedes the "Terminal publishes a versioned engine artifact, the app
+pins it" boundary described lower down in this file, in `05_TARGET_ARCHITECTURE.md` and in record 14**
+— those remain as historical evidence. Installed-app, live-provider and DMG qualification are
+unchanged and still Target.
+
 ## What a task's folder limits — 2026-09-14
 
 [54_TASK_FOLDER_SCOPE.md](54_TASK_FOLDER_SCOPE.md) states today's guarantee (backlog F13, record 46 T06):
@@ -219,6 +232,8 @@ We will make two serious Mac products:
 
 They use the same coding engine, but they do not copy it. Terminal publishes a versioned macOS
 engine artifact plus its protocol schema; the Mac app pins and bundles one verified version.
+*(Withdrawn 2026-09-19 — Terminal is archived and the app builds the engine from its own source. See
+record 55.)*
 
 ## What this does and does not solve
 

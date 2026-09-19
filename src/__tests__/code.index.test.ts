@@ -137,8 +137,15 @@ describe('CodeIndex sync', () => {
     // the engine's protocol heartbeat IS a timer, so the desktop supervisor killed the engine as
     // "unresponsive" mid-boot and then did it again on every restart. Two properties, together:
     // rows land WHILE the sync is still running, and a timer gets to run while it does.
+    //
+    // SIXTY files, not six. With six the whole sync could finish BETWEEN two ticks of the 1 ms
+    // sampler, so "a tick saw a partial index" was a coin flip — measured 2 failures in 6 runs, on
+    // the one test that guards the fix above. A flaky guard on a crash-loop fix is worse than none:
+    // it teaches people to re-run instead of to look. Sixty yields give the sampler a wide window
+    // without making the test slow (these files are one line each).
     fs.mkdirSync(path.join(tmp, 'src'));
-    for (let i = 0; i < 6; i += 1) {
+    const FILES = 60;
+    for (let i = 0; i < FILES; i += 1) {
       fs.writeFileSync(path.join(tmp, 'src', `f${i}.ts`), `export const value${i} = ${i};\n`);
     }
     const index = new CodeIndex(null, null, {
@@ -151,7 +158,7 @@ describe('CodeIndex sync', () => {
     const ticker = setInterval(() => midFlight.push(index.stats().documents), 1);
     let result: Awaited<ReturnType<typeof index.sync>>;
     try {
-      result = await index.sync(100);
+      result = await index.sync(FILES + 40);
     } finally {
       clearInterval(ticker);
     }
@@ -162,9 +169,9 @@ describe('CodeIndex sync', () => {
     expect(midFlight.some((n) => n > 0 && n < index.stats().documents)).toBe(true);
 
     // Slicing must not cost correctness: every file lands, and a re-sync is still a no-op.
-    expect(result).toMatchObject({ indexed: 6, pending: 0 });
+    expect(result).toMatchObject({ indexed: FILES, pending: 0 });
     expect((await index.search('value4', 3, undefined, 'lexical'))[0]?.path).toBe('src/f4.ts');
-    expect(await index.sync(100)).toMatchObject({ indexed: 0, pending: 0 });
+    expect(await index.sync(FILES + 40)).toMatchObject({ indexed: 0, pending: 0 });
   });
 
   test('a slice that fails to store leaves its files pending and keeps the old rows', async () => {
