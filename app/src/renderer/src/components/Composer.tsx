@@ -472,8 +472,11 @@ export function Composer({
         className={cn(
           // `.launch-console` owns radius and shadow in styles.css; a utility here would be dead
           // weight that only looks like it is in charge.
-          'launch-console relative rounded-[18px] border bg-raise transition-[border-color,box-shadow] focus-within:border-ember/45',
-          dropDepth > 0 ? 'border-ember/70' : 'border-line',
+          // No resting border. `.launch-console` owns the fill and shadow; a `border-line` rim here
+          // was the white outline around the composer. The border is kept as a transparent 1px so
+          // focus and drop can colour it without the box resizing.
+          'launch-console relative rounded-[18px] border bg-transparent transition-[border-color,box-shadow] focus-within:border-ember/40',
+          dropDepth > 0 ? 'border-ember/70' : 'border-transparent',
         )}
       >
         {/*

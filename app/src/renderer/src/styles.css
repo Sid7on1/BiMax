@@ -99,7 +99,7 @@
      pick up the wallpaper's warmth at its edges (r-b +5..+7) and no more. 0.62 stays under the
      ~0.68 knee this file documents two hundred lines down, so the panel is still glass rather than
      a tinted rectangle; it is simply glass you can predict. */
-  --glass-veil: rgba(26, 26, 28, 0.80);
+  --glass-veil: rgba(21, 21, 23, 0.80);
   /* THE SAME ALPHA EVERYWHERE; THE TINT IS WHAT DIFFERS. This is the whole trick, and getting it
      wrong is what made the panel joins read as borders.
      Varying alpha per surface (0.82 / 0.72 / 0.62) made the STEP BETWEEN SURFACES depend on the
@@ -117,16 +117,20 @@
      for free. Adding a per-surface blur here would buy nothing and cost a compositor pass on the
      largest regions in the app, which is the trap the `.app-surface` note below records. */
   --app-veil: rgba(14, 14, 15, 0.80);
-  --pane-veil: rgba(20, 20, 22, 0.80);
+  --pane-veil: rgba(18, 18, 20, 0.80);
   /* The solid stand-ins, used when the window is expanded and under Reduce Transparency. They have
      to preserve the WINDOWED hierarchy, and #101011 did not: at 16 it sat ten levels BELOW the
      canvas, so going full screen flipped the sidebar from the lightest surface to the darkest.
      These are what the veils composite to over a mid backdrop. */
-  --glass-solid: #26262a;
-  --pane-solid: #202024;
-  --glass-edge: rgba(255, 255, 255, 0.09);
-  --glass-edge-strong: rgba(255, 255, 255, 0.14);
-  --glass-sheen: rgba(255, 255, 255, 0.16);
+  --glass-solid: #212125;
+  --pane-solid: #1e1e22;
+  --glass-edge: rgba(255, 255, 255, 0.05);
+  --glass-edge-strong: rgba(255, 255, 255, 0.08);
+  /* 0.16 -> 0.05. This is the specular top line every glass surface carries, and at 0.16 it is a
+     visible WHITE RULE along the top of the composer, the cards, the dialogs and every menu — the
+     "white lines around the border of components". A specular highlight is meant to suggest where
+     light enters, not to draw the edge. */
+  --glass-sheen: rgba(255, 255, 255, 0.05);
   --glass-raise: rgba(255, 255, 255, 0.07);
   --glass-raise-hover: rgba(255, 255, 255, 0.11);
   --glass-well: rgba(255, 255, 255, 0.055);
@@ -148,9 +152,9 @@
   --glass-veil: rgba(243, 243, 241, 0.80);
   --glass-solid: #f3f3f1;
   --pane-solid: #f7f7f5;
-  --glass-edge: rgba(0, 0, 0, 0.09);
-  --glass-edge-strong: rgba(0, 0, 0, 0.14);
-  --glass-sheen: rgba(255, 255, 255, 0.95);
+  --glass-edge: rgba(0, 0, 0, 0.055);
+  --glass-edge-strong: rgba(0, 0, 0, 0.09);
+  --glass-sheen: rgba(255, 255, 255, 0.45);
   --glass-raise: rgba(255, 255, 255, 0.75);
   --glass-raise-hover: rgba(255, 255, 255, 0.95);
   --glass-well: rgba(0, 0, 0, 0.045);
@@ -937,12 +941,11 @@
      this is the only surface that reads long-form evidence over the backdrop, and removing it cost
      six nodes in the contrast checker (31 -> 37 below AA at baseline) because the backdrop stops
      being diffused. It is one pane, not the largest region in the app, so it is worth the pass. */
-  /* A light diffusion, not a wall. blur(28px) saturate(1.9) averaged the backdrop into a flat
-     field, so the panel read as OPAQUE next to a canvas that shows the wallpaper's structure — the
-     owner's "the right panel is opaque". 12px keeps long-form evidence legible while still letting
-     the backdrop through as something you can see. No perimeter glow; see `.sidebar-shell`. */
-  backdrop-filter: blur(12px) saturate(1.3);
-  -webkit-backdrop-filter: blur(12px) saturate(1.3);
+  /* NO backdrop-filter at all, like the canvas. Any per-surface blur averages the backdrop into a
+     flat field, and a flat field next to a canvas showing the wallpaper's structure is exactly what
+     reads as "opaque" — 28px was obvious, 12px was still wrong in the same direction. macOS is
+     already diffusing behind the whole window through `vibrancy: 'sidebar'`; sampling that and
+     adding nothing is what makes this pane the same material as everything around it. */
 }
 
 [data-chrome='expanded'] .evidence-studio {
@@ -1118,8 +1121,17 @@
 /* Transparent, not `--color-bg`: this is the caller's box INSIDE the dialog's glass shell now, and
    an opaque fill here would hide the material it is sitting in — Settings would be the one window
    in the app that is not glass. Its own shadow goes for the same reason: the shell casts it. */
-.settings-shell { background: transparent; box-shadow: none; }
-.settings-nav { display: flex; width: 236px; flex: 0 0 auto; flex-direction: column; border-right: 1px solid var(--color-line); padding: 14px 12px; background: linear-gradient(180deg, color-mix(in srgb, var(--color-raise) 78%, transparent), var(--color-bg)); }
+/* The dialog took `.liquid-glass`'s background, which is `--glass-veil` — the SIDEBAR's tint, the
+   lightest one — so Settings opened as a pale grey sheet rather than the black-tinted glass the
+   rest of the app is. It takes the canvas tint instead, one step denser because a modal sits over
+   live content and has to win against it. The rim goes for the same reason it went everywhere
+   else; the drop shadow already says the sheet is above the page. */
+.settings-shell {
+  background: color-mix(in srgb, var(--app-veil) 88%, #000);
+  border-color: transparent;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.14), 0 18px 44px -10px rgb(0 0 0 / 0.42), 0 48px 96px -24px rgb(0 0 0 / 0.5);
+}
+.settings-nav { display: flex; width: 236px; flex: 0 0 auto; flex-direction: column; padding: 14px 12px; background: color-mix(in srgb, var(--color-ink) 3%, transparent); }
 .settings-search { display: flex; align-items: center; gap: 7px; margin-bottom: 14px; border: 1px solid var(--color-line); border-radius: 10px; padding: 7px 9px; color: var(--color-faint); background: var(--color-well); }
 .settings-search input { min-width: 0; flex: 1; background: transparent; color: var(--color-ink); font-size: 11px; outline: none; }
 .settings-search button { cursor: pointer; }
@@ -1301,8 +1313,8 @@
      stack just transmits less. */
   .theme-moonlight {
     --app-veil: rgba(14, 14, 15, 0.92);
-    --pane-veil: rgba(20, 20, 22, 0.92);
-    --glass-veil: rgba(26, 26, 28, 0.92);
+    --pane-veil: rgba(18, 18, 20, 0.92);
+    --glass-veil: rgba(21, 21, 23, 0.92);
   }
   .theme-starlight {
     --app-veil: rgba(252, 252, 251, 0.92);
@@ -1329,8 +1341,8 @@
 .workspace-project-label { font-size: 10px; color: var(--color-faint); letter-spacing: .02em; }
 .workspace-project-label > span { margin: 0 7px; opacity: .5; }
 .workspace-starters { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; margin-top: 12px; }
-.workspace-starter { position: relative; display: flex; flex-direction: column; min-width: 0; padding: 16px; text-align: left; cursor: pointer; background: var(--raise-veil); border: 1px solid color-mix(in srgb,var(--color-line) 55%,transparent); border-radius: 16px; box-shadow: inset 0 1px 0 color-mix(in srgb,var(--color-ink) 4%,transparent),0 4px 12px #00000008; transition: transform 220ms cubic-bezier(.2,.8,.2,1),border-color 220ms,box-shadow 220ms; animation: workspace-arrive 600ms both; }
-.workspace-starter:hover { transform: translateY(-4px); border-color: color-mix(in srgb,var(--color-ink) 32%,transparent); box-shadow: inset 0 1px 0 color-mix(in srgb,var(--color-ink) 12%,transparent),0 12px 24px #0002; }
+.workspace-starter { position: relative; display: flex; flex-direction: column; min-width: 0; padding: 16px; text-align: left; cursor: pointer; background: var(--raise-veil); border: 1px solid transparent; border-radius: 16px; box-shadow: 0 4px 12px #00000008; transition: transform 220ms cubic-bezier(.2,.8,.2,1),border-color 220ms,box-shadow 220ms; animation: workspace-arrive 600ms both; }
+.workspace-starter:hover { transform: translateY(-4px); border-color: color-mix(in srgb,var(--color-ink) 16%,transparent); box-shadow: 0 12px 24px #0002; }
 .workspace-starter:active { transform: translateY(-1px) scale(.985); transition-duration: 70ms; }
 .workspace-starter:focus-visible { outline: 2px solid var(--color-ink); outline-offset: 3px; }
 .workspace-starter-icon { transition: transform 220ms; }
@@ -1343,8 +1355,11 @@
 .project-welcome h1 { font-family: var(--font-sans); font-weight: 550; }
 .project-welcome section { margin-top: 32px; }
 .composer-column { max-width: 900px; container-type: inline-size; }
-.launch-console { border-radius: 18px; background: var(--raise-veil); box-shadow: inset 0 1px 0 color-mix(in srgb,var(--color-ink) 5%,transparent),0 6px 22px #00000012; }
-.launch-console:focus-within { border-color: color-mix(in srgb,var(--color-ink) 32%,transparent); box-shadow: inset 0 1px 0 color-mix(in srgb,var(--color-ink) 5%,transparent),0 8px 26px #0000001a; }
+/* No rim and no inset highlight — those two together were the white outline around the composer.
+   It separates by fill and shadow, the way every other surface in the shell now does. The focus
+   state below is the one time it is allowed to draw an edge, because that edge is information. */
+.launch-console { border-radius: 18px; background: var(--raise-veil); border-color: transparent; box-shadow: 0 6px 22px #00000012; }
+.launch-console:focus-within { border-color: color-mix(in srgb,var(--color-ink) 22%,transparent); box-shadow: 0 8px 26px #0000001a; }
 .composer-toolbar { min-height: 40px; gap: 2px; }
 /* Every control may shrink and truncate before the row is allowed to wrap: a second line moved
    Send away from the corner people aim at. */
