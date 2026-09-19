@@ -583,7 +583,7 @@ export function Composer({
         {dictation.error ? <p role="status" className="px-4 pb-1 text-[11px] text-amber">{dictation.error}</p> : null}
         {talk.error ? <p role="status" className="px-4 pb-1 text-[11px] text-amber">{talk.error}</p> : null}
         {detailsOpen && (
-          <div id="composer-brief" className="mx-4 mb-3 grid gap-3 rounded-xl border border-line bg-bg/40 p-3 sm:grid-cols-2">
+          <div id="composer-brief" className="mx-4 mb-3 grid gap-3 rounded-xl bg-[var(--float-veil)] p-3 sm:grid-cols-2">
             <label className="text-[11px] text-dim">Constraints
               <textarea rows={2} value={draft.constraints} readOnly={!!queued} onChange={e => setDraft(current => ({ ...current, constraints: e.target.value }))}
                 placeholder="Audience, scope, sources, things to preserve…" className="mt-1.5 block w-full resize-y rounded-lg border border-line bg-transparent p-2 text-[12px] text-ink outline-none focus:border-ember/50" />

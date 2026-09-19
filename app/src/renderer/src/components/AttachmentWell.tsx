@@ -54,7 +54,9 @@ export function AttachmentWell({
 
   return (
     <div
-      className="absolute inset-0 z-20 flex flex-col rounded-[22px] bg-raise/95 backdrop-blur-sm"
+      // Tinted rather than a near-opaque slab, but still backed by a blur: this overlays the
+      // composer's own textarea, and text showing through text is the one thing it must not do.
+      className="absolute inset-0 z-20 flex flex-col rounded-[22px] bg-[var(--float-veil)] backdrop-blur-md"
       role="dialog"
       aria-label="Attach files"
     >

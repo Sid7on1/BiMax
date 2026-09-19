@@ -138,7 +138,9 @@ export function TerminalPanel({ project, visible }: { project: string; visible: 
 
   return (
     <div className="relative h-full min-h-0">
-      <div ref={hostRef} className="h-full min-h-0 overflow-hidden rounded-lg border border-line bg-well p-1.5" />
+      <div ref={hostRef} // No frame. `border-line` drew a rule around the terminal and `bg-well` is an opaque
+        // recess; it is a surface in a glass app, so it takes the same tint as everything else.
+        className="h-full min-h-0 overflow-hidden rounded-lg bg-[var(--pane-veil)] p-1.5" />
       {exited && (
         <button
           onClick={() => {
@@ -147,7 +149,7 @@ export function TerminalPanel({ project, visible }: { project: string; visible: 
             void spawnShell(session);
             session.term.focus();
           }}
-          className="absolute bottom-3 left-1/2 flex -translate-x-1/2 cursor-pointer items-center gap-1.5 rounded-full border border-line bg-raise px-3 py-1.5 text-xs text-ink shadow-[0_6px_20px_rgba(0,0,0,0.4)] hover:bg-hover"
+          className="absolute bottom-3 left-1/2 flex -translate-x-1/2 cursor-pointer items-center gap-1.5 rounded-full bg-[var(--float-solid)] px-3 py-1.5 text-xs text-ink shadow-[0_6px_20px_rgba(0,0,0,0.4)] hover:bg-hover"
         >
           <RotateCw size={12} className="text-ember" /> Restart shell
         </button>

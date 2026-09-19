@@ -46,7 +46,7 @@
      `border-line` in the app draws — dialog headers, the terminal frame, kbd caps, cards. Lowering
      the token quiets all of them at once instead of hunting each border down. Still visible where
      a real division is meant; no longer a white line around every box. */
-  --color-line: #282828;
+  --color-line: #242424;
 
   /* Ink */
   --color-ink: #f5f5f4;
@@ -111,7 +111,7 @@
      pick up the wallpaper's warmth at its edges (r-b +5..+7) and no more. 0.62 stays under the
      ~0.68 knee this file documents two hundred lines down, so the panel is still glass rather than
      a tinted rectangle; it is simply glass you can predict. */
-  --glass-veil: rgba(21, 21, 23, 0.80);
+  --glass-veil: rgba(21, 21, 23, 0.74);
   /* THE SAME ALPHA EVERYWHERE; THE TINT IS WHAT DIFFERS. This is the whole trick, and getting it
      wrong is what made the panel joins read as borders.
      Varying alpha per surface (0.82 / 0.72 / 0.62) made the STEP BETWEEN SURFACES depend on the
@@ -128,12 +128,15 @@
      is already blurring behind the entire web contents; a semi-transparent background samples that
      for free. Adding a per-surface blur here would buy nothing and cost a compositor pass on the
      largest regions in the app, which is the trap the `.app-surface` note below records. */
-  --app-veil: rgba(14, 14, 15, 0.80);
-  /* 0.76, not the shared 0.80. The owner wants this one glassier than the rest, and it is the one
-     surface where that is safe: at 0.76 against the canvas's 0.80 the step between them moves from
-     about 7 to about 11 across the full range of wallpapers, where the original 0.72/0.82 split
-     moved from 11 to 36. A little drift, not a seam. */
-  --pane-veil: rgba(20, 20, 22, 0.76);
+  --app-veil: rgba(14, 14, 15, 0.74);
+  /* The owner asked for this pane glassier twice. The naive way — drop its alpha alone — brings
+     back the defect the equal-alpha rule fixed: the further two surfaces' alphas diverge, the more
+     the step between them swings with the wallpaper, and 0.72-vs-0.82 was the 11-to-36 seam.
+     So the whole stack got glassier together instead. Canvas and sidebar went 0.80 -> 0.74 and this
+     pane to 0.68, which keeps every pair within 0.06 of each other: the sidebar/canvas join is
+     constant, and this one drifts about 7 to 14 across the full range of wallpapers rather than
+     11 to 36. Everything transmits more; nothing separates unpredictably. */
+  --pane-veil: rgba(20, 20, 22, 0.68);
   /* The solid stand-ins, used when the window is expanded and under Reduce Transparency. They have
      to preserve the WINDOWED hierarchy, and #101011 did not: at 16 it sat ten levels BELOW the
      canvas, so going full screen flipped the sidebar from the lightest surface to the darkest.
@@ -163,9 +166,9 @@
 .theme-starlight {
   /* Same constant alpha as Moonlight, and the order inverts: in a light theme the sidebar is the
      DARKER surface, which is the macOS convention and what `--glass-solid` already encoded. */
-  --app-veil: rgba(252, 252, 251, 0.80);
-  --pane-veil: rgba(248, 248, 246, 0.76);
-  --glass-veil: rgba(243, 243, 241, 0.80);
+  --app-veil: rgba(252, 252, 251, 0.74);
+  --pane-veil: rgba(248, 248, 246, 0.68);
+  --glass-veil: rgba(243, 243, 241, 0.74);
   --glass-solid: #f3f3f1;
   --pane-solid: #f7f7f5;
   --glass-edge: rgba(0, 0, 0, 0.055);
@@ -208,7 +211,7 @@
      `border-line` in the app draws — dialog headers, the terminal frame, kbd caps, cards. Lowering
      the token quiets all of them at once instead of hunting each border down. Still visible where
      a real division is meant; no longer a white line around every box. */
-  --color-line: #282828;
+  --color-line: #242424;
   --color-ink: #f5f5f4;
   --color-dim: #b8b8b5;
   --color-faint: #7c7c78;
@@ -991,8 +994,10 @@
   align-items: center;
   gap: 8px;
   padding: 8px 10px 8px 12px;
-  border-bottom: 1px solid var(--color-line);
-  background: color-mix(in srgb, var(--color-raise) 62%, transparent);
+  /* The pane is glass; its HEADER was a 62% `--color-raise` slab with a rule under it, which is the
+     part that actually read as opaque — the surface was never the problem. A trace of lift, no
+     rule: the row below it is separated by its own spacing. */
+  background: color-mix(in srgb, var(--color-ink) 3%, transparent);
 }
 
 .evidence-studio-icon, .inspector-hero-icon, .settings-capability-icon {
@@ -1130,20 +1135,6 @@
 .status-dot--ready { background: var(--color-moss); box-shadow: 0 0 9px color-mix(in srgb, var(--color-moss) 45%, transparent); }
 
 /* Browser research is shown as evidence, not as a second general-purpose browser chrome. */
-.browser-frame { overflow: hidden; border: 1px solid var(--color-line); border-radius: 14px; background: var(--color-raise); box-shadow: 0 12px 32px color-mix(in srgb, black 18%, transparent); }
-.browser-toolbar { display: flex; height: 32px; align-items: center; gap: 5px; padding: 0 9px; border-bottom: 1px solid var(--color-line); background: var(--color-well); }
-.browser-dot { width: 6px; height: 6px; border-radius: 50%; }
-.browser-address { display: flex; min-width: 0; flex: 1; align-items: center; gap: 5px; margin-left: 3px; border: 1px solid var(--color-line); border-radius: 7px; padding: 3px 7px; color: var(--color-faint); background: var(--color-bg); font: 8.5px var(--font-mono); }
-.browser-address span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.browser-live { border-radius: 999px; padding: 2px 5px; color: var(--color-faint); background: var(--color-raise); font: 7.5px var(--font-mono); text-transform: uppercase; }
-.browser-live--active { color: var(--color-moss); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-moss) 18%, transparent); }
-.browser-preview { display: block; width: 100%; max-height: 260px; object-fit: contain; background: #080808; }
-.browser-preview-empty { display: flex; height: 176px; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--color-faint); font-size: 9.5px; background: radial-gradient(circle at center, color-mix(in srgb, var(--color-ink) 5%, transparent), transparent 60%), var(--color-bg); }
-.browser-metric { display: flex; min-height: 54px; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border: 1px solid var(--color-line); border-radius: 11px; background: var(--color-raise); }
-.browser-metric--ok { border-color: color-mix(in srgb, var(--color-moss) 16%, var(--color-line)); }
-.browser-metric--warn { border-color: color-mix(in srgb, var(--color-amber) 28%, var(--color-line)); }
-.browser-step { display: flex; gap: 8px; border: 1px solid color-mix(in srgb, var(--color-line) 70%, transparent); border-radius: 10px; padding: 8px; background: var(--color-well); }
-.browser-step-state { margin-top: 1px; flex: 0 0 auto; }
 
 /* Settings control map. The navigation reads like product capabilities, while every non-engine
    surface is a truthful live status/entry point instead of a decorative toggle. */
