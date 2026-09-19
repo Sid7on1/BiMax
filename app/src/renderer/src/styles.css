@@ -25,6 +25,12 @@
   /* Surfaces */
   --color-bg: #1a1a1a;
   --color-raise: #212121;
+  /* A translucent stand-in for `--color-raise`, for the LARGE raised surfaces only — the composer
+     and the starter cards. They were painted with the opaque hex, so they sat on the glass as solid
+     slabs while everything around them transmitted. Derived from `--color-raise`, so it follows the
+     theme automatically. Small controls keep the solid value: Apple's rule is no glass on glass,
+     and a 28px chip that transmits is noise rather than depth. */
+  --raise-veil: color-mix(in srgb, var(--color-raise) 72%, transparent);
   --color-hover: #292929;
   --color-selected: #313131;
   --color-well: #141414;
@@ -161,6 +167,12 @@
   color-scheme: dark;
   --color-bg: #1a1a1a;
   --color-raise: #212121;
+  /* A translucent stand-in for `--color-raise`, for the LARGE raised surfaces only — the composer
+     and the starter cards. They were painted with the opaque hex, so they sat on the glass as solid
+     slabs while everything around them transmitted. Derived from `--color-raise`, so it follows the
+     theme automatically. Small controls keep the solid value: Apple's rule is no glass on glass,
+     and a 28px chip that transmits is noise rather than depth. */
+  --raise-veil: color-mix(in srgb, var(--color-raise) 72%, transparent);
   --color-hover: #292929;
   --color-selected: #313131;
   --color-well: #141414;
@@ -288,7 +300,9 @@
      `inset 0 1px 0 var(--glass-sheen)` was a 1px rgba(255,255,255,0.16) line across the very top of
      the panel — the bright strip the owner reported along the top of the window. The internal
      scatter stays; it has no edge. Measured 2026-09-19: `front inspo/10-cursor`. */
-  box-shadow: inset 0 0 30px var(--glass-inner-glow);
+  /* No inner glow either. `inset 0 0 30px var(--glass-inner-glow)` brightens the panel's whole
+     PERIMETER, which includes the edge it shares with the canvas — a soft border by another name,
+     and the residual the owner could still see after the hard rules came off. */
   transition: background 200ms ease;
 }
 
@@ -849,12 +863,11 @@
   line-height: 1;
 }
 
-.home-canvas {
-  background:
-    radial-gradient(circle at 57% 20%, color-mix(in srgb, var(--color-ink) 6%, transparent), transparent 34%),
-    radial-gradient(circle at 28% 58%, color-mix(in srgb, var(--color-ink) 3%, transparent), transparent 30%),
-    linear-gradient(180deg, color-mix(in srgb, var(--color-raise) 70%, transparent), transparent 38%);
-}
+/* No painted gradients. Three tinted washes — two `--color-ink` circles and a `--color-raise`
+   linear fade — used to sit on this surface; the later `.home-canvas` rule added a fourth, an
+   ellipse at 50% 0%, and that one is the white half-circle the owner reported bleeding through the
+   glass at the top of the canvas. A wash made of near-white ink does not read as depth on a
+   translucent surface, it reads as a smudge on the glass. The canvas is now just the material. */
 
 .font-display { font-family: var(--font-display); }
 
@@ -924,9 +937,12 @@
      this is the only surface that reads long-form evidence over the backdrop, and removing it cost
      six nodes in the contrast checker (31 -> 37 below AA at baseline) because the backdrop stops
      being diffused. It is one pane, not the largest region in the app, so it is worth the pass. */
-  backdrop-filter: blur(28px) saturate(1.9);
-  -webkit-backdrop-filter: blur(28px) saturate(1.9);
-  box-shadow: inset 0 0 30px var(--glass-inner-glow);
+  /* A light diffusion, not a wall. blur(28px) saturate(1.9) averaged the backdrop into a flat
+     field, so the panel read as OPAQUE next to a canvas that shows the wallpaper's structure — the
+     owner's "the right panel is opaque". 12px keeps long-form evidence legible while still letting
+     the backdrop through as something you can see. No perimeter glow; see `.sidebar-shell`. */
+  backdrop-filter: blur(12px) saturate(1.3);
+  -webkit-backdrop-filter: blur(12px) saturate(1.3);
 }
 
 [data-chrome='expanded'] .evidence-studio {
@@ -1307,13 +1323,13 @@
 }
 
 /* Workspace refresh: finite, compositor-friendly motion. No decorative logo mark. */
-.home-canvas { container-type: inline-size; position: relative; background: radial-gradient(ellipse at 50% 0%, color-mix(in srgb,var(--color-ink) 5%,transparent),transparent 64%); }
+.home-canvas { container-type: inline-size; position: relative; }
 .workspace-home-content { width: min(100%,920px); padding: 24px clamp(24px,5cqw,64px) 32px; margin: auto; flex-shrink: 0; }
 .workspace-hero { position: relative; padding-top: 32px; text-align: center; }
 .workspace-project-label { font-size: 10px; color: var(--color-faint); letter-spacing: .02em; }
 .workspace-project-label > span { margin: 0 7px; opacity: .5; }
 .workspace-starters { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; margin-top: 12px; }
-.workspace-starter { position: relative; display: flex; flex-direction: column; min-width: 0; padding: 16px; text-align: left; cursor: pointer; background: linear-gradient(145deg,color-mix(in srgb,var(--color-raise) 95%,var(--color-ink) 5%),var(--color-raise)); border: 1px solid color-mix(in srgb,var(--color-line) 85%,transparent); border-radius: 16px; box-shadow: inset 0 1px 0 color-mix(in srgb,var(--color-ink) 4%,transparent),0 4px 12px #00000008; transition: transform 220ms cubic-bezier(.2,.8,.2,1),border-color 220ms,box-shadow 220ms; animation: workspace-arrive 600ms both; }
+.workspace-starter { position: relative; display: flex; flex-direction: column; min-width: 0; padding: 16px; text-align: left; cursor: pointer; background: var(--raise-veil); border: 1px solid color-mix(in srgb,var(--color-line) 55%,transparent); border-radius: 16px; box-shadow: inset 0 1px 0 color-mix(in srgb,var(--color-ink) 4%,transparent),0 4px 12px #00000008; transition: transform 220ms cubic-bezier(.2,.8,.2,1),border-color 220ms,box-shadow 220ms; animation: workspace-arrive 600ms both; }
 .workspace-starter:hover { transform: translateY(-4px); border-color: color-mix(in srgb,var(--color-ink) 32%,transparent); box-shadow: inset 0 1px 0 color-mix(in srgb,var(--color-ink) 12%,transparent),0 12px 24px #0002; }
 .workspace-starter:active { transform: translateY(-1px) scale(.985); transition-duration: 70ms; }
 .workspace-starter:focus-visible { outline: 2px solid var(--color-ink); outline-offset: 3px; }
@@ -1327,7 +1343,7 @@
 .project-welcome h1 { font-family: var(--font-sans); font-weight: 550; }
 .project-welcome section { margin-top: 32px; }
 .composer-column { max-width: 900px; container-type: inline-size; }
-.launch-console { border-radius: 18px; background: var(--color-raise); box-shadow: inset 0 1px 0 color-mix(in srgb,var(--color-ink) 5%,transparent),0 6px 22px #00000012; }
+.launch-console { border-radius: 18px; background: var(--raise-veil); box-shadow: inset 0 1px 0 color-mix(in srgb,var(--color-ink) 5%,transparent),0 6px 22px #00000012; }
 .launch-console:focus-within { border-color: color-mix(in srgb,var(--color-ink) 32%,transparent); box-shadow: inset 0 1px 0 color-mix(in srgb,var(--color-ink) 5%,transparent),0 8px 26px #0000001a; }
 .composer-toolbar { min-height: 40px; gap: 2px; }
 /* Every control may shrink and truncate before the row is allowed to wrap: a second line moved
