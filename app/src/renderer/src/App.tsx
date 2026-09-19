@@ -9,8 +9,6 @@ import { useGit } from './useGit';
 import { useWindowChrome } from './useWindowChrome';
 import { MorphRegion } from './components/ui/morph/MorphRegion';
 import { CanvasChrome } from './components/TitleBar';
-import { EmbeddedBrowserWorkspace } from './components/browser/EmbeddedBrowserWorkspace';
-import { useEmbeddedBrowser } from './useEmbeddedBrowser';
 import { TaskSidebar } from './components/TaskSidebar';
 import { Inspector } from './components/Inspector';
 import { EngineStatusBanner } from './components/EngineStatusBanner';
@@ -28,7 +26,6 @@ import { GalleryView } from './components/GalleryView';
 import { MachineHealthDialog } from './components/MachineHealthDialog';
 import { ModelDialog } from './components/ModelDialog';
 import { Appearance, applyAppearance, savedAppearance } from './appearance';
-import { deriveBrowserSession } from './browser.session.model';
 import { inspectorTabs, resolveActiveTab, type InspectorTabId } from './inspector.model';
 import { buildFinalReceipt } from './final.receipt.model';
 import { usePhase9 } from './usePhase9';
@@ -91,11 +88,7 @@ export function App(): React.ReactElement {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [workspaceSheet, setWorkspaceSheet] = useState<WorkspaceSheetTab | null>(null);
   const [appearance, setAppearance] = useState<Appearance>(savedAppearance);
-  const [view, setView] = useState<'chat' | 'gallery' | 'browser'>('chat');
-  // The browser lane owns main-process WebContentsViews. It is told whether it is on screen so
-  // the native view hides on a lane switch — a BrowserView has no z-index and would otherwise
-  // sit opaquely on top of the conversation.
-  const browserLane = useEmbeddedBrowser(view === 'browser');
+  const [view, setView] = useState<'chat' | 'gallery'>('chat');
   const [openFiles, setOpenFiles] = useState<string[]>([]);
   const [activeFile, setActiveFile] = useState<string | null>(null);
   const [machineHealthOpen, setMachineHealthOpen] = useState(false);
@@ -113,7 +106,6 @@ export function App(): React.ReactElement {
     () => state.items.flatMap((item) => (item.kind === 'tool' ? [item.call] : [])),
     [state.items],
   );
-  const browser = useMemo(() => deriveBrowserSession(toolCalls), [toolCalls]);
   const receipt = useMemo(() => buildFinalReceipt({ review: state.review }), [state.review]);
 
   const hasProject = state.project.length > 0;
@@ -264,6 +256,10 @@ export function App(): React.ReactElement {
       onOpenMachineHealth={() => setMachineHealthOpen(true)}
       sidebarOpen={sidebarOpen}
       onToggleSidebar={() => { setSidebarPinned((v) => !v); setSidebarPeek(false); }}
+      inspectorOpen={inspectorOpen}
+      onToggleInspector={() => setInspectorOpen((v) => !v)}
+      appearance={appearance}
+      onAppearance={setAppearance}
     />
   );
 
@@ -295,7 +291,7 @@ export function App(): React.ReactElement {
             onMouseLeave={() => setSidebarPeek(false)}
             /* `calm`, not the house bounce: a peek fires on a passing cursor, and anything springy
                reads as twitchy at that frequency. See the peek-in keyframe's note. */
-            className="animate-[peek-in_var(--dur-snappy)_var(--ease-snappy)] absolute inset-y-0 left-0 z-30 w-[248px] border-r border-line shadow-2xl"
+            className="animate-[peek-in_var(--dur-snappy)_var(--ease-snappy)] absolute inset-y-0 left-0 z-30 w-[248px] shadow-2xl"
           >
             {sidebarNode}
           </div>
@@ -321,7 +317,10 @@ export function App(): React.ReactElement {
                   </div>
                 </MorphRegion>
               </Panel>
-              <Separator className="w-px bg-line hover:bg-ember/50 data-[separator-active]:bg-ember" />
+              {/* Invisible at rest. The panes are separated by value, not by a rule — a painted hairline
+                  here is the seam that stopped the shell reading as one sheet of glass. The handle
+                  still exists and still grabs; it only shows itself once you reach for it. */}
+              <Separator className="w-px bg-transparent transition-colors hover:bg-ember/40 data-[separator-active]:bg-ember/70" />
             </>
           )}
 
@@ -332,39 +331,17 @@ export function App(): React.ReactElement {
               <CanvasChrome
                 project={state.project}
                 protocolMismatch={state.protocolMismatch}
-                gitStatus={gitStatus}
                 /* Layout, not intent: with no project there is no sidebar to hold the corner,
                    however "open" it nominally is, and the traffic lights then belong to this row. */
                 sidebarHoldsEdge={hasProject && sidebarMounted && sidebarPinned}
-                inspectorOpen={inspectorOpen}
                 onToggleSidebar={() => { setSidebarPinned((v) => !v); setSidebarPeek(false); }}
                 onPeekSidebar={() => setSidebarPeek(true)}
-                onToggleInspector={() => setInspectorOpen((v) => !v)}
-                onOpenChanges={() => openInspector('review')}
-                browserOpen={view === 'browser'}
-                onToggleBrowser={() => setView((v) => (v === 'browser' ? 'chat' : 'browser'))}
-                appearance={appearance}
-                onAppearance={setAppearance}
               />
               <CapabilityBanner notices={Object.values(state.capabilities)} />
               {!hasProject ? (
                 <ProjectWelcome />
               ) : view === 'gallery' ? (
                 <GalleryView project={state.project} onResume={resumeSession} onBack={() => setView('chat')} />
-              ) : view === 'browser' ? (
-                <EmbeddedBrowserWorkspace
-                  tabs={browserLane.tabs}
-                  activeTabId={browserLane.activeTabId}
-                  onSelectTab={browserLane.selectTab}
-                  onCloseTab={browserLane.closeTab}
-                  onNewTab={browserLane.newTab}
-                  onNavigate={browserLane.navigate}
-                  onBack={browserLane.back}
-                  onForward={browserLane.forward}
-                  onReload={browserLane.reload}
-                  onApproveAction={() => undefined}
-                  onRejectAction={() => undefined}
-                />
               ) : (
                 <>
                   {supervisorStatus && (
@@ -416,9 +393,12 @@ export function App(): React.ReactElement {
 
           {hasProject && inspectorMounted && (
             <>
-              <Separator className="w-px bg-line hover:bg-ember/50 data-[separator-active]:bg-ember" />
+              {/* Invisible at rest. The panes are separated by value, not by a rule — a painted hairline
+                  here is the seam that stopped the shell reading as one sheet of glass. The handle
+                  still exists and still grabs; it only shows itself once you reach for it. */}
+              <Separator className="w-px bg-transparent transition-colors hover:bg-ember/40 data-[separator-active]:bg-ember/70" />
               {showEditor ? (
-                <Panel id="editor" className="app-surface" defaultSize="46%" minSize="320px" maxSize="65%">
+                <Panel id="editor" className="pane-surface" defaultSize="46%" minSize="320px" maxSize="65%">
                   <EditorPane
                     open={openFiles}
                     active={activeFile}
@@ -429,7 +409,7 @@ export function App(): React.ReactElement {
                   />
                 </Panel>
               ) : (
-                <Panel id="inspector" className="app-surface" defaultSize="34%" minSize="300px" maxSize="56%">
+                <Panel id="inspector" className="pane-surface" defaultSize="34%" minSize="300px" maxSize="56%">
                   <MorphRegion
                     open={inspectorOpen}
                     kind="inspector"

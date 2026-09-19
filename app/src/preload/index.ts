@@ -204,33 +204,6 @@ const api = {
       return () => ipcRenderer.removeListener('files:changed', h);
     },
   },
-  /**
-   * The embedded research browser. Every page lives in a BrowserView owned by main; the renderer
-   * only ever describes WHERE it should be painted and asks for navigation. It never receives a
-   * WebContents handle, so a compromised renderer cannot script an arbitrary page.
-   */
-  embeddedBrowser: {
-    state: (): Promise<unknown> => ipcRenderer.invoke('browser:state'),
-    newTab: (url?: string): Promise<unknown> => ipcRenderer.invoke('browser:newTab', url),
-    selectTab: (id: string): Promise<unknown> => ipcRenderer.invoke('browser:selectTab', id),
-    closeTab: (id: string): Promise<unknown> => ipcRenderer.invoke('browser:closeTab', id),
-    navigate: (url: string): Promise<unknown> => ipcRenderer.invoke('browser:navigate', url),
-    back: (): Promise<unknown> => ipcRenderer.invoke('browser:back'),
-    forward: (): Promise<unknown> => ipcRenderer.invoke('browser:forward'),
-    reload: (): Promise<unknown> => ipcRenderer.invoke('browser:reload'),
-    setBounds: (bounds: { x: number; y: number; width: number; height: number }): void =>
-      ipcRenderer.send('browser:bounds', bounds),
-    setVisible: (visible: boolean): void => ipcRenderer.send('browser:visible', visible),
-    /** Domain in, verdict out. The password itself never crosses into the renderer. */
-    credentials: {
-      has: (domain: string): Promise<{ exists: boolean; username?: string }> =>
-        ipcRenderer.invoke('browser:credentials:has', domain),
-      store: (domain: string, username: string, secret: string): Promise<boolean> =>
-        ipcRenderer.invoke('browser:credentials:store', domain, username, secret),
-      autofill: (domain: string): Promise<{ ok: boolean; summary: string }> =>
-        ipcRenderer.invoke('browser:credentials:autofill', domain),
-    },
-  },
   sessionsMeta: (): Promise<unknown> => ipcRenderer.invoke('sessions:meta'),
   // Contextual evidence (Phase 8, owner section 28). Read-only from the renderer's side: it can ask
   // for a derived timeline and it can ask main to delete records, but it can never inject one.

@@ -161,28 +161,6 @@ export interface LocalModelReport {
   scannedAt: string;
 }
 
-/**
- * One tab as the main-process browser manager reports it.
- * Field names mirror `EmbeddedTab` in `main/embedded.browser.manager.ts` exactly — the object
- * crosses IPC unchanged and is handed straight to `BrowserTabBar`'s `TabItem`, so a rename on
- * either side has to be a rename on all three.
- */
-export interface EmbeddedBrowserTabState {
-  id: string;
-  url: string;
-  title: string;
-  canGoBack: boolean;
-  canGoForward: boolean;
-  isLoading: boolean;
-  isAgentActive: boolean;
-}
-
-/** The whole browser lane's state, returned by every browser channel so the UI stays in step. */
-export interface EmbeddedBrowserState {
-  tabs: EmbeddedBrowserTabState[];
-  activeTabId: string | null;
-}
-
 declare global {
   interface Window {
     bimax: {
@@ -206,24 +184,6 @@ declare global {
       windowChrome: {
         get: () => Promise<WindowChromeState>;
         onState: (cb: (state: WindowChromeState) => void) => () => void;
-      };
-      /** The embedded research browser. Pages live in a main-owned BrowserView, never in the DOM. */
-      embeddedBrowser: {
-        state: () => Promise<EmbeddedBrowserState>;
-        newTab: (url?: string) => Promise<EmbeddedBrowserState>;
-        selectTab: (id: string) => Promise<EmbeddedBrowserState>;
-        closeTab: (id: string) => Promise<EmbeddedBrowserState>;
-        navigate: (url: string) => Promise<EmbeddedBrowserState>;
-        back: () => Promise<EmbeddedBrowserState>;
-        forward: () => Promise<EmbeddedBrowserState>;
-        reload: () => Promise<EmbeddedBrowserState>;
-        setBounds: (bounds: { x: number; y: number; width: number; height: number }) => void;
-        setVisible: (visible: boolean) => void;
-        credentials: {
-          has: (domain: string) => Promise<{ exists: boolean; username?: string }>;
-          store: (domain: string, username: string, secret: string) => Promise<boolean>;
-          autofill: (domain: string) => Promise<{ ok: boolean; summary: string }>;
-        };
       };
       pickFolder: () => Promise<string | null>;
       pickFiles: () => Promise<string[]>;

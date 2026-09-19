@@ -16,7 +16,7 @@ type Control =
   | { kind: 'text'; placeholder?: string };
 
 interface Item { key: keyof EngineConfig; label: string; desc: string; control: Control }
-type PageId = 'general' | 'providers' | 'browser' | 'environment' | 'alchemist' | 'autonomy' | 'safety';
+type PageId = 'general' | 'providers' | 'environment' | 'alchemist' | 'autonomy' | 'safety';
 interface Page { id: PageId; label: string; icon: React.ReactNode; subtitle: string; items: Item[] }
 
 const PAGES: Page[] = [
@@ -45,7 +45,6 @@ const PAGES: Page[] = [
       { key: 'parallelToolCalls', label: 'Parallel tool calls', desc: 'Allow compatible models to batch independent tool calls.', control: { kind: 'toggle' } },
     ],
   },
-  { id: 'browser', label: 'Browser & research', icon: <Globe2 size={15} />, subtitle: 'The browsing lane, its session and saved sign-ins', items: [] },
   { id: 'environment', label: 'Environment', icon: <TerminalSquare size={15} />, subtitle: 'Runtimes, SDKs and local developer services', items: [] },
   { id: 'alchemist', label: 'ML Alchemist', icon: <FlaskConical size={15} />, subtitle: 'Measured local-model experiments and compression', items: [] },
   {
@@ -185,13 +184,6 @@ function CapabilitySettings({ page, phase9, onOpenModels, onOpenInspector, onOpe
    * the app's main process (embedded.browser.manager.ts) and never involved the engine at all.
    * Every claim below is checked against that implementation.
    */
-  if (page === 'browser') return (
-    <div className="settings-capability-grid">
-      <CapabilityHero icon={<Globe2 size={18} />} title="A browser inside the workspace" description="Tabs and an address bar in a lane beside the conversation, so research sits next to the work instead of in another application." status="Built in" />
-      <CapabilityNote icon={<Shield size={15} />} title="Its own browsing session" description="Pages load in a separate persistent session from your everyday browser. Your Chrome profile, history, cookies and extensions are not attached to it." />
-      <CapabilityNote icon={<KeyRound size={15} />} title="Sign-ins last until you quit" description="A username and password you save for a site is held in memory for this run of Bimax and is never written to disk. Quitting the app forgets it." />
-    </div>
-  );
   if (page === 'environment') {
     const ready = phase9.environment?.tools.filter((tool) => tool.state === 'ready').length ?? 0;
     return <div className="settings-capability-grid"><CapabilityHero icon={<TerminalSquare size={18} />} title={`${ready} developer tools resolved`} description="A bounded, read-only inventory of runtimes, package managers, SDKs and local services. No profile sourcing or project scripts." status={phase9.environment ? 'Live' : 'Loading'} /><ActionCard icon={<ExternalLink size={15} />} title="Environment map" description="Inspect exact tool paths, versions and project declarations in Evidence Studio." action="Open Environment" /></div>;

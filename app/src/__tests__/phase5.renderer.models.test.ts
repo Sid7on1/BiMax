@@ -12,7 +12,6 @@
  */
 import { deriveTaskState } from '../renderer/src/task.state';
 import { inspectorTabs, resolveActiveTab } from '../renderer/src/inspector.model';
-import { deriveBrowserSession } from '../renderer/src/browser.session.model';
 import {
   normalizeUiSnapshot, normalizeReviewSnapshot, normalizeSubAgents, normalizeTodos,
 } from '../renderer/src/protocol.normalize';
@@ -134,26 +133,6 @@ describe('the four-lane inspector', () => {
       review: review({ state: 'verification_failed' }), gitStatus: null, hasProject: true,
     });
     expect(resolveActiveTab(tabs, null)).toBe('review');
-  });
-});
-
-describe('browser lane', () => {
-  test('reads the current page from the engine’s own browser results', () => {
-    const session = deriveBrowserSession([{
-      id: 'b1', toolName: 'BrowserTool', input: '{"action":"navigate"}',
-      output: JSON.stringify({ ok: true, action: 'navigate', url: 'http://localhost:5173/checkout' }),
-      status: 'success', startTime: new Date(NOW).toISOString(),
-    }]);
-    expect(session.active).toBe(true);
-    expect(session.currentUrl).toBe('http://localhost:5173/checkout');
-  });
-
-  test('a result with no URL does not invent one', () => {
-    const session = deriveBrowserSession([{
-      id: 'b1', toolName: 'BrowserTool', input: '{}', output: '{"ok":true}',
-      status: 'success', startTime: new Date(NOW).toISOString(),
-    }]);
-    expect(session.currentUrl).toBe('');
   });
 });
 

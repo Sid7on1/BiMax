@@ -94,6 +94,18 @@
      ~0.68 knee this file documents two hundred lines down, so the panel is still glass rather than
      a tinted rectangle; it is simply glass you can predict. */
   --glass-veil: rgba(17, 17, 19, 0.62);
+  /* The other two tint levels. Owner, 2026-09-19: "every component and part of the app is glass
+     with black tint, some more or less" — the canvas most tinted, the panels least, which is also
+     what Cursor measures as. One scale, three stops:
+        --app-veil    0.82  the canvas: the reading surface, so the most tint and the least swing
+        --pane-veil   0.72  the inspector and editor
+        --glass-veil  0.62  the sidebar: the most transmissive, the one that shows the wallpaper
+     None of them carries its own `backdrop-filter`. The window is `vibrancy: 'sidebar'`, so macOS
+     is already blurring behind the entire web contents; a semi-transparent background samples that
+     for free. Adding a per-surface blur here would buy nothing and cost a compositor pass on the
+     largest regions in the app, which is the trap the `.app-surface` note below records. */
+  --app-veil: rgba(16, 16, 17, 0.82);
+  --pane-veil: rgba(18, 18, 19, 0.72);
   --glass-solid: #101011;
   --glass-edge: rgba(255, 255, 255, 0.09);
   --glass-edge-strong: rgba(255, 255, 255, 0.14);
@@ -113,6 +125,8 @@
 
 .theme-starlight {
   --glass-veil: rgba(252, 252, 251, 0.46);
+  --app-veil: rgba(250, 250, 249, 0.88);
+  --pane-veil: rgba(251, 251, 250, 0.80);
   --glass-solid: #f3f3f1;
   --glass-edge: rgba(0, 0, 0, 0.09);
   --glass-edge-strong: rgba(0, 0, 0, 0.14);
@@ -220,6 +234,20 @@
    reads through the sidebar and title bar rather than being tinted out. The window itself stays
    transparent so those surfaces still have real vibrancy to sample. */
 .app-surface {
+  background: var(--app-veil);
+}
+
+/* The side panes: the same material one stop lighter, so the shell reads as three sheets of the
+   same glass rather than one opaque block with a translucent strip down the side. */
+.pane-surface {
+  background: var(--pane-veil);
+}
+
+/* Expanded, there is nothing behind the window to sample: the blur would be sampling our own body,
+   which reads as grey haze and lowers text contrast for no gain. Every surface goes solid together
+   — the same rule the sidebar has followed since `useWindowChrome` was introduced. */
+[data-chrome='expanded'] .app-surface,
+[data-chrome='expanded'] .pane-surface {
   background: var(--color-bg);
 }
 
@@ -267,13 +295,14 @@
   opacity: 0;
 }
 
-/* A raised control that catches the light: the primary action, and the currently selected row. */
+/* The primary action, and the currently selected row.
+   It used to be a raised card — a 1px rim, a drop shadow and an inset sheen — which read as a
+   BOARD sitting on the panel rather than as part of it, and that box is what the owner asked to
+   lose. What is left is a fill: the same `--glass-raise` the selected row uses, so emphasis comes
+   from value alone, the way every surface in the shell now separates. */
 .glass-pill {
   background: var(--glass-raise);
-  border: 1px solid var(--glass-edge-strong);
-  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-sheen);
-  transition: background 180ms var(--ease-snappy), border-color 180ms ease,
-    transform var(--dur-bouncy) var(--ease-bouncy);
+  transition: background 180ms var(--ease-snappy), transform var(--dur-bouncy) var(--ease-bouncy);
 }
 
 .glass-pill:hover {

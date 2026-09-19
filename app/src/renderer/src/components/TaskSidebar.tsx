@@ -1,11 +1,14 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  ChevronRight, PenLine, PanelLeft, Search, Users, Cpu, Settings2, HardDrive, FlaskConical,
+  ChevronRight, PenLine, PanelLeft, PanelRight, Palette, Sun, Moon, Monitor,
+  Search, Users, Cpu, Settings2, HardDrive, FlaskConical,
 } from 'lucide-react';
 import { ThreadsList } from './ThreadsList';
 import { cn } from '../lib/cn';
 import { UiSnapshot } from '../protocol';
 import type { InspectorTabId } from '../inspector.model';
+import { SeedMenu, SeedMenuItem, SeedMenuLabel } from './ui/morph/SeedMenu';
+import { APPEARANCES, Appearance } from '../appearance';
 
 /**
  * The left panel: navigation, and only navigation.
@@ -79,6 +82,10 @@ export function TaskSidebar({
   onOpenMachineHealth,
   sidebarOpen = true,
   onToggleSidebar,
+  inspectorOpen,
+  onToggleInspector,
+  appearance,
+  onAppearance,
 }: {
   snapshot: UiSnapshot | null;
   onNewTask: () => void;
@@ -91,6 +98,12 @@ export function TaskSidebar({
   sidebarOpen?: boolean;
   /** Omitted where the panel is not dismissible (the design preview), which hides the toggle. */
   onToggleSidebar?: () => void;
+  /* Evidence and appearance live down in the footer now, not in a bar across the top: the top of
+     the window is the one place the shell deliberately keeps empty. See TitleBar.tsx. */
+  inspectorOpen?: boolean;
+  onToggleInspector?: () => void;
+  appearance?: Appearance;
+  onAppearance?: (appearance: Appearance) => void;
 }): React.ReactElement {
   const sessions = snapshot?.sessions ?? [];
   // The running task first, then history — one list, because "which task am I in" is a property of
@@ -213,7 +226,14 @@ export function TaskSidebar({
       </div>
 
       {/* --- Settings, and Machine behind it ------------------------------------------------- */}
-      <MachineFooter items={machine} onOpenSettings={onOpenSettings} />
+      <MachineFooter
+        items={machine}
+        onOpenSettings={onOpenSettings}
+        inspectorOpen={inspectorOpen}
+        onToggleInspector={onToggleInspector}
+        appearance={appearance}
+        onAppearance={onAppearance}
+      />
     </nav>
   );
 }
@@ -230,10 +250,14 @@ export function TaskSidebar({
  * closes on Escape or when focus leaves.
  */
 function MachineFooter({
-  items, onOpenSettings,
+  items, onOpenSettings, inspectorOpen, onToggleInspector, appearance, onAppearance,
 }: {
   items: NavItem[];
   onOpenSettings: () => void;
+  inspectorOpen?: boolean;
+  onToggleInspector?: () => void;
+  appearance?: Appearance;
+  onAppearance?: (appearance: Appearance) => void;
 }): React.ReactElement {
   const [open, setOpen] = useState(false);
   const closing = useRef<number | undefined>(undefined);
@@ -251,7 +275,7 @@ function MachineFooter({
 
   return (
     <div
-      className="relative border-t border-[var(--glass-edge)] px-3 py-2"
+      className="relative px-3 py-2"
       onMouseEnter={show}
       onMouseLeave={() => hide()}
       onFocus={show}
@@ -273,15 +297,70 @@ function MachineFooter({
         </div>
       )}
 
-      <button
-        onClick={onOpenSettings}
-        aria-expanded={open}
-        className="glass-row flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-[12.5px] text-dim hover:text-ink focus-visible:outline-2 focus-visible:outline-ember"
-      >
-        <Settings2 size={15} className="shrink-0 text-dim" />
-        <span className="flex-1">Settings</span>
-        <Keycap>⌘,</Keycap>
-      </button>
+      {/* Settings, then the two controls the top bar used to own. Keeping them on one row is what
+          lets the top of the window stay empty without losing anything. */}
+      <div className="flex items-center gap-1">
+        <button
+          onClick={onOpenSettings}
+          aria-expanded={open}
+          className="glass-row flex min-w-0 flex-1 cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-[12.5px] text-dim hover:text-ink focus-visible:outline-2 focus-visible:outline-ember"
+        >
+          <Settings2 size={15} className="shrink-0 text-dim" />
+          {/* No keycap. The row now shares its width with the evidence and appearance controls, and
+              at the sidebar's 190px minimum the keycap was what pushed "Settings" into "Setti…".
+              A truncated label costs more than a shortcut hint that ⌘, already teaches. */}
+          <span className="flex-1 truncate">Settings</span>
+        </button>
+
+        {onToggleInspector && (
+          <button
+            onClick={onToggleInspector}
+            title="Show or hide evidence (⌘J)"
+            aria-label="Show or hide evidence"
+            aria-pressed={inspectorOpen}
+            className={cn(
+              'flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-lg transition-colors focus-visible:outline-2 focus-visible:outline-ember',
+              inspectorOpen ? 'text-ink' : 'text-faint hover:text-ink',
+            )}
+          >
+            <PanelRight size={15} />
+          </button>
+        )}
+
+        {appearance && onAppearance && (
+          <SeedMenu
+            label="Change appearance"
+            triggerClassName="shrink-0"
+            trigger={(menuOpen) => (
+              <span
+                title="Change appearance"
+                className={cn(
+                  'flex size-7 items-center justify-center rounded-lg transition-colors',
+                  menuOpen ? 'text-ember' : 'text-faint hover:text-ink',
+                )}
+              >
+                <Palette size={15} />
+              </span>
+            )}
+          >
+            {(close) => (
+              <>
+                <SeedMenuLabel>Appearance</SeedMenuLabel>
+                {APPEARANCES.map((item) => (
+                  <SeedMenuItem
+                    key={item.id}
+                    selected={appearance === item.id}
+                    icon={item.id === 'starlight' ? <Sun size={13} /> : item.id === 'moonlight' ? <Moon size={13} /> : <Monitor size={13} />}
+                    label={item.label}
+                    desc={item.description}
+                    onClick={() => { onAppearance(item.id); close(); }}
+                  />
+                ))}
+              </>
+            )}
+          </SeedMenu>
+        )}
+      </div>
     </div>
   );
 }
