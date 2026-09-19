@@ -7,7 +7,7 @@ import { useSeedRef } from '../src/renderer/src/components/ui/morph/use-seed';
 import { MorphRegion } from '../src/renderer/src/components/ui/morph/MorphRegion';
 import { SeedMenu, SeedMenuItem, SeedMenuLabel, SeedMenuReadout, SeedMenuSeparator } from '../src/renderer/src/components/ui/morph/SeedMenu';
 import { ComposerPill } from '../src/renderer/src/components/Composer';
-import { TitleBar } from '../src/renderer/src/components/TitleBar';
+import { CanvasChrome } from '../src/renderer/src/components/TitleBar';
 import { Cpu } from 'lucide-react';
 
 /**
@@ -463,7 +463,7 @@ function GoldenFlowTwo(): React.ReactElement {
 /* ---------------------------------------------------------- toolbar tiers */
 
 /**
- * The real `TitleBar`, at four widths at once (Prompt 2 §22, §23, §106).
+ * The real `CanvasChrome` — what the title bar became — at four widths at once (Prompt 2 §22, §23, §106).
  *
  * Toolbar overflow is a *measurement*, so the only honest way to check it is to give the same
  * toolbar different amounts of room and look at what it decided. Dragging a window and watching is
@@ -502,11 +502,11 @@ function ToolbarTiers(): React.ReactElement {
         <div key={width} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ width: 42, font: '400 10px/1 ui-monospace, monospace', color: '#8a8a85' }}>{width}</span>
           <div style={{ width, overflow: 'hidden', borderRadius: 10, border: '1px solid rgba(255,255,255,.10)' }}>
-            <TitleBar
+            <CanvasChrome
               project="/Users/you/Desktop/Bimax"
               protocolMismatch={null}
               gitStatus={gitStatus as never}
-              sidebarOpen
+              sidebarHoldsEdge
               inspectorOpen={false}
               onToggleSidebar={() => {}}
               onToggleInspector={() => {}}
@@ -521,11 +521,11 @@ function ToolbarTiers(): React.ReactElement {
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <span style={{ width: 42, font: '400 10px/1 ui-monospace, monospace', color: '#8a8a85' }}>720†</span>
         <div data-crowded style={{ width: 720, overflow: 'hidden', borderRadius: 10, border: '1px solid rgba(255,255,255,.10)' }}>
-          <TitleBar
+          <CanvasChrome
             project="/Users/you/Developer/clients/acme/platform/services/ingest-worker"
             protocolMismatch={null}
             gitStatus={{ ...gitStatus, branch: CROWDED_BRANCH } as never}
-            sidebarOpen
+            sidebarHoldsEdge
             inspectorOpen={false}
             onToggleSidebar={() => {}}
             onToggleInspector={() => {}}

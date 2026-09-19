@@ -10,20 +10,44 @@ import { Toolbar } from './ui/toolbar';
 import { APPEARANCES, Appearance } from '../appearance';
 
 /**
- * Standard hidden-inset title bar: project identity, repository state, and the two pane toggles.
+ * THERE IS NO TITLE BAR ANY MORE. This file holds the two clusters it dissolved into.
+ *
+ * It used to be one full-width `<header>` with its own material and a hairline under it, sitting
+ * above both the sidebar and the content. Measured on Cursor 2026-09-19 (`front inspo/10-cursor`):
+ * that app has no such strip — the canvas and the sidebar both run to `y = 0`, and the controls
+ * float *on* those surfaces rather than on a lid above them. That is what makes it read as one
+ * continuous thing, and it is also the edge-to-edge sidebar macOS 27 asks for.
+ *
+ * So the strip is gone and its contents split by which surface they belong to:
+ *   `SidebarChrome` — the traffic-light gutter, the sidebar toggle, the wordmark. Lives INSIDE
+ *                     `TaskSidebar`, so the glass runs unbroken from y=0 to the footer.
+ *   `CanvasChrome`  — project, branch, browser, evidence, appearance. Floats over the content pane.
+ *
+ * Neither paints a background or draws a border. Both are `drag-region`, which is what keeps the
+ * window draggable now that no bar spans the top; the controls inside them are `no-drag`.
  *
  * The task's own state moved to `TaskHeader` — `examples/CURRENT_BIMAX_UI.md` recorded the defect
- * of a verification badge living up here, far from the evidence it referred to. What remains is
- * window-level: which project, which branch, and which panes are showing.
+ * of a verification badge living up here, far from the evidence it referred to.
  */
-export function TitleBar({
-  project, protocolMismatch, gitStatus, sidebarOpen, inspectorOpen,
+export function CanvasChrome({
+  project, protocolMismatch, gitStatus, sidebarHoldsEdge, inspectorOpen,
   onToggleSidebar, onPeekSidebar, onToggleInspector, onOpenChanges, browserOpen, onToggleBrowser, appearance, onAppearance,
 }: {
   project: string;
   protocolMismatch: number | null;
   gitStatus: GitStatusResult | null;
-  sidebarOpen: boolean;
+  /**
+   * Whether a sidebar surface actually occupies the window's top-left corner right now.
+   *
+   * NOT the same as "the sidebar is open", and conflating them was a real defect: with no project
+   * loaded the sidebar is not rendered at all, yet `sidebarOpen` is still true from its default, so
+   * this row skipped the traffic-light gutter and the window's own lights were drawn straight
+   * through the project button. The predicate is layout, not intent — see App.tsx.
+   *
+   * A transient peek deliberately does not count: the panel is an overlay, and shifting this row on
+   * hover is the same reflow-on-hover bug the peek contract exists to avoid.
+   */
+  sidebarHoldsEdge: boolean;
   inspectorOpen: boolean;
   onToggleSidebar: () => void;
   /** Hover intent: reveal the panel transiently, without pinning it. */
@@ -42,11 +66,24 @@ export function TitleBar({
   const deletions = gitStatus?.files.reduce((total, file) => total + file.deletions, 0) ?? 0;
 
   return (
-    <header className="titlebar-shell drag-region flex h-11 shrink-0 items-center gap-2 border-b border-line/80 pr-3 pl-[80px] select-none">
-      {project && (
+    /*
+      No background, no border, no `titlebar-shell`. The content pane's own surface shows through,
+      which is the entire point — see this file's header.
+
+      `pl-[76px]` only when the sidebar is away: the traffic lights are a fixed window feature at
+      x=16, so whichever surface is underneath them has to leave the room. Normally that is the
+      sidebar; with the sidebar unpinned it is this row.
+    */
+    <div
+      className={cn(
+        'drag-region flex h-11 shrink-0 items-center gap-2 pr-3 select-none',
+        sidebarHoldsEdge ? 'pl-3' : 'pl-[76px]',
+      )}
+    >
+      {project && !sidebarHoldsEdge && (
         <IconBtn
-          title={sidebarOpen ? 'Unpin tasks (⌘B)' : 'Pin tasks open (⌘B)'}
-          active={sidebarOpen}
+          title="Pin tasks open (⌘B)"
+          active={false}
           /*
             Hover and click are DIFFERENT actions, and conflating them was the bug: `onHover` used
             to call this same toggle, so pointing at the button latched the panel open with no way
@@ -60,7 +97,6 @@ export function TitleBar({
           <PanelLeft size={16} />
         </IconBtn>
       )}
-      <BrandMark className="mr-1 text-[12px]" />
       {/*
         Identity yields before the controls do.
 
@@ -181,7 +217,37 @@ export function TitleBar({
           )}
         </SeedMenu>
       </Toolbar>
-    </header>
+    </div>
+  );
+}
+
+/**
+ * The sidebar's own top row: the gutter the traffic lights sit in, the pin toggle, the wordmark.
+ *
+ * `pl-[76px]` is the traffic lights' room — 12pt lights on a 23pt pitch starting at x=16 occupy
+ * through x≈62pt, and 76 leaves a gap rather than butting the first control against the last light.
+ * Never assume 20pt of pitch; it is 23 on macOS 26 and 27 (`macos-native-feel` §5).
+ *
+ * `h-11` matches `CanvasChrome` so the two clusters sit on one line across the window even though
+ * nothing is drawn between them.
+ */
+export function SidebarChrome({
+  sidebarOpen, onToggleSidebar,
+}: {
+  sidebarOpen: boolean;
+  onToggleSidebar: () => void;
+}): React.ReactElement {
+  return (
+    <div className="drag-region flex h-11 shrink-0 items-center gap-1.5 pr-2 pl-[76px] select-none">
+      <IconBtn
+        title={sidebarOpen ? 'Unpin tasks (⌘B)' : 'Pin tasks open (⌘B)'}
+        active={sidebarOpen}
+        onClick={onToggleSidebar}
+      >
+        <PanelLeft size={16} />
+      </IconBtn>
+      <BrandMark className="text-[12px]" />
+    </div>
   );
 }
 

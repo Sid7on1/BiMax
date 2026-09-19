@@ -11,13 +11,24 @@
 @source '../../../design-preview/*.{ts,tsx}';
 
 @theme {
+  /* Surfaces — RETUNED 2026-09-19 against a direct measurement of Cursor (`front inspo/10-cursor`).
+     The ramp used to start at #0d0d0d (13). Measured with the same capture method, Cursor's canvas
+     is 26 and its sidebar 35 — a 9-level step — where ours were 13 and 50, a 37-level step. Our
+     canvas was half their luminance and our sidebar-to-canvas step four times theirs, which is the
+     single biggest reason the two apps did not read alike.
+
+     Re-measured after the first attempt: `#1a1a1a` is Cursor's canvas under the SAME capture
+     method, and `--color-raise: #212121` is its composer fill — +7 above the canvas, which is the
+     relationship rather than the pair of numbers. Use the window-layer capture for this, not a
+     region capture: layer reproduces this file's tokens exactly, region reads about five levels
+     darker. */
   /* Surfaces */
-  --color-bg: #0d0d0d;
-  --color-raise: #171717;
-  --color-hover: #222222;
-  --color-selected: #2a2a2a;
-  --color-well: #080808;
-  --color-line: #303030;
+  --color-bg: #1a1a1a;
+  --color-raise: #212121;
+  --color-hover: #292929;
+  --color-selected: #313131;
+  --color-well: #141414;
+  --color-line: #343434;
 
   /* Ink */
   --color-ink: #f5f5f4;
@@ -76,7 +87,13 @@
    darker, not the surface more opaque — and the Increase Contrast block near the end of this file
    is what answers it for users who ask the system for it. */
 .theme-moonlight {
-  --glass-veil: rgba(17, 17, 19, 0.40);
+  /* 0.40 -> 0.62. At 0.40 the panel transmitted 60% of whatever was behind the window, so its
+     colour was not reproducible: measured against the owner's photographic wallpaper it composited
+     to #323334 (50), against Cursor's 35. Cursor's sidebar transmits roughly a tenth — enough to
+     pick up the wallpaper's warmth at its edges (r-b +5..+7) and no more. 0.62 stays under the
+     ~0.68 knee this file documents two hundred lines down, so the panel is still glass rather than
+     a tinted rectangle; it is simply glass you can predict. */
+  --glass-veil: rgba(17, 17, 19, 0.62);
   --glass-solid: #101011;
   --glass-edge: rgba(255, 255, 255, 0.09);
   --glass-edge-strong: rgba(255, 255, 255, 0.14);
@@ -114,12 +131,12 @@
 
 .theme-moonlight {
   color-scheme: dark;
-  --color-bg: #0d0d0d;
-  --color-raise: #171717;
-  --color-hover: #222222;
-  --color-selected: #2a2a2a;
-  --color-well: #080808;
-  --color-line: #303030;
+  --color-bg: #1a1a1a;
+  --color-raise: #212121;
+  --color-hover: #292929;
+  --color-selected: #313131;
+  --color-well: #141414;
+  --color-line: #343434;
   --color-ink: #f5f5f4;
   --color-dim: #b8b8b5;
   --color-faint: #7c7c78;
@@ -206,21 +223,9 @@
   background: var(--color-bg);
 }
 
-/* The title bar shares the sidebar's material rather than sitting on its own. It spans the full
-   width, directly above the glass panel — an opaque bar there reads as a black lid on the window
-   and cancels the effect it is sitting on top of. */
-.titlebar-shell {
-  background: var(--glass-veil);
-  backdrop-filter: blur(20px) saturate(1.5);
-  -webkit-backdrop-filter: blur(20px) saturate(1.5);
-}
-
-/* Expanded: nothing behind the window to sample, so the title bar stops pretending. */
-[data-chrome='expanded'] .titlebar-shell {
-  background: var(--color-bg);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
+/* `.titlebar-shell` is gone (2026-09-19). There is no title bar to give a material to: the strip
+   was removed and its contents split into `SidebarChrome` and `CanvasChrome`, which paint nothing
+   and sit on the sidebar's glass and the content pane's surface respectively. See TitleBar.tsx. */
 
 /* The navigation shell. Translucent while the window floats; solid the moment it owns the screen —
    `:root[data-chrome]` is published by useWindowChrome.ts. */
@@ -233,31 +238,29 @@
      everywhere that does not (and it costs nothing when the backdrop is already frosted). */
   backdrop-filter: blur(20px) saturate(1.2);
   -webkit-backdrop-filter: blur(20px) saturate(1.2);
-  border-right: 1px solid var(--glass-edge);
+  /* No `border-right`. With the canvas lifted to #151515 and the panel landing near #232425, the
+     two surfaces are separated by about nine levels of value — which is how Cursor and both
+     reference apps do it, and a hairline on top of that reads as a seam rather than an edge.
+     Measured 2026-09-19: `front inspo/10-cursor`. */
   box-shadow: inset 0 1px 0 var(--glass-sheen), inset 0 0 30px var(--glass-inner-glow);
-  transition: background 200ms ease, border-color 200ms ease;
+  transition: background 200ms ease;
 }
 
-/* Shining silver: a single rim light down the trailing edge. It is the only ornament in the panel,
-   and it is a light source rather than a border, so it brightens where content begins and falls off
-   before the footer. */
+/* The rim light is OFF (2026-09-19). "Shining silver: a single rim light down the trailing edge",
+   a light source rather than a border, brightening where content begins and falling off before the
+   footer — it was the only ornament in the panel and it is genuinely nice.
+   It is also the last thing drawn at the sidebar/canvas join, and measured against Cursor there is
+   nothing there at all: the two surfaces are separated by about eleven levels of value and no mark.
+   At that step a rim stops reading as a light and starts reading as a seam, which is the tell the
+   whole round-3 change is removing. `--silver-rim` is kept so this is one line to restore. */
 .sidebar-shell::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: -1px;
-  bottom: 0;
-  width: 1px;
-  pointer-events: none;
-  background: var(--silver-rim);
-  transition: opacity 200ms ease;
+  content: none;
 }
 
 [data-chrome='expanded'] .sidebar-shell {
   background: var(--glass-solid);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  border-right-color: var(--color-line);
 }
 
 [data-chrome='expanded'] .sidebar-shell::after {
@@ -1281,16 +1284,10 @@
 #composer-help { font-size: 9px; line-height: 1.6; }
 .sidebar-shell .glass-row { transition: background 180ms,color 180ms,box-shadow 180ms; }
 .sidebar-shell .glass-row[data-active] { background: var(--glass-raise); box-shadow: inset 2px 0 0 var(--color-dim); }
-/* The hairline under the title bar belongs to the CONTENT, not to the bar.
-   Drawing it on `.titlebar-shell` ran it the full width of the window, which cut the left column in
-   two and made the sidebar look like it started below the title bar. The bar and the sidebar are
-   the same material (`--glass-veil`), so with nothing drawn across the join they read as one glass
-   column running the full height of the window — the edge-to-edge sidebar macOS 27 asks for, and
-   already the Finder/Mail idiom on 26. The traffic lights then sit on the sidebar, which is where
-   that OS puts them.
-   `.app-surface` is by definition every pane that is NOT the sidebar, so putting the rule there
-   draws exactly the segment that should still be divided: from the sidebar's edge to the window's. */
-.app-surface { box-shadow: inset 0 1px 0 var(--glass-edge); }
+/* The hairline that used to run under the title bar is gone with the bar (2026-09-19). Nothing is
+   drawn across the top of either surface now: the sidebar's glass and the content pane both begin
+   at y=0 and the window's controls float on them. Measured on Cursor, that continuity is most of
+   what makes the shell read as one object — `front inspo/10-cursor`. */
 @container (max-width: 560px) {
   .workspace-home-content { padding: 12px 22px 24px; }
   .workspace-hero { padding-top: 22px; }

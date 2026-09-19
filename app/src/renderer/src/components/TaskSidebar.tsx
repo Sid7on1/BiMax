@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  ChevronRight, PenLine, Search, Users, Cpu, Settings2, HardDrive, FlaskConical,
+  ChevronRight, PenLine, PanelLeft, Search, Users, Cpu, Settings2, HardDrive, FlaskConical,
 } from 'lucide-react';
 import { ThreadsList } from './ThreadsList';
 import { cn } from '../lib/cn';
@@ -77,6 +77,8 @@ export function TaskSidebar({
   onOpenInspector,
   onOpenSettings,
   onOpenMachineHealth,
+  sidebarOpen = true,
+  onToggleSidebar,
 }: {
   snapshot: UiSnapshot | null;
   onNewTask: () => void;
@@ -85,6 +87,10 @@ export function TaskSidebar({
   onOpenInspector: (tab: InspectorTabId) => void;
   onOpenSettings: () => void;
   onOpenMachineHealth: () => void;
+  /** Whether the panel is pinned. Drives only the toggle's own label and pressed state. */
+  sidebarOpen?: boolean;
+  /** Omitted where the panel is not dismissible (the design preview), which hides the toggle. */
+  onToggleSidebar?: () => void;
 }): React.ReactElement {
   const sessions = snapshot?.sessions ?? [];
   // The running task first, then history — one list, because "which task am I in" is a property of
@@ -115,15 +121,30 @@ export function TaskSidebar({
       className="sidebar-shell glass-lens flex h-full min-h-0 flex-col select-none text-[13px] text-dim"
       aria-label="Navigation"
     >
-      {/* --- Identity ---------------------------------------------------------------------- */}
-      <div className="flex items-center justify-between gap-1 px-3 pt-3 pb-2">
-        <span className="px-1 text-[14.5px] font-semibold tracking-[-0.01em] text-ink">Bimax</span>
-
+      {/* --- Identity, and the gutter the traffic lights sit in ------------------------------
+          There is no title bar above this any more (see TitleBar.tsx). The glass therefore starts
+          at y=0 and the window's own traffic lights sit ON it, which is where macOS 26/27 put them
+          for an edge-to-edge sidebar. `pl-[76px]` is their room: 12pt lights on a 23pt pitch from
+          x=16 run through x≈62pt. `drag-region` because no bar spans the top to drag by now. */}
+      <div className="drag-region flex h-11 shrink-0 items-center gap-1 pr-2 pl-[76px]">
+        {onToggleSidebar && (
+          <button
+            onClick={onToggleSidebar}
+            title={sidebarOpen ? 'Unpin tasks (⌘B)' : 'Pin tasks open (⌘B)'}
+            aria-label={sidebarOpen ? 'Unpin tasks' : 'Pin tasks open'}
+            aria-pressed={sidebarOpen}
+            className="no-drag flex size-7 cursor-pointer items-center justify-center rounded-md text-faint hover:bg-hover hover:text-ink focus-visible:outline-2 focus-visible:outline-ember"
+          >
+            <PanelLeft size={15} />
+          </button>
+        )}
+        <span className="truncate px-1 text-[13.5px] font-semibold tracking-[-0.01em] text-ink">Bimax</span>
+        <span className="flex-1" />
         <button
           onClick={onOpenPalette}
           title="Search everything (⌘K)"
           aria-label="Search everything"
-          className="glass-row flex size-7 cursor-pointer items-center justify-center rounded-lg text-dim hover:text-ink focus-visible:outline-2 focus-visible:outline-ember"
+          className="no-drag glass-row flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-lg text-dim hover:text-ink focus-visible:outline-2 focus-visible:outline-ember"
         >
           <Search size={15} />
         </button>

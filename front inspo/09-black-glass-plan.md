@@ -76,7 +76,7 @@ cannot be fetched; this is secondary sourcing and is marked as such in `SOURCES.
 
 ## 3 — The changes
 
-### 3.0 Remove the top strip — the headline change
+### 3.0 Remove the top strip — the headline change ✅ DONE 2026-09-19
 Owner: *"remove this upper strip, make the canvas and panels reach the top, which makes it look like
 the flow."* Measured on Cursor: the canvas reaches `y=0`, and the first ~100pt carries a slight
 translucent bleed (b−r +6 → +1) that fades out. Nothing sits on top of the surfaces.
@@ -86,7 +86,7 @@ both the sidebar and the canvas. It goes. Both surfaces run to `y=0`; the traffi
 the sidebar and the right-hand controls float *over* the canvas. This is also what macOS 27's
 edge-to-edge sidebar asks for.
 
-### 3.1 Retune the tint hierarchy
+### 3.1 Retune the tint hierarchy ✅ DONE 2026-09-19
 The one value change, and the measured one:
 - lift the canvas from `#0d0d0d` toward Cursor's `#151515`;
 - compress the sidebar-to-canvas step from **37 levels to ~9**, keeping the sidebar the lighter,
@@ -96,6 +96,19 @@ The one value change, and the measured one:
 
 Re-run `check:glass-contrast` afterwards: lifting the canvas changes every contrast ratio measured
 against it, and quiet text is already sitting below AA at baseline by deliberate choice.
+
+**Landed, measured on the running app (window-layer capture, the same method used on Cursor):**
+
+| | sidebar | canvas | step |
+|---|---|---|---|
+| Cursor | `#232425` (35) | `#1a1a1a` (26) | +9 |
+| Bimax before | `#323334` (50) | `#0d0d0d` (13) | +37 |
+| **Bimax after** | **`#252628` (37)** | **`#1a1a1a` (26)** | **+11** |
+
+The canvas is now exactly Cursor's value and the sidebar is within two levels. `--glass-veil` went
+0.40 → 0.62, so the panel transmits ~38% instead of ~60% and its colour no longer swings with the
+wallpaper. Contrast did not regress: quiet-text-below-AA went 36 → 35 and primary ink is unchanged
+at 6.96:1 worst.
 
 ### 3.2 Dissolve the title bar
 `TitleBar.tsx` stops being a full-width `<header>`. Its left cluster moves into `TaskSidebar`'s

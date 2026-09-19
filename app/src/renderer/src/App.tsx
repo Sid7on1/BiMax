@@ -8,7 +8,7 @@ import { useSupervisor } from './useSupervisor';
 import { useGit } from './useGit';
 import { useWindowChrome } from './useWindowChrome';
 import { MorphRegion } from './components/ui/morph/MorphRegion';
-import { TitleBar } from './components/TitleBar';
+import { CanvasChrome } from './components/TitleBar';
 import { EmbeddedBrowserWorkspace } from './components/browser/EmbeddedBrowserWorkspace';
 import { useEmbeddedBrowser } from './useEmbeddedBrowser';
 import { TaskSidebar } from './components/TaskSidebar';
@@ -262,28 +262,14 @@ export function App(): React.ReactElement {
       onOpenInspector={openInspector}
       onOpenSettings={() => setSettingsOpen(true)}
       onOpenMachineHealth={() => setMachineHealthOpen(true)}
+      sidebarOpen={sidebarOpen}
+      onToggleSidebar={() => { setSidebarPinned((v) => !v); setSidebarPeek(false); }}
     />
   );
 
   return (
     // The theme class lives on <html> (appearance.ts) so portalled dialogs inherit it too.
     <div className="flex h-screen flex-col">
-      <TitleBar
-        project={state.project}
-        protocolMismatch={state.protocolMismatch}
-        gitStatus={gitStatus}
-        sidebarOpen={sidebarOpen}
-        inspectorOpen={inspectorOpen}
-        onToggleSidebar={() => { setSidebarPinned((v) => !v); setSidebarPeek(false); }}
-        onPeekSidebar={() => setSidebarPeek(true)}
-        onToggleInspector={() => setInspectorOpen((v) => !v)}
-        onOpenChanges={() => openInspector('review')}
-        browserOpen={view === 'browser'}
-        onToggleBrowser={() => setView((v) => (v === 'browser' ? 'chat' : 'browser'))}
-        appearance={appearance}
-        onAppearance={setAppearance}
-      />
-
       {hasProject && state.engine.state !== 'exited' && latestProblem?.level === 'error' && (
         <div className="app-surface flex shrink-0 items-center gap-2 border-b border-amber/25 px-4 py-1.5 text-[12px] text-amber">
           <span className="min-w-0 flex-1 truncate">
@@ -341,6 +327,25 @@ export function App(): React.ReactElement {
 
           <Panel id="task" minSize="34%">
             <div className="app-surface flex h-full flex-col">
+              {/* The chrome sits ON this surface, not on a bar above it. The pane therefore paints
+                  from y=0 and the controls float in its first 44pt. See TitleBar.tsx's header. */}
+              <CanvasChrome
+                project={state.project}
+                protocolMismatch={state.protocolMismatch}
+                gitStatus={gitStatus}
+                /* Layout, not intent: with no project there is no sidebar to hold the corner,
+                   however "open" it nominally is, and the traffic lights then belong to this row. */
+                sidebarHoldsEdge={hasProject && sidebarMounted && sidebarPinned}
+                inspectorOpen={inspectorOpen}
+                onToggleSidebar={() => { setSidebarPinned((v) => !v); setSidebarPeek(false); }}
+                onPeekSidebar={() => setSidebarPeek(true)}
+                onToggleInspector={() => setInspectorOpen((v) => !v)}
+                onOpenChanges={() => openInspector('review')}
+                browserOpen={view === 'browser'}
+                onToggleBrowser={() => setView((v) => (v === 'browser' ? 'chat' : 'browser'))}
+                appearance={appearance}
+                onAppearance={setAppearance}
+              />
               <CapabilityBanner notices={Object.values(state.capabilities)} />
               {!hasProject ? (
                 <ProjectWelcome />
