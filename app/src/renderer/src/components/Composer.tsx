@@ -448,13 +448,11 @@ export function Composer({
       )}
 
       <div className="composer-column mx-auto">
-        <div className="mb-2 flex min-w-0 items-center justify-between gap-3 px-2 text-[11px] text-faint">
-          <span className="inline-flex min-w-0 items-center gap-1.5" title={project}>
-            <Folder size={12} className="shrink-0" /><span className="truncate">{project.split('/').filter(Boolean).pop() || 'Workspace'}</span>
-            {branch && <><span className="text-line">/</span><GitBranch size={11} className="shrink-0" /><span className="max-w-32 truncate">{branch}</span></>}
-          </span>
-          <span className="shrink-0">{busy ? 'Working · prepare your next step' : available ? 'Ready when you are' : 'Connecting · keep writing'}</span>
-        </div>
+        {/* The project/branch strip and the keyboard-hint strip that used to bracket the composer
+            are both gone (owner, 2026-09-19). The project and branch are stated in the sidebar, and
+            the shortcuts they listed — Enter, ⇧⏎, @, / — are all discoverable by typing the
+            character. Two rows of permanent grey text around the one control people actually use
+            is the opposite of compact. `aria-describedby` on the textarea goes with them. */}
         {queued && (
           <div className="mb-2 flex items-start gap-3 rounded-2xl border border-line bg-raise px-4 py-3" role="status">
             <CornerDownRight size={15} className="mt-0.5 shrink-0 text-dim" />
@@ -734,12 +732,23 @@ export function Composer({
           </Button>
         </div>
       </div>
-        <div id="composer-help" className="mt-2 flex items-center justify-between gap-3 px-3 text-[10px] text-faint">
-          <span className="truncate">{unread ? 'Files must finish reading. Retry or remove any failed files.'
-            : pendingCommand ? `Enter runs ${pendingCommand.split(/\s/)[0]} now — this is a command, not a message`
-              : 'Enter to send · ⇧⏎ new line · @ context · / commands'}</span>
-          {!saved && <span className="shrink-0 text-amber">Draft storage unavailable · keep this window open</span>}
-        </div>
+        {/* The permanent "Enter to send · ⇧⏎ new line · @ context · / commands" line is gone from
+            the screen, but NOT from the accessibility tree: every one of those four affordances is
+            discoverable by typing the character, which is no help at all to someone who cannot see
+            the result. It stays as the textarea's description, read on focus and rendered nowhere.
+
+            What is still drawn is only the three things that are actual state — a blocked send, a
+            slash command about to run instead of a message, and drafts not persisting — and the row
+            is absent entirely when none of them is true, rather than sitting there empty. */}
+        <span id="composer-help" className="sr-only">Enter to send · ⇧⏎ new line · @ context · / commands</span>
+        {(unread || pendingCommand || !saved) && (
+          <div className="mt-2 flex items-center justify-between gap-3 px-3 text-[10px] text-faint">
+            <span className="truncate">{unread ? 'Files must finish reading. Retry or remove any failed files.'
+              : pendingCommand ? `Enter runs ${pendingCommand.split(/\s/)[0]} now — this is a command, not a message`
+                : ''}</span>
+            {!saved && <span className="shrink-0 text-amber">Draft storage unavailable · keep this window open</span>}
+          </div>
+        )}
         {error && <p role="alert" className="mt-2 px-2 text-[12px] text-rust">{error}</p>}
       </div>
     </div>

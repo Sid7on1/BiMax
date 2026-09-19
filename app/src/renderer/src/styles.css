@@ -31,10 +31,22 @@
      theme automatically. Small controls keep the solid value: Apple's rule is no glass on glass,
      and a 28px chip that transmits is noise rather than depth. */
   --raise-veil: color-mix(in srgb, var(--color-raise) 72%, transparent);
+  /* Every FLOATING surface: dialogs, menus, popovers, flyouts, the model catalogue, the ⌘2 bar.
+     They all inherited `.liquid-glass`'s background, which is `--glass-veil` — the SIDEBAR's tint
+     and the lightest of the three — so a menu or a sheet opened as a pale grey panel in a
+     black-tinted app. Settings was fixed by hand first; this is the same fix for all of them.
+     One step denser than the canvas, because a floating surface sits over live content and has to
+     win against it rather than blend into it. */
+  --float-veil: color-mix(in srgb, var(--app-veil) 88%, #000);
+  --float-solid: color-mix(in srgb, var(--color-bg) 88%, #000);
   --color-hover: #292929;
   --color-selected: #313131;
   --color-well: #141414;
-  --color-line: #343434;
+  /* #343434 (52) against a 26-luminance canvas is a light grey rule, and it is what every
+     `border-line` in the app draws — dialog headers, the terminal frame, kbd caps, cards. Lowering
+     the token quiets all of them at once instead of hunting each border down. Still visible where
+     a real division is meant; no longer a white line around every box. */
+  --color-line: #282828;
 
   /* Ink */
   --color-ink: #f5f5f4;
@@ -117,7 +129,11 @@
      for free. Adding a per-surface blur here would buy nothing and cost a compositor pass on the
      largest regions in the app, which is the trap the `.app-surface` note below records. */
   --app-veil: rgba(14, 14, 15, 0.80);
-  --pane-veil: rgba(18, 18, 20, 0.80);
+  /* 0.76, not the shared 0.80. The owner wants this one glassier than the rest, and it is the one
+     surface where that is safe: at 0.76 against the canvas's 0.80 the step between them moves from
+     about 7 to about 11 across the full range of wallpapers, where the original 0.72/0.82 split
+     moved from 11 to 36. A little drift, not a seam. */
+  --pane-veil: rgba(20, 20, 22, 0.76);
   /* The solid stand-ins, used when the window is expanded and under Reduce Transparency. They have
      to preserve the WINDOWED hierarchy, and #101011 did not: at 16 it sat ten levels BELOW the
      canvas, so going full screen flipped the sidebar from the lightest surface to the darkest.
@@ -148,7 +164,7 @@
   /* Same constant alpha as Moonlight, and the order inverts: in a light theme the sidebar is the
      DARKER surface, which is the macOS convention and what `--glass-solid` already encoded. */
   --app-veil: rgba(252, 252, 251, 0.80);
-  --pane-veil: rgba(248, 248, 246, 0.80);
+  --pane-veil: rgba(248, 248, 246, 0.76);
   --glass-veil: rgba(243, 243, 241, 0.80);
   --glass-solid: #f3f3f1;
   --pane-solid: #f7f7f5;
@@ -177,10 +193,22 @@
      theme automatically. Small controls keep the solid value: Apple's rule is no glass on glass,
      and a 28px chip that transmits is noise rather than depth. */
   --raise-veil: color-mix(in srgb, var(--color-raise) 72%, transparent);
+  /* Every FLOATING surface: dialogs, menus, popovers, flyouts, the model catalogue, the ⌘2 bar.
+     They all inherited `.liquid-glass`'s background, which is `--glass-veil` — the SIDEBAR's tint
+     and the lightest of the three — so a menu or a sheet opened as a pale grey panel in a
+     black-tinted app. Settings was fixed by hand first; this is the same fix for all of them.
+     One step denser than the canvas, because a floating surface sits over live content and has to
+     win against it rather than blend into it. */
+  --float-veil: color-mix(in srgb, var(--app-veil) 88%, #000);
+  --float-solid: color-mix(in srgb, var(--color-bg) 88%, #000);
   --color-hover: #292929;
   --color-selected: #313131;
   --color-well: #141414;
-  --color-line: #343434;
+  /* #343434 (52) against a 26-luminance canvas is a light grey rule, and it is what every
+     `border-line` in the app draws — dialog headers, the terminal frame, kbd caps, cards. Lowering
+     the token quiets all of them at once instead of hunting each border down. Still visible where
+     a real division is meant; no longer a white line around every box. */
+  --color-line: #282828;
   --color-ink: #f5f5f4;
   --color-dim: #b8b8b5;
   --color-faint: #7c7c78;
@@ -374,11 +402,12 @@
 }
 
 /* The Machine flyout above Settings. Opaque, because it overlaps the panel's own rows — a
-   translucent popover would let the text underneath show through its own text. */
+   translucent popover would let the text underneath show through its own text. `--float-solid`
+   rather than `--float-veil` for exactly that reason: the floating TINT, without the transparency. */
 .glass-flyout {
   position: absolute;
   margin-bottom: 8px;
-  background: var(--color-raise);
+  background: var(--float-solid);
   border: 1px solid var(--glass-edge-strong);
   box-shadow: var(--shadow-pop);
   animation: pop-in var(--dur-bouncy) var(--ease-bouncy) both;
@@ -483,7 +512,7 @@
 .liquid-glass {
   position: relative;
   isolation: isolate;
-  background: var(--glass-veil);
+  background: var(--float-veil);
   backdrop-filter: blur(28px) saturate(1.9);
   -webkit-backdrop-filter: blur(28px) saturate(1.9);
   border: 1px solid var(--glass-edge);
@@ -619,7 +648,7 @@
    that was pretending to be a lens stops pretending, rather than filtering an opaque app surface
    into a slightly-wrong grey. */
 [data-chrome='expanded'] .liquid-glass {
-  background: var(--glass-solid);
+  background: var(--float-solid);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   border-color: var(--color-line);
@@ -1127,7 +1156,7 @@
    live content and has to win against it. The rim goes for the same reason it went everywhere
    else; the drop shadow already says the sheet is above the page. */
 .settings-shell {
-  background: color-mix(in srgb, var(--app-veil) 88%, #000);
+  background: var(--float-veil);
   border-color: transparent;
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.14), 0 18px 44px -10px rgb(0 0 0 / 0.42), 0 48px 96px -24px rgb(0 0 0 / 0.5);
 }
@@ -1271,6 +1300,7 @@
        values, they just stop transmitting. */
     --app-veil: var(--color-bg);
     --pane-veil: var(--pane-solid);
+    --float-veil: var(--float-solid);
     --glass-lens-brightness: 1;
     --glass-inner-glow: transparent;
   }
@@ -1484,13 +1514,17 @@ html.aux-surface, html.aux-surface body, html.aux-surface #root { background: tr
   display: flex; flex-direction: column; height: 100vh; overflow: hidden;
   border-radius: var(--aux-radius);
   color: var(--color-ink);
-  background: color-mix(in srgb, var(--color-bg) 14%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-ink) 12%, transparent), inset 0 1px 0 color-mix(in srgb, #ffffff 16%, transparent);
+  /* 14% -> 34%: these are their own windows over the desktop, and at 14% they were a pane of
+     clear glass rather than the black-tinted glass the main window is. */
+  background: color-mix(in srgb, var(--color-bg) 34%, transparent);
+  /* The 16% white top line here is the same specular rule `--glass-sheen` drew everywhere else,
+     hardcoded. Both it and the full rim come down to a trace. */
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-ink) 6%, transparent), inset 0 1px 0 color-mix(in srgb, #ffffff 5%, transparent);
 }
 .aux-panel { --aux-radius: 22px; }
 /* System vibrancy cannot be rounded past the window's own corner, so the fallback follows that corner rather
    than drawing a pill over a square pane of blur. */
-.quick-root[data-glass='vibrancy'], .aux-panel[data-glass='vibrancy'] { --aux-radius: 12px; background: color-mix(in srgb, var(--color-bg) 30%, transparent); }
+.quick-root[data-glass='vibrancy'], .aux-panel[data-glass='vibrancy'] { --aux-radius: 12px; background: color-mix(in srgb, var(--color-bg) 48%, transparent); }
 .quick-header { display: flex; flex: none; align-items: center; gap: 12px; min-height: 64px; padding: 10px 14px 10px 20px; }
 .quick-icon { flex: none; color: color-mix(in srgb, var(--color-ink) 62%, transparent); }
 .quick-input { flex: 1; min-width: 0; max-height: 120px; padding: 8px 0; border: 0; outline: none; resize: none; background: transparent; color: var(--color-ink); font-size: 20px; line-height: 28px; field-sizing: content; }
