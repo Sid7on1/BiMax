@@ -19,14 +19,14 @@ import { clearDraft } from './composer.model';
 import { RequestModal } from './components/RequestModal';
 import { SettingsDialog } from './components/SettingsDialog';
 import { WorkspaceSheet, type WorkspaceSheetTab } from './components/WorkspaceSheet';
-import { EditorPane } from './components/EditorPane';
+import { dropEditorBuffer } from './components/EditorPane';
 import { HomeView } from './components/HomeView';
 import { ProjectWelcome } from './components/ProjectWelcome';
 import { GalleryView } from './components/GalleryView';
 import { MachineHealthDialog } from './components/MachineHealthDialog';
 import { ModelDialog } from './components/ModelDialog';
 import { Appearance, applyAppearance, savedAppearance } from './appearance';
-import { inspectorTabs, resolveActiveTab, type InspectorTabId } from './inspector.model';
+import { inspectorTabs, resolveWorkbenchTab, type InspectorTabId, type WorkbenchTab } from './inspector.model';
 import { buildFinalReceipt } from './final.receipt.model';
 import { usePhase9 } from './usePhase9';
 
@@ -83,14 +83,24 @@ export function App(): React.ReactElement {
   const groupRef = useRef<GroupImperativeHandle | null>(null);
   useLayoutEffect(() => { if (!sidebarMounted) settleCollapse(groupEl.current, groupRef.current, 'sidebar'); }, [sidebarMounted]);
   useLayoutEffect(() => { if (!inspectorMounted) settleCollapse(groupEl.current, groupRef.current, 'inspector'); }, [inspectorMounted]);
-  const [requestedTab, setRequestedTab] = useState<InspectorTabId | null>(null);
+  /**
+   * The workbench tab the user asked for: a lane or an open file, one type (`inspector.model.ts`).
+   * This replaced a `requestedTab: InspectorTabId | null` that had to be NULLED to reveal the
+   * editor — a second, invisible meaning for "no lane chosen" that made opening a file from the
+   * Files lane look like a dead click.
+   */
+  const [requestedTab, setRequestedTab] = useState<WorkbenchTab | null>(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [workspaceSheet, setWorkspaceSheet] = useState<WorkspaceSheetTab | null>(null);
   const [appearance, setAppearance] = useState<Appearance>(savedAppearance);
   const [view, setView] = useState<'chat' | 'gallery'>('chat');
   const [openFiles, setOpenFiles] = useState<string[]>([]);
+  /** The last file the workbench showed. Only the Files tree reads it, to mark where you are. */
   const [activeFile, setActiveFile] = useState<string | null>(null);
+  /** Unsaved files. It lives here because the tab strip draws the dot and the editor causes it. */
+  const [dirtyFiles, setDirtyFiles] = useState<ReadonlySet<string>>(() => new Set());
+  const [wide, setWide] = useState(false);
   const [machineHealthOpen, setMachineHealthOpen] = useState(false);
   const [modelsOpen, setModelsOpen] = useState(false);
   const [composerRevision, setComposerRevision] = useState(0);
@@ -136,34 +146,85 @@ export function App(): React.ReactElement {
     ahead: remote?.ahead ?? 0,
     behind: remote?.behind ?? 0,
   }), [state.review, gitStatus, hasProject, remote]);
-  const activeTab = resolveActiveTab(tabs, requestedTab);
+  const activeTab = resolveWorkbenchTab(tabs, requestedTab, openFiles);
 
   // --- Shell actions --------------------------------------------------------------------------
 
   const submitTask = useCallback((text: string, engineText?: string) => submit(text, engineText), [submit]);
 
   const openInspector = useCallback((tab: InspectorTabId) => {
-    setRequestedTab(tab);
+    setRequestedTab({ kind: 'lane', id: tab });
     setInspectorOpen(true);
+  }, []);
+
+  /** One entry point for the strip: selecting a tab is the only state the panel has. */
+  const selectTab = useCallback((tab: WorkbenchTab) => {
+    setRequestedTab(tab);
+    if (tab.kind === 'file') setActiveFile(tab.path);
   }, []);
 
   const openFile = useCallback((rel: string) => {
     setOpenFiles((files) => (files.includes(rel) ? files : [...files, rel]));
     setActiveFile(rel);
+    setRequestedTab({ kind: 'file', path: rel });
     setInspectorOpen(true);
-    // Clearing the requested lane is what actually reveals the editor: `showEditor` below requires
-    // `requestedTab === null`, because the editor and the lanes share one panel. Without this,
-    // opening a file FROM the Files lane set every other piece of state correctly and then kept
-    // rendering the file tree — the click looked like it did nothing at all. (Going back is
-    // `onBackToPanels`, which re-requests the 'files' lane.)
-    setRequestedTab(null);
   }, []);
 
   const closeFile = useCallback((rel: string) => {
+    // The strip owns closing now, so it owns the parked undo history that went with the tab.
+    dropEditorBuffer(rel);
+    setDirtyFiles((set) => {
+      if (!set.has(rel)) return set;
+      const next = new Set(set);
+      next.delete(rel);
+      return next;
+    });
     setOpenFiles((files) => {
       const next = files.filter((path) => path !== rel);
-      setActiveFile((current) => (current === rel ? next[next.length - 1] ?? null : current));
+      const neighbour = next[next.length - 1] ?? null;
+      setActiveFile((current) => (current === rel ? neighbour : current));
+      // Closing the tab you are looking at lands on its neighbour, and closing the last one lands
+      // on the file tree rather than on whatever lane happens to want attention.
+      setRequestedTab((current) => {
+        if (current?.kind !== 'file' || current.path !== rel) return current;
+        return neighbour ? { kind: 'file', path: neighbour } : { kind: 'lane', id: 'files' };
+      });
       return next;
+    });
+  }, []);
+
+  const markDirty = useCallback((rel: string, dirty: boolean) => {
+    setDirtyFiles((set) => {
+      if (set.has(rel) === dirty) return set;
+      const next = new Set(set);
+      if (dirty) next.add(rel); else next.delete(rel);
+      return next;
+    });
+  }, []);
+
+  /**
+   * Widen the panel, and give the width back.
+   *
+   * Not "full width": the task column's `minSize` is 34%, so a panel that covered the window would
+   * have to evict the conversation from the layout. The honest version is the widest the layout
+   * actually allows — 65% alone, less with the sidebar pinned — and a restore to the width the
+   * user had before, which is why the previous share is remembered rather than recomputed.
+   */
+  const widthBeforeWide = useRef<number | null>(null);
+  const toggleWide = useCallback(() => {
+    const handle = groupRef.current;
+    if (!handle) return;
+    const layout = handle.getLayout();
+    const current = layout.inspector;
+    if (current === undefined) return;
+    const sidebar = layout.sidebar ?? 0;
+    setWide((isWide) => {
+      const target = isWide
+        ? (widthBeforeWide.current ?? 34)
+        : Math.min(65, Math.max(current, 100 - sidebar - 34));
+      if (!isWide) widthBeforeWide.current = current;
+      handle.setLayout({ ...layout, inspector: target, task: Math.max(1, 100 - sidebar - target) });
+      return !isWide;
     });
   }, []);
 
@@ -187,8 +248,10 @@ export function App(): React.ReactElement {
   useEffect(() => {
     setOpenFiles([]);
     setActiveFile(null);
+    setDirtyFiles(new Set());
     setRequestedTab(null);
     setInspectorOpen(false);
+    setWide(false);
     setView('chat');
   }, [state.project, state.threadId]);
 
@@ -229,16 +292,19 @@ export function App(): React.ReactElement {
       if (mod && key === 't') { event.preventDefault(); openInspector('terminal'); return; }
       if (mod && key === 'e' && openFiles.length > 0) {
         event.preventDefault();
+        // ⌘E is "back to what I was editing", so it has to REQUEST the file: with the lanes and
+        // the files in one strip, merely opening the panel would show whichever lane was last
+        // selected.
+        setRequestedTab({ kind: 'file', path: activeFile ?? openFiles[openFiles.length - 1] });
         setInspectorOpen(true);
         return;
       }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [openFiles.length, newTask]);
+  }, [openFiles, activeFile, newTask]);
 
   const showHome = view === 'chat' && state.items.length === 0 && !state.hasActiveStream;
-  const showEditor = inspectorOpen && openFiles.length > 0 && activeFile !== null && requestedTab === null;
   const latestProblem = [...state.diagnostics].reverse().find((entry) => entry.level !== 'info');
 
   /**
@@ -401,50 +467,48 @@ export function App(): React.ReactElement {
                   surfaces sitting at 30, i.e. the bright line at the join. It has to paint the
                   material, not decline to paint. It still shows the accent once you reach for it. */}
               <Separator className="w-px bg-[var(--app-veil)] transition-colors hover:bg-ember/40 data-[separator-active]:bg-ember/70" />
-              {showEditor ? (
-                <Panel id="editor" className="pane-surface" defaultSize="46%" minSize="320px" maxSize="65%">
-                  <EditorPane
-                    open={openFiles}
-                    active={activeFile}
+              {/* ONE panel, always `id="inspector"`. It used to be two — `editor` when a file was
+                  showing, `inspector` otherwise — which is why `pane.flight.ts` and the
+                  `[data-flight-…]` rules in styles.css each had to name both ids: the collapse
+                  animation keys off the panel element, and a second id is a second thing to keep in
+                  step with no test holding them together. Merging the chrome removed that pair. */}
+              <Panel id="inspector" defaultSize="34%" minSize="320px" maxSize="65%">
+                {/* NO `pane-surface` on this Panel. `Inspector` renders `.evidence-studio`, which
+                    already paints `--pane-veil`, and two translucent layers of the same veil
+                    STACK: 0.68 over 0.68 is 1 - 0.32² = 90% opaque. That is exactly why this one
+                    panel still looked solid while the canvas beside it showed the wallpaper.
+                    One surface, one paint. */}
+                <MorphRegion
+                  open={inspectorOpen}
+                  kind="inspector"
+                  onFrame={(frame) => {
+                    if (frame.state === 'closing') followCollapse(groupEl.current, 'inspector', frame.geometry.width, prefersReducedMotion());
+                    else if (frame.state === 'opening') releaseCollapse(groupEl.current, 'inspector');
+                  }}
+                  onCollapsed={() => setInspectorMounted(false)}
+                >
+                  <Inspector
+                    tabs={tabs}
+                    active={activeTab}
+                    onTab={selectTab}
+                    onClose={() => setInspectorOpen(false)}
+                    review={state.review}
+                    gitStatus={gitStatus}
+                    checkpoints={state.snapshot?.checkpoints}
+                    onRefreshGit={refreshGit}
+                    onCommand={sendCommand}
                     project={state.project}
-                    onSelect={setActiveFile}
-                    onClose={closeFile}
-                    onBackToPanels={() => setRequestedTab('files')}
+                    onOpenFile={openFile}
+                    lastFile={activeFile}
+                    openFiles={openFiles}
+                    dirtyFiles={dirtyFiles}
+                    onCloseFile={closeFile}
+                    onDirty={markDirty}
+                    wide={wide}
+                    onToggleWide={toggleWide}
                   />
-                </Panel>
-              ) : (
-                <Panel id="inspector" defaultSize="34%" minSize="300px" maxSize="56%">
-                  {/* NO `pane-surface` on this Panel. `Inspector` renders `.evidence-studio`, which
-                      already paints `--pane-veil`, and two translucent layers of the same veil
-                      STACK: 0.68 over 0.68 is 1 - 0.32² = 90% opaque. That is exactly why this one
-                      panel still looked solid while the canvas beside it showed the wallpaper.
-                      One surface, one paint. */}
-                  <MorphRegion
-                    open={inspectorOpen}
-                    kind="inspector"
-                    onFrame={(frame) => {
-                      if (frame.state === 'closing') followCollapse(groupEl.current, 'inspector', frame.geometry.width, prefersReducedMotion());
-                      else if (frame.state === 'opening') releaseCollapse(groupEl.current, 'inspector');
-                    }}
-                    onCollapsed={() => setInspectorMounted(false)}
-                  >
-                    <Inspector
-                      tabs={tabs}
-                      active={activeTab}
-                      onTab={openInspector}
-                      onClose={() => setInspectorOpen(false)}
-                      review={state.review}
-                      gitStatus={gitStatus}
-                      checkpoints={state.snapshot?.checkpoints}
-                      onRefreshGit={refreshGit}
-                      onCommand={sendCommand}
-                      project={state.project}
-                      onOpenFile={openFile}
-                      activeFile={activeFile}
-                    />
-                  </MorphRegion>
-                </Panel>
-              )}
+                </MorphRegion>
+              </Panel>
             </>
           )}
         </Group>

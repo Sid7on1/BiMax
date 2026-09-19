@@ -1,5 +1,8 @@
 # 12 — The right panel: one tabbed workbench
 
+> **Built 2026-09-19.** What landed, what was deliberately left out, and what the work uncovered:
+> `13-right-panel-applied.md`.
+
 Owner, 2026-09-19, pointing at Cursor's right panel: *"keep our components in the same place too."*
 Reference screenshots: its terminal lane and its markdown lane.
 

@@ -1,10 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { X, Circle, AtSign, Compass, PanelRight, FileCode2 } from 'lucide-react';
 import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter, drawSelection } from '@codemirror/view';
 import { EditorState } from '@codemirror/state';
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands';
 import { syntaxHighlighting, HighlightStyle, indentOnInput, bracketMatching, foldGutter, foldKeymap } from '@codemirror/language';
-import { searchKeymap, highlightSelectionMatches } from '@codemirror/search';
+import { searchKeymap, highlightSelectionMatches, openSearchPanel } from '@codemirror/search';
 import { closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete';
 import { tags as t } from '@lezer/highlight';
 import { javascript } from '@codemirror/lang-javascript';
@@ -16,13 +15,16 @@ import { html } from '@codemirror/lang-html';
 import { markdown } from '@codemirror/lang-markdown';
 import { yaml } from '@codemirror/lang-yaml';
 import { cn } from '../lib/cn';
-import { insertIntoComposer } from './FilesPanel';
+import { Markdown } from '../markdown';
 
 /**
- * IDE-style editor occupying the right pane: real CodeMirror 6, multi-file tabs, undo history
- * preserved per file (EditorStates cached in module scope), ⌘S writes to disk via the main
- * process. The user's own edits write directly like any IDE — agent edits still flow through
- * the engine's tools and Edit Shield.
+ * The workbench's file tab: real CodeMirror 6, undo history preserved per file (EditorStates
+ * cached in module scope), ⌘S writes to disk via the main process. The user's own edits write
+ * directly like any IDE — agent edits still flow through the engine's tools and Edit Shield.
+ *
+ * It no longer draws its own tab strip or toolbar. Open files are chips in the workbench's one tab
+ * strip, beside the lanes (`Inspector.tsx`), and everything that used to sit in this component's
+ * header — the `@` insert, Reveal in Finder, the save state — is row 2 of that chrome.
  */
 
 // --- Moonlight CodeMirror theme ---------------------------------------------------------------
@@ -113,33 +115,51 @@ export function resetEditorBuffers(project: string): void {
   }
 }
 
+/**
+ * The live view, kept in module scope alongside the buffers.
+ *
+ * The editor's toolbar is no longer inside this component — it is row 2 of the workbench, above
+ * whichever tab is showing — so the two need one way to talk. A module-level handle is the same
+ * shape `insertIntoComposer` already uses in FilesPanel, and it cannot go stale the way a ref
+ * passed through three components can: there is exactly one EditorView at a time.
+ */
+let currentView: EditorView | null = null;
+
+/** Drop a file's parked undo history. The tab strip owns closing now, so it owns this too. */
+export function dropEditorBuffer(path: string): void {
+  buffers.delete(path);
+}
+
+/** Row 2's search control. Returns false when there is no editor to search. */
+export function openEditorSearch(): boolean {
+  if (!currentView) return false;
+  openSearchPanel(currentView);
+  return true;
+}
+
 export function EditorPane({
-  open, active, project, onSelect, onClose, onBackToPanels,
+  active, project, onClose, onDirty, preview,
 }: {
-  open: string[];
+  /** The file this tab is showing. */
   active: string | null;
   project: string;
-  onSelect: (path: string) => void;
+  /** Called when a file cannot be shown at all — a binary, or a read that failed. */
   onClose: (path: string) => void;
-  onBackToPanels: () => void;
+  /** Reported upward: the tab chip's dot and row 2's save state are drawn by the workbench. */
+  onDirty: (path: string, isDirty: boolean) => void;
+  /** Markdown rendered instead of source. The editor stays mounted underneath it. */
+  preview: boolean;
 }): React.ReactElement {
   const hostRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const activeRef = useRef<string | null>(null);
-  const [dirty, setDirty] = useState<Set<string>>(new Set());
   const [savedFlash, setSavedFlash] = useState('');
   const [loadError, setLoadError] = useState('');
+  const [previewText, setPreviewText] = useState('');
 
   resetEditorBuffers(project);
 
-  const markDirty = useCallback((path: string, isDirty: boolean) => {
-    setDirty((d) => {
-      if (d.has(path) === isDirty) return d;
-      const next = new Set(d);
-      if (isDirty) next.add(path); else next.delete(path);
-      return next;
-    });
-  }, []);
+  const markDirty = useCallback((path: string, isDirty: boolean) => { onDirty(path, isDirty); }, [onDirty]);
 
   const save = useCallback(async (): Promise<boolean> => {
     const path = activeRef.current;
@@ -199,7 +219,8 @@ export function EditorPane({
     if (!host) return;
     const view = new EditorView({ parent: host });
     viewRef.current = view;
-    return () => { view.destroy(); viewRef.current = null; };
+    currentView = view;
+    return () => { view.destroy(); viewRef.current = null; currentView = null; };
   }, []);
 
   useEffect(() => {
@@ -237,91 +258,38 @@ export function EditorPane({
     return () => { cancelled = true; };
   }, [active, stateFor, onClose]);
 
+  // Preview reads the LIVE document, not the file on disk: previewing an edit you have not saved
+  // yet is the whole reason the toggle sits next to the editor rather than opening a viewer.
+  useEffect(() => {
+    if (!preview) return;
+    setPreviewText(viewRef.current?.state.doc.toString() ?? '');
+  }, [preview, active]);
+
   // No `bg-bg` and no `border-l` on the root below: `bg-bg` is the opaque canvas colour, so this
   // pane was a solid slab inside a glass shell, and the rule down its edge was the seam that came
-  // with it. Its Panel wrapper carries `pane-surface`, which is the one place this lane is painted.
+  // with it. The workbench's own `.evidence-studio` is the one place this side is painted.
   return (
-    <div className="anim-slide-in-right flex h-full min-w-0 flex-col">
-      {/* Tab strip */}
-      <div className="no-scrollbar flex shrink-0 items-center gap-0.5 overflow-x-auto border-b border-line px-1 py-1">
-        <button
-          onClick={onBackToPanels}
-          title="Back to panels (⌘J)"
-          className="mr-0.5 flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-faint hover:bg-hover hover:text-ink"
-        >
-          <PanelRight size={14} />
-        </button>
-        {open.map((p) => {
-          const name = p.split('/').pop() ?? p;
-          const isActive = p === active;
-          const isDirty = dirty.has(p);
-          return (
-            <div
-              key={p}
-              className={cn(
-                'group flex shrink-0 cursor-pointer items-center gap-1.5 rounded-md py-1.5 pr-1.5 pl-2.5 text-[12px]',
-                isActive ? 'bg-hover text-ink' : 'text-dim hover:text-ink',
-              )}
-              title={p}
-              onClick={() => onSelect(p)}
-            >
-              <FileCode2 size={12} className={cn('shrink-0', isActive ? 'text-ember' : 'text-faint')} />
-              <span className="max-w-[160px] truncate font-mono">{name}</span>
-              <button
-                onClick={(e) => { e.stopPropagation(); buffers.delete(p); markDirty(p, false); onClose(p); }}
-                title={isDirty ? 'Close (unsaved changes will be lost)' : 'Close'}
-                className="flex size-4 shrink-0 cursor-pointer items-center justify-center rounded text-faint hover:bg-line hover:text-ink"
-              >
-                {isDirty ? (
-                  <>
-                    <Circle size={7} fill="currentColor" className="text-ember group-hover:hidden" />
-                    <X size={11} className="hidden group-hover:block" />
-                  </>
-                ) : <X size={11} />}
-              </button>
-            </div>
-          );
-        })}
-        {active && (
-          <span className="ml-auto flex shrink-0 items-center gap-0.5 pr-1">
-            <button
-              onClick={() => insertIntoComposer(`@${active} `)}
-              title="Insert @path into composer"
-              className="flex size-6 cursor-pointer items-center justify-center rounded-md text-faint hover:bg-hover hover:text-ink"
-            >
-              <AtSign size={12} />
-            </button>
-            <button
-              onClick={() => void window.bimax.files.reveal(active)}
-              title="Reveal in Finder"
-              className="flex size-6 cursor-pointer items-center justify-center rounded-md text-faint hover:bg-hover hover:text-ink"
-            >
-              <Compass size={12} />
-            </button>
-          </span>
-        )}
-      </div>
-
-      {/* Editor host */}
-      <div className="relative min-h-0 flex-1">
+    <div className="relative flex h-full min-w-0 flex-col">
+      {/* The editor host stays mounted under the preview: unmounting it would destroy the
+          EditorView, and with it the cursor and the undo history the buffer cache exists to keep. */}
+      <div className={cn('relative min-h-0 flex-1', preview && 'invisible absolute inset-0')}>
         <div ref={hostRef} className="h-full [&_.cm-editor]:h-full" />
-        {(savedFlash || loadError) && (
-          <div
-            className={cn(
-              'anim-fade-up absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full border border-line px-3 py-1 text-[11.5px] shadow-[0_6px_20px_rgba(0,0,0,0.4)]',
-              loadError ? 'bg-rust/15 text-rust' : 'bg-raise text-moss',
-            )}
-          >
-            {loadError || `Saved ${savedFlash}`}
-          </div>
-        )}
       </div>
-
-      {/* Status line */}
-      <div className="flex shrink-0 items-center gap-2 border-t border-line px-3 py-1 text-[10.5px] text-faint">
-        <span className="truncate font-mono">{active ?? ''}</span>
-        <span className="ml-auto shrink-0">{active && dirty.has(active) ? 'modified — ⌘S to save' : 'saved'}</span>
-      </div>
+      {preview && (
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-3 text-[12.5px]">
+          <Markdown text={previewText} />
+        </div>
+      )}
+      {(savedFlash || loadError) && (
+        <div
+          className={cn(
+            'anim-fade-up absolute bottom-3 left-1/2 z-10 -translate-x-1/2 rounded-full border border-line px-3 py-1 text-[11.5px] shadow-[0_6px_20px_rgba(0,0,0,0.4)]',
+            loadError ? 'bg-rust/15 text-rust' : 'bg-raise text-moss',
+          )}
+        >
+          {loadError || `Saved ${savedFlash}`}
+        </div>
+      )}
     </div>
   );
 }

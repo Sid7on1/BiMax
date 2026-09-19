@@ -17,7 +17,10 @@
 export type Pane = 'sidebar' | 'inspector';
 
 const OTHER: Record<Pane, Pane> = { sidebar: 'inspector', inspector: 'sidebar' };
-const PANEL_IDS: Record<Pane, string[]> = { sidebar: ['sidebar'], inspector: ['inspector', 'editor'] };
+/* `inspector` alone since 2026-09-19. The right side used to mount as `editor` OR `inspector`
+   depending on a mode flag, so every lookup here — and every `[data-flight-…]` rule in styles.css —
+   had to name both. One tabbed workbench, one panel, one id. */
+const PANEL_IDS: Record<Pane, string[]> = { sidebar: ['sidebar'], inspector: ['inspector'] };
 
 interface LayoutHandle {
   getLayout(): Record<string, number>;

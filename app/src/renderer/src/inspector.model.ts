@@ -102,3 +102,51 @@ export function resolveActiveTab(
     ?? tabs.find(tab => tab.available)?.id
     ?? null;
 }
+
+/**
+ * What the workbench is showing.
+ *
+ * The right panel used to be two components in one slot, chosen by a mode flag
+ * (`inspectorOpen && openFiles.length > 0 && activeFile !== null && requestedTab === null`). Four
+ * conditions, one of them the ABSENCE of a lane request, which is why opening a file from the
+ * Files lane looked like it did nothing: every other piece of state was right and the stale lane
+ * request kept the tree on screen.
+ *
+ * A lane and an open file are the same kind of thing — a tab — so they are one type. Selecting a
+ * tab is now the only state, and there is no flag left to disagree with it.
+ */
+export type WorkbenchTab =
+  | { kind: 'lane'; id: InspectorTabId }
+  | { kind: 'file'; path: string };
+
+export function sameTab(a: WorkbenchTab | null, b: WorkbenchTab | null): boolean {
+  if (a === null || b === null) return a === b;
+  if (a.kind === 'lane' && b.kind === 'lane') return a.id === b.id;
+  if (a.kind === 'file' && b.kind === 'file') return a.path === b.path;
+  return false;
+}
+
+/**
+ * Pick the tab to show.
+ *
+ * A file the user asked for wins while it is still open; a file that has been closed falls back to
+ * the last one still open, so closing the tab you are looking at lands on its neighbour rather than
+ * on an empty pane. With no live file request this is exactly `resolveActiveTab` — an explicit lane,
+ * then the lane needing attention, then the first available one — and a file only takes over when
+ * no lane at all is available, which is how a project-less window still shows something.
+ */
+export function resolveWorkbenchTab(
+  tabs: InspectorTab[],
+  requested: WorkbenchTab | null,
+  openFiles: readonly string[],
+): WorkbenchTab | null {
+  if (requested?.kind === 'file') {
+    if (openFiles.includes(requested.path)) return requested;
+    const fallback = openFiles[openFiles.length - 1];
+    if (fallback !== undefined) return { kind: 'file', path: fallback };
+  }
+  const lane = resolveActiveTab(tabs, requested?.kind === 'lane' ? requested.id : null);
+  if (lane) return { kind: 'lane', id: lane };
+  const last = openFiles[openFiles.length - 1];
+  return last === undefined ? null : { kind: 'file', path: last };
+}

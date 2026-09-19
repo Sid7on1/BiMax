@@ -240,6 +240,23 @@
   --color-moss: #4d4d49;
   --color-amber: #696965;
   --color-rust: #2b2b29;
+  /*
+   * Declared here as well as on `:root`, and that is not redundant.
+   *
+   * A custom property's `var()` is substituted where the property is DECLARED, not where it is
+   * used. `--raise-veil` lived only on `:root` and in `.theme-moonlight`, so inside a
+   * `.theme-starlight` SUBTREE it kept resolving Moonlight's `--color-raise` — every raised
+   * surface painted #212121 on a white panel. The app never saw it because `appearance.ts` puts
+   * the theme class on <html>, where the same element carries both declarations; `app/design-
+   * preview` stages both themes side by side, and there it painted the workbench's active tab chip
+   * and its Source/Preview segment as dark grey pills with dark text on them.
+   *
+   * The expressions are identical to the `:root` ones on purpose: on <html> nothing changes, and on
+   * a subtree they now resolve against this block's own values.
+   */
+  --raise-veil: color-mix(in srgb, var(--color-raise) 72%, transparent);
+  --float-veil: color-mix(in srgb, var(--app-veil) 88%, #000);
+  --float-solid: color-mix(in srgb, var(--color-bg) 88%, #000);
 }
 
 @layer base {
@@ -963,6 +980,9 @@
   --glass-thickness: 8px;
   position: relative;
   isolation: isolate;
+  /* The tab strip's width budget is this panel's width, not the window's — the panel is resizable
+     and the window is not the same thing. See `.workbench-chip-label`. */
+  container-type: inline-size;
   /* `--pane-veil`, not `--glass-veil`: this is a side pane, and painting it in the sidebar's tint
      put the two lightest surfaces on either side of the darkest one. No top sheen, for the same
      reason the sidebar lost its own — see `.sidebar-shell`. */
@@ -987,19 +1007,101 @@
   -webkit-backdrop-filter: none;
 }
 
-.evidence-studio-header {
+/* Row 1: the tab strip. Every open thing — the four lanes and every open file — is a chip here,
+   and the active chip is the panel's only title. It replaced a 54pt header carrying an icon, a
+   title, a subtitle and a `<select>`, none of which said anything the selected chip does not.
+   34pt, and the trace of lift the old header had: the pane is glass, and what read as opaque was
+   always the header's slab, never the surface. */
+.workbench-strip {
   display: flex;
-  min-height: 54px;
+  min-height: 34px;
   align-items: center;
-  gap: 8px;
-  padding: 8px 10px 8px 12px;
-  /* The pane is glass; its HEADER was a 62% `--color-raise` slab with a rule under it, which is the
-     part that actually read as opaque — the surface was never the problem. A trace of lift, no
-     rule: the row below it is separated by its own spacing. */
+  gap: 4px;
+  padding: 4px 6px 4px 8px;
   background: color-mix(in srgb, var(--color-ink) 3%, transparent);
 }
 
-.evidence-studio-icon, .inspector-hero-icon, .settings-capability-icon {
+.workbench-chip {
+  display: flex;
+  max-width: 190px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 3px 7px;
+  color: var(--color-dim);
+  font-size: 11.5px;
+  transition: background-color 140ms ease, color 140ms ease;
+}
+.workbench-chip:hover:not(:disabled) { color: var(--color-ink); background: var(--color-hover); }
+/* `--raise-veil`, like every other raised surface in the shell: an active tab is a lifted sheet of
+   the same glass, not a painted highlight. */
+.workbench-chip[data-active] { color: var(--color-ink); background: var(--raise-veil); }
+/* An unavailable lane stays on the strip with the reason in its tooltip. A lane that vanishes when
+   it has nothing to say reads as a bug, and nothing may auto-open one — see inspector.model.ts. */
+.workbench-chip:disabled { cursor: default; color: var(--color-faint); opacity: 0.55; }
+/* The strip is the one place in the panel that runs out of room. `.evidence-studio` is the query
+   container (below), so this measures the PANEL, not the window: drag the splitter wider and the
+   lane names come back. */
+@container (max-width: 640px) {
+  .workbench-strip[data-files] .workbench-chip:not([data-active]) .workbench-chip-label { display: none; }
+}
+.workbench-strip-divider {
+  width: 1px;
+  height: 15px;
+  flex: 0 0 auto;
+  margin: 0 3px;
+  background: var(--color-line);
+}
+
+/* Row 2: the selected tab's own controls. Present only for a file — the four lanes carry their
+   controls inside their panels, and a second copy in a bar above them would be exactly the chrome
+   row 1 was shortened to remove. */
+.workbench-toolbar {
+  display: flex;
+  min-height: 30px;
+  align-items: center;
+  gap: 2px;
+  padding: 0 6px 0 4px;
+}
+.workbench-tool {
+  display: flex;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  color: var(--color-faint);
+  transition: background-color 140ms ease, color 140ms ease;
+}
+.workbench-tool:hover:not(:disabled) { color: var(--color-ink); background: var(--color-hover); }
+.workbench-tool:disabled { cursor: default; opacity: 0.35; }
+
+.workbench-segment {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 1px;
+  border-radius: 8px;
+  padding: 1px;
+  background: color-mix(in srgb, var(--color-ink) 5%, transparent);
+}
+.workbench-segment button {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  border-radius: 7px;
+  padding: 2px 7px;
+  color: var(--color-faint);
+  font-size: 10.5px;
+}
+.workbench-segment button[data-active] { color: var(--color-ink); background: var(--raise-veil); }
+
+.inspector-hero-icon, .settings-capability-icon {
   display: flex;
   width: 30px;
   height: 30px;
@@ -1022,21 +1124,6 @@
   font: 9px var(--font-mono);
   text-align: center;
 }
-
-.evidence-lane-select {
-  width: 94px;
-  appearance: none;
-  cursor: pointer;
-  border: 1px solid var(--color-line);
-  border-radius: 9px;
-  padding: 6px 22px 6px 8px;
-  background: var(--color-well);
-  color: var(--color-dim);
-  font-size: 10.5px;
-  outline: none;
-  transition: border-color 150ms ease, background-color 150ms ease;
-}
-.evidence-lane-select:hover, .evidence-lane-select:focus { border-color: color-mix(in srgb, var(--color-ink) 24%, transparent); background: var(--color-hover); }
 
 .evidence-close {
   display: flex;
@@ -1399,9 +1486,14 @@
    side pane holds still, and the task column takes up the difference on the same frame. */
 [data-flight-sidebar] :is([data-panel][id="sidebar"], [data-panel="sidebar"], [data-panel-id="sidebar"]) { flex: 0 0 var(--flight-sidebar) !important; overflow: hidden !important; }
 [data-flight-sidebar] :is([data-panel][id="sidebar"], [data-panel="sidebar"], [data-panel-id="sidebar"]) .morph-region { width: var(--flight-start-sidebar); min-width: var(--flight-start-sidebar); }
-[data-flight-sidebar] :is([data-panel][id="inspector"], [data-panel="inspector"], [data-panel-id="inspector"], [data-panel][id="editor"], [data-panel="editor"], [data-panel-id="editor"]) { flex: 0 0 var(--hold-inspector) !important; }
-[data-flight-inspector] :is([data-panel][id="inspector"], [data-panel="inspector"], [data-panel-id="inspector"], [data-panel][id="editor"], [data-panel="editor"], [data-panel-id="editor"]) { flex: 0 0 var(--flight-inspector) !important; overflow: hidden !important; }
-[data-flight-inspector] :is([data-panel][id="inspector"], [data-panel="inspector"], [data-panel-id="inspector"], [data-panel][id="editor"], [data-panel="editor"], [data-panel-id="editor"]) .morph-region { width: var(--flight-start-inspector); min-width: var(--flight-start-inspector); margin-left: calc(var(--flight-inspector) - var(--flight-start-inspector)); }
+/* One id, since 2026-09-19: the editor and the lanes are one panel, so `editor` is gone from here
+   and from `pane.flight.ts`'s PANEL_IDS together. `app/src/__tests__/phase5.renderer.models.test.ts`
+   fails if App.tsx ever mounts a side panel these rules do not name — the collapse animation keys
+   off the panel element, and a selector that silently stops matching still passes every test that
+   only checks the code ran. */
+[data-flight-sidebar] :is([data-panel][id="inspector"], [data-panel="inspector"], [data-panel-id="inspector"]) { flex: 0 0 var(--hold-inspector) !important; }
+[data-flight-inspector] :is([data-panel][id="inspector"], [data-panel="inspector"], [data-panel-id="inspector"]) { flex: 0 0 var(--flight-inspector) !important; overflow: hidden !important; }
+[data-flight-inspector] :is([data-panel][id="inspector"], [data-panel="inspector"], [data-panel-id="inspector"]) .morph-region { width: var(--flight-start-inspector); min-width: var(--flight-start-inspector); margin-left: calc(var(--flight-inspector) - var(--flight-start-inspector)); }
 [data-flight-inspector] :is([data-panel][id="sidebar"], [data-panel="sidebar"], [data-panel-id="sidebar"]) { flex: 0 0 var(--hold-sidebar) !important; }
 #composer-help { font-size: 9px; line-height: 1.6; }
 .sidebar-shell .glass-row { transition: background 180ms,color 180ms,box-shadow 180ms; }

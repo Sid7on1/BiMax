@@ -10,8 +10,10 @@
  * They live in the Terminal suite alongside `trust.center.model.test.ts` and
  * `receipt.inspector.test.ts`, which is where the existing Desktop pure-logic tests already run.
  */
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { deriveTaskState } from '../renderer/src/task.state';
-import { inspectorTabs, resolveActiveTab } from '../renderer/src/inspector.model';
+import { inspectorTabs, resolveActiveTab, resolveWorkbenchTab, sameTab } from '../renderer/src/inspector.model';
 import {
   normalizeUiSnapshot, normalizeReviewSnapshot, normalizeSubAgents, normalizeTodos,
 } from '../renderer/src/protocol.normalize';
@@ -133,6 +135,98 @@ describe('the four-lane inspector', () => {
       review: review({ state: 'verification_failed' }), gitStatus: null, hasProject: true,
     });
     expect(resolveActiveTab(tabs, null)).toBe('review');
+  });
+});
+
+describe('the one tabbed workbench', () => {
+  const open = ['docs/ARCHITECTURE.md', 'src/api/client.ts'];
+  const tabs = () => inspectorTabs({ review: review(), gitStatus: null, hasProject: true, isRepo: false });
+
+  test('a lane and an open file are the same kind of tab, and the file wins while it is open', () => {
+    expect(resolveWorkbenchTab(tabs(), { kind: 'file', path: 'src/api/client.ts' }, open))
+      .toEqual({ kind: 'file', path: 'src/api/client.ts' });
+    expect(resolveWorkbenchTab(tabs(), { kind: 'lane', id: 'review' }, open))
+      .toEqual({ kind: 'lane', id: 'review' });
+  });
+
+  /**
+   * The defect this type exists to remove: the editor used to be revealed by the ABSENCE of a lane
+   * request (`requestedTab === null`), so opening a file while a lane was selected set every other
+   * piece of state correctly and still rendered the lane.
+   */
+  test('asking for a file is enough to show it — no second flag has to be cleared', () => {
+    const shown = resolveWorkbenchTab(tabs(), { kind: 'file', path: 'docs/ARCHITECTURE.md' }, open);
+    expect(shown).toEqual({ kind: 'file', path: 'docs/ARCHITECTURE.md' });
+    expect(shown?.kind).not.toBe('lane');
+  });
+
+  test('a file that has been closed falls back to its neighbour, never to an empty pane', () => {
+    expect(resolveWorkbenchTab(tabs(), { kind: 'file', path: 'gone.ts' }, open))
+      .toEqual({ kind: 'file', path: 'src/api/client.ts' });
+    // …and with nothing left open at all, to a lane.
+    expect(resolveWorkbenchTab(tabs(), { kind: 'file', path: 'gone.ts' }, [])?.kind).toBe('lane');
+  });
+
+  test('an unavailable lane is never resolved, exactly as before the merge', () => {
+    const resolved = resolveWorkbenchTab(tabs(), { kind: 'lane', id: 'github' }, []);
+    expect(resolved).not.toEqual({ kind: 'lane', id: 'github' });
+    expect(resolved).toEqual({ kind: 'lane', id: resolveActiveTab(tabs(), 'github') });
+  });
+
+  test('with no lane available at all, an open file still has somewhere to be', () => {
+    const none = inspectorTabs({ review: null, gitStatus: null, hasProject: false });
+    expect(none.every(tab => !tab.available)).toBe(true);
+    expect(resolveWorkbenchTab(none, null, open)).toEqual({ kind: 'file', path: 'src/api/client.ts' });
+    expect(resolveWorkbenchTab(none, null, [])).toBeNull();
+  });
+
+  test('tab identity compares the thing, not the object', () => {
+    expect(sameTab({ kind: 'file', path: 'a.ts' }, { kind: 'file', path: 'a.ts' })).toBe(true);
+    expect(sameTab({ kind: 'file', path: 'a.ts' }, { kind: 'lane', id: 'files' })).toBe(false);
+    expect(sameTab(null, { kind: 'lane', id: 'files' })).toBe(false);
+  });
+
+  /**
+   * Mutants this block catches: returning the lane before the file request (test 1 and 2);
+   * returning null for a closed file instead of its neighbour (test 3); resolving the requested
+   * lane without checking `available` (test 4); dropping the open-file fallback (test 5).
+   */
+});
+
+/**
+ * The collapse animation keys off the PANEL ELEMENT, by id.
+ *
+ * The right side used to mount as `editor` or `inspector` depending on a mode flag, so `pane.flight.ts`
+ * and the `[data-flight-…]` rules in `styles.css` each had to name both — three places to keep in
+ * step, and a selector that stops matching does not throw, it silently stops animating while every
+ * test that only checks the code RAN still passes. This is that check: whatever side panels App.tsx
+ * mounts today, the flight must know their ids.
+ */
+describe('the side panes the collapse animation can actually reach', () => {
+  const read = (rel: string): string =>
+    readFileSync(join(__dirname, '..', 'renderer', 'src', rel), 'utf8');
+
+  const mountedPanelIds = (): string[] =>
+    [...read('App.tsx').matchAll(/<Panel\s+id="([a-z]+)"/g)].map(match => match[1]);
+
+  test('App mounts a task column and exactly one side panel beside it', () => {
+    expect(mountedPanelIds().sort()).toEqual(['inspector', 'sidebar', 'task']);
+  });
+
+  test('every side panel App mounts is named by pane.flight and by the flight CSS', () => {
+    const flight = read('pane.flight.ts');
+    const css = read('styles.css');
+    for (const id of mountedPanelIds().filter(panel => panel !== 'task')) {
+      expect(flight).toContain(`'${id}'`);
+      expect(css).toContain(`[data-panel][id="${id}"]`);
+    }
+  });
+
+  test('and nothing is left behind: no rule flies a panel that is no longer mounted', () => {
+    const ids = new Set(mountedPanelIds());
+    const flown = [...read('styles.css').matchAll(/\[data-panel\]\[id="([a-z]+)"\]/g)].map(match => match[1]);
+    expect(flown.length).toBeGreaterThan(0);
+    for (const id of new Set(flown)) expect(ids.has(id)).toBe(true);
   });
 });
 

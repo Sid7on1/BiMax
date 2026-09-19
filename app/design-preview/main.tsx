@@ -6,6 +6,7 @@ import { ModelsPreview } from './models';
 import { TranscriptPreview } from './transcript';
 import { MotionPreview } from './motion';
 import { MotionLab } from './lab';
+import { WorkbenchPreview } from './workbench';
 import type { UiSnapshot, UiSnapshotSession } from '../src/renderer/src/protocol';
 import '@fontsource-variable/inter';
 import '../src/renderer/src/styles.css';
@@ -109,8 +110,8 @@ function Stage({
   );
 }
 
-type Page = 'lab' | 'motion' | 'shell' | 'models' | 'transcript';
-const PAGES: Page[] = ['lab', 'motion', 'shell', 'models', 'transcript'];
+type Page = 'lab' | 'motion' | 'shell' | 'workbench' | 'models' | 'transcript';
+const PAGES: Page[] = ['lab', 'motion', 'shell', 'workbench', 'models', 'transcript'];
 
 function Preview(): React.ReactElement {
   const [dark, setDark] = useState(true);
@@ -150,7 +151,9 @@ function Preview(): React.ReactElement {
       >
         view: {page}
       </button>
-      {page === 'lab' ? (
+      {page === 'workbench' ? (
+        <WorkbenchPreview />
+      ) : page === 'lab' ? (
         <div className={dark ? 'theme-moonlight' : 'theme-starlight'} data-chrome="windowed">
           <MotionLab />
         </div>
