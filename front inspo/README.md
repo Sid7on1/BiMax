@@ -13,6 +13,7 @@ Front-end research for the Bimax desktop redesign. Measured 2026-09-12 on macOS 
 | `06-gaps.md` | first-pass gap list — **partly superseded**, G1/G3 wrong, G4 overstated |
 | `07-evaluation.md` | evaluation against the docs; required vs beneficial changes |
 | `08-changes-applied.md` | **START HERE** — round 1 fixes, then round 2 (B1/B2/B4/B5 all taken) |
+| `09-black-glass-plan.md` | round 3 plan — match the reference's dark-glass shell; a **layout** change, not a colour one |
 | `tools/measure.py` | the pixel-measurement harness |
 
 Screenshots are gitignored (`*.png`); the notes are the deliverable.
