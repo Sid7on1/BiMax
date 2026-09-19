@@ -413,7 +413,12 @@ export function App(): React.ReactElement {
                   />
                 </Panel>
               ) : (
-                <Panel id="inspector" className="pane-surface" defaultSize="34%" minSize="300px" maxSize="56%">
+                <Panel id="inspector" defaultSize="34%" minSize="300px" maxSize="56%">
+                  {/* NO `pane-surface` on this Panel. `Inspector` renders `.evidence-studio`, which
+                      already paints `--pane-veil`, and two translucent layers of the same veil
+                      STACK: 0.68 over 0.68 is 1 - 0.32² = 90% opaque. That is exactly why this one
+                      panel still looked solid while the canvas beside it showed the wallpaper.
+                      One surface, one paint. */}
                   <MorphRegion
                     open={inspectorOpen}
                     kind="inspector"

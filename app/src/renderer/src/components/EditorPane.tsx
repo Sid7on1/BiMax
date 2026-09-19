@@ -237,8 +237,11 @@ export function EditorPane({
     return () => { cancelled = true; };
   }, [active, stateFor, onClose]);
 
+  // No `bg-bg` and no `border-l` on the root below: `bg-bg` is the opaque canvas colour, so this
+  // pane was a solid slab inside a glass shell, and the rule down its edge was the seam that came
+  // with it. Its Panel wrapper carries `pane-surface`, which is the one place this lane is painted.
   return (
-    <div className="anim-slide-in-right flex h-full min-w-0 flex-col border-l border-line bg-bg">
+    <div className="anim-slide-in-right flex h-full min-w-0 flex-col">
       {/* Tab strip */}
       <div className="no-scrollbar flex shrink-0 items-center gap-0.5 overflow-x-auto border-b border-line px-1 py-1">
         <button

@@ -33,6 +33,26 @@ the condition that exposes surface defects; a window-layer capture hides all of 
 | "the same half-circle in the right panel" | `.evidence-studio` carried its own `radial-gradient(circle at 76% -12%, ink 4%)`, and two Settings hero cards a third variant. Removing one and leaving the others is how the report came back — the repo now has **zero** `radial-gradient` in its stylesheet |
 | the 1px bright line at a pane join | `bg-transparent` on the resize `Separator`. The window is transparent, so a 1px column painting nothing is a 1px **hole** to the wallpaper — measured as a 60-luminance spike between surfaces at 30 |
 
+## The one that took four attempts: "the right panel is opaque"
+
+Worth recording, because three of the four fixes were aimed at the wrong thing.
+
+1. Softened its `backdrop-filter` 28px → 12px. Wrong direction, but not the cause.
+2. Removed the blur entirely. Correct, still not the cause.
+3. Removed its header slab (62% `--color-raise` + a rule). Real, still not the cause.
+4. **The pane was painted twice.** `<Panel className="pane-surface">` wrapped `Inspector`, which
+   renders `.evidence-studio` — both painting `--pane-veil`. Two translucent layers of the same veil
+   **stack**: 0.68 over 0.68 is `1 − 0.32² = 90%` opaque. That is why this one panel stayed solid
+   while the canvas beside it showed the wallpaper.
+
+`EditorPane` had the matching bug in the other direction — `bg-bg`, the *opaque* canvas colour,
+inside a Panel that was already painting.
+
+**The test that would have caught it in one step, and did in the end:** a transmitting surface
+*varies* down its own height, because the wallpaper behind it does. An opaque one is flat. Measured
+on the same rows, the canvas spread 5.0 and the right pane 5.0 — equal transmission. Luminance alone
+cannot tell these apart, which is why three measurements of "how dark is it" all came back fine.
+
 ## Measured, at the sidebar/canvas join, over the bright wallpaper
 
 **37.3 → 13.7 → 9.7 → 5.0.** The canvas/right-pane join finished at **1.7**. Cursor's is +9.
