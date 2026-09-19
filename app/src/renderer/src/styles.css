@@ -93,20 +93,31 @@
      pick up the wallpaper's warmth at its edges (r-b +5..+7) and no more. 0.62 stays under the
      ~0.68 knee this file documents two hundred lines down, so the panel is still glass rather than
      a tinted rectangle; it is simply glass you can predict. */
-  --glass-veil: rgba(17, 17, 19, 0.62);
-  /* The other two tint levels. Owner, 2026-09-19: "every component and part of the app is glass
-     with black tint, some more or less" — the canvas most tinted, the panels least, which is also
-     what Cursor measures as. One scale, three stops:
-        --app-veil    0.82  the canvas: the reading surface, so the most tint and the least swing
-        --pane-veil   0.72  the inspector and editor
-        --glass-veil  0.62  the sidebar: the most transmissive, the one that shows the wallpaper
+  --glass-veil: rgba(26, 26, 28, 0.80);
+  /* THE SAME ALPHA EVERYWHERE; THE TINT IS WHAT DIFFERS. This is the whole trick, and getting it
+     wrong is what made the panel joins read as borders.
+     Varying alpha per surface (0.82 / 0.72 / 0.62) made the STEP BETWEEN SURFACES depend on the
+     wallpaper: over the dark backdrop of a layer capture the sidebar sat 11 levels above the
+     canvas, but measured on screen over a bright blue photograph it sat 36 above — the same join,
+     three times the contrast, which the eye reads as a drawn line rather than as depth.
+     At a constant 0.80 every surface takes the same 20% of whatever is behind the window, so the
+     step between any two of them is fixed by their tints alone and never moves:
+        --app-veil    rgb(14,14,15)  the canvas, most tinted
+        --pane-veil   rgb(20,20,22)  the inspector and editor
+        --glass-veil  rgb(26,26,28)  the sidebar, least tinted
+     That is a constant ~10-level separation, which is what Cursor measures as (+9).
      None of them carries its own `backdrop-filter`. The window is `vibrancy: 'sidebar'`, so macOS
      is already blurring behind the entire web contents; a semi-transparent background samples that
      for free. Adding a per-surface blur here would buy nothing and cost a compositor pass on the
      largest regions in the app, which is the trap the `.app-surface` note below records. */
-  --app-veil: rgba(16, 16, 17, 0.82);
-  --pane-veil: rgba(18, 18, 19, 0.72);
-  --glass-solid: #101011;
+  --app-veil: rgba(14, 14, 15, 0.80);
+  --pane-veil: rgba(20, 20, 22, 0.80);
+  /* The solid stand-ins, used when the window is expanded and under Reduce Transparency. They have
+     to preserve the WINDOWED hierarchy, and #101011 did not: at 16 it sat ten levels BELOW the
+     canvas, so going full screen flipped the sidebar from the lightest surface to the darkest.
+     These are what the veils composite to over a mid backdrop. */
+  --glass-solid: #26262a;
+  --pane-solid: #202024;
   --glass-edge: rgba(255, 255, 255, 0.09);
   --glass-edge-strong: rgba(255, 255, 255, 0.14);
   --glass-sheen: rgba(255, 255, 255, 0.16);
@@ -124,10 +135,13 @@
 }
 
 .theme-starlight {
-  --glass-veil: rgba(252, 252, 251, 0.46);
-  --app-veil: rgba(250, 250, 249, 0.88);
-  --pane-veil: rgba(251, 251, 250, 0.80);
+  /* Same constant alpha as Moonlight, and the order inverts: in a light theme the sidebar is the
+     DARKER surface, which is the macOS convention and what `--glass-solid` already encoded. */
+  --app-veil: rgba(252, 252, 251, 0.80);
+  --pane-veil: rgba(248, 248, 246, 0.80);
+  --glass-veil: rgba(243, 243, 241, 0.80);
   --glass-solid: #f3f3f1;
+  --pane-solid: #f7f7f5;
   --glass-edge: rgba(0, 0, 0, 0.09);
   --glass-edge-strong: rgba(0, 0, 0, 0.14);
   --glass-sheen: rgba(255, 255, 255, 0.95);
@@ -246,9 +260,11 @@
 /* Expanded, there is nothing behind the window to sample: the blur would be sampling our own body,
    which reads as grey haze and lowers text contrast for no gain. Every surface goes solid together
    — the same rule the sidebar has followed since `useWindowChrome` was introduced. */
-[data-chrome='expanded'] .app-surface,
-[data-chrome='expanded'] .pane-surface {
+[data-chrome='expanded'] .app-surface {
   background: var(--color-bg);
+}
+[data-chrome='expanded'] .pane-surface {
+  background: var(--pane-solid);
 }
 
 /* `.titlebar-shell` is gone (2026-09-19). There is no title bar to give a material to: the strip
@@ -266,11 +282,13 @@
      everywhere that does not (and it costs nothing when the backdrop is already frosted). */
   backdrop-filter: blur(20px) saturate(1.2);
   -webkit-backdrop-filter: blur(20px) saturate(1.2);
-  /* No `border-right`. With the canvas lifted to #151515 and the panel landing near #232425, the
-     two surfaces are separated by about nine levels of value — which is how Cursor and both
-     reference apps do it, and a hairline on top of that reads as a seam rather than an edge.
-     Measured 2026-09-19: `front inspo/10-cursor`. */
-  box-shadow: inset 0 1px 0 var(--glass-sheen), inset 0 0 30px var(--glass-inner-glow);
+  /* No `border-right`, and no top sheen either. With every surface on the same alpha the panes are
+     separated by about ten levels of value, which is how Cursor and both reference apps do it; a
+     hairline on top of that reads as a seam rather than an edge.
+     `inset 0 1px 0 var(--glass-sheen)` was a 1px rgba(255,255,255,0.16) line across the very top of
+     the panel — the bright strip the owner reported along the top of the window. The internal
+     scatter stays; it has no edge. Measured 2026-09-19: `front inspo/10-cursor`. */
+  box-shadow: inset 0 0 30px var(--glass-inner-glow);
   transition: background 200ms ease;
 }
 
@@ -896,18 +914,25 @@
   --glass-thickness: 8px;
   position: relative;
   isolation: isolate;
+  /* `--pane-veil`, not `--glass-veil`: this is a side pane, and painting it in the sidebar's tint
+     put the two lightest surfaces on either side of the darkest one. No top sheen, for the same
+     reason the sidebar lost its own — see `.sidebar-shell`. */
   background:
-    radial-gradient(circle at 76% -12%, color-mix(in srgb, var(--color-ink) 5%, transparent), transparent 32%),
-    var(--glass-veil);
+    radial-gradient(circle at 76% -12%, color-mix(in srgb, var(--color-ink) 4%, transparent), transparent 32%),
+    var(--pane-veil);
+  /* The blur stays here, unlike on `.app-surface`. macOS supplies one behind the whole window, but
+     this is the only surface that reads long-form evidence over the backdrop, and removing it cost
+     six nodes in the contrast checker (31 -> 37 below AA at baseline) because the backdrop stops
+     being diffused. It is one pane, not the largest region in the app, so it is worth the pass. */
   backdrop-filter: blur(28px) saturate(1.9);
   -webkit-backdrop-filter: blur(28px) saturate(1.9);
-  box-shadow: inset 0 1px 0 var(--glass-sheen), inset 0 0 30px var(--glass-inner-glow);
+  box-shadow: inset 0 0 30px var(--glass-inner-glow);
 }
 
 [data-chrome='expanded'] .evidence-studio {
   background:
     radial-gradient(circle at 76% -12%, color-mix(in srgb, var(--color-ink) 5%, transparent), transparent 32%),
-    var(--color-bg);
+    var(--pane-solid);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
@@ -1212,6 +1237,12 @@
   .theme-moonlight,
   .theme-starlight {
     --glass-veil: var(--glass-solid);
+    /* All three veils, not just the sidebar's. The canvas and the side panes are glass now too, so
+       leaving them translucent here would defeat the setting on the largest surfaces in the app
+       while dutifully flattening the smallest. Hierarchy is preserved: they stay three distinct
+       values, they just stop transmitting. */
+    --app-veil: var(--color-bg);
+    --pane-veil: var(--pane-solid);
     --glass-lens-brightness: 1;
     --glass-inner-glow: transparent;
   }
@@ -1247,10 +1278,21 @@
     --glass-edge: color-mix(in srgb, var(--color-ink) 34%, transparent);
     --glass-edge-strong: color-mix(in srgb, var(--color-ink) 52%, transparent);
   }
-  /* Increase Contrast trades translucency for legibility, as macOS itself does. The thinner default
-     glass (0.40 / 0.46) put three quiet labels under AA at this setting, so it keeps a denser veil. */
-  .theme-moonlight { --glass-veil: rgba(17, 17, 19, 0.74); }
-  .theme-starlight { --glass-veil: rgba(252, 252, 251, 0.80); }
+  /* Increase Contrast trades translucency for legibility, as macOS itself does. Every surface is
+     glass now, so every veil densifies — leaving the canvas and the panes at 0.80 while only the
+     sidebar thickened would apply the setting to the smallest surface and skip the largest. The
+     alphas stay equal to each other, so the hierarchy between the three is unchanged; the whole
+     stack just transmits less. */
+  .theme-moonlight {
+    --app-veil: rgba(14, 14, 15, 0.92);
+    --pane-veil: rgba(20, 20, 22, 0.92);
+    --glass-veil: rgba(26, 26, 28, 0.92);
+  }
+  .theme-starlight {
+    --app-veil: rgba(252, 252, 251, 0.92);
+    --pane-veil: rgba(248, 248, 246, 0.92);
+    --glass-veil: rgba(243, 243, 241, 0.92);
+  }
   /* Focus must be unmistakable, not harmonious (§34 gives way to §31 here). */
   :focus-visible {
     outline-width: 3px;

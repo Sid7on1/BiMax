@@ -131,7 +131,12 @@ export function TaskSidebar({
 
   return (
     <nav
-      className="sidebar-shell glass-lens flex h-full min-h-0 flex-col select-none text-[13px] text-dim"
+      /* No `glass-lens`. That pseudo-element paints an 8px ring of
+         `backdrop-filter: brightness(1.12)` around the surface — a lens rim, which is right for a
+         floating rounded panel and wrong for a flush, full-height, square-edged one: it renders as a
+         bright frame down the join. This panel is edge-to-edge now, so it takes the material without
+         the ring. */
+      className="sidebar-shell flex h-full min-h-0 flex-col select-none text-[13px] text-dim"
       aria-label="Navigation"
     >
       {/* --- Identity, and the gutter the traffic lights sit in ------------------------------

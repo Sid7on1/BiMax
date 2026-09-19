@@ -317,10 +317,12 @@ export function App(): React.ReactElement {
                   </div>
                 </MorphRegion>
               </Panel>
-              {/* Invisible at rest. The panes are separated by value, not by a rule — a painted hairline
-                  here is the seam that stopped the shell reading as one sheet of glass. The handle
-                  still exists and still grabs; it only shows itself once you reach for it. */}
-              <Separator className="w-px bg-transparent transition-colors hover:bg-ember/40 data-[separator-active]:bg-ember/70" />
+              {/* Carries the canvas tint, and `bg-transparent` is WRONG here even though it sounds right:
+                  the window itself is transparent, so a 1px column that paints nothing is a 1px hole
+                  straight through to the wallpaper — measured as a 60-luminance spike between two
+                  surfaces sitting at 30, i.e. the bright line at the join. It has to paint the
+                  material, not decline to paint. It still shows the accent once you reach for it. */}
+              <Separator className="w-px bg-[var(--app-veil)] transition-colors hover:bg-ember/40 data-[separator-active]:bg-ember/70" />
             </>
           )}
 
@@ -393,10 +395,12 @@ export function App(): React.ReactElement {
 
           {hasProject && inspectorMounted && (
             <>
-              {/* Invisible at rest. The panes are separated by value, not by a rule — a painted hairline
-                  here is the seam that stopped the shell reading as one sheet of glass. The handle
-                  still exists and still grabs; it only shows itself once you reach for it. */}
-              <Separator className="w-px bg-transparent transition-colors hover:bg-ember/40 data-[separator-active]:bg-ember/70" />
+              {/* Carries the canvas tint, and `bg-transparent` is WRONG here even though it sounds right:
+                  the window itself is transparent, so a 1px column that paints nothing is a 1px hole
+                  straight through to the wallpaper — measured as a 60-luminance spike between two
+                  surfaces sitting at 30, i.e. the bright line at the join. It has to paint the
+                  material, not decline to paint. It still shows the accent once you reach for it. */}
+              <Separator className="w-px bg-[var(--app-veil)] transition-colors hover:bg-ember/40 data-[separator-active]:bg-ember/70" />
               {showEditor ? (
                 <Panel id="editor" className="pane-surface" defaultSize="46%" minSize="320px" maxSize="65%">
                   <EditorPane

@@ -42,7 +42,9 @@ export function Inspector({
   // No entrance animation of its own: App.tsx wraps this in a SeedRegion, which owns the transform.
   // A second animation on the same property is a race decided by declaration order.
   return (
-    <aside className="evidence-studio glass-lens flex h-full min-w-0 flex-col border-l border-line" aria-label="Evidence Studio">
+    <aside /* Neither the lens ring nor the left border: both drew a line down the join with the
+        canvas. See TaskSidebar for the ring, and styles.css for why value alone separates panes now. */
+    className="evidence-studio flex h-full min-w-0 flex-col" aria-label="Evidence Studio">
       <header className="evidence-studio-header">
         <div className="flex min-w-0 flex-1 items-center gap-2.5">
           <span className="evidence-studio-icon" aria-hidden>{meta?.icon ?? <Search size={15} />}</span>
