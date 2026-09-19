@@ -966,9 +966,10 @@
   /* `--pane-veil`, not `--glass-veil`: this is a side pane, and painting it in the sidebar's tint
      put the two lightest surfaces on either side of the darkest one. No top sheen, for the same
      reason the sidebar lost its own — see `.sidebar-shell`. */
-  background:
-    radial-gradient(circle at 76% -12%, color-mix(in srgb, var(--color-ink) 4%, transparent), transparent 32%),
-    var(--pane-veil);
+  /* No radial wash. This is the same near-white `--color-ink` ellipse that was removed from
+     `.home-canvas` — it reads as a smudge on the glass rather than as depth, and the owner spotted
+     it here after the canvas one went. The two must stay in step: neither surface paints light. */
+  background: var(--pane-veil);
   /* The blur stays here, unlike on `.app-surface`. macOS supplies one behind the whole window, but
      this is the only surface that reads long-form evidence over the backdrop, and removing it cost
      six nodes in the contrast checker (31 -> 37 below AA at baseline) because the backdrop stops
@@ -981,9 +982,7 @@
 }
 
 [data-chrome='expanded'] .evidence-studio {
-  background:
-    radial-gradient(circle at 76% -12%, color-mix(in srgb, var(--color-ink) 5%, transparent), transparent 32%),
-    var(--pane-solid);
+  background: var(--pane-solid);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
@@ -1123,7 +1122,7 @@
   padding: 12px;
   box-shadow: inset 0 1px 0 color-mix(in srgb, white 3%, transparent);
 }
-.alchemist-hero { background: radial-gradient(circle at 92% 0%, color-mix(in srgb, var(--color-ink) 8%, transparent), transparent 42%), var(--color-raise); }
+.alchemist-hero { background: var(--raise-veil); }
 .inspector-section-title { display: flex; align-items: center; gap: 7px; margin-bottom: 9px; color: var(--color-faint); font-size: 9.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
 .status-chip { display: inline-flex; align-items: center; border-radius: 999px; padding: 2px 6px; font: 8.5px var(--font-mono); color: var(--color-dim); background: color-mix(in srgb, var(--color-ink) 7%, transparent); }
 .status-chip--ok { color: var(--color-moss); background: color-mix(in srgb, var(--color-moss) 10%, transparent); }
@@ -1165,7 +1164,7 @@
 .settings-support small { margin-top: 2px; font-size: 9px; line-height: 1.35; }
 .settings-heading { display: flex; min-height: 70px; flex: 0 0 auto; align-items: center; justify-content: space-between; padding: 13px 20px 10px 28px; border-bottom: 1px solid color-mix(in srgb, var(--color-line) 60%, transparent); }
 .settings-capability-grid { display: grid; gap: 10px; padding-top: 18px; }
-.settings-capability-hero { display: flex; align-items: flex-start; gap: 12px; border: 1px solid var(--color-line); border-radius: 15px; padding: 15px; background: radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--color-ink) 7%, transparent), transparent 42%), var(--color-raise); }
+.settings-capability-hero { display: flex; align-items: flex-start; gap: 12px; border-radius: 15px; padding: 15px; background: var(--raise-veil); }
 .settings-capability-hero h3, .settings-note h3 { color: var(--color-ink); font-size: 13px; font-weight: 600; }
 .settings-capability-hero p, .settings-note p { margin-top: 4px; color: var(--color-dim); font-size: 10.5px; line-height: 1.5; }
 .settings-note { display: flex; gap: 10px; border: 1px solid var(--color-line); border-radius: 12px; padding: 12px; color: var(--color-faint); background: var(--color-well); }

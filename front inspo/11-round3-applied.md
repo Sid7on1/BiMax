@@ -30,6 +30,7 @@ the condition that exposes surface defects; a window-layer capture hides all of 
 | "the right panel is opaque" | its own `backdrop-filter`, and a header painted as a 62% `--color-raise` slab with a rule under it |
 | "settings isn't black tinted" | `.liquid-glass` painted every dialog with `--glass-veil`, the **sidebar's** tint — the lightest of the three |
 | "a white half-circle in the canvas" | `.home-canvas` had four painted washes, incl. `radial-gradient(ellipse at 50% 0%, ink 5%)` |
+| "the same half-circle in the right panel" | `.evidence-studio` carried its own `radial-gradient(circle at 76% -12%, ink 4%)`, and two Settings hero cards a third variant. Removing one and leaving the others is how the report came back — the repo now has **zero** `radial-gradient` in its stylesheet |
 | the 1px bright line at a pane join | `bg-transparent` on the resize `Separator`. The window is transparent, so a 1px column painting nothing is a 1px **hole** to the wallpaper — measured as a 60-luminance spike between surfaces at 30 |
 
 ## Measured, at the sidebar/canvas join, over the bright wallpaper
