@@ -21,8 +21,11 @@ symptoms the owner reported from real use, and both were real but not where they
   `[Read the docs](…)` into `ead the docs](…)` inside tool results above the 70% threshold.
 
 Also: a Bimax Threads eviction defect on the ⌘2 hot path (it evicted the Thread you were just using
-and silently destroyed its queued messages), WP-9's packaging gate with three mutants killed, the
-`bimax://` Shortcuts documentation, and WP-6's capture recipe. **WP-6 itself is NOT closed** —
+and silently destroyed its queued messages), WP-6's capture recipe, and **WP-9 built end to end** —
+the packaging gate (three mutants killed), the `bimax://` Shortcuts documentation, and an App
+Intents extension giving Siri two actions and five phrases. That last one carries a **new product
+fact**: macOS does not register the extension on a self-signed build, so **Developer ID is a
+prerequisite for the Siri story, not only for Gatekeeper**. **WP-6 itself is NOT closed** —
 `powermetrics` needs root and Instruments needs the Xcode GUI — so **WP-7 stays gated on it**. The
 RAG retrieval half was audited and no defect was found (benchmark 42/42; recall@3 0.80 lexical →
 1.00 reranked).

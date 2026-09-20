@@ -266,7 +266,26 @@ macOS 27's Siri reaches third-party apps through App Intents. Two halves:
   Contributed as entities, "what did Bimax change in the parser yesterday?" becomes a Spotlight
   query. No coding IDE does this.
 
-**PARTLY BUILT 2026-09-20 (record 59).** Steps 1 and 2 are done; step 3 is still Target.
+**BUILT 2026-09-20 (record 59), and BLOCKED ON A DEVELOPER ID.** All three steps are done; the
+extension does not REGISTER on a self-signed build.
+
+- Step 3 — `native/intents/BimaxIntents.swift`, built by `scripts/build-intents.sh` into
+  `Contents/Extensions/BimaxIntents.appex`. Two intents (`StartBimaxTask`, `OpenBimaxTask`) and
+  five Siri phrases, all present in the generated `Metadata.appintents`. Each performs by opening
+  `bimax://task`, so an intent can do nothing a pasted link could not and Siri cannot approve a
+  file change.
+- **Measured blocker:** macOS registers no container for it — `~/Library/Application Scripts/`
+  gains no entry — while the build is signed with the self-signed "Bimax Local Code Signing"
+  identity, whose `TeamIdentifier` is *not set*. Every registered third-party App Intents extension
+  on this Mac is namespaced `<TeamID>.<bundle-id>`. Leading explanation, not proven; confirm by
+  signing one build with a Developer ID and re-checking that directory. **This makes Developer ID
+  a prerequisite for the Siri story, not just for Gatekeeper** — which is new information for the
+  open owner decision in the product-reset README.
+- Two silent failures were hit and are now guarded: `-emit-const-values-path` is ignored without
+  `-wmo` (swiftc exits 0 and writes nothing), and an ExtensionKit extension in `Contents/PlugIns`
+  is never registered (it belongs in `Contents/Extensions`). The gate written in step 2 caught the
+  second one; `app/src/__tests__/app.intents.build.test.ts` guards both.
+- Entity schemas (Threads and evidence in Spotlight's semantic index) remain **Target**.
 
 - Step 1 — `docs/SHORTCUTS_AND_AUTOMATION.md` documents `bimax://task` for Shortcuts, Raycast,
   Stream Deck, Folder Actions and cron, explicitly as the interim story. Every safety claim was
@@ -277,7 +296,7 @@ macOS 27's Siri reaches third-party apps through App Intents. Two halves:
   than skipping** when there is no bundle. Passes on `/Applications/Bimax.app`; three mutants
   killed, including an `.appex` with its metadata missing — the exact failure this gate was ordered
   to catch. Wired into all three `dist:mac*` scripts and declared in `.bimax/gates.json`.
-- Step 3 — the extension, intent schemas and entity schemas remain **Target**; they need Swift.
+- Entity schemas remain **Target**. The Command Line Tools toolchain builds the extension fine; only the signature blocks registration.
 
 **Order, and it is not negotiable:**
 

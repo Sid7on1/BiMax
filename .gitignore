@@ -114,10 +114,11 @@ tui/embed/bimax-desktop-helper
 # benchmarks/cu-baseline/frozen-v1.1.0.json; ad-hoc runs are not evidence.
 benchmarks/cu-baseline/baseline-*.json
 
-# The marketing website is its own product with its own deploy (docs/product-reset: "three
-# products, not two"). It lives here only as a working copy — 584 MB with node_modules — and must
-# never be committed into the engine/app repository. bimax-app-build-independence: the desktop
-# build must not write into the site, and the site is not an input to it.
+# The marketing website is its own product with its own Vercel deploy (docs/product-reset: "three
+# products, not two"). MOVED 2026-09-20 to ~/Developer/bimax-site, intact and still linked to its
+# Vercel project — it is live, not archived. The ignore stays so a stray clone or build output here
+# never becomes a 584 MB commit into the engine/app repository. bimax-app-build-independence: the
+# desktop build must not write into the site, and the site is not an input to it.
 site/
 
 # Other agents' per-machine state. Not ours to track and not ours to archive.
@@ -127,3 +128,6 @@ site/
 # app's is out/main/index.js; a root index.js is a bundle someone left behind.
 dump.rdb
 /index.js
+
+# Built by app/scripts/build-intents.sh from native/intents/. Build output, like voice/ above.
+app/intents/

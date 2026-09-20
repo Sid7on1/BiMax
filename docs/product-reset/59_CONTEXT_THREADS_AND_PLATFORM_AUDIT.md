@@ -174,7 +174,27 @@ engine; an `.appex` without metadata (the exact WP-9 failure shape); the same bu
 restored. Wired into all three `dist:mac*` scripts and declared in `.bimax/gates.json`, so `/gates`
 now reports packaging as guarded.
 
-**Step 3 — the App Intents extension itself remains Target.** It needs Swift and Xcode.
+**Step 3 — BUILT, and blocked on a Developer ID.** `native/intents/BimaxIntents.swift` →
+`Contents/Extensions/BimaxIntents.appex`. Two intents and five Siri phrases, verified present in
+the generated metadata, packaged into a real build that passes the gate.
+
+It does not REGISTER. macOS creates no container for it on a self-signed build, and every
+registered third-party App Intents extension on this Mac is namespaced `<TeamID>.<bundle-id>` in
+`~/Library/Application Scripts/`. Our local identity has `TeamIdentifier` *not set*. Leading
+explanation, not proven — confirm with one Developer ID-signed build. **The consequence is a
+product fact: Developer ID is a prerequisite for Siri, not only for Gatekeeper.**
+
+Two silent failures were hit building it, both now guarded by
+`app/src/__tests__/app.intents.build.test.ts`:
+
+- `-emit-const-values-path` is **ignored without `-wmo`** — swiftc accepts the flag, exits 0 and
+  writes no file, after which the metadata processor exports nothing;
+- an ExtensionKit extension in `Contents/PlugIns` is **never registered**; it belongs in
+  `Contents/Extensions`. The step-2 gate caught this one, which is the order working as intended.
+
+A third mistake was mine and is worth recording: I first concluded the extension was undiscovered
+from `lsregister -dump`'s `Intents:` field showing 0. **That field is the old SiriKit one** —
+Ghostty ships App Intents and also shows 0. The instrument was wrong, not the build.
 
 ## 6. CPU and GPU — WP-6 is NOT closed
 
@@ -231,7 +251,8 @@ against a 5 s per-test timeout — the known worker-contention flake
 ## Still Target / unmeasured
 
 - **WP-6** CPU/GPU baseline — blocked on root and the Xcode GUI. **WP-7** QoS stays gated on it.
-- **WP-9 step 3** — the App Intents extension, intent schemas and entity schemas. Needs Swift.
+- **WP-9 registration** — the extension is built and packaged; macOS does not register it on a
+  self-signed build. Entity schemas (Spotlight) are untouched and still Target.
 - **WP-5** glass rungs and **WP-10** MLX — untouched, still gated on WP-6 / WP-8.
 - **No live-provider run.** Every number here is deterministic and local. The ANSI fix in particular
   is proven at the tool boundary, not by observing a live model stop echoing escapes.

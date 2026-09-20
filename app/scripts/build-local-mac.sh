@@ -67,6 +67,12 @@ npx electron scripts/verify-engine.js
 echo "→ voice helper"
 bash scripts/build-voice.sh "$ARCH"
 
+# The App Intents extension (WP-9 step 3). electron-builder.yml embeds it at Contents/PlugIns via
+# `extraFiles`; without this step that path does not exist and the packaging gate below fails —
+# which is the intended order. Every action macOS, Siri and Shortcuts can see comes from here.
+echo "→ app intents extension"
+bash scripts/build-intents.sh "$ARCH"
+
 echo "→ package app directory (unhardened, outside iCloud)"
 [ ! -e "$OUT" ] || { echo "error: refusing to overwrite existing local build output: $OUT" >&2; exit 1; }
 npx electron-builder --mac "--$ARCH" --dir \
@@ -80,4 +86,7 @@ node scripts/sign-local-mac.mjs "$APP"
 echo "→ verify"
 codesign --verify --deep --strict "$APP"
 node ../scripts/verify-desktop-package.mjs "$APP" "$ARCH"
+# Does the BUILT bundle actually expose the actions Bimax claims? The bimax:// scheme, the App
+# Intents extension's metadata, and the engine — all checked against the artifact, never the source.
+node scripts/check-app-actions.mjs --app "$APP"
 echo "Built → $APP"

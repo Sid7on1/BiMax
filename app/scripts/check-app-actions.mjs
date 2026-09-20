@@ -85,12 +85,25 @@ if (!urlTypes || !/\bbimax\b/.test(urlTypes)) {
 // embedded but its generated `Metadata.appintents` is not, so macOS discovers no actions and the
 // build stays green. Asserted conditionally: we do not claim intents exist before they do, but the
 // moment an extension is embedded its metadata becomes mandatory.
-const plugins = path.join(app, 'Contents', 'PlugIns');
-const appex = existsSync(plugins) ? readdirSync(plugins).filter((e) => e.endsWith('.appex')) : [];
+// Contents/Extensions is where an ExtensionKit extension must live; Contents/PlugIns is the older
+// NSExtension location. Both are scanned because an app may legitimately carry either, but an App
+// Intents extension found only in PlugIns is itself the defect — measured 2026-09-20: macOS does
+// not register it from there, silently.
+const homes = [path.join(app, 'Contents', 'Extensions'), path.join(app, 'Contents', 'PlugIns')];
+const appex = homes.flatMap((home) =>
+  (existsSync(home) ? readdirSync(home) : []).filter((e) => e.endsWith('.appex')).map((e) => ({ home, ext: e })));
 if (appex.length) {
   checked.push(`App Intents metadata for ${appex.length} extension(s)`);
-  for (const ext of appex) {
-    const metadata = path.join(plugins, ext, 'Contents', 'Resources', 'Metadata.appintents');
+  for (const { home, ext } of appex) {
+    if (path.basename(home) === 'PlugIns') {
+      failures.push([
+        `${ext} is in Contents/PlugIns, where macOS will not discover it.`,
+        'An ExtensionKit extension (one declaring EXAppExtensionAttributes) is only registered from',
+        'Contents/Extensions. In PlugIns it is embedded, signed and shipped, and Launch Services',
+        'records nothing at all — no log line, no pluginkit entry. Move it to Contents/Extensions.',
+      ].join('\n    '));
+    }
+    const metadata = path.join(home, ext, 'Contents', 'Resources', 'Metadata.appintents');
     if (!existsSync(metadata)) {
       failures.push([
         `${ext} is embedded but carries no Metadata.appintents.`,

@@ -36,6 +36,19 @@ extraResources:
   - from: voice
     to: voice
 
+# intents/BimaxIntents.appex is the App Intents extension (native/intents, built by
+# scripts/build-intents.sh).
+#
+# Contents/Extensions, NOT Contents/PlugIns. MEASURED 2026-09-20: an ExtensionKit extension (one
+# declaring EXAppExtensionAttributes) is only discovered from Contents/Extensions. Placed in
+# PlugIns it is embedded, signed and shipped, and Launch Services never records it — no log line,
+# no pluginkit entry, nothing. PlugIns is the older NSExtension location. Every ExtensionKit
+# extension on this Mac confirms it, from Safari.app/Contents/Extensions to
+# /System/Library/ExtensionKit/Extensions.
+extraFiles:
+  - from: intents/BimaxIntents.appex
+    to: Extensions/BimaxIntents.appex
+
 asar: true
 
 # bimax://task?folder=…&prompt=… opens a ⌘2 task after a confirmation (backlog N2; app/src/main/bimax.link.ts).
