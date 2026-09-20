@@ -421,8 +421,23 @@ export class ThreadManager {
     // memory reading (tests, and any host that does not supply one) this is the historical fixed 4.
     const limit = this.deps.memory ? maxLiveEngines(this.deps.memory().freeBytes) : MAX_LIVE_ENGINES;
     if ([...this.records.values()].filter(t => t.engine).length >= limit) {
-      const idle = [...this.records.values()].find(t => t.engine && t.summary.status === 'idle');
-      if (idle) this.stop(idle.summary.id);
+      // Least recently used, and only one that can be handed back without costing the user work.
+      //
+      // This used to be `.find(t => t.engine && t.summary.status === 'idle')` followed by a bare
+      // `stop(id)`, which got three things wrong on the hot path — this runs on every ⌘2 start once
+      // the machine is at its cap:
+      //   • `.find` takes the first record in MAP INSERTION ORDER, i.e. the oldest-CREATED thread,
+      //     not the least recently used. Alternating between two threads evicted the one just used
+      //     and kept the one abandoned an hour ago, so the user paid a restart every switch. Its
+      //     sibling `ensureRoom()` already did this correctly; the two policies simply disagreed.
+      //   • `stop(id)` with no options leaves `keepInputs` falsy, and `stop` then does
+      //     `r.inputs = []` — SILENTLY DISCARDING every queued message on that thread.
+      //     `reapIdleEngines` passes `keepInputs: true` for exactly this reason.
+      //   • it applied none of the other guards `reapIdleEngines` is careful about, so it could
+      //     stop a thread that was on screen, or one holding a pending approval.
+      // One predicate now serves both, differing only in whether an age is required.
+      const victim = this.reclaimableEngines(Date.now(), 0)[0];
+      if (victim) this.stop(victim.summary.id, { keepInputs: true, reason: 'Stopped to make room for another task. Send a message to pick it up again.' });
       // Name the real limit and why it is what it is. The old wording said "Four threads are active"
       // unconditionally, which would be a plain untruth the moment the limit moved with memory.
       else if (limit < MAX_LIVE_ENGINES) {
@@ -777,18 +792,40 @@ export class ThreadManager {
    */
   reapIdleEngines(now: number = Date.now()): string[] {
     const reaped: string[] = [];
-    for (const r of this.records.values()) {
-      if (!r.engine) continue;
-      if (r.summary.id === this.activeId) continue;
-      if (this.deps.onScreen?.().includes(r.summary.id)) continue;
-      if (r.summary.status !== 'idle') continue;
-      if (r.inputs.length || r.pending.size || r.draining) continue;
-      if (now - r.summary.updatedAt < IDLE_ENGINE_TTL_MS) continue;
-      // keepInputs is belt-and-braces: the guard above already proved there are none.
+    for (const r of this.reclaimableEngines(now, IDLE_ENGINE_TTL_MS)) {
+      // keepInputs is belt-and-braces: the predicate already proved there are none.
       this.stop(r.summary.id, { keepInputs: true, reason: 'Stopped to free memory. Send a message to pick it up again.' });
       reaped.push(r.summary.id);
     }
     return reaped;
+  }
+
+  /**
+   * The engines that can be handed back right now without costing the user work, least recently
+   * used first.
+   *
+   * One predicate, two callers, because they were drifting apart and the divergence was the bug:
+   * the idle sweep (`ttlMs = IDLE_ENGINE_TTL_MS`) was careful, and `start()`'s make-room eviction
+   * (`ttlMs = 0`, since it needs the memory now, not eventually) was not — it ordered by creation
+   * instead of use and threw away queued messages. A thread is reclaimable only when every one of
+   * these holds, because a wrong reclaim costs a restart mid-thought.
+   *
+   * `updatedAt` is the recency signal `list()` and `ensureRoom()` already sort by, so all three
+   * agree on what "least recently used" means.
+   */
+  private reclaimableEngines(now: number, ttlMs: number): LiveThread[] {
+    const onScreen = this.deps.onScreen?.() ?? [];
+    return [...this.records.values()]
+      .filter((r) =>
+        !!r.engine
+        && r.summary.id !== this.activeId          // not the main window's selection
+        && !onScreen.includes(r.summary.id)        // not visible in a window or the ⌘2 bar
+        && r.summary.status === 'idle'             // never working, needs-you or starting
+        && !r.inputs.length                        // nothing queued
+        && !r.pending.size                         // no approval waiting on the user
+        && !r.draining                             // its previous engine is not still draining
+        && now - r.summary.updatedAt >= ttlMs)
+      .sort((a, b) => a.summary.updatedAt - b.summary.updatedAt);
   }
 
   /**
