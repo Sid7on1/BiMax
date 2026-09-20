@@ -4,21 +4,25 @@
     "A gate must exit non-zero on failure, and must say in `meaning` what a failure tells a person.",
     "A file matched by no gate here is UNGUARDED: a weaker model must not be trusted with it,",
     "because nothing deterministic would catch a mistake. Adding a gate is therefore the way to",
-    "make more of the repo cheap to work on — widen the gates, do not widen the trust.",
+    "make more of the repo cheap to work on \u2014 widen the gates, do not widen the trust.",
     "Hand-written and tracked in git on purpose; the counters beside it (usage.json) are not."
   ],
   "gates": [
     {
       "id": "glass-contrast",
       "command": "npm --prefix app run check:glass-contrast",
-      "covers": ["app/src/renderer/src/styles.css"],
-      "meaning": "Text would drop below AA contrast over the surface it is actually composited on. This is measured across 119 text nodes in both themes, windowed and full-screen — it catches what a diff cannot.",
+      "covers": [
+        "app/src/renderer/src/styles.css"
+      ],
+      "meaning": "Text would drop below AA contrast over the surface it is actually composited on. This is measured across 119 text nodes in both themes, windowed and full-screen \u2014 it catches what a diff cannot.",
       "cwd": "."
     },
     {
       "id": "motion-tokens",
       "command": "npm --prefix app run check:motion",
-      "covers": ["app/src/renderer/src/components/ui/motion.ts"],
+      "covers": [
+        "app/src/renderer/src/components/ui/motion.ts"
+      ],
       "meaning": "The motion tokens no longer match their generated source, so the stylesheet and the TypeScript disagree about timing.",
       "cwd": "."
     },
@@ -29,24 +33,47 @@
         "app/src/renderer/src/components/**/*.tsx",
         "app/design-preview/**"
       ],
-      "excludes": ["app/src/renderer/src/components/**/__tests__/**"],
+      "excludes": [
+        "app/src/renderer/src/components/**/__tests__/**"
+      ],
       "meaning": "The design-preview harness no longer builds, so every theme x window state can no longer be verified without launching Electron.",
       "cwd": "."
     },
     {
       "id": "app-typecheck",
       "command": "npm --prefix app run typecheck",
-      "covers": ["app/src/**/*.ts", "app/src/**/*.tsx"],
-      "excludes": ["app/src/**/__tests__/**"],
+      "covers": [
+        "app/src/**/*.ts",
+        "app/src/**/*.tsx"
+      ],
+      "excludes": [
+        "app/src/**/__tests__/**"
+      ],
       "meaning": "The desktop app no longer typechecks.",
       "cwd": "."
     },
     {
       "id": "engine-bundle",
       "command": "bun build src/index.ts --target=node --outdir /tmp/bimax-gate-bundle",
-      "covers": ["src/**/*.ts"],
-      "excludes": ["src/__tests__/**"],
+      "covers": [
+        "src/**/*.ts"
+      ],
+      "excludes": [
+        "src/__tests__/**"
+      ],
       "meaning": "The engine no longer bundles. This is the check that catches a dangling import, because tsconfig excludes __tests__ and tsc therefore cannot (bimax-jest-cache-false-green).",
+      "cwd": "."
+    },
+    {
+      "id": "app-actions",
+      "command": "npm --prefix app run check:app-actions",
+      "covers": [
+        "app/electron-builder.yml",
+        "app/src/main/bimax.link.ts",
+        "app/scripts/prepare-engine.sh",
+        "app/scripts/after-pack.cjs"
+      ],
+      "meaning": "An action Bimax claims to offer is missing from the BUILT bundle \u2014 the bimax:// URL scheme, an App Intents extension's metadata, or the engine itself. This is the repository's most-repeated failure shape: the code compiles, every other gate stays green, and macOS discovers nothing. It inspects a real .app and fails rather than skipping when there is none, because the previous packaging guard degraded to a skip and stayed green through three shipped regressions.",
       "cwd": "."
     }
   ],
@@ -54,12 +81,12 @@
     "engine-lint": [
       "`npm run lint` was written here as a gate and then REMOVED, because declaring it would have",
       "been dishonest: measured 2026-09-19 it exits with 12 errors and 1,464 warnings on a clean",
-      "tree — in src/compliance/rules.ts, src/documents/{ocr,pdf.writer}.ts, src/engine/task.router.ts,",
+      "tree \u2014 in src/compliance/rules.ts, src/documents/{ocr,pdf.writer}.ts, src/engine/task.router.ts,",
       "src/memory/facts.ts and src/tools/args.validate.ts, none of them touched by that day's work.",
       "A gate that is ALREADY RED cannot grade a change: you cannot tell a new failure from the",
       "standing one, so it would mark every engine file 'covered' while catching nothing, and the",
       "escalation would fire on every turn. Fix the 12 errors, then declare it.",
-      "This is the safe direction — an undeclared area reads as unguarded, which refuses the cheap",
+      "This is the safe direction \u2014 an undeclared area reads as unguarded, which refuses the cheap",
       "model rather than trusting it."
     ]
   }

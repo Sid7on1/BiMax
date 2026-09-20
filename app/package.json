@@ -14,13 +14,14 @@
     "typecheck": "tsc --noEmit",
     "prepare:engine": "bash scripts/prepare-engine.sh",
     "verify:engine": "electron scripts/verify-engine.js",
-    "dist:mac": "electron-vite build && bash scripts/build-voice.sh arm64 && BIMAX_RELEASE_BUILD=1 bash scripts/prepare-engine.sh darwin-arm64 && electron-builder --mac --arm64",
-    "dist:mac:x64": "electron-vite build && bash scripts/build-voice.sh x64 && BIMAX_RELEASE_BUILD=1 bash scripts/prepare-engine.sh darwin-x64 && electron-builder --mac --x64",
-    "dist:mac:local": "electron-vite build && bash scripts/build-voice.sh arm64 && bash scripts/prepare-engine.sh darwin-arm64 && electron-builder --mac --arm64 -c.mac.entitlements=buildResources/entitlements.mac.local.plist -c.mac.entitlementsInherit=buildResources/entitlements.mac.local.plist -c.directories.output=${BIMAX_RELEASE_DIR:-/tmp/bimax-release}",
+    "dist:mac": "electron-vite build && bash scripts/build-voice.sh arm64 && BIMAX_RELEASE_BUILD=1 bash scripts/prepare-engine.sh darwin-arm64 && electron-builder --mac --arm64 && node scripts/check-app-actions.mjs",
+    "dist:mac:x64": "electron-vite build && bash scripts/build-voice.sh x64 && BIMAX_RELEASE_BUILD=1 bash scripts/prepare-engine.sh darwin-x64 && electron-builder --mac --x64 && node scripts/check-app-actions.mjs",
+    "dist:mac:local": "electron-vite build && bash scripts/build-voice.sh arm64 && bash scripts/prepare-engine.sh darwin-arm64 && electron-builder --mac --arm64 -c.mac.entitlements=buildResources/entitlements.mac.local.plist -c.mac.entitlementsInherit=buildResources/entitlements.mac.local.plist -c.directories.output=${BIMAX_RELEASE_DIR:-/tmp/bimax-release} && node scripts/check-app-actions.mjs",
     "check:design-preview": "vite build --config design-preview/vite.config.ts --logLevel warn",
     "gen:motion": "node scripts/gen-motion-tokens.mjs",
     "check:motion": "node scripts/gen-motion-tokens.mjs --check",
-    "check:glass-contrast": "node scripts/check-glass-contrast.mjs"
+    "check:glass-contrast": "node scripts/check-glass-contrast.mjs",
+    "check:app-actions": "node scripts/check-app-actions.mjs"
   },
   "dependencies": {
     "@ai-sdk/react": "^4.0.61",
