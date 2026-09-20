@@ -78,7 +78,17 @@ mac:
   gatekeeperAssess: false
   entitlements: buildResources/entitlements.mac.plist
   entitlementsInherit: buildResources/entitlements.mac.plist
-  # notarize: { teamId: "YOUR_TEAM_ID" }   # uncomment for release; needs APPLE_ID + APPLE_APP_SPECIFIC_PASSWORD
+  # Notarization. On electron-builder 26 this is a BOOLEAN and credentials come from the
+  # environment — the `notarize: { teamId: ... }` object below a certain version is the v24 shape
+  # and is silently wrong here, which is why preflight-release.mjs checks it. It is left ON
+  # (the default) so a release notarizes as soon as credentials are present; set it to false only
+  # for a deliberate signed-but-unnotarized build.
+  #
+  #   APPLE_API_KEY + APPLE_API_KEY_ID + APPLE_API_ISSUER   ← preferred: a file path, not a password
+  #   APPLE_ID + APPLE_APP_SPECIFIC_PASSWORD + APPLE_TEAM_ID
+  #
+  # See docs/DEVELOPER_ID_RELEASE.md.
+  # notarize: false
 
 dmg:
   # DMG signing follows the app identity. Left off for unsigned dev builds; a signed release signs the

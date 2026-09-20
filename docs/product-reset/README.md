@@ -28,7 +28,15 @@ the undo journal contributed to Shortcuts, Siri and (macOS 15+) Spotlight's sema
 "what did Bimax change in the parser yesterday?" is a query rather than a wish. Measured against a
 real machine: 52 of 52 Threads and 31 changes parsed from the files the app already writes. That last one carries a **new product
 fact**: macOS does not register the extension on a self-signed build, so **Developer ID is a
-prerequisite for the Siri story, not only for Gatekeeper**. **WP-6 itself is NOT closed** —
+prerequisite for the Siri story, not only for Gatekeeper**.
+
+The signing path is now prepared for that certificate rather than waiting on it:
+[`docs/DEVELOPER_ID_RELEASE.md`](../DEVELOPER_ID_RELEASE.md) is the runbook,
+`preflight:release` refuses a build this machine cannot sign (and is a declared gate), and
+`verify:release` inspects the ARTIFACT — every Mach-O's Team ID, hardened runtime, a **stapled**
+notarization ticket, Gatekeeper's own verdict, and the extension's Team ID. One config defect was
+found and corrected on the way: `notarize` is a boolean on electron-builder 26, and the commented
+example was the v24 object shape, which looks configured and does nothing. **WP-6 itself is NOT closed** —
 `powermetrics` needs root and Instruments needs the Xcode GUI — so **WP-7 stays gated on it**. The
 RAG retrieval half was audited and no defect was found (benchmark 42/42; recall@3 0.80 lexical →
 1.00 reranked).

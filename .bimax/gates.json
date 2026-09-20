@@ -75,6 +75,18 @@
       ],
       "meaning": "An action Bimax claims to offer is missing from the BUILT bundle \u2014 the bimax:// URL scheme, an App Intents extension's metadata, or the engine itself. This is the repository's most-repeated failure shape: the code compiles, every other gate stays green, and macOS discovers nothing. It inspects a real .app and fails rather than skipping when there is none, because the previous packaging guard degraded to a skip and stayed green through three shipped regressions.",
       "cwd": "."
+    },
+    {
+      "id": "release-preflight",
+      "command": "npm --prefix app run preflight:release",
+      "covers": [
+        "app/electron-builder.yml",
+        "app/buildResources/entitlements.mac.plist",
+        "app/scripts/build-voice.sh",
+        "app/scripts/build-intents.sh"
+      ],
+      "meaning": "This machine cannot cut a signed, notarized release: a missing Developer ID certificate, missing notarization credentials, a notarize option in the wrong shape for this electron-builder, or an output directory inside an iCloud-synced tree. Every one of these otherwise surfaces minutes into a build or minutes into a failed upload. It prints no secret, only presence and shape.",
+      "cwd": "."
     }
   ],
   "$notDeclared": {

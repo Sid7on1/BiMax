@@ -170,3 +170,68 @@ describe('entity schemas read real state, and stay inside the app floor', () => 
     expect(buildScript).toContain('FindBimaxChanges');
   });
 });
+
+
+describe('the release path checks itself, before and after', () => {
+  const pkg = JSON.parse(readFileSync(path.join(repo, 'app/package.json'), 'utf8'));
+  const preflight = readFileSync(path.join(repo, 'app/scripts/preflight-release.mjs'), 'utf8');
+  const verify = readFileSync(path.join(repo, 'app/scripts/verify-release.mjs'), 'utf8');
+
+  it('preflights BEFORE building and verifies the artifact AFTER', () => {
+    for (const name of ['dist:mac', 'dist:mac:x64']) {
+      const script: string = pkg.scripts[name];
+      // A missing certificate should cost seconds, not a full pack plus a failed upload.
+      expect(script.indexOf('preflight-release')).toBeGreaterThanOrEqual(0);
+      expect(script.indexOf('preflight-release')).toBeLessThan(script.indexOf('electron-builder'));
+      // And a green build log is not evidence: the artifact is inspected afterwards.
+      expect(script.indexOf('verify-release')).toBeGreaterThan(script.indexOf('electron-builder'));
+    }
+  });
+
+  it('never prints a secret', () => {
+    // This output is meant to be safe to paste into an issue. Presence and shape only.
+    for (const source of [preflight, verify]) {
+      expect(source).not.toMatch(/console\.(log|error)\([^)]*APPLE_APP_SPECIFIC_PASSWORD(?!\s*is)/);
+      expect(source).not.toMatch(/\$\{[^}]*APPLE_APP_SPECIFIC_PASSWORD[^}]*\}/);
+      expect(source).not.toMatch(/\$\{[^}]*CSC_KEY_PASSWORD[^}]*\}/);
+    }
+  });
+
+  it('treats APPLE_API_KEY as a path, because it is one', () => {
+    // Pointing it at the key's CONTENTS instead of its path fails after the upload has started.
+    expect(preflight).toContain('existsSync(keyPath)');
+    expect(preflight).toMatch(/is a path to the \.p8, not the key itself/);
+  });
+
+  it('separates ad-hoc from signed-without-a-Team-ID', () => {
+    // Different causes, different fixes: one means codesign ran with no identity, the other means
+    // a self-signed certificate (bimax-error-must-name-real-cause).
+    expect(verify).toContain('adhocFiles');
+    expect(verify).toContain('noTeamFiles');
+    expect(verify).toMatch(/AD-HOC signed — no identity at all/);
+    expect(verify).toMatch(/NO TEAM ID/);
+  });
+
+  it('checks the notarization ticket is STAPLED, not merely issued', () => {
+    // Unstapled works on the build machine and fails on a Mac that is offline at first launch.
+    expect(verify).toContain('stapler');
+    expect(verify).toMatch(/offline at first launch/);
+  });
+
+  it('--allow-unsigned never claims a local build is releasable', () => {
+    // A flag that quietly turns a gate off is the failure this file exists to prevent.
+    expect(verify).toMatch(/NOT releasable: --allow-unsigned downgraded/);
+  });
+
+  it('knows notarize is a boolean on this electron-builder', () => {
+    const builderVersion = JSON.parse(
+      readFileSync(path.join(repo, 'app/node_modules/electron-builder/package.json'), 'utf8'),
+    ).version;
+    // v26 takes a boolean and reads credentials from the environment. The v24 object shape
+    // (`notarize: { teamId }`) looks configured and does nothing.
+    expect(Number(builderVersion.split('.')[0])).toBeGreaterThanOrEqual(26);
+    expect(preflight).toMatch(/to be a boolean; found/);
+    expect(preflight).toMatch(/v24 shape/);
+    expect(builderConfig).not.toMatch(/^\s*notarize:\s*\{/m);
+  });
+});
