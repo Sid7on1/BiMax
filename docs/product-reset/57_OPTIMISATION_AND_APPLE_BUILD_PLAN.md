@@ -285,7 +285,14 @@ extension does not REGISTER on a self-signed build.
   `-wmo` (swiftc exits 0 and writes nothing), and an ExtensionKit extension in `Contents/PlugIns`
   is never registered (it belongs in `Contents/Extensions`). The gate written in step 2 caught the
   second one; `app/src/__tests__/app.intents.build.test.ts` guards both.
-- Entity schemas (Threads and evidence in Spotlight's semantic index) remain **Target**.
+- **Entity schemas BUILT 2026-09-20.** `BimaxThreadEntity` and `BimaxChangeEntity`, with
+  `EntityStringQuery` search and `IndexedEntity` (macOS 15+) for Spotlight. Read from the files the
+  app already writes — `threads/*.json` and BOTH undo-journal locations, since a project window
+  keeps its journal in the repository and reading only the app-data one would miss most changes.
+  Measured against a real machine: 52 of 52 Threads and 31 changes parsed. Two read-only intents
+  (`FindBimaxChanges`, `FindBimaxTasks`) expose them to Siri with six spoken phrases. The
+  **evidence store** is NOT contributed: its records carry retention classes an entity schema would
+  have to honour, so it is separate work, not a quick third entity.
 
 - Step 1 — `docs/SHORTCUTS_AND_AUTOMATION.md` documents `bimax://task` for Shortcuts, Raycast,
   Stream Deck, Folder Actions and cron, explicitly as the interim story. Every safety claim was

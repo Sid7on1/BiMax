@@ -30,7 +30,12 @@ fi
 # ABSOLUTE, deliberately. The metadata processor matches the source paths recorded inside the
 # swiftconstvalues file against --source-file-list by string, so a relative path at compile time and
 # an absolute one in the list produce "Unable to find matching source file" and export nothing.
-SOURCE="$(cd .. && pwd)/native/intents/BimaxIntents.swift"
+SRCDIR="$(cd .. && pwd)/native/intents"
+# Every .swift in the directory, sorted so the build is reproducible. Adding an entity or an intent
+# is a new file, never an edit to this script.
+SOURCES=()
+while IFS= read -r f; do SOURCES+=("$f"); done < <(find "$SRCDIR" -name '*.swift' | sort)
+[ ${#SOURCES[@]} -gt 0 ] || { echo "app intents: FAILED — no sources in $SRCDIR" >&2; exit 1; }
 MODULE="BimaxIntents"
 BUNDLE_ID="ai.bimax.app.intents"
 # macOS 13 is the app's floor and is also where App Intents arrived, so the extension's floor
@@ -75,7 +80,7 @@ CONSTVALUES="$WORK/$MODULE.swiftconstvalues"
   -Xfrontend -const-gather-protocols-file -Xfrontend "$PROTOCOLS" \
   -framework AppIntents -framework AppKit \
   -o "$OUT/Contents/MacOS/$MODULE" \
-  "$SOURCE"
+  "${SOURCES[@]}"
 
 # ── Info.plist ───────────────────────────────────────────────────────────────────────────────
 # NSExtensionPointIdentifier is what makes macOS treat this bundle as an App Intents extension.
@@ -115,7 +120,7 @@ if [ ! -x "$PROCESSOR" ]; then
   echo "  build is not shippable and is refused rather than packaged silently." >&2
   exit 1
 fi
-printf '%s\n' "$SOURCE" > "$WORK/sources.txt"
+printf '%s\n' "${SOURCES[@]}" > "$WORK/sources.txt"
 printf '%s\n' "$CONSTVALUES" > "$WORK/constvalues.txt"
 
 "$PROCESSOR" \
@@ -151,8 +156,18 @@ def walk(o):
     elif isinstance(o,list):
         for v in o: walk(v)
 walk(json.load(open('$META/extract.actionsdata')))
-print(' '.join(sorted(i for i in found if 'BimaxTask' in i)))
+print(' '.join(sorted(i for i in found if 'Bimax' in i)))
 " 2>/dev/null)"
+for REQUIRED in StartBimaxTask FindBimaxChanges BimaxThreadQuery BimaxChangeQuery; do
+  case " $NAMED " in
+    *" $REQUIRED "*) ;;
+    *) echo "app intents: FAILED — $REQUIRED is missing from the exported metadata." >&2
+       echo "  Exported: ${NAMED:-<nothing>}" >&2
+       echo "  An entity or intent that does not export is invisible to Siri, Shortcuts and" >&2
+       echo "  Spotlight, and nothing else in the build would notice." >&2
+       exit 1 ;;
+  esac
+done
 if [ -z "$NAMED" ]; then
   echo "app intents: FAILED — metadata was written but names no intent." >&2
   echo "  The Swift compiled and linked, so this build would otherwise be green and expose nothing." >&2

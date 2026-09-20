@@ -32,9 +32,10 @@ struct BimaxIntentsExtension: AppIntentsExtension {}
 /// Long enough for a real instruction, and the same ceiling the link parser enforces
 /// (`MAX_LINK_PROMPT` in bimax.link.ts). Kept in step so a prompt that Siri accepts is never
 /// refused by the dialog it opens.
-private let maxPromptLength = 2000
+let maxPromptLength = 2000
 
-private enum BimaxLink {
+/// Shared by every intent in this module — see BimaxQueryIntents.swift.
+enum BimaxLink {
     /// Build `bimax://task?folder=…&prompt=…`.
     ///
     /// `URLComponents` percent-encodes the query for us. Building the string by hand is how a
@@ -64,7 +65,7 @@ private enum BimaxLink {
 /// The app refuses these cases too, after resolving symlinks. Refusing here as well means the
 /// person is told by the thing they are talking to, rather than watching a dialog appear and
 /// immediately cancel itself.
-private func validated(folder: String) throws -> String {
+func validatedFolder(_ folder: String) throws -> String {
     let trimmed = folder.trimmingCharacters(in: .whitespacesAndNewlines)
     let expanded = (trimmed as NSString).expandingTildeInPath
     guard !expanded.isEmpty, expanded.hasPrefix("/") else {
@@ -107,7 +108,7 @@ struct StartBimaxTask: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        let root = try validated(folder: folder)
+        let root = try validatedFolder(folder)
         let text = prompt.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else {
             throw IntentError.badPrompt("What should Bimax do in that folder?")
@@ -143,7 +144,7 @@ struct OpenBimaxTask: AppIntent {
     }
 
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        let root = try validated(folder: folder)
+        let root = try validatedFolder(folder)
         guard let url = BimaxLink.taskURL(folder: root, prompt: nil), BimaxLink.open(url) else {
             throw IntentError.unavailable
         }
@@ -196,6 +197,28 @@ struct BimaxShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Open a Task",
             systemImageName: "folder"
+        )
+        // The read half. These answer rather than act, which is why they are worth having as
+        // spoken phrases at all: you can ask them without deciding to start anything.
+        AppShortcut(
+            intent: FindBimaxChanges(),
+            phrases: [
+                "What did \(.applicationName) change",
+                "What has \(.applicationName) changed",
+                "Find \(.applicationName) changes"
+            ],
+            shortTitle: "Find Changes",
+            systemImageName: "clock.arrow.circlepath"
+        )
+        AppShortcut(
+            intent: FindBimaxTasks(),
+            phrases: [
+                "What was I working on in \(.applicationName)",
+                "Find a \(.applicationName) task",
+                "My \(.applicationName) tasks"
+            ],
+            shortTitle: "Find Tasks",
+            systemImageName: "list.bullet.rectangle"
         )
     }
 }

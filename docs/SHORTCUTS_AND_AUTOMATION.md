@@ -97,25 +97,67 @@ If macOS is opening the wrong copy of Bimax, the Launch Services database has st
 
 ## App Intents — what Siri can do
 
-Bimax ships an App Intents extension (`native/intents/BimaxIntents.swift`, built into
-`Contents/Extensions/BimaxIntents.appex`). It exposes **two actions**:
+Bimax ships an App Intents extension (`native/intents/`, built into
+`Contents/Extensions/BimaxIntents.appex`). It exposes **five actions** in two halves.
+
+### Start work
 
 | Action | Parameters | What it does |
 |---|---|---|
 | **Start a Task** | Folder, Prompt | Opens a ⌘2 task in that folder with the prompt filled in |
 | **Open a Task in a Folder** | Folder | Opens an empty ⌘2 task bound to that folder |
+| **Open a Past Task's Folder** | Task | Opens a new task in the folder a past task ran in |
 
-Spoken phrases, which need no setup once the extension is registered:
+### Ask what happened — read-only
 
-- *"Start a Bimax task"*
-- *"Run a task in Bimax"*
-- *"Ask Bimax to do something"*
-- *"Open a Bimax task"*
-- *"Open a folder in Bimax"*
+| Action | Parameters | What it returns |
+|---|---|---|
+| **Find Changes** | About, Within days | The file changes Bimax made — what, when, which tool, which files |
+| **Find Tasks** | About | Past tasks by name or folder, most recent first |
 
-Both actions also appear in the Shortcuts action library under **Bimax → Tasks**, so they can be
-dropped into any shortcut, given a keyboard trigger, or chained after another app's action — "when
-a file is added to this folder, *Start a Bimax task* to sort it".
+These two answer and change nothing. They open no link and launch nothing, so asking what happened
+never steals focus or starts work.
+
+### Spoken phrases, no setup needed
+
+- *"Start a Bimax task"* · *"Run a task in Bimax"* · *"Ask Bimax to do something"*
+- *"Open a Bimax task"* · *"Open a folder in Bimax"*
+- *"What did Bimax change"* · *"What has Bimax changed"* · *"Find Bimax changes"*
+- *"What was I working on in Bimax"* · *"Find a Bimax task"* · *"My Bimax tasks"*
+
+All five appear in the Shortcuts action library under **Bimax**, so they can be dropped into any
+shortcut, given a keyboard trigger, or chained after another app's action — "when a file is added
+to this folder, *Start a Bimax task* to sort it".
+
+## Entity schemas — Bimax's work in Spotlight
+
+Two entities are contributed, which is what turns *"what did Bimax change in the parser
+yesterday?"* from a wish into a query:
+
+| Entity | Fields |
+|---|---|
+| **Bimax Task** | Task, Folder, Full path, Last worked on, Status |
+| **Bimax Change** | What changed, Tool, When, Files |
+
+They are read from the files the app already writes — nothing new is stored and nothing is
+duplicated:
+
+- `threads/<uuid>.json` — the saved Threads;
+- `thread-state/<folder-id>/.bimax/undo/journal.jsonl` — changes made by ⌘2 tasks;
+- `<project>/.bimax/undo/journal.jsonl` — changes made from a project window, which keeps its
+  journal inside the repository.
+
+**Both journal locations are read.** Reading only the first would silently miss every change made
+from a project window, which on a working machine is most of them. Measured against a real machine
+on 2026-09-20: 52 of 52 Threads and 31 changes parsed, including project-window journals.
+
+A search matches on **file paths, not just the change summary** — "what did Bimax change in the
+parser" is a question about a file whose name the summary may never mention — and it requires
+*every* term you give it, so "parser tests" does not return every change that mentions tests.
+
+**Spotlight indexing needs macOS 15.** `IndexedEntity` is macOS 15; the entities and their queries
+are macOS 13, which is the app's own floor. On macOS 13 and 14 you keep the Shortcuts and Siri
+actions and lose only the Spotlight indexing — degrade, do not drop.
 
 ### What Siri cannot do, by design
 
@@ -155,9 +197,10 @@ here rather than in a commit message.
 
 ### Still not built
 
-Entity schemas — contributing Threads, the evidence store and the undo journal to Spotlight's
-semantic index, so *"what did Bimax change in the parser yesterday?"* becomes a Spotlight query —
-remain **Target**. No coding IDE does this, and it is the more interesting half of WP-9.
+The **evidence store** (`app/src/main/evidence.store.ts`) is not contributed yet. Threads and the
+undo journal are. Evidence records are richer and carry retention classes that an entity schema
+would have to honour, so it is deliberately a separate piece of work rather than a quick third
+`AppEntity`.
 
 ## Why the gate came first
 

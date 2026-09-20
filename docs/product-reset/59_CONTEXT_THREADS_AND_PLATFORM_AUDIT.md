@@ -251,8 +251,9 @@ against a 5 s per-test timeout — the known worker-contention flake
 ## Still Target / unmeasured
 
 - **WP-6** CPU/GPU baseline — blocked on root and the Xcode GUI. **WP-7** QoS stays gated on it.
-- **WP-9 registration** — the extension is built and packaged; macOS does not register it on a
-  self-signed build. Entity schemas (Spotlight) are untouched and still Target.
+- **WP-9 registration** — the extension is built and packaged, entity schemas included; macOS
+  does not register it on a self-signed build. The feature ships ready, not live.
+- **The evidence store is not contributed as an entity.** Threads and the undo journal are.
 - **WP-5** glass rungs and **WP-10** MLX — untouched, still gated on WP-6 / WP-8.
 - **No live-provider run.** Every number here is deterministic and local. The ANSI fix in particular
   is proven at the tool boundary, not by observing a live model stop echoing escapes.
