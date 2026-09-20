@@ -1,5 +1,26 @@
 # Bimax product reset
 
+## macOS 27, optimisation, and a retirement pass — 2026-09-19
+
+Three records, written in sequence:
+
+- [56_APPLE_PLATFORM_AND_PERFORMANCE_PLAN.md](56_APPLE_PLATFORM_AND_PERFORMANCE_PLAN.md) — what
+  macOS 27 Golden Gate offers (Foundation Models + `MLXLanguageModel`, Core AI, App Intents/Siri,
+  MetricKit + StateReporting) measured against what this app already does. Two findings in it were
+  **withdrawn on inspection** and are marked as such; the idle-CPU measurement (0.4% of one core)
+  is why "optimisation" turned out to be the wrong frame.
+- [57_OPTIMISATION_AND_APPLE_BUILD_PLAN.md](57_OPTIMISATION_AND_APPLE_BUILD_PLAN.md) — the work
+  breakdown. **Built:** the Thread/worker/core glossary and its CI gate (WP-0, also in `AGENTS.md`),
+  one machine-wide sub-agent worker budget (WP-1 — the per-Thread ceiling had been multiplying by
+  the number of live Bimax Threads), and the rendering half of the adaptive policy, which had never
+  executed once (WP-2). WP-3 withdrawn, WP-4 re-scoped, WP-6 blocked on Xcode's GUI.
+- [58_RETIREMENT_AND_BACKEND_PLAN.md](58_RETIREMENT_AND_BACKEND_PLAN.md) — ~4,300 lines of
+  production code retired across two passes (worktree racing, dream/self-play, Blueprints,
+  LLM-training), each condemned by a measurement rather than by taste; plus **W1** usage counters
+  (`/usage`) and **W2** change gates (`/gates`), whose escalation half is Target.
+
+Front-end work is parked by the owner. The engine bundle is 1,561 modules / 21.82 MB.
+
 ## One codebase, one engine — 2026-09-19
 
 [55_ONE_CODEBASE_ENGINE_RECORD.md](55_ONE_CODEBASE_ENGINE_RECORD.md) records that the pinned

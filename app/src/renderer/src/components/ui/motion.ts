@@ -388,3 +388,16 @@ export function prefersReducedMotion(): boolean {
   return typeof window !== 'undefined'
     && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 }
+
+/**
+ * Whether the adaptive rendering policy has asked for quiet (WP-2, docs/product-reset/57).
+ *
+ * Reads the same `data-render-mode` attribute render.mode.ts stamps on <html> and styles.css keys
+ * off, so a JS-driven decorative loop and its CSS counterpart can never disagree about whether they
+ * are running. Absent attribute, no DOM, anything unexpected — false, so the failure direction is
+ * MORE motion: a missed saving is invisible, a UI that silently stopped animating looks broken.
+ */
+export function isQuietRendering(): boolean {
+  return typeof document !== 'undefined'
+    && document.documentElement?.getAttribute('data-render-mode') === 'quiet';
+}

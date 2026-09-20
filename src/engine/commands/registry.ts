@@ -1,5 +1,6 @@
 import { AppState, appStore } from '../../state/app.state';
 import { IGovernor } from '../../core/interfaces';
+import { recordUsage } from '../../mind/usage.counters';
 
 export type CommandCategory = 'Configuration' | 'Code & Intelligence' | 'Source Control' | 'General' | 'Session & Context';
 
@@ -110,11 +111,15 @@ export class CommandRegistry {
   async execute(input: string, context: CommandContext): Promise<CommandResult> {
     const [name, ...args] = input.trim().split(/\s+/);
     const command = this.commands.get(name.toLowerCase());
-    
+
     if (!command) {
       throw new Error(`Unknown command: ${name}`);
     }
-    
+
+    // Recorded under the CANONICAL name, not the alias that was typed, so /mind and /self are one
+    // number rather than two halves. Names only — never the arguments (see usage.counters.ts).
+    recordUsage('command', command.name);
+
     return command.execute(args, context);
   }
   

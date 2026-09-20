@@ -31,6 +31,15 @@ export interface AppSettings {
   folderTriggers?: import('./folder.triggers').FolderTrigger[];
   /** The global shortcut that opens the ⌘2 bar, one of quick.shortcut.ts's choices; absent means ⌘2. */
   quickShortcut?: string;
+  /**
+   * The most one Bimax Thread may spend in a day, in USD (backlog F5). Absent means a Thread is
+   * bounded only by the Mac's daily cap (`MAX_DAILY_SPEND`, default $5) — which is now genuinely
+   * Mac-wide rather than per-folder, see spendLedgerEnvironment in thread.manager.ts.
+   *
+   * The point of a per-Thread share is unattended work: without it, one overnight task that loops
+   * can spend the whole day's budget before any other Thread gets a turn.
+   */
+  perTaskSpendUsd?: number;
 }
 
 const MAX_RECENTS = 8;

@@ -15,6 +15,7 @@ import { engineEvents, ToolCallEntry } from '../engine/events';
 import { getActiveTodos, todosTouchedThisTurn } from '../tools/implementations/todo.tool';
 import { LoopDetector, LoopSignal } from './loop-detector';
 import { getGlobalPatternStore } from '../genome/pattern.store';
+import { recordUsage } from '../mind/usage.counters';
 import { globalTelemetry } from '../telemetry/telemetry';
 import { taskMetrics } from '../telemetry/task.metrics';
 import { getSelfModel, domainOf, pathOf, labelOutcome, currentModelKey } from '../mind/self.model';
@@ -1199,6 +1200,10 @@ export class AgentLoop {
               // (FreeContextTool) can act on the real session context, not a stale copy.
               sessionMessages: this.messages,
             };
+            // Counted at the point the tool actually RUNS — after the governor, the arg validation
+            // and the hooks have all let it through. A tool the model asked for and was refused is
+            // not a tool in use, and counting the request would make a blocked tool look popular.
+            recordUsage('tool', tool.name);
             const result = await tool.execute(argsObj, toolContext);
             const resultStr = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
             return finish(resultStr, !!typed && typed.status !== 'ok', typed);

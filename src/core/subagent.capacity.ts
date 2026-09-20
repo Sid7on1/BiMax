@@ -3,6 +3,18 @@ import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 
+/**
+ * The ceiling on concurrent sub-agent **workers** — real Node `worker_threads` Workers, i.e. actual
+ * OS threads (see subagent.manager.ts). This is a CPU budget.
+ *
+ * It is NOT the cap on Bimax Threads, the product feature, even though both are currently 4:
+ * `MAX_LIVE_ENGINES` (app/src/main/thread.manager.ts) is a MEMORY budget over engine processes.
+ * The two govern different resources and are enforced in different places — this one per process,
+ * against the lease ledger `resolveCapacityContext` picks. When the desktop runs several Bimax
+ * Threads at once it must point them all at ONE ledger (BIMAX_AGENT_CAPACITY_PATH), or this
+ * per-process ceiling multiplies by the number of live Threads. See the glossary in AGENTS.md and
+ * docs/product-reset/57_OPTIMISATION_AND_APPLE_BUILD_PLAN.md WP-1.
+ */
 export const MAX_CONCURRENT_SUBAGENTS = 4;
 
 /**

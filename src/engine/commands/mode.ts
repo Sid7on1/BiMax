@@ -43,9 +43,9 @@ globalCommandRegistry.register({
       title: `Agent mode (current: ${current})`,
       options: [
         { label: 'explore', value: 'explore', desc: 'Read-only reconnaissance — map the codebase, writes blocked', category: 'Modes' },
-        { label: 'sketch', value: 'sketch', desc: 'Interactive architect — discuss an idea → level-by-level Blueprint (writes blocked)', category: 'Modes' },
+        { label: 'sketch', value: 'sketch', desc: 'Plan first — discuss an idea and write the plan down (writes blocked)', category: 'Modes' },
         { label: 'code', value: 'code', desc: 'Execution focus — minimal reads, surgical edits, verify after', category: 'Modes' },
-        { label: 'beast', value: 'beast', desc: 'Autonomous builder — drive a goal/Blueprint to a verified result', category: 'Modes' },
+        { label: 'beast', value: 'beast', desc: 'Autonomous builder — drive a goal or saved plan to a verified result', category: 'Modes' },
         { label: 'general', value: 'general', desc: 'Default behaviour — no specialization', category: 'Modes' },
       ],
       onSelect: (opt: any) => {

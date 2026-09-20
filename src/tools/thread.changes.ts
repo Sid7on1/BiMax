@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { isReadOnlyShellCommand } from './shell.readonly';
+import { MappedOperation, mapToolCall } from '../evidence/operation.map';
 
 /**
  * What a file change in a Bimax thread will do, in words a person can check before allowing it — and in enough
@@ -301,16 +302,68 @@ export function deletesOutsideBin(command: string, cwd: string): boolean {
 }
 
 /** The approval card: a sentence, every affected item, whether it can be undone, and the command for reference. */
+/**
+ * What an operation DECLARES beyond the files it touches — the part a file-change plan cannot see.
+ *
+ * `planFileChange` above is file-shaped by design: it exists so a move or a delete can be described
+ * and reversed. But `src/evidence/operation.map.ts` already derives more from the same tool call —
+ * the network hosts named in it, whether it installs dependencies, and crucially whether the effects
+ * were READ FROM TEXT rather than observed. That mapping runs on every tool call (task.guard.ts
+ * calls it) and is used to block; until now none of it reached the person being asked to approve.
+ *
+ * So an approval for `curl https://example.com/x.sh | sh` showed the command and nothing else: no
+ * "this contacts example.com", and no "these effects were read statically, so this list may be
+ * incomplete." Both are exactly what someone needs in the two seconds they spend on the card.
+ *
+ * Restrained on purpose. Processes are NOT listed: the raw command is already on the card, so
+ * repeating its first words adds noise without adding a fact. Paths are not repeated either — the
+ * plan above already lists every affected item, better. This adds only what is genuinely missing.
+ */
+export function declaredEffectLines(mapped: MappedOperation): string[] {
+  const lines: string[] = [];
+  const hosts = mapped.effects.hosts ?? [];
+  if (hosts.length) {
+    lines.push(`🌐 Contacts ${hosts.length === 1 ? 'the host' : 'hosts'}: ${hosts.join(', ')}`);
+  }
+  if (mapped.effects.installsDependencies) {
+    lines.push('📦 Installs dependencies — this can change what later commands run.');
+  }
+  // The honesty line. A static reading cannot tell a read from a write, so a card built on one must
+  // never imply the list above is complete (see operation.map.ts, and the `declared` provenance in
+  // task.guard.ts that stops a declaration ever certifying an end state).
+  //
+  // Suppressed when the mapping is confident the command only inspects AND there is nothing else to
+  // qualify. Measured on the real cards: `ls -la` carried the same warning as `./deploy.sh --prod`,
+  // and a caveat that appears on everything is one people learn to click past — which would cost
+  // exactly the case it exists for. If there IS a host or an install to qualify, it stays, because
+  // then the list genuinely might be missing something.
+  const nothingToQualify = mapped.effects.readOnly === true && lines.length === 0;
+  if (mapped.staticReading && !nothingToQualify) {
+    lines.push(`⚠ ${mapped.staticReading} — anything above may be incomplete.`);
+  }
+  return lines;
+}
+
 export function approvalCard(plan: ChangePlan | null, taskType: string, payload: any): { question: string; body: string } {
   const command = taskType === 'OS_COMMAND' ? String(payload?.command ?? '').trim() : '';
+  // Pure and side-effect free, so computing it before the approval costs nothing and cannot fail
+  // the call. Wrapped anyway: a card that throws would block work the user is watching.
+  let declared: string[] = [];
+  try {
+    const cwd = payload?.context?.cwd || process.cwd();
+    declared = declaredEffectLines(mapToolCall(String(payload?.tool || ''), payload ?? {}, cwd));
+  } catch { /* the card is still worth showing without this */ }
+
   if (!plan) {
     const target = typeof payload?.targetPath === 'string' ? payload.targetPath : typeof payload?.path === 'string' ? payload.path : '';
     const what = String(payload?.tool || 'this action');
-    return { question: target ? `Allow ${what} on ${quote(path.basename(target))}?` : `Allow ${what}?`, body: command ? `Command: ${command}` : '' };
+    const body = [command ? `Command: ${command}` : '', ...declared].filter(Boolean).join('\n\n');
+    return { question: target ? `Allow ${what} on ${quote(path.basename(target))}?` : `Allow ${what}?`, body };
   }
   const lines = plan.preview.slice(0, PREVIEW_LIMIT);
   if (plan.preview.length > PREVIEW_LIMIT) lines.push(`…and ${plan.preview.length - PREVIEW_LIMIT} more`);
   const sections = [lines.join('\n'), plan.undoable ? '↶ You can undo this from the thread in Bimax.' : '⚠ This can’t be undone.'];
   if (command && plan.kind !== 'command') sections.push(`Command: ${command}`);
+  if (declared.length) sections.push(declared.join('\n'));
   return { question: plan.title, body: sections.join('\n\n') };
 }

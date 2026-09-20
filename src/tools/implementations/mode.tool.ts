@@ -10,9 +10,9 @@ interface ModeArgs {
 
 /**
  * ModeTool — lets the agent switch its OWN behavioral mode autonomously, the same modes the user
- * cycles with Shift+Tab. This is what makes the Sketch→Build loop self-driving: after concluding a
- * Blueprint in sketch mode the agent can switch itself to beast mode and build it; if it realizes
- * mid-build it needs to rethink, it can switch back to sketch. The user can always override.
+ * cycles with Shift+Tab. This is what makes the plan→build loop self-driving: after settling a plan
+ * in sketch mode the agent can switch itself to beast mode and build it; if it realizes mid-build
+ * it needs to rethink, it can switch back to sketch. The user can always override.
  *
  * Switching to explore/sketch flips the read-only gate (the agent's own writes get blocked);
  * switching to code/beast/general restores writes — so the agent is choosing its own permissions,
@@ -24,13 +24,13 @@ export const createModeTool = (governor: IGovernor) => buildTool({
 
 # Modes
 - **explore**: read-only reconnaissance — writes blocked. Use to map an unfamiliar codebase first.
-- **sketch**: interactive architect — discuss an idea and build a level-by-level Blueprint (writes blocked except Blueprint/Plan files). Use when the user describes something to build.
+- **sketch**: plan first — discuss an idea and write it down as a plan (writes blocked except Plan files). Use when the user describes something to build.
 - **code**: execution focus — surgical edits, verify after. Writes allowed.
-- **beast**: autonomous builder — drive a goal or a saved Blueprint to a verified result (mega-pipeline, training config + monitoring). Writes allowed.
+- **beast**: autonomous builder — drive a goal or a saved plan to a verified result, fanning out with SpawnTool where parts are independent. Writes allowed.
 - **general**: default, no specialization.
 
 # When to switch yourself
-- Finished a Blueprint in sketch mode and the user is ready → switch to **beast** and build it.
+- Finished a plan in sketch mode and the user is ready → switch to **beast** and build it.
 - The build reveals the plan was wrong → switch back to **sketch** to rework it with the user.
 - Asked to "just look / don't change anything" → switch to **explore**.
 Always pass a short reason. Tell the user which mode you switched to and why. Prefer to confirm with the user before self-promoting from a read-only mode (sketch/explore) into a write mode (code/beast) if the change is large or risky.`,

@@ -108,7 +108,34 @@ answer. Value high · Effort M · Needs F2. *Why:* folder triggers, Guardian and
 so build it once.
 
 **F5. Per-task limits.** Spend, retries, concurrency and wall-clock time, with the cost visible (see N6).
-Value high · Effort S–M.
+Value high · Effort S–M. **Spend and concurrency done 2026-09-19; retries and wall-clock are not.**
+
+Starting it found a defect first. The engine's daily cap lives in
+`<stateDir('.breakglass')>/credits/spend.json`, `stateDir` honours `BIMAX_STATE_DIR`, and
+`threadStateEnvironment` sets that per Bimax Thread — so **every Thread had its own $5/day**.
+Measured before the fix: four independent spend files on the development machine, two of them under
+`thread-state/`. The effective ceiling was $5 × (folders ever opened as a Thread), growing by $5 with
+every new folder. This is the same shape as the sub-agent worker cap (record 57, WP-1) — a
+per-machine constant applied per-Thread — except this one spends money.
+
+- **One ledger for the Mac** (`src/governor/spend.ledger.ts`). Not a shared path into `BudgetVeto`:
+  its mutex is in-process `async-mutex` and each Thread is a separate OS process, so a shared path
+  alone would lose updates — two engines each read $2, each add $1, each write $3, with $4 spent. It
+  follows the O_EXCL lock + atomic rename pattern already proven in `subagent.capacity.ts`, and the
+  cross-process property is tested with **two real `bun` processes** against the real lock.
+- **A per-Thread share** (`perTaskSpendUsd`), so one unattended task cannot spend the whole day
+  before the others start. A charge is refused when either ceiling would break, and the refusal
+  names which — a Thread that exhausted its share is told the Mac still has room, rather than being
+  sent to raise a cap that is not the one stopping it.
+- **Cost is visible** (`/spend`, N6): today's total for the Mac, this task's share, and a per-task
+  breakdown. Before the shared ledger there was no single number to show.
+- **Concurrency** was closed separately by record 57 WP-1 (one worker budget for the machine).
+- A settled charge is always booked, even over the cap: a completed provider call cost money
+  whatever the file says, and dropping it would make the ledger under-report.
+- Known bound, stated not hidden: reservations stay in-process, so the overshoot is at most one
+  in-flight call per live engine, and the next check refuses.
+
+**Still open in F5:** retry limits and wall-clock limits per task.
 
 **F6. Recovery before retry.** Before repeating an action, check whether it already happened, using the
 undo journal as the record. Value medium · Effort M.

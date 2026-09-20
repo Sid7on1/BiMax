@@ -2,7 +2,7 @@ import { CapabilityReplay } from './capability.replay';
 import { app, BrowserWindow, ipcMain, dialog, shell, session, systemPreferences, powerMonitor, net, nativeTheme, globalShortcut, screen, Menu, Notification, Tray, nativeImage, webContents as electronWebContents } from 'electron';
 import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron';
 import path from 'node:path';
-import { ThreadManager, threadCapabilityEnvironment, threadIndexEnvironment, threadVoiceEnvironment } from './thread.manager';
+import { ThreadManager, threadCapabilityEnvironment, threadIndexEnvironment, threadVoiceEnvironment, workerCapacityEnvironment, spendLedgerEnvironment } from './thread.manager';
 import { ThreadStorage } from './thread.storage';
 import { createThreadBroker } from './thread.broker';
 import { finderContext } from './finder.context';
@@ -690,6 +690,11 @@ let latestReviewSnapshot: unknown = null;
 const adaptivePolicy = new AdaptiveRuntimePolicy({
   canaryEnabled: process.env.BIMAX_ADAPTIVE_CONCURRENCY !== 'off',
 });
+// WP-2 (record 57): the rendering half of the same policy, which until now was hardcoded to shadow
+// mode at its only call site — computed every 30 s and thrown away. `off` is the explicit override,
+// mirroring BIMAX_ADAPTIVE_CONCURRENCY. Reduce Motion is unaffected either way: renderingPolicy
+// treats it as a hard accessibility constraint, not a canary decision.
+const adaptiveRenderingEnabled = process.env.BIMAX_ADAPTIVE_RENDERING !== 'off';
 let thermalState: ThermalState = 'unknown';
 let lastInteractionAt = Number.NEGATIVE_INFINITY;
 let reduceMotion = false;
@@ -817,7 +822,7 @@ function currentRuntimeSignals(): RuntimeSignals {
 function adaptiveSnapshot(): { signals: RuntimeSignals; decision: AdaptiveDecision; rendering: ReturnType<typeof renderingPolicy> } {
   const signals = currentRuntimeSignals();
   const decision = adaptivePolicy.decide(signals);
-  return { signals, decision, rendering: renderingPolicy(signals, false) };
+  return { signals, decision, rendering: renderingPolicy(signals, adaptiveRenderingEnabled) };
 }
 
 function broadcast(channel: string, ...args: unknown[]): void {
@@ -991,6 +996,13 @@ function createSupervisor(threadId?: string): EngineSupervisor {
       return spawnEngine(project, {
         ...extraEnv,
         ...adaptivePolicy.engineEnvironment(adaptive.decision),
+        // One sub-agent worker budget for the whole machine, not one per Bimax Thread. Without
+        // this every engine gets its own per-folder lease ledger, so the per-machine ceiling the
+        // policy just computed is multiplied by the number of live Threads (WP-1, record 57).
+        ...workerCapacityEnvironment(app.getPath('userData')),
+        // The same fix for money (backlog F5): one spend ledger for the Mac, and a per-Thread share
+        // so one unattended task cannot spend the whole day before the others start.
+        ...spendLedgerEnvironment(app.getPath('userData'), threadId, loadSettings().perTaskSpendUsd),
         // Keychain-backed secrets enter only at the child boundary. They never pass through the
         // renderer or the engine protocol and are not written to diagnostics.
         ...providerCredentialEnvironment(),

@@ -6,7 +6,6 @@ import { HabitMiner, __setHabitMiner } from '../mind/habit.compiler';
 import { UserModel, extractDiffFeatures } from '../mind/user.model';
 import { EpistemicLedger, isEvidenceCommand } from '../mind/epistemic.ledger';
 import { DrivesEngine, __setDrivesEngine } from '../mind/drives.engine';
-import { DreamEngine } from '../mind/dream.engine';
 
 function tmpRoot(): string {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'bimax-mind-'));
@@ -362,20 +361,6 @@ describe('Edit Shield — multi-language gates', () => {
   });
 });
 
-describe('DreamEngine', () => {
-  test('a cycle with a healthy repo journals and skips practice', async () => {
-    const root = tmpRoot();
-    fs.mkdirSync(path.join(root, 'src'));
-    fs.writeFileSync(path.join(root, 'package.json'), '{}');
-    fs.writeFileSync(path.join(root, 'src', 'a.ts'), 'export const x = 1;');
-    // Point the global singletons the engine consults at the temp root.
-    __setDrivesEngine(new DrivesEngine(root));
-    __setSelfModel(new SelfModel(root));
-    __setHabitMiner(new HabitMiner(root));
-    const dream = new DreamEngine(root);
-    const report = await dream.cycle({ practice: true });
-    expect(report.deviations).toHaveLength(0);
-    expect(report.practice).toBeUndefined();
-    expect(dream.journal()).toHaveLength(1);
-  });
-});
+// DreamEngine's suite was archived with it on 2026-09-19 (docs/product-reset/58). It asserted that
+// a healthy repo journals a cycle and skips practice — a true statement about code that had never
+// run outside this test: zero `dream_episode` rows in the event ledger, ever.

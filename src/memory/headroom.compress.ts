@@ -63,7 +63,7 @@ export function getHeadroomReport(): HeadroomReport {
 }
 
 // eslint-disable-next-line no-control-regex
-const ANSI = /?\[[0-9;]*[A-Za-z]/g;
+const ANSI = /\u001b?\[[0-9;]*[A-Za-z]/g;
 export const ERROR_LINE = /\b(error|err|fail(ed|ure)?|exception|traceback|panic|fatal|warn(ing)?|denied|refused|timeout|cannot|unable)\b/i;
 
 /** Normalize a line so log lines that differ only by numbers/timestamps/hashes collapse together. */

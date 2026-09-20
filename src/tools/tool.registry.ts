@@ -257,3 +257,24 @@ export class ToolRegistry {
     return this.getSchemas({ mode: 'full' });
   }
 }
+
+/**
+ * The registry the interactive container built, for the few callers that need the DENOMINATOR —
+ * "which tools exist" — rather than a tool to run. `/usage` needs it to tell a tool that has never
+ * been called from a tool that was never registered in the first place.
+ *
+ * Deliberately a single slot set by the container, not a global the registry constructor claims:
+ * sub-agent workers and the learning/background proofs each build their own throwaway registry
+ * (worker.entry.ts, learning.proof.ts, background.proof.ts), and none of those should be able to
+ * overwrite what the interactive session is holding. Null until the container runs, and every
+ * consumer must degrade rather than assume.
+ */
+let activeRegistry: ToolRegistry | null = null;
+
+export function setActiveToolRegistry(registry: ToolRegistry | null): void {
+  activeRegistry = registry;
+}
+
+export function getActiveToolRegistry(): ToolRegistry | null {
+  return activeRegistry;
+}

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { THINKING_VERBS, isDegenerate, nextVerb, reasoningTail } from '../thinking.model';
-import { prefersReducedMotion } from './ui/motion';
+import { isQuietRendering, prefersReducedMotion } from './ui/motion';
 
 /** How long each word stays before the next one decodes in. */
 const VERB_MS = 2600;
@@ -12,7 +12,7 @@ const LETTERS = 'abcdefghijklmnopqrstuvwxyz';
 function useDecodingWord(word: string): string {
   const [text, setText] = useState(word);
   useEffect(() => {
-    if (prefersReducedMotion()) { setText(word); return; }
+    if (prefersReducedMotion() || isQuietRendering()) { setText(word); return; }
     const started = performance.now();
     let frame = 0;
     const tick = (now: number): void => {
@@ -45,7 +45,10 @@ export function ThinkingIndicator({ thinking }: { thinking: string }): React.Rea
   const shown = useDecodingWord(verb);
 
   useEffect(() => {
+    // The elapsed counter is information — how long this turn has been running — so it keeps ticking
+    // under quiet rendering. The rotating verb is decoration, and stops (WP-2, record 57).
     const clock = window.setInterval(() => setElapsed(Math.floor((Date.now() - startedAt.current) / 1000)), 1000);
+    if (isQuietRendering()) return () => window.clearInterval(clock);
     const words = window.setInterval(() => setVerb((current) => nextVerb(current)), VERB_MS);
     return () => { window.clearInterval(clock); window.clearInterval(words); };
   }, []);

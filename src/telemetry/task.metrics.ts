@@ -228,7 +228,7 @@ class TaskMetricsStore {
       // Interrupted tasks are excluded: a task the user stopped early has an artificially low turn
       // count and would flatter any comparison it landed in.
       if (run.interrupted) continue;
-      const key = `${run.surface} ${run.label || ''}`;
+      const key = `${run.surface}\u0000${run.label || ''}`;
       const bucket = groups.get(key);
       if (bucket) bucket.push(run); else groups.set(key, [run]);
     }
@@ -243,7 +243,7 @@ class TaskMetricsStore {
     };
 
     return [...groups.entries()].map(([key, group]) => {
-      const [surface, label] = key.split(' ');
+      const [surface, label] = key.split('\u0000');
       return {
         surface: surface as TaskSurface,
         ...(label ? { label } : {}),

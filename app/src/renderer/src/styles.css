@@ -1699,3 +1699,45 @@ html.aux-surface, html.aux-surface body, html.aux-surface #root { background: tr
   .quick-root, .aux-panel { background: var(--color-bg); }
   .quick-answer pre, .quick-request-diff pre, .aux-panel pre { background: var(--color-well); }
 }
+
+/* ── Quiet rendering (WP-2, docs/product-reset/57) ───────────────────────────────────────────────
+   `data-render-mode="quiet"` is stamped on <html> by render.mode.ts when the adaptive policy reports
+   sustained machine pressure — Low Power Mode, a serious or critical thermal state, critical memory
+   pressure, or simply running on battery. It is NOT set while the user merely interacts: that would
+   stop decoration on every keystroke and restart it two seconds later, which reads worse than either
+   steady state (see renderingPolicy's comment).
+
+   What stops here is decoration: the INFINITE loops that repaint every frame and communicate nothing.
+   Everything that carries state keeps running — a turn's elapsed seconds, a notice counting down, a
+   surface arriving, the mic and talk rings that follow a live voice level (those are driven by a CSS
+   variable and a 90ms transition, not by an animation, so they cost nothing when the level is still).
+
+   Deliberately narrower than `prefers-reduced-motion`, which also flattens one-shot entrances. Quiet
+   is an energy decision; Reduce Motion is an accessibility promise, and it still wins on its own. */
+:root[data-render-mode='quiet'] {
+  /* The token the one-shot blink is built from, so anything using it stops with a single override. */
+  --animate-soft-blink: none;
+  --animate-spin-slow: none;
+}
+:root[data-render-mode='quiet'] .signal-beacon,
+:root[data-render-mode='quiet'] .graph-link,
+:root[data-render-mode='quiet'] .graph-core-ring,
+:root[data-render-mode='quiet'] .graph-node-ring,
+:root[data-render-mode='quiet'] .animate-spin-slow,
+:root[data-render-mode='quiet'] .animate-soft-blink,
+:root[data-render-mode='quiet'] .mic-button[data-listening='starting'],
+:root[data-render-mode='quiet'] .mic-button[data-listening='finishing'],
+:root[data-render-mode='quiet'] .talk-orb[data-state='starting'],
+:root[data-render-mode='quiet'] .talk-orb[data-state='thinking'],
+:root[data-render-mode='quiet'] .talk-orb[data-state='speaking'] {
+  animation: none;
+}
+/* The shimmer sweeps a 220%-wide gradient across text forever. Without the animation the gradient
+   would park mid-sweep and leave the verb half-transparent, so the text goes back to a flat colour. */
+:root[data-render-mode='quiet'] .thinking-verb {
+  animation: none;
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  color: var(--color-ink);
+}

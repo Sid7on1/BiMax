@@ -150,6 +150,23 @@ export class AdaptiveRuntimePolicy {
   }
 }
 
+/**
+ * What the renderer may spend frames on. Applied for real since WP-1/WP-2 (record 57); before that
+ * every caller passed `canaryEnabled: false`, so this function was computed every 30 s, broadcast
+ * over IPC, and discarded — the GPU half of the adaptive design had never executed once.
+ *
+ * `quiet` stops DECORATIVE motion only: the infinite loops (blink, shimmer, orbit, the talk orb)
+ * that cost a compositor pass every frame and communicate nothing. Motion that carries state — a
+ * turn's elapsed seconds, a notice's expiry, a surface arriving — keeps running, because a person
+ * on battery still needs to know what the agent is doing.
+ *
+ * `activeInteraction` is deliberately NOT a quiet trigger, though it is one for background
+ * concurrency. The two mean different things. For background work "the user is typing" is a good
+ * reason to hold off for two seconds. For rendering it would stop decoration on every keystroke and
+ * restart it two seconds later, so the decoration would flicker in and out while someone typed —
+ * visibly worse than either steady state. Quiet is driven by sustained machine pressure instead,
+ * which changes on the scale of minutes and therefore does not churn.
+ */
 export function renderingPolicy(signals: RuntimeSignals, canaryEnabled = false): RenderingDecision {
   if (signals.reduceMotion) {
     return {
@@ -157,15 +174,19 @@ export function renderingPolicy(signals: RuntimeSignals, canaryEnabled = false):
       reasons: ['Reduce Motion is a hard accessibility constraint.'],
     };
   }
-  const quiet = signals.activeInteraction || signals.lowPowerMode === true
-    || signals.thermal === 'serious' || signals.thermal === 'critical'
-    || signals.memoryPressure === 'critical';
+  const pressure: string[] = [];
+  if (signals.lowPowerMode === true) pressure.push('Low Power Mode is enabled.');
+  if (signals.thermal === 'serious' || signals.thermal === 'critical') pressure.push(`Thermal state is ${signals.thermal}.`);
+  if (signals.memoryPressure === 'critical') pressure.push('Memory pressure is critical.');
+  if (signals.powerSource === 'battery') pressure.push('The Mac is on battery power.');
+  const quiet = pressure.length > 0;
   return {
     mode: quiet ? 'quiet' : 'full', preferredFps: quiet ? 30 : 60,
-    // Rendering remains observe-only until a real frame/energy matrix proves a win.
     nonessentialAnimation: canaryEnabled ? !quiet : true,
     automatic: canaryEnabled,
-    reasons: [quiet ? 'The measured runtime signals recommend quiet rendering.' : 'Runtime signals allow full rendering.', ...(canaryEnabled ? [] : ['Rendering adaptation remains in shadow mode.'])],
+    reasons: quiet
+      ? [...pressure, ...(canaryEnabled ? [] : ['Rendering adaptation remains in shadow mode.'])]
+      : ['Runtime signals allow full rendering.', ...(canaryEnabled ? [] : ['Rendering adaptation remains in shadow mode.'])],
   };
 }
 

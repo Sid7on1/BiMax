@@ -183,7 +183,7 @@ export class HabitMiner {
       if (!win.every((e, j) => e.t === steps[j])) continue;
       if (!win.every(e => e.cmd)) continue; // recorded before command capture existed
       const cmds = win.map(e => e.cmd!);
-      const key = cmds.join(' ');
+      const key = cmds.join('\u0000');
       const t = tuples.get(key);
       if (t) t.count++; else tuples.set(key, { cmds, count: 1 });
     }

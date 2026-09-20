@@ -4,14 +4,11 @@ import { getHabitMiner } from '../../mind/habit.compiler';
 import { getUserModel } from '../../mind/user.model';
 import { getDrivesEngine } from '../../mind/drives.engine';
 import { getEpistemicLedger } from '../../mind/epistemic.ledger';
-import { getDreamEngine } from '../../mind/dream.engine';
-import { getDogfoodEngine } from '../../mind/dogfood.engine';
 import { getEventLedger } from '../../mind/event.ledger';
 import { getTaintTracker } from '../../mind/taint';
 import { rebuildSelfModel } from '../../mind/views';
 import { listEpisodes, loadEpisode } from '../../mind/episode.recorder';
 import { replayEpisode } from '../../mind/replay.harness';
-import { MutationEngine } from '../../mind/mutation.engine';
 import { getExemplarStore } from '../../mind/exemplar.store';
 import { getPolicyArms, ARM_IDS, ArmId } from '../../mind/policy.arms';
 import { foldRuns } from '../../core/pipeline.journal';
@@ -21,9 +18,13 @@ import { getFileClaims } from '../../core/file.claims';
  * The Mind layer's command surface — the AGI-direction features, inspectable from the TUI:
  *   /self    — everything the agent knows about ITSELF (and you)
  *   /drives  — homeostatic health signals + on-demand measurement
- *   /dream   — run/inspect offline consolidation + self-play cycles
  *   /habits  — mined procedural memory, compile to recipes
- *   /dogfood — use the built artifact as a user; file bug reports
+ *
+ * RETIRED 2026-09-19 (docs/product-reset/58): `/dream` and `/dogfood`. Both ran sub-agents in
+ * throwaway git worktrees to practise against themselves. Measured before removal: the event
+ * ledger held 7 rows, all `policy_active` — zero `dream_episode` in the lifetime of this repo —
+ * and `.bimax/dogfood`, `.bimax/harness-lab` and `.bimax/worktrees` were empty directories.
+ * The code is at its same path under ~/Developer/bimax-archive.
  */
 
 globalCommandRegistry.register({
@@ -32,8 +33,6 @@ globalCommandRegistry.register({
   category: 'Code & Intelligence',
   description: 'Self-knowledge — learned failure rates, calibration, habits, user model, drives',
   execute: async () => {
-    const dreams = getDreamEngine().journal();
-    const last = dreams[dreams.length - 1];
     const lines = [
       '## Self-model — what BiMax knows about itself',
       '',
@@ -51,11 +50,6 @@ globalCommandRegistry.register({
       '',
       '**Drives (homeostasis)**',
       ...getDrivesEngine().report(),
-      '',
-      '**Dreams**',
-      last
-        ? `- Last cycle ${last.at}: ${last.deviations.length} deviation(s), ${last.lessons.length} lesson(s)${last.practice ? `, practice ${last.practice.graded ? 'PASSED' : last.practice.attempted ? 'failed' : 'skipped'}` : ''} · ${dreams.length} cycle(s) total`
-        : '- No dream cycles yet — run /dream.',
       '',
       '_Weak spots, calibration gaps, habits, user prefs and drive deviations are injected into the system prompt automatically — the agent routes around what you see here._',
     ];
@@ -92,81 +86,9 @@ globalCommandRegistry.register({
       '',
       ...engine.report(),
       '',
-      '_`/drives check` measures everything (runs builds/tests) · `/drives quick` cheap signals only · `/drives enable|disable <id>`. Deviations are injected into the agent prompt and feed /dream practice._',
+      '_`/drives check` measures everything (runs builds/tests) · `/drives quick` cheap signals only · `/drives enable|disable <id>`. Deviations are injected into the agent prompt._',
     ];
     return { type: 'message', level: 'info', content: lines.join('\n') };
-  },
-});
-
-globalCommandRegistry.register({
-  name: '/dream',
-  category: 'Code & Intelligence',
-  description: 'Dream cycle — consolidate lessons, compile habits, self-play practice in a worktree',
-  execute: async (args, context) => {
-    const sub = (args[0] || '').toLowerCase();
-    if (sub === 'history') {
-      const journal = getDreamEngine().journal().slice(-10).reverse();
-      if (journal.length === 0) return { type: 'message', level: 'info', content: 'No dream cycles recorded yet. Run `/dream` (or `/dream deep` to include build/test measurement).' };
-      const lines = ['## Dream journal (latest first)', ''];
-      const irt = new MutationEngine().irt();
-      if (irt.n > 0) {
-        const frontier = Object.entries(irt.b).sort((a, b) => Math.abs((1 / (1 + Math.exp(-(irt.theta - a[1])))) - 0.65) - Math.abs((1 / (1 + Math.exp(-(irt.theta - b[1])))) - 0.65))[0];
-        lines.push(`**Curriculum:** skill θ=${irt.theta.toFixed(2)} over ${irt.n} gradeable episode(s) · ${irt.active ? `IRT ACTIVE — frontier class \`${frontier[0]}\`` : `Beta frontier (IRT takes over at ${100})`}`, '');
-      }
-      const sat = new MutationEngine().saturation();
-      if (sat.n >= 20) {
-        lines.push(
-          sat.plateaued
-            ? `⚠ **Practice saturated** — success ${Math.round(sat.priorRate * 100)}% → ${Math.round(sat.recentRate * 100)}% over the last ${sat.n} gradeable episodes (no improvement beyond noise). The curriculum needs new task classes.`
-            : `**Learning curve:** success ${Math.round(sat.priorRate * 100)}% → ${Math.round(sat.recentRate * 100)}% over the last ${sat.n} gradeable episodes — still improving.`,
-          ''
-        );
-      }
-      for (const d of journal) {
-        lines.push(`**${d.at}** — ${d.deviations.length} deviation(s), ${d.lessons.length} lesson(s), ${d.habitsCompiled}/${d.habitsMined} habits compiled${d.practice ? ` · practice[${d.practice.driveId}]: ${d.practice.branch ? `PASSED → ${d.practice.branch}` : d.practice.attempted ? 'failed grade' : d.practice.note || 'skipped'}` : ''}${d.selfPlay?.attempted ? ` · self-play[${d.selfPlay.task?.op}]: ${d.selfPlay.fixed ? (d.selfPlay.exactRestore ? 'FIXED (exact)' : 'FIXED (alt)') : 'failed'}` : ''}`);
-      }
-      return { type: 'message', level: 'info', content: lines.join('\n') };
-    }
-
-    const deep = sub === 'deep';
-    context.addSystemMessage('info', `💤 Dream cycle starting${deep ? ' (deep)' : ''} — measure → consolidate → practice. Sequential and bounded.`);
-    const report = await getDreamEngine().cycle({
-      deep,
-      log: (level, msg) => context.addSystemMessage(level === 'error' ? 'error' : level === 'success' ? 'success' : 'info', `💤 ${msg}`),
-    });
-    const lines = [
-      '## Dream cycle complete',
-      '',
-      `**Deviations found:** ${report.deviations.length ? report.deviations.join(' · ') : 'none'}`,
-      `**Lessons consolidated:** ${report.lessons.length ? '' : 'none new'}`,
-      ...report.lessons.map(l => `- ${l}`),
-      `**Habits:** ${report.habitsCompiled}/${report.habitsMined} compiled`,
-    ];
-    if (report.practice) {
-      const p = report.practice;
-      lines.push(`**Practice (restoration):** ${p.branch ? `✓ PASSED objective grade — patch on \`${p.branch}\` (review + merge if good)` : p.attempted ? `✗ failed the objective re-measurement${p.note ? ` (${p.note})` : ''} — attempt discarded, lesson kept` : p.note || 'skipped'}`);
-    } else {
-      lines.push('**Practice (restoration):** skipped — no drive deviations to restore (healthy).');
-    }
-    if (report.selfPlay) {
-      const s = report.selfPlay;
-      if (s.attempted && s.task) {
-        const grade = s.fixed
-          ? (s.exactRestore ? '✓ FIXED — exactly restored the ground truth' : '✓ FIXED — alternative route, tests green')
-          : '✗ failed the objective grade — failure event is the lesson';
-        lines.push(`**Self-play (${s.generator || 'mutation'}, ground truth known):** planted \`${s.task.op}\` in \`${s.task.file}:${s.task.line}\` · killed by \`${s.task.testFile}\` · ${grade}${s.survivors ? ` · ${s.survivors} survivor(s) logged as verification gaps` : ''}`);
-      } else {
-        lines.push(`**Self-play (${s.generator || 'mutation'}):** ${s.note || 'skipped'}${s.survivors ? ` — ${s.survivors} defect(s) survived their tests (verification gaps, in the ledger)` : ''}`);
-      }
-    }
-    if (report.history) {
-      const h = report.history;
-      lines.push(`**History replay (real task, re-verified):** ${h.attempted
-        ? `episode \`${h.episodeId}\` "${h.taskPreview}" · ${h.fixed ? `✓ re-solved, verified by \`${h.evidenceCommand}\`` : '✗ failed the recorded evidence command'}`
-        : h.note || 'skipped'}`);
-    }
-    lines.push('', '_Lessons land in project memory; weak-spot routing updates the system prompt next turn. `/dream history` shows past cycles._');
-    return { type: 'message', level: 'success', content: lines.join('\n') };
   },
 });
 
@@ -224,31 +146,6 @@ globalCommandRegistry.register({
       level: 'info',
       content: ['## Habits (procedural memory)', '', ...miner.report(), '', '_`/habits compile` turns recurring sequences into recipes; ⚡ macros with stable commands run deterministically via `/habits run <slug>` (through the governed BashTool)._'].join('\n'),
     };
-  },
-});
-
-globalCommandRegistry.register({
-  name: '/dogfood',
-  category: 'Code & Intelligence',
-  description: 'Use the built artifact as a real user — TUI/CLI/site probes, bug reports on failures',
-  execute: async (_args, context) => {
-    const engine = getDogfoodEngine();
-    const applicable = engine.applicableProbes();
-    if (applicable.length === 0) {
-      return { type: 'message', level: 'info', content: 'No dogfoodable artifacts found (looked for tui/bimax-tui, dist/index.js or a package bin, and a built site). Build something first.' };
-    }
-    context.addSystemMessage('info', `🐕 Dogfooding ${applicable.join(', ')} — sequential probes with timeouts…`);
-    const { results, reportPath } = await engine.run((level, msg) => context.addSystemMessage(level, `🐕 ${msg}`));
-    const lines = ['## Dogfood report', ''];
-    for (const r of results) {
-      const glyph = !r.ran ? '·' : r.passed ? '✓' : '✗';
-      lines.push(`- ${glyph} **${r.id}** (${r.persona}): ${r.summary}`);
-      if (r.ran && r.passed === false && r.evidence) lines.push(`  \`\`\`\n  ${r.evidence.split('\n').slice(0, 6).join('\n  ')}\n  \`\`\``);
-    }
-    const failures = results.filter(r => r.ran && r.passed === false).length;
-    if (reportPath) lines.push('', `Structured bug report: \`${reportPath}\` (also remembered as gotchas — the agent will see them).`);
-    lines.push('', failures === 0 ? '_Everything usable — the artifacts pass a real user\'s first session._' : `_${failures} probe(s) failed — ask the agent to fix the bug report._`);
-    return { type: 'message', level: failures === 0 ? 'success' : 'error', content: lines.join('\n') };
   },
 });
 
@@ -487,7 +384,9 @@ globalCommandRegistry.register({
     const store = getExemplarStore();
     const all = store.all();
     if (all.length === 0) {
-      return { type: 'message', level: 'info', content: 'No verified exemplars yet — they accumulate from /dream self-play (mutation fixes, regenerations) and history replay. Only episodes that passed an objective check are kept.' };
+      // Self-play was the only writer here and it was retired for producing nothing in this repo's
+      // lifetime (see the header). Say that plainly rather than pointing at a command that is gone.
+      return { type: 'message', level: 'info', content: 'No verified exemplars. Nothing writes to this store since /dream self-play was retired — an episode is kept only when an objective check passed, and none has.' };
     }
 
     // With a query: show exactly what a task phrased like this would retrieve (the receipts).

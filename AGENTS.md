@@ -39,6 +39,24 @@ old handoff when the current documents are available.
   Follow the end-state and mutation-testing rules in `competitive/06_HEAD_TO_HEAD_EVALS.md`.
 - Never publish or repeat a broad competitive claim from a single run or an invalid provider run.
 
+## Naming: Thread, worker, core
+
+Three different things in this repository have been called a "thread". Two of them are resource
+caps that were never reconciled *because* the word hid the difference (see
+`docs/product-reset/57_OPTIMISATION_AND_APPLE_BUILD_PLAN.md`, WP-1). Keep them apart.
+
+| Term | What it is | Cap |
+|---|---|---|
+| **Bimax Thread** | The product feature: a folder-bound conversation that runs instantly in the ⌘2 floating bar, with its own engine process, history, approval namespace and undo journal. A project window runs as one too (`origin: 'project'`). | `MAX_LIVE_ENGINES` (`app/src/main/thread.manager.ts`) — a **memory** budget |
+| **sub-agent worker** | A real Node `worker_threads` `Worker`, i.e. an actual OS thread (`src/core/subagent.manager.ts`). | `MAX_CONCURRENT_SUBAGENTS` (`src/core/subagent.capacity.ts`) — a **CPU** budget |
+| **core** | Hardware. `os.cpus().length` → `RuntimeSignals.cpuCount`. Apple Silicon has no SMT, so a logical core is a physical core (an M3 has 8: 4 performance + 4 efficiency). | — |
+
+- **"Thread", unqualified — in prose, UI copy, comments and commit messages — means the product
+  feature.** Capitalise it as *Bimax Thread* on first use in a document.
+- CPU concurrency is never called a thread. It is a **worker** (ours) or a **core** (the machine's).
+- A cap must name its resource in its identifier or its doc comment. Two caps that both happen to
+  be `4` are not the same budget.
+
 ## Implementation discipline
 
 - Make implementation choices against the documented two-product boundary: Bimax Terminal is the

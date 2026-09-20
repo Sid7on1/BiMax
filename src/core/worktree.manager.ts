@@ -14,9 +14,11 @@ import { Logger } from '../utils/logger';
  * when the agent changed nothing (no dirty files, no commits); otherwise both are kept and the
  * caller surfaces the path + branch so the user (or the orchestrator) can review/merge.
  *
- * Distinct from evolution/worktree.manager.ts on purpose: that one serves swarm/evolution waves
- * (async ops that NEED explicit serialization because they fire in Promise.all, throw on failure,
- * commit/merge helpers, .evolution_worktrees/). This one is the spawn-path primitive: synchronous
+ * Once distinct from evolution/worktree.manager.ts, which served the swarm/evolution waves (async
+ * ops serialized because they fired in Promise.all, commit/merge helpers, .evolution_worktrees/).
+ * That file and everything that drove it were archived on 2026-09-19 — see
+ * docs/product-reset/58 — so this is now the only worktree manager. It is the spawn-path
+ * primitive: synchronous
  * (execFileSync blocks the event loop, so calls can never interleave with each other), falls back
  * to unisolated instead of throwing, and detects "did the agent change anything" against the base
  * commit. git arguments are always argv arrays — never shell strings — since taskIds pass through.

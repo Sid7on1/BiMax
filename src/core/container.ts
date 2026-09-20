@@ -25,7 +25,7 @@ import { YoloClassifier } from '../security/yolo.classifier';
 import { ApiKeyManager } from '../credits/api.key.manager';
 import { LlmAdapter } from '../core/llm.adapter';
 
-import { ToolRegistry } from '../tools/tool.registry';
+import { ToolRegistry, setActiveToolRegistry } from '../tools/tool.registry';
 import { createBashTool } from '../tools/implementations/bash.tool';
 import { createCdTool } from '../tools/implementations/cd.tool';
 import { createReadFileTool, createWriteFileTool, createDeleteTool, createMakeDirTool } from '../tools/implementations/file.tool';
@@ -72,9 +72,6 @@ import { createThreadMessageTool } from '../tools/implementations/thread.message
 import { createDocumentTool } from '../tools/implementations/document.tool';
 import { createRegisterAgentTool } from '../tools/implementations/register.tool';
 import { createAskUserTool } from '../tools/implementations/ask_user.tool';
-import { createBlueprintTool } from '../tools/implementations/blueprint.tool';
-import { createTrainMonitorTool } from '../tools/implementations/train_monitor.tool';
-import { createTrainLaunchTool } from '../tools/implementations/train_launch.tool';
 import { createModeTool } from '../tools/implementations/mode.tool';
 import { createGitTool } from '../tools/implementations/git.tool';
 import { createLspQueryTool } from '../tools/implementations/lsp.tool';
@@ -177,6 +174,10 @@ export async function createContainer(config?: Partial<EngineConfig>): Promise<{
   // Tools
   reportBootPhase('loading_tools');
   const toolRegistry = new ToolRegistry();
+  // Publish this one as the session's registry so `/usage` can tell a tool that was never CALLED
+  // from a tool that was never REGISTERED. Only the interactive container does this — worker and
+  // proof registries are throwaway and must not overwrite it.
+  setActiveToolRegistry(toolRegistry);
   // Index-gated tools (GraphQueryTool/GraphContextTool) stay disabled until the repo is indexed, then
   // are promoted + preferred. The check is lazy so it reflects a graph built mid-session (after /index)
   // OR the baked-in codebase-memory engine coming online (its own 158-language index + semantic search).
@@ -387,10 +388,10 @@ export async function createContainer(config?: Partial<EngineConfig>): Promise<{
   toolRegistry.register(createWorkspaceTool(governor));
   toolRegistry.register(createPlanTool(governor));
   toolRegistry.register(createScoutTool(governor));
-  // Sketch Mode: the level-by-level Blueprint builder + LLM-training monitoring.
-  toolRegistry.register(createBlueprintTool(governor, toolRegistry));
-  toolRegistry.register(createTrainMonitorTool(governor));
-  toolRegistry.register(createTrainLaunchTool(governor));
+  // Sketch Mode's Blueprint builder and the LLM-training launcher/monitor were retired 2026-09-19
+  // (docs/product-reset/58): .bimax/blueprints and .bimax/launches were never created in the
+  // lifetime of this repo, and the Blueprint's only declared consumer was the /beast command,
+  // itself retired in the same pass. Sketch mode survives as a planning mode (PlanTool).
   // Agent switches its OWN mode (the same modes the user cycles with Shift+Tab) → self-driving loop.
   toolRegistry.register(createModeTool(governor));
   // Agent Skills: model-invoked capability packs (progressive disclosure via the system prompt).

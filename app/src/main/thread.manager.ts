@@ -138,6 +138,16 @@ export const IDLE_ENGINE_TTL_MS = 10 * 60_000;
 /** How often the sweep runs. Cheap: it walks the record map and compares two numbers. */
 export const IDLE_ENGINE_SWEEP_MS = 60_000;
 
+/**
+ * The ceiling on live **Bimax Threads** — the product feature: folder-bound conversations, each
+ * with its own engine process, run instantly from the ⌘2 bar or from a project window.
+ *
+ * This is a MEMORY budget (see ENGINE_BUDGET_BYTES / RESERVE_BYTES below and `maxLiveEngines`).
+ * It is NOT the CPU budget, and the two must never be conflated just because both happen to be 4:
+ * `MAX_CONCURRENT_SUBAGENTS` (src/core/subagent.capacity.ts) caps sub-agent *workers*, which are
+ * real `worker_threads` OS threads inside one engine. A machine can therefore be at this cap and
+ * still have idle cores, or under it and still be CPU-saturated. See the glossary in AGENTS.md.
+ */
 export const MAX_LIVE_ENGINES = 4;
 const ENGINE_BUDGET_BYTES = 320 * 1024 * 1024;
 const RESERVE_BYTES = 512 * 1024 * 1024;
@@ -189,6 +199,64 @@ export function threadIndexEnvironment(origin: ThreadSummary['origin']): Record<
  * machine, policy.ts shedProfile steps the next launch down after a single resource death and to
  * `minimal` after two, so the failure mode is a quieter engine rather than a crash loop.
  */
+/**
+ * One machine-wide budget for sub-agent **workers** (real `worker_threads` OS threads), shared by
+ * every engine this app spawns.
+ *
+ * WHY this exists. `MAX_CONCURRENT_SUBAGENTS` is enforced per engine process, against the lease
+ * ledger `resolveCapacityContext` resolves. That ledger defaults to
+ * `<cwd>/.bimax/subagent-capacity.json` — per FOLDER. Bimax Threads are folder-exclusive, so every
+ * live Thread used to get its own private ledger and its own private ceiling of four. The ceiling
+ * therefore MULTIPLIED: four live Threads meant up to sixteen concurrent workers on a machine whose
+ * adaptive policy had carefully computed a per-machine number (floor(cores / 2) = 3 on an 8-core
+ * M3) and then handed that same number to each of them.
+ *
+ * The ledger was always the right mechanism — it is a cross-process, fail-closed, O_EXCL-locked
+ * counting semaphore with expiring leases. It was simply never pointed at a shared path. Pointing
+ * it at one file under userData makes the budget mean what the policy already thinks it means.
+ *
+ * Deliberately NOT derived from the Bimax Thread cap (`MAX_LIVE_ENGINES`): that is a memory budget
+ * over engine processes, this is a CPU budget over workers, and a machine can be at one and nowhere
+ * near the other. See the glossary in AGENTS.md.
+ *
+ * The env NAME is a literal rather than an import from `src/core/subagent.capacity.ts`, because the
+ * desktop build must not compile the engine — the engine is an input, not a dependency. It is
+ * pinned by a test that reads the engine's own constant, so the two cannot drift silently.
+ */
+export function workerCapacityEnvironment(userData: string): Record<string, string> {
+  return { BIMAX_AGENT_CAPACITY_PATH: path.join(userData, 'subagent-capacity.json') };
+}
+
+/**
+ * One money ledger for the Mac, and this Bimax Thread's own share of it (backlog F5).
+ *
+ * The same defect as `workerCapacityEnvironment` above, in the expensive direction. The engine's
+ * `BudgetVeto` keeps its daily total under `stateDir('.breakglass')`, and `stateDir` follows
+ * `BIMAX_STATE_DIR` — which `threadStateEnvironment` sets to a per-folder directory for every ⌘2
+ * Thread. So each Thread got a private `spend.json` and a private full daily cap. MEASURED
+ * 2026-09-19: four independent spend files already existed on this machine, two of them under
+ * `thread-state/`. The effective ceiling was $5 × (folders ever opened as a Thread).
+ *
+ * `perScopeCap` is the second half, and it is what F5 actually asked for: one unattended Thread
+ * must not be able to spend the whole day's budget before the others start. Omitted when the caller
+ * has no opinion, in which case only the machine ceiling applies.
+ *
+ * Scoped by THREAD ID rather than by folder, so re-running a folder tomorrow does not inherit
+ * yesterday's share, and two Threads on one folder are billed apart.
+ */
+export function spendLedgerEnvironment(
+  userData: string,
+  threadId: string | undefined,
+  perScopeCap?: number,
+): Record<string, string> {
+  const env: Record<string, string> = {
+    BIMAX_SPEND_LEDGER_PATH: path.join(userData, 'spend-ledger.json'),
+  };
+  if (threadId) env.BIMAX_SPEND_SCOPE = threadId;
+  if (perScopeCap && perScopeCap > 0) env.BIMAX_SPEND_SCOPE_CAP = String(perScopeCap);
+  return env;
+}
+
 export function threadCapabilityEnvironment(origin: ThreadSummary['origin']): Record<string, string> {
   // Carried so engine.log can say WHY a plan looks the way it does. A ⌘2 task's "all off" and a
   // starved project thread's "all off" are the same four values meaning entirely different things,

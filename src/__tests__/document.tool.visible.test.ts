@@ -20,7 +20,10 @@ describe('deliverable tools are visible to the model', () => {
   });
 
   const registry = new ToolRegistry();
-  for (const n of ['DocumentTool', 'WriteFileTool', 'TrainLaunchTool']) registry.register(stub(n));
+  // The third name is a stand-in for "some tool that is NOT in the core working set", proving the
+  // deferral split is real rather than everything being sent. It was TrainLaunchTool until that was
+  // retired (docs/product-reset/58); any non-core tool serves, so it is now an obviously fake one.
+  for (const n of ['DocumentTool', 'WriteFileTool', 'NotACoreTool']) registry.register(stub(n));
 
   test('DocumentTool is in the core working set, not deferred', () => {
     expect(registry.isDeferred('DocumentTool')).toBe(false);
@@ -33,6 +36,6 @@ describe('deliverable tools are visible to the model', () => {
   });
 
   test('genuinely rare tools stay deferred — this is not "make everything core"', () => {
-    expect(registry.isDeferred('TrainLaunchTool')).toBe(true);
+    expect(registry.isDeferred('NotACoreTool')).toBe(true);
   });
 });
