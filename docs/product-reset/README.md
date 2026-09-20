@@ -1,5 +1,32 @@
 # Bimax product reset
 
+## Context, Threads and platform audit — 2026-09-20
+
+[59_CONTEXT_THREADS_AND_PLATFORM_AUDIT.md](59_CONTEXT_THREADS_AND_PLATFORM_AUDIT.md) answers two
+symptoms the owner reported from real use, and both were real but not where they looked.
+
+- **"The context window breaks in long runs."** Measured: one identical 150-round session finished
+  at the SAME 52,143 tokens on a 32k, 128k, 200k and 1M window — 5.2% of the largest. `snip()`
+  fired on a MESSAGE COUNT and ran before every token-driven layer, so `capToolResults` never
+  capped, `microCompact` never stubbed and `compact()` — the only pass that carries a task's goal
+  and next step across a compaction — was never called once. Fixed; the count now only nominates a
+  session and pressure decides. A second defect it exposed: the summarizer prompt was unbounded and
+  goes to the *lite* model, so a 200k/32k model pairing would have failed every compaction and
+  discarded the narrative in one line.
+- **"Responses contain random letters that should be bold/underline."** Not a renderer bug — every
+  assistant message already goes through `<Markdown>`. `BashTool` asked no child process to suppress
+  colour and stripped no escapes, so ANSI flowed into the context and a weak model echoed it back;
+  the ESC byte is invisible in a DOM text node, so `\u001b[1m` shows as the letters `[1m`. Separately,
+  the compressor's ANSI pattern had an OPTIONAL escape byte and so matched ordinary text, turning
+  `[Read the docs](…)` into `ead the docs](…)` inside tool results above the 70% threshold.
+
+Also: a Bimax Threads eviction defect on the ⌘2 hot path (it evicted the Thread you were just using
+and silently destroyed its queued messages), WP-9's packaging gate with three mutants killed, the
+`bimax://` Shortcuts documentation, and WP-6's capture recipe. **WP-6 itself is NOT closed** —
+`powermetrics` needs root and Instruments needs the Xcode GUI — so **WP-7 stays gated on it**. The
+RAG retrieval half was audited and no defect was found (benchmark 42/42; recall@3 0.80 lexical →
+1.00 reranked).
+
 ## macOS 27, optimisation, and a retirement pass — 2026-09-19
 
 Three records, written in sequence:

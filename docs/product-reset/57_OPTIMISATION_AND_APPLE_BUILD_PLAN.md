@@ -214,6 +214,13 @@ work (index a repo, run a multi-step turn):
 
 Deliverable: a measurement appendix to record 56, plus a repeatable capture recipe in `scripts/`.
 
+**NOT CLOSED 2026-09-20 (record 59).** `scripts/capture-cpu-baseline.sh` is the repeatable half.
+It splits by privilege: tier 1 (per-process CPU%, CPU-seconds, peak RSS) runs with no root; tier 2
+is printed as exact commands and not run, because `powermetrics` answers *"powermetrics must be
+invoked as the superuser"* and Instruments needs the Xcode GUI. So the measurement appendix still
+does not exist and **WP-7 remains gated**. Machine for the appendix: Apple M3, 8 cores = 4
+performance + 4 efficiency, 8 GB, macOS 27.0 (26A428).
+
 **Rule:** no perf constant is written anywhere in WP-1..WP-5 before this lands
 (`bimax-live-engine-budget`: a guessed 512 MB-vs-1 GB reserve cost 3 of 4 Bimax Threads).
 
@@ -258,6 +265,19 @@ macOS 27's Siri reaches third-party apps through App Intents. Two halves:
   Threads, an evidence store (`evidence.store.ts`) and an undo journal (`thread.undo.ts`).
   Contributed as entities, "what did Bimax change in the parser yesterday?" becomes a Spotlight
   query. No coding IDE does this.
+
+**PARTLY BUILT 2026-09-20 (record 59).** Steps 1 and 2 are done; step 3 is still Target.
+
+- Step 1 — `docs/SHORTCUTS_AND_AUTOMATION.md` documents `bimax://task` for Shortcuts, Raycast,
+  Stream Deck, Folder Actions and cron, explicitly as the interim story. Every safety claim was
+  checked against the code: the confirmation's `defaultId` and `cancelId` both point at Cancel, and
+  the folder is re-refused after `realpath`.
+- Step 2 — `app/scripts/check-app-actions.mjs`. It inspects a real `.app`, asserts the `bimax`
+  scheme, any embedded `.appex`'s `Metadata.appintents`, and the bundled engine, and **fails rather
+  than skipping** when there is no bundle. Passes on `/Applications/Bimax.app`; three mutants
+  killed, including an `.appex` with its metadata missing — the exact failure this gate was ordered
+  to catch. Wired into all three `dist:mac*` scripts and declared in `.bimax/gates.json`.
+- Step 3 — the extension, intent schemas and entity schemas remain **Target**; they need Swift.
 
 **Order, and it is not negotiable:**
 
