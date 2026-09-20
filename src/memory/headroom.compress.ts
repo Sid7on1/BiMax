@@ -62,8 +62,18 @@ export function getHeadroomReport(): HeadroomReport {
   return { totalSaved: saved, totalBefore: before, totalAfter: after, compressions: count, ratio: before > 0 ? after / before : 1, engine: _lastEngine, byModel };
 }
 
+/**
+ * A terminal escape sequence. The ESC byte is REQUIRED.
+ *
+ * It used to be optional (`\u001b?`), which made this pattern match any `[`, digits, then a
+ * letter — ordinary text, in other words. It silently ate the first character of every markdown
+ * link (`[Read the docs](…)` → `ead the docs](…)`), every checkbox (`[x]` → `]`) and every
+ * variable array index (`a[i]` → `a]`), inside tool results the model then reasoned against. It
+ * only fired above the 70% compaction threshold, so it corrupted long sessions and left short
+ * ones alone, which is the hardest version of this bug to notice.
+ */
 // eslint-disable-next-line no-control-regex
-const ANSI = /\u001b?\[[0-9;]*[A-Za-z]/g;
+const ANSI = /\u001b\[[0-9;]*[A-Za-z]/g;
 export const ERROR_LINE = /\b(error|err|fail(ed|ure)?|exception|traceback|panic|fatal|warn(ing)?|denied|refused|timeout|cannot|unable)\b/i;
 
 /** Normalize a line so log lines that differ only by numbers/timestamps/hashes collapse together. */

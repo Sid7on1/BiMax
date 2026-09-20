@@ -93,6 +93,49 @@ export function injectRepoMap(messages: Message[], outline: string): Message[] {
   ];
 }
 
+/**
+ * Serialize the backlog for the summarizer, bounded to `limitChars`.
+ *
+ * Whole messages are kept from BOTH ends and the middle is elided, because the two ends are the
+ * two things the five-section summary is actually asking for: the oldest messages carry the goal
+ * and the original constraints, the newest carry what was just done and what is next. A plain
+ * head- or tail-truncation loses one of them outright, and cutting mid-message hands the model a
+ * severed JSON object to reason about.
+ *
+ * Under the limit this is exactly `JSON.stringify(messages)`, byte for byte.
+ */
+export function boundSummaryInput(messages: { role: string; content: unknown }[], limitChars: number): string {
+  const whole = JSON.stringify(messages);
+  if (whole.length <= limitChars) return whole;
+
+  const encoded = messages.map(m => JSON.stringify(m));
+  // Half the budget to each end, minus room for the elision marker itself.
+  const perEnd = Math.max(0, Math.floor((limitChars - 120) / 2));
+  const head: string[] = [];
+  const tail: string[] = [];
+  let headChars = 0;
+  let tailChars = 0;
+  let lo = 0;
+  let hi = encoded.length - 1;
+  while (lo <= hi) {
+    if (headChars <= tailChars) {
+      if (headChars + encoded[lo].length > perEnd) break;
+      headChars += encoded[lo].length + 1;
+      head.push(encoded[lo++]);
+    } else {
+      if (tailChars + encoded[hi].length > perEnd) break;
+      tailChars += encoded[hi].length + 1;
+      tail.unshift(encoded[hi--]);
+    }
+  }
+  const dropped = encoded.length - head.length - tail.length;
+  if (!dropped) return whole;
+  // The marker is a JSON element so the whole payload stays parseable, and it says what is missing
+  // rather than pretending the backlog was contiguous.
+  const marker = JSON.stringify({ role: 'system', content: `[${dropped} middle message(s) omitted from this summarization input — they remain in the continuation state]` });
+  return `[${[...head, marker, ...tail].join(',')}]`;
+}
+
 export class ContextManager {
   private readonly MAX_TOKENS: number;
   private readonly COMPACT_THRESHOLD = 0.7; // summarize when reaching 70% of the window
@@ -106,6 +149,23 @@ export class ContextManager {
   private readonly MIN_ARCHIVED_RESULT_CHARS = 512; // shorter cleared results get the short stub, unarchived
   private readonly SNIP_TRIGGER_MESSAGES = 100;   // only guard against truly runaway histories
   private readonly SNIP_KEEP_TAIL = 60;
+  // Snip is the LAST resort, so it sits above COMPACT_THRESHOLD: summarizing gets first refusal and
+  // snip only runs when that did not shrink the window enough. Both are fractions of the window, so
+  // neither is a pinned token count.
+  private readonly SNIP_PRESSURE = 0.85;
+  // The degenerate shape the message-count guard was actually written for: thousands of tiny
+  // messages that never accumulate tokens but do cost per-request overhead.
+  private readonly SNIP_HARD_MESSAGES = 1200;
+  /**
+   * What compact() may hand the summarizer, in characters (~24k tokens at 4 chars/token).
+   *
+   * The summarizer runs on the LITE model, and the input it was being given was the whole backlog
+   * — which, by construction, is ~70% of the MAIN model's window. Pairing a 200k main model with a
+   * 32k lite model is an ordinary, supported configuration, and it made every compaction on a long
+   * session fail. This is deliberately sized for the smallest model anyone would sensibly route
+   * `lite` to rather than for the main window, because the main window says nothing about it.
+   */
+  private readonly SUMMARY_INPUT_CHARS = 96_000;
   private readonly RESTORE_BUDGET_CHARS = 40_000; // total post-compact file re-injection budget (~10k tok)
 
   /**
@@ -452,6 +512,23 @@ export class ContextManager {
     const nonSystem = messages.filter(m => m.role !== 'system');
     if (nonSystem.length <= this.SNIP_TRIGGER_MESSAGES) return messages;
 
+    // A message count is not token pressure, and snipping on the count alone made this blunt guard
+    // the ONLY control on every long session. Measured over 150 realistic rounds: the session
+    // finished at the SAME 52,143 tokens whether the window was 32k, 128k, 200k or 1M — 5.2% of a
+    // 1M window — because snip fired five times on the count while every token-driven layer below
+    // its threshold stayed asleep. capToolResults never capped, microCompact never stubbed, and
+    // compact() — the one pass that writes the goal/progress/decisions note — was never called
+    // once. What the user sees is ~41 messages disappearing every ~20 rounds and the model losing
+    // the thread, on a window that was three-quarters empty.
+    //
+    // So the count only nominates a session; pressure decides. Below SNIP_PRESSURE the ladder that
+    // is designed to preserve meaning (cap → stub → summarize) gets first refusal, and snip goes
+    // back to being what its name says: the last resort when summarizing did not shrink enough.
+    // SNIP_HARD_MESSAGES still catches the degenerate case this guard was written for — thousands
+    // of tiny messages that never accumulate tokens but do blow up per-request overhead.
+    const pressure = this.effectiveTokens(messages) / this.MAX_TOKENS;
+    if (pressure < this.SNIP_PRESSURE && nonSystem.length <= this.SNIP_HARD_MESSAGES) return messages;
+
     const tail = this.dropLeadingOrphanToolMessages(nonSystem.slice(-this.SNIP_KEEP_TAIL));
     this.continuation.absorb(nonSystem.filter(m => !tail.includes(m)), (text) => this.archive(text));
     const system = messages.filter(m => m.role === 'system' && !isContinuationMessage(m));
@@ -565,7 +642,7 @@ Comma-separated list of files created, modified, or important to the task.`,
       },
       {
         role: 'user',
-        content: `Summarize these messages into the five sections above:\n${JSON.stringify(olderForSummary)}`,
+        content: `Summarize these messages into the five sections above:\n${boundSummaryInput(olderForSummary, this.SUMMARY_INPUT_CHARS)}`,
       },
     ];
 
@@ -577,8 +654,31 @@ Comma-separated list of files created, modified, or important to the task.`,
         if (event.type === 'token') summaryText += event.text;
       }
     } catch (e: any) {
-      Logger.error(`[ContextManager] Failed to summarize context: ${e.message}`);
-      summaryText = '[Older conversation history dropped due to context limits]';
+      // The input is already bounded by SUMMARY_INPUT_CHARS, but that bound is sized for the
+      // smallest lite model we can reasonably expect, not for one the user has actually
+      // configured — and `lite` is precisely where a small, cheap, short-window model gets put.
+      // A single failure here used to discard the entire backlog narrative in one line, which is
+      // the worst possible moment to lose it: the session is long, which is why we are here.
+      // So an overflow gets one retry at a quarter of the budget before anything is given up.
+      const overflowed = /too long|too large|maximum context|context length|context window/i.test(String(e?.message ?? ''))
+        || e?.code === 'context_length_exceeded' || e?.code === 'prompt_too_long' || e?.status === 413;
+      if (overflowed) {
+        Logger.warn(`[ContextManager] Summarizer rejected the input (${e.message}) — retrying at a quarter of the budget.`);
+        try {
+          const retry = [summaryPrompt[0], { role: 'user' as const, content: `Summarize these messages into the five sections above:\n${boundSummaryInput(olderForSummary, Math.floor(this.SUMMARY_INPUT_CHARS / 4))}` }];
+          const generator = this.llm.chat(retry as Message[], { lite: true });
+          for await (const event of generator) {
+            if (event.type === 'token') summaryText += event.text;
+          }
+        } catch (retryError: any) {
+          Logger.error(`[ContextManager] Summarizer rejected the reduced input too: ${retryError.message}`);
+        }
+      } else {
+        Logger.error(`[ContextManager] Failed to summarize context: ${e.message}`);
+      }
+      // The continuation state below still holds the user's words, the commands run and the
+      // assistant's claims verbatim, so this line is the loss of the NARRATIVE, not of the facts.
+      if (!summaryText.trim()) summaryText = '[Older conversation history dropped due to context limits]';
     }
 
     // If another compact() call ran while we were awaiting the LLM, our result is stale —

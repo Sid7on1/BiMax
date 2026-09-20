@@ -78,7 +78,11 @@ test("the user's words, the commands run and the assistant's claims survive ten 
 test('snip and overflow recovery keep them too', async () => {
   const filler = (count: number) => Array.from({ length: count }, (_, i) => ({ role: i % 2 ? 'assistant' : 'user', content: `filler ${i}` }));
 
-  const snipped = (new ContextManager(keepsNothing) as any).snip([{ role: 'user', content: 'Only touch files under docs/.' }, ...filler(120)]);
+  // A 500-token window, so 121 messages are genuine pressure. snip() needs BOTH a long history and
+  // real token pressure now: on the count alone it was firing on ordinary sessions and was the only
+  // thing controlling them (see context.window.use.test.ts). What is under test here is unchanged —
+  // that a snip hands the user's constraint to the continuation state on its way past.
+  const snipped = (new ContextManager(keepsNothing, 500) as any).snip([{ role: 'user', content: 'Only touch files under docs/.' }, ...filler(120)]);
   expect(String(blocks(snipped)[0]?.content)).toContain('"Only touch files under docs/."');
   expect(snipped.filter((m: any) => m.role !== 'system')).toHaveLength(60);
 
