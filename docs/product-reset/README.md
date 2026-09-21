@@ -1,5 +1,13 @@
 # Bimax product reset
 
+## A Jev-style decision layer, step 1 — 2026-09-21
+
+[60_DECISION_LAYER_PROBE.md](60_DECISION_LAYER_PROBE.md) measures laya-mlx (an open, on-device Jev-like
+model) on this Mac: 62 ms and ~1 GB per call. On the first decision it would take — "is this message a
+standing instruction?" — a keyword rule scored 0.86 F1 on its own author's phrasing and 0.33 on fresh
+phrasing; laya 0.75 and 0.67. Not shipped: too little gain for 1 GB on an 8 GB machine. Next: Jev's
+ceiling on the same set, and a local reranker against the retrieval benchmark.
+
 ## Context, Threads and platform audit — 2026-09-20
 
 [59_CONTEXT_THREADS_AND_PLATFORM_AUDIT.md](59_CONTEXT_THREADS_AND_PLATFORM_AUDIT.md) answers two
