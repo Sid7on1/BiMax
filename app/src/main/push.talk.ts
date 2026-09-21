@@ -29,7 +29,7 @@ export function pushTalkAnswer(saved: unknown): PushTalkAnswer {
 
 /** What is said out loud for an answer: its first sentences, at most about 300 characters. */
 export function spokenSummary(answer: string, limit = 300): string {
-  const flat = answer.replace(/```[\s\S]*?```/g, ' ').replace(/[*_`#>|]/g, '').replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/\s+/g, ' ').trim();
+  const flat = answer.replace(/```[\s\S]*?```/g, ' ').replace(/^[ \t]*(?:[-*+]|\d+[.)])[ \t]+/gm, '').replace(/[*_`#>|]/g, '').replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/\s+/g, ' ').trim();
   if (flat.length <= limit) return flat;
   const sentences = flat.match(/[^.!?…]+[.!?…]+/g) ?? [];
   let out = '';

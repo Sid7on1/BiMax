@@ -14,11 +14,12 @@ export function VoiceSettings(): React.ReactElement {
   const [view, setView] = useState<VoiceSettingsView | null | undefined>(undefined);
   const [voice, setVoice] = useState('');
   const [rate, setRate] = useState(1);
+  const [updates, setUpdates] = useState(false);
 
   useEffect(() => {
     void window.bimax.voice.voices().then((value) => {
       setView(value);
-      if (value) { setVoice(value.chosen); setRate(value.rate); }
+      if (value) { setVoice(value.chosen); setRate(value.rate); setUpdates(value.speakUpdates); }
     }).catch(() => setView(null));
   }, []);
 
@@ -53,6 +54,13 @@ export function VoiceSettings(): React.ReactElement {
           ))}
         </div>
       </div>
+      <label className="flex max-w-[520px] items-start gap-2.5">
+        <input type="checkbox" className="mt-0.5" checked={updates} onChange={(e) => { setUpdates(e.target.checked); void window.bimax.voice.speakUpdates(e.target.checked); }} />
+        <span>
+          <span className="block text-[13px] font-medium text-ink">Speak when a task finishes</span>
+          <span className="mt-0.5 block text-[11.5px] text-dim">When a task you are not looking at finishes, Bimax says so out loud — its name, how it ended, and the first sentence of its answer.</span>
+        </span>
+      </label>
       <button onClick={() => void window.bimax.voice.preview(voice, rate)} className="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-ink hover:bg-hover">
         <Play size={12} aria-hidden /> Preview
       </button>

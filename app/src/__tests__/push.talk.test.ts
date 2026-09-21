@@ -94,6 +94,7 @@ test('only offered shortcuts, each with the key the helper watches; the answer i
 test('what is read out: plain words, whole sentences, about 300 characters at most', () => {
   expect(spokenSummary('**Done.** Renamed `12` files — see [the list](file:///x).')).toBe('Done. Renamed 12 files — see the list.');
   expect(spokenSummary('Here:\n```js\nconst a = 1;\n```\nThat is all.')).toBe('Here: That is all.');
+  expect(spokenSummary('Found three:\n- a.pdf\n* b.pdf\n2. c.pdf')).toBe('Found three: a.pdf b.pdf c.pdf');
   const long = `${'One sentence here. '.repeat(30)}`;
   const said = spokenSummary(long);
   expect(said.length).toBeLessThanOrEqual(300);

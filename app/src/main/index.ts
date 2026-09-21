@@ -26,6 +26,7 @@ import { conversationHtml, conversationMarkdown, exportFileName, sessionFile, se
 import { installQuickAction, openedFilesContext, quickActionPath, QUICK_ACTION_NAME } from './finder.action';
 import { onlyBasicVoices, parseVoiceList, pickerVoices, speakingArguments, SPEECH_RATES, validRate, validVoice } from './voice.settings';
 import { PUSH_TALK_CHOICES, PushToTalk, pushTalkAnswer, pushTalkChoice, spokenSummary, type PushTalkAnswer, type PushTalkChoice } from './push.talk';
+import { shouldSpeakUpdate, spokenUpdate } from './spoken.updates';
 import type { TranscriptItem } from '../renderer/src/engine.state';
 import { randomUUID } from 'node:crypto';
 import { macBin } from './bin';
@@ -341,6 +342,14 @@ function showQuickThread(id: string): void {
 function openThread(id: string): void {
   if (threads.get(id).summary.origin === 'project') { selectThread(id); revealMainWindow(); }
   else showQuickThread(id);
+}
+/** N9: say a finished task out loud, when the person turned spoken updates on and is not looking at it. */
+function speakFinished(id: string): void {
+  const { summary, state } = threads.get(id);
+  const onScreen = (id === quickThreadId && !!quickWindow?.isVisible()) || (id === threads.activeId && !!win?.isFocused());
+  if (!shouldSpeakUpdate({ enabled: loadSettings().speakUpdates === true, onScreen, talking: talk.active, listening: pushTalk.listening })) return;
+  const answer = [...state.items].reverse().find((item) => item.kind === 'msg' && item.msg.role === 'assistant');
+  speakAloud(spokenUpdate(summary, answer && answer.kind === 'msg' ? answer.msg.content : ''));
 }
 /** A task finished while it was not on screen: say so, with the start of its answer. */
 function notifyFinished(id: string, force = false): void {
@@ -790,6 +799,7 @@ function updateTray(): void {
       { label: 'Answer out loud', type: 'radio', checked: pushTalkAnswer(loadSettings().pushTalkAnswer) === 'voice', click: () => { saveSettings({ pushTalkAnswer: 'voice' }); updateTray(); } },
       { label: 'Answer as a notification', type: 'radio', checked: pushTalkAnswer(loadSettings().pushTalkAnswer) === 'notification', click: () => { saveSettings({ pushTalkAnswer: 'notification' }); updateTray(); } },
     ] },
+    { label: 'Speak When a Task Finishes', type: 'checkbox', checked: loadSettings().speakUpdates === true, click: (item) => { saveSettings({ speakUpdates: item.checked }); updateTray(); } },
     existsSync(quickActionPath(os.homedir()))
       ? { label: `Remove “${QUICK_ACTION_NAME}” from Finder`, click: () => void removeQuickAction() }
       : { label: `Add “${QUICK_ACTION_NAME}” to Finder…`, click: () => void addQuickAction() },
@@ -1567,7 +1577,7 @@ app.whenReady().then(async () => {
     finished: (id, tookMs) => {
       recordModelTime(id, tookMs);
       const spoken = pushTalkThreads.get(id);
-      if (spoken) { pushTalkThreads.delete(id); deliverPushTalkAnswer(id, spoken); } else notifyFinished(id);
+      if (spoken) { pushTalkThreads.delete(id); deliverPushTalkAnswer(id, spoken); } else { notifyFinished(id); speakFinished(id); }
       // Its folder's rules changed mid-turn: restart on them now that the turn is over (unless a message is queued).
       if (rulesStale.delete(id) && !threads.restartIfIdle(id)) rulesStale.add(id);
       // A folder trigger's run may be over, or a trigger may have been waiting for this folder.
@@ -1798,7 +1808,12 @@ app.whenReady().then(async () => {
     const { voices, automatic } = parseVoiceList(stdout);
     const settings = loadSettings();
     const chosen = validVoice(settings.talkVoice);
-    return { voices: pickerVoices(voices, chosen), automatic, chosen: chosen ?? '', rate: validRate(settings.talkRate), rates: SPEECH_RATES, onlyBasic: onlyBasicVoices(voices) };
+    return { voices: pickerVoices(voices, chosen), automatic, chosen: chosen ?? '', rate: validRate(settings.talkRate), rates: SPEECH_RATES, onlyBasic: onlyBasicVoices(voices), speakUpdates: settings.speakUpdates === true };
+  });
+  secureHandle('voice:speak-updates', false, (_e, on: unknown) => {
+    saveSettings({ speakUpdates: on === true });
+    updateTray();
+    return on === true;
   });
   secureHandle('voice:choose', false, (_e, voiceId: unknown, rate: unknown) => {
     saveSettings({ talkVoice: validVoice(voiceId), talkRate: validRate(rate) });

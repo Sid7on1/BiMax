@@ -435,6 +435,13 @@ held key to the helper without Input Monitoring, and the shortcut, listening and
 
 **N9. Spoken updates when tasks finish.** "Your Downloads cleanup is done, 6 GB freed."
 Value low–medium · Effort S.
+**Done 2026-09-22.** **Speak When a Task Finishes** in the menu bar and in Settings → Voice (off by default). When a
+task you are not looking at finishes, Bimax says its name, how it ended (done; finished but its check failed;
+stopped at its time limit; failed; interrupted) and the first sentence of its answer's first paragraph, without
+markup or list markers — "Tidy Downloads is done. Moved 30 files into folders by month and freed 6 GB." It uses the
+Settings → Voice choice, and never speaks over talk mode or while talk anywhere is listening. Proof:
+`app/src/__tests__/spoken.updates.test.ts`; 10 mutants each fail a test. The rebuilt helper spoke that exact line
+(muted). **Not verified live** in the built app.
 
 **N10. Correct once, teach deliberately.** For example, a correction becomes "Use ACME for this client from now
 on?", with sample applications shown before saving. Preferences stay visible, editable and scoped.

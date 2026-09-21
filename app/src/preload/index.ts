@@ -17,6 +17,8 @@ function subscribe(channel: string, cb: (value: any) => void): () => void {
 export interface VoiceSettingsView {
   voices: Array<{ id: string; name: string; language: string; quality: 'default' | 'enhanced' | 'premium' }>;
   automatic: string; chosen: string; rate: number; rates: readonly number[]; onlyBasic: boolean;
+  /** Say out loud when a task finishes (backlog N9). */
+  speakUpdates: boolean;
 }
 const api = {
   // Dictation (main/voice.ts): events arrive only in the window that started it.
@@ -30,6 +32,7 @@ const api = {
     voices: (): Promise<VoiceSettingsView | null> => ipcRenderer.invoke('voice:voices'),
     choose: (voiceId: string, rate: number): Promise<boolean> => ipcRenderer.invoke('voice:choose', voiceId, rate),
     preview: (voiceId: string, rate: number): Promise<boolean> => ipcRenderer.invoke('voice:preview', voiceId, rate),
+    speakUpdates: (on: boolean): Promise<boolean> => ipcRenderer.invoke('voice:speak-updates', on),
   },
   // Talk mode (main/talk.session.ts): a spoken conversation with the ⌘2 bar's task.
   talk: {

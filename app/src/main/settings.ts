@@ -48,6 +48,8 @@ export interface AppSettings {
   pushTalkShortcut?: string;
   /** How a spoken request's answer comes back: read out loud (default) or as a notification. */
   pushTalkAnswer?: 'voice' | 'notification';
+  /** Say out loud when a task finishes while it is not on screen (spoken.updates.ts, backlog N9); off when absent. */
+  speakUpdates?: boolean;
 }
 
 const MAX_RECENTS = 8;
