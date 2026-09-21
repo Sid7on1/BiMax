@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { insideFolder, parseBrowserOutput, parseFinderOutput, validAttachments, withContext } from '../main/quick.context';
+import { insideFolder, needsFolder, parseBrowserOutput, parseFinderOutput, screenshotName, validAttachments, withContext } from '../main/quick.context';
 
 /** What the person had open, or dropped on the ⌘2 bar, reaches the task as context — checked and described plainly. */
 test('Finder output gives the folder first and the selected items after it', () => {
@@ -50,4 +50,40 @@ test('attachments from the bar are re-checked; a folder contains itself and its 
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }
+});
+
+describe('pictures (backlog N5)', () => {
+  let dir: string;
+  beforeEach(() => { dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'bimax-n5-'))); });
+  afterEach(() => fs.rmSync(dir, { recursive: true, force: true }));
+
+  it('a picture is kept only when it is a real image file', async () => {
+    const shot = path.join(dir, 'Screenshot 2026-09-21 at 10.00.00.png');
+    const notes = path.join(dir, 'notes.txt');
+    fs.writeFileSync(shot, 'x'); fs.writeFileSync(notes, 'x'); fs.mkdirSync(path.join(dir, 'folder.png'));
+    expect(await validAttachments([
+      { kind: 'picture', label: 'ignored', path: shot },
+      { kind: 'picture', label: 'n', path: notes },
+      { kind: 'picture', label: 'd', path: path.join(dir, 'folder.png') },
+      { kind: 'picture', label: 'g', path: path.join(dir, 'gone.png') },
+      { kind: 'picture', label: 'r', path: 'relative.png' },
+    ])).toEqual([{ kind: 'picture', label: 'Screenshot 2026-09-21 at 10.00.00.png', path: shot }]);
+  });
+
+  it('the engine gets one "- Picture:" line per picture, which it sends as an image', () => {
+    expect(withContext('what is wrong?', [
+      { kind: 'file', label: 'a.pdf', path: '/w/a.pdf' },
+      { kind: 'picture', label: 's.png', path: '/tmp/p/s.png' },
+    ])).toContain('- /w/a.pdf\n- Picture: /tmp/p/s.png\n]');
+  });
+
+  it('only a picture may come from outside the task’s folder', () => {
+    expect(needsFolder({ kind: 'picture', label: 's', path: '/tmp/s.png' })).toBe(false);
+    expect(needsFolder({ kind: 'file', label: 'a', path: '/w/a' })).toBe(true);
+    expect(needsFolder({ kind: 'document', label: 'a', path: '/w/a.pdf' })).toBe(true);
+  });
+
+  it('a screenshot is named the way macOS names one', () => {
+    expect(screenshotName(new Date(2026, 8, 1, 9, 5, 7))).toBe('Screenshot 2026-09-01 at 09.05.07.png');
+  });
 });

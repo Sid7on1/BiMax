@@ -12,6 +12,8 @@ import {
   buildScreenshotObservation,
   isScreenshotObservationMessage,
   IMAGE_EXTENSIONS,
+  attachedPictures,
+  MAX_PICTURE_BYTES,
 } from '../core/multimodal';
 
 describe('looksLikeImagePath', () => {
@@ -252,5 +254,36 @@ describe('buildScreenshotObservation completion contract', () => {
       fs.unlinkSync(target);
       fs.unlinkSync(display);
     }
+  });
+});
+
+describe('attachedPictures (backlog N5)', () => {
+  let dir: string;
+  beforeEach(() => { dir = fs.mkdtempSync(path.join(os.tmpdir(), 'bimax-n5-')); });
+  afterEach(() => fs.rmSync(dir, { recursive: true, force: true }));
+  const file = (name: string, bytes = 10): string => { const p = path.join(dir, name); fs.writeFileSync(p, Buffer.alloc(bytes)); return p; };
+
+  it('takes only "- Picture:" lines, paths with spaces included — never a path in a sentence', () => {
+    const shot = file('Screen shot 1.png');
+    const photo = file('photo.jpg');
+    const text = `[What the user had open:\n- ${photo}\n- Picture: ${shot}\n]\n\nRename ${photo} and look at the picture.`;
+    expect(attachedPictures(text)).toEqual({ paths: [shot], skipped: [] });
+  });
+
+  it('names what it cannot send: missing, not an image, too large, or past the fifth', () => {
+    const big = file('big.png', MAX_PICTURE_BYTES + 1);
+    const notes = file('notes.txt');
+    const ok = Array.from({ length: 6 }, (_, i) => file(`p${i}.png`));
+    const folder = path.join(dir, 'folder.png');
+    fs.mkdirSync(folder);
+    const lines = [big, notes, path.join(dir, 'gone.png'), folder, ...ok, ok[0]].map((p) => `- Picture: ${p}`).join('\n');
+    const result = attachedPictures(lines);
+    expect(result.paths).toEqual(ok.slice(0, 5));
+    expect(result.skipped).toEqual([big, notes, path.join(dir, 'gone.png'), folder, ok[5]]);
+  });
+
+  it('a relative path is not a picture line', () => {
+    file('rel.png');
+    expect(attachedPictures('- Picture: rel.png')).toEqual({ paths: [], skipped: [] });
   });
 });

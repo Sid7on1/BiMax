@@ -83,7 +83,7 @@ export function buildUserContent(text: string, imageSources: string[], visionCap
     const n = sources.length;
     return {
       content: text,
-      notice: `Note: ${n} image${n === 1 ? '' : 's'} attached, but the active model has no vision support — continuing on text only.`,
+      notice: `Note: ${n} picture${n === 1 ? ' was' : 's were'} not sent — neither this model nor the Vision model can see pictures (no vision support). Choose one that can under Models → Vision. Continuing on text only.`,
       attached: 0,
     };
   }
@@ -137,6 +137,31 @@ export function extractImagePaths(text: string, cwd: string): string[] {
     } catch { /* not a real file — leave it as plain text */ }
   }
   return out;
+}
+
+/** How many pictures one turn may carry, and how large each may be (backlog N5). */
+export const MAX_TURN_PICTURES = 5;
+export const MAX_PICTURE_BYTES = 10 * 1024 * 1024;
+
+/**
+ * The pictures a person deliberately attached to a turn (backlog N5): one line `- Picture: <absolute path>` each,
+ * which the ⌘2 bar writes for a pasted image or a screenshot (app/src/main/quick.context.ts). A path merely written
+ * in a sentence is never attached — a task that renames 300 photos must not upload them to the model. Missing,
+ * non-image and oversized files are left out; `skipped` names them so the person is told.
+ */
+export function attachedPictures(text: string): { paths: string[]; skipped: string[] } {
+  const paths: string[] = [];
+  const skipped: string[] = [];
+  // An image path ends in its extension, so a `]` closing the context block on the same line is never part of it.
+  for (const match of text.matchAll(/^[ \t]*-[ \t]*Picture:[ \t]*(\/[^\r\n]*?)[ \t]*\]?[ \t]*$/gm)) {
+    const file = match[1]!;
+    if (paths.includes(file) || skipped.includes(file)) continue;
+    let ok = false;
+    try { const stat = fs.statSync(file); ok = looksLikeImagePath(file) && stat.isFile() && stat.size <= MAX_PICTURE_BYTES; } catch { /* gone */ }
+    if (ok && paths.length < MAX_TURN_PICTURES) paths.push(file);
+    else skipped.push(file);
+  }
+  return { paths, skipped };
 }
 
 /** Flatten any message content (string or part array) to its plain text — for token estimation/logging. */

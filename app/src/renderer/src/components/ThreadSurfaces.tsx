@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { ArrowUp, AudioLines, Check, ChevronRight, Cpu, ExternalLink, FileText, Folder, Globe, MoreHorizontal, PenLine, Plus, RotateCcw, Search, Shield, Square, Undo2, X } from 'lucide-react';
+import { ArrowUp, AudioLines, Camera, Check, ChevronRight, Cpu, ExternalLink, FileText, Folder, Globe, Image as ImageIcon, MoreHorizontal, PenLine, Plus, RotateCcw, Search, Shield, Square, Undo2, X } from 'lucide-react';
 import { QUICK_BAR_MAX_HEIGHT_SHARE, type QuickAttachment, type QuickContext, type QuickThread, type ThreadApproval } from '../../../shared/threads';
 import { engineReducer, initialEngineState, type TranscriptItem } from '../engine.state';
 import type { Outbound, RequestMsg, ToolCallEntry } from '../protocol';
@@ -283,6 +283,30 @@ export function ThreadQuickBar(): React.ReactElement {
     input.current?.focus();
   }
 
+  /** N5: a picture for the task to look at. It is only read, so it may come from outside the task's folder. */
+  function addPicture(picture: QuickAttachment | null): void {
+    if (!picture?.path) return;
+    setAttachments((current) => [...current.filter((a) => a.path !== picture.path), picture].slice(0, 50));
+    setError('');
+    input.current?.focus();
+  }
+
+  async function takeScreenshot(): Promise<void> {
+    addPicture(await window.bimax.threads.screenshot());
+  }
+
+  /** A pasted image (a screenshot copied with ⌃⇧⌘4, or an image file copied in Finder) is attached as a picture. */
+  async function pastePictures(files: File[]): Promise<void> {
+    for (const file of files) {
+      const onDisk = window.bimax.threads.pathForFile(file);
+      if (onDisk && /\.(png|jpe?g|gif|webp)$/i.test(onDisk)) { addPicture({ kind: 'picture', label: onDisk.split('/').pop() ?? onDisk, path: onDisk }); continue; }
+      const extension = file.type === 'image/jpeg' ? 'jpg' : file.type.replace('image/', '');
+      const name = /^(png|jpg|gif|webp)$/.test(extension) ? `Pasted picture ${new Date().toISOString().slice(11, 19).replace(/:/g, '.')}.${extension}` : '';
+      if (!name) { setError('Bimax can look at PNG, JPEG, GIF or WebP pictures.'); continue; }
+      addPicture(await window.bimax.threads.pastePicture(name, new Uint8Array(await file.arrayBuffer())));
+    }
+  }
+
   async function chooseFolder(): Promise<void> {
     const picked = await window.bimax.threads.pickFolder();
     if (picked) { setContext({ root: picked, source: 'Selected folder' }); setError(''); input.current?.focus(); }
@@ -331,6 +355,10 @@ export function ThreadQuickBar(): React.ReactElement {
           placeholder={dictation.state !== 'idle' ? 'Listening…' : thread ? 'Follow up…' : 'Ask Bimax anything…'}
           value={prompt}
           onChange={(e) => { historyCursor.current = null; setPrompt(e.target.value); }}
+          onPaste={(e) => {
+            const pictures = [...e.clipboardData.files].filter((file) => file.type.startsWith('image/'));
+            if (pictures.length) { e.preventDefault(); void pastePictures(pictures); }
+          }}
           onKeyDown={(e) => {
             // Enter while dictating stops listening (the last words settle); Enter again sends.
             if (shouldSubmitQuickPrompt(e.nativeEvent)) { e.preventDefault(); if (dictation.state !== 'idle') dictation.stop(); else void submit(); }
@@ -345,6 +373,18 @@ export function ThreadQuickBar(): React.ReactElement {
           }}
           className="quick-input"
         />
+        )}
+        {talking ? null : (
+          <button
+            type="button"
+            className="quick-circle"
+            aria-label="Attach a screenshot"
+            title="Attach a screenshot: drag across what Bimax should look at (Space picks a window, Esc cancels). You can also paste a picture."
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => void takeScreenshot()}
+          >
+            <Camera size={15} aria-hidden />
+          </button>
         )}
         {talking ? null : <MicButton dictation={dictation} className="quick-circle quick-mic" size={15} />}
         {dictation.available ? (
@@ -391,7 +431,7 @@ export function ThreadQuickBar(): React.ReactElement {
         <div ref={attachRow} className="quick-attachments">
           {attachments.map((a, index) => (
             <span key={`${a.kind}:${a.path ?? a.url}:${index}`} className="quick-chip" title={a.path ?? a.url}>
-              {a.kind === 'page' ? <Globe size={11} aria-hidden /> : <FileText size={11} aria-hidden />}
+              {a.kind === 'page' ? <Globe size={11} aria-hidden /> : a.kind === 'picture' ? <ImageIcon size={11} aria-hidden /> : <FileText size={11} aria-hidden />}
               <span>{a.label}</span>
               <button type="button" aria-label={`Remove ${a.label}`} onClick={() => setAttachments((current) => current.filter((_, i) => i !== index))}><X size={10} /></button>
             </span>

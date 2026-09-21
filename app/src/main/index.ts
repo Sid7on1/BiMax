@@ -6,11 +6,11 @@ import { ThreadManager, threadCapabilityEnvironment, threadIndexEnvironment, thr
 import { ThreadStorage } from './thread.storage';
 import { createThreadBroker } from './thread.broker';
 import { finderContext } from './finder.context';
-import type { QuickContext, QuickThread, ThreadSummary } from '../shared/threads';
+import type { QuickAttachment, QuickContext, QuickThread, ThreadSummary } from '../shared/threads';
 import { threadNotice } from '../shared/threads';
 import { QUICK_BAR, quickBarBounds, quickBarOrigin } from './quick.bar';
 import { changesSince, journalFile, lastUndoable, threadStateEnvironment, threadStateRoot, undoLast } from './thread.undo';
-import { insideFolder, validAttachments, withContext } from './quick.context';
+import { insideFolder, needsFolder, PICTURE_EXTENSIONS, screenshotName, validAttachments, withContext } from './quick.context';
 import { nextQuickThread, trayEntries, trayTitle, trayTooltip } from './thread.tray';
 import { modelMenuItems, type CatalogModel, type ModelMenuItem, type ModelTime } from './thread.models';
 import { cleanRules, rulesEnvironment } from './folder.rules';
@@ -1067,7 +1067,7 @@ function auxiliaryChannelAllowed(event: IpcMainEvent | IpcMainInvokeEvent, chann
     ? ['threads:context', 'threads:pick-folder', 'threads:quick-submit', 'threads:hide', 'threads:list', 'threads:reply',
       'threads:quick-current', 'threads:quick-reset', 'threads:quick-interrupt', 'threads:quick-resize', 'threads:quick-open',
       'threads:undo-info', 'threads:undo', 'threads:open-path', 'threads:quick-switch', 'threads:model-menu',
-      'threads:more-menu', 'threads:rules-get', 'threads:rules-set', 'threads:rules-pick',
+      'threads:more-menu', 'threads:rules-get', 'threads:rules-set', 'threads:rules-pick', 'threads:screenshot', 'threads:paste-picture',
       'voice:available', 'voice:start', 'voice:stop', 'voice:cancel', 'talk:start', 'talk:end', 'talk:interrupt', 'talk:current']
     : ['threads:approvals', 'threads:reply', 'threads:hide', 'threads:stop'];
   return allowed.includes(channel);
@@ -1631,7 +1631,7 @@ app.whenReady().then(async () => {
       const attachments = await validAttachments(opts.attachments);
       if (quickThreadId && quickThreadSnapshot()) {
         const { root } = threads.get(quickThreadId).summary;
-        const outside = attachments.find((item) => item.path && !insideFolder(root, item.path));
+        const outside = attachments.find((item) => item.path && needsFolder(item) && !insideFolder(root, item.path));
         if (outside) return { ok: false, error: `“${outside.label}” is outside this task’s folder. Start a New task to use it.` };
         // While the task works, the words reach the running turn at its next step (F7); otherwise they are a new turn.
         threads.steer(quickThreadId, withContext(prompt, attachments), prompt, false);
@@ -1642,7 +1642,7 @@ app.whenReady().then(async () => {
       const root = await fsp.realpath(chosen);
       if (!(await fsp.stat(root)).isDirectory()) throw new Error('Workspace folder is unavailable');
       if (root === '/' || root === os.homedir()) return { ok: false, error: 'Choose a specific folder rather than your whole home folder.' };
-      const outside = attachments.find((item) => item.path && !insideFolder(root, item.path));
+      const outside = attachments.find((item) => item.path && needsFolder(item) && !insideFolder(root, item.path));
       if (outside) return { ok: false, error: `“${outside.label}” is outside ${path.basename(root)}. Choose its folder instead.` };
       const id = threads.create(root, '', 'quick', loadSettings().quickModel || undefined);
       quickThreadId = id;
@@ -1650,6 +1650,29 @@ app.whenReady().then(async () => {
       sendQuickThread();
       return { ok: true, id };
     } catch (error) { return { ok: false, error: (error as Error).message }; }
+  });
+  // N5: a picture for the task to look at — a screenshot the person drags out, or an image they paste. It is kept in
+  // Bimax's temporary folder, never the task's, and the engine sends it to the model as an image.
+  secureHandle('threads:screenshot', null as QuickAttachment | null, async () => {
+    const file = path.join(await fsp.mkdtemp(path.join(os.tmpdir(), 'bimax-picture-')), screenshotName(new Date()));
+    quickPicking = true;
+    quickWindow?.hide();
+    try {
+      // -i: the person drags across what to show (Space picks a window, Esc cancels); -x: no camera sound.
+      await new Promise<void>((resolve) => { execFile('/usr/sbin/screencapture', ['-i', '-x', file], { timeout: 180_000 }, () => resolve()); });
+    } finally {
+      quickPicking = false;
+      if (quickWindow && !quickWindow.isDestroyed()) { quickWindow.show(); quickWindow.focus(); }
+    }
+    if (!existsSync(file)) return null; // cancelled
+    return { kind: 'picture' as const, label: path.basename(file), path: await fsp.realpath(file) };
+  });
+  secureHandle('threads:paste-picture', null as QuickAttachment | null, async (_e, name: unknown, bytes: unknown) => {
+    const safeName = asPastedFileName(name);
+    if (!PICTURE_EXTENSIONS.includes(path.extname(safeName).toLowerCase())) throw new InvalidPayloadError('a pasted picture must be an image');
+    const file = path.join(await fsp.mkdtemp(path.join(os.tmpdir(), 'bimax-picture-')), safeName);
+    await fsp.writeFile(file, asPastedBytes(bytes), { flag: 'wx' });
+    return { kind: 'picture' as const, label: safeName, path: await fsp.realpath(file) };
   });
   // A path in an answer: Quick Look, or ⌘-click to show it in Finder. Relative paths resolve in the task's folder.
   secureHandle('threads:open-path', { ok: false } as { ok: boolean; error?: string }, async (_e, raw: unknown, mode: unknown) => {

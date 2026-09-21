@@ -23,6 +23,11 @@ export async function validAttachments(raw: unknown): Promise<QuickAttachment[]>
     if (kind === 'page') {
       if (typeof url !== 'string' || !/^https?:\/\//i.test(url) || url.length > 4000) continue;
       out.push({ kind, label: typeof label === 'string' && label.trim() ? label.trim().slice(0, 300) : url, url });
+    } else if (kind === 'picture' && typeof target === 'string' && path.isAbsolute(target)) {
+      try {
+        const real = await fs.realpath(target);
+        if (PICTURE_EXTENSIONS.includes(path.extname(real).toLowerCase()) && (await fs.stat(real)).isFile()) out.push({ kind, label: path.basename(real), path: real });
+      } catch { /* gone since it was attached */ }
     } else if ((kind === 'file' || kind === 'document') && typeof target === 'string' && path.isAbsolute(target)) {
       try {
         const real = await fs.realpath(target);
@@ -31,6 +36,20 @@ export async function validAttachments(raw: unknown): Promise<QuickAttachment[]>
     }
   }
   return out;
+}
+
+/** Pictures the model can look at (the engine's multimodal.ts sends these as images). */
+export const PICTURE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.gif', '.webp'];
+
+/** A task only reads a picture, so it may come from anywhere; everything else must be inside the task's folder. */
+export function needsFolder(item: QuickAttachment): boolean {
+  return item.kind !== 'picture';
+}
+
+/** A screenshot's file name: what macOS itself would call it, so it reads naturally in the bar and the transcript. */
+export function screenshotName(now: Date): string {
+  const pad = (n: number): string => String(n).padStart(2, '0');
+  return `Screenshot ${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} at ${pad(now.getHours())}.${pad(now.getMinutes())}.${pad(now.getSeconds())}.png`;
 }
 
 /**
@@ -42,8 +61,10 @@ export function withContext(prompt: string, attachments: readonly QuickAttachmen
   const lines = attachments.map((a) =>
     a.kind === 'page' ? `- Web page open in the browser: “${a.label}” <${a.url}>`
       : a.kind === 'document' ? `- Document open in Preview: ${a.path}`
-        : `- ${a.path}`);
-  return `[What the user had open or dropped on the ⌘2 bar — "this", "these" or "the page" refers to it:\n${lines.join('\n')}]\n\n${prompt}`;
+        // The engine sends exactly these lines to the model as images (multimodal.ts attachedPictures).
+        : a.kind === 'picture' ? `- Picture: ${a.path}`
+          : `- ${a.path}`);
+  return `[What the user had open or dropped on the ⌘2 bar — "this", "these" or "the page" refers to it:\n${lines.join('\n')}\n]\n\n${prompt}`;
 }
 
 /** Finder script output: the folder on the first line (possibly empty), then one selected item per line. */

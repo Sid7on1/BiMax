@@ -11,6 +11,8 @@ import {
 import { IGraphStore } from '../graph/models';
 import { getSessionRecorder } from '../engine/session.recorder';
 import { clearSteer, drainSteer, pushSteer } from '../core/steering';
+import { attachedPictures, MAX_PICTURE_BYTES, MAX_TURN_PICTURES } from '../core/multimodal';
+import * as path from 'path';
 
 /**
  * Confidence-in-margin (turn-end form): from the epistemic-ledger delta across a turn, decide what
@@ -327,9 +329,17 @@ export class HeadlessSession {
     } catch { /* routing is best-effort; fall back to lite (or heavy when forced) */ }
     markRouted();
 
+    // Pictures the person attached (N5) go to the model as images; one that cannot be sent is named, never dropped silently.
+    const pictures = attachedPictures(query);
+    if (pictures.skipped.length) {
+      engineEvents.emit('message', this.msg('system',
+        `Not sent as a picture (missing, not an image, over ${MAX_PICTURE_BYTES / 1024 / 1024} MB, or more than ${MAX_TURN_PICTURES}): ${pictures.skipped.map((p) => path.basename(p)).join(', ')}`, 'warn'));
+    }
+
     engineEvents.emit('spinner_state', 'thinking', 'Thinking…');
     markAssembled();
     await active.execute(agentQuery, onToken, {
+      images: pictures.paths,
       maxIterations: this.deps.options.maxToolIterations,
       planMode: this.deps.options.governor?.mode === 'plan',
       useLite,

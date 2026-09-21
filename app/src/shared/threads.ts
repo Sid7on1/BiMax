@@ -59,7 +59,11 @@ export interface ThreadList {
   shortcut?: string;
 }
 /** Something the person had open when they pressed ⌘2, or dropped on the bar, offered to the task as context. */
-export interface QuickAttachment { kind: 'file' | 'page' | 'document'; label: string; path?: string; url?: string }
+/**
+ * Context for a ⌘2 task. A `picture` (backlog N5) is a pasted image or a screenshot: the model LOOKS at it, and it
+ * may live outside the task's folder because the task only reads it.
+ */
+export interface QuickAttachment { kind: 'file' | 'page' | 'document' | 'picture'; label: string; path?: string; url?: string }
 export interface QuickContext { root: string | null; source: string; error?: string; attachments?: QuickAttachment[] }
 /** The thread the ⌘2 bar is showing, with its transcript state, so a reopened bar picks up where it was. */
 export interface QuickThread {

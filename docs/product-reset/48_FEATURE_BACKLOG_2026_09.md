@@ -383,6 +383,19 @@ with a planted `<script>` shown as text and no network request. **Not verified l
 
 **N5. Attach a screenshot to the ⌘2 bar.** The task reads a picture only, with no control of the Mac, so it
 stays code-only. Value medium · Effort S · Needs a vision-capable model in the vision slot.
+**Done 2026-09-21.** The ⌘2 bar has a camera button: drag across what Bimax should look at (Space picks a window, Esc
+cancels; macOS `screencapture -i`). Pasting an image (⌃⇧⌘4, or an image file copied in Finder) attaches it too. A
+picture is kept in Bimax's temporary folder, never the task's, and may come from outside the task's folder because
+the task only reads it. The bar writes one `- Picture: <path>` line per picture; the engine sends exactly those
+lines to the model as images (at most 5 a turn, 10 MB each) and names any it cannot send. A path merely written in a
+sentence, or a dropped file, is never uploaded — a task renaming 300 photos must not send them. **Found:** the
+engine could already attach images, but since the terminal UI was archived nothing passed any. **On this Mac today**
+neither the work model (gpt-oss-20b) nor the Vision slot (nemotron-3.5-lightning, text-only in Bimax's model table)
+can see, so a picture is not sent and the note says to choose one under Models → Vision. Proof:
+`src/__tests__/turn.pictures.test.ts` (the real session with a stub model), `attachedPictures` in
+`multimodal.test.ts`, pictures in `quick.context.test.ts`; 16 mutants each fail a test. A test caught a real defect
+first: the bar closed its context block with `]` on the picture's line, which the engine would have read as part of
+the file name. **Not verified live:** the camera button, paste, and a real vision model.
 
 **N6. Cost per task, model and day, plus a limit in Settings.** Value medium · Effort S–M · Feeds F5.
 **Done 2026-09-21.** The shared spend ledger now keeps cost **by model** (every provider call passes the model it

@@ -75,6 +75,9 @@ const api = {
     undo: (id: string) => ipcRenderer.invoke('threads:undo', id),
     // Files dropped on the bar, paths in answers, and stepping through recent bar tasks.
     pathForFile: (file: File): string => webUtils.getPathForFile(file),
+    /** N5: drag out a screenshot, or keep a pasted image, as a picture for the task to look at (null when cancelled). */
+    screenshot: () => ipcRenderer.invoke('threads:screenshot'),
+    pastePicture: (name: string, bytes: Uint8Array) => ipcRenderer.invoke('threads:paste-picture', name, bytes),
     openPath: (raw: string, mode: 'preview' | 'reveal') => ipcRenderer.invoke('threads:open-path', raw, mode),
     quickSwitch: (direction: 'older' | 'newer') => ipcRenderer.invoke('threads:quick-switch', direction),
     // The task's model: choose it, or answer again with another (main/thread.models.ts).
