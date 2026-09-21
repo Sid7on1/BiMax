@@ -526,6 +526,13 @@ export class ThreadManager {
     // An error the engine reports during a turn makes that turn end "failed" rather than "done" (backlog N12).
     // Only a turn's end reads it, and every turn starts with it cleared, so an error between turns changes nothing.
     if (msg.t === 'event' && msg.name === 'message' && (msg.args[0] as { level?: unknown } | undefined)?.level === 'error') r.turnError = true;
+    // The engine's completion check (F3): what the sidebar, the menu bar and the notification say about a finished turn.
+    if (msg.t === 'event' && msg.name === 'completion_check') {
+      const check = msg.args[0] as { state?: unknown; testsEdited?: unknown } | undefined;
+      const edited = Array.isArray(check?.testsEdited) && check.testsEdited.length > 0;
+      r.summary.check = check?.state === 'passed' ? (edited ? 'tests-edited' : 'passed')
+        : check?.state === 'failed' || check?.state === 'unchecked' ? check.state : undefined;
+    }
     r.state = engineReducer(r.state, { type: 'outbound', msg });
     if (msg.t === 'event' && msg.name === 'ui_snapshot') {
       const current = (msg.args[0] as any)?.sessions?.find((s: any) => s.current);

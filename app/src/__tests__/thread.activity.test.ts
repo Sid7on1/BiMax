@@ -144,3 +144,29 @@ test('Cancel queued drops only the waiting messages, says which, and saves at on
   f.idle(id);
   expect(f.engines.get(id).sendFromRenderer).toHaveBeenCalledTimes(1);
 });
+
+test('a finished turn says what its completion check found (F3), not only that the model stopped', () => {
+  const at = (fields: Partial<ThreadSummary>) => threadActivity({ status: 'idle', outcome: 'completed', ...fields });
+  expect(at({ check: 'passed' })).toEqual({ label: 'Done · check passed', short: '' });
+  expect(at({ check: 'failed' })).toEqual({ label: 'Check failed', short: 'check failed' });
+  expect(at({ check: 'unchecked' })).toEqual({ label: 'Finished · not checked', short: 'not checked' });
+  expect(at({})).toEqual({ label: 'Done', short: '' });
+  expect(at({ check: 'tests-edited' })).toEqual({ label: 'Check passed · test files changed', short: 'tests changed' });
+  // A turn that failed or was interrupted says that first; a working task says it is working.
+  expect(at({ outcome: 'failed', check: 'passed' }).label).toBe('Failed');
+  expect(at({ status: 'working', check: 'failed' }).label).toBe('Working');
+  expect(threadNotice({ status: 'idle', outcome: 'completed', check: 'failed' })).toBe('Check failed');
+  expect(threadNotice({ status: 'idle', outcome: 'completed', check: 'passed' })).toBeNull();
+
+  const f = fixture();
+  const id = f.manager.create('/fixture/billing', 'Fix the rounding');
+  f.ready(id);
+  f.manager.receive(id, { t: 'event', name: 'completion_check', args: [{ state: 'failed', checks: [], results: [], attempts: 3, maxRetries: 2 }] } as any);
+  f.idle(id);
+  expect(f.summary(id)).toMatchObject({ outcome: 'completed', check: 'failed' });
+  expect(trayEntries(f.manager.list()).find((entry) => entry.id === id)?.label).toContain('check failed');
+  f.manager.receive(id, { t: 'event', name: 'completion_check', args: [{ state: 'passed', testsEdited: ['test.js'], checks: [], results: [], attempts: 0, maxRetries: 2 }] } as any);
+  expect(f.summary(id).check).toBe('tests-edited');
+  f.manager.receive(id, { t: 'event', name: 'completion_check', args: [{ state: 'pending', checks: [], results: [], attempts: 0, maxRetries: 2 }] } as any);
+  expect(f.summary(id).check).toBeUndefined();
+});

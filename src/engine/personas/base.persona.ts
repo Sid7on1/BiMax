@@ -301,6 +301,13 @@ export abstract class AgentPersona {
       if (outcomeBlock) sections.outcome = outcomeBlock;
     } catch { /* outcome runtime is headless/root-only and best-effort in legacy paths */ }
 
+    // Completion check (F3): while one is set, the model works toward it instead of learning of it when it stops.
+    try {
+      const { getCompletionChecks } = require('../../outcome/completion.check') as typeof import('../../outcome/completion.check');
+      const checkBlock = getCompletionChecks()?.promptBlock();
+      if (checkBlock) sections.completionCheck = checkBlock;
+    } catch { /* root-only, best-effort */ }
+
     // Behavioral mode (5.2): explore / code specialization. Injected into the dynamic suffix.
     // 'explore' relies on the governor being flipped to plan mode for the read-only enforcement,
     // so the explicit plan-mode section below still renders the hard write-gate notice.
@@ -392,6 +399,7 @@ export abstract class AgentPersona {
       sections.harnessPatches, // mind: self-tuned steering mined from recurring failures
       sections.todos,         // live task checklist — re-injected each turn so phases survive compaction
       sections.outcome,       // engine-owned completion/scheduler facts — refreshed every turn
+      sections.completionCheck, // F3: the checks the engine runs when the task finishes, and their last result
     ].filter(Boolean).join('\n\n');
 
     return { staticPrefix, dynamicSuffix, turnContext };
@@ -442,6 +450,10 @@ export abstract class AgentPersona {
       const { getOutcomeManager } = require('../../outcome/outcome.manager') as typeof import('../../outcome/outcome.manager');
       getOutcomeManager().beginTurn();
     } catch { /* workers/legacy UI may not host the root outcome runtime */ }
+    try {
+      const { getCompletionChecks } = require('../../outcome/completion.check') as typeof import('../../outcome/completion.check');
+      getCompletionChecks()?.beginTurn(options?.internalTurn === true);
+    } catch { /* root-only */ }
 
     if (!options?.internalTurn) {
       // Only genuine user turns teach preferences and mark episode boundaries. An engine wake is

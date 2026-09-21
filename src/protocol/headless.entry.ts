@@ -96,6 +96,8 @@ export async function startHeadless(container: any, config: any, transport: Head
   // mutation/evidence facts instead of inventing a second source of truth.
   const { startOutcomeManager } = require('../outcome/outcome.manager');
   const outcomeManager = startOutcomeManager();
+  // Completion checks (F3): per session, like the outcome contract, so they follow session_changed too.
+  require('../outcome/completion.check').startCompletionChecks();
 
   const personas = buildPersonas(toolRegistry, llmAdapter);
   const session = new HeadlessSession({

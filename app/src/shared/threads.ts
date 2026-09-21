@@ -17,6 +17,12 @@ export interface ThreadSummary {
   voice?: boolean;
   /** How the last turn ended (backlog N12). Cleared when the next turn starts. */
   outcome?: 'completed' | 'failed' | 'interrupted';
+  /**
+   * Where the task's completion check stands (backlog F3): the engine ran it and it passed or failed, or the task
+   * changed files with no check. `tests-edited`: it passed after the task changed test files, so the pass may rest on
+   * those edits. Absent when there was nothing to check. Kept across turns, as the engine keeps it.
+   */
+  check?: 'passed' | 'tests-edited' | 'failed' | 'unchecked';
   /** Messages accepted and not yet sent to the engine. Filled in for lists; never saved. */
   queued?: number;
   /** Why queued messages wait: another task holds the folder, the engine is not ready, or the task is stopped. Never saved. */
@@ -57,7 +63,7 @@ export function isQuickThread(thread: Pick<ThreadSummary, 'origin'>): boolean {
   return thread.origin !== 'project';
 }
 
-type ActivityFields = Pick<ThreadSummary, 'status' | 'outcome' | 'queued' | 'waiting'>;
+type ActivityFields = Pick<ThreadSummary, 'status' | 'outcome' | 'queued' | 'waiting' | 'check'>;
 
 /**
  * A thread's state in plain words (backlog N12): `label` for the sidebar, and `short` after a title in the menu bar
@@ -76,12 +82,18 @@ export function threadActivity(t: ActivityFields): { label: string; short: strin
   if (t.outcome === 'failed') return { label: 'Failed', short: 'failed' };
   if (t.outcome === 'interrupted') return { label: 'Interrupted', short: 'interrupted' };
   if (t.status === 'stopped') return { label: 'Stopped', short: '' };
-  return { label: t.outcome === 'completed' ? 'Done' : 'Idle', short: '' };
+  if (t.outcome !== 'completed') return { label: 'Idle', short: '' };
+  // A turn that ended is "done" only when its check passed (F3); one whose check failed says so, and one that changed
+  // files without a check is finished, not verified.
+  if (t.check === 'failed') return { label: 'Check failed', short: 'check failed' };
+  if (t.check === 'unchecked') return { label: 'Finished · not checked', short: 'not checked' };
+  if (t.check === 'tests-edited') return { label: 'Check passed · test files changed', short: 'tests changed' };
+  return { label: t.check === 'passed' ? 'Done · check passed' : 'Done', short: '' };
 }
 
 /** What the ⌘2 bar's footer says in place of the folder name, or null when the bar's own working and question states say it. */
 export function threadNotice(t: ActivityFields): string | null {
   if (t.status === 'working' || t.status === 'needs-you') return null;
-  if (!t.queued && t.outcome !== 'failed' && t.outcome !== 'interrupted') return null;
+  if (!t.queued && t.outcome !== 'failed' && t.outcome !== 'interrupted' && !(t.outcome === 'completed' && t.check === 'failed')) return null;
   return threadActivity(t).label;
 }

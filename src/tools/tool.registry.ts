@@ -42,6 +42,9 @@ const CORE_TOOLS = new Set<string>([
   // must not be: a model that cannot see a PDF reader reaches for ReadFileTool instead, which
   // returns binary noise and then gets summarised as if it were the document.
   'ReadDocumentTool',
+  // The engine itself asks the model to call CompletionCheckTool when a task changed files (F3). Deferred, the model
+  // was told to call a tool it could not see, and searched the project's files for its name instead (measured live).
+  'CompletionCheckTool',
 ]);
 
 /**

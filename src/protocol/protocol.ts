@@ -385,6 +385,8 @@ export const FORWARDED_EVENTS: readonly string[] = [
   'set_tier',
   'cost_update',
   'todo_update',
+  // F3: a task's completion checks and their last result (outcome/completion.check.ts).
+  'completion_check',
   'subagent_update',
   'thinking',
   'thinking_clear',

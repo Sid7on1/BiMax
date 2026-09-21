@@ -13,6 +13,7 @@ import { derivedEvidence } from '../context/evidence';
 import { overflowMessage, planRequest } from '../context/request.budget';
 import { engineEvents, ToolCallEntry } from '../engine/events';
 import { getActiveTodos, todosTouchedThisTurn } from '../tools/implementations/todo.tool';
+import { changesFiles, getCompletionChecks } from '../outcome/completion.check';
 import { LoopDetector, LoopSignal } from './loop-detector';
 import { getGlobalPatternStore } from '../genome/pattern.store';
 import { recordUsage } from '../mind/usage.counters';
@@ -73,6 +74,9 @@ export function terminalCapabilityBlocker(result: string): string | null {
 }
 
 /** Mutating tools whose success is an implicit "this change is correct" claim. */
+/** How long a completion check's command may run (F3). Test suites are the usual check, and they are not quick. */
+const CHECK_TIMEOUT_MS = 300_000;
+
 export const CLAIMING_TOOLS = new Set(['EditFileTool', 'WriteFileTool', 'MultiEditTool', 'SymbolEditTool']);
 
 export interface AgentLoopOptions {
@@ -279,6 +283,33 @@ export class AgentLoop {
     let recentMessages = nonSystemMessages.slice(-keepRecentTurns);
     while (recentMessages[0]?.role === 'tool') recentMessages = recentMessages.slice(1);
     return [...systemMessages, ...recentMessages];
+  }
+
+  /**
+   * Run a completion check's command through the task's own shell tool — so the same permission rules, sandbox and
+   * folder apply as to any command the model runs — shown as a tool call, and return the exit code the tool observed.
+   */
+  private async runCheckCommand(command: string, context: any, signal: AbortSignal | undefined, sessionId?: string): Promise<{ exitCode: number | null; output: string }> {
+    const tool = this.tools.getTool('BashTool');
+    if (!tool) return { exitCode: null, output: 'No shell tool is available to run the check.' };
+    const args = { command, timeout: CHECK_TIMEOUT_MS };
+    const entry: ToolCallEntry = {
+      id: `check-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      toolName: 'BashTool', input: JSON.stringify(args), output: '', status: 'running', startTime: new Date(),
+    };
+    engineEvents.emit('tool_call', entry);
+    let typed: TypedOutcome | undefined;
+    let output: string;
+    let failed = false;
+    try {
+      const result = await tool.execute(args, { ...(context || { cwd: process.cwd() }), signal, sessionId, reportOutcome: (o: TypedOutcome) => { typed = o; } });
+      output = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
+    } catch (e: any) {
+      output = `Tool Error: ${e?.message ?? e}`;
+      failed = true;
+    }
+    engineEvents.emit('tool_call_result', { ...entry, output, status: failed || (typed && typed.status !== 'ok') ? 'error' : 'success', endTime: new Date() } as ToolCallEntry);
+    return { exitCode: failed ? null : typed?.exitCode ?? null, output };
   }
 
   async *execute(
@@ -1044,6 +1075,9 @@ export class AgentLoop {
               }
             }
             if (tc.name === 'DocumentTool' && !isError) documentDraftPending = result.startsWith('Draft retained');
+            // Completion checks (F3): a call that changed files makes this a task that needs a check, and makes a check
+            // that passed before it stale.
+            if (!isError && changesFiles(tc.name, tc.args || '{}', result)) getCompletionChecks()?.noteChange(pathOf(tc.args || '{}') || undefined);
             const endTime = new Date();
             const durationMs = endTime.getTime() - entry.startTime.getTime();
             globalTelemetry.recordToolCall(tc.name, durationMs);
@@ -1438,6 +1472,17 @@ export class AgentLoop {
               'tool results above), just write the answer directly.',
           });
           continue;
+        }
+        // Completion checks (F3): before the turn may end "done", the engine runs the task's checks itself and grades
+        // them by the exit code and files it observed. A failure within the retry limit sends the task back to work.
+        const completion = getCompletionChecks();
+        if (completion && !signal?.aborted) {
+          const verdict = await completion.settle((command) => this.runCheckCommand(command, context, signal, options?.sessionId), context?.cwd || process.cwd());
+          if ('continue' in verdict) {
+            this.messages.push({ role: 'user', content: verdict.continue });
+            continue;
+          }
+          if (verdict.end) { yield verdict.end; anyTextYielded = true; }
         }
         // No tool calls and nothing left open — task complete. If the entire call produced
         // no visible text at all, say so rather than returning dead silence.

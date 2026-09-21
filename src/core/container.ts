@@ -85,6 +85,7 @@ import { initPlanManager } from '../memory/plan.manager';
 import { createPlanTool } from '../tools/implementations/plan.tool';
 import { createScoutTool } from '../tools/implementations/scout.tool';
 import { createOutcomeTool } from '../tools/implementations/outcome.tool';
+import { createCompletionCheckTool } from '../tools/implementations/completion.check.tool';
 
 import { Governor } from '../governor/governor';
 import { EngineConfig } from '../engine/config';
@@ -211,6 +212,8 @@ export async function createContainer(config?: Partial<EngineConfig>): Promise<{
   // Engine-owned acceptance/evidence contract. Core infrastructure: substantial tasks use this
   // before implementation and the runtime—not model prose—decides whether verified completion is legal.
   toolRegistry.register(createOutcomeTool(governor));
+  // F3: how a task that changes files will be checked; the engine runs the check when the task finishes.
+  toolRegistry.register(createCompletionCheckTool(governor));
   toolRegistry.register(createWebFetchTool(governor));
   toolRegistry.register(createCdTool(governor));
   toolRegistry.register(createGraphQueryTool(governor, graphStore));

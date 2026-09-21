@@ -127,7 +127,29 @@ quoted the request word for word and listed the checklist with each status.
   staying in view. That is where an uninterrupted task has it too; ranking constraints above chatter is separate work.
 
 **F3. Completion checks.** "Done" means a stated check passed (tests, file present, output validated),
-recorded as evidence. Value high · Effort M · Needs F2.
+recorded as evidence. Value high · Effort M · Needs F2. **Done 2026-09-21.**
+
+Before: a Thread showed "Done" whenever a turn ended without an error. The outcome contract could demand proof, but
+only if the model chose to define one — 22 saved tasks on the development machine, 0 contracts.
+- **Asked for by the harness** (the owner chose option A): a turn that changed files — a file tool, or a shell command
+  the governor's analyzer calls a write or an install — and has no check is asked once to set one with
+  `CompletionCheckTool`, or to skip with a reason. The user sees the check as a message and can change it or ask for
+  none. A question answered without changing anything is never asked.
+- **Run by the engine** (`src/outcome/completion.check.ts`): when the turn ends, a command check runs through the task's
+  own BashTool — same permissions, sandbox and folder — and is graded by the exit code the tool observed; file and JSON
+  checks are read directly. A failure sends the task back with the output, up to the retry limit (F5), then ends
+  "check failed". The model cannot change or skip a check that failed in the same turn.
+- **Seen:** "Done · check passed", "Check failed", "Finished · not checked" in the sidebar, menu bar, ⌘2 footer and the
+  notification. Saved per session, so a resumed task keeps its check (F2).
+- **Measured live, and fixed:** given a test it could not pass, the model rewrote the test's expected value and the
+  check went green. A pass that follows edits to test files now says so ("Check passed · test files changed", with the
+  files named), and the prompt tells the model not to edit the tests a check runs. Also measured live: while the tool
+  was deferred, the model searched the project for its name; it is now in the core tool set.
+- Proof: `completion.check.test.ts` (22, three through the real AgentLoop with a scripted model) and
+  `thread.activity.test.ts`; 21 mutants each fail a test. Live, `gpt-oss-20b` fixed a real bug, set `node test.js`,
+  and the engine ran it and saw it pass.
+- **Limit:** a check is only as good as what the model picks; a check that runs one test file passes while the
+  project's other tests fail. The check is shown to the user for exactly that reason.
 
 **F4. Event wakeups.** One mechanism resumes a task on a folder change, a time, a CI result or a user's
 answer. Value high · Effort M · Needs F2. *Why:* folder triggers, Guardian and living deliverables share it,
