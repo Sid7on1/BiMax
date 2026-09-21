@@ -32,6 +32,7 @@ import { applyReport, cleanGoal, filesToCheck, forgetGone, outcomeEnvironment, o
 import { applyPlan, cleanFolder, includeKept, isRevision, keepFile, keepManual, manualEdits, moveFile, moveGroup, planConflicts, previewTree, receivePlan, revisionHint, type AppliedPlan, type OrganizePlan } from './organize.plan';
 import { briefing, budgetNote, nightBranch, nightBudget, nightContinue, nightDeadline, nightNext, nightWords, spentBy, worktreeCommand, type NightShift } from './night.shift';
 import { saveSkill, skillDraft, skillName, type SkillDraft } from './skill.capture';
+import { arrivalsSince, cleanBookmark, whereWasI } from './where.was.i';
 import type { TranscriptItem } from '../renderer/src/engine.state';
 import { randomUUID } from 'node:crypto';
 import { macBin } from './bin';
@@ -1122,6 +1123,10 @@ function updateTray(): void {
     { label: 'Bimax tasks', enabled: false },
     ...(entries.length ? entries.map((entry) => ({ label: entry.label, click: () => openThread(entry.id) })) : [{ label: 'No tasks yet', enabled: false }]),
     { type: 'separator' },
+    // FL7: tasks the person bookmarked, to come back to.
+    ...(list.some((t) => t.bookmark) ? [{ label: 'Bookmarks', submenu: list.filter((t) => t.bookmark).slice(0, 12).map((t): Electron.MenuItemConstructorOptions => ({
+      label: `${t.title.slice(0, 40)} — ${t.bookmark!.note.slice(0, 50)}`, click: () => openThread(t.id),
+    })) }, { type: 'separator' as const }] : []),
     ...scheduleMenu(),
     ...outcomeMenu(),
     ...triggerMenu(),
@@ -1512,7 +1517,7 @@ function auxiliaryChannelAllowed(event: IpcMainEvent | IpcMainInvokeEvent, chann
   const allowed = event.sender.id === quickWindow?.webContents.id
     ? ['threads:context', 'threads:pick-folder', 'threads:quick-submit', 'threads:hide', 'threads:list', 'threads:reply',
       'threads:quick-current', 'threads:quick-reset', 'threads:quick-interrupt', 'threads:quick-resize', 'threads:quick-open',
-      'threads:undo-info', 'threads:undo', 'threads:history', 'threads:undo-change', 'threads:undo-back-to', 'threads:open-path', 'threads:quick-switch', 'threads:model-menu',
+      'threads:undo-info', 'threads:undo', 'threads:history', 'threads:bookmark-set', 'threads:where', 'threads:undo-change', 'threads:undo-back-to', 'threads:open-path', 'threads:quick-switch', 'threads:model-menu',
       'threads:more-menu', 'threads:rules-get', 'threads:rules-set', 'threads:rules-pick', 'threads:screenshot', 'threads:paste-picture', 'threads:teach', 'threads:outcome-get', 'threads:outcome-set', 'threads:outcome-clear', 'threads:night-start', 'threads:skill-save',
       'voice:available', 'voice:start', 'voice:stop', 'voice:cancel', 'talk:start', 'talk:end', 'talk:interrupt', 'talk:current']
     : event.sender.id === organizeWindow?.webContents.id
@@ -2319,6 +2324,24 @@ app.whenReady().then(async () => {
     const rules = cleanRules(root, raw);
     saveFolderRules(root, rules, rules.text || rules.protect.length ? `Rules for ${path.basename(root)} saved.` : `Rules for ${path.basename(root)} cleared.`);
     return { ok: true };
+  });
+  // FL7: a bookmark the person leaves on a task, and what happened since when they come back.
+  secureHandle('threads:bookmark-set', false, (_e, id: unknown, note: unknown) => {
+    if (typeof id !== 'string') return false;
+    try { threads.setBookmark(id, note === null ? null : cleanBookmark(note, Date.now())); updateTray(); return true; } catch { return false; }
+  });
+  secureHandle('threads:where', null as unknown, async (_e, id: unknown) => {
+    if (typeof id !== 'string') return null;
+    try {
+      const { summary, state } = threads.get(id);
+      if (!summary.bookmark) return null;
+      const entries = await fsp.readdir(summary.root, { withFileTypes: true }).catch(() => []);
+      const born = await Promise.all(entries.slice(0, 2000).map(async (entry) => ({
+        name: entry.name, isFile: entry.isFile(), born: await fsp.stat(path.join(summary.root, entry.name)).then((st) => st.birthtimeMs, () => 0),
+      })));
+      const changes = changesSince(threadStateRoot(app.getPath('userData'), summary.root, summary.origin), summary.bookmark.at);
+      return whereWasI({ bookmark: summary.bookmark, items: state.items, changes, arrivals: arrivalsSince(born, summary.bookmark.at) });
+    } catch { return null; }
   });
   // FL6: save the skill the card was opened for, with the name and description as edited.
   secureHandle('threads:skill-save', { ok: false } as { ok: boolean; error?: string }, async (_e, rawName: unknown, rawDescription: unknown) => {

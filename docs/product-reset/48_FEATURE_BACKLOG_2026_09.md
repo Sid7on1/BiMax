@@ -641,6 +641,14 @@ live:** a later task choosing the skill, and its "did not fit" path.
 **FL7. "Where was I?"** Bookmarks, plus changes since your last visit: what was compared, what was rejected
 and why, what arrived, the next step. *First version:* an explicit "leave myself a bookmark" button.
 Value medium · Effort M.
+**First version built 2026-09-22.** **Bookmark** in the ⌘2 bar's footer leaves a one-line note in your own words
+on a task (kept with the task, so it survives a restart; listed under **Bookmarks** in the menu bar). When a
+bookmarked task comes back into the bar more than five minutes later, **Where you were** shows the note, how long
+ago, what happened since — the changes it made (from its undo journal), how many answers and the last one, the files
+that arrived directly in its folder (by creation time) — and what is still open on its checklist (its last
+TodoWrite). **Carry on** or **Remove the bookmark**. Nothing is inferred: without a bookmark, nothing is shown.
+Proof: `app/src/__tests__/where.was.i.test.ts` (5 tests, one a restart round trip); 12 mutants each fail a test.
+**Still Target:** "what was compared, what was rejected and why". **Not verified live.**
 
 **FL8. Disposable tools inside a task.** A contact sheet for choosing photos, a matching table for
 reconciling, a batch editor for naming. *First version:* three reliable templates. Value medium · Effort M.

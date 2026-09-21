@@ -980,6 +980,15 @@ export class ThreadManager {
    * A task's priority (backlog F7): which task goes first when several wait for an engine or a folder, and which
    * engine is stopped last to make room. It never stops or pauses work that is already running.
    */
+  /** Leave or clear the person's bookmark on a task (backlog FL7). */
+  setBookmark(id: string, bookmark: { note: string; at: number } | null): void {
+    const r = this.records.get(id);
+    if (!r) throw new Error('Thread not found');
+    if (bookmark) r.summary.bookmark = bookmark; else delete r.summary.bookmark;
+    this.persist(r);
+    this.deps.changed();
+  }
+
   setPriority(id: string, priority: 'high' | 'normal' | 'low'): void {
     const r = this.records.get(id);
     if (!r) throw new Error('Thread not found');

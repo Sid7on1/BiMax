@@ -106,6 +106,9 @@ const api = {
     undoInfo: (id: string) => ipcRenderer.invoke('threads:undo-info', id),
     undo: (id: string) => ipcRenderer.invoke('threads:undo', id),
     // FL4: the change history, with how each change can be undone, and selective undo.
+    // FL7: a bookmark on a task, and "where was I?" when coming back to it.
+    bookmark: (id: string, note: string | null): Promise<boolean> => ipcRenderer.invoke('threads:bookmark-set', id, note),
+    where: (id: string): Promise<{ note: string; at: number; since: string[]; open: string[] } | null> => ipcRenderer.invoke('threads:where', id),
     history: (id: string): Promise<{ entries: Array<{ id: string; title: string; at: number; reversibility: 'full' | 'partial'; inPlace: boolean | null; dependents: number; editedSince: string[] }>; commands: Array<{ title: string; at: number }> } | null> => ipcRenderer.invoke('threads:history', id),
     undoChange: (id: string, changeId: string): Promise<{ ok: boolean; message?: string; error?: string }> => ipcRenderer.invoke('threads:undo-change', id, changeId),
     undoBackTo: (id: string, changeId: string): Promise<{ ok: boolean; message?: string; error?: string }> => ipcRenderer.invoke('threads:undo-back-to', id, changeId),

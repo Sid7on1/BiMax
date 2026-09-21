@@ -41,6 +41,8 @@ export interface ThreadSummary {
   priority?: 'high' | 'low';
   /** Wakes the task is waiting for (F4). Saved, so they survive a restart of the app. */
   wakes?: ThreadWake[];
+  /** A note the person left themselves on this task, and when (backlog FL7, "Where was I?"). */
+  bookmark?: { note: string; at: number };
   /** Messages accepted and not yet sent to the engine. Filled in for lists; never saved. */
   queued?: number;
   /** Why queued messages wait: another task holds the folder, the engine is not ready, or the task is stopped. Never saved. */

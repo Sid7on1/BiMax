@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { ArrowUp, AudioLines, Camera, Check, ChevronRight, Cpu, ExternalLink, FileText, Folder, Globe, History, Image as ImageIcon, MoreHorizontal, PenLine, Plus, RotateCcw, Search, Shield, Square, Undo2, X } from 'lucide-react';
+import { ArrowUp, AudioLines, Bookmark, Camera, Check, ChevronRight, Cpu, ExternalLink, FileText, Folder, Globe, History, Image as ImageIcon, MoreHorizontal, PenLine, Plus, RotateCcw, Search, Shield, Square, Undo2, X } from 'lucide-react';
 import { QUICK_BAR_MAX_HEIGHT_SHARE, type QuickAttachment, type QuickContext, type QuickThread, type ThreadApproval } from '../../../shared/threads';
 import { engineReducer, initialEngineState, type TranscriptItem } from '../engine.state';
 import type { Outbound, RequestMsg, ToolCallEntry } from '../protocol';
@@ -82,6 +82,16 @@ export function ThreadQuickBar(): React.ReactElement {
   const talkVoice = talking && talk.view.voice ? `Voice: ${talk.view.voice.name}${talk.view.voice.quality === 'default' ? ' (basic)' : ''}` : '';
   // This folder's rules, while they are being edited (⋯ → Rules for …); null when the editor is closed.
   const [rules, setRules] = useState<{ root: string; text: string; protect: string[] } | null>(null);
+  // FL7: leaving a bookmark, and "where was I?" when a bookmarked task comes back into the bar.
+  const [marking, setMarking] = useState<string | null>(null);
+  const [where, setWhere] = useState<{ note: string; at: number; since: string[]; open: string[] } | null>(null);
+  useEffect(() => {
+    setWhere(null);
+    if (!thread) return;
+    let live = true;
+    void window.bimax.threads.where(thread.id).then((value) => { if (live && value && Date.now() - value.at > 5 * 60_000) setWhere(value); });
+    return () => { live = false; };
+  }, [thread?.id]);
   // FL6: the "Save as a Skill" card.
   const [skill, setSkill] = useState<{ name: string; description: string; inputs: string[]; steps: string[]; checks: string[]; samples: string[] } | null>(null);
   useEffect(() => window.bimax.threads.onOpenSkill(setSkill), []);
@@ -366,6 +376,7 @@ export function ThreadQuickBar(): React.ReactElement {
         if (e.key === 'Escape' && changes) { e.preventDefault(); setChanges(null); return; }
         if (e.key === 'Escape' && night) { e.preventDefault(); setNight(null); return; }
         if (e.key === 'Escape' && skill) { e.preventDefault(); setSkill(null); return; }
+        if (e.key === 'Escape' && marking !== null) { e.preventDefault(); setMarking(null); return; }
         if (e.key === 'Escape') { e.preventDefault(); window.bimax.threads.hide(); }
         if (e.key.toLowerCase() === 'n' && e.metaKey) { e.preventDefault(); window.bimax.threads.quickReset(); input.current?.focus(); }
       }}
@@ -480,6 +491,28 @@ export function ThreadQuickBar(): React.ReactElement {
             {rules ? (
               <QuickRules value={rules} onChange={setRules} onPick={() => void protectMore()} onSave={() => void saveRules()} onCancel={() => setRules(null)} />
             ) : null}
+            {where && thread ? (
+              <section className="quick-request quick-rules" aria-label="Where was I?">
+                <p className="quick-request-question">Where you were · {ago(where.at)}</p>
+                <p className="quick-note">“{where.note}”</p>
+                {where.since.length ? <ul className="quick-note">{where.since.map((line) => <li key={line}>{line}</li>)}</ul> : <p className="quick-note">Nothing happened here since.</p>}
+                {where.open.length ? <><p className="quick-note">Still open:</p><ul className="quick-note">{where.open.map((todo) => <li key={todo}>{todo}</li>)}</ul></> : null}
+                <div className="quick-request-options">
+                  <button type="button" className="quick-choice quick-choice-primary" onClick={() => setWhere(null)}>Carry on</button>
+                  <button type="button" className="quick-choice" onClick={() => { void window.bimax.threads.bookmark(thread.id, null); setWhere(null); }}>Remove the bookmark</button>
+                </div>
+              </section>
+            ) : null}
+            {marking !== null && thread ? (
+              <section className="quick-request quick-rules" aria-label="Bookmark">
+                <p className="quick-request-question">Leave yourself a note</p>
+                <input autoFocus className="quick-rules-text" value={marking} placeholder="e.g. Compared the two quotes; waiting on Priya's numbers. Next: the tax column." onChange={(e) => setMarking(e.target.value)} />
+                <div className="quick-request-options">
+                  <button type="button" className="quick-choice quick-choice-primary" disabled={!marking.trim()} onClick={() => { void window.bimax.threads.bookmark(thread.id, marking); setMarking(null); }}>Bookmark</button>
+                  <button type="button" className="quick-choice" onClick={() => setMarking(null)}>Cancel</button>
+                </div>
+              </section>
+            ) : null}
             {skill ? (
               <QuickSkill value={skill} onChange={setSkill}
                 onSave={() => { void window.bimax.threads.skillSave(skill.name, skill.description).then((r) => { if (r.ok) setSkill(null); else setError(r.error || 'Could not save the skill.'); }); }}
@@ -566,6 +599,11 @@ export function ThreadQuickBar(): React.ReactElement {
               {undo && !busy ? (
                 <button type="button" className="quick-link" title="Every change this task made, and what can be undone" onClick={() => void openHistory()}>
                   <History size={12} aria-hidden />History
+                </button>
+              ) : null}
+              {!busy ? (
+                <button type="button" className="quick-link" title="Leave yourself a note on this task, for when you come back" onClick={() => setMarking('')}>
+                  <Bookmark size={12} aria-hidden />Bookmark
                 </button>
               ) : null}
               <button type="button" className="quick-link" title="Open in Bimax" onClick={() => window.bimax.threads.quickOpen()}>
