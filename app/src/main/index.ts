@@ -9,7 +9,7 @@ import { finderContext } from './finder.context';
 import type { QuickAttachment, QuickContext, QuickThread, ThreadSummary } from '../shared/threads';
 import { threadNotice } from '../shared/threads';
 import { QUICK_BAR, quickBarBounds, quickBarOrigin } from './quick.bar';
-import { changesSince, journalFile, lastUndoable, threadStateEnvironment, threadStateRoot, undoLast } from './thread.undo';
+import { changeHistory, changesSince, journalFile, lastUndoable, threadStateEnvironment, threadStateRoot, undoBackTo, undoChange, undoLast } from './thread.undo';
 import { insideFolder, needsFolder, PICTURE_EXTENSIONS, screenshotName, validAttachments, withContext } from './quick.context';
 import { nextQuickThread, trayEntries, trayTitle, trayTooltip } from './thread.tray';
 import { modelMenuItems, type CatalogModel, type ModelMenuItem, type ModelTime } from './thread.models';
@@ -1386,7 +1386,7 @@ function auxiliaryChannelAllowed(event: IpcMainEvent | IpcMainInvokeEvent, chann
   const allowed = event.sender.id === quickWindow?.webContents.id
     ? ['threads:context', 'threads:pick-folder', 'threads:quick-submit', 'threads:hide', 'threads:list', 'threads:reply',
       'threads:quick-current', 'threads:quick-reset', 'threads:quick-interrupt', 'threads:quick-resize', 'threads:quick-open',
-      'threads:undo-info', 'threads:undo', 'threads:open-path', 'threads:quick-switch', 'threads:model-menu',
+      'threads:undo-info', 'threads:undo', 'threads:history', 'threads:undo-change', 'threads:undo-back-to', 'threads:open-path', 'threads:quick-switch', 'threads:model-menu',
       'threads:more-menu', 'threads:rules-get', 'threads:rules-set', 'threads:rules-pick', 'threads:screenshot', 'threads:paste-picture', 'threads:teach', 'threads:outcome-get', 'threads:outcome-set', 'threads:outcome-clear',
       'voice:available', 'voice:start', 'voice:stop', 'voice:cancel', 'talk:start', 'talk:end', 'talk:interrupt', 'talk:current']
     : event.sender.id === organizeWindow?.webContents.id
@@ -2297,6 +2297,51 @@ app.whenReady().then(async () => {
       return { ok: false, error: (error as Error).message };
     }
   });
+  // FL4: the change history — every change that can be undone, and the commands Bimax cannot undo — and selective undo.
+  const commandLine = (input: unknown): string => {
+    let text = String(input ?? '');
+    try { const args = JSON.parse(text); if (typeof args?.command === 'string') text = args.command; } catch { /* shown as it is */ }
+    text = text.replace(/\s+/g, ' ').trim();
+    return text.length > 100 ? `${text.slice(0, 99)}…` : text;
+  };
+  secureHandle('threads:history', null as unknown, (_e, id: unknown) => {
+    if (typeof id !== 'string') return null;
+    try {
+      const { state } = threadUndoPaths(id);
+      const commands = threads.get(id).state.items
+        .filter((item) => item.kind === 'tool' && item.call.toolName === 'BashTool' && item.call.status === 'success')
+        .slice(-30)
+        .map((item) => (item.kind === 'tool' ? { title: commandLine(item.call.input), at: Date.parse(String(item.call.startTime)) || 0 } : null))
+        .filter((c): c is { title: string; at: number } => !!c && !!c.title);
+      return { entries: changeHistory(state), commands };
+    } catch { return null; }
+  });
+  const guardedUndo = async (id: unknown, run: (state: string, root: string) => Promise<string>): Promise<{ ok: boolean; message?: string; error?: string }> => {
+    if (typeof id !== 'string') return { ok: false, error: 'No thread was given.' };
+    try {
+      const { status } = threads.get(id).summary;
+      if (status === 'working' || status === 'needs-you' || status === 'starting') return { ok: false, error: 'Wait for this thread to finish before undoing a change.' };
+      const { state, root } = threadUndoPaths(id);
+      return { ok: true, message: await run(state, root) };
+    } catch (error) {
+      return { ok: false, error: (error as Error).message };
+    }
+  };
+  secureHandle('threads:undo-change', { ok: false } as { ok: boolean; message?: string; error?: string }, (_e, id: unknown, changeId: unknown) =>
+    guardedUndo(id, async (state, root) => {
+      if (typeof changeId !== 'string') throw new Error('No change was given.');
+      const { title } = await undoChange(state, root, macBin, changeId);
+      threads.noteUndo(id as string, title);
+      return `Undid “${title}”.`;
+    }));
+  secureHandle('threads:undo-back-to', { ok: false } as { ok: boolean; message?: string; error?: string }, (_e, id: unknown, changeId: unknown) =>
+    guardedUndo(id, async (state, root) => {
+      if (typeof changeId !== 'string') throw new Error('No change was given.');
+      const result = await undoBackTo(state, root, macBin, changeId);
+      for (const title of result.undone) threads.noteUndo(id as string, title);
+      if (result.stoppedAt) throw new Error(`Undid ${result.undone.length} change${result.undone.length === 1 ? '' : 's'}, then stopped: ${result.stoppedAt}`);
+      return `Undid ${result.undone.length} change${result.undone.length === 1 ? '' : 's'}.`;
+    }));
   secureOn('threads:quick-resize', (_e, height: unknown) => { if (typeof height === 'number') applyQuickBounds(height); });
   secureOn('threads:quick-reset', () => { if (talkOwner === 'quick') talk.end(); quickThreadId = null; sendQuickThread(); });
   secureOn('threads:quick-interrupt', () => { if (quickThreadId) threads.send(quickThreadId, { t: 'interrupt' }); });

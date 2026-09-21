@@ -124,9 +124,19 @@ const binRoots = (): string[] => [
  * says why. A replaced file's current version goes to the Bin before the saved copy is put back.
  */
 export async function undoLast(stateRoot: string, threadRoot: string, bin: BinOps): Promise<{ title: string }> {
+  return undoChange(stateRoot, threadRoot, bin);
+}
+
+/**
+ * Reverse one change (the newest when no id is given). An older change is undone on its own only when no later change
+ * touched the same files (FL4); otherwise "Undo back to here" reverses the later ones first.
+ */
+export async function undoChange(stateRoot: string, threadRoot: string, bin: BinOps, id?: string): Promise<{ title: string }> {
   const pending = pendingChanges(stateRoot);
-  const change = pending[pending.length - 1];
-  if (!change) throw new Error('There is nothing to undo in this thread.');
+  const change = id ? pending.find((c) => c.id === id) : pending[pending.length - 1];
+  if (!change) throw new Error(id ? 'That change was already undone.' : 'There is nothing to undo in this thread.');
+  const later = laterDependents(pending, change.id);
+  if (later.length) throw new Error(`“${change.title}” can’t be undone on its own: ${later.length} later change${later.length === 1 ? '' : 's'} used the same files. Choose “Undo back to here” to reverse ${later.length === 1 ? 'it' : 'them'} too.`);
   const root = await fs.realpath(threadRoot).catch(() => path.resolve(threadRoot));
   const bins = binRoots();
   const backups = path.join(stateRoot, '.bimax', 'undo', 'backups');
@@ -178,4 +188,82 @@ export async function undoLast(stateRoot: string, threadRoot: string, bin: BinOp
   }
   await fs.appendFile(journalFile(stateRoot), JSON.stringify({ type: 'undo', id: change.id, at: Date.now() }) + '\n', 'utf8');
   return { title: change.title };
+}
+
+// ── Change history and selective undo (backlog FL4) ─────────────────────────────────────────────
+
+/** Every path a change touched. Two changes that share one depend on each other's order. */
+function touched(change: Change): Set<string> {
+  const paths = new Set<string>();
+  for (const op of change.ops) {
+    if (op.op === 'move') { paths.add(path.resolve(op.from)); paths.add(path.resolve(op.to)); } else paths.add(path.resolve(op.path));
+  }
+  return paths;
+}
+
+/** The later pending changes that build on this one (directly, or through each other): they must be undone first. */
+export function laterDependents(pending: readonly Change[], id: string): string[] {
+  const index = pending.findIndex((c) => c.id === id);
+  if (index < 0) return [];
+  const reach = touched(pending[index]!);
+  const out: string[] = [];
+  for (const later of pending.slice(index + 1)) {
+    const paths = touched(later);
+    if ([...paths].some((p) => reach.has(p))) { out.push(later.id); for (const p of paths) reach.add(p); }
+  }
+  return out;
+}
+
+export type Reversibility = 'full' | 'partial';
+export interface HistoryEntry {
+  id: string; title: string; at: number;
+  /** "partial": an item went to the Bin at a place Bimax could not see, so Put Back is by hand. */
+  reversibility: Reversibility;
+  /** Whether its effect is on disk now (F6's check). */
+  inPlace: boolean | null;
+  /** Later changes that must be undone first; 0 means it can be undone on its own. */
+  dependents: number;
+  /** Files it produced that were changed after it outside Bimax's journal — by the person or a command; on undo their version goes to the Bin, never lost. */
+  editedSince: string[];
+}
+
+/** The thread's change history, newest first, each with how honestly it can be undone (FL4). */
+export function changeHistory(stateRoot: string): HistoryEntry[] {
+  const pending = pendingChanges(stateRoot);
+  return pending.map((change, index) => {
+    const steps = change.ops.map(stepInPlace);
+    // Bimax's own later changes to a file are its dependents, not someone else's edits.
+    const laterByBimax = new Set(pending.slice(index + 1).flatMap((later) => [...touched(later)]));
+    // A moved file carries later edits back with it; a created or replaced file's current version goes to the Bin.
+    const produced = change.ops.flatMap((op) => (op.op === 'create' || op.op === 'restore' ? [op.path] : []));
+    const editedSince = produced
+      .filter((p) => !laterByBimax.has(path.resolve(p)))
+      .filter((p) => { try { return fsSync.statSync(p).mtimeMs > change.at + 2000; } catch { return false; } })
+      .map((p) => path.basename(p));
+    return {
+      id: change.id, title: change.title, at: change.at,
+      reversibility: change.ops.some((op) => op.op === 'trash' && !op.trashPath) ? 'partial' as const : 'full' as const,
+      inPlace: steps.every((x) => x === true) ? true : steps.some((x) => x === false) ? false : null,
+      dependents: laterDependents(pending, change.id).length,
+      editedSince,
+    };
+  }).reverse();
+}
+
+/** "Undo back to here": reverse every change from the newest down to this one, stopping at the first that refuses. */
+export async function undoBackTo(stateRoot: string, threadRoot: string, bin: BinOps, id: string): Promise<{ undone: string[]; stoppedAt?: string }> {
+  const undone: string[] = [];
+  if (!pendingChanges(stateRoot).some((c) => c.id === id)) throw new Error('That change was already undone.');
+  for (;;) {
+    const pending = pendingChanges(stateRoot);
+    const newest = pending[pending.length - 1];
+    if (!newest) break;
+    try {
+      undone.push((await undoChange(stateRoot, threadRoot, bin, newest.id)).title);
+    } catch (error) {
+      return { undone, stoppedAt: (error as Error).message };
+    }
+    if (newest.id === id) break;
+  }
+  return { undone };
 }

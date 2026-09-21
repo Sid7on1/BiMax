@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { ArrowUp, AudioLines, Camera, Check, ChevronRight, Cpu, ExternalLink, FileText, Folder, Globe, Image as ImageIcon, MoreHorizontal, PenLine, Plus, RotateCcw, Search, Shield, Square, Undo2, X } from 'lucide-react';
+import { ArrowUp, AudioLines, Camera, Check, ChevronRight, Cpu, ExternalLink, FileText, Folder, Globe, History, Image as ImageIcon, MoreHorizontal, PenLine, Plus, RotateCcw, Search, Shield, Square, Undo2, X } from 'lucide-react';
 import { QUICK_BAR_MAX_HEIGHT_SHARE, type QuickAttachment, type QuickContext, type QuickThread, type ThreadApproval } from '../../../shared/threads';
 import { engineReducer, initialEngineState, type TranscriptItem } from '../engine.state';
 import type { Outbound, RequestMsg, ToolCallEntry } from '../protocol';
@@ -254,6 +254,20 @@ export function ThreadQuickBar(): React.ReactElement {
     else setError('That request has expired. Nothing was sent.');
   }
 
+  // FL4: the change history card.
+  type HistoryView = NonNullable<Awaited<ReturnType<typeof window.bimax.threads.history>>>;
+  const [changes, setChanges] = useState<HistoryView | null>(null);
+  async function openHistory(): Promise<void> {
+    if (thread) setChanges(await window.bimax.threads.history(thread.id));
+  }
+  async function historyUndo(changeId: string, backTo: boolean): Promise<void> {
+    if (!thread) return;
+    const result = backTo ? await window.bimax.threads.undoBackTo(thread.id, changeId) : await window.bimax.threads.undoChange(thread.id, changeId);
+    setError(result.ok ? '' : result.error || 'That could not be undone.');
+    setChanges(await window.bimax.threads.history(thread.id));
+    setUndo(await window.bimax.threads.undoInfo(thread.id));
+  }
+
   async function undoLastChange(): Promise<void> {
     if (!thread || !undo) return;
     setUndo(null);
@@ -343,6 +357,7 @@ export function ThreadQuickBar(): React.ReactElement {
         if (e.metaKey && (e.key === '[' || e.key === ']')) { e.preventDefault(); void window.bimax.threads.quickSwitch(e.key === '[' ? 'older' : 'newer'); return; }
         if (e.key === 'Escape' && rules) { e.preventDefault(); setRules(null); return; }
         if (e.key === 'Escape' && outcome) { e.preventDefault(); setOutcome(null); return; }
+        if (e.key === 'Escape' && changes) { e.preventDefault(); setChanges(null); return; }
         if (e.key === 'Escape') { e.preventDefault(); window.bimax.threads.hide(); }
         if (e.key.toLowerCase() === 'n' && e.metaKey) { e.preventDefault(); window.bimax.threads.quickReset(); input.current?.focus(); }
       }}
@@ -457,6 +472,7 @@ export function ThreadQuickBar(): React.ReactElement {
             {rules ? (
               <QuickRules value={rules} onChange={setRules} onPick={() => void protectMore()} onSave={() => void saveRules()} onCancel={() => setRules(null)} />
             ) : null}
+            {changes ? <QuickHistory value={changes} onUndo={(id, backTo) => void historyUndo(id, backTo)} onClose={() => setChanges(null)} /> : null}
             {outcome ? (
               <QuickOutcome
                 value={outcome}
@@ -519,6 +535,11 @@ export function ThreadQuickBar(): React.ReactElement {
               {undo && !busy ? (
                 <button type="button" className="quick-link quick-undo" title={`Undo: ${undo.title}`} onClick={() => void undoLastChange()}>
                   <Undo2 size={12} aria-hidden /><span>Undo: {undo.title}</span>
+                </button>
+              ) : null}
+              {undo && !busy ? (
+                <button type="button" className="quick-link" title="Every change this task made, and what can be undone" onClick={() => void openHistory()}>
+                  <History size={12} aria-hidden />History
                 </button>
               ) : null}
               <button type="button" className="quick-link" title="Open in Bimax" onClick={() => window.bimax.threads.quickOpen()}>
@@ -712,6 +733,51 @@ function QuickTeach({ value, onChange, onSave, onDismiss }: {
         <button type="button" className="quick-choice quick-choice-primary" disabled={!value.rule.trim()} onClick={onSave}>Save as a folder rule</button>
         <button type="button" className="quick-choice" onClick={onDismiss}>Not now</button>
       </div>
+    </section>
+  );
+}
+
+const ago = (at: number): string => {
+  const s = Math.max(1, Math.round((Date.now() - at) / 1000));
+  return s < 60 ? `${s}s ago` : s < 3600 ? `${Math.round(s / 60)}m ago` : s < 86400 ? `${Math.round(s / 3600)}h ago` : `${Math.round(s / 86400)}d ago`;
+};
+
+/**
+ * The change history (backlog FL4): every change this task made, newest first, and honestly what undoing it does.
+ * A change is undone on its own only when no later change used the same files; otherwise "Undo back to here". The
+ * commands it ran are listed too — Bimax cannot undo those.
+ */
+function QuickHistory({ value, onUndo, onClose }: {
+  value: { entries: Array<{ id: string; title: string; at: number; reversibility: 'full' | 'partial'; inPlace: boolean | null; dependents: number; editedSince: string[] }>; commands: Array<{ title: string; at: number }> };
+  onUndo: (id: string, backTo: boolean) => void;
+  onClose: () => void;
+}): React.ReactElement {
+  const rows = [
+    ...value.entries.map((e) => ({ kind: 'change' as const, at: e.at, e })),
+    ...value.commands.map((c) => ({ kind: 'command' as const, at: c.at, c })),
+  ].sort((a, b) => b.at - a.at);
+  return (
+    <section className="quick-request quick-rules" aria-label="Change history">
+      <p className="quick-request-question">What this task changed</p>
+      {rows.length ? (
+        <ul>
+          {rows.map((row, index) => row.kind === 'change' ? (
+            <li key={row.e.id} className="quick-note">
+              <strong>{row.e.title}</strong> · {ago(row.e.at)}
+              {row.e.inPlace === false ? ' · no longer in place' : ''}
+              {row.e.reversibility === 'partial' ? ' · one item must be put back from the Bin by hand' : ''}
+              {row.e.editedSince.length ? ` · changed since: ${row.e.editedSince.join(', ')} (your version goes to the Bin if undone)` : ''}
+              <span className="ml-1 inline-flex gap-1">
+                <button type="button" className="quick-link" disabled={row.e.dependents > 0} title={row.e.dependents ? `${row.e.dependents} later change${row.e.dependents === 1 ? '' : 's'} used these files` : 'Undo only this change'} onClick={() => onUndo(row.e.id, false)}>Undo</button>
+                {index > 0 ? <button type="button" className="quick-link" title="Undo every change from the newest back to this one" onClick={() => onUndo(row.e.id, true)}>Undo back to here</button> : null}
+              </span>
+            </li>
+          ) : (
+            <li key={`c${index}`} className="quick-note">✕ <code>{row.c.title}</code> · {ago(row.c.at)} · a command — Bimax can’t undo what it changed</li>
+          ))}
+        </ul>
+      ) : <p className="quick-note">Nothing to undo.</p>}
+      <div className="quick-request-options"><button type="button" className="quick-choice" onClick={onClose}>Close</button></div>
     </section>
   );
 }

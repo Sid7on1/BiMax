@@ -105,6 +105,10 @@ const api = {
     // Undo the newest change a thread made to files (main/thread.undo.ts).
     undoInfo: (id: string) => ipcRenderer.invoke('threads:undo-info', id),
     undo: (id: string) => ipcRenderer.invoke('threads:undo', id),
+    // FL4: the change history, with how each change can be undone, and selective undo.
+    history: (id: string): Promise<{ entries: Array<{ id: string; title: string; at: number; reversibility: 'full' | 'partial'; inPlace: boolean | null; dependents: number; editedSince: string[] }>; commands: Array<{ title: string; at: number }> } | null> => ipcRenderer.invoke('threads:history', id),
+    undoChange: (id: string, changeId: string): Promise<{ ok: boolean; message?: string; error?: string }> => ipcRenderer.invoke('threads:undo-change', id, changeId),
+    undoBackTo: (id: string, changeId: string): Promise<{ ok: boolean; message?: string; error?: string }> => ipcRenderer.invoke('threads:undo-back-to', id, changeId),
     // Files dropped on the bar, paths in answers, and stepping through recent bar tasks.
     pathForFile: (file: File): string => webUtils.getPathForFile(file),
     /** N5: drag out a screenshot, or keep a pasted image, as a picture for the task to look at (null when cancelled). */

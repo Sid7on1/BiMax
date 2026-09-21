@@ -590,6 +590,17 @@ mutants each fail a test. **Not verified live** with a real model revising a pla
 conversions", which needs dependency detection between actions. Record 46's *honest undo* adds reversibility
 classes: say which changes can be restored and which cannot (a sent message), and keep later human edits during a
 rollback. Value medium–high · Effort M then L.
+**First version built 2026-09-22.** **History** (next to ↶ Undo in the ⌘2 bar) lists what the task changed, newest
+first, from its undo journal, with the commands it ran interleaved as "✕ a command — Bimax can't undo what it
+changed". Each change says, honestly: whether its effect is still in place; "one item must be put back from the Bin by
+hand" when Finder did not say where an item went; and "changed since: report.md (your version goes to the Bin if
+undone)" when a file it created or replaced was changed outside Bimax afterwards (a moved file carries later edits
+back with it, so it is not flagged; Bimax's own later edits count as dependents, not as someone else's). **Undo**
+reverses one change alone when no later change touched the same files (found transitively); otherwise it is disabled
+and **Undo back to here** reverses every change from the newest down to it, stopping at the first that refuses and
+saying how far it got. Proof: `app/src/__tests__/thread.history.test.ts` (10 tests on a real disk); 13 mutants each
+fail a test. **Still Target:** grouping by kind ("undo the renames but keep the conversions") and undo of commands.
+**Not verified live.**
 
 **FL5. Night Shift.** "Work on this migration tonight, at most $12, a reviewable branch by morning." Milestones,
 an isolated checkout, a check per milestone, and a morning briefing. Independent work continues while one
