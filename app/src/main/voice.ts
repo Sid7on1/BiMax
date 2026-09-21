@@ -39,11 +39,15 @@ export function voiceSupported(platform: string, release: string, helperExists: 
   return platform === 'darwin' && Number.parseInt(release, 10) >= 25 && helperExists;
 }
 
+/** `--locale a,b` for the helper, from the Mac's preferred languages; malformed tags are left out. */
+export function localeArguments(preferred: readonly string[]): string[] {
+  const locales = preferred.filter((l) => /^[A-Za-z]{2,3}([-_][A-Za-z0-9]{2,8})*$/.test(l));
+  return locales.length ? ['--locale', locales.join(',')] : [];
+}
+
 /** The helper's command line: a dictation (--listen) or talk mode (--talk), with the languages and the words to expect. */
 export function helperArguments(mode: '--listen' | '--talk', options: { locales: readonly string[]; context: readonly string[] }): string[] {
-  const args: string[] = [mode];
-  const locales = options.locales.filter((l) => /^[A-Za-z]{2,3}([-_][A-Za-z0-9]{2,8})*$/.test(l));
-  if (locales.length) args.push('--locale', locales.join(','));
+  const args: string[] = [mode, ...localeArguments(options.locales)];
   const words = [...new Set(options.context.map((w) => w.replace(/[,\n]/g, ' ').trim()).filter(Boolean))];
   if (words.length) args.push('--context', words.join(','));
   return args;

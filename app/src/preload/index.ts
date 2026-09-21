@@ -13,6 +13,11 @@ function subscribe(channel: string, cb: (value: any) => void): () => void {
   ipcRenderer.on(channel, listener);
   return () => ipcRenderer.removeListener(channel, listener);
 }
+/** What Settings → Voice shows: the installed voices worth offering, the saved choice, and the speeds. */
+export interface VoiceSettingsView {
+  voices: Array<{ id: string; name: string; language: string; quality: 'default' | 'enhanced' | 'premium' }>;
+  automatic: string; chosen: string; rate: number; rates: readonly number[]; onlyBasic: boolean;
+}
 const api = {
   // Dictation (main/voice.ts): events arrive only in the window that started it.
   voice: {
@@ -21,6 +26,10 @@ const api = {
     stop: () => ipcRenderer.send('voice:stop'),
     cancel: () => ipcRenderer.send('voice:cancel'),
     onEvent: (cb: (event: any) => void) => subscribe('voice:event', cb),
+    // Settings → Voice (main/voice.settings.ts, backlog N7).
+    voices: (): Promise<VoiceSettingsView | null> => ipcRenderer.invoke('voice:voices'),
+    choose: (voiceId: string, rate: number): Promise<boolean> => ipcRenderer.invoke('voice:choose', voiceId, rate),
+    preview: (voiceId: string, rate: number): Promise<boolean> => ipcRenderer.invoke('voice:preview', voiceId, rate),
   },
   // Talk mode (main/talk.session.ts): a spoken conversation with the ⌘2 bar's task.
   talk: {

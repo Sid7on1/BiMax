@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Activity, Bot, BrainCircuit, ChevronDown, Cpu, ExternalLink, FlaskConical, Globe2,
+  Activity, AudioLines, Bot, BrainCircuit, ChevronDown, Cpu, ExternalLink, FlaskConical, Globe2,
   KeyRound, Search, Settings2, Shield, TerminalSquare, X,
 } from 'lucide-react';
+import { VoiceSettings } from './VoiceSettings';
 import { Dialog, DialogContent, DialogTitle } from './ui/dialog';
 import { cn } from '../lib/cn';
 import type { EngineConfig } from '../protocol';
@@ -16,7 +17,7 @@ type Control =
   | { kind: 'text'; placeholder?: string };
 
 interface Item { key: keyof EngineConfig; label: string; desc: string; control: Control }
-type PageId = 'general' | 'providers' | 'environment' | 'alchemist' | 'autonomy' | 'safety';
+type PageId = 'general' | 'providers' | 'voice' | 'environment' | 'alchemist' | 'autonomy' | 'safety';
 interface Page { id: PageId; label: string; icon: React.ReactNode; subtitle: string; items: Item[] }
 
 const PAGES: Page[] = [
@@ -45,6 +46,7 @@ const PAGES: Page[] = [
       { key: 'parallelToolCalls', label: 'Parallel tool calls', desc: 'Allow compatible models to batch independent tool calls.', control: { kind: 'toggle' } },
     ],
   },
+  { id: 'voice', label: 'Voice', icon: <AudioLines size={15} />, subtitle: 'How Bimax sounds in talk mode', items: [] },
   { id: 'environment', label: 'Environment', icon: <TerminalSquare size={15} />, subtitle: 'Runtimes, SDKs and local developer services', items: [] },
   { id: 'alchemist', label: 'ML Alchemist', icon: <FlaskConical size={15} />, subtitle: 'Measured local-model experiments and compression', items: [] },
   {
@@ -157,7 +159,9 @@ export function SettingsDialog({
 
           <div className="min-h-0 flex-1 overflow-y-auto px-7 pb-7">
             {unsupported ? <div className="mt-3 rounded-xl border border-amber/30 bg-amber/8 px-3 py-2 text-xs text-amber">Engine controls are unavailable in this build. Capability pages remain read-only.</div> : null}
-            {customPage ? (
+            {customPage && page === 'voice' ? (
+              <VoiceSettings />
+            ) : customPage ? (
               <CapabilitySettings page={page} phase9={phase9} onOpenModels={onOpenModels} onOpenInspector={onOpenInspector} onOpenHealth={onOpenHealth} onClose={onClose} />
             ) : !cfg && !unsupported ? (
               <div className="mt-6 space-y-3">{[0, 1, 2, 3].map((index) => <div key={index} className="h-16 animate-pulse rounded-xl bg-raise" />)}</div>

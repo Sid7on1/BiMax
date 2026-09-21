@@ -14,7 +14,7 @@ import { insideFolder, needsFolder, PICTURE_EXTENSIONS, screenshotName, validAtt
 import { nextQuickThread, trayEntries, trayTitle, trayTooltip } from './thread.tray';
 import { modelMenuItems, type CatalogModel, type ModelMenuItem, type ModelTime } from './thread.models';
 import { cleanRules, rulesEnvironment } from './folder.rules';
-import { helperArguments, talkHelper, VoiceSessions, voiceHelperPath, voiceSupported } from './voice';
+import { helperArguments, localeArguments, talkHelper, VoiceSessions, voiceHelperPath, voiceSupported } from './voice';
 import { TalkSession, talkModel, type TalkView } from './talk.session';
 import { describeSchedule, dueSchedules, newSchedule, type Cadence, type Schedule } from './schedules';
 import {
@@ -24,6 +24,7 @@ import {
 import { Wakes, type CiState } from './wakes';
 import { conversationHtml, conversationMarkdown, exportFileName, sessionFile, sessionItems } from './thread.export';
 import { installQuickAction, openedFilesContext, quickActionPath, QUICK_ACTION_NAME } from './finder.action';
+import { onlyBasicVoices, parseVoiceList, pickerVoices, speakingArguments, SPEECH_RATES, validRate, validVoice } from './voice.settings';
 import type { TranscriptItem } from '../renderer/src/engine.state';
 import { randomUUID } from 'node:crypto';
 import { macBin } from './bin';
@@ -390,7 +391,9 @@ const talkWindow = (): BrowserWindow | null => (talkOwner === 'main' ? win : qui
 const talk = new TalkSession({
   spawn: (onEvent, onExit) => {
     const context = ['Bimax', ...(talkRoot ? [path.basename(talkRoot)] : [])];
-    const child = spawn(voiceHelper(), helperArguments('--talk', { locales: app.getPreferredSystemLanguages(), context }), { stdio: ['pipe', 'pipe', 'ignore'] });
+    // N7: the voice and speed chosen in Settings → Voice.
+    const args = [...helperArguments('--talk', { locales: app.getPreferredSystemLanguages(), context }), ...speakingArguments(loadSettings())];
+    const child = spawn(voiceHelper(), args, { stdio: ['pipe', 'pipe', 'ignore'] });
     child.stdout.setEncoding('utf8');
     // A command written just as the helper exits must not become an uncaught EPIPE in the main process.
     child.stdin.on('error', () => {});
@@ -1692,6 +1695,29 @@ app.whenReady().then(async () => {
   });
   secureOn('threads:model-menu', (_e, mode: unknown) => { void showModelMenu(mode === 'retry' ? 'retry' : 'switch'); });
   secureOn('threads:more-menu', () => showMoreMenu());
+  // Settings → Voice (backlog N7): the installed voices, the saved choice, and a spoken preview.
+  secureHandle('voice:voices', null as unknown, async () => {
+    const stdout = await new Promise<string>((resolve) => {
+      execFile(voiceHelper(), ['--voices', ...localeArguments(app.getPreferredSystemLanguages())], { timeout: 10_000, maxBuffer: 1024 * 1024 }, (_error, out) => resolve(String(out ?? '')));
+    });
+    const { voices, automatic } = parseVoiceList(stdout);
+    const settings = loadSettings();
+    const chosen = validVoice(settings.talkVoice);
+    return { voices: pickerVoices(voices, chosen), automatic, chosen: chosen ?? '', rate: validRate(settings.talkRate), rates: SPEECH_RATES, onlyBasic: onlyBasicVoices(voices) };
+  });
+  secureHandle('voice:choose', false, (_e, voiceId: unknown, rate: unknown) => {
+    saveSettings({ talkVoice: validVoice(voiceId), talkRate: validRate(rate) });
+    return true;
+  });
+  let voicePreview: ReturnType<typeof spawn> | null = null;
+  secureHandle('voice:preview', false, (_e, voiceId: unknown, rate: unknown) => {
+    voicePreview?.kill();
+    const args = ['--say', 'Hello. This is how Bimax sounds when it talks with you.', ...localeArguments(app.getPreferredSystemLanguages()), ...speakingArguments({ talkVoice: voiceId, talkRate: rate })];
+    const child = spawn(voiceHelper(), args, { stdio: ['ignore', 'ignore', 'ignore'] });
+    voicePreview = child;
+    child.on('exit', () => { if (voicePreview === child) voicePreview = null; });
+    return true;
+  });
   // Dictation (voice.ts, native/voice): the on-device helper runs only between voice:start and voice:stop / voice:cancel.
   const voiceAvailable = (): boolean => voiceSupported(process.platform, os.release(), existsSync(voiceHelper()));
   // The microphone, for dictation and talk mode. macOS asks once; its prompt takes focus, and an empty ⌘2 bar would

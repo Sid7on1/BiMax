@@ -4,6 +4,8 @@
 //   bimax-voice --check [--locale en-IN,en-US]                  is dictation available here, and in which language
 //   bimax-voice --listen [--locale …] [--context Bimax,Desktop] transcribe the microphone until stdin says stop/cancel or closes
 //   bimax-voice --file <audio> [--locale …] [--context …]       transcribe a file (tests and diagnostics)
+//   bimax-voice --voices [--locale …]                            the installed voices for those languages, best first
+//   bimax-voice --say <text> [--locale …] [--voice <id>] [--rate <x>] speak once and exit (a voice preview, a spoken update)
 //
 // Output is one JSON object per line: ready, partial {text}, final {text}, level {value}, stopped, error {code, message}.
 // A partial is the words still being heard, replaced by the next partial; a final is settled text that will not change.
@@ -218,6 +220,58 @@ func convert(_ buffer: AVAudioPCMBuffer, _ converter: AVAudioConverter, _ format
   return error == nil && out.frameLength > 0 ? out : nil
 }
 
+/// Speaking speed as a multiple of the system's normal rate (--rate, 0.5–2), within what the synthesizer allows.
+func speechRate() -> Float {
+  let multiple = min(2, max(0.5, Float(argument("--rate") ?? "") ?? 1))
+  return min(AVSpeechUtteranceMaximumSpeechRate, max(AVSpeechUtteranceMinimumSpeechRate, AVSpeechUtteranceDefaultSpeechRate * multiple))
+}
+
+func qualityName(_ voice: AVSpeechSynthesisVoice) -> String {
+  ["", "default", "enhanced", "premium"][min(3, max(1, voice.quality.rawValue))]
+}
+
+/// The first requested language (--locale), else the Mac's own. Voices need no speech model, so this never waits for one.
+func speakingLocale() -> Locale {
+  Locale(identifier: list("--locale").first ?? Locale.current.identifier(.bcp47))
+}
+
+/// Every installed voice for the requested languages, best quality first, and the one Bimax picks when none is chosen.
+func voices() {
+  let families = Set((list("--locale").isEmpty ? [Locale.current.identifier(.bcp47)] : list("--locale")).map { String($0.prefix(2)) })
+  let found = AVSpeechSynthesisVoice.speechVoices()
+    .filter { families.contains(String($0.language.prefix(2))) }
+    .sorted { ($0.quality.rawValue, $1.name) > ($1.quality.rawValue, $0.name) }
+    .map { ["id": $0.identifier, "name": $0.name, "language": $0.language, "quality": qualityName($0)] }
+  Out.send(["event": "voices", "voices": found, "automatic": bestVoice(for: speakingLocale())?.identifier ?? ""])
+}
+
+final class SayOnce: NSObject, AVSpeechSynthesizerDelegate, @unchecked Sendable {
+  private let synthesizer = AVSpeechSynthesizer()
+  private var done: CheckedContinuation<Void, Never>?
+  func speak(_ utterance: AVSpeechUtterance) async {
+    await withCheckedContinuation { continuation in
+      done = continuation
+      synthesizer.delegate = self
+      DispatchQueue.main.async { self.synthesizer.speak(utterance) }
+    }
+  }
+  func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) { done?.resume(); done = nil }
+  func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) { done?.resume(); done = nil }
+}
+
+/// Speak --say once, in the chosen voice and speed, then exit: a preview in Settings, or a spoken update (backlog N9).
+func say() async {
+  guard let text = argument("--say"), !text.isEmpty else { Out.fail("usage", "--say needs the words to speak.") }
+  let voice = bestVoice(for: speakingLocale())
+  let utterance = AVSpeechUtterance(string: String(text.prefix(1000)))
+  utterance.voice = voice
+  utterance.rate = speechRate()
+  if CommandLine.arguments.contains("--mute-output") { utterance.volume = 0 }
+  Out.send(["event": "speaking", "text": text, "voice": voice?.name ?? "", "quality": voice.map(qualityName) ?? "default"])
+  await SayOnce().speak(utterance)
+  Out.send(["event": "stopped"])
+}
+
 /// The best installed voice for the language: Premium, then Enhanced, then the Mac's own default voice for it.
 func bestVoice(for locale: Locale) -> AVSpeechSynthesisVoice? {
   if let id = argument("--voice"), let voice = AVSpeechSynthesisVoice(identifier: id) { return voice }
@@ -336,6 +390,7 @@ final class TalkLoop: NSObject, AVSpeechSynthesizerDelegate, @unchecked Sendable
     let text = queue.removeFirst()
     let utterance = AVSpeechUtterance(string: text)
     utterance.voice = voice
+    utterance.rate = speechRate()
     if muted { utterance.volume = 0 }
     current = utterance
     Out.send(["event": "speaking", "text": text])
@@ -446,7 +501,7 @@ func talk() async {
   ticker.schedule(deadline: .now() + 0.1, repeating: 0.1)
   ticker.setEventHandler { loop.tick() }
   ticker.resume()
-  let quality = voice.map { ["", "default", "enhanced", "premium"][min(3, max(1, $0.quality.rawValue))] } ?? "default"
+  let quality = voice.map(qualityName) ?? "default"
   Out.send(["event": "ready", "voice": voice?.name ?? "", "quality": quality, "locale": locale.identifier(.bcp47)])
 
   await withCheckedContinuation { (done: CheckedContinuation<Void, Never>) in
@@ -472,6 +527,9 @@ func talk() async {
 @main
 struct BimaxVoice {
   static func main() async {
+    // Speaking needs no speech model, so these work before macOS 26 too.
+    if CommandLine.arguments.contains("--voices") { voices(); exit(0) }
+    if CommandLine.arguments.contains("--say") { await say(); exit(0) }
     guard #available(macOS 26.0, *) else {
       Out.send(["event": "check", "supported": false, "reason": "Dictation needs macOS 26 or later."])
       exit(0)
@@ -480,6 +538,6 @@ struct BimaxVoice {
     if let path = argument("--file") { await transcribeFile(path); exit(0) }
     if CommandLine.arguments.contains("--listen") { await listen(); exit(0) }
     if CommandLine.arguments.contains("--talk") { await talk(); exit(0) }
-    Out.fail("usage", "usage: bimax-voice --check | --listen | --talk | --file <audio> [--locale <ids>] [--context <words>]")
+    Out.fail("usage", "usage: bimax-voice --check | --listen | --talk | --file <audio> | --voices | --say <text> [--locale <ids>] [--context <words>] [--voice <id>] [--rate <x>]")
   }
 }

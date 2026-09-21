@@ -40,6 +40,10 @@ export interface AppSettings {
    * can spend the whole day's budget before any other Thread gets a turn.
    */
   perTaskSpendUsd?: number;
+  /** Talk mode's voice, an installed voice's id; absent means the best one installed (voice.settings.ts, backlog N7). */
+  talkVoice?: string;
+  /** Talk mode's speaking speed, one of voice.settings.ts SPEECH_RATES; absent means normal. */
+  talkRate?: number;
 }
 
 const MAX_RECENTS = 8;

@@ -408,6 +408,16 @@ first survived because the test's empty day fell outside the 30-day window).
 
 **N7. Voice settings.** Choose the voice and speaking speed, and show when a Premium voice is installed.
 Value medium · Effort S.
+**Done 2026-09-21.** **Settings → Voice** lists the installed voices for the Mac's languages, best first
+(Premium, Enhanced, Basic), with "Automatic" (the best one installed) at the top; six speeds (0.8×–1.5×); and
+**Preview**. When only basic voices are installed it says where to get a natural one (System Settings →
+Accessibility → Spoken Content → System voice → Manage Voices). The Mac's old novelty voices (Bad News, Zarvox…)
+are left out unless already chosen. Talk mode speaks with the choice. The voice helper gained `--voices`, `--say`
+(also for N9) and `--rate`; `--voices` and `--say` work before macOS 26. A voice that is no longer installed falls
+back to Automatic. **On this Mac:** 41 English voices, all Basic. Proof: `app/src/__tests__/voice.settings.test.ts`,
+6 tests (one parses the real helper's list); 10 mutants each fail a test. The rebuilt helper spoke (muted) with a
+chosen voice, and with Automatic for an unknown one. **Not verified live:** the Settings page and talk mode with a
+chosen voice.
 
 **N8. Hold a key anywhere to talk.** A global push-to-talk that answers by notification or out loud.
 Value medium · Effort S–M.
