@@ -47,3 +47,4 @@ import './journal';
 import './usage';
 import './gates';
 import './spend';
+import './grants';

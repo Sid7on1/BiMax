@@ -12,10 +12,13 @@ import { isReadOnlyShellCommand } from '../tools/shell.readonly';
 import { enforceThreadScope } from '../tools/thread.scope';
 import { approvalCard, deletesOutsideBin, planFileChange } from '../tools/thread.changes';
 import { recordBeforeChange } from '../tools/thread.journal';
+import { grantFor, taskGrants } from './task.grants';
 import { protectedPaths, protectedRefusal, protectedTouchedBy } from '../tools/thread.rules';
 import { taintRestriction } from '../mind/taint';
 
 /** Why a thread refuses a delete it cannot send to the Bin, and how to delete so the user can undo it. */
+/** The approval-card choice that allows a described change for the rest of the task (N13). */
+export const TASK_GRANT_OPTION = 'Allow for this task';
 const THREAD_DELETE_GUIDANCE = 'In a Bimax thread, deletes go to the Bin so the user can undo them. Delete with a plain `rm <path>…` (optionally after `cd <folder> &&`; same-folder wildcards are fine) or DeleteTool — not find -delete, a pipeline or a chain of commands. Nothing was deleted.';
 
 /**
@@ -146,9 +149,24 @@ export class Governor implements IGovernor {
       const guarded = protectedTouchedBy(change, taskType === 'OS_COMMAND' ? String(payload.command || '') : '', protectedPaths(), process.env.BIMAX_THREAD_ROOT);
       if (guarded) throw new GovernorVetoError(protectedRefusal(guarded));
       if (!routine) {
-        const card = approvalCard(change, taskType, payload);
-        const answer = await GlobalPrompter.ask(card.question, ['Allow', 'Deny'], { body: card.body });
-        if (answer !== 'Allow') throw new GovernorVetoError('Action declined. No permission was granted.');
+        // N13: every floor above has already run. A change the user allowed for this task — the same file, the same
+        // command, or an undoable change inside the folder — is not asked about again; anything else is.
+        const grant = grantFor(taskType, change, payload, process.env.BIMAX_THREAD_ROOT, threadCwd);
+        const granted = grant ? taskGrants.use(grant.key) : null;
+        if (granted) {
+          engineEvents.emit('status', `Allowed for this task: ${granted.label}`);
+        } else {
+          const card = approvalCard(change, taskType, payload);
+          const options = grant ? ['Allow', TASK_GRANT_OPTION, 'Deny'] : ['Allow', 'Deny'];
+          const body = grant ? `${card.body}\n\n“${TASK_GRANT_OPTION}” also allows ${grant.label} until this task ends, without asking again.` : card.body;
+          const answer = await GlobalPrompter.ask(card.question, options, { body });
+          if (answer === TASK_GRANT_OPTION && grant) {
+            taskGrants.add(grant);
+            engineEvents.emit('message', { id: `grant-${Date.now()}`, role: 'system', level: 'info', content: `For the rest of this task Bimax will not ask again about ${grant.label}. Run /grants clear to be asked again.`, timestamp: new Date() });
+          } else if (answer !== 'Allow') {
+            throw new GovernorVetoError('Action declined. No permission was granted.');
+          }
+        }
       }
       // Recorded once the change is allowed (or routine) and before it runs, so "↶ Undo" can reverse it.
       if (change) {

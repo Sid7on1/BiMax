@@ -409,7 +409,18 @@ Value medium · Effort S. **Built 2026-09-14:**
 **N13. Approve a described change set once.** Threads ask afresh for every existing-file write and mutating
 command, even under bypass or persistent rules. Offer task-scoped permission for an explicitly described change,
 reused while the target, scope and risk stay the same. Value medium–high · Effort M · The governor's
-non-bypassable floors must still run first.
+non-bypassable floors must still run first. **Done 2026-09-21.**
+
+A thread's approval card offers **"Allow for this task"** when the change can be described and bounded
+(`src/governor/task.grants.ts`), and the card says what it covers: edits to one existing file; moving, renaming,
+copying, creating or Bin-moving items when every item stays in the thread's folder and the undo journal can reverse
+it; or one exact command in one exact folder. Anything else — another file, folder or command, a multi-line command,
+an irreversible change — offers only Allow and Deny. The grant is checked after every floor in the thread path
+(folder scope, forbidden paths, plan mode, permanent deletes, protected paths), and the undo journal still records
+each change. Grants end with the task (`clear`, or a switch to another saved session); `/grants` lists them and
+`/grants clear` takes them back. The notification's buttons stay one-time Allow and Deny. Proof:
+`src/__tests__/task.grants.test.ts` (10, through the real Governor); 8 mutants each fail a test (one first survived —
+a command grant covering the same command in another folder — and the test that kills it was added).
 
 **N14. Make Threads discoverable.** Record 46 saw no way into Threads from the installed app's welcome screen. Add
 "Start a task in a folder" and a configurable shortcut, and check ⌘2 against other apps' shortcuts. Check the

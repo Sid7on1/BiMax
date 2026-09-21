@@ -96,6 +96,8 @@ export async function startHeadless(container: any, config: any, transport: Head
   // mutation/evidence facts instead of inventing a second source of truth.
   const { startOutcomeManager } = require('../outcome/outcome.manager');
   const outcomeManager = startOutcomeManager();
+  // Task grants (N13) end with the task: a new task in this engine, or a switch to another saved one.
+  require('../governor/task.grants').endGrantsWithTask(engineEvents);
   // Completion checks (F3): per session, like the outcome contract, so they follow session_changed too.
   require('../outcome/completion.check').startCompletionChecks();
 
