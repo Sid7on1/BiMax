@@ -356,6 +356,16 @@ rebuilt with the scheme yet, and real App Intents (Shortcuts actions with their 
 
 **N3. Finder Quick Action: "Ask Bimax".** Opens the ⌘2 bar with the selected files attached, using the existing
 attachment path. Value medium · Effort S.
+**Done 2026-09-21.** The menu bar has **Add “Ask Bimax” to Finder…**, which writes an Automator Quick Action to
+`~/Library/Services/Ask Bimax.workflow` (never over one already there; **Remove** moves it to the Bin). In Finder,
+Control-click files or a folder → Quick Actions (or Services) → **Ask Bimax**. The workflow runs
+`open -b ai.bimax.app <items>`, so the items arrive the way macOS opens any file in an app — a web page cannot send
+that, unlike a `bimax://` link. A drop on the Dock icon works the same way. One folder becomes the task's folder;
+other items are attached, in their shared folder (the person chooses when that would be the home folder); at most
+50. Nothing runs until the person sends. Bimax declares it accepts any item with rank None, so it never becomes the
+app that opens a kind of file. Proof: `app/src/__tests__/finder.action.test.ts`, 8 tests (one reads the bundle with
+`plutil`); 12 mutants each fail a test. The generated workflow, run by `automator` with TextEdit's id in place of
+Bimax's, opened a file whose name has a space. **Not verified live** with the built Bimax.
 
 **N4. Export or share a conversation.** Markdown and PDF (the engine already writes PDFs), from the sessions
 gallery and the bar. Value medium · Effort S.

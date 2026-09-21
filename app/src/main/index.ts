@@ -23,6 +23,7 @@ import {
 } from './folder.triggers';
 import { Wakes, type CiState } from './wakes';
 import { conversationHtml, conversationMarkdown, exportFileName, sessionFile, sessionItems } from './thread.export';
+import { installQuickAction, openedFilesContext, quickActionPath, QUICK_ACTION_NAME } from './finder.action';
 import type { TranscriptItem } from '../renderer/src/engine.state';
 import { randomUUID } from 'node:crypto';
 import { macBin } from './bin';
@@ -774,6 +775,9 @@ function updateTray(): void {
         label: choice.label, type: 'radio', checked: choice.accelerator === wantedShortcut, click: () => chooseShortcut(choice.accelerator),
       })),
     ] },
+    existsSync(quickActionPath(os.homedir()))
+      ? { label: `Remove “${QUICK_ACTION_NAME}” from Finder`, click: () => void removeQuickAction() }
+      : { label: `Add “${QUICK_ACTION_NAME}” to Finder…`, click: () => void addQuickAction() },
     { label: 'Open Bimax', click: () => revealMainWindow() },
     { type: 'separator' },
     { label: 'Quit Bimax', role: 'quit' },
@@ -858,6 +862,58 @@ app.on('open-url', (event, url) => {
   if (taskLinksReady) void openTaskLink(url);
   else pendingTaskLinks.push(url);
 });
+
+// ── Files handed to Bimax (backlog N3) ───────────────────────────────────────────────────────────
+// Finder's "Ask Bimax" Quick Action runs `open -b ai.bimax.app <files>`; a drop on the Dock icon and Open With arrive
+// the same way. macOS sends one event per file, so they are gathered briefly and open ONE ⌘2 bar with all of them.
+const openedFiles: string[] = [];
+let openedFilesTimer: NodeJS.Timeout | null = null;
+app.on('open-file', (event, file) => {
+  event.preventDefault();
+  openedFiles.push(file);
+  if (taskLinksReady) gatherOpenedFiles();
+});
+function gatherOpenedFiles(): void {
+  if (openedFilesTimer) clearTimeout(openedFilesTimer);
+  openedFilesTimer = setTimeout(() => { openedFilesTimer = null; void openFilesInBar(openedFiles.splice(0)); }, 250);
+}
+/** A new ⌘2 task on the files' folder with the files attached; nothing runs until the person sends (finder.action.ts). */
+async function openFilesInBar(files: string[]): Promise<void> {
+  if (!files.length) return;
+  const context = await openedFilesContext(files, os.homedir());
+  if (talkOwner === 'quick') talk.end();
+  quickThreadId = null;
+  app.focus({ steal: true });
+  await showQuickBar(context);
+}
+const BIMAX_BUNDLE_ID = 'ai.bimax.app';
+/** Finder reads ~/Library/Services when asked; without this a new Quick Action can take minutes to appear. */
+function refreshServices(): void {
+  execFile('/System/Library/CoreServices/pbs', ['-update'], { timeout: 15_000 }, () => undefined);
+}
+async function addQuickAction(): Promise<void> {
+  try {
+    const { added } = await installQuickAction(os.homedir(), BIMAX_BUNDLE_ID);
+    refreshServices();
+    void dialog.showMessageBox({
+      type: 'info',
+      message: added ? `“${QUICK_ACTION_NAME}” is in Finder` : `“${QUICK_ACTION_NAME}” was already in Finder`,
+      detail: 'Select files or a folder in Finder, then Control-click and choose Quick Actions → Ask Bimax (or Services → Ask Bimax). The ⌘2 bar opens with them attached; nothing runs until you send.',
+    });
+  } catch (error) {
+    void dialog.showMessageBox({ type: 'warning', message: `Bimax could not add “${QUICK_ACTION_NAME}” to Finder`, detail: (error as Error).message });
+  }
+  updateTray();
+}
+async function removeQuickAction(): Promise<void> {
+  try {
+    await macBin.moveToBin(quickActionPath(os.homedir()));
+    refreshServices();
+  } catch (error) {
+    void dialog.showMessageBox({ type: 'warning', message: `Bimax could not remove “${QUICK_ACTION_NAME}”`, detail: (error as Error).message });
+  }
+  updateTray();
+}
 
 /** Read a task link, check its folder, and start the task only if the person clicks Start (see bimax.link.ts). */
 async function openTaskLink(raw: string): Promise<void> {
@@ -1526,6 +1582,7 @@ app.whenReady().then(async () => {
   // Task links can be handled now that threads exist; one that launched Bimax has been waiting (backlog N2).
   taskLinksReady = true;
   for (const url of pendingTaskLinks.splice(0)) void openTaskLink(url);
+  if (openedFiles.length) gatherOpenedFiles();
   if (app.isPackaged) app.setAsDefaultProtocolClient('bimax');
   createWindow();
   updateTray();

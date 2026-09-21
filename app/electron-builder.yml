@@ -74,6 +74,14 @@ mac:
   extendInfo:
     NSAppleEventsUsageDescription: Bimax reads the active Finder folder when you open the global thread prompt bar.
     NSMicrophoneUsageDescription: Bimax listens only while you dictate — the mic button is on or right Option is held — and turns your words into text on this Mac.
+    # Finder's "Ask Bimax" Quick Action and a drop on the Dock icon hand files to Bimax (backlog N3). Rank None: Bimax
+    # accepts any item it is given, but never becomes the app that opens a kind of file.
+    CFBundleDocumentTypes:
+      - CFBundleTypeName: Any item
+        CFBundleTypeRole: Viewer
+        LSHandlerRank: None
+        LSItemContentTypes:
+          - public.item
   hardenedRuntime: true
   gatekeeperAssess: false
   entitlements: buildResources/entitlements.mac.plist
