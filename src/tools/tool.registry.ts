@@ -47,6 +47,8 @@ const CORE_TOOLS = new Set<string>([
   'CompletionCheckTool',
   // "Check back when CI finishes" has to reach the one tool that can do it (F4); deferred, a weak model would not find it.
   'WakeTool',
+  // FL1 part 2: registered only in a folder with an outcome, where every run is asked to report with it.
+  'FolderStatusTool',
 ]);
 
 /**

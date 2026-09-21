@@ -100,6 +100,11 @@ const api = {
     // ⋯ in the bar: repeat this task on a schedule, or edit this folder's rules (main/schedules.ts, main/folder.rules.ts).
     moreMenu: () => ipcRenderer.send('threads:more-menu'),
     onOpenRules: (cb: (value: any) => void) => subscribe('threads:open-rules', cb),
+    // FL1 part 2: a folder's outcome — what it should be ready for — and its queue.
+    onOpenOutcome: (cb: () => void) => subscribe('threads:open-outcome', cb),
+    outcomeGet: (): Promise<{ root: string; goal: string; queue: { ready: string[]; needsYou: Array<{ path: string; reason: string }> } | null } | null> => ipcRenderer.invoke('threads:outcome-get'),
+    outcomeSet: (goal: string, checkNow: boolean): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('threads:outcome-set', goal, checkNow),
+    outcomeClear: (): Promise<boolean> => ipcRenderer.invoke('threads:outcome-clear'),
     rulesGet: () => ipcRenderer.invoke('threads:rules-get'),
     rulesSet: (rules: { text: string; protect: string[] }) => ipcRenderer.invoke('threads:rules-set', rules),
     rulesPick: () => ipcRenderer.invoke('threads:rules-pick'),

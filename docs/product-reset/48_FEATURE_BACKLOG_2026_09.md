@@ -539,7 +539,18 @@ Loop protection:
 Limits: one run at a time, 6 runs an hour, 50 files per run.
 
 It is unit-tested with 23 mutants but **not verified live**. Still Target: files that arrive while Bimax is closed,
-subfolders, resuming the same task (F4), and folders with an outcome.
+subfolders, resuming the same task (F4).
+
+**Part 2, folders with an outcome — built 2026-09-22** ([record 53](53_FOLDER_TRIGGERS_DESIGN.md), "Part 2"). "Keep
+this folder ready for my accountant: every receipt a PDF named by date, in its month's folder." Set from the ⌘2 bar's
+⋯ menu or the menu bar's **Keep a Folder Ready…**, optionally checking the files already there. Every arrival gets a
+task that brings the file in line (asking first, as always) and reports each file through a new engine tool,
+`FolderStatusTool`: ready, or needs-you with what the person must do — never read from an answer's wording. The
+menu bar shows each folder as "Receipts: 2 need you · 14 ready", lists what needs you (click shows the file) and
+offers Check Now, Change, Open and Stop; the ⋯ menu shows the same line. The tool is registered only in a folder with
+an outcome, so other tasks pay nothing for it. Proof: `folder.outcomes.test.ts` (9 tests) and
+`folder.status.tool.test.ts` (4); 22 mutants each fail a test (3 more were refused by the compiler). **Not verified
+live**, and a real model has not yet been asked to report through the tool.
 
 **FL2. A preview you can rearrange.** Before organizing 300 files, show the proposed tree. Dragging one invoice
 leads to "Put all invoices here?", and the whole preview updates. *First version:* an editable organization

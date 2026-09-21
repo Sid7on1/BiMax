@@ -129,6 +129,7 @@ export interface MessageEntry {
 // - completion_check: (snapshot) => a task's completion checks or their last result changed (F3)
 // - turn_limit: ({ kind, minutes }) => a run stopped at its time limit (F5)
 // - wake_request: (WakeRequest) / wake_cancel: ({ id }) => a task asks to be resumed by an event, or drops that (F4)
+// - folder_status: ({ items: FolderStatusItem[] }) => a task reports files against its folder's outcome (FL1 part 2)
 // - steer_queued / steered: ({ text }) => steering words were held for the running turn's next step, then taken (F7)
 // - config_changed / graph_changed / cwd_changed / mcp_changed => live UI refresh signals
 // - rerun_onboarding: () => Re-open the first-run onboarding flow

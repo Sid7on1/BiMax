@@ -402,6 +402,8 @@ export const FORWARDED_EVENTS: readonly string[] = [
   // F4: a task asks to be resumed by an event, or cancels that; the app keeps and delivers wakes.
   'wake_request',
   'wake_cancel',
+  // FL1 part 2: which files in a folder with an outcome are ready, and which need the person.
+  'folder_status',
   // F7: steering words were taken by the running turn ('steered'), or held for its next step ('steer_queued').
   'steer_queued',
   'steered',

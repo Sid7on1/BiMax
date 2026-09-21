@@ -117,3 +117,33 @@ A paused trigger restarts counting from now when it is resumed, like a paused sc
   - the change-list note in a real run.
 
   The `index.ts` wiring has no unit test.
+
+## Part 2: folders with an outcome (built 2026-09-22)
+
+"Keep this folder ready for my accountant", with a queue of what is ready and what needs you.
+
+- **The outcome** is one paragraph the person writes, kept in Bimax's settings (`folderOutcomes`, keyed by the real
+  path), never in the folder. It is set from the ⌘2 bar's ⋯ menu ("Keep <folder> ready…") or the menu bar ("Keep a
+  Folder Ready…", which asks for the folder). The same rules as a trigger apply: not `/`, not the home folder, at
+  most 20.
+- **Arrivals** reuse part 1 unchanged: setting an outcome creates (or updates) one "any new file" trigger whose words
+  are the outcome plus the instruction to report. Loop protection, limits and approvals are part 1's.
+- **The files already there** are checked only when the person ticks "Also check the files already here" (on by
+  default for a new outcome) or picks **Check the Files Here Now**: one task on up to 50 visible files directly in the
+  folder, refused while another task works in or around it.
+- **Reporting is a tool, not prose.** The engine registers `FolderStatusTool` only when the app starts it with
+  `BIMAX_FOLDER_OUTCOME` (the folder has an outcome), and then always shows it to the model. Each call gives files
+  with `ready` or `needs-you` (a reason is required); paths must be inside the task's folder; at most 200 a call. The
+  app merges a report into the folder's queue by path inside the folder; a later report replaces an earlier one; a
+  file that is gone (renamed, moved, deleted) drops out, and the run reports it under its new path.
+- **The queue** is shown in the menu bar ("Receipts: 2 need you · 14 ready"; what needs you, oldest first, each click
+  shows the file; the count of ready files) and in the ⋯ menu and editor.
+- **Changing or stopping** an outcome restarts idle tasks in that folder on it (their engine environment changed);
+  stopping removes its trigger and keeps nothing else.
+
+Not in part 2 (Target): files that arrived while Bimax was closed (Check Now covers them by hand), subfolders, a
+"ready" list the person can mark done themselves, and exporting the queue for the accountant.
+
+Proof: `app/src/__tests__/folder.outcomes.test.ts` (9 tests), `src/__tests__/folder.status.tool.test.ts` (4 tests);
+22 mutants each fail a test and 3 more were refused by the compiler (the state checks are needed for the types).
+Not verified live.

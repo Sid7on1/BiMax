@@ -82,6 +82,11 @@ export function ThreadQuickBar(): React.ReactElement {
   const talkVoice = talking && talk.view.voice ? `Voice: ${talk.view.voice.name}${talk.view.voice.quality === 'default' ? ' (basic)' : ''}` : '';
   // This folder's rules, while they are being edited (⋯ → Rules for …); null when the editor is closed.
   const [rules, setRules] = useState<{ root: string; text: string; protect: string[] } | null>(null);
+  // FL1 part 2: the folder's outcome editor, opened from ⋯ or the menu bar.
+  const [outcome, setOutcome] = useState<{ root: string; goal: string; checkNow: boolean; queue: { ready: string[]; needsYou: Array<{ path: string; reason: string }> } | null } | null>(null);
+  useEffect(() => window.bimax.threads.onOpenOutcome(() => {
+    void window.bimax.threads.outcomeGet().then((value) => { if (value) setOutcome({ ...value, checkNow: !value.goal }); });
+  }), []);
   useEffect(() => window.bimax.threads.onOpenRules(() => {
     void window.bimax.threads.rulesGet().then((value: { root: string; text: string; protect: string[] } | null) => { if (value) setRules(value); });
   }), []);
@@ -131,7 +136,7 @@ export function ThreadQuickBar(): React.ReactElement {
   }, []);
 
   const busy = state.spinner.state !== 'idle' && state.spinner.state !== '';
-  const hasConversation = Boolean(thread) || state.items.length > 0;
+  const hasConversation = Boolean(thread) || state.items.length > 0 || Boolean(outcome);
   const request = state.request as (RequestMsg & { approvalToken?: string }) | null;
   const root = thread?.root ?? context.root;
   // Text that stops arriving mid-turn means the model is running a tool or reading its result. Say so, instead
@@ -337,6 +342,7 @@ export function ThreadQuickBar(): React.ReactElement {
         // ⌘[ and ⌘] step through this bar's recent tasks.
         if (e.metaKey && (e.key === '[' || e.key === ']')) { e.preventDefault(); void window.bimax.threads.quickSwitch(e.key === '[' ? 'older' : 'newer'); return; }
         if (e.key === 'Escape' && rules) { e.preventDefault(); setRules(null); return; }
+        if (e.key === 'Escape' && outcome) { e.preventDefault(); setOutcome(null); return; }
         if (e.key === 'Escape') { e.preventDefault(); window.bimax.threads.hide(); }
         if (e.key.toLowerCase() === 'n' && e.metaKey) { e.preventDefault(); window.bimax.threads.quickReset(); input.current?.focus(); }
       }}
@@ -450,6 +456,21 @@ export function ThreadQuickBar(): React.ReactElement {
           <div ref={body} className="quick-body">
             {rules ? (
               <QuickRules value={rules} onChange={setRules} onPick={() => void protectMore()} onSave={() => void saveRules()} onCancel={() => setRules(null)} />
+            ) : null}
+            {outcome ? (
+              <QuickOutcome
+                value={outcome}
+                onChange={setOutcome}
+                onSave={() => {
+                  const { goal, checkNow } = outcome;
+                  void window.bimax.threads.outcomeSet(goal, checkNow).then((r) => {
+                    if (r?.ok) setOutcome(null);
+                    if (r?.error) setError(r.error);
+                  });
+                }}
+                onStop={() => { void window.bimax.threads.outcomeClear().then(() => setOutcome(null)); }}
+                onCancel={() => setOutcome(null)}
+              />
             ) : null}
             <QuickConversation items={state.items} />
             {teach ? (
@@ -690,6 +711,47 @@ function QuickTeach({ value, onChange, onSave, onDismiss }: {
       <div className="quick-request-options">
         <button type="button" className="quick-choice quick-choice-primary" disabled={!value.rule.trim()} onClick={onSave}>Save as a folder rule</button>
         <button type="button" className="quick-choice" onClick={onDismiss}>Not now</button>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * A folder with an outcome (backlog FL1 part 2): what the folder should be ready for, and its queue — what needs you,
+ * what is ready. Every file that arrives is brought in line by a task that reports each file's state.
+ */
+function QuickOutcome({ value, onChange, onSave, onStop, onCancel }: {
+  value: { root: string; goal: string; checkNow: boolean; queue: { ready: string[]; needsYou: Array<{ path: string; reason: string }> } | null };
+  onChange: (value: { root: string; goal: string; checkNow: boolean; queue: { ready: string[]; needsYou: Array<{ path: string; reason: string }> } | null }) => void;
+  onSave: () => void;
+  onStop: () => void;
+  onCancel: () => void;
+}): React.ReactElement {
+  const queue = value.queue;
+  return (
+    <section className="quick-request quick-rules" aria-label="Keep this folder ready">
+      <p className="quick-request-question">Keep {folderName(value.root)} ready for…</p>
+      <textarea
+        autoFocus rows={3} className="quick-rules-text" value={value.goal}
+        placeholder="e.g. my accountant: every receipt a PDF named YYYY-MM-DD Vendor Amount, in a folder for its month."
+        onChange={(e) => onChange({ ...value, goal: e.target.value })}
+      />
+      <p className="quick-note">Every file that arrives here gets a task that brings it in line and says whether it is ready or needs you. It asks before changing anything.</p>
+      <label className="quick-note flex items-center gap-1.5">
+        <input type="checkbox" checked={value.checkNow} onChange={(e) => onChange({ ...value, checkNow: e.target.checked })} />
+        Also check the files already here
+      </label>
+      {queue && (queue.needsYou.length || queue.ready.length) ? (
+        <div className="quick-note">
+          {queue.needsYou.length ? <p>Needs you:</p> : null}
+          <ul>{queue.needsYou.slice(0, 8).map((item) => <li key={item.path}>{item.path} — {item.reason}</li>)}</ul>
+          {queue.ready.length ? <p>{queue.ready.length} ready.</p> : null}
+        </div>
+      ) : null}
+      <div className="quick-request-options">
+        <button type="button" className="quick-choice quick-choice-primary" disabled={!value.goal.trim()} onClick={onSave}>Keep it ready</button>
+        {queue ? <button type="button" className="quick-choice" onClick={onStop}>Stop</button> : null}
+        <button type="button" className="quick-choice" onClick={onCancel}>Cancel</button>
       </div>
     </section>
   );

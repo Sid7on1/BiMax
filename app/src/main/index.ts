@@ -28,6 +28,7 @@ import { onlyBasicVoices, parseVoiceList, pickerVoices, speakingArguments, SPEEC
 import { PUSH_TALK_CHOICES, PushToTalk, pushTalkAnswer, pushTalkChoice, spokenSummary, type PushTalkAnswer, type PushTalkChoice } from './push.talk';
 import { shouldSpeakUpdate, spokenUpdate } from './spoken.updates';
 import { alreadyARule, correctionRule, sampleApplications, withRule } from './teach';
+import { applyReport, cleanGoal, filesToCheck, forgetGone, outcomeEnvironment, outcomeQueue, outcomeTaskWords, queueLine, validOutcomes, type FolderOutcome } from './folder.outcomes';
 import type { TranscriptItem } from '../renderer/src/engine.state';
 import { randomUUID } from 'node:crypto';
 import { macBin } from './bin';
@@ -473,11 +474,15 @@ function saveFolderRules(root: string, rules: { text: string; protect: string[] 
   if (rules.text || rules.protect.length) all[root] = rules;
   else delete all[root];
   saveSettings({ folderRules: all });
+  restartThreadsIn(root);
+  if (quickThreadId && threads.get(quickThreadId).summary.root === root) threads.addNote(quickThreadId, note);
+}
+/** A folder's settings changed: idle engines there restart on them now (resuming their conversation), busy ones after their turn. */
+function restartThreadsIn(root: string): void {
   for (const thread of threads.list()) {
     if (thread.root !== root || !threads.engine(thread.id)) continue;
     if (!threads.restartIfIdle(thread.id)) rulesStale.add(thread.id);
   }
-  if (quickThreadId && threads.get(quickThreadId).summary.root === root) threads.addNote(quickThreadId, note);
 }
 /** The folder whose rules the bar is editing — fixed when the editor opens, so a save cannot land on another folder. */
 let rulesEditingRoot: string | null = null;
@@ -606,6 +611,94 @@ function startTriggered(trigger: FolderTrigger, files: string[], followUp: boole
   } catch (error) {
     return { error: (error as Error).message };
   }
+}
+// ── Folders with an outcome (backlog FL1 part 2, folder.outcomes.ts) ─────────────────────────────
+const loadOutcomes = (): Record<string, FolderOutcome> => validOutcomes(loadSettings().folderOutcomes, os.homedir());
+function saveOutcomes(all: Record<string, FolderOutcome>): void {
+  saveSettings({ folderOutcomes: all });
+  updateTray();
+}
+/** Set or change a folder's outcome. Its trigger runs the outcome's words on every arrival; tasks there restart on it. */
+function setOutcome(root: string, goal: string): string | null {
+  const problem = triggerFolderProblem(root, os.homedir());
+  if (problem) return problem;
+  const all = loadOutcomes();
+  const existing = all[root];
+  if (!existing && Object.keys(all).length >= 20) return 'Bimax already keeps 20 folders ready.';
+  const triggers = loadTriggers();
+  const current = existing ? triggers.find((t) => t.id === existing.triggerId) : undefined;
+  if (!current && triggers.length >= MAX_TRIGGERS) return `Bimax already watches ${MAX_TRIGGERS} folders.`;
+  const title = `Keep ${path.basename(root)} ready`;
+  const trigger = current ? { ...current, title, prompt: outcomeTaskWords(goal) }
+    : newTrigger({ id: randomUUID(), title, root, prompt: outcomeTaskWords(goal), kind: 'any', now: Date.now() });
+  saveTriggers([...triggers.filter((t) => t.id !== trigger.id), trigger]);
+  all[root] = { root, goal, createdAt: existing?.createdAt ?? Date.now(), triggerId: trigger.id, items: existing?.items ?? {} };
+  saveOutcomes(all);
+  restartThreadsIn(root);
+  return null;
+}
+function clearOutcome(root: string): void {
+  const all = loadOutcomes();
+  const outcome = all[root];
+  if (!outcome) return;
+  delete all[root];
+  saveOutcomes(all);
+  removeTrigger(outcome.triggerId);
+  restartThreadsIn(root);
+}
+/** A task on the files already in the folder, so the queue does not wait for new arrivals. */
+async function checkOutcomeNow(root: string): Promise<string | null> {
+  const outcome = loadOutcomes()[root];
+  if (!outcome) return 'This folder has no outcome.';
+  const running = threads.list().filter((t) => ['working', 'starting', 'needs-you'].includes(t.status));
+  if (running.length >= 4 || running.some((t) => insideFolder(t.root, root) || insideFolder(root, t.root))) return 'A task is already working in this folder; check again when it is done.';
+  const entries = await fsp.readdir(root, { withFileTypes: true }).catch(() => []);
+  const files = filesToCheck(entries.filter((entry) => entry.isFile()).map((entry) => entry.name), root);
+  if (!files.length) return 'There are no files directly in this folder to check.';
+  const id = threads.create(root, '', 'quick', loadSettings().quickModel || undefined);
+  const folder = path.basename(root);
+  threads.submit(id, `${outcomeTaskWords(outcome.goal)}\n\n[Check the files already in ${folder}:]\n${files.map((file) => `- ${file}`).join('\n')}`,
+    `Check ${files.length} file${files.length === 1 ? '' : 's'} in ${folder} against: ${outcome.goal}`, true);
+  showQuickThread(id);
+  return null;
+}
+/** The menu bar's folders with an outcome: what needs you (click to show the file), how many are ready. */
+function outcomeMenu(): Electron.MenuItemConstructorOptions[] {
+  const all = Object.values(loadOutcomes());
+  const header: Electron.MenuItemConstructorOptions[] = [{ label: 'Keep a Folder Ready…', click: () => void pickOutcomeFolder() }];
+  if (!all.length) return [...header, { type: 'separator' }];
+  return [
+    ...all.map((stored): Electron.MenuItemConstructorOptions => {
+      const outcome = forgetGone(stored, (file) => existsSync(file));
+      const queue = outcomeQueue(outcome);
+      return { label: `${path.basename(outcome.root)}: ${queueLine(queue)}`, submenu: [
+        { label: outcome.goal.length > 90 ? `${outcome.goal.slice(0, 89)}…` : outcome.goal, enabled: false },
+        ...(queue.needsYou.length ? [{ type: 'separator' as const }, { label: 'Needs you', enabled: false },
+          ...queue.needsYou.slice(0, 15).map((item): Electron.MenuItemConstructorOptions => ({
+            label: `${item.path} — ${item.reason}`.slice(0, 100), click: () => shell.showItemInFolder(path.join(outcome.root, item.path)),
+          }))] : []),
+        ...(queue.ready.length ? [{ label: `${queue.ready.length} ready`, enabled: false }] : []),
+        { type: 'separator' },
+        { label: 'Check the Files Here Now', click: () => { void checkOutcomeNow(outcome.root).then((problem) => { if (problem) void dialog.showMessageBox({ type: 'info', message: problem }); }); } },
+        { label: 'Change the Outcome…', click: () => void openOutcomeEditor(outcome.root) },
+        { label: 'Open Folder', click: () => void shell.openPath(outcome.root) },
+        { label: 'Stop Keeping It Ready', click: () => clearOutcome(outcome.root) },
+      ] };
+    }),
+    ...header,
+    { type: 'separator' },
+  ];
+}
+let outcomeEditingRoot: string | null = null;
+async function openOutcomeEditor(root: string): Promise<void> {
+  outcomeEditingRoot = root;
+  if (!quickWindow?.isVisible() || (quickThreadSnapshot()?.root ?? quickContext.root) !== root) { quickThreadId = null; await showQuickBar({ root, source: 'Selected folder' }); }
+  quickWindow?.webContents.send('threads:open-outcome');
+}
+async function pickOutcomeFolder(): Promise<void> {
+  const result = await dialog.showOpenDialog({ properties: ['openDirectory'], title: 'Choose a folder to keep ready', buttonLabel: 'Choose' });
+  if (result.canceled || !result.filePaths[0]) return;
+  await openOutcomeEditor(await fsp.realpath(result.filePaths[0]));
 }
 /** The menu bar's "Folder triggers": each with why it is paused, Pause/Resume and Stop watching. */
 function triggerMenu(): Electron.MenuItemConstructorOptions[] {
@@ -761,6 +854,11 @@ function showMoreMenu(): void {
   template.push(root
     ? { label: `Rules for ${path.basename(root)}…`, click: () => quickWindow?.webContents.send('threads:open-rules') }
     : { label: 'Rules for this folder…', enabled: false, sublabel: 'Choose a folder first' });
+  // FL1 part 2: this folder's outcome and its queue.
+  if (root) {
+    const outcome = loadOutcomes()[root];
+    template.push({ label: outcome ? `Keep ${path.basename(root)} ready · ${queueLine(outcomeQueue(forgetGone(outcome, (file) => existsSync(file))))}…` : `Keep ${path.basename(root)} ready…`, click: () => void openOutcomeEditor(root) });
+  }
   // N4: this conversation as Markdown, a PDF, or through the share sheet.
   if (snapshot) template.push({ type: 'separator' }, ...exportMenuItems(() => threadConversation(snapshot.id)));
   Menu.buildFromTemplate(template).popup({ window: quickWindow });
@@ -796,6 +894,7 @@ function updateTray(): void {
     ...(entries.length ? entries.map((entry) => ({ label: entry.label, click: () => openThread(entry.id) })) : [{ label: 'No tasks yet', enabled: false }]),
     { type: 'separator' },
     ...scheduleMenu(),
+    ...outcomeMenu(),
     ...triggerMenu(),
     { label: 'New ⌘2 Task', click: () => { quickThreadId = null; if (quickWindow?.isVisible()) sendQuickThread(); else void showQuickBar(); } },
     { label: `Keyboard shortcut: ${shortcutLabel(wantedShortcut)}`, submenu: [
@@ -1185,7 +1284,7 @@ function auxiliaryChannelAllowed(event: IpcMainEvent | IpcMainInvokeEvent, chann
     ? ['threads:context', 'threads:pick-folder', 'threads:quick-submit', 'threads:hide', 'threads:list', 'threads:reply',
       'threads:quick-current', 'threads:quick-reset', 'threads:quick-interrupt', 'threads:quick-resize', 'threads:quick-open',
       'threads:undo-info', 'threads:undo', 'threads:open-path', 'threads:quick-switch', 'threads:model-menu',
-      'threads:more-menu', 'threads:rules-get', 'threads:rules-set', 'threads:rules-pick', 'threads:screenshot', 'threads:paste-picture', 'threads:teach',
+      'threads:more-menu', 'threads:rules-get', 'threads:rules-set', 'threads:rules-pick', 'threads:screenshot', 'threads:paste-picture', 'threads:teach', 'threads:outcome-get', 'threads:outcome-set', 'threads:outcome-clear',
       'voice:available', 'voice:start', 'voice:stop', 'voice:cancel', 'talk:start', 'talk:end', 'talk:interrupt', 'talk:current']
     : ['threads:approvals', 'threads:reply', 'threads:hide', 'threads:stop'];
   return allowed.includes(channel);
@@ -1295,6 +1394,7 @@ function createSupervisor(threadId?: string): EngineSupervisor {
           ...threadIndexEnvironment(threads.get(threadId).summary.origin),
           ...threadStateEnvironment(app.getPath('userData'), project, threads.get(threadId).summary.origin),
           ...rulesEnvironment(loadSettings().folderRules?.[project]),
+          ...outcomeEnvironment(loadOutcomes()[project]),
           ...threadVoiceEnvironment(threads.talkState(threadId).voice),
           ...(threads.talkState(threadId).model ? { BIMAX_THREAD_MODEL: threads.talkState(threadId).model } : {}) } : {}),
       }, callbacks);
@@ -1589,6 +1689,14 @@ app.whenReady().then(async () => {
     saveNow: value => threadStorage.saveNow(value),
     // A talk change restarted this thread's engine: re-attach the main window when it is the one on screen.
     restarted: (id) => { if (id === threads.activeId) selectThread(id); },
+    // FL1 part 2: a run's FolderStatusTool report becomes its folder's queue.
+    folderStatus: (id, items) => {
+      const root = threads.get(id).summary.root;
+      const all = loadOutcomes();
+      if (!all[root]) return;
+      all[root] = applyReport(all[root], items as Array<{ path?: unknown; state?: unknown; reason?: unknown }>, id, Date.now());
+      saveOutcomes(all);
+    },
     finished: (id, tookMs) => {
       recordModelTime(id, tookMs);
       const spoken = pushTalkThreads.get(id);
@@ -1966,6 +2074,29 @@ app.whenReady().then(async () => {
     const rules = cleanRules(root, raw);
     saveFolderRules(root, rules, rules.text || rules.protect.length ? `Rules for ${path.basename(root)} saved.` : `Rules for ${path.basename(root)} cleared.`);
     return { ok: true };
+  });
+  // FL1 part 2: the bar's outcome editor. Only the folder the editor was opened for can be changed.
+  secureHandle('threads:outcome-get', null as unknown, () => {
+    const root = outcomeEditingRoot ?? quickThreadSnapshot()?.root ?? quickContext.root ?? null;
+    outcomeEditingRoot = root;
+    if (!root) return null;
+    const outcome = loadOutcomes()[root];
+    return { root, goal: outcome?.goal ?? '', queue: outcome ? outcomeQueue(forgetGone(outcome, (file) => existsSync(file))) : null };
+  });
+  secureHandle('threads:outcome-set', { ok: false } as { ok: boolean; error?: string }, async (_e, raw: unknown, checkNow: unknown) => {
+    const root = outcomeEditingRoot;
+    const goal = cleanGoal(raw);
+    if (!root) return { ok: false, error: 'Choose a folder first.' };
+    if (!goal) return { ok: false, error: 'Say what this folder should be ready for.' };
+    const problem = setOutcome(root, goal);
+    if (problem) return { ok: false, error: problem };
+    const later = checkNow === true ? await checkOutcomeNow(root) : null;
+    return later ? { ok: true, error: later } : { ok: true };
+  });
+  secureHandle('threads:outcome-clear', false, () => {
+    if (!outcomeEditingRoot) return false;
+    clearOutcome(outcomeEditingRoot);
+    return true;
   });
   // N10: keep the rule a correction offered (teach.ts). Only the folder of the offer on screen, with the text as edited.
   secureHandle('threads:teach', { ok: false } as { ok: boolean; error?: string }, (_e, raw: unknown) => {

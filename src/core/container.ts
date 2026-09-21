@@ -87,6 +87,7 @@ import { createScoutTool } from '../tools/implementations/scout.tool';
 import { createOutcomeTool } from '../tools/implementations/outcome.tool';
 import { createCompletionCheckTool } from '../tools/implementations/completion.check.tool';
 import { createWakeTool } from '../tools/implementations/wake.tool';
+import { createFolderStatusTool } from '../tools/implementations/folder.status.tool';
 
 import { Governor } from '../governor/governor';
 import { EngineConfig } from '../engine/config';
@@ -217,6 +218,9 @@ export async function createContainer(config?: Partial<EngineConfig>): Promise<{
   toolRegistry.register(createCompletionCheckTool(governor));
   // F4: resume this task on a time, a folder change, a CI result or the user's answer; the app does the waiting.
   toolRegistry.register(createWakeTool(governor));
+  // FL1 part 2: a folder with an outcome (BIMAX_FOLDER_OUTCOME, set by the app) gets a queue of what is ready and what
+  // needs the person; its tasks report each file here. Elsewhere the tool is not registered and costs nothing.
+  if (process.env.BIMAX_FOLDER_OUTCOME) toolRegistry.register(createFolderStatusTool(governor));
   toolRegistry.register(createWebFetchTool(governor));
   toolRegistry.register(createCdTool(governor));
   toolRegistry.register(createGraphQueryTool(governor, graphStore));

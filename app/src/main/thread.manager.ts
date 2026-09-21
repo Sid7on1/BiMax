@@ -89,6 +89,8 @@ interface Dependencies {
   madeSince?(summary: ThreadSummary, since: number): Array<{ title: string; inPlace: boolean | null }>;
   /** A thread's wakes changed (F4): the app re-arms what it waits for. */
   wakesChanged?(): void;
+  /** A task reported files against its folder's outcome (FolderStatusTool, backlog FL1 part 2). */
+  folderStatus?(id: string, items: unknown[]): void;
   selected(selection: ThreadSelection): void;
   message(id: string, msg: Outbound): void;
   approval(value: ThreadApproval): void;
@@ -639,6 +641,10 @@ export class ThreadManager {
       r.summary.wakes = cancel === 'all' ? [] : (r.summary.wakes ?? []).filter((w) => w.id !== cancel);
       if (!r.summary.wakes.length) delete r.summary.wakes;
       if ((r.summary.wakes?.length ?? 0) !== before) this.deps.wakesChanged?.();
+    }
+    if (msg.t === 'event' && msg.name === 'folder_status') {
+      const items = (msg.args[0] as { items?: unknown } | undefined)?.items;
+      if (Array.isArray(items)) this.deps.folderStatus?.(r.summary.id, items);
     }
     // The engine's completion check (F3): what the sidebar, the menu bar and the notification say about a finished turn.
     if (msg.t === 'event' && msg.name === 'completion_check') {
