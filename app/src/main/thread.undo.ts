@@ -59,6 +59,42 @@ function pendingChanges(stateRoot: string): Change[] {
   return changes.filter((change) => !undone.has(change.id));
 }
 
+/** A change a thread made and has not undone, and whether its effect is on disk now (backlog F6). */
+export interface MadeChange { title: string; at: number; inPlace: boolean | null }
+
+const MAX_COMPARE_BYTES = 16 * 1024 * 1024;
+
+/** Whether one recorded step's effect is on disk now: true, false, or null when that cannot be told. */
+function stepInPlace(op: JournalOp): boolean | null {
+  const there = (p: string): boolean => { try { fsSync.lstatSync(p); return true; } catch { return false; } };
+  if (op.op === 'move') return there(op.to) ? (there(op.from) ? null : true) : false;
+  if (op.op === 'create') return there(op.path);
+  if (op.op === 'trash') return !there(op.path);
+  // A replaced file: in place when it differs from the copy taken before it was replaced.
+  try {
+    const now = fsSync.statSync(op.path);
+    const before = fsSync.statSync(op.backup);
+    if (now.size !== before.size) return true;
+    if (now.size > MAX_COMPARE_BYTES) return null;
+    return !fsSync.readFileSync(op.path).equals(fsSync.readFileSync(op.backup));
+  } catch {
+    return there(op.path) ? null : false;
+  }
+}
+
+/**
+ * The changes a thread made from `since` on that were not undone, each checked against the disk (backlog F6). The
+ * journal is written just BEFORE a change runs, so an entry alone does not prove it happened — a command that failed
+ * still left one; the check says whether its effect is there now.
+ */
+export function changesSince(stateRoot: string, since: number): MadeChange[] {
+  return pendingChanges(stateRoot).filter((change) => change.at >= since).map((change) => {
+    const steps = change.ops.map(stepInPlace);
+    const inPlace = steps.every((s) => s === true) ? true : steps.some((s) => s === false) ? false : null;
+    return { title: change.title, at: change.at, inPlace };
+  });
+}
+
 /** The newest change that can still be undone, for the "↶ Undo" button. */
 export function lastUndoable(stateRoot: string): { id: string; title: string; at: number } | null {
   const pending = pendingChanges(stateRoot);

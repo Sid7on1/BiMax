@@ -219,7 +219,24 @@ per engine.
 - The per-task spend share (`perTaskSpendUsd`) is still set in the app's settings file, not in the Settings window.
 
 **F6. Recovery before retry.** Before repeating an action, check whether it already happened, using the
-undo journal as the record. Value medium · Effort M.
+undo journal as the record. Value medium · Effort M. **Done 2026-09-21.**
+
+The repeat that matters is after a crash, a quit or an engine restart mid-turn. F1 reports that turn and never sends it
+again on its own, but when the user sends it again the task starts over, and could move a file twice or append a line
+twice. Now:
+- each message records when it went to the engine (`sentAt`), and a cut-off turn is reported with the changes the
+  thread's undo journal shows from that moment on — each checked on disk, because the journal is written just
+  before a change runs, so an entry alone does not prove it happened (`changesSince` in `thread.undo.ts`: a move is in
+  place when the destination exists and the source does not; a replaced file when it differs from the copy taken
+  before; undone changes are left out);
+- the next message to the task starts "[Before this message: the request … was cut off …, and before that it had
+  already made these changes (checked on disk just now): … Check what is already done before doing any of it again,
+  and do not repeat a change that is still in place.]" — once.
+- Proof: `app/src/__tests__/thread.recovery.test.ts` (a real journal on disk, and the crash → report → resend path
+  through the real ThreadManager); 7 mutants each fail a test (one first survived because the test sent the message
+  the instant it was queued; the test now holds it in the queue first).
+- **Limit:** only changes the journal records (file moves, creations, replacements, Bin moves in a desktop thread).
+  A repeated network action — a request sent, a message posted — leaves no journal entry and is not caught.
 
 **F7. Mid-run steering.** Change a running task's scope or priority without restarting it.
 Value medium · Effort M.

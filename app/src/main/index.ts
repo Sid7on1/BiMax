@@ -9,7 +9,7 @@ import { finderContext } from './finder.context';
 import type { QuickContext, QuickThread, ThreadSummary } from '../shared/threads';
 import { threadNotice } from '../shared/threads';
 import { QUICK_BAR, quickBarBounds, quickBarOrigin } from './quick.bar';
-import { journalFile, lastUndoable, threadStateEnvironment, threadStateRoot, undoLast } from './thread.undo';
+import { changesSince, journalFile, lastUndoable, threadStateEnvironment, threadStateRoot, undoLast } from './thread.undo';
 import { insideFolder, validAttachments, withContext } from './quick.context';
 import { nextQuickThread, trayEntries, trayTitle, trayTooltip } from './thread.tray';
 import { modelMenuItems, type CatalogModel, type ModelMenuItem, type ModelTime } from './thread.models';
@@ -1273,6 +1273,8 @@ app.whenReady().then(async () => {
   threads = new ThreadManager({
     engine: id => createSupervisor(id), changed: threadChanged,
     wakesChanged: () => wakes?.sync(threads.wakeEntries()),
+    // F6: what a turn cut off by a crash or quit had already done, from the thread's undo journal, checked on disk.
+    madeSince: (summary, since) => changesSince(threadStateRoot(app.getPath('userData'), summary.root, summary.origin), since),
     // The live-engine budget reads the same corrected availability the capability ladder does, so
     // the two memory decisions in this app cannot disagree about how much room the machine has.
     memory: () => ({ freeBytes: availableMemoryBytes() }),

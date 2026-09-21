@@ -22,6 +22,8 @@ export interface SavedInput {
   display: string;
   state: 'queued' | 'sent';
   at: number;
+  /** When it went to the engine (F6): what the journal shows after this, this message's turn did. */
+  sentAt?: number;
 }
 export interface SavedThread { summary: ThreadSummary; state: EngineUiState; inputs?: SavedInput[] }
 interface LiveThread extends SavedThread {
@@ -33,6 +35,8 @@ interface LiveThread extends SavedThread {
   pending: Map<number, ThreadApproval>;
   /** File changes the user undid from the app since the engine's last turn; told to it with the next message. */
   notes: string[];
+  /** Turns a crash or quit cut off, with the changes they had already made (F6); told to the engine with the next message. */
+  recovered?: string[];
   /** When the current turn was sent to the engine, for its duration. */
   turnStartedAt?: number;
   /** What was last handed to storage, so an event that changed nothing is not written again. */
@@ -76,6 +80,11 @@ export function threadWakeFrom(value: unknown): ThreadWake | null {
 interface Dependencies {
   engine(id: string): ThreadEngine;
   changed(): void;
+  /**
+   * The changes this thread made from `since` on, from its undo journal, each checked on disk (backlog F6). Optional:
+   * without it a cut-off turn is reported as before, with no list of what it had done.
+   */
+  madeSince?(summary: ThreadSummary, since: number): Array<{ title: string; inPlace: boolean | null }>;
   /** A thread's wakes changed (F4): the app re-arms what it waits for. */
   wakesChanged?(): void;
   selected(selection: ThreadSelection): void;
@@ -514,10 +523,16 @@ export class ThreadManager {
     if (echo) this.deps.message(r.summary.id, { t: 'event', name: 'thread_user', args: [display] } as Outbound);
     // Undos the user made from the app since the engine's last turn go in front of this message, so the engine does
     // not act on a folder that is no longer the way it left it. The person's own words are shown unchanged.
-    const engineText = r.notes.length
-      ? `[Before this message, the user undid these file changes from the Bimax app, so the files are back as they were: ${r.notes.join('; ')}]\n\n${text}`
-      : text;
+    const undone = r.notes.length
+      ? `[Before this message, the user undid these file changes from the Bimax app, so the files are back as they were: ${r.notes.join('; ')}]\n\n`
+      : '';
+    // F6: a turn cut off by a crash or quit is not repeated blindly; the task learns what it had already done.
+    const recovered = r.recovered?.length
+      ? `[Before this message: ${r.recovered.join('. Also, ')}. Check what is already done before doing any of it again, and do not repeat a change that is still in place.]\n\n`
+      : '';
+    const engineText = `${recovered}${undone}${text}`;
     r.notes = [];
+    r.recovered = [];
     r.inputs.push({ id: randomUUID(), text: engineText, display, state: 'queued', at: Date.now() });
     // Saved before this returns: an accepted message must survive a crash, a restart or a reload (backlog F1, T01).
     this.persist(r, true);
@@ -529,6 +544,7 @@ export class ThreadManager {
     if (!r.ready || r.pending.size || r.summary.status === 'working' || !next || r.holdInputs || r.draining) return;
     if (this.folderTaken(r)) return;
     next.state = 'sent';
+    next.sentAt = Date.now();
     r.summary.status = 'working';
     // A new turn: how the last one ended no longer describes this thread.
     r.summary.outcome = undefined;
@@ -786,7 +802,17 @@ export class ThreadManager {
     const interrupted = r.inputs.filter((input) => input.state === 'sent');
     r.inputs = r.inputs.filter((input) => input.state === 'queued');
     for (const input of interrupted) {
-      this.appendNote(r, `This message was being worked on when ${why}, so it may have partly run. It was not sent again: ${quoted(input.display)}. Send it again if it still needs doing.`, 'warning', show);
+      // What the cut-off turn had already done, from the undo journal and checked on disk now (F6), so neither the
+      // user nor the task has to guess before sending it again.
+      let made: Array<{ title: string; inPlace: boolean | null }> = [];
+      try { made = this.deps.madeSince?.(r.summary, input.sentAt ?? input.at) ?? []; } catch { /* no journal: say what is known */ }
+      const listed = made.slice(0, 12).map((m) => `${m.title}${m.inPlace === false ? ' (not in place now)' : m.inPlace === null ? ' (could not check)' : ''}`);
+      const more = made.length > listed.length ? `; and ${made.length - listed.length} more` : '';
+      const done = made.length ? ` Before it stopped it had already made ${made.length} change${made.length === 1 ? '' : 's'}: ${listed.join('; ')}${more}.` : '';
+      this.appendNote(r, `This message was being worked on when ${why}, so it may have partly run. It was not sent again: ${quoted(input.display)}.${done} Send it again if it still needs doing.`, 'warning', show);
+      if (made.length) {
+        (r.recovered ??= []).push(`the request ${quoted(input.display)} was cut off when ${why}, and before that it had already made these changes (checked on disk just now): ${listed.join('; ')}${more}`);
+      }
     }
     if (r.inputs.length && why === 'Bimax closed') {
       const n = r.inputs.length;
