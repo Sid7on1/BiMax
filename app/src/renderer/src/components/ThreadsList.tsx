@@ -92,6 +92,7 @@ export function ThreadsList(): React.ReactElement {
         {active && active.id !== thread.id && <button className="flex cursor-pointer gap-1" onClick={() => void action(() => window.bimax.threads.link(active.id,thread.id,!active.peers.includes(thread.id)))}><Link2 size={11}/>{active.peers.includes(thread.id) ? 'Unlink' : 'Link to current'}</button>}
         {active?.peers.includes(thread.id) && <button className="cursor-pointer" onClick={() => void action(() => window.bimax.threads.link(active.id,thread.id,true))}>Renew</button>}
         <button className="flex cursor-pointer gap-1" onClick={() => setRenaming({ id: thread.id, title: thread.title })}><Pencil size={10}/>Rename</button>
+        <button title="Save this conversation as Markdown or PDF, or share it" className="cursor-pointer" onClick={() => window.bimax.threads.exportMenu(thread.id)}>Export</button>
         {thread.status === 'stopped' && <>
           <button title="Put this thread away. Restore it from Archived." className="flex cursor-pointer gap-1" onClick={() => void action(() => window.bimax.threads.archive(thread.id))}><Archive size={10}/>Archive</button>
           <button title="Move this conversation to the Bin" className="flex cursor-pointer gap-1" onClick={() => void action(() => window.bimax.threads.moveToBin(thread.id, false))}><Trash2 size={10}/>Bin</button>

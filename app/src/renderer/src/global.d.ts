@@ -243,6 +243,7 @@ declare global {
         onChanged: (cb: (generation: number) => void) => () => void;
       };
       sessionsMeta: () => Promise<SessionMetaRecord[]>;
+      sessionExportMenu: (id: string) => void;
       trustReport: () => Promise<TrustReport | null>;
       manualAlpha: {
         status: () => Promise<ManualAlphaServiceStatus | null>;

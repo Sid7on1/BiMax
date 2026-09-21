@@ -69,6 +69,7 @@ const api = {
     cancelQueued: (id: string) => ipcRenderer.invoke('threads:cancel-queued', id),
     setPriority: (id: string, priority: 'high' | 'normal' | 'low') => ipcRenderer.invoke('threads:priority', id, priority),
     cancelWakes: (id: string) => ipcRenderer.invoke('threads:cancel-wakes', id),
+    exportMenu: (id: string) => ipcRenderer.send('threads:export-menu', id),
     // Undo the newest change a thread made to files (main/thread.undo.ts).
     undoInfo: (id: string) => ipcRenderer.invoke('threads:undo-info', id),
     undo: (id: string) => ipcRenderer.invoke('threads:undo', id),
@@ -207,6 +208,8 @@ const api = {
     },
   },
   sessionsMeta: (): Promise<unknown> => ipcRenderer.invoke('sessions:meta'),
+  /** Export or share a saved session: a native menu at the pointer (main/thread.export.ts, backlog N4). */
+  sessionExportMenu: (id: string): void => ipcRenderer.send('sessions:export-menu', id),
   // Contextual evidence (Phase 8, owner section 28). Read-only from the renderer's side: it can ask
   // for a derived timeline and it can ask main to delete records, but it can never inject one.
   evidence: {

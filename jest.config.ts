@@ -27,6 +27,9 @@ const config: Config = {
   // developer's real ~/.breakglass. See jest.setup.ts — this is not hygiene, it is a fix for a
   // measured incident where the suite blanked the user's configured model.
   setupFiles: ['<rootDir>/jest.setup.ts'],
+  // marked (the app's Markdown parser) is published as ESM, which ts-jest's CommonJS run cannot load; its own UMD
+  // build is the same library in a form it can. Used by app/src/main/thread.export.ts (N4).
+  moduleNameMapper: { '^marked$': '<rootDir>/app/node_modules/marked/lib/marked.umd.js' },
   // RETRIEVAL SUITES RUN UNDER BUN, NOT HERE — and that is a property of the RUNTIME, not the code.
   //
   // Measured 2026-09-19: plain Node's `node:sqlite` has no FTS5 ("no such module: fts5"), while bun

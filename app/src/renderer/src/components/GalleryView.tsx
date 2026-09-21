@@ -6,7 +6,8 @@ import type { SessionMetaRecord } from '../global';
 /**
  * Sessions gallery — the Artifacts-style grid: every past session as a card with a searchable
  * header. Clicking a card resumes it (/resume <id>) and returns to the chat view. Data comes
- * from the engine's sessions-meta.jsonl, read natively by the main process.
+ * from the engine's sessions-meta.jsonl, read natively by the main process. Right-clicking a card exports or shares
+ * that session (backlog N4).
  */
 
 function relTime(iso: string): string {
@@ -76,7 +77,8 @@ export function GalleryView({
               <button
                 key={m.id}
                 onClick={() => onResume(m.id)}
-                title={`Resume — injects this session's messages into the current context`}
+                onContextMenu={(e) => { e.preventDefault(); window.bimax.sessionExportMenu(m.id); }}
+                title={`Resume — injects this session's messages into the current context. Right-click to export or share it.`}
                 className={cn(
                   'anim-fade-up group flex cursor-pointer flex-col rounded-xl border border-line bg-raise/70 p-4 text-left',
                   'transition-all duration-200 hover:-translate-y-0.5 hover:border-ember/40 hover:shadow-[0_8px_28px_rgba(0,0,0,0.35)]',

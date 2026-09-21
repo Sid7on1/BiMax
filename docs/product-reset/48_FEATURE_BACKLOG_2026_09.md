@@ -359,6 +359,17 @@ attachment path. Value medium · Effort S.
 
 **N4. Export or share a conversation.** Markdown and PDF (the engine already writes PDFs), from the sessions
 gallery and the bar. Value medium · Effort S.
+**Done 2026-09-21.** Three places, one menu — **Export as Markdown…**, **Export as PDF…**, **Share…** (the macOS
+share sheet: AirDrop, Mail, Messages): the sidebar's **Export** button on every thread, the ⌘2 bar's More menu, and
+a right-click on any card in the Sessions gallery (a saved engine session, read from its JSONL). The export holds
+the person's words and Bimax's answers in full, one line per tool run (with the error when it failed), and warnings
+and errors; tool output is left out, since it can be megabytes and is the part most likely to hold something not
+meant to be sent. The PDF is printed from a hidden window with JavaScript off, from a page whose policy allows no
+script and no network load, and raw HTML in a message is shown as text. A gallery id must look like a session id, so
+it cannot name a file outside the sessions folder. Proof: `app/src/__tests__/thread.export.test.ts`, 5 tests;
+12 mutants each fail a test (two first survived: an id check without its start anchor, and an order check that
+passed when a line was missing). A PDF printed with the app's Electron from a real saved session came out right,
+with a planted `<script>` shown as text and no network request. **Not verified live** in the installed app.
 
 **N5. Attach a screenshot to the ⌘2 bar.** The task reads a picture only, with no control of the Mac, so it
 stays code-only. Value medium · Effort S · Needs a vision-capable model in the vision slot.
