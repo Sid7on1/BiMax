@@ -359,6 +359,7 @@ export async function startHeadless(container: any, config: any, transport: Head
       void session.dispatch(text);
     },
     onInterrupt: () => session.interrupt(),
+    onSteer: (text) => session.steer(text),
     onQuery: async (text) => {
       // The completions channel doubles as the Composer's ingest channel.
       //

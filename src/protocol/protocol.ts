@@ -255,6 +255,15 @@ export interface InterruptMsg {
   t: 'interrupt';
 }
 
+/**
+ * Words for the running turn (backlog F7): taken at its next step rather than after it ends. Sent when the task is
+ * idle, it is an ordinary input.
+ */
+export interface SteerMsg {
+  t: 'steer';
+  text: string;
+}
+
 /** Ask the engine for autocomplete candidates for the current input `text`. */
 export interface QueryMsg {
   t: 'query';
@@ -358,6 +367,7 @@ export type Inbound =
   | ReplyMsg
   | InputMsg
   | InterruptMsg
+  | SteerMsg
   | QueryMsg
   | MenuSelectMsg
   | PingMsg
@@ -392,6 +402,10 @@ export const FORWARDED_EVENTS: readonly string[] = [
   // F4: a task asks to be resumed by an event, or cancels that; the app keeps and delivers wakes.
   'wake_request',
   'wake_cancel',
+  // F7: steering words were taken by the running turn ('steered'), or held for its next step ('steer_queued').
+  'steer_queued',
+  'steered',
+  'steer_unused',
   'subagent_update',
   'thinking',
   'thinking_clear',

@@ -14,6 +14,7 @@ import { overflowMessage, planRequest } from '../context/request.budget';
 import { engineEvents, ToolCallEntry } from '../engine/events';
 import { getActiveTodos, todosTouchedThisTurn } from '../tools/implementations/todo.tool';
 import { changesFiles, getCompletionChecks } from '../outcome/completion.check';
+import { drainSteer, hasSteer, steerMessage } from './steering';
 import { LoopDetector, LoopSignal } from './loop-detector';
 import { getGlobalPatternStore } from '../genome/pattern.store';
 import { recordUsage } from '../mind/usage.counters';
@@ -287,6 +288,14 @@ export class AgentLoop {
     return [...systemMessages, ...recentMessages];
   }
 
+  /** Move the user's steering words into the conversation, in order, and say they were taken (F7). */
+  private takeSteering(): void {
+    for (const text of drainSteer()) {
+      this.messages.push({ role: 'user', content: steerMessage(text) });
+      engineEvents.emit('steered', { text });
+    }
+  }
+
   /**
    * Run a completion check's command through the task's own shell tool — so the same permission rules, sandbox and
    * folder apply as to any command the model runs — shown as a tool call, and return the exit code the tool observed.
@@ -462,6 +471,8 @@ export class AgentLoop {
     for (let i = 0; i < maxIter; i++) {
       // Interrupted between turns: stop cleanly before spending another model call.
       if (signal?.aborted) return;
+      // Steering (F7): what the user added while the task worked joins the conversation before the next model call.
+      this.takeSteering();
       // NOTE: the Grok-ported power-aware 4s backoff between tool iterations was removed. Power
       // policy may constrain NEW background/sub-agent work (see spawn.tool.ts) but must never
       // stall the user's active interactive turn.
@@ -1432,6 +1443,8 @@ export class AgentLoop {
 
         // Loop continues so LLM can react to tool results
       } else {
+        // Steering that arrived during this last step: the task is not over until it has been read (F7).
+        if (hasSteer()) { this.takeSteering(); continue; }
         // A turn with no tool call that collapsed to pure filler gave the user
         // nothing. Rather than silently ending on an empty reply, nudge the model
         // once to answer directly and let the loop run again. Guarded against spin.

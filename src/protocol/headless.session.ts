@@ -10,6 +10,7 @@ import {
 } from '../telemetry/perf';
 import { IGraphStore } from '../graph/models';
 import { getSessionRecorder } from '../engine/session.recorder';
+import { clearSteer, drainSteer, pushSteer } from '../core/steering';
 
 /**
  * Confidence-in-margin (turn-end form): from the epistemic-ledger delta across a turn, decide what
@@ -112,6 +113,19 @@ export class HeadlessSession {
     await this.runTurn(query);
   }
 
+  /**
+   * Words for the running turn (backlog F7), taken by the agent loop at its next step. With no turn running — or for
+   * a slash command — they are an ordinary input.
+   */
+  steer(text: string): void {
+    const trimmed = (text || '').trim();
+    if (!trimmed) return;
+    if (!this.busy || trimmed.startsWith('/')) { void this.dispatch(trimmed); return; }
+    pushSteer(trimmed);
+    engineEvents.emit('steer_queued', { text: trimmed });
+    engineEvents.emit('status', 'Your message reaches the running task at its next step.');
+  }
+
   /** Engine-owned continuation turn. It uses the coordinator without fabricating user chat. */
   async dispatchAutonomous(text: string): Promise<'completed' | 'busy' | 'failed' | 'interrupted'> {
     const query = (text || '').trim();
@@ -126,6 +140,7 @@ export class HeadlessSession {
    */
   interrupt(): void {
     if (!this.busy || !this.turnAbort) return;
+    clearSteer();
     this.turnAbort.abort();
     engineEvents.emit('status', 'Interrupting…');
   }
@@ -254,6 +269,10 @@ export class HeadlessSession {
           if (sum) engineEvents.emit('message', this.msg('system', sum.text, sum.level));
         } catch { /* ledger best-effort */ }
       }
+      // Steering the turn never took — it arrived after the loop's last step, or the turn never ran the loop — goes back
+      // to the front-end, which queues it as the next message, before idle settles this turn (F7).
+      const unused = drainSteer();
+      if (unused.length) engineEvents.emit('steer_unused', { texts: unused });
       engineEvents.emit('spinner_state', 'idle', 'Ready');
       this.finishTurn?.();
       this.finishTurn = null;

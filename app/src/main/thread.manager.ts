@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { engineReducer, initialEngineState, type EngineUiState } from '../renderer/src/engine.state';
 import type { ThreadSummary, ThreadSelection, ThreadApproval, ThreadWake } from '../shared/threads';
-import type { Outbound } from '../renderer/src/protocol';
+import type { Inbound, Outbound } from '../renderer/src/protocol';
 
 export interface ThreadEngine {
   openProject(root: string): void;
@@ -61,6 +61,8 @@ interface LiveThread extends SavedThread {
   /** The engine stopped this turn at the task's time limit (F5). */
   turnLimited?: boolean;
 }
+const priorityRank = (summary: ThreadSummary): number => (summary.priority === 'high' ? 2 : summary.priority === 'low' ? 0 : 1);
+
 /** At most this many wakes wait on one thread (F4); a request past it is refused in the thread. */
 export const MAX_THREAD_WAKES = 5;
 const WAKE_KINDS: readonly ThreadWake['kind'][] = ['at', 'folder', 'ci', 'answer'];
@@ -500,6 +502,27 @@ export class ThreadManager {
     this.persist(r);
   }
   /** `echo: false` when the window that sent the turn has already painted it (see useEngine's submit). */
+  /**
+   * Words for a task (backlog F7). While it works they go to the running turn, which takes them at its next step,
+   * instead of waiting in the queue for the turn to end; otherwise — idle, starting, stopped, waiting for its folder —
+   * they are an ordinary message. A slash command is never steering.
+   */
+  steer(id: string, text: string, display = text, echo = true): void {
+    const r = this.records.get(id);
+    if (!r) throw new Error('Thread not found');
+    if (text.trim().startsWith('/')) return this.send(id, { t: 'input', text });
+    const running = r.ready && !!r.engine && (r.summary.status === 'working' || r.summary.status === 'needs-you') && !r.draining && !r.holdInputs;
+    if (!running) return this.submit(id, text, display, echo);
+    if (!text.trim() || text.length > 200_000) throw new Error('Prompt must contain 1–200,000 characters');
+    r.state = engineReducer(r.state, { type: 'localUser', text: display });
+    if (echo) this.deps.message(id, { t: 'event', name: 'thread_user', args: [display] } as Outbound);
+    // Saved as being worked on before it is sent (F1): if the engine goes away now, it is reported as possibly run.
+    const now = Date.now();
+    r.inputs.push({ id: randomUUID(), text, display, state: 'sent', at: now, sentAt: now });
+    this.persist(r, true);
+    r.engine!.sendFromRenderer({ t: 'steer', text } as Inbound);
+  }
+
   submit(id: string, text: string, display = text, echo = true): void {
     const r = this.records.get(id);
     if (!r) throw new Error('Thread not found');
@@ -587,6 +610,14 @@ export class ThreadManager {
     // Only a turn's end reads it, and every turn starts with it cleared, so an error between turns changes nothing.
     if (msg.t === 'event' && msg.name === 'message' && (msg.args[0] as { level?: unknown } | undefined)?.level === 'error') r.turnError = true;
     if (msg.t === 'event' && msg.name === 'turn_limit') r.turnLimited = true;
+    // Steering the turn never took (F7): it goes back to the front of the queue and is sent when this turn ends. The
+    // transcript already shows it, so it is not shown again.
+    if (msg.t === 'event' && msg.name === 'steer_unused') {
+      const texts = (msg.args[0] as { texts?: unknown } | undefined)?.texts;
+      const back = (Array.isArray(texts) ? texts : []).filter((t): t is string => typeof t === 'string' && !!t.trim())
+        .map((t) => ({ id: randomUUID(), text: t, display: t, state: 'queued' as const, at: Date.now() }));
+      if (back.length) r.inputs = [...back, ...r.inputs];
+    }
     // Wakes (F4): kept with the thread, so the app can wait for them and they survive a restart.
     if (msg.t === 'event' && msg.name === 'wake_request') {
       const wake = threadWakeFrom(msg.args[0]);
@@ -661,7 +692,7 @@ export class ThreadManager {
     }
     this.restartIfWanted(r);
     // Only dispatch queued inputs after the current protocol event has been delivered.
-    if (r.ready && r.summary.status === 'idle') for (const next of this.records.values()) this.pump(next);
+    if (r.ready && r.summary.status === 'idle') for (const next of this.byPriority()) this.pump(next);
     this.persist(r);
   }
   lifecycle(id: string, phase: string, detail: string): void {
@@ -690,6 +721,8 @@ export class ThreadManager {
     const r = this.records.get(id);
     if (!r) throw new Error('Thread not found');
     if (msg.t === 'input' && !msg.text.trim().startsWith('/')) return this.submit(id, msg.text, msg.text, false);
+    // The window paints its own words, so they are not echoed back to it (F7).
+    if (msg.t === 'steer') return this.steer(id, String(msg.text ?? ''), String(msg.text ?? ''), false);
     if (msg.t === 'reply') {
       const pending = r.pending.get(msg.id);
       if (!pending || msg.approvalToken !== pending.token) throw new Error('That approval has expired');
@@ -875,7 +908,7 @@ export class ThreadManager {
     r.summary.status = 'stopped';
     r.state = { ...r.state, request: null, spinner: { state: 'idle', message: '' }, engine: { state: 'exited', detail: options.reason ?? 'Thread stopped' } };
     this.persist(r);
-    for (const other of this.records.values()) this.pump(other);
+    for (const other of this.byPriority()) this.pump(other);
   }
   /**
    * Hand back the memory of engines that are sitting doing nothing.
@@ -925,7 +958,39 @@ export class ThreadManager {
         && !r.pending.size                         // no approval waiting on the user
         && !r.draining                             // its previous engine is not still draining
         && now - r.summary.updatedAt >= ttlMs)
-      .sort((a, b) => a.summary.updatedAt - b.summary.updatedAt);
+      // A low-priority task is stopped first and a high-priority one last (F7); least recently used within each.
+      .sort((a, b) => (priorityRank(a.summary) - priorityRank(b.summary)) || (a.summary.updatedAt - b.summary.updatedAt));
+  }
+
+  /** Threads in the order they may start work: high priority first, then normal, then low, each in creation order (F7). */
+  private byPriority(): LiveThread[] {
+    return [...this.records.values()].sort((a, b) => priorityRank(b.summary) - priorityRank(a.summary));
+  }
+
+  /**
+   * A task's priority (backlog F7): which task goes first when several wait for an engine or a folder, and which
+   * engine is stopped last to make room. It never stops or pauses work that is already running.
+   */
+  setPriority(id: string, priority: 'high' | 'normal' | 'low'): void {
+    const r = this.records.get(id);
+    if (!r) throw new Error('Thread not found');
+    if (priority === 'normal') delete r.summary.priority; else r.summary.priority = priority;
+    this.persist(r);
+    this.deps.changed();
+  }
+
+  /** Drop every wake a task was waiting for (F4). Returns how many. */
+  cancelWakes(id: string): number {
+    const r = this.records.get(id);
+    if (!r) throw new Error('Thread not found');
+    const n = r.summary.wakes?.length ?? 0;
+    if (!n) return 0;
+    delete r.summary.wakes;
+    this.appendNote(r, `Cancelled ${n === 1 ? 'the wake' : `${n} wakes`} this task was waiting for.`, 'info', true);
+    this.persist(r);
+    this.deps.wakesChanged?.();
+    this.deps.changed();
+    return n;
   }
 
   /**
@@ -978,7 +1043,7 @@ export class ThreadManager {
     if (!exited || typeof (exited as Promise<unknown>).then !== 'function') return;
     const draining: Promise<unknown> = Promise.resolve(exited).catch(() => undefined).then(() => {
       if (r.draining === draining) r.draining = undefined;
-      for (const other of this.records.values()) this.pump(other);
+      for (const other of this.byPriority()) this.pump(other);
     });
     r.draining = draining;
   }

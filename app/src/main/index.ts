@@ -1491,7 +1491,8 @@ app.whenReady().then(async () => {
         const { root } = threads.get(quickThreadId).summary;
         const outside = attachments.find((item) => item.path && !insideFolder(root, item.path));
         if (outside) return { ok: false, error: `“${outside.label}” is outside this task’s folder. Start a New task to use it.` };
-        threads.submit(quickThreadId, withContext(prompt, attachments), prompt, false);
+        // While the task works, the words reach the running turn at its next step (F7); otherwise they are a new turn.
+        threads.steer(quickThreadId, withContext(prompt, attachments), prompt, false);
         return { ok: true, id: quickThreadId };
       }
       const chosen = typeof opts.root === 'string' && opts.root ? opts.root : quickContext.root;
@@ -1712,6 +1713,15 @@ app.whenReady().then(async () => {
   secureHandle('threads:select', false, (_e, id: unknown) => { if (typeof id !== 'string') return false; selectThread(id); return true; });
   secureHandle('threads:start', false, (_e, id: unknown) => { if (typeof id !== 'string') return false; threads.start(id); selectThread(id); return true; });
   secureHandle('threads:stop', false, (_e, id: unknown) => { if (typeof id !== 'string') return false; threads.stop(id); if (id === threads.activeId) selectThread(id); return true; });
+  // A task's priority (F7) and its wakes (F4), from the sidebar.
+  secureHandle('threads:priority', false, (_e, id: unknown, priority: unknown) => {
+    if (typeof id !== 'string' || (priority !== 'high' && priority !== 'normal' && priority !== 'low')) return false;
+    try { threads.setPriority(id, priority); return true; } catch { return false; }
+  });
+  secureHandle('threads:cancel-wakes', 0, (_e, id: unknown) => {
+    if (typeof id !== 'string') return 0;
+    try { return threads.cancelWakes(id); } catch { return 0; }
+  });
   // Drop a task's queued messages; the turn being worked on carries on (backlog N12).
   secureHandle('threads:cancel-queued', 0, (_e, id: unknown) => {
     if (typeof id !== 'string') return 0;

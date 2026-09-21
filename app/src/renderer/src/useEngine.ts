@@ -100,7 +100,9 @@ export function useEngine() {
     // behind another thread in the same folder, must not vanish until it is dispatched. The thread manager
     // records the same turn for history and does not echo it back to this window.
     dispatch({ type: 'localUser', text: trimmed });
-    window.bimax.send({ t: 'input', text: engineTrimmed || trimmed });
+    // 'steer' (F7): while the task works the thread manager hands these words to the running turn, which takes them
+    // at its next step; when it is not working they are an ordinary message, exactly as 'input' was.
+    window.bimax.send({ t: 'steer', text: engineTrimmed || trimmed });
     dispatch({ type: 'clearCompletions' });
   }, []);
 

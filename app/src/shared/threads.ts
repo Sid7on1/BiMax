@@ -37,6 +37,8 @@ export interface ThreadSummary {
    * those edits. Absent when there was nothing to check. Kept across turns, as the engine keeps it.
    */
   check?: 'passed' | 'tests-edited' | 'failed' | 'unchecked';
+  /** Which task goes first when tasks wait for an engine or a folder (F7). Absent means normal. */
+  priority?: 'high' | 'low';
   /** Wakes the task is waiting for (F4). Saved, so they survive a restart of the app. */
   wakes?: ThreadWake[];
   /** Messages accepted and not yet sent to the engine. Filled in for lists; never saved. */

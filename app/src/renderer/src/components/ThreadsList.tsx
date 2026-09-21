@@ -84,6 +84,11 @@ export function ThreadsList(): React.ReactElement {
         {thread.status === 'stopped' && <button className="cursor-pointer" onClick={() => void action(() => window.bimax.threads.start(thread.id))}>Resume</button>}
         {thread.status !== 'stopped' && <button title="Stop only this thread" className="flex cursor-pointer gap-1" onClick={() => void action(() => window.bimax.threads.stop(thread.id))}><Square size={10}/>Stop</button>}
         {thread.queued ? <button title="Drop the messages waiting to be sent. The turn being worked on carries on." className="cursor-pointer" onClick={() => void action(() => window.bimax.threads.cancelQueued(thread.id))}>Cancel queued</button> : null}
+        {thread.wakes?.length ? <button title="Stop waiting for the times, folders, CI results or answers this task asked to be woken by" className="cursor-pointer" onClick={() => void action(() => window.bimax.threads.cancelWakes(thread.id))}>Cancel wakes</button> : null}
+        <button title="Which task goes first when tasks wait for a free slot or folder, and which is stopped last to make room. Running work is never paused." className="cursor-pointer"
+          onClick={() => void action(() => window.bimax.threads.setPriority(thread.id, thread.priority === 'high' ? 'low' : thread.priority === 'low' ? 'normal' : 'high'))}>
+          Priority: {thread.priority === 'high' ? 'High' : thread.priority === 'low' ? 'Low' : 'Normal'}
+        </button>
         {active && active.id !== thread.id && <button className="flex cursor-pointer gap-1" onClick={() => void action(() => window.bimax.threads.link(active.id,thread.id,!active.peers.includes(thread.id)))}><Link2 size={11}/>{active.peers.includes(thread.id) ? 'Unlink' : 'Link to current'}</button>}
         {active?.peers.includes(thread.id) && <button className="cursor-pointer" onClick={() => void action(() => window.bimax.threads.link(active.id,thread.id,true))}>Renew</button>}
         <button className="flex cursor-pointer gap-1" onClick={() => setRenaming({ id: thread.id, title: thread.title })}><Pencil size={10}/>Rename</button>

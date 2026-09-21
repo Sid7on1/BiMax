@@ -239,7 +239,25 @@ twice. Now:
   A repeated network action — a request sent, a message posted — leaves no journal entry and is not caught.
 
 **F7. Mid-run steering.** Change a running task's scope or priority without restarting it.
-Value medium · Effort M.
+Value medium · Effort M. **Done 2026-09-21.**
+
+- **Steering:** a message sent while a task works used to wait in the queue for the turn to end. It now goes to the
+  running turn (`steer`, a new inbound protocol message): the agent loop takes it at the start of its next step, and
+  once more before it lets a turn end, as the user's own words (`src/core/steering.ts`; not an engine tag, so the
+  continuation state keeps it as something the user said). The status line says "Your message reaches the running task
+  at its next step." Steering the turn never took — it arrived after the last step, or the turn never ran the loop — is
+  handed back (`steer_unused`) and sent as the next message. Stop drops it, as it drops queued messages. The main
+  window and the ⌘2 bar both send `steer`; the thread manager makes it an ordinary message when the task is not working,
+  and a slash command is never steering. A steer is saved as being worked on (F1), so a crash reports it.
+- **Priority** (sidebar: "Priority: Normal / High / Low"): which task starts first when several wait for an engine or a
+  folder, and which idle engine is stopped last to make room. It never pauses work already running.
+- Also: "Cancel wakes" in the sidebar for a task waiting on F4 wakes.
+- **Measured live and fixed:** every steering unit test passed while every steer vanished in the running engine — the
+  stdio host passes its handlers by name and `onSteer` was not in the list. `stdio.handlers.test.ts` now sends every
+  inbound kind through the real host and requires each to reach its handler, and fails if a new kind is not in its
+  table. After the fix, live: the running turn took the steer at its next step (`steer_queued`, then `steered`).
+- Proof: `steering.test.ts` (the real AgentLoop and HeadlessSession), `thread.steer.test.ts` (the real ThreadManager),
+  `stdio.handlers.test.ts`; 12 mutants each fail a test.
 
 **F8. Port the chat and tool cancellation fix (record 49).** Written and tested in the stale Desktop copy on
 2026-09-13 and never ported. It makes `/clear force` wait for the running turn to finish instead of announcing a

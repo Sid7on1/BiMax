@@ -13,6 +13,8 @@ export interface HostHandlers {
   onInput?: (text: string) => void;
   /** The front-end asked to cancel the in-flight turn. */
   onInterrupt?: () => void;
+  /** Words for the running turn, taken at its next step (F7). */
+  onSteer?: (text: string) => void;
   /** The front-end asked for autocomplete candidates for the current input. */
   onQuery?: (text: string) => CompletionItem[] | Promise<CompletionItem[]>;
   /** The front-end picked an option in a menu the engine emitted — run that menu's onSelect. */
@@ -171,6 +173,9 @@ export class ProtocolHost {
       case 'interrupt':
         this.handlers.onInterrupt?.();
         this.cancelPending();
+        return;
+      case 'steer':
+        this.handlers.onSteer?.(String((msg as { text?: unknown }).text ?? ''));
         return;
       case 'ping':
         // Answered synchronously from the ingest path — no engine work is awaited, so a pong only

@@ -101,6 +101,8 @@ export function startStdioHost(opts: StdioHostOptions): StdioHostHandle {
         opts.onInterrupt?.();
       },
       onQuery: opts.onQuery,
+      // F7: steering for the running turn. Handlers are passed by name, so a new one must be added here too.
+      onSteer: opts.onSteer,
       onMenuSelect: opts.onMenuSelect, onConfigGet: opts.onConfigGet, onConfigSet: opts.onConfigSet,
       onCatalogGet: opts.onCatalogGet, onProviderSet: opts.onProviderSet,
       onResume: opts.onResume, onControls: opts.onControls,

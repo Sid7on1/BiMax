@@ -564,6 +564,22 @@
       "properties": {
         "t": {
           "type": "string",
+          "const": "steer"
+        },
+        "text": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true,
+      "required": [
+        "t"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "t": {
+          "type": "string",
           "const": "query"
         },
         "id": {
