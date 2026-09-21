@@ -82,7 +82,8 @@ test('a thread asks in plain words, refuses deletes it cannot send to the Bin, a
   fs.mkdirSync(path.join(root,'DEV'));
   const ask=jest.spyOn(GlobalPrompter,'ask').mockResolvedValue('Allow');
   await gov.approveTaskExecution('OS_COMMAND',{ command:'mv DEV 2026-09-13_DEV',context:{ cwd:root },isDestructive:true });
-  expect(ask).toHaveBeenCalledWith('Rename folder “DEV” to “2026-09-13_DEV”',['Allow','Deny'],expect.objectContaining({ body:expect.stringContaining('DEV/ → 2026-09-13_DEV') }));
+  // An undoable rename inside the folder may also be allowed for the rest of the task (N13).
+  expect(ask).toHaveBeenCalledWith('Rename folder “DEV” to “2026-09-13_DEV”',['Allow','Allow for this task','Deny'],expect.objectContaining({ body:expect.stringContaining('DEV/ → 2026-09-13_DEV') }));
   expect(fs.readFileSync(path.join(dir,'.bimax','undo','journal.jsonl'),'utf8')).toContain('"op":"move"');
   await expect(gov.approveTaskExecution('OS_COMMAND',{ command:'find . -delete',context:{ cwd:root },isDestructive:true })).rejects.toThrow('Bin');
   expect(ask).toHaveBeenCalledTimes(1);
