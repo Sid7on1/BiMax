@@ -19,6 +19,8 @@ export interface VoiceSettingsView {
   automatic: string; chosen: string; rate: number; rates: readonly number[]; onlyBasic: boolean;
   /** Say out loud when a task finishes (backlog N9). */
   speakUpdates: boolean;
+  /** Talk mode listens while Bimax speaks, to be interrupted by talking (FL10). */
+  bargeIn: boolean;
 }
 /** The Organize preview (main/organize.plan.ts, backlog FL2). */
 export interface OrganizeView {
@@ -40,6 +42,7 @@ const api = {
     choose: (voiceId: string, rate: number): Promise<boolean> => ipcRenderer.invoke('voice:choose', voiceId, rate),
     preview: (voiceId: string, rate: number): Promise<boolean> => ipcRenderer.invoke('voice:preview', voiceId, rate),
     speakUpdates: (on: boolean): Promise<boolean> => ipcRenderer.invoke('voice:speak-updates', on),
+    bargeIn: (on: boolean): Promise<boolean> => ipcRenderer.invoke('voice:barge-in', on),
   },
   organize: {
     current: (): Promise<OrganizeView | null> => ipcRenderer.invoke('organize:current'),

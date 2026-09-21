@@ -50,6 +50,8 @@ export interface AppSettings {
   pushTalkAnswer?: 'voice' | 'notification';
   /** Say out loud when a task finishes while it is not on screen (spoken.updates.ts, backlog N9); off when absent. */
   speakUpdates?: boolean;
+  /** Talk mode keeps listening while Bimax speaks, so the person can interrupt by talking (FL10). Off when absent. */
+  talkBargeIn?: boolean;
   /** Folders with an outcome, keyed by real path (folder.outcomes.ts, backlog FL1 part 2). */
   folderOutcomes?: Record<string, import('./folder.outcomes').FolderOutcome>;
 }

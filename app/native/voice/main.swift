@@ -210,7 +210,7 @@ func listen() async {
 
 // MARK: - Talk mode
 //
-//   bimax-voice --talk [--locale …] [--context …] [--silence 900] [--voice <id>] [--input <audio>] [--mute-output]
+//   bimax-voice --talk [--locale …] [--context …] [--silence 900] [--voice <id>] [--input <audio>] [--mute-output] [--barge-in]
 //
 // One warm process for a spoken conversation. It listens after {"cmd":"listen"}, and when the words stop for
 // --silence ms it settles them and sends utterance {text}, then stays deaf until told to listen again, so it never
@@ -303,6 +303,59 @@ final class Flag: @unchecked Sendable {
   func set(_ next: Bool) { lock.lock(); value = next; lock.unlock() }
 }
 
+/// Barge-in (backlog FL10): speech played through the SAME audio engine as the microphone, so Apple's voice-processing
+/// echo cancellation has the reference it needs to take Bimax's own voice out of what the microphone hears. The
+/// synthesizer writes buffers instead of playing them; a player node on the microphone's engine plays them.
+final class EngineSpeaker: @unchecked Sendable {
+  private let engine: AVAudioEngine
+  private let player = AVAudioPlayerNode()
+  private let synthesizer = AVSpeechSynthesizer()
+  private let lock = NSLock()
+  private var format: AVAudioFormat?
+  private var generation = 0
+
+  init(engine: AVAudioEngine, muted: Bool) {
+    self.engine = engine
+    engine.attach(player)
+    if muted { player.volume = 0 }
+  }
+
+  /// Speak, and call `done` once every buffer has played (never after a stop).
+  func speak(_ utterance: AVSpeechUtterance, done: @escaping () -> Void) {
+    lock.lock(); generation += 1; let mine = generation; lock.unlock()
+    var pending = 0
+    var ended = false
+    let finishIfDone = { [weak self] in
+      guard let self else { return }
+      self.lock.lock()
+      let fire = ended && pending == 0 && mine == self.generation
+      if fire { ended = false }
+      self.lock.unlock()
+      if fire { done() }
+    }
+    synthesizer.write(utterance) { [weak self] buffer in
+      guard let self, let pcm = buffer as? AVAudioPCMBuffer else { return }
+      self.lock.lock(); let current = mine == self.generation; self.lock.unlock()
+      guard current else { return }
+      if pcm.frameLength == 0 { self.lock.lock(); ended = true; self.lock.unlock(); finishIfDone(); return }
+      if self.format != pcm.format {
+        self.engine.disconnectNodeOutput(self.player)
+        self.engine.connect(self.player, to: self.engine.mainMixerNode, format: pcm.format)
+        self.format = pcm.format
+      }
+      self.lock.lock(); pending += 1; self.lock.unlock()
+      self.player.scheduleBuffer(pcm) { self.lock.lock(); pending -= 1; self.lock.unlock(); finishIfDone() }
+      if !self.player.isPlaying { self.player.play() }
+    }
+  }
+
+  func stop() {
+    lock.lock(); generation += 1; lock.unlock()
+    synthesizer.stopSpeaking(at: .immediate)
+    player.stop()
+  }
+}
+
 @available(macOS 26.0, *)
 final class TalkLoop: NSObject, AVSpeechSynthesizerDelegate, @unchecked Sendable {
   let listeningNow = Flag()
@@ -325,6 +378,10 @@ final class TalkLoop: NSObject, AVSpeechSynthesizerDelegate, @unchecked Sendable
   private var queue: [String] = []
   private var current: AVSpeechUtterance?
   private var flushed = false
+  /// Barge-in (FL10): speech goes through the microphone's engine, and the microphone stays on while it plays.
+  var speaker: EngineSpeaker?
+  /// While speaking with barge-in: what is heard is passed on as `overheard`, for the app to tell the person from echo.
+  let overhearing = Flag()
 
   init(analyzer: SpeechAnalyzer, voice: AVSpeechSynthesisVoice?, muted: Bool, silence: TimeInterval) {
     self.analyzer = analyzer
@@ -339,7 +396,11 @@ final class TalkLoop: NSObject, AVSpeechSynthesizerDelegate, @unchecked Sendable
 
   func heard(_ text: String, final: Bool) {
     control.async {
-      guard self.listening || self.ending else { return }
+      if !self.listening && !self.ending {
+        // Barge-in: heard while speaking. Not kept as the next utterance — the app decides whether it is the person.
+        if self.overhearing.get(), !text.trimmingCharacters(in: .whitespaces).isEmpty { Out.send(["event": "overheard", "text": text]) }
+        return
+      }
       if final { self.finals += text; self.partial = "" } else { self.partial = text }
       self.lastHeard = Date()
       if self.listening { Out.send(["event": "partial", "text": (self.finals + self.partial).trimmingCharacters(in: .whitespaces)]) }
@@ -389,8 +450,9 @@ final class TalkLoop: NSObject, AVSpeechSynthesizerDelegate, @unchecked Sendable
         self.flushed = false
         if self.current != nil {
           self.current = nil
-          DispatchQueue.main.async { self.synthesizer.stopSpeaking(at: .immediate) }
+          if let speaker = self.speaker { speaker.stop() } else { DispatchQueue.main.async { self.synthesizer.stopSpeaking(at: .immediate) } }
         }
+        self.overhearing.set(false)
         Out.send(["event": "interrupted"])
       default:
         break
@@ -407,14 +469,25 @@ final class TalkLoop: NSObject, AVSpeechSynthesizerDelegate, @unchecked Sendable
     if muted { utterance.volume = 0 }
     current = utterance
     Out.send(["event": "speaking", "text": text])
-    DispatchQueue.main.async { self.synthesizer.speak(utterance) }
+    if let speaker {
+      overhearing.set(true)
+      feedingNow.set(true)
+      speaker.speak(utterance) { [weak self] in self?.finished(utterance) }
+    } else {
+      DispatchQueue.main.async { self.synthesizer.speak(utterance) }
+    }
   }
 
   func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+    finished(utterance)
+  }
+
+  private func finished(_ utterance: AVSpeechUtterance) {
     control.async {
       guard self.current === utterance else { return }
       self.current = nil
       if !self.queue.isEmpty { self.next(); return }
+      self.overhearing.set(false)
       if self.flushed { self.flushed = false; Out.send(["event": "spoken"]) } else { Out.send(["event": "quiet"]) }
     }
   }
@@ -490,13 +563,22 @@ func talk() async {
   } else {
     let mic = AVAudioEngine()
     let node = mic.inputNode
+    // Barge-in (FL10): voice processing must be on before the format is read; it changes the input's channels.
+    if CommandLine.arguments.contains("--barge-in") {
+      do {
+        try node.setVoiceProcessingEnabled(true)
+        loop.speaker = EngineSpeaker(engine: mic, muted: CommandLine.arguments.contains("--mute-output"))
+      } catch {
+        Out.send(["event": "barge", "available": false, "message": error.localizedDescription])
+      }
+    }
     let micFormat = node.outputFormat(forBus: 0)
     guard micFormat.sampleRate > 0, let converter = AVAudioConverter(from: micFormat, to: format) else {
       Out.fail("no-microphone", "No microphone is available.")
     }
     var lastLevel = Date.distantPast
     node.installTap(onBus: 0, bufferSize: 2048, format: micFormat) { buffer, _ in
-      guard loop.feedingNow.get() else { return }
+      guard loop.feedingNow.get() || loop.overhearing.get() else { return }
       if loop.listeningNow.get(), let samples = buffer.floatChannelData?[0], buffer.frameLength > 0, Date().timeIntervalSince(lastLevel) > 0.08 {
         var sum: Float = 0
         for i in 0..<Int(buffer.frameLength) { sum += samples[i] * samples[i] }
@@ -515,7 +597,7 @@ func talk() async {
   ticker.setEventHandler { loop.tick() }
   ticker.resume()
   let quality = voice.map(qualityName) ?? "default"
-  Out.send(["event": "ready", "voice": voice?.name ?? "", "quality": quality, "locale": locale.identifier(.bcp47)])
+  Out.send(["event": "ready", "voice": voice?.name ?? "", "quality": quality, "locale": locale.identifier(.bcp47), "bargeIn": loop.speaker != nil])
 
   await withCheckedContinuation { (done: CheckedContinuation<Void, Never>) in
     Thread.detachNewThread {

@@ -678,6 +678,17 @@ measured fastest, or Bimax's own until something is measured. A named choice is 
 **FL10. Interrupt talk mode by speaking (barge-in).** Apple's voice-processing echo cancellation should let
 the microphone stay on while Bimax speaks. Value medium–high for talk · Effort M · Needs measuring on the
 built-in speakers.
+**Built 2026-09-22, off by default (Settings → Voice → Interrupt by speaking, experimental).** With it, the voice
+helper turns on voice processing on the microphone's audio engine and speaks through a player node on that same
+engine (the synthesizer writes buffers), so the echo canceller has Bimax's own voice as its reference. The microphone
+stays on while speaking; what it hears then is passed on as `overheard`, not kept as the next utterance. The app
+decides (`isBarge`): at least two words, most of them not in the sentence being spoken — echo repeats the sentence, a
+person says something else ("no, stop"). Then the speech and the task's turn stop and it listens. Only while speaking:
+a late "overheard" while the task is thinking stops nothing. Accents are dropped before comparing (a test caught them
+splitting "déjà" into two words). Without the setting the helper runs exactly as before; a talk session on a spoken
+audio file (`--input`, muted) still heard, answered and finished. Proof: 4 new tests in `talk.session.test.ts`; 7
+mutants each fail a test. **Not measured:** the echo cancellation itself on built-in speakers — the backlog's
+condition — needs a person at the Mac.
 
 **FL11. Talk in the background.** A floating orb or menu bar control while the window is hidden.
 Value low–medium · Effort M.

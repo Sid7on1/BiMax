@@ -418,7 +418,8 @@ const talk = new TalkSession({
   spawn: (onEvent, onExit) => {
     const context = ['Bimax', ...(talkRoot ? [path.basename(talkRoot)] : [])];
     // N7: the voice and speed chosen in Settings → Voice.
-    const args = [...helperArguments('--talk', { locales: app.getPreferredSystemLanguages(), context }), ...speakingArguments(loadSettings())];
+    const args = [...helperArguments('--talk', { locales: app.getPreferredSystemLanguages(), context }), ...speakingArguments(loadSettings()),
+      ...(loadSettings().talkBargeIn === true ? ['--barge-in'] : [])];
     const child = spawn(voiceHelper(), args, { stdio: ['pipe', 'pipe', 'ignore'] });
     child.stdout.setEncoding('utf8');
     // A command written just as the helper exits must not become an uncaught EPIPE in the main process.
@@ -2207,8 +2208,9 @@ app.whenReady().then(async () => {
     const { voices, automatic } = parseVoiceList(stdout);
     const settings = loadSettings();
     const chosen = validVoice(settings.talkVoice);
-    return { voices: pickerVoices(voices, chosen), automatic, chosen: chosen ?? '', rate: validRate(settings.talkRate), rates: SPEECH_RATES, onlyBasic: onlyBasicVoices(voices), speakUpdates: settings.speakUpdates === true };
+    return { voices: pickerVoices(voices, chosen), automatic, chosen: chosen ?? '', rate: validRate(settings.talkRate), rates: SPEECH_RATES, onlyBasic: onlyBasicVoices(voices), speakUpdates: settings.speakUpdates === true, bargeIn: settings.talkBargeIn === true };
   });
+  secureHandle('voice:barge-in', false, (_e, on: unknown) => { saveSettings({ talkBargeIn: on === true }); return on === true; });
   secureHandle('voice:speak-updates', false, (_e, on: unknown) => {
     saveSettings({ speakUpdates: on === true });
     updateTray();

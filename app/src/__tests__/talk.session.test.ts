@@ -1,4 +1,4 @@
-import { DEFAULT_TALK_MODEL, QUIET_END_MS, TALK_TURN_HINT, TalkSession, talkModel, type TalkView } from '../main/talk.session';
+import { DEFAULT_TALK_MODEL, QUIET_END_MS, TALK_TURN_HINT, TalkSession, isBarge, talkModel, type TalkView } from '../main/talk.session';
 
 function fixture() {
   const commands: Array<Record<string, unknown>> = [];
@@ -175,4 +175,44 @@ test('talk mode answers with the quick model when the provider serves it, else t
   expect(talkModel([{ id: DEFAULT_TALK_MODEL, served: true }], 'x/quick')).toBe(DEFAULT_TALK_MODEL);
   expect(talkModel([{ id: DEFAULT_TALK_MODEL, served: false }, { id: 'x/quick', served: true }], 'x/quick')).toBe('x/quick');
   expect(talkModel([{ id: 'other/model', served: true }])).toBeUndefined();
+});
+
+test('barge-in (FL10): the person talking over Bimax, told from Bimax’s own voice leaking back', () => {
+  expect(isBarge('stop wait', 'I renamed thirty files by date.')).toBe(true);
+  expect(isBarge('no, by project instead', 'I renamed thirty files by date.')).toBe(true);
+  expect(isBarge('renamed thirty files', 'I renamed thirty files by date.')).toBe(false); // echo repeats the sentence
+  expect(isBarge('I renamed files uh', 'I renamed thirty files by date.')).toBe(false); // one foreign word in four
+  expect(isBarge('stop', 'I renamed thirty files by date.')).toBe(false); // one word could be noise
+  expect(isBarge('', 'anything')).toBe(false);
+  expect(isBarge('Café déjà', 'cafe deja')).toBe(false); // an echo spelled with or without accents is still an echo
+});
+
+test('barge-in: overheard echo is ignored; the person talking stops the speech and the task, and is listened to', () => {
+  const f = listening();
+  f.helper({ event: 'utterance', text: 'rename them' });
+  f.talk.onThreadMessage(token('I renamed thirty files by date. '));
+  f.helper({ event: 'speaking', text: 'I renamed thirty files by date.' });
+  f.helper({ event: 'overheard', text: 'renamed thirty files' });
+  expect(f.last().state).toBe('speaking');
+  expect(f.commands.some((c) => c.cmd === 'interrupt')).toBe(false);
+  f.helper({ event: 'overheard', text: 'no stop that' });
+  expect(f.commands.some((c) => c.cmd === 'interrupt')).toBe(true);
+  expect(f.deps.interrupt).toHaveBeenCalledWith('t1');
+  expect(f.last().state).toBe('listening');
+});
+
+test('barge-in: what is overheard while not speaking changes nothing', () => {
+  const f = listening();
+  f.helper({ event: 'overheard', text: 'no stop that' });
+  expect(f.commands.some((c) => c.cmd === 'interrupt')).toBe(false);
+  expect(f.last().state).toBe('listening');
+});
+
+test('barge-in: a late "overheard" while the task is thinking between sentences does not stop the task', () => {
+  const f = listening();
+  f.helper({ event: 'utterance', text: 'rename them' });
+  expect(f.last().state).toBe('thinking');
+  f.helper({ event: 'overheard', text: 'no stop that' });
+  expect(f.deps.interrupt).not.toHaveBeenCalled();
+  expect(f.last().state).toBe('thinking');
 });

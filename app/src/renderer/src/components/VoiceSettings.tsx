@@ -15,11 +15,12 @@ export function VoiceSettings(): React.ReactElement {
   const [voice, setVoice] = useState('');
   const [rate, setRate] = useState(1);
   const [updates, setUpdates] = useState(false);
+  const [barge, setBarge] = useState(false);
 
   useEffect(() => {
     void window.bimax.voice.voices().then((value) => {
       setView(value);
-      if (value) { setVoice(value.chosen); setRate(value.rate); setUpdates(value.speakUpdates); }
+      if (value) { setVoice(value.chosen); setRate(value.rate); setUpdates(value.speakUpdates); setBarge(value.bargeIn); }
     }).catch(() => setView(null));
   }, []);
 
@@ -59,6 +60,13 @@ export function VoiceSettings(): React.ReactElement {
         <span>
           <span className="block text-[13px] font-medium text-ink">Speak when a task finishes</span>
           <span className="mt-0.5 block text-[11.5px] text-dim">When a task you are not looking at finishes, Bimax says so out loud — its name, how it ended, and the first sentence of its answer.</span>
+        </span>
+      </label>
+      <label className="flex max-w-[520px] items-start gap-2.5">
+        <input type="checkbox" className="mt-0.5" checked={barge} onChange={(e) => { setBarge(e.target.checked); void window.bimax.voice.bargeIn(e.target.checked); }} />
+        <span>
+          <span className="block text-[13px] font-medium text-ink">Interrupt by speaking (experimental)</span>
+          <span className="mt-0.5 block text-[11.5px] text-dim">Talk mode keeps listening while Bimax speaks, so you can just start talking. It uses the Mac’s echo cancellation; with headphones it works best. Takes effect the next time talk mode starts.</span>
         </span>
       </label>
       <button onClick={() => void window.bimax.voice.preview(voice, rate)} className="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-[12.5px] text-ink hover:bg-hover">

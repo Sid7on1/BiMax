@@ -41,6 +41,23 @@ export function spokenChoices(options: readonly string[]): string {
 
 const sentence = (text: string): string => (!text || /[.!?…]$/.test(text) ? text : `${text}.`);
 
+// Accents are dropped (not turned into spaces, which split "déjà" into two words): the recognizer and the speech may
+// spell a word differently, and an echo must still look like the sentence it came from.
+const spokenWords = (text: string): string[] => text.toLowerCase().normalize('NFKD').replace(/\p{M}/gu, '').replace(/[^\p{L}\p{N}\s']/gu, ' ').split(/\s+/).filter(Boolean);
+
+/**
+ * Barge-in (backlog FL10): is what the microphone heard while Bimax spoke the person talking, or Bimax's own voice
+ * leaking back past the echo cancellation? It is the person when there are at least two words and most of them are
+ * not in the sentence being spoken. Echo repeats the sentence; a person says something else ("stop", "no wait").
+ */
+export function isBarge(heard: string, speaking: string): boolean {
+  const words = spokenWords(heard);
+  if (words.length < 2) return false;
+  const said = new Set(spokenWords(speaking));
+  const foreign = words.filter((word) => !said.has(word)).length;
+  return foreign / words.length >= 0.5;
+}
+
 export interface TalkHelper {
   send(command: Record<string, unknown>): void;
   end(): void;
@@ -87,6 +104,8 @@ export class TalkSession {
   private quiet: unknown = null;
   /** Which helper is current. One that has ended may still print (its own shutdown) and is not listened to. */
   private generation = 0;
+  /** The sentence being spoken, so what the microphone overhears can be told from echo (FL10). */
+  private speakingNow = '';
 
   constructor(private readonly deps: TalkDeps) {}
 
@@ -218,7 +237,12 @@ export class TalkSession {
         return;
       }
       case 'speaking':
+        this.speakingNow = String(event.text ?? '');
         this.set({ state: 'speaking' });
+        return;
+      // Barge-in (FL10): heard while speaking. The person talking stops the speech and is listened to; echo is ignored.
+      case 'overheard':
+        if (this.view.state === 'speaking' && isBarge(String(event.text ?? ''), this.speakingNow)) this.interrupt();
         return;
       // Said everything queued so far, but the task is still working: back to thinking.
       case 'quiet':
