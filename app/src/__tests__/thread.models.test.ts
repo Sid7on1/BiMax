@@ -1,4 +1,7 @@
-import { modelMenuItems } from '../main/thread.models';
+import { modelMenuItems, type ModelMenuItem } from '../main/thread.models';
+
+/** The "Use this model for new ⌘2 tasks" entry (FL9 added "fastest measured" after it). */
+const useThisModel = (items: ModelMenuItem[]) => items.find((i) => i.kind === 'default' && i.label === 'Use this model for new ⌘2 tasks');
 
 const models = [
   { id: 'nvidia/nemotron-3.5-lightning-30b-a3b', tier: 'coding', served: true, recommendedFor: ['coding'], capabilities: { thinking: true } },
@@ -13,13 +16,13 @@ test('the model menu lists Bimax first, then the quickest measured models; unser
   expect(items[1]).toEqual({ kind: 'model', label: 'Same as Bimax — nemotron-3.5-lightning-30b-a3b', model: null, checked: true });
   const listed = items.filter((i) => i.kind === 'model' && i.model).map((i) => (i as { label: string }).label);
   expect(listed).toEqual(['llama-3.3-70b-instruct — about 4s a turn', 'nemotron-3.5-lightning-30b-a3b — about 36s a turn · thinks first']);
-  expect(items[items.length - 1]).toMatchObject({ kind: 'default', checked: true });
+  expect(useThisModel(items)).toMatchObject({ kind: 'default', checked: true });
 });
 
 test('a task on its own model shows it checked, and can make it the default for new ⌘2 tasks', () => {
   const items = modelMenuItems({ models, current: 'meta/llama-3.3-70b-instruct', bimaxModel: 'nvidia/nemotron-3.5-lightning-30b-a3b', quickDefault: null, times, mode: 'switch' });
   expect(items.find((i) => i.kind === 'model' && i.model === 'meta/llama-3.3-70b-instruct')).toMatchObject({ checked: true });
-  expect(items[items.length - 1]).toEqual({ kind: 'default', label: 'Use this model for new ⌘2 tasks', model: 'meta/llama-3.3-70b-instruct', checked: false });
+  expect(useThisModel(items)).toEqual({ kind: 'default', label: 'Use this model for new ⌘2 tasks', model: 'meta/llama-3.3-70b-instruct', checked: false });
 });
 
 test('retry offers every other model, never the one that just answered', () => {

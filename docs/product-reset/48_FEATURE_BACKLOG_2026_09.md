@@ -665,6 +665,15 @@ Proof: `src/__tests__/task.view.tool.test.ts` (5) and `app/src/__tests__/task.vi
 
 **FL9. Pick the model by measured speed.** Talk mode and ⌘2 use the fastest model that handles tools well,
 from `modelTimes`, instead of a hard-coded one. Value medium · Effort S–M.
+**Built 2026-09-22.** Each model's record on this Mac now counts failed turns as well as its average time (a failed
+turn counts against the model but not in its time; old counts fade at 20 turns). "Handles tools well" is measured,
+not declared: served by the provider, meant for coding in the catalogue (tier or recommendation), judged on at least
+3 turns, and failing at most 20% of them. **Talk mode** uses the fastest such model once one exists (until then its
+old default, gpt-oss-20b). The ⌘2 model menu offers **New ⌘2 tasks: fastest measured — now <model>, about Ns a turn**;
+with it, every new ⌘2 task (schedules, triggers, links, talk anywhere, night shifts included) starts on the model
+measured fastest, or Bimax's own until something is measured. A named choice is kept as it is. Proof:
+`app/src/__tests__/model.choice.test.ts` (5 tests); 13 mutants each fail a test. Two older menu tests that assumed
+"Use this model" was the last item now find it by name.
 
 **FL10. Interrupt talk mode by speaking (barge-in).** Apple's voice-processing echo cancellation should let
 the microphone stay on while Bimax speaks. Value medium–high for talk · Effort M · Needs measuring on the

@@ -12,7 +12,7 @@ import { QUICK_BAR, quickBarBounds, quickBarOrigin } from './quick.bar';
 import { changeHistory, changesSince, journalFile, lastUndoable, threadStateEnvironment, threadStateRoot, touchedSince, undoBackTo, undoChange, undoLast } from './thread.undo';
 import { insideFolder, needsFolder, PICTURE_EXTENSIONS, screenshotName, validAttachments, withContext } from './quick.context';
 import { nextQuickThread, trayEntries, trayTitle, trayTooltip } from './thread.tray';
-import { modelMenuItems, type CatalogModel, type ModelMenuItem, type ModelTime } from './thread.models';
+import { modelMenuItems, quickModelFor, recordTurn, type CatalogModel, type ModelMenuItem, type ModelTime } from './thread.models';
 import { cleanRules, rulesEnvironment } from './folder.rules';
 import { helperArguments, localeArguments, talkHelper, VoiceSessions, voiceHelperPath, voiceSupported } from './voice';
 import { TALK_TURN_HINT, TalkSession, talkModel, type TalkView } from './talk.session';
@@ -289,15 +289,24 @@ function bimaxModel(): string {
 // How long turns have taken with each model on this Mac: a running average over the last 20 turns, kept in settings.
 const modelTimes = new Map<string, ModelTime>();
 let modelTimesLoaded = false;
-function recordModelTime(id: string, tookMs: number | undefined): void {
-  if (!tookMs || tookMs < 500) return;
+function loadModelTimes(): Record<string, ModelTime> {
   if (!modelTimesLoaded) { for (const [model, time] of Object.entries(loadSettings().modelTimes ?? {})) modelTimes.set(model, time); modelTimesLoaded = true; }
-  const model = threads.get(id).summary.model || bimaxModel();
+  return Object.fromEntries(modelTimes);
+}
+/** A finished turn's time, and whether it failed (FL9: a model that fails often is not "handling tools well"). */
+function recordModelTime(id: string, tookMs: number | undefined): void {
+  const { summary } = threads.get(id);
+  const failed = summary.outcome === 'failed';
+  if (!failed && (!tookMs || tookMs < 500)) return;
+  loadModelTimes();
+  const model = summary.model || bimaxModel();
   if (!model) return;
-  const prior = modelTimes.get(model) ?? { avgMs: tookMs, turns: 0 };
-  const turns = Math.min(prior.turns + 1, 20);
-  modelTimes.set(model, { avgMs: Math.round(prior.avgMs + (tookMs - prior.avgMs) / turns), turns });
+  modelTimes.set(model, recordTurn(modelTimes.get(model), tookMs ?? 0, failed));
   saveSettings({ modelTimes: Object.fromEntries(modelTimes) });
+}
+/** The model a new ⌘2 task starts with (FL9: "fastest measured" resolves to a model here). */
+function quickModel(): string | undefined {
+  return quickModelFor(loadSettings().quickModel, modelCatalog, loadModelTimes());
 }
 // The provider's model list, asked of a running thread engine (catalogGet) and remembered for when none is running.
 let modelCatalog: CatalogModel[] = [];
@@ -317,7 +326,7 @@ function refreshModelCatalog(): Promise<CatalogModel[]> {
 async function showModelMenu(mode: 'switch' | 'retry'): Promise<void> {
   const id = quickThreadId;
   if (!id || !quickWindow || quickWindow.isDestroyed()) return;
-  if (!modelTimesLoaded) { for (const [model, time] of Object.entries(loadSettings().modelTimes ?? {})) modelTimes.set(model, time); modelTimesLoaded = true; }
+  loadModelTimes();
   const models = await refreshModelCatalog();
   const items: ModelMenuItem[] = modelMenuItems({
     models, current: threads.get(id).summary.model ?? null, bimaxModel: bimaxModel(),
@@ -510,7 +519,7 @@ async function startScheduled(schedule: Schedule): Promise<'started' | 'busy' | 
   try {
     const root = await fsp.realpath(schedule.root);
     if (!(await fsp.stat(root)).isDirectory()) throw new Error(`${path.basename(schedule.root)} is not a folder`);
-    const id = threads.create(root, '', 'quick', schedule.model || loadSettings().quickModel || undefined);
+    const id = threads.create(root, '', 'quick', schedule.model || quickModel());
     threads.addNote(id, `${describeSchedule(schedule)} · scheduled task`);
     threads.submit(id, schedule.prompt, schedule.prompt, true);
     if (Notification.isSupported()) {
@@ -601,7 +610,7 @@ function startTriggered(trigger: FolderTrigger, files: string[], followUp: boole
   const running = threads.list().filter((t) => ['working', 'starting', 'needs-you'].includes(t.status));
   if (running.length >= 4 || running.some((t) => insideFolder(t.root, trigger.root) || insideFolder(trigger.root, t.root))) return 'busy';
   try {
-    const id = threads.create(trigger.root, '', 'quick', trigger.model || loadSettings().quickModel || undefined);
+    const id = threads.create(trigger.root, '', 'quick', trigger.model || quickModel());
     threads.addNote(id, `${describeTrigger(trigger)} · folder trigger${followUp ? ' · these files appeared while its last run was working' : ''}`);
     const { text, display } = runMessage(trigger, files);
     threads.submit(id, text, display, true);
@@ -659,7 +668,7 @@ async function checkOutcomeNow(root: string): Promise<string | null> {
   const entries = await fsp.readdir(root, { withFileTypes: true }).catch(() => []);
   const files = filesToCheck(entries.filter((entry) => entry.isFile()).map((entry) => entry.name), root);
   if (!files.length) return 'There are no files directly in this folder to check.';
-  const id = threads.create(root, '', 'quick', loadSettings().quickModel || undefined);
+  const id = threads.create(root, '', 'quick', quickModel());
   const folder = path.basename(root);
   threads.submit(id, `${outcomeTaskWords(outcome.goal)}\n\n[Check the files already in ${folder}:]\n${files.map((file) => `- ${file}`).join('\n')}`,
     `Check ${files.length} file${files.length === 1 ? '' : 's'} in ${folder} against: ${outcome.goal}`, true);
@@ -845,7 +854,7 @@ async function startNightShift(folder: string, goal: string, rawBudget: unknown,
   const branch = nightBranch(new Date());
   const worktree = path.join(app.getPath('userData'), 'night', branch.replace(/\//g, '-'));
   try { await git(repo, worktreeCommand(worktree, branch)); } catch (error) { return { ok: false, error: `Could not make the isolated checkout: ${(error as Error).message}` }; }
-  const id = threads.create(worktree, '', 'quick', loadSettings().quickModel || undefined);
+  const id = threads.create(worktree, '', 'quick', quickModel());
   threads.rename(id, `Night shift: ${goal.replace(/\s+/g, ' ').trim().slice(0, 60)}`);
   const shift: NightShift & { continuations: number; timer?: NodeJS.Timeout } = { threadId: id, repo, worktree, branch, base, goal, budgetUsd: budget, startedAt: Date.now(), until, continuations: 0 };
   nightShifts.set(id, shift);
@@ -1311,7 +1320,7 @@ const pushTalk = new PushToTalk({
   submit: (root, words) => {
     const answer = pushTalkAnswer(loadSettings().pushTalkAnswer);
     try {
-      const id = threads.create(root, '', 'quick', loadSettings().quickModel || undefined);
+      const id = threads.create(root, '', 'quick', quickModel());
       pushTalkThreads.set(id, answer);
       const request = withContext(words, pushTalkContext?.attachments ?? []);
       threads.submit(id, answer === 'voice' ? `${request}\n\n${TALK_TURN_HINT}` : request, words);
@@ -1385,7 +1394,7 @@ async function openTaskLink(raw: string): Promise<void> {
   const { response } = await dialog.showMessageBox(options);
   if (response !== startIndex) return;
   try {
-    const id = threads.create(root, '', 'quick', loadSettings().quickModel || undefined);
+    const id = threads.create(root, '', 'quick', quickModel());
     if (link.prompt) threads.submit(id, link.prompt);
     else threads.start(id);
     showQuickThread(id);
@@ -2126,7 +2135,7 @@ app.whenReady().then(async () => {
       if (root === '/' || root === os.homedir()) return { ok: false, error: 'Choose a specific folder rather than your whole home folder.' };
       const outside = attachments.find((item) => item.path && needsFolder(item) && !insideFolder(root, item.path));
       if (outside) return { ok: false, error: `“${outside.label}” is outside ${path.basename(root)}. Choose its folder instead.` };
-      const id = threads.create(root, '', 'quick', loadSettings().quickModel || undefined);
+      const id = threads.create(root, '', 'quick', quickModel());
       quickThreadId = id;
       threads.submit(id, withContext(prompt, attachments), prompt, false);
       sendQuickThread();
@@ -2292,7 +2301,7 @@ app.whenReady().then(async () => {
       talkRoot = root;
       // Talking starts at once, so the model list is never waited for: the list already known decides (none known yet
       // means the talk model), and a fresh one is fetched for next time. Waiting on a booting engine took up to 8s.
-      talkModelChoice = talkModel(modelCatalog, loadSettings().quickModel);
+      talkModelChoice = talkModel(modelCatalog, loadSettings().quickModel, loadModelTimes());
       void refreshModelCatalog();
       talk.start();
       return { ok: true };

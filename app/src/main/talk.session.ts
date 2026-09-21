@@ -1,6 +1,7 @@
 import { TALK_TURN_HINT, type TalkView } from '../shared/talk';
 import { SpokenReply, speakable } from './speech.text';
 import type { VoiceEvent } from './voice';
+import { fastestCapable, quickModelFor, type ModelLike, type ModelTime } from './thread.models';
 
 export type { TalkState, TalkView } from '../shared/talk';
 export { TALK_TURN_HINT } from '../shared/talk';
@@ -23,9 +24,12 @@ export const QUIET_END_MS = 120_000;
  * this Mac, gpt-oss-20b began answering "hi" after about 2s where Bimax's work model took 8–21s. It is used when the
  * provider serves it, or while the model list is not known yet; otherwise the ⌘2 default, then Bimax's own.
  */
-export function talkModel(catalog: ReadonlyArray<{ id: string; served: boolean }>, quickDefault?: string): string | undefined {
+export function talkModel(catalog: readonly ModelLike[], quickDefault?: string, times: Record<string, ModelTime> = {}): string | undefined {
+  // FL9: once this Mac has measured a model that handles tools well and answers fastest, talk mode uses it.
+  const fastest = fastestCapable(catalog, times);
+  if (fastest) return fastest.id;
   if (!catalog.length || catalog.some((m) => m.id === DEFAULT_TALK_MODEL && m.served)) return DEFAULT_TALK_MODEL;
-  return quickDefault || undefined;
+  return quickModelFor(quickDefault, catalog, times);
 }
 
 /** A question's choices the way a person reads them out: "Q1 or Q2?", "Q1, Q2 or Q3?". */
