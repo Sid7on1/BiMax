@@ -646,7 +646,7 @@ export class LlmAdapter implements LLMProvider {
       const usage = response.usage;
       if (this.budgetVeto && usage) {
         const actualCostUsd = this.estCost(usage.prompt_tokens + usage.completion_tokens);
-        await this.budgetVeto.recordSpend(actualCostUsd, estimatedCostUsd);
+        await this.budgetVeto.recordSpend(actualCostUsd, estimatedCostUsd, this.pickModel(kr));
       }
 
       this.apiKeyManager.reportKeyResult(kr.idx!, 200);
@@ -687,9 +687,9 @@ export class LlmAdapter implements LLMProvider {
       const usage = response.usage;
       if (this.budgetVeto && usage) {
         const actualCostUsd = this.estCost(usage.prompt_tokens + usage.completion_tokens);
-        await this.budgetVeto.recordSpend(actualCostUsd, estimatedCostUsd);
+        await this.budgetVeto.recordSpend(actualCostUsd, estimatedCostUsd, this.pickModel(kr));
       } else if (this.budgetVeto) {
-        await this.budgetVeto.recordSpend(estimatedCostUsd, estimatedCostUsd);
+        await this.budgetVeto.recordSpend(estimatedCostUsd, estimatedCostUsd, this.pickModel(kr));
       }
       return { status: 200, content: stripThink(response.choices?.[0]?.message?.content || ""), retryAfter: null };
     } catch (error: any) {
@@ -724,10 +724,10 @@ export class LlmAdapter implements LLMProvider {
         Logger.info(`[LlmAdapter] Token Usage - Prompt: ${usage.prompt_tokens} | Completion: ${usage.completion_tokens} | Total: ${usage.total_tokens}`);
         if (this.budgetVeto) {
           const actualCostUsd = this.estCost(usage.prompt_tokens + usage.completion_tokens);
-          await this.budgetVeto.recordSpend(actualCostUsd, estimatedCostUsd);
+          await this.budgetVeto.recordSpend(actualCostUsd, estimatedCostUsd, this.pickModel(kr));
         }
       } else if (this.budgetVeto) {
-        await this.budgetVeto.recordSpend(estimatedCostUsd, estimatedCostUsd);
+        await this.budgetVeto.recordSpend(estimatedCostUsd, estimatedCostUsd, this.pickModel(kr));
       }
       return { status: 200, content: stripThink(response.choices?.[0]?.message?.content || ""), retryAfter: null };
     } catch (error: any) {
@@ -770,9 +770,9 @@ export class LlmAdapter implements LLMProvider {
       const usage = response.usage;
       if (this.budgetVeto && usage) {
         const actualCostUsd = this.estCost(usage.prompt_tokens + usage.completion_tokens);
-        await this.budgetVeto.recordSpend(actualCostUsd, estimatedCostUsd);
+        await this.budgetVeto.recordSpend(actualCostUsd, estimatedCostUsd, this.pickModel(kr));
       } else if (this.budgetVeto) {
-        await this.budgetVeto.recordSpend(estimatedCostUsd, estimatedCostUsd);
+        await this.budgetVeto.recordSpend(estimatedCostUsd, estimatedCostUsd, this.pickModel(kr));
       }
       return JSON.parse(extractJson(stripThink(response.choices?.[0]?.message?.content || "")) || "{}");
     } catch (e: any) {
@@ -812,9 +812,9 @@ export class LlmAdapter implements LLMProvider {
       const usage = response.usage;
       if (this.budgetVeto && usage) {
         const actualCostUsd = this.estCost(usage.prompt_tokens + usage.completion_tokens);
-        await this.budgetVeto.recordSpend(actualCostUsd, estimatedCostUsd);
+        await this.budgetVeto.recordSpend(actualCostUsd, estimatedCostUsd, this.pickModel(kr));
       } else if (this.budgetVeto) {
-        await this.budgetVeto.recordSpend(estimatedCostUsd, estimatedCostUsd);
+        await this.budgetVeto.recordSpend(estimatedCostUsd, estimatedCostUsd, this.pickModel(kr));
       }
       return stripThink(response.choices?.[0]?.message?.content || "");
     } catch (e: any) {
@@ -852,7 +852,7 @@ export class LlmAdapter implements LLMProvider {
         const token = chunk.choices[0]?.delta?.content || '';
         if (token) yield token;
       }
-      if (this.budgetVeto) await this.budgetVeto.recordSpend(estimatedCostUsd, estimatedCostUsd);
+      if (this.budgetVeto) await this.budgetVeto.recordSpend(estimatedCostUsd, estimatedCostUsd, this.pickModel(kr));
       this.apiKeyManager.reportKeyResult(kr.idx!, 200);
     } catch (e: any) {
       if (this.budgetVeto) await this.budgetVeto.releaseReservation(estimatedCostUsd);
@@ -1250,7 +1250,7 @@ export class LlmAdapter implements LLMProvider {
           yield { type: 'usage', prompt: promptToks, completion: completionToks };
           if (this.budgetVeto) {
             const actualCostUsd = this.estCost(promptToks + completionToks);
-            await this.budgetVeto.recordSpend(actualCostUsd, estimatedCostUsd);
+            await this.budgetVeto.recordSpend(actualCostUsd, estimatedCostUsd, this.pickModel(kr));
           }
           usageRecorded = true;
         }
@@ -1313,7 +1313,7 @@ export class LlmAdapter implements LLMProvider {
       // Only fall back to the estimate if the stream never reported real usage,
       // otherwise we would double-count the spend already recorded above.
       if (this.budgetVeto && !usageRecorded) {
-        await this.budgetVeto.recordSpend(estimatedCostUsd, estimatedCostUsd); // Rough fallback
+        await this.budgetVeto.recordSpend(estimatedCostUsd, estimatedCostUsd, this.pickModel(kr)); // Rough fallback
       }
       this.apiKeyManager.reportKeyResult(kr.idx!, 200);
       this.providerBreaker.record(Outcome.Success);

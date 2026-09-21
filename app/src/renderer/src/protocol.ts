@@ -50,6 +50,8 @@ export interface EngineConfig {
   maxSubAgents?: number;
   taskCheckRetries?: number;
   taskMaxMinutes?: number;
+  spendDailyCapUsd?: number | null;
+  spendTaskShareUsd?: number | null;
   notificationBell?: boolean;
   verbose?: boolean;
   reducedMotion?: boolean;

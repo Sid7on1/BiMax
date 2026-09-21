@@ -1,6 +1,6 @@
 import { stateDir } from '../utils/state.dir';
 import { Logger } from '../utils';
-import { SafetyPolicy } from './policy.engine';
+import { SafetyPolicy, configuredSpend } from './policy.engine';
 import { GovernorVetoError } from '../core/errors';
 import { engineEvents } from '../engine/events';
 import * as fsSync from 'fs';
@@ -124,7 +124,9 @@ export class BudgetVeto {
   /** The ceilings in force: the machine's daily cap, and this Thread's share of it when set. */
   private caps(): SpendCaps {
     const daily = SafetyPolicy.maxDailySpendUsd;
-    const share = parseFloat(process.env.BIMAX_SPEND_SCOPE_CAP || '');
+    // Each task's share: Settings (N6) first, then the desktop's per-Thread setting. 0 means no share.
+    const configured = configuredSpend('spendTaskShareUsd');
+    const share = configured !== undefined ? configured : parseFloat(process.env.BIMAX_SPEND_SCOPE_CAP || '');
     return { daily, perScope: Number.isFinite(share) && share > 0 ? share : undefined };
   }
 
@@ -135,21 +137,22 @@ export class BudgetVeto {
    * the ledger says, and skipping it would make the machine total under-report — the one direction
    * that turns this from a safety rail into a lie.
    */
-  private bookShared(actualCostUsd: number): void {
+  private bookShared(actualCostUsd: number, model: string | null = null): void {
     if (!this.shared || !(actualCostUsd > 0)) return;
-    try { this.shared.recordSettled(actualCostUsd, this.scope); } catch (e: any) {
+    try { this.shared.recordSettled(actualCostUsd, this.scope, model); } catch (e: any) {
       // A ledger that cannot be written must not fail the turn whose money is already spent. It is
       // logged rather than swallowed, because a silently unrecorded charge is how a cap drifts.
       Logger.error(`[Governor] Shared spend ledger write failed; machine total is now under-reported: ${e?.message || e}`);
     }
   }
 
-  async recordSpend(actualCostUsd: number, estimatedCostUsd: number = 0): Promise<void> {
+  /** `model` is the model the charge was for, so the ledger can show cost by model (N6). */
+  async recordSpend(actualCostUsd: number, estimatedCostUsd: number = 0, model: string | null = null): Promise<void> {
     await this.budgetMutex.runExclusive(async () => {
       this.rolloverIfNewDay();
       this.reservedSpend = Math.max(0, this.reservedSpend - estimatedCostUsd);
       this.currentDailySpend += actualCostUsd;
-      this.bookShared(actualCostUsd);
+      this.bookShared(actualCostUsd, model);
       await this.savePersistentSpendAsync();
       Logger.info(`[Governor] Budget updated: $${this.currentDailySpend.toFixed(2)} / $${SafetyPolicy.maxDailySpendUsd.toFixed(2)}`);
       this.warnIfApproachingCap();

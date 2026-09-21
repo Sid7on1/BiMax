@@ -44,7 +44,17 @@ export interface SpendLedgerFile {
   total: number;
   /** Per-scope totals for `date`; a scope is normally one Bimax Thread. */
   scopes: Record<string, number>;
+  /** Per-model totals for `date` (N6). Absent in ledgers written before it. */
+  models?: Record<string, number>;
+  /** Earlier days, newest first, at most HISTORY_DAYS (N6): a day's totals are kept when it rolls over, not lost. */
+  history?: SpendDay[];
 }
+
+/** One finished day's spend. */
+export interface SpendDay { date: string; total: number; scopes: Record<string, number>; models: Record<string, number> }
+
+/** How many finished days the ledger keeps. */
+export const HISTORY_DAYS = 30;
 
 export interface SpendCaps {
   /** The machine's daily ceiling, in USD. `0` or less means unlimited. */
@@ -127,13 +137,22 @@ export class SpendLedger {
       try {
         const parsed = JSON.parse(fs.readFileSync(this.filePath, 'utf8'));
         if (parsed?.version === 1 && typeof parsed.total === 'number' && typeof parsed.date === 'string') {
-          file = { version: 1, date: parsed.date, total: parsed.total, scopes: parsed.scopes && typeof parsed.scopes === 'object' ? parsed.scopes : {} };
+          const map = (v: unknown): Record<string, number> => (v && typeof v === 'object' ? v as Record<string, number> : {});
+          file = {
+            version: 1, date: parsed.date, total: parsed.total, scopes: map(parsed.scopes), models: map(parsed.models),
+            history: Array.isArray(parsed.history) ? parsed.history.filter((d: any) => d && typeof d.date === 'string' && typeof d.total === 'number')
+              .map((d: any) => ({ date: d.date, total: d.total, scopes: map(d.scopes), models: map(d.models) })) : [],
+          };
         }
       } catch { /* absent or corrupt → start today at zero */ }
 
       // Midnight rollover happens here, inside the lock, so a process that outlives the day resets
-      // exactly once no matter how many engines are running.
-      if (file.date !== date) file = fresh(date);
+      // exactly once no matter how many engines are running. The day that ended goes to the history (N6).
+      if (file.date !== date) {
+        const ended: SpendDay = { date: file.date, total: file.total, scopes: file.scopes, models: file.models ?? {} };
+        const history = file.total > 0 ? [ended, ...(file.history ?? [])] : (file.history ?? []);
+        file = { ...fresh(date), history: history.slice(0, HISTORY_DAYS) };
+      }
 
       const result = fn(file, now);
       const tmp = `${this.filePath}.tmp-${process.pid}-${crypto.randomBytes(4).toString('hex')}`;
@@ -214,13 +233,23 @@ export class SpendLedger {
    * it because it crossed the cap would make the ledger under-report — the one direction that turns
    * a safety rail into a lie. Ceilings refuse the NEXT call; they never un-spend the last one.
    */
-  recordSettled(amountUsd: number, scope: string | null = null): SpendState {
+  recordSettled(amountUsd: number, scope: string | null = null, model: string | null = null): SpendState {
     return this.withLock((file) => {
       const amount = Number.isFinite(amountUsd) && amountUsd > 0 ? amountUsd : 0;
       file.total += amount;
       if (scope) file.scopes[scope] = (file.scopes[scope] ?? 0) + amount;
+      if (model && amount > 0) { file.models ??= {}; file.models[model] = (file.models[model] ?? 0) + amount; }
       return { date: file.date, total: file.total, scope, scopeTotal: scope ? file.scopes[scope] : 0 };
     });
+  }
+
+  /** Today by model, largest first, and the finished days, newest first (N6). */
+  summary(): { models: Array<{ model: string; spent: number }>; days: SpendDay[] } {
+    const file = this.withLock((f) => f);
+    return {
+      models: Object.entries(file.models ?? {}).map(([model, spent]) => ({ model, spent })).sort((a, b) => b.spent - a.spent),
+      days: file.history ?? [],
+    };
   }
 
   /** Every scope that spent today, largest first — the data behind a per-task cost view (N6). */

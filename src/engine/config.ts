@@ -81,6 +81,10 @@ export interface EngineConfig {
   // run may take in minutes (0: no limit). BIMAX_TASK_MAX_RETRIES / BIMAX_TASK_MAX_MINUTES override them per engine.
   taskCheckRetries: number;
   taskMaxMinutes: number;
+  // Spending (N6), set in Settings. Unset means the older sources decide: MAX_DAILY_SPEND (default $5) and the
+  // desktop's per-Thread share. When set, they win over those, because Settings is the one the user can see.
+  spendDailyCapUsd?: number;
+  spendTaskShareUsd?: number;
   // Resume recent, bounded outcome assignments after an engine crash. Bypass-mode and ambiguous
   // snapshots always require manual recovery regardless of this preference.
   autoResumeAgents: boolean;

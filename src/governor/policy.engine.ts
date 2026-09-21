@@ -22,6 +22,9 @@ export const SafetyPolicy = {
    */
   get maxDailySpendUsd(): number {
     if (maxDailySpendOverrideUsd !== undefined) return maxDailySpendOverrideUsd;
+    // Settings (N6) before the environment: it is the value the user can see and change.
+    const configured = configuredSpend('spendDailyCapUsd');
+    if (configured !== undefined) return configured;
     const parsed = parseFloat(process.env.MAX_DAILY_SPEND || '');
     return Number.isFinite(parsed) && parsed >= 0 ? parsed : 5.00;
   },
@@ -39,6 +42,14 @@ export const SafetyPolicy = {
 };
 
 const POLICY_FILE = path.join(stateDir('.breakglass'), 'policy.json');
+
+/** A spending limit set in Settings (N6), or undefined when none is. Lazy: config imports much of the engine. */
+export function configuredSpend(key: 'spendDailyCapUsd' | 'spendTaskShareUsd'): number | undefined {
+  try {
+    const value = (require('../engine/config') as typeof import('../engine/config')).getConfig()[key];
+    return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : undefined;
+  } catch { return undefined; }
+}
 
 let policyWatcher: fs.FSWatcher | null = null;
 

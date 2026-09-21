@@ -12,7 +12,7 @@ import type { Phase9View } from '../usePhase9';
 type Control =
   | { kind: 'toggle' }
   | { kind: 'select'; options: { value: string; label: string }[] }
-  | { kind: 'number'; min?: number; max?: number; step?: number; placeholder?: string }
+  | { kind: 'number'; min?: number; max?: number; step?: number; placeholder?: string; emptyUnset?: boolean }
   | { kind: 'text'; placeholder?: string };
 
 interface Item { key: keyof EngineConfig; label: string; desc: string; control: Control }
@@ -53,6 +53,8 @@ const PAGES: Page[] = [
       { key: 'maxToolIterations', label: 'Max tool iterations', desc: 'Per-turn budget for autonomous tool loops.', control: { kind: 'number', min: 1, max: 500, step: 5 } },
       { key: 'maxSubAgents', label: 'Parallel specialists', desc: 'Maximum number of specialists Bimax may coordinate at once.', control: { kind: 'number', min: 1, max: 20, step: 1 } },
       { key: 'taskCheckRetries', label: 'Retries after a failed check', desc: 'How many more tries a task gets when its completion check fails, before it stops as not done.', control: { kind: 'number', min: 0, max: 10, step: 1 } },
+      { key: 'spendDailyCapUsd', label: 'Daily spending cap', desc: 'The most Bimax may spend on model calls in a day, across every task on this Mac, in US dollars. Zero means no cap. Empty keeps the default of $5.', control: { kind: 'number', min: 0, step: 1, placeholder: '5 · default', emptyUnset: true } },
+      { key: 'spendTaskShareUsd', label: 'Each task’s share', desc: 'The most one task may spend in a day, so one unattended task cannot use the whole cap. Zero means no share.', control: { kind: 'number', min: 0, step: 0.5, placeholder: '0 · no share', emptyUnset: true } },
       { key: 'taskMaxMinutes', label: 'Time limit per run', desc: 'Minutes one run of a task may take before Bimax stops it. Zero means no limit.', control: { kind: 'number', min: 0, max: 1440, step: 5, placeholder: '0 · no limit' } },
       { key: 'selfCritic', label: 'Self-critic pass', desc: 'Review each result before it reaches you.', control: { kind: 'toggle' } },
       { key: 'adversarialVerify', label: 'Adversarial verify', desc: 'Run an additional full-model challenge pass.', control: { kind: 'toggle' } },
@@ -224,9 +226,17 @@ function SettingRow({ item, cfg, onApply, index, disabled }: { item: Item; cfg: 
   return <div className="anim-fade-up flex items-start justify-between gap-6 border-b border-line/60 py-4 last:border-b-0" style={{ animationDelay: `${Math.min(index, 10) * 24}ms` }}><div className="min-w-0"><div className="text-[13px] text-ink">{item.label}</div><div className="mt-0.5 text-[11.5px] leading-relaxed text-dim">{item.desc}</div></div><div className={cn('shrink-0 pt-0.5', disabled && 'pointer-events-none opacity-40')}>
     {item.control.kind === 'toggle' ? <Toggle checked={Boolean(value)} onChange={(next) => onApply(item.key, next)} label={item.label} /> : null}
     {item.control.kind === 'select' ? <div className="relative"><select value={String(value ?? item.control.options[0].value)} onChange={(event) => onApply(item.key, event.target.value)} aria-label={item.label} className="settings-select">{item.control.options.map((option) => <option key={option.value} value={option.value} className="bg-raise">{option.label}</option>)}</select><ChevronDown size={12} className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-faint" /></div> : null}
-    {item.control.kind === 'number' ? <input type="number" value={value === undefined ? '' : Number(value)} min={item.control.min} max={item.control.max} step={item.control.step} placeholder={item.control.placeholder} aria-label={item.label} onChange={(event) => onApply(item.key, event.target.value === '' ? 0 : Number(event.target.value), 600)} className="settings-input w-32 text-right" /> : null}
+    {item.control.kind === 'number' ? <input type="number" value={value === undefined || value === null ? '' : Number(value)} min={item.control.min} max={item.control.max} step={item.control.step} placeholder={item.control.placeholder} aria-label={item.label} onChange={(event) => onApply(item.key, numberSetting(event.target.value, item.control.kind === 'number' && item.control.emptyUnset === true), 600)} className="settings-input w-32 text-right" /> : null}
     {item.control.kind === 'text' ? <input type="text" value={String(value ?? '')} placeholder={item.control.placeholder} aria-label={item.label} onChange={(event) => onApply(item.key, event.target.value, 700)} className="settings-input w-64" /> : null}
   </div></div>;
+}
+
+/**
+ * What a number field saves. An empty field is 0, except where 0 means something else — a spending cap of 0 is "no
+ * cap" (N6) — and there an empty field is null, so the default applies instead of the limit silently disappearing.
+ */
+export function numberSetting(text: string, emptyUnset: boolean): number | null {
+  return text === '' ? (emptyUnset ? null : 0) : Number(text);
 }
 
 function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (value: boolean) => void; label: string }): React.ReactElement {

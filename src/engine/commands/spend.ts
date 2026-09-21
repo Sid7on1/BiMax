@@ -1,6 +1,6 @@
 import { globalCommandRegistry } from './registry';
 import { SafetyPolicy } from '../../governor/policy.engine';
-import { SpendLedger, resolveSpendContext } from '../../governor/spend.ledger';
+import { HISTORY_DAYS, SpendLedger, resolveSpendContext } from '../../governor/spend.ledger';
 
 /**
  * /spend — what today has cost, across every Bimax Thread on this Mac.
@@ -40,10 +40,12 @@ globalCommandRegistry.register({
 
     let state;
     let breakdown: Array<{ scope: string; spent: number }>;
+    let summary: ReturnType<SpendLedger['summary']>;
     try {
       const ledger = new SpendLedger(ledgerPath);
       state = ledger.read(scope);
       breakdown = ledger.breakdown();
+      summary = ledger.summary();
     } catch (e: any) {
       return {
         type: 'message', level: 'error',
@@ -82,8 +84,23 @@ globalCommandRegistry.register({
       lines.push('_Nothing spent yet today._', '');
     }
 
+    // N6: by model today, and the days before — the ledger used to forget each day at midnight.
+    if (summary.models.length) {
+      lines.push('**By model**', '');
+      for (const row of summary.models) lines.push(`- \`${row.model}\` — ${money(row.spent)}`);
+      lines.push('');
+    }
+    if (summary.days.length) {
+      lines.push('**Earlier days**', '');
+      for (const day of summary.days.slice(0, 7)) {
+        const top = Object.entries(day.models).sort((a, b) => b[1] - a[1])[0];
+        lines.push(`- ${day.date} — ${money(day.total)}${top ? ` (most on \`${top[0]}\`)` : ''}`);
+      }
+      lines.push('');
+    }
+
     lines.push(
-      `_Resets at UTC midnight. Ledger: \`${ledgerPath}\`. A per-task share is set in Bimax’s settings (\`perTaskSpendUsd\`)._`,
+      `_Today resets at UTC midnight; earlier days are kept for ${HISTORY_DAYS} days. Ledger: \`${ledgerPath}\`. Set the daily cap and each task’s share in Settings → Agent behavior._`,
     );
 
     return { type: 'message', level: 'info', content: lines.join('\n') };

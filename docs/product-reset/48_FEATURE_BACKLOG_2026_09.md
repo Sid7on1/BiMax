@@ -364,6 +364,13 @@ gallery and the bar. Value medium · Effort S.
 stays code-only. Value medium · Effort S · Needs a vision-capable model in the vision slot.
 
 **N6. Cost per task, model and day, plus a limit in Settings.** Value medium · Effort S–M · Feeds F5.
+**Done 2026-09-21.** The shared spend ledger now keeps cost **by model** (every provider call passes the model it
+was for) and **30 finished days** of history (a day's totals, per task and per model, move to the history at the
+UTC rollover instead of being dropped; days that spent nothing are skipped). `/spend` shows today by task and by
+model, and the last seven days. **Settings → Agent behavior** has "Daily spending cap" and "Each task's share"; a
+value set there wins over `MAX_DAILY_SPEND` and the desktop's per-Thread share, and a cleared field is unset — never
+0, which would silently mean "no cap". Proof: `src/__tests__/spend.history.test.ts`; 7 mutants each fail a test (one
+first survived because the test's empty day fell outside the 30-day window).
 
 **N7. Voice settings.** Choose the voice and speaking speed, and show when a Premium voice is installed.
 Value medium · Effort S.
