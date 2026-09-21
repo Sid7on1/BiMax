@@ -98,7 +98,33 @@ Only Stop and interrupt drop the queue. Tests in `app/src/__tests__/thread.queue
 **F2. Durable task state.** Goal, milestones, progress, blockers and next step survive an app restart and a full
 context window. *First version:* a per-thread state file the engine reads on resume.
 Value high · Effort M · Needs F1. *Why:* Night Shift, Guardian and living deliverables all depend on it. Design it
-together with C2's continuation state; they are the same record.
+together with C2's continuation state; they are the same record. **First version done 2026-09-21.**
+
+The defect was in `/resume`, the one path every saved task comes back through (the sidebar, the boot revival after an
+engine crash, a restart for a model or credential change). It kept the newest 40 messages and nothing else, so a long
+task lost its request, the constraints stated early, the commands already run and the checklist — while the same task
+running without a restart kept all of them through compaction. Measured live on one saved 63-message task, same model:
+before, asked for its first request, the engine answered *"Continue with step 10."* with no checklist; after, it
+quoted the request word for word and listed the checklist with each status.
+
+- **Nothing new is saved.** The transcript already records every message and tool call, so the state is rebuilt from
+  it on each resume (`src/engine/session.resume.ts`) and cannot disagree with it. The messages before the live window
+  go through the continuation state compaction uses; the block leads the restored history and the context manager
+  adopts it, as after a model switch. The checklist is the last successful TodoWriteTool call, retired when every item
+  was complete. The live window is unchanged, and a sub-agent's calls stay out of both.
+- **Goal** = the user's first message, always kept, quoted exactly. **Milestones, progress, next step** = the
+  checklist (the `in_progress` item is the next step). **Blockers** = the outcome contract's, which was already saved
+  per session and reloaded on `session_changed`. A task that never wrote a checklist or a contract has no milestones
+  to restore.
+- **Found on the way:** a context manager taking over an archived list counted all but one of its messages as
+  "no longer kept" while its handle was still in the list — every long resume would have told the model that. Fixed in
+  `continuation.ts`, and a list that had truly dropped messages still says so, with the right count.
+- **Also fixed:** resuming a task with no checklist kept the previous task's list in the prompt.
+- Proof: `src/__tests__/session.resume.task.test.ts`, 9 tests; ten mutants each fail at least one. Context
+  benchmark 42/42, `test:context` 62/62.
+- **Limit, unchanged from step 6:** the continuation keeps the user's newest ten messages quoted, so a constraint
+  followed by ten short "continue" messages moves into the archived list (read with ContextArchiveTool) rather than
+  staying in view. That is where an uninterrupted task has it too; ranking constraints above chatter is separate work.
 
 **F3. Completion checks.** "Done" means a stated check passed (tests, file present, output validated),
 recorded as evidence. Value high · Effort M · Needs F2.

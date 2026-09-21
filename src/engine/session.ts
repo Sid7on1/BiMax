@@ -15,20 +15,31 @@ import { Message } from '../core/llm.provider';
  * which every provider accepts. System/divider entries are dropped (re-derived per turn).
  */
 export function messageEntriesToLLM(entries: MessageEntry[]): Message[] {
-  const out: Message[] = [];
+  return foldEntries(entries).map((folded) => folded.message);
+}
+
+/**
+ * messageEntriesToLLM, with the index of the first entry each message was made from. A resume keeps only the newest
+ * messages live, and needs to know which saved entries the rest came from (session.resume.ts).
+ */
+export function foldEntries(entries: MessageEntry[]): Array<{ message: Message; from: number }> {
+  const out: Array<{ message: Message; from: number }> = [];
   // The session recorder persists finished tool calls as standalone `role:'tool'` lines between the
   // user message and the assistant answer. Fold pending tool lines into the NEXT assistant turn
   // (chronologically: the agent used the tools, then answered), so resumed context keeps what the
   // agent actually did without sending the provider a role it doesn't accept.
   let toolNotes: string[] = [];
-  const drainNotes = (): string => { const s = toolNotes.join('\n'); toolNotes = []; return s; };
-  for (const e of entries as any[]) {
+  let notesFrom = -1;
+  const drainNotes = (): string => { const s = toolNotes.join('\n'); toolNotes = []; notesFrom = -1; return s; };
+  (entries as any[]).forEach((e, index) => {
     if (e?.role === 'tool') {
+      if (!toolNotes.length) notesFrom = index;
       toolNotes.push(`[used ${e.toolName ?? 'tool'}(${String(e.input ?? '').slice(0, 200)}) → ${String(e.output ?? '').slice(0, 800)}]`);
-      continue;
+      return;
     }
-    if (e?.role !== 'user' && e?.role !== 'assistant') continue; // drop system/UI dividers
+    if (e?.role !== 'user' && e?.role !== 'assistant') return; // drop system/UI dividers
     let text = typeof e.content === 'string' ? e.content : '';
+    let from = index;
     if (e.role === 'assistant' && e.toolCalls && e.toolCalls.length > 0) {
       const note = e.toolCalls
         .map((tc: any) => `[used ${tc.toolName}(${(tc.input || '').slice(0, 200)}) → ${(tc.output || '').slice(0, 800)}]`)
@@ -36,17 +47,22 @@ export function messageEntriesToLLM(entries: MessageEntry[]): Message[] {
       text = text ? `${text}\n\n${note}` : note;
     }
     if (e.role === 'assistant' && toolNotes.length > 0) {
+      from = notesFrom;
       const notes = drainNotes();
       text = text ? `${notes}\n\n${text}` : notes;
     } else if (e.role === 'user' && toolNotes.length > 0) {
       // Tools ran but no assistant answer was persisted (interrupted turn) — close the exchange
       // with an assistant-side note so user turns never collapse into each other.
-      out.push({ role: 'assistant', content: drainNotes() });
+      const notesStart = notesFrom;
+      out.push({ message: { role: 'assistant', content: drainNotes() }, from: notesStart });
     }
-    if (!text.trim()) continue; // skip empty turns the model can't use
-    out.push({ role: e.role, content: text });
+    if (!text.trim()) return; // skip empty turns the model can't use
+    out.push({ message: { role: e.role, content: text }, from });
+  });
+  if (toolNotes.length > 0) {
+    const notesStart = notesFrom;
+    out.push({ message: { role: 'assistant', content: drainNotes() }, from: notesStart });
   }
-  if (toolNotes.length > 0) out.push({ role: 'assistant', content: drainNotes() });
   return out;
 }
 

@@ -5,6 +5,9 @@ import { SessionStore, messageEntriesToLLM } from '../session';
 import { getSessionRecorder } from '../session.recorder';
 import { listSessionMeta } from '../../db/session.meta';
 import { engineEvents } from '../events';
+import { resumeTaskState } from '../session.resume';
+import { archiveOutput } from '../../context/output.archive';
+import { restoreActiveTodos } from '../../tools/implementations/todo.tool';
 
 /** "2026-06-17_02-30-15.jsonl" → "2026-06-17 02:30:15" for display. */
 function prettySessionName(file: string): string {
@@ -29,7 +32,8 @@ async function previewSession(file: string, context: any): Promise<void> {
  * True resume: restore a saved thread end-to-end.
  *  - LLM context: entries are converted through messageEntriesToLLM (tool lines folded into
  *    readable notes, UI shapes stripped) and the last 40 turns become the live history — raw
- *    MessageEntry injection sent providers malformed payloads.
+ *    MessageEntry injection sent providers malformed payloads. What came before them is carried by
+ *    a continuation block, and the checklist is restored (backlog F2, session.resume.ts).
  *  - Front-end transcript: a `session_restore` event carries the raw entries so graphical
  *    front-ends rebuild their scrollback instead of showing an invisible-context one-liner.
  *  - Thread continuation: the recorder switches to the resumed session's file, so new turns
@@ -48,15 +52,23 @@ async function resumeSession(file: string, context: any, store: SessionStore): P
     context.addSystemMessage('error', 'Session restore is not available in this context. Use /resume from the main terminal.');
     return;
   }
-  const llm = messageEntriesToLLM(entries).slice(-40);
-  if (context.restoreMessages(llm) === false) { failed('the task was busy'); return; } // busy — the session already surfaced why
+  // The newest 40 messages stay live; the task's request, constraints, commands and checklist from before them come
+  // back through the continuation state and the todo list (backlog F2, session.resume.ts).
+  const task = resumeTaskState(entries, (text) => archiveOutput(text)?.handle ?? null);
+  if (context.restoreMessages(task.messages) === false) { failed('the task was busy'); return; } // busy — the session already surfaced why
+  restoreActiveTodos(task.todos);
   const id = file.replace(/\.jsonl$/, '');
   const firstUser = entries.find((m: any) => m.role === 'user' && typeof m.content === 'string') as any;
   const chatCount = entries.filter((m: any) => m.role === 'user' || m.role === 'assistant').length;
   try { getSessionRecorder()?.switchTo(id, chatCount, firstUser?.content); } catch { /* recorder optional */ }
   // Replay the transcript for graphical front-ends (capped: a day-long thread stays renderable).
   engineEvents.emit('session_restore', { id, entries: entries.slice(-400) });
-  context.addSystemMessage('success', `Resumed "${prettySessionName(file)}" · ${llm.length} turn(s) restored — continuing this thread.`);
+  const restored = task.messages.length - (task.carried ? 1 : 0);
+  const kept = [
+    task.carried ? `${task.carried} earlier kept as the task's state` : '',
+    task.todos.length ? `checklist ${task.todos.filter((t) => t.status === 'completed').length}/${task.todos.length} done` : '',
+  ].filter(Boolean).join(' · ');
+  context.addSystemMessage('success', `Resumed "${prettySessionName(file)}" · ${restored} turn(s) restored${kept ? ` · ${kept}` : ''} — continuing this thread.`);
 
   // Inject GoalManager continuation prompt so the model picks up the active goal
   try {

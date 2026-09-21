@@ -31,6 +31,26 @@ export function beginTodoTurn(): void { touchedThisTurn = false; }
 export function clearActiveTodos(): void { lastTodos = []; touchedThisTurn = false; }
 
 /**
+ * Put back the list a resumed task last wrote (backlog F2), or clear the list when it had none, so a resumed task
+ * never inherits the previous one's. Restoring is not working the list, so this turn's auto-continue is unaffected.
+ */
+export function restoreActiveTodos(todos: TodoItem[]): void {
+  lastTodos = todos.map((todo) => ({ content: todo.content, status: todo.status }));
+  touchedThisTurn = false;
+  try { engineEvents.emit('todo_update', lastTodos); } catch { /* best-effort */ }
+}
+
+/** The items of a TodoWriteTool call's arguments that the tool would accept, in order. */
+export function parseTodoArgs(args: unknown): TodoItem[] {
+  const list = (args as { todos?: unknown } | null)?.todos;
+  return (Array.isArray(list) ? list : []).filter(
+    (t): t is TodoItem =>
+      !!t && typeof t.content === 'string' && t.content.trim().length > 0 &&
+      (t.status === 'pending' || t.status === 'in_progress' || t.status === 'completed'),
+  );
+}
+
+/**
  * Turn-end cleanup: once every item is completed the task is DONE, so retire the list — otherwise a
  * finished checklist lingers forever (re-injected into the prompt and pinned in the TUI) until the
  * next /clear. Clears the UI panel too. No-op while any item is still open (that must survive to the
@@ -97,12 +117,7 @@ export const createTodoWriteTool = (governor: IGovernor) => buildTool({
     required: ['todos'],
   },
   execute: async (args: { todos: TodoItem[] }) => {
-    const todos = (args.todos || []).filter(
-      (t): t is TodoItem =>
-        !!t && typeof t.content === 'string' && t.content.trim().length > 0 &&
-        (t.status === 'pending' || t.status === 'in_progress' || t.status === 'completed'),
-    );
-
+    const todos = parseTodoArgs(args);
 
     lastTodos = todos;      // durable: re-injected into the prompt every turn (task memory)
     touchedThisTurn = true; // this turn is actively working a checklist → persistence may auto-continue
