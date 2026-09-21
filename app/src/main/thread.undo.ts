@@ -140,9 +140,17 @@ export async function undoLast(stateRoot: string, threadRoot: string, bin: BinOp
     if (op.op === 'restore' && (typeof op.backup !== 'string' || !inside(backups, op.backup))) throw new Error('Undo refused: the saved copy is not in this thread’s undo folder.');
     if (op.op === 'trash' && op.trashPath && !bins.some((bin) => inside(bin, op.trashPath!))) throw new Error('Undo refused: that item is not in the Bin.');
   }
+  // Checked step by step, as the undo will run: a reversed move frees its place for the next one, so a chain or a swap
+  // (an organize plan, FL2) can be undone, while a place someone else filled since still refuses.
+  const after = new Map<string, boolean>();
+  const present = async (p: string): Promise<boolean> => after.get(p) ?? await exists(p);
   for (const op of ops) {
-    if (op.op === 'move' && await exists(op.to) && await exists(op.from)) {
-      throw new Error(`Can’t undo “${change.title}”: something named “${path.basename(op.from)}” is already in ${path.dirname(op.from)}.`);
+    if (op.op === 'move') {
+      const moved = await present(op.to);
+      if (moved && await present(op.from)) {
+        throw new Error(`Can’t undo “${change.title}”: something named “${path.basename(op.from)}” is already in ${path.dirname(op.from)}.`);
+      }
+      if (moved) { after.set(op.to, false); after.set(op.from, true); }
     }
     if (op.op === 'trash' && await exists(op.path)) {
       throw new Error(`Can’t undo “${change.title}”: “${path.basename(op.path)}” already exists again.`);

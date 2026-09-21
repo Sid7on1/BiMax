@@ -29,6 +29,7 @@ import { PUSH_TALK_CHOICES, PushToTalk, pushTalkAnswer, pushTalkChoice, spokenSu
 import { shouldSpeakUpdate, spokenUpdate } from './spoken.updates';
 import { alreadyARule, correctionRule, sampleApplications, withRule } from './teach';
 import { applyReport, cleanGoal, filesToCheck, forgetGone, outcomeEnvironment, outcomeQueue, outcomeTaskWords, queueLine, validOutcomes, type FolderOutcome } from './folder.outcomes';
+import { applyPlan, cleanFolder, keepFile, moveFile, moveGroup, planConflicts, previewTree, receivePlan, type OrganizePlan } from './organize.plan';
 import type { TranscriptItem } from '../renderer/src/engine.state';
 import { randomUUID } from 'node:crypto';
 import { macBin } from './bin';
@@ -173,18 +174,18 @@ function liquidGlass(): LiquidGlass | null {
  * The ⌘2 bar and the approval popup: frameless floating glass panels, dragged by their header and footer
  * (styles.css `.quick-drag`), and limited to their own IPC channels.
  */
-function auxiliaryWindow(kind: 'quick' | 'approval'): BrowserWindow {
+function auxiliaryWindow(kind: 'quick' | 'approval' | 'organize'): BrowserWindow {
   const mac = process.platform === 'darwin';
   const glass = liquidGlass();
   const window = new BrowserWindow({
-    width: kind === 'quick' ? QUICK_BAR.width : 520,
-    height: kind === 'quick' ? QUICK_BAR.collapsedHeight : 380,
+    width: kind === 'quick' ? QUICK_BAR.width : kind === 'organize' ? 760 : 520,
+    height: kind === 'quick' ? QUICK_BAR.collapsedHeight : kind === 'organize' ? 620 : 380,
     show: false, frame: false, transparent: true, backgroundColor: '#00000000', hasShadow: true,
     resizable: false, minimizable: false, maximizable: false, fullscreenable: false, skipTaskbar: true,
     alwaysOnTop: true, roundedCorners: true,
     ...(mac ? { type: 'panel' as const } : {}),
     ...(mac && !glass ? { vibrancy: 'hud' as const, visualEffectState: 'active' as const } : {}),
-    title: kind === 'quick' ? 'Bimax Threads' : 'Bimax needs your decision',
+    title: kind === 'quick' ? 'Bimax Threads' : kind === 'organize' ? 'Organize preview' : 'Bimax needs your decision',
     webPreferences: { preload: path.join(__dirname, '../preload/index.js'), ...REQUIRED_WEB_PREFERENCES },
   });
   let glassMode: 'native' | 'vibrancy' = 'vibrancy';
@@ -700,6 +701,65 @@ async function pickOutcomeFolder(): Promise<void> {
   if (result.canceled || !result.filePaths[0]) return;
   await openOutcomeEditor(await fsp.realpath(result.filePaths[0]));
 }
+// ── A preview you can rearrange (backlog FL2, organize.plan.ts) ──────────────────────────────────
+let organizeWindow: BrowserWindow | null = null;
+let organizing: OrganizePlan | null = null;
+/** What the preview window shows: the tree, what blocks applying, and how many moves the person changed. */
+function organizeView(): unknown {
+  if (!organizing) return null;
+  return {
+    id: organizing.id, title: organizing.title, root: organizing.root, total: organizing.moves.length,
+    byYou: organizing.moves.filter((m) => m.byYou).length,
+    tree: previewTree(organizing), conflicts: planConflicts(organizing, (file) => existsSync(file)),
+  };
+}
+function showOrganize(): void {
+  if (!organizeWindow || organizeWindow.isDestroyed()) organizeWindow = auxiliaryWindow('organize');
+  organizeWindow.setResizable(true);
+  organizeWindow.webContents.send('organize:plan', organizeView());
+  organizeWindow.show(); organizeWindow.focus();
+}
+/** A task proposed a plan: it replaces any plan still waiting (that task is told), and the preview opens. */
+function receiveOrganizePlan(threadId: string, raw: unknown): void {
+  const root = threads.get(threadId).summary.root;
+  const plan = receivePlan(raw, threadId, root);
+  if (!plan) return;
+  if (organizing && organizing.threadId !== threadId) threads.addNote(organizing.threadId, 'Its organize plan was replaced by a newer one from another task, and nothing was moved.');
+  organizing = plan;
+  threads.addNote(threadId, `A plan to move ${plan.moves.length} files is waiting in the Organize preview. Nothing moves until you apply it.`);
+  showOrganize();
+}
+async function applyOrganizePlan(): Promise<{ ok: boolean; error?: string }> {
+  const plan = organizing;
+  if (!plan) return { ok: false, error: 'There is no plan to apply.' };
+  const summary = threads.get(plan.threadId).summary;
+  // Protected items (folder rules) never move, whoever planned it.
+  const protect = loadSettings().folderRules?.[plan.root]?.protect ?? [];
+  const guarded = plan.moves.find((m) => protect.some((p) => insideFolder(p, m.from) || insideFolder(p, m.to)));
+  if (guarded) return { ok: false, error: `${path.relative(plan.root, guarded.from)} is protected by this folder's rules.` };
+  const stateRoot = threadStateRoot(app.getPath('userData'), summary.root, summary.origin);
+  try {
+    const result = await applyPlan(plan, {
+      exists: (file) => existsSync(file),
+      mkdirp: async (dir) => { await fsp.mkdir(dir, { recursive: true }); },
+      rename: (from, to) => fsp.rename(from, to),
+      journal: async (line) => {
+        await fsp.mkdir(path.dirname(journalFile(stateRoot)), { recursive: true });
+        await fsp.appendFile(journalFile(stateRoot), `${JSON.stringify(line)}\n`, 'utf8');
+      },
+    }, Date.now());
+    organizing = null;
+    organizeWindow?.hide();
+    const yours = plan.moves.filter((m) => m.byYou).length;
+    threads.addNote(plan.threadId, result.failed.length
+      ? `Moved ${result.moved} of ${plan.moves.length} files, then stopped: ${path.basename(result.failed[0]!.from)} — ${result.failed[0]!.error}. ↶ Undo reverses the ones that moved.`
+      : `Applied “${plan.title}”: moved ${result.moved} files${yours ? `, ${yours} where you put them` : ''}. ↶ Undo reverses the whole plan in one step.`);
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: (error as Error).message };
+  }
+}
+
 /** The menu bar's "Folder triggers": each with why it is paused, Pause/Resume and Stop watching. */
 function triggerMenu(): Electron.MenuItemConstructorOptions[] {
   const list = loadTriggers();
@@ -1262,7 +1322,7 @@ function windowChrome(): WindowChromeState {
 function trustedRenderer(): TrustedRenderer {
   return {
     webContentsId: win && !win.isDestroyed() ? win.webContents.id : null,
-    auxiliaryWebContentsIds: [quickWindow, approvalWindow].filter(w => w && !w.isDestroyed()).map(w => w!.webContents.id),
+    auxiliaryWebContentsIds: [quickWindow, approvalWindow, organizeWindow].filter(w => w && !w.isDestroyed()).map(w => w!.webContents.id),
     devServerUrl: process.env.ELECTRON_RENDERER_URL,
   };
 }
@@ -1286,7 +1346,9 @@ function auxiliaryChannelAllowed(event: IpcMainEvent | IpcMainInvokeEvent, chann
       'threads:undo-info', 'threads:undo', 'threads:open-path', 'threads:quick-switch', 'threads:model-menu',
       'threads:more-menu', 'threads:rules-get', 'threads:rules-set', 'threads:rules-pick', 'threads:screenshot', 'threads:paste-picture', 'threads:teach', 'threads:outcome-get', 'threads:outcome-set', 'threads:outcome-clear',
       'voice:available', 'voice:start', 'voice:stop', 'voice:cancel', 'talk:start', 'talk:end', 'talk:interrupt', 'talk:current']
-    : ['threads:approvals', 'threads:reply', 'threads:hide', 'threads:stop'];
+    : event.sender.id === organizeWindow?.webContents.id
+      ? ['organize:current', 'organize:move', 'organize:move-group', 'organize:keep', 'organize:apply', 'organize:cancel']
+      : ['threads:approvals', 'threads:reply', 'threads:hide', 'threads:stop'];
   return allowed.includes(channel);
 }
 
@@ -1689,6 +1751,7 @@ app.whenReady().then(async () => {
     saveNow: value => threadStorage.saveNow(value),
     // A talk change restarted this thread's engine: re-attach the main window when it is the one on screen.
     restarted: (id) => { if (id === threads.activeId) selectThread(id); },
+    organizePlan: (id, plan) => receiveOrganizePlan(id, plan),
     // FL1 part 2: a run's FolderStatusTool report becomes its folder's queue.
     folderStatus: (id, items) => {
       const root = threads.get(id).summary.root;
@@ -2074,6 +2137,35 @@ app.whenReady().then(async () => {
     const rules = cleanRules(root, raw);
     saveFolderRules(root, rules, rules.text || rules.protect.length ? `Rules for ${path.basename(root)} saved.` : `Rules for ${path.basename(root)} cleared.`);
     return { ok: true };
+  });
+  // FL2: the Organize preview. Every change comes back as the whole view, so the window never holds its own copy.
+  secureHandle('organize:current', null as unknown, () => organizeView());
+  secureHandle('organize:move', null as unknown, (_e, from: unknown, rawFolder: unknown) => {
+    const folder = cleanFolder(rawFolder);
+    if (!organizing || typeof from !== 'string' || folder === null) return null;
+    const moved = moveFile(organizing, path.resolve(organizing.root, from), folder);
+    if (!moved) return null;
+    organizing = moved.plan;
+    return { view: organizeView(), offer: moved.others ? { group: moved.group, count: moved.others, folder } : null };
+  });
+  secureHandle('organize:move-group', null as unknown, (_e, group: unknown, rawFolder: unknown) => {
+    const folder = cleanFolder(rawFolder);
+    if (!organizing || typeof group !== 'string' || folder === null) return null;
+    organizing = moveGroup(organizing, group, folder);
+    return organizeView();
+  });
+  secureHandle('organize:keep', null as unknown, (_e, from: unknown) => {
+    if (!organizing || typeof from !== 'string') return null;
+    organizing = keepFile(organizing, path.resolve(organizing.root, from));
+    if (!organizing.moves.length) { threads.addNote(organizing.threadId, 'Every file was left where it is; nothing moved.'); organizing = null; organizeWindow?.hide(); }
+    return organizeView();
+  });
+  secureHandle('organize:apply', { ok: false } as { ok: boolean; error?: string }, () => applyOrganizePlan());
+  secureHandle('organize:cancel', false, () => {
+    if (organizing) threads.addNote(organizing.threadId, 'The organize plan was dismissed; nothing moved.');
+    organizing = null;
+    organizeWindow?.hide();
+    return true;
   });
   // FL1 part 2: the bar's outcome editor. Only the folder the editor was opened for can be changed.
   secureHandle('threads:outcome-get', null as unknown, () => {

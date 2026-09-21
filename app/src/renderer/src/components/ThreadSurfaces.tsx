@@ -34,7 +34,7 @@ const STALL_MS = 900;
 /** A turn's length for the footer: seconds, then minutes and seconds. */
 const formatDuration = (ms: number): string => (ms < 60_000 ? `${Math.max(1, Math.round(ms / 1000))}s` : `${Math.floor(ms / 60_000)}m ${Math.round((ms % 60_000) / 1000)}s`);
 
-function useSurface(kind: 'quick' | 'approval'): 'native' | 'vibrancy' {
+export function useSurface(kind: 'quick' | 'approval' | 'organize'): 'native' | 'vibrancy' {
   const glass = new URLSearchParams(location.search).get('glass') === 'native' ? 'native' : 'vibrancy';
   useLayoutEffect(() => {
     document.documentElement.classList.add('aux-surface', `aux-${kind}`);

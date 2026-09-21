@@ -2,6 +2,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import { ThreadQuickBar, ThreadApprovals } from './components/ThreadSurfaces';
+import { OrganizePreview } from './components/OrganizePreview';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { startRenderMode } from './render.mode';
 import '@fontsource-variable/inter';
@@ -18,7 +19,9 @@ startRenderMode(window.bimax.phase9, document.documentElement);
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ErrorBoundary>
-      {new URLSearchParams(location.search).get('surface') === 'quick' ? <ThreadQuickBar /> : new URLSearchParams(location.search).get('surface') === 'approval' ? <ThreadApprovals /> : <App />}
+      {new URLSearchParams(location.search).get('surface') === 'quick' ? <ThreadQuickBar />
+        : new URLSearchParams(location.search).get('surface') === 'approval' ? <ThreadApprovals />
+          : new URLSearchParams(location.search).get('surface') === 'organize' ? <OrganizePreview /> : <App />}
     </ErrorBoundary>
   </React.StrictMode>,
 );

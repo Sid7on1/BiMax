@@ -555,6 +555,22 @@ live**, and a real model has not yet been asked to report through the tool.
 **FL2. A preview you can rearrange.** Before organizing 300 files, show the proposed tree. Dragging one invoice
 leads to "Put all invoices here?", and the whole preview updates. *First version:* an editable organization
 preview. Value high · Effort M.
+**First version built 2026-09-22.** A task that would move more than a few files now proposes the whole plan with a
+new engine tool, `OrganizePlanTool` (registered in desktop threads only; checked for files that exist, stay inside the
+folder, are not moved twice, and land on no name another file keeps), and ends its turn. Bimax opens the **Organize
+preview**: the proposed folder tree, folder by folder. Drag a file onto another folder, or onto **New folder**, to put
+it there; when other files share its group ("Invoices", or the file kind when the task gave none), it asks **Put all
+23 other Invoices in 2026/Paid too?** and the preview updates. **Leave it** keeps a file where it is; conflicts (two
+files onto one name, or onto a file that stays) block Apply. Nothing moves until **Apply**: the app then moves the
+files inside the folder only, never over an existing file, skipping nothing protected by the folder's rules (a
+protected item refuses the whole plan), in an order where a file can take a place another is leaving (a swap goes
+through a temporary name), recorded before it starts as ONE undo-journal entry, so one ↶ Undo reverses the whole
+plan. A move that fails stops the plan and the journal is corrected to exactly the moves made. **Found and fixed:**
+undo checked every move up front, so a chain ("a → old/a, b → a") could not be undone; it now checks step by step.
+Proof: `organize.plan.test.ts` (15 tests, 4 on a real disk: apply + one undo of a chain and a swap; a failure;
+a file appearing mid-apply; a refused conflict) and `organize.plan.tool.test.ts` (4); 27 mutants each fail a test
+(2 more were refused by the compiler). **Not verified live:** the preview window, drag and drop, and a real model
+choosing the tool.
 
 **FL3. "Actually…": revise a finished result.** "Actually, by project, and keep invoices together." It works out
 the changes from the current state and keeps the user's manual edits. *First version:* file moves and renames.

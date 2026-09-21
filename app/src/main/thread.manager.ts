@@ -91,6 +91,8 @@ interface Dependencies {
   wakesChanged?(): void;
   /** A task reported files against its folder's outcome (FolderStatusTool, backlog FL1 part 2). */
   folderStatus?(id: string, items: unknown[]): void;
+  /** A task proposed a plan of moves for the person to rearrange and apply (OrganizePlanTool, backlog FL2). */
+  organizePlan?(id: string, plan: unknown): void;
   selected(selection: ThreadSelection): void;
   message(id: string, msg: Outbound): void;
   approval(value: ThreadApproval): void;
@@ -642,6 +644,7 @@ export class ThreadManager {
       if (!r.summary.wakes.length) delete r.summary.wakes;
       if ((r.summary.wakes?.length ?? 0) !== before) this.deps.wakesChanged?.();
     }
+    if (msg.t === 'event' && msg.name === 'organize_plan') this.deps.organizePlan?.(r.summary.id, msg.args[0]);
     if (msg.t === 'event' && msg.name === 'folder_status') {
       const items = (msg.args[0] as { items?: unknown } | undefined)?.items;
       if (Array.isArray(items)) this.deps.folderStatus?.(r.summary.id, items);

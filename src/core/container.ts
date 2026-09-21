@@ -88,6 +88,7 @@ import { createOutcomeTool } from '../tools/implementations/outcome.tool';
 import { createCompletionCheckTool } from '../tools/implementations/completion.check.tool';
 import { createWakeTool } from '../tools/implementations/wake.tool';
 import { createFolderStatusTool } from '../tools/implementations/folder.status.tool';
+import { createOrganizePlanTool } from '../tools/implementations/organize.plan.tool';
 
 import { Governor } from '../governor/governor';
 import { EngineConfig } from '../engine/config';
@@ -221,6 +222,8 @@ export async function createContainer(config?: Partial<EngineConfig>): Promise<{
   // FL1 part 2: a folder with an outcome (BIMAX_FOLDER_OUTCOME, set by the app) gets a queue of what is ready and what
   // needs the person; its tasks report each file here. Elsewhere the tool is not registered and costs nothing.
   if (process.env.BIMAX_FOLDER_OUTCOME) toolRegistry.register(createFolderStatusTool(governor));
+  // FL2: in a desktop thread, a plan of many moves is shown as a preview the person rearranges and applies.
+  if (process.env.BIMAX_THREAD_ROOT) toolRegistry.register(createOrganizePlanTool(governor));
   toolRegistry.register(createWebFetchTool(governor));
   toolRegistry.register(createCdTool(governor));
   toolRegistry.register(createGraphQueryTool(governor, graphStore));

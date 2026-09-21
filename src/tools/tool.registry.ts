@@ -49,6 +49,8 @@ const CORE_TOOLS = new Set<string>([
   'WakeTool',
   // FL1 part 2: registered only in a folder with an outcome, where every run is asked to report with it.
   'FolderStatusTool',
+  // FL2: registered only in a desktop thread. "Organize these 300 files" must reach the plan preview, not 300 moves.
+  'OrganizePlanTool',
 ]);
 
 /**

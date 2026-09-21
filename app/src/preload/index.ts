@@ -20,6 +20,11 @@ export interface VoiceSettingsView {
   /** Say out loud when a task finishes (backlog N9). */
   speakUpdates: boolean;
 }
+/** The Organize preview (main/organize.plan.ts, backlog FL2). */
+export interface OrganizeView {
+  id: string; title: string; root: string; total: number; byYou: number; conflicts: string[];
+  tree: Array<{ folder: string; files: Array<{ name: string; from: string; group: string; byYou: boolean }> }>;
+}
 const api = {
   // Dictation (main/voice.ts): events arrive only in the window that started it.
   voice: {
@@ -33,6 +38,15 @@ const api = {
     choose: (voiceId: string, rate: number): Promise<boolean> => ipcRenderer.invoke('voice:choose', voiceId, rate),
     preview: (voiceId: string, rate: number): Promise<boolean> => ipcRenderer.invoke('voice:preview', voiceId, rate),
     speakUpdates: (on: boolean): Promise<boolean> => ipcRenderer.invoke('voice:speak-updates', on),
+  },
+  organize: {
+    current: (): Promise<OrganizeView | null> => ipcRenderer.invoke('organize:current'),
+    onPlan: (cb: (view: OrganizeView | null) => void) => subscribe('organize:plan', cb),
+    move: (from: string, folder: string): Promise<{ view: OrganizeView; offer: { group: string; count: number; folder: string } | null } | null> => ipcRenderer.invoke('organize:move', from, folder),
+    moveGroup: (group: string, folder: string): Promise<OrganizeView | null> => ipcRenderer.invoke('organize:move-group', group, folder),
+    keep: (from: string): Promise<OrganizeView | null> => ipcRenderer.invoke('organize:keep', from),
+    apply: (): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('organize:apply'),
+    cancel: (): Promise<boolean> => ipcRenderer.invoke('organize:cancel'),
   },
   // Talk mode (main/talk.session.ts): a spoken conversation with the ⌘2 bar's task.
   talk: {
