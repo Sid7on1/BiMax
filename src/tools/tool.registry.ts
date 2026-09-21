@@ -51,6 +51,8 @@ const CORE_TOOLS = new Set<string>([
   'FolderStatusTool',
   // FL2: registered only in a desktop thread. "Organize these 300 files" must reach the plan preview, not 300 moves.
   'OrganizePlanTool',
+  // FL8: registered only in a desktop thread, whose app can show a contact sheet, a matching table or a name editor.
+  'TaskViewTool',
 ]);
 
 /**

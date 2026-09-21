@@ -89,6 +89,7 @@ import { createCompletionCheckTool } from '../tools/implementations/completion.c
 import { createWakeTool } from '../tools/implementations/wake.tool';
 import { createFolderStatusTool } from '../tools/implementations/folder.status.tool';
 import { createOrganizePlanTool } from '../tools/implementations/organize.plan.tool';
+import { createTaskViewTool } from '../tools/implementations/task.view.tool';
 
 import { Governor } from '../governor/governor';
 import { EngineConfig } from '../engine/config';
@@ -224,6 +225,8 @@ export async function createContainer(config?: Partial<EngineConfig>): Promise<{
   if (process.env.BIMAX_FOLDER_OUTCOME) toolRegistry.register(createFolderStatusTool(governor));
   // FL2: in a desktop thread, a plan of many moves is shown as a preview the person rearranges and applies.
   if (process.env.BIMAX_THREAD_ROOT) toolRegistry.register(createOrganizePlanTool(governor));
+  // FL8: a contact sheet, a matching table or a name editor the person uses inside the task.
+  if (process.env.BIMAX_THREAD_ROOT) toolRegistry.register(createTaskViewTool(governor));
   toolRegistry.register(createWebFetchTool(governor));
   toolRegistry.register(createCdTool(governor));
   toolRegistry.register(createGraphQueryTool(governor, graphStore));

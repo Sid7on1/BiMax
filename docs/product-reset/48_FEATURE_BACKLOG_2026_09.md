@@ -652,6 +652,16 @@ Proof: `app/src/__tests__/where.was.i.test.ts` (5 tests, one a restart round tri
 
 **FL8. Disposable tools inside a task.** A contact sheet for choosing photos, a matching table for
 reconciling, a batch editor for naming. *First version:* three reliable templates. Value medium · Effort M.
+**First version built 2026-09-22: the three templates.** A new engine tool, `TaskViewTool` (desktop threads only),
+opens one inside the task: a **contact sheet** (pictures in the task folder; pick some, or one), a **matching table**
+(the task proposes pairs between two lists — bank lines and invoices — and the person keeps, changes or clears each),
+or a **name editor** (proposed names, edited in place; no "/" or empty names). The view travels as the JSON body of an
+ordinary question, so it appears in the ⌘2 bar and the approval popup like any other; what the person chose comes
+back as JSON and the tool turns it into words the task acts on (names point it at OrganizePlanTool for the renames).
+A picked path that was not offered is dropped; Cancel says nothing was chosen; a front-end that cannot show the view
+makes the task ask in plain words instead of guessing. Files must be real and inside the task folder, at most 200.
+Proof: `src/__tests__/task.view.tool.test.ts` (5) and `app/src/__tests__/task.views.test.tsx` (3, rendered markup);
+14 mutants each fail a test. **Not verified live**; the main window shows these as plain questions for now.
 
 **FL9. Pick the model by measured speed.** Talk mode and ⌘2 use the fastest model that handles tools well,
 from `modelTimes`, instead of a hard-coded one. Value medium · Effort S–M.

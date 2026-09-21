@@ -9,6 +9,7 @@ import { cn } from '../lib/cn';
 import { ThinkingIndicator } from './ThinkingIndicator';
 import { StreamCoalescer } from '../stream.coalescer';
 import { MicButton } from './MicButton';
+import { TaskViewCard, taskView } from './TaskViews';
 import { useDictation } from '../useDictation';
 import { BASIC_VOICE_TIP, talkIsStatus, talkLine, useTalk } from '../useTalk';
 import { approvalShortcut, denyOption } from '../approval.keys';
@@ -673,6 +674,12 @@ function QuickSteps({ calls }: { calls: ToolCallEntry[] }): React.ReactElement {
  * is a secret), a checklist, or one button per option with any diff shown above — inline instead of modal.
  */
 function QuickRequest({ req, onReply }: { req: RequestMsg; onReply: (value: string) => void }): React.ReactElement {
+  // FL8: a question carrying a contact sheet, a matching table or a name editor is answered with that view.
+  const view = taskView(req.body);
+  return view ? <TaskViewCard view={view} onReply={onReply} /> : <PlainRequest req={req} onReply={onReply} />;
+}
+
+function PlainRequest({ req, onReply }: { req: RequestMsg; onReply: (value: string) => void }): React.ReactElement {
   const [text, setText] = useState('');
   const [checked, setChecked] = useState<Set<string>>(new Set());
   const freeForm = req.kind === 'input' || (req.isAsk && req.options.length === 0);
