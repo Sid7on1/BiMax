@@ -4,6 +4,19 @@ import { GovernorVetoError } from '../core/errors';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 
+/**
+ * Whether a canonical path falls under a forbidden path: `entry` must match whole path segments. It was a plain substring
+ * test, so '/var' blocked ~/Documents/various and '/system' blocked ~/code/system-design — every edit in such a folder was
+ * refused as "Forbidden path access" (found 2026-09-21 while testing F3). A folder literally named `var` or `.ssh` is
+ * still refused, wherever it is, as before; case is ignored, as before.
+ */
+export function underForbiddenPath(normalized: string, entry: string): boolean {
+  const target = normalized.toLowerCase().replace(/\/+$/, '');
+  const forbidden = entry.toLowerCase().replace(/\/+$/, '');
+  if (!forbidden) return false;
+  return target === forbidden || target.endsWith(forbidden) || target.includes(`${forbidden}/`);
+}
+
 export class FileSystemVeto {
   async checkVeto(targetPath: string): Promise<void> {
     // Resolve the nearest existing ancestor, not just the immediate parent. A symlink
@@ -39,7 +52,7 @@ export class FileSystemVeto {
 
     // 2. Cannot touch forbidden system paths
     for (const forbidden of SafetyPolicy.forbiddenPaths) {
-      if (normalized.toLowerCase().includes(forbidden.toLowerCase())) {
+      if (underForbiddenPath(normalized, forbidden)) {
         Logger.error(`[Governor: Veto] File operation blocked. Target contains forbidden path: ${forbidden}`);
         throw new GovernorVetoError('Forbidden path access.');
       }
