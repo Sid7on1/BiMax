@@ -58,6 +58,8 @@ export function ThreadQuickBar(): React.ReactElement {
   const [prompt, setPrompt] = useState('');
   const [error, setError] = useState('');
   const [sending, setSending] = useState(false);
+  // N10: a correction's offer to become one of the folder's rules, until saved or dismissed.
+  const [teach, setTeach] = useState<{ root: string; rule: string; samples: string[] } | null>(null);
   // What the task gets as context: what was open when ⌘2 was pressed, plus anything dropped on the bar.
   const [attachments, setAttachments] = useState<QuickAttachment[]>([]);
   const [dropping, setDropping] = useState(false);
@@ -109,8 +111,11 @@ export function ThreadQuickBar(): React.ReactElement {
       setThread(value ? { id: value.id, title: value.title, root: value.root } : null);
       setActivity({ queued: value?.queued ?? 0, notice: value?.notice ?? null });
       if (value) setAttachments([]);
+      // A rule offer (N10) belongs to its folder: it stays while the bar shows a task there, and goes when it does not.
+      setTeach((current) => (current && value?.root === current.root ? current : null));
       dispatch({ type: 'restoreThread', state: value ? value.state : initialEngineState });
     };
+    const offTeach = window.bimax.threads.onTeachOffer((offer) => setTeach(offer));
     const offContext = window.bimax.threads.onContext((value: QuickContext) => { setContext(value); setAttachments(value.attachments ?? []); if (value.prompt) setPrompt(value.prompt); setError(value.error ?? ''); input.current?.focus(); });
     const offThread = window.bimax.threads.onQuickThread(adopt);
     const offMsg = window.bimax.threads.onQuickMsg((msg: Outbound) => {
@@ -122,7 +127,7 @@ export function ThreadQuickBar(): React.ReactElement {
     });
     void window.bimax.threads.context().then((value: QuickContext) => { setContext(value); setAttachments(value.attachments ?? []); });
     void window.bimax.threads.quickCurrent().then(adopt);
-    return () => { offContext(); offThread(); offMsg(); offActivity(); batcher.dispose(); };
+    return () => { offContext(); offTeach(); offThread(); offMsg(); offActivity(); batcher.dispose(); };
   }, []);
 
   const busy = state.spinner.state !== 'idle' && state.spinner.state !== '';
@@ -447,6 +452,14 @@ export function ThreadQuickBar(): React.ReactElement {
               <QuickRules value={rules} onChange={setRules} onPick={() => void protectMore()} onSave={() => void saveRules()} onCancel={() => setRules(null)} />
             ) : null}
             <QuickConversation items={state.items} />
+            {teach ? (
+              <QuickTeach
+                value={teach}
+                onChange={(rule) => setTeach({ ...teach, rule })}
+                onSave={() => { const rule = teach.rule; setTeach(null); void window.bimax.threads.teach(rule).then((r) => { if (!r?.ok) setError(r?.error || 'Could not save the rule.'); }); }}
+                onDismiss={() => setTeach(null)}
+              />
+            ) : null}
             {state.streaming ? <div className="quick-answer"><Markdown text={state.streaming} /></div> : null}
             {showActivity ? <ThinkingIndicator thinking={state.thinking} /> : null}
             {request ? <QuickRequest key={request.id} req={request} onReply={(value) => void reply(value)} /> : null}
@@ -647,6 +660,36 @@ function QuickRules({ value, onChange, onPick, onSave, onCancel }: {
       <div className="quick-request-options">
         <button type="button" className="quick-choice quick-choice-primary" onClick={onSave}>Save rules</button>
         <button type="button" className="quick-choice" onClick={onCancel}>Cancel</button>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Correct once, teach deliberately (backlog N10): a correction offers to become one of the folder's rules. The rule is
+ * shown and editable, with earlier requests in the folder it would have applied to; nothing is kept without Save.
+ */
+function QuickTeach({ value, onChange, onSave, onDismiss }: {
+  value: { root: string; rule: string; samples: string[] };
+  onChange: (rule: string) => void;
+  onSave: () => void;
+  onDismiss: () => void;
+}): React.ReactElement {
+  return (
+    <section className="quick-request quick-rules" aria-label="Remember this">
+      <p className="quick-request-question">Remember this for every task in {folderName(value.root)}?</p>
+      <textarea rows={2} className="quick-rules-text" value={value.rule} onChange={(e) => onChange(e.target.value)} aria-label="The rule to remember" />
+      {value.samples.length ? (
+        <>
+          <p className="quick-note">It would have applied to earlier requests here, like:</p>
+          <ul className="quick-note">{value.samples.map((sample) => <li key={sample}>“{sample}”</li>)}</ul>
+        </>
+      ) : (
+        <p className="quick-note">No earlier request in this folder mentions it; it applies to tasks from now on.</p>
+      )}
+      <div className="quick-request-options">
+        <button type="button" className="quick-choice quick-choice-primary" disabled={!value.rule.trim()} onClick={onSave}>Save as a folder rule</button>
+        <button type="button" className="quick-choice" onClick={onDismiss}>Not now</button>
       </div>
     </section>
   );

@@ -446,6 +446,17 @@ Settings → Voice choice, and never speaks over talk mode or while talk anywher
 **N10. Correct once, teach deliberately.** For example, a correction becomes "Use ACME for this client from now
 on?", with sample applications shown before saving. Preferences stay visible, editable and scoped.
 Value medium · Effort M.
+**Done 2026-09-22 (in the ⌘2 bar).** When a message to a task corrects how it works — "No, use ACME for this client",
+"From now on, name the files by date" — the bar shows **Remember this for every task in <folder>?** with the rule
+written out (editable), and up to three earlier requests in that folder it would have applied to (those naming one
+of its less common words), before anything is saved. **Save as a folder rule** adds it as a line of the folder's
+rules — the visible, editable, per-folder rules under ⋯ → Rules for this folder (N11's editor), which restart idle
+tasks there on them; **Not now** keeps nothing. A one-off correction ("no, the other file"), a question, courtesy or
+an ordinary request is not offered, nor is a rule the folder already has. Only the folder of the offer on screen
+can be saved to. **Still true:** the engine's own user model (`src/mind/user.model.ts`) keeps learning corrections
+silently into prompt "standing instructions"; this item did not remove it. Proof: `app/src/__tests__/teach.test.ts`;
+13 mutants each fail a test (a courtesy guard was removed as redundant after its mutant survived). **Not verified
+live** in the built app; the main window's project threads do not offer yet.
 
 **N11. Remove, archive and search threads.** Creating a thread fails at 200 saved threads and tells the user to
 remove one, but record 46 found no way to remove one. Add archive, search, rename and a retention policy.

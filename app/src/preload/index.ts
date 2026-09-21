@@ -53,6 +53,9 @@ const api = {
     link: (a: string, b: string, enabled: boolean) => ipcRenderer.invoke('threads:link', a, b, enabled),
     context: () => ipcRenderer.invoke('threads:context'),
     onContext: (cb: (value: any) => void) => subscribe('threads:context', cb),
+    // N10: a correction offers to become one of the folder's rules; `teach` saves it, as edited.
+    onTeachOffer: (cb: (offer: { root: string; rule: string; samples: string[] }) => void) => subscribe('threads:teach-offer', cb),
+    teach: (rule: string): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('threads:teach', rule),
     pickFolder: () => ipcRenderer.invoke('threads:pick-folder'),
     // The welcome screen: choose a folder and open the ⌘2 bar on it (backlog N14).
     startInFolder: () => ipcRenderer.invoke('threads:start-in-folder'),

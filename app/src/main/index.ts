@@ -27,6 +27,7 @@ import { installQuickAction, openedFilesContext, quickActionPath, QUICK_ACTION_N
 import { onlyBasicVoices, parseVoiceList, pickerVoices, speakingArguments, SPEECH_RATES, validRate, validVoice } from './voice.settings';
 import { PUSH_TALK_CHOICES, PushToTalk, pushTalkAnswer, pushTalkChoice, spokenSummary, type PushTalkAnswer, type PushTalkChoice } from './push.talk';
 import { shouldSpeakUpdate, spokenUpdate } from './spoken.updates';
+import { alreadyARule, correctionRule, sampleApplications, withRule } from './teach';
 import type { TranscriptItem } from '../renderer/src/engine.state';
 import { randomUUID } from 'node:crypto';
 import { macBin } from './bin';
@@ -464,6 +465,20 @@ const talk = new TalkSession({
 });
 /** Threads that were busy when their folder's rules changed: they restart on the new rules when their turn ends. */
 const rulesStale = new Set<string>();
+/** The rule a correction offered in the ⌘2 bar (N10), until it is saved or another offer replaces it. */
+let teachOffer: { root: string; rule: string } | null = null;
+/** Save a folder's rules; idle engines there restart on them now (resuming their conversation), busy ones after their turn. */
+function saveFolderRules(root: string, rules: { text: string; protect: string[] }, note: string): void {
+  const all = { ...(loadSettings().folderRules ?? {}) };
+  if (rules.text || rules.protect.length) all[root] = rules;
+  else delete all[root];
+  saveSettings({ folderRules: all });
+  for (const thread of threads.list()) {
+    if (thread.root !== root || !threads.engine(thread.id)) continue;
+    if (!threads.restartIfIdle(thread.id)) rulesStale.add(thread.id);
+  }
+  if (quickThreadId && threads.get(quickThreadId).summary.root === root) threads.addNote(quickThreadId, note);
+}
 /** The folder whose rules the bar is editing — fixed when the editor opens, so a save cannot land on another folder. */
 let rulesEditingRoot: string | null = null;
 /** The words the user first gave a task — what a repeat of it asks again. */
@@ -1170,7 +1185,7 @@ function auxiliaryChannelAllowed(event: IpcMainEvent | IpcMainInvokeEvent, chann
     ? ['threads:context', 'threads:pick-folder', 'threads:quick-submit', 'threads:hide', 'threads:list', 'threads:reply',
       'threads:quick-current', 'threads:quick-reset', 'threads:quick-interrupt', 'threads:quick-resize', 'threads:quick-open',
       'threads:undo-info', 'threads:undo', 'threads:open-path', 'threads:quick-switch', 'threads:model-menu',
-      'threads:more-menu', 'threads:rules-get', 'threads:rules-set', 'threads:rules-pick', 'threads:screenshot', 'threads:paste-picture',
+      'threads:more-menu', 'threads:rules-get', 'threads:rules-set', 'threads:rules-pick', 'threads:screenshot', 'threads:paste-picture', 'threads:teach',
       'voice:available', 'voice:start', 'voice:stop', 'voice:cancel', 'talk:start', 'talk:end', 'talk:interrupt', 'talk:current']
     : ['threads:approvals', 'threads:reply', 'threads:hide', 'threads:stop'];
   return allowed.includes(channel);
@@ -1743,6 +1758,7 @@ app.whenReady().then(async () => {
         if (outside) return { ok: false, error: `“${outside.label}” is outside this task’s folder. Start a New task to use it.` };
         // While the task works, the words reach the running turn at its next step (F7); otherwise they are a new turn.
         threads.steer(quickThreadId, withContext(prompt, attachments), prompt, false);
+        offerRule(root, prompt);
         return { ok: true, id: quickThreadId };
       }
       const chosen = typeof opts.root === 'string' && opts.root ? opts.root : quickContext.root;
@@ -1756,6 +1772,7 @@ app.whenReady().then(async () => {
       quickThreadId = id;
       threads.submit(id, withContext(prompt, attachments), prompt, false);
       sendQuickThread();
+      offerRule(root, prompt);
       return { ok: true, id };
     } catch (error) { return { ok: false, error: (error as Error).message }; }
   });
@@ -1782,6 +1799,21 @@ app.whenReady().then(async () => {
     await fsp.writeFile(file, asPastedBytes(bytes), { flag: 'wx' });
     return { kind: 'picture' as const, label: safeName, path: await fsp.realpath(file) };
   });
+  // N10: a correction offers to become a folder rule (sent after the words, so it follows them in the bar).
+  const offerRule = (root: string, prompt: string): void => {
+    const rule = correctionRule(prompt);
+    if (!rule || !quickWindow || quickWindow.isDestroyed()) return;
+    if (alreadyARule(loadSettings().folderRules?.[root]?.text ?? '', rule)) return;
+    const earlier: string[] = [];
+    for (const thread of threads.list()) {
+      if (thread.root !== root) continue;
+      for (const item of [...threads.get(thread.id).state.items].reverse()) {
+        if (item.kind === 'msg' && item.msg.role === 'user' && item.msg.content.trim() !== prompt.trim()) earlier.push(item.msg.content);
+      }
+    }
+    teachOffer = { root, rule };
+    quickWindow.webContents.send('threads:teach-offer', { root, rule, samples: sampleApplications(rule, earlier) });
+  };
   // A path in an answer: Quick Look, or ⌘-click to show it in Finder. Relative paths resolve in the task's folder.
   secureHandle('threads:open-path', { ok: false } as { ok: boolean; error?: string }, async (_e, raw: unknown, mode: unknown) => {
     if (typeof raw !== 'string' || !raw.trim() || raw.length > 1000) return { ok: false, error: 'No path was given.' };
@@ -1932,18 +1964,17 @@ app.whenReady().then(async () => {
     const root = rulesEditingRoot;
     if (!root) return { ok: false, error: 'Choose a folder first.' };
     const rules = cleanRules(root, raw);
-    const all = { ...(loadSettings().folderRules ?? {}) };
-    if (rules.text || rules.protect.length) all[root] = rules;
-    else delete all[root];
-    saveSettings({ folderRules: all });
-    // Idle engines in this folder restart on the new rules now (resuming their conversation); busy ones after their turn.
-    for (const thread of threads.list()) {
-      if (thread.root !== root || !threads.engine(thread.id)) continue;
-      if (!threads.restartIfIdle(thread.id)) rulesStale.add(thread.id);
-    }
-    if (quickThreadId && threads.get(quickThreadId).summary.root === root) {
-      threads.addNote(quickThreadId, rules.text || rules.protect.length ? `Rules for ${path.basename(root)} saved.` : `Rules for ${path.basename(root)} cleared.`);
-    }
+    saveFolderRules(root, rules, rules.text || rules.protect.length ? `Rules for ${path.basename(root)} saved.` : `Rules for ${path.basename(root)} cleared.`);
+    return { ok: true };
+  });
+  // N10: keep the rule a correction offered (teach.ts). Only the folder of the offer on screen, with the text as edited.
+  secureHandle('threads:teach', { ok: false } as { ok: boolean; error?: string }, (_e, raw: unknown) => {
+    const offer = teachOffer;
+    teachOffer = null;
+    const rule = typeof raw === 'string' ? raw.replace(/\s+/g, ' ').trim().slice(0, 400) : '';
+    if (!offer || !rule) return { ok: false, error: 'Nothing to save.' };
+    const saved = loadSettings().folderRules?.[offer.root] ?? { text: '', protect: [] };
+    saveFolderRules(offer.root, cleanRules(offer.root, { ...saved, text: withRule(saved.text, rule) }), `Saved to the rules for ${path.basename(offer.root)}: “${rule}” Change them under ⋯ → Rules for this folder.`);
     return { ok: true };
   });
   secureHandle('threads:rules-pick', [] as string[], async () => {
