@@ -12,7 +12,11 @@ import { insideFolder } from './quick.context';
  */
 
 export interface PlanMove { from: string; to: string; group: string; /** The person put it here, not the task. */ byYou?: boolean }
-export interface OrganizePlan { id: string; threadId: string; root: string; title: string; moves: PlanMove[] }
+export interface OrganizePlan {
+  id: string; threadId: string; root: string; title: string; moves: PlanMove[];
+  /** A revision's moves of files the person had placed by hand since the last plan: kept out unless included (FL3). */
+  kept?: PlanMove[];
+}
 
 /** A plan from the engine, re-checked: paths absolute and inside the folder, a group each, at most 2000 moves. */
 export function receivePlan(raw: unknown, threadId: string, root: string): OrganizePlan | null {
@@ -147,4 +151,53 @@ export function orderMoves(moves: readonly PlanMove[]): Array<{ from: string; to
     first.from = parked;
   }
   return out;
+}
+
+// ── "Actually…": revising a finished result (backlog FL3) ─────────────────────────────────────────
+//
+// After a plan is applied, Bimax remembers where it put each file and the file's inode. When a revised plan arrives
+// for the same folder ("actually, by project"), a file that is no longer where Bimax put it was moved by the person;
+// it is found again by its inode, and any move of it is taken out of the revision — kept where the person put it —
+// unless they choose "Include anyway". The revision is worked out from the current state by the task itself.
+
+export interface Placement { path: string; ino: number }
+export interface AppliedPlan { root: string; threadId: string; at: number; title: string; placements: Placement[] }
+
+/**
+ * A message that revises what was just done: "Actually, …", "Instead, …", "Rather …", "On second thought …". A bare
+ * "No, …" is left out: it corrects all kinds of things (N10), not only a plan of moves.
+ */
+export function isRevision(message: string): boolean {
+  return /^\s*(?:(?:hmm|wait|ok|okay)[,.!]?\s+)?(?:actually|instead|rather|on second thought)\b/i.test(message);
+}
+
+/** The hint a revision carries to the task, so a weak model re-plans from the current state instead of starting over. */
+export function revisionHint(applied: AppliedPlan): string {
+  return `[This revises “${applied.title}”, which was applied: look at where the files are now and propose the changes with OrganizePlanTool. Files the person moved by hand since then are kept where they put them.]`;
+}
+
+/**
+ * Files the person moved (or renamed, or deleted) after the plan was applied: each placement no longer at its path,
+ * with where it is now when its inode is still in the folder.
+ */
+export function manualEdits(applied: AppliedPlan, inodeAt: (file: string) => number | null, locate: (ino: number) => string | null): Array<{ placed: string; now: string | null }> {
+  const edits: Array<{ placed: string; now: string | null }> = [];
+  for (const placement of applied.placements) {
+    if (inodeAt(placement.path) === placement.ino) continue;
+    edits.push({ placed: placement.path, now: locate(placement.ino) });
+  }
+  return edits;
+}
+
+/** A revision without the moves of files the person placed by hand; those are kept aside so the preview can offer them. */
+export function keepManual(plan: OrganizePlan, byHand: ReadonlySet<string>): OrganizePlan {
+  const kept = plan.moves.filter((m) => byHand.has(m.from));
+  return kept.length ? { ...plan, moves: plan.moves.filter((m) => !byHand.has(m.from)), kept: [...(plan.kept ?? []), ...kept] } : plan;
+}
+
+/** "Include anyway": a file the person placed by hand goes back into the revision. */
+export function includeKept(plan: OrganizePlan, from: string): OrganizePlan {
+  const move = plan.kept?.find((m) => m.from === from);
+  if (!move) return plan;
+  return { ...plan, moves: [...plan.moves, move], kept: plan.kept!.filter((m) => m !== move) };
 }

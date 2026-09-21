@@ -67,6 +67,20 @@ export function OrganizePreview(): React.ReactElement {
             </ul>
           </section>
         ))}
+        {view.kept.length ? (
+          <section className="quick-request" aria-label="Kept where you put them">
+            <p className="quick-request-question">Kept where you put them · {view.kept.length}</p>
+            <p className="aux-panel-note">You moved these yourself after the last plan, so this revision leaves them alone.</p>
+            <ul>
+              {view.kept.map((file) => (
+                <li key={file.from} className="flex items-center gap-2 text-[12px]">
+                  <span className="min-w-0 flex-1 truncate" title={`The task would move it to ${file.to}`}>{file.from}</span>
+                  <button type="button" className="quick-link" onClick={() => { void window.bimax.organize.include(file.from).then((v) => { if (v) setView(v); }); }}>Include anyway</button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
         <section className="quick-request" {...{
           onDragOver: (e: React.DragEvent) => { if (e.dataTransfer.types.includes('application/x-bimax-file')) e.preventDefault(); },
           onDrop: (e: React.DragEvent) => {

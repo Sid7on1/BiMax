@@ -23,6 +23,8 @@ export interface VoiceSettingsView {
 /** The Organize preview (main/organize.plan.ts, backlog FL2). */
 export interface OrganizeView {
   id: string; title: string; root: string; total: number; byYou: number; conflicts: string[];
+  /** A revision's files the person placed by hand since the last plan, kept out unless included (FL3). */
+  kept: Array<{ from: string; to: string }>;
   tree: Array<{ folder: string; files: Array<{ name: string; from: string; group: string; byYou: boolean }> }>;
 }
 const api = {
@@ -45,6 +47,7 @@ const api = {
     move: (from: string, folder: string): Promise<{ view: OrganizeView; offer: { group: string; count: number; folder: string } | null } | null> => ipcRenderer.invoke('organize:move', from, folder),
     moveGroup: (group: string, folder: string): Promise<OrganizeView | null> => ipcRenderer.invoke('organize:move-group', group, folder),
     keep: (from: string): Promise<OrganizeView | null> => ipcRenderer.invoke('organize:keep', from),
+    include: (from: string): Promise<OrganizeView | null> => ipcRenderer.invoke('organize:include', from),
     apply: (): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('organize:apply'),
     cancel: (): Promise<boolean> => ipcRenderer.invoke('organize:cancel'),
   },

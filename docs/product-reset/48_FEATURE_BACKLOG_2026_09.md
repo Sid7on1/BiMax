@@ -575,6 +575,16 @@ choosing the tool.
 **FL3. "Actually…": revise a finished result.** "Actually, by project, and keep invoices together." It works out
 the changes from the current state and keeps the user's manual edits. *First version:* file moves and renames.
 Value high · Effort M–L · Needs FL2, the undo journal.
+**First version built 2026-09-22 (file moves and renames, on FL2).** When a plan is applied, Bimax remembers where it
+put each file and the file's inode (`organize-history.json` in its app data, the last plan per folder). A message to
+the task that starts "Actually", "Instead", "Rather" or "On second thought" within a day of that plan carries a hint:
+revise from where the files are now, with OrganizePlanTool, keeping what the person moved by hand. When the revised
+plan arrives, each file no longer where Bimax put it was moved by the person; it is found again by its inode (one
+bounded walk, 20,000 entries, skipping .git and node_modules), and any move of it is kept out of the revision —
+listed in the preview as **Kept where you put them**, with **Include anyway**. A new file that merely took an old
+name is not mistaken for the moved one. A bare "No, …" is not a revision (it corrects many things, N10). Proof:
+`app/src/__tests__/organize.revise.test.ts` (5 tests, one on a real disk: a rename by hand keeps its inode); 9
+mutants each fail a test. **Not verified live** with a real model revising a plan.
 
 **FL4. Change history, then selective undo.** A timeline to restore any point, then "undo the renames but keep the
 conversions", which needs dependency detection between actions. Record 46's *honest undo* adds reversibility
