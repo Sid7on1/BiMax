@@ -54,6 +54,8 @@ interface LiveThread extends SavedThread {
   interruptAsked?: boolean;
   /** The engine reported an error during the current turn, so it ends "failed". */
   turnError?: boolean;
+  /** The engine stopped this turn at the task's time limit (F5). */
+  turnLimited?: boolean;
 }
 interface Dependencies {
   engine(id: string): ThreadEngine;
@@ -491,6 +493,7 @@ export class ThreadManager {
     r.summary.outcome = undefined;
     r.interruptAsked = false;
     r.turnError = false;
+    r.turnLimited = false;
     r.turnStartedAt = Date.now();
     // Recorded as sent before it is sent: after a crash in between, the message is reported as possibly run, never repeated.
     this.persist(r, true);
@@ -526,6 +529,7 @@ export class ThreadManager {
     // An error the engine reports during a turn makes that turn end "failed" rather than "done" (backlog N12).
     // Only a turn's end reads it, and every turn starts with it cleared, so an error between turns changes nothing.
     if (msg.t === 'event' && msg.name === 'message' && (msg.args[0] as { level?: unknown } | undefined)?.level === 'error') r.turnError = true;
+    if (msg.t === 'event' && msg.name === 'turn_limit') r.turnLimited = true;
     // The engine's completion check (F3): what the sidebar, the menu bar and the notification say about a finished turn.
     if (msg.t === 'event' && msg.name === 'completion_check') {
       const check = msg.args[0] as { state?: unknown; testsEdited?: unknown } | undefined;
@@ -560,7 +564,7 @@ export class ThreadManager {
       // The turn is over, so the message it answered is settled.
       if (finishedTurn) {
         r.inputs = r.inputs.filter((input) => input.state !== 'sent');
-        r.summary.outcome = r.interruptAsked ? 'interrupted' : r.turnError ? 'failed' : 'completed';
+        r.summary.outcome = r.interruptAsked ? 'interrupted' : r.turnError ? 'failed' : r.turnLimited ? 'time-limit' : 'completed';
       }
       r.pending.clear();
       if (choice) {

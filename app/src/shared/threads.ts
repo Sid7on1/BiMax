@@ -16,7 +16,7 @@ export interface ThreadSummary {
   /** A talk-mode task (the ⌘2 bar's spoken conversation): its engine writes replies to be read aloud. */
   voice?: boolean;
   /** How the last turn ended (backlog N12). Cleared when the next turn starts. */
-  outcome?: 'completed' | 'failed' | 'interrupted';
+  outcome?: 'completed' | 'failed' | 'interrupted' | 'time-limit';
   /**
    * Where the task's completion check stands (backlog F3): the engine ran it and it passed or failed, or the task
    * changed files with no check. `tests-edited`: it passed after the task changed test files, so the pass may rest on
@@ -81,6 +81,7 @@ export function threadActivity(t: ActivityFields): { label: string; short: strin
   if (n) return { label: `Waiting to start · ${queued}`, short: 'waiting' };
   if (t.outcome === 'failed') return { label: 'Failed', short: 'failed' };
   if (t.outcome === 'interrupted') return { label: 'Interrupted', short: 'interrupted' };
+  if (t.outcome === 'time-limit') return { label: 'Stopped · time limit reached', short: 'time limit' };
   if (t.status === 'stopped') return { label: 'Stopped', short: '' };
   if (t.outcome !== 'completed') return { label: 'Idle', short: '' };
   // A turn that ended is "done" only when its check passed (F3); one whose check failed says so, and one that changed
@@ -94,6 +95,6 @@ export function threadActivity(t: ActivityFields): { label: string; short: strin
 /** What the ⌘2 bar's footer says in place of the folder name, or null when the bar's own working and question states say it. */
 export function threadNotice(t: ActivityFields): string | null {
   if (t.status === 'working' || t.status === 'needs-you') return null;
-  if (!t.queued && t.outcome !== 'failed' && t.outcome !== 'interrupted' && !(t.outcome === 'completed' && t.check === 'failed')) return null;
+  if (!t.queued && t.outcome !== 'failed' && t.outcome !== 'interrupted' && t.outcome !== 'time-limit' && !(t.outcome === 'completed' && t.check === 'failed')) return null;
   return threadActivity(t).label;
 }

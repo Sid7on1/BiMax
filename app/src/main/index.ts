@@ -345,7 +345,7 @@ function notifyFinished(id: string): void {
   const answer = [...state.items].reverse().find((item) => item.kind === 'msg' && item.msg.role === 'assistant');
   const body = answer && answer.kind === 'msg' ? answer.msg.content.replace(/\s+/g, ' ').trim().slice(0, 160) : 'Finished.';
   // The subtitle says what the completion check found (F3), not just that the model stopped.
-  const verdict = summary.check === 'failed' ? 'Check failed' : summary.check === 'unchecked' ? 'Finished, not checked,' : summary.check === 'passed' ? 'Done, check passed,' : summary.check === 'tests-edited' ? 'Check passed after test edits' : 'Done';
+  const verdict = summary.outcome === 'time-limit' ? 'Stopped at its time limit' : summary.check === 'failed' ? 'Check failed' : summary.check === 'unchecked' ? 'Finished, not checked,' : summary.check === 'passed' ? 'Done, check passed,' : summary.check === 'tests-edited' ? 'Check passed after test edits' : 'Done';
   const note = new Notification({ title: summary.title, subtitle: `${verdict} in ${path.basename(summary.root)}`, body: body || 'Finished.' });
   note.on('click', () => openThread(id));
   note.show();

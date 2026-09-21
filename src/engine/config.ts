@@ -77,6 +77,10 @@ export interface EngineConfig {
   excludeFromIndex: string[];
   maxToolIterations: number;
   maxSubAgents: number;
+  // Per-task limits (backlog F5). Retries after a failed completion check within one user turn, and the longest one
+  // run may take in minutes (0: no limit). BIMAX_TASK_MAX_RETRIES / BIMAX_TASK_MAX_MINUTES override them per engine.
+  taskCheckRetries: number;
+  taskMaxMinutes: number;
   // Resume recent, bounded outcome assignments after an engine crash. Bypass-mode and ambiguous
   // snapshots always require manual recovery regardless of this preference.
   autoResumeAgents: boolean;
@@ -195,6 +199,8 @@ export const DEFAULTS: EngineConfig = {
   excludeFromIndex: [],
   maxToolIterations: 500, // Several hours of visual stepping at ordinary model latency; progress-aware loop guards catch stalls.
   maxSubAgents: 4, // hard global runtime ceiling; nested agents share the same lease coordinator
+  taskCheckRetries: 2,
+  taskMaxMinutes: 0,
   autoResumeAgents: true,
   autoContinueOutcome: true,
   notificationBell: false,

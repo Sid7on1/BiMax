@@ -170,3 +170,18 @@ test('a finished turn says what its completion check found (F3), not only that t
   f.manager.receive(id, { t: 'event', name: 'completion_check', args: [{ state: 'pending', checks: [], results: [], attempts: 0, maxRetries: 2 }] } as any);
   expect(f.summary(id).check).toBeUndefined();
 });
+
+test('a run stopped at its time limit says so (F5), rather than "Done" or "Interrupted"', () => {
+  expect(threadActivity({ status: 'idle', outcome: 'time-limit' })).toEqual({ label: 'Stopped · time limit reached', short: 'time limit' });
+  expect(threadNotice({ status: 'idle', outcome: 'time-limit' })).toBe('Stopped · time limit reached');
+  const f = fixture();
+  const id = f.manager.create('/fixture/overnight', 'Migrate the tests');
+  f.ready(id);
+  f.manager.receive(id, { t: 'event', name: 'turn_limit', args: [{ kind: 'time', minutes: 30 }] } as any);
+  f.idle(id);
+  expect(f.summary(id).outcome).toBe('time-limit');
+  // The next turn starts clean.
+  f.manager.send(id, { t: 'input', text: 'continue' });
+  f.idle(id);
+  expect(f.summary(id).outcome).toBe('completed');
+});

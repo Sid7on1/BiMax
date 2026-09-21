@@ -81,6 +81,8 @@ export const CLAIMING_TOOLS = new Set(['EditFileTool', 'WriteFileTool', 'MultiEd
 
 export interface AgentLoopOptions {
   maxIterations?: number;
+  /** The longest this run may take, in minutes (backlog F5). Unset or 0: no limit. */
+  maxMinutes?: number;
   contextMode?: 'smart' | 'full';
   useLite?: boolean;
   signal?: AbortSignal;
@@ -312,7 +314,35 @@ export class AgentLoop {
     return { exitCode: failed ? null : typed?.exitCode ?? null, output };
   }
 
+  /**
+   * One run of the loop, stopped at the task's time limit when it has one (backlog F5). The limit rides the same abort
+   * signal as the Stop button, so a model call or a command in flight ends at once rather than at the next round; the
+   * run then says it stopped at the limit, and `turn_limit` tells the front-end it was the limit and not the user.
+   */
   async *execute(
+    initialMessages: Message[],
+    systemPrompt: string,
+    options?: AgentLoopOptions,
+    context?: any
+  ): AsyncGenerator<string> {
+    const minutes = options?.maxMinutes ?? 0;
+    if (!(minutes > 0)) { yield* this.run(initialMessages, systemPrompt, options, context); return; }
+    const limit = new AbortController();
+    const timer = setTimeout(() => limit.abort(), minutes * 60_000);
+    const signal = options?.signal ? AbortSignal.any([options.signal, limit.signal]) : limit.signal;
+    try {
+      yield* this.run(initialMessages, systemPrompt, { ...options, signal }, context);
+    } finally {
+      clearTimeout(timer);
+    }
+    if (limit.signal.aborted && !options?.signal?.aborted) {
+      const shown = Number.isInteger(minutes) ? `${minutes} minute${minutes === 1 ? '' : 's'}` : `${minutes} minutes`;
+      engineEvents.emit('turn_limit', { kind: 'time', minutes });
+      yield `\n\n⏱ Stopped: this run reached its time limit of ${shown}. Say "continue" to pick up where it stopped.\n`;
+    }
+  }
+
+  private async *run(
     initialMessages: Message[],
     systemPrompt: string,
     options?: AgentLoopOptions,

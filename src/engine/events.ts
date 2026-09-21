@@ -127,6 +127,7 @@ export interface MessageEntry {
 // - cost_update: (chars: number) => End-of-turn streamed-char count (footer + session accumulator)
 // - todo_update: (todos) => TodoWrite tool updated the task list (appStore → /todos panel)
 // - completion_check: (snapshot) => a task's completion checks or their last result changed (F3)
+// - turn_limit: ({ kind, minutes }) => a run stopped at its time limit (F5)
 // - config_changed / graph_changed / cwd_changed / mcp_changed => live UI refresh signals
 // - rerun_onboarding: () => Re-open the first-run onboarding flow
 // - thinking: (text: string) => Model's internal reasoning stream (status display only)

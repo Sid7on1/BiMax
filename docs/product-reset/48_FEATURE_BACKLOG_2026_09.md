@@ -183,7 +183,18 @@ per-machine constant applied per-Thread — except this one spends money.
 - Known bound, stated not hidden: reservations stay in-process, so the overshoot is at most one
   in-flight call per live engine, and the next check refuses.
 
-**Still open in F5:** retry limits and wall-clock limits per task.
+**Retries and wall-clock, done 2026-09-21.** Both are in Settings → Agent behavior (engine config `taskCheckRetries`,
+default 2, and `taskMaxMinutes`, default 0 = no limit); `BIMAX_TASK_MAX_RETRIES` / `BIMAX_TASK_MAX_MINUTES` override them
+per engine.
+- **Retries** bound how many times a task goes back to work after a failed completion check (F3) within one user turn.
+- **Wall-clock**: the limit rides the same abort signal as Stop, so a model call or a command in flight ends at once,
+  not at the next round. The run says it stopped at its limit, and a `turn_limit` event makes the Thread read
+  "Stopped · time limit reached" — not "Done", and not "Interrupted", which means the user pressed Stop.
+- Proof: `task.limits.test.ts` (the limit through the real AgentLoop with a command in flight, with and without the
+  app's Stop signal alongside) and `thread.activity.test.ts`; 7 mutants each fail a test. One mutant first survived —
+  the limit not linked when the app also passes its Stop signal, which it always does — and the test that kills it
+  was added.
+- The per-task spend share (`perTaskSpendUsd`) is still set in the app's settings file, not in the Settings window.
 
 **F6. Recovery before retry.** Before repeating an action, check whether it already happened, using the
 undo journal as the record. Value medium · Effort M.

@@ -52,6 +52,8 @@ const PAGES: Page[] = [
     items: [
       { key: 'maxToolIterations', label: 'Max tool iterations', desc: 'Per-turn budget for autonomous tool loops.', control: { kind: 'number', min: 1, max: 500, step: 5 } },
       { key: 'maxSubAgents', label: 'Parallel specialists', desc: 'Maximum number of specialists Bimax may coordinate at once.', control: { kind: 'number', min: 1, max: 20, step: 1 } },
+      { key: 'taskCheckRetries', label: 'Retries after a failed check', desc: 'How many more tries a task gets when its completion check fails, before it stops as not done.', control: { kind: 'number', min: 0, max: 10, step: 1 } },
+      { key: 'taskMaxMinutes', label: 'Time limit per run', desc: 'Minutes one run of a task may take before Bimax stops it. Zero means no limit.', control: { kind: 'number', min: 0, max: 1440, step: 5, placeholder: '0 · no limit' } },
       { key: 'selfCritic', label: 'Self-critic pass', desc: 'Review each result before it reaches you.', control: { kind: 'toggle' } },
       { key: 'adversarialVerify', label: 'Adversarial verify', desc: 'Run an additional full-model challenge pass.', control: { kind: 'toggle' } },
       { key: 'autoVerify', label: 'Auto-verify edits', desc: 'Feed typecheck failures back into the active loop.', control: { kind: 'toggle' } },

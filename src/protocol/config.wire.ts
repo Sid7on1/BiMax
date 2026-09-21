@@ -32,7 +32,7 @@ export const CONFIG_WIRE_KEYS = [
   'temperature', 'topP', 'maxTokens', 'timeout',
   'reasoningEffort', 'maxThinkingTokens',
   'contextMode', 'contextWindowTokens', 'parallelToolCalls',
-  'maxToolIterations', 'maxSubAgents',
+  'maxToolIterations', 'maxSubAgents', 'taskCheckRetries', 'taskMaxMinutes',
   'autoResumeAgents',
   'notificationBell', 'verbose', 'reducedMotion', 'theme',
   'autoIndex', 'gitAutoCommit', 'autoVerify', 'sandboxBash',

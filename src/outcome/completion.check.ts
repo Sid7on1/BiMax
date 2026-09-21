@@ -181,14 +181,21 @@ export class CompletionChecks {
   constructor(private readonly io: {
     sessionId?: () => string;
     directory?: () => string;
+    /** Fixed limit, for tests. */
     maxRetries?: () => number;
+    /** The engine config's `taskCheckRetries`, used when the environment sets none. */
+    configuredRetries?: () => number | undefined;
   } = {}) {}
 
   private sessionId(): string { return this.io.sessionId?.() || getSessionRecorder()?.currentId() || ''; }
   private directory(): string { return this.io.directory?.() || sessionDir(); }
+  /** The first valid of: the fixed limit, BIMAX_TASK_MAX_RETRIES, the engine config; else the default (F5). */
   private maxRetries(): number {
-    const configured = this.io.maxRetries?.() ?? Number(process.env.BIMAX_TASK_MAX_RETRIES);
-    return Number.isInteger(configured) && configured >= 0 ? configured : DEFAULT_CHECK_RETRIES;
+    const env = process.env.BIMAX_TASK_MAX_RETRIES?.trim();
+    for (const value of [this.io.maxRetries?.(), env ? Number(env) : undefined, this.io.configuredRetries?.()]) {
+      if (typeof value === 'number' && Number.isInteger(value) && value >= 0) return value;
+    }
+    return DEFAULT_CHECK_RETRIES;
   }
 
   /** Follow the active session: save the one being left, load the one arrived at. */
@@ -353,7 +360,11 @@ let runtime: CompletionChecks | null = null;
 /** The root engine's checks (headless entry). Workers and tests without it get null, and the loop skips checks. */
 export function startCompletionChecks(): CompletionChecks {
   if (runtime) return runtime;
-  runtime = new CompletionChecks();
+  runtime = new CompletionChecks({
+    configuredRetries: () => {
+      try { return (require('../engine/config') as typeof import('../engine/config')).getConfig().taskCheckRetries; } catch { return undefined; }
+    },
+  });
   engineEvents.on('session_changed', () => runtime?.syncSession());
   runtime.syncSession();
   return runtime;

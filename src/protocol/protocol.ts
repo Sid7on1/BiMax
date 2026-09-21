@@ -387,6 +387,8 @@ export const FORWARDED_EVENTS: readonly string[] = [
   'todo_update',
   // F3: a task's completion checks and their last result (outcome/completion.check.ts).
   'completion_check',
+  // F5: a run stopped at its time limit, so the front-end does not report it as done or as stopped by the user.
+  'turn_limit',
   'subagent_update',
   'thinking',
   'thinking_clear',

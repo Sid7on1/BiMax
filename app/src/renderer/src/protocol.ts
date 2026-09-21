@@ -48,6 +48,8 @@ export interface EngineConfig {
   parallelToolCalls?: boolean;
   maxToolIterations?: number;
   maxSubAgents?: number;
+  taskCheckRetries?: number;
+  taskMaxMinutes?: number;
   notificationBell?: boolean;
   verbose?: boolean;
   reducedMotion?: boolean;

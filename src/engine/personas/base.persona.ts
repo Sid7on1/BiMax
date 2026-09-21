@@ -547,12 +547,16 @@ export abstract class AgentPersona {
     const systemPrompt = [parts.staticPrefix, parts.dynamicSuffix].filter(Boolean).join('\n\n');
     AgentPersona.injectTurnContext(this.messages, parts.turnContext);
 
+    // F5: the longest one run may take. BIMAX_TASK_MAX_MINUTES overrides the config per engine; 0 means no limit.
+    const minutesEnv = process.env.BIMAX_TASK_MAX_MINUTES?.trim();
+    const maxMinutes = Number(minutesEnv ? minutesEnv : cfg.taskMaxMinutes) || 0;
     const passOpts = {
       maxIterations,
       contextMode,
       useLite: options?.useLite,
       signal: options?.signal,
       sessionId: options?.sessionId,
+      ...(maxMinutes > 0 ? { maxMinutes } : {}),
     };
     executionLog += await this.runPass(loop, systemPrompt, passOpts, onToken);
 
