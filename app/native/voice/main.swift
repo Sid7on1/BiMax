@@ -3,6 +3,7 @@
 //
 //   bimax-voice --check [--locale en-IN,en-US]                  is dictation available here, and in which language
 //   bimax-voice --listen [--locale …] [--context Bimax,Desktop] transcribe the microphone until stdin says stop/cancel or closes
+//                 [--hold <key code>]                          …or until that key is released (talk anywhere, backlog N8)
 //   bimax-voice --file <audio> [--locale …] [--context …]       transcribe a file (tests and diagnostics)
 //   bimax-voice --voices [--locale …]                            the installed voices for those languages, best first
 //   bimax-voice --say <text> [--locale …] [--voice <id>] [--rate <x>] speak once and exit (a voice preview, a spoken update)
@@ -11,6 +12,7 @@
 // A partial is the words still being heard, replaced by the next partial; a final is settled text that will not change.
 // --context names words to expect: without it the model hears "Bimax" as "Vmax" or "Baymax".
 import AVFoundation
+import CoreGraphics
 import Foundation
 import Speech
 
@@ -181,6 +183,17 @@ func listen() async {
       finish("stop")
     }
     DispatchQueue.global().asyncAfter(deadline: .now() + 300) { finish("stop") }
+    // --hold: a global shortcut reports its press but never its release, so the key is watched here. A key that is
+    // not down a quarter-second in was a tap (or macOS does not report it): then the app's next press sends instead.
+    if let key = argument("--hold").flatMap({ UInt16($0) }) {
+      Thread.detachNewThread {
+        Thread.sleep(forTimeInterval: 0.25)
+        guard CGEventSource.keyState(.combinedSessionState, key: CGKeyCode(key)) else { Out.send(["event": "hold", "armed": false]); return }
+        Out.send(["event": "hold", "armed": true])
+        while CGEventSource.keyState(.combinedSessionState, key: CGKeyCode(key)) { Thread.sleep(forTimeInterval: 0.04) }
+        finish("stop")
+      }
+    }
   }
   node.removeTap(onBus: 0)
   engine.stop()

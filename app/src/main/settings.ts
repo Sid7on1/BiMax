@@ -44,6 +44,10 @@ export interface AppSettings {
   talkVoice?: string;
   /** Talk mode's speaking speed, one of voice.settings.ts SPEECH_RATES; absent means normal. */
   talkRate?: number;
+  /** Talk anywhere's global shortcut, one of push.talk.ts PUSH_TALK_CHOICES; absent means off (backlog N8). */
+  pushTalkShortcut?: string;
+  /** How a spoken request's answer comes back: read out loud (default) or as a notification. */
+  pushTalkAnswer?: 'voice' | 'notification';
 }
 
 const MAX_RECENTS = 8;

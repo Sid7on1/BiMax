@@ -111,7 +111,7 @@ export function ThreadQuickBar(): React.ReactElement {
       if (value) setAttachments([]);
       dispatch({ type: 'restoreThread', state: value ? value.state : initialEngineState });
     };
-    const offContext = window.bimax.threads.onContext((value: QuickContext) => { setContext(value); setAttachments(value.attachments ?? []); setError(''); input.current?.focus(); });
+    const offContext = window.bimax.threads.onContext((value: QuickContext) => { setContext(value); setAttachments(value.attachments ?? []); if (value.prompt) setPrompt(value.prompt); setError(value.error ?? ''); input.current?.focus(); });
     const offThread = window.bimax.threads.onQuickThread(adopt);
     const offMsg = window.bimax.threads.onQuickMsg((msg: Outbound) => {
       noteOutputKind(msg);

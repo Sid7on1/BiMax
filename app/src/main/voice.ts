@@ -94,9 +94,10 @@ export class VoiceSessions {
 
   get activeOwner(): number | null { return this.current?.owner ?? null; }
 
-  start(owner: number, options: { locales: readonly string[]; context: readonly string[] }): void {
+  /** `hold`: a key code the helper watches, ending the dictation when that key is released (talk anywhere, N8). */
+  start(owner: number, options: { locales: readonly string[]; context: readonly string[]; hold?: number }): void {
     this.cancelCurrent();
-    const args = helperArguments('--listen', options);
+    const args = [...helperArguments('--listen', options), ...(options.hold !== undefined && Number.isInteger(options.hold) && options.hold >= 0 && options.hold < 128 ? ['--hold', String(options.hold)] : [])];
     let child: VoiceChild;
     try {
       child = this.deps.spawn(args);

@@ -421,6 +421,17 @@ chosen voice.
 
 **N8. Hold a key anywhere to talk.** A global push-to-talk that answers by notification or out loud.
 Value medium · Effort S–M.
+**Done 2026-09-22.** Menu bar → **Talk anywhere**: Off (default), ⌃⌥T, ⌃⌥⌘Space or ⌃⌥Space (whichever the ⌘2 bar
+does not use), and **Answer out loud** (default) or **as a notification**. Hold the shortcut in any app, speak, let
+go: the words become a ⌘2 task in the folder Finder shows — read at the press, the same context ⌘2 reads — and the
+menu bar says "● Listening" meanwhile. Electron's global shortcuts see the press, never the release, so the voice
+helper watches the key (`--listen --hold <key code>`, `CGEventSource.keyState`). A key not down a quarter-second in
+was a tap (or macOS will not say): then the next press sends. With no usable folder the words open in the ⌘2 bar
+to pick one. Nothing is sent when nothing was heard; a cancel sends nothing; an error is said once. An answer out
+loud is its first sentences, about 300 characters, without code or markup, in the Settings → Voice choice; the
+request carries talk mode's hint so the reply is written to be heard. Proof: `app/src/__tests__/push.talk.test.ts`,
+7 tests; `voice.test.ts` for `--hold`; 13 mutants each fail a test. **Not verified live:** whether macOS reports the
+held key to the helper without Input Monitoring, and the shortcut, listening and answer in the built app.
 
 **N9. Spoken updates when tasks finish.** "Your Downloads cleanup is done, 6 GB freed."
 Value low–medium · Effort S.

@@ -15,7 +15,7 @@ import { nextQuickThread, trayEntries, trayTitle, trayTooltip } from './thread.t
 import { modelMenuItems, type CatalogModel, type ModelMenuItem, type ModelTime } from './thread.models';
 import { cleanRules, rulesEnvironment } from './folder.rules';
 import { helperArguments, localeArguments, talkHelper, VoiceSessions, voiceHelperPath, voiceSupported } from './voice';
-import { TalkSession, talkModel, type TalkView } from './talk.session';
+import { TALK_TURN_HINT, TalkSession, talkModel, type TalkView } from './talk.session';
 import { describeSchedule, dueSchedules, newSchedule, type Cadence, type Schedule } from './schedules';
 import {
   ARRIVAL_KINDS, FolderTriggers, MAX_TRIGGERS, arrivalLabel, changeListNote, changesDuring, describeTrigger, newTrigger, runMessage,
@@ -25,6 +25,7 @@ import { Wakes, type CiState } from './wakes';
 import { conversationHtml, conversationMarkdown, exportFileName, sessionFile, sessionItems } from './thread.export';
 import { installQuickAction, openedFilesContext, quickActionPath, QUICK_ACTION_NAME } from './finder.action';
 import { onlyBasicVoices, parseVoiceList, pickerVoices, speakingArguments, SPEECH_RATES, validRate, validVoice } from './voice.settings';
+import { PUSH_TALK_CHOICES, PushToTalk, pushTalkAnswer, pushTalkChoice, spokenSummary, type PushTalkAnswer, type PushTalkChoice } from './push.talk';
 import type { TranscriptItem } from '../renderer/src/engine.state';
 import { randomUUID } from 'node:crypto';
 import { macBin } from './bin';
@@ -342,11 +343,11 @@ function openThread(id: string): void {
   else showQuickThread(id);
 }
 /** A task finished while it was not on screen: say so, with the start of its answer. */
-function notifyFinished(id: string): void {
+function notifyFinished(id: string, force = false): void {
   if (!Notification.isSupported()) return;
   const { summary, state } = threads.get(id);
   const onScreen = (id === quickThreadId && quickWindow?.isVisible()) || (id === threads.activeId && win?.isFocused());
-  if (onScreen) return;
+  if (onScreen && !force) return;
   const answer = [...state.items].reverse().find((item) => item.kind === 'msg' && item.msg.role === 'assistant');
   const body = answer && answer.kind === 'msg' ? answer.msg.content.replace(/\s+/g, ' ').trim().slice(0, 160) : 'Finished.';
   // The subtitle says what the completion check found (F3), not just that the model stopped.
@@ -364,6 +365,7 @@ const voice = new VoiceSessions({
     return child;
   },
   send: (owner, event) => {
+    if (owner === PUSH_TALK_OWNER) { pushTalk.onEvent(event); return; }
     const target = electronWebContents.fromId(owner);
     if (target && !target.isDestroyed()) target.send('voice:event', event);
     else voice.cancel(owner);
@@ -762,7 +764,7 @@ function updateTray(): void {
   if (process.platform !== 'darwin' || !threads) return;
   const list = threads.list();
   if (!tray) tray = new Tray(nativeImage.createEmpty());
-  tray.setTitle(trayTitle(list));
+  tray.setTitle(pushTalkListening ? '● Listening' : trayTitle(list));
   tray.setToolTip(trayTooltip(list, shortcutLabel(wantedShortcut)));
   const entries = trayEntries(list);
   const template: Electron.MenuItemConstructorOptions[] = [
@@ -775,8 +777,18 @@ function updateTray(): void {
     { label: `Keyboard shortcut: ${shortcutLabel(wantedShortcut)}`, submenu: [
       ...(shortcutAvailable ? [] : [{ label: `${shortcutLabel(wantedShortcut)} is used by another app. Choose another:`, enabled: false }]),
       ...SHORTCUT_CHOICES.map((choice): Electron.MenuItemConstructorOptions => ({
-        label: choice.label, type: 'radio', checked: choice.accelerator === wantedShortcut, click: () => chooseShortcut(choice.accelerator),
+        label: choice.label, type: 'radio', checked: choice.accelerator === wantedShortcut, enabled: choice.accelerator !== pushTalkShortcut?.accelerator, click: () => chooseShortcut(choice.accelerator),
       })),
+    ] },
+    { label: `Talk anywhere: ${pushTalkShortcut?.label ?? 'Off'}`, submenu: [
+      { label: 'Hold the shortcut in any app, speak, let go', enabled: false },
+      { label: 'Off', type: 'radio', checked: !pushTalkShortcut, click: () => choosePushTalk(null) },
+      ...PUSH_TALK_CHOICES.map((choice): Electron.MenuItemConstructorOptions => ({
+        label: choice.label, type: 'radio', checked: choice.accelerator === pushTalkShortcut?.accelerator, enabled: choice.accelerator !== wantedShortcut, click: () => choosePushTalk(choice),
+      })),
+      { type: 'separator' },
+      { label: 'Answer out loud', type: 'radio', checked: pushTalkAnswer(loadSettings().pushTalkAnswer) === 'voice', click: () => { saveSettings({ pushTalkAnswer: 'voice' }); updateTray(); } },
+      { label: 'Answer as a notification', type: 'radio', checked: pushTalkAnswer(loadSettings().pushTalkAnswer) === 'notification', click: () => { saveSettings({ pushTalkAnswer: 'notification' }); updateTray(); } },
     ] },
     existsSync(quickActionPath(os.homedir()))
       ? { label: `Remove “${QUICK_ACTION_NAME}” from Finder`, click: () => void removeQuickAction() }
@@ -916,6 +928,84 @@ async function removeQuickAction(): Promise<void> {
     void dialog.showMessageBox({ type: 'warning', message: `Bimax could not remove “${QUICK_ACTION_NAME}”`, detail: (error as Error).message });
   }
   updateTray();
+}
+
+// ── Talk anywhere (backlog N8, push.talk.ts) ─────────────────────────────────────────────────────
+// Hold the chosen shortcut in any app, speak, let go: a ⌘2 task in Finder's folder, answered out loud or by notification.
+const PUSH_TALK_OWNER = -2; // the dictation owner that is the main process itself, not a window
+let pushTalkShortcut: PushTalkChoice | null = null;
+let pushTalkListening = false;
+let pushTalkContext: QuickContext | null = null;
+/** ⌘2 tasks started by talking anywhere, and how each one's answer comes back when its turn ends. */
+const pushTalkThreads = new Map<string, PushTalkAnswer>();
+function tellPushTalk(message: string): void {
+  if (Notification.isSupported()) new Notification({ title: 'Bimax', body: message }).show();
+}
+const pushTalk = new PushToTalk({
+  listen: (holdKey) => voice.start(PUSH_TALK_OWNER, { locales: app.getPreferredSystemLanguages(), context: ['Bimax'], hold: holdKey }),
+  stop: () => voice.stop(PUSH_TALK_OWNER),
+  // Read at the press, while the app the person was in is still in front — the same context ⌘2 reads.
+  folder: async () => {
+    pushTalkContext = await finderContext();
+    const root = pushTalkContext.root;
+    return root && root !== '/' && root !== os.homedir() ? root : null;
+  },
+  submit: (root, words) => {
+    const answer = pushTalkAnswer(loadSettings().pushTalkAnswer);
+    try {
+      const id = threads.create(root, '', 'quick', loadSettings().quickModel || undefined);
+      pushTalkThreads.set(id, answer);
+      const request = withContext(words, pushTalkContext?.attachments ?? []);
+      threads.submit(id, answer === 'voice' ? `${request}\n\n${TALK_TURN_HINT}` : request, words);
+    } catch (error) {
+      tellPushTalk((error as Error).message);
+    }
+  },
+  openBar: (words) => { quickThreadId = null; void showQuickBar({ root: null, source: 'Choose a folder', error: 'Choose the folder for what you said.', prompt: words }); },
+  indicate: (listening) => { pushTalkListening = listening; updateTray(); },
+  tell: tellPushTalk,
+});
+async function pressPushTalk(): Promise<void> {
+  if (!pushTalkShortcut) return;
+  if (!pushTalk.listening) {
+    if (!voiceSupported(process.platform, os.release(), existsSync(voiceHelper()))) { tellPushTalk('Talking to Bimax needs macOS 26 or later.'); return; }
+    const status = systemPreferences.getMediaAccessStatus('microphone');
+    const allowed = status === 'granted' || (status === 'not-determined' && await systemPreferences.askForMediaAccess('microphone'));
+    if (!allowed) { tellPushTalk('Bimax can’t use the microphone. Turn it on in System Settings → Privacy & Security → Microphone.'); return; }
+    if (talk.active) talk.end();
+  }
+  await pushTalk.press(pushTalkShortcut);
+}
+/** Change talk anywhere's shortcut (null: off). A shortcut another app holds is refused and the old one kept. */
+function choosePushTalk(choice: PushTalkChoice | null): void {
+  const previous = pushTalkShortcut;
+  if (previous) globalShortcut.unregister(previous.accelerator);
+  pushTalkShortcut = null;
+  if (choice) {
+    if (choice.accelerator !== wantedShortcut && globalShortcut.register(choice.accelerator, () => { void pressPushTalk(); })) pushTalkShortcut = choice;
+    else {
+      if (previous && globalShortcut.register(previous.accelerator, () => { void pressPushTalk(); })) pushTalkShortcut = previous;
+      void dialog.showMessageBox({ type: 'info', message: `${choice.label} is in use`, detail: 'Another app, or the ⌘2 bar, already uses that shortcut. Choose another.' });
+    }
+  }
+  saveSettings({ pushTalkShortcut: pushTalkShortcut?.accelerator });
+  updateTray();
+}
+/** Read a finished spoken request's answer out loud, or show it — once; later turns in the task notify as usual. */
+function deliverPushTalkAnswer(id: string, answer: PushTalkAnswer): void {
+  if (answer === 'notification') { notifyFinished(id, true); return; }
+  const last = [...threads.get(id).state.items].reverse().find((item) => item.kind === 'msg' && item.msg.role === 'assistant');
+  speakAloud(last && last.kind === 'msg' ? spokenSummary(last.msg.content) || 'Done.' : 'Done.');
+}
+/** One spoken line through the voice helper, in the voice and speed chosen in Settings → Voice (N7); a newer one replaces it. */
+let speaking: ReturnType<typeof spawn> | null = null;
+function speakAloud(text: string, voiceChoice: { talkVoice?: unknown; talkRate?: unknown } = loadSettings()): void {
+  if (!existsSync(voiceHelper())) return;
+  speaking?.kill();
+  const child = spawn(voiceHelper(), ['--say', text.slice(0, 1000), ...localeArguments(app.getPreferredSystemLanguages()), ...speakingArguments(voiceChoice)], { stdio: ['ignore', 'ignore', 'ignore'] });
+  speaking = child;
+  child.on('error', () => undefined);
+  child.on('exit', () => { if (speaking === child) speaking = null; });
 }
 
 /** Read a task link, check its folder, and start the task only if the person clicks Start (see bimax.link.ts). */
@@ -1476,7 +1566,8 @@ app.whenReady().then(async () => {
     restarted: (id) => { if (id === threads.activeId) selectThread(id); },
     finished: (id, tookMs) => {
       recordModelTime(id, tookMs);
-      notifyFinished(id);
+      const spoken = pushTalkThreads.get(id);
+      if (spoken) { pushTalkThreads.delete(id); deliverPushTalkAnswer(id, spoken); } else notifyFinished(id);
       // Its folder's rules changed mid-turn: restart on them now that the turn is over (unless a message is queued).
       if (rulesStale.delete(id) && !threads.restartIfIdle(id)) rulesStale.add(id);
       // A folder trigger's run may be over, or a trigger may have been waiting for this folder.
@@ -1591,6 +1682,10 @@ app.whenReady().then(async () => {
   updateTray();
   wantedShortcut = chosenShortcut(loadSettings().quickShortcut);
   shortcutAvailable = switchShortcut(shortcutRegistry, null, wantedShortcut, () => { void showQuickBar(); }).ok;
+  // Talk anywhere (N8), when the person turned it on; a shortcut another app now holds leaves it off, with the menu saying so.
+  const savedPushTalk = pushTalkChoice(loadSettings().pushTalkShortcut);
+  if (savedPushTalk && savedPushTalk.accelerator !== wantedShortcut && globalShortcut.register(savedPushTalk.accelerator, () => { void pressPushTalk(); })) pushTalkShortcut = savedPushTalk;
+  updateTray();
   if (!shortcutAvailable) console.warn(`[threads] ${wantedShortcut} is already registered by another application.`);
   // Launch project: an env override or the last valid saved project — NEVER $HOME. When null, the
   // renderer shows the project-first welcome and we don't boot an engine in the wrong place (P0.1).
@@ -1709,13 +1804,8 @@ app.whenReady().then(async () => {
     saveSettings({ talkVoice: validVoice(voiceId), talkRate: validRate(rate) });
     return true;
   });
-  let voicePreview: ReturnType<typeof spawn> | null = null;
   secureHandle('voice:preview', false, (_e, voiceId: unknown, rate: unknown) => {
-    voicePreview?.kill();
-    const args = ['--say', 'Hello. This is how Bimax sounds when it talks with you.', ...localeArguments(app.getPreferredSystemLanguages()), ...speakingArguments({ talkVoice: voiceId, talkRate: rate })];
-    const child = spawn(voiceHelper(), args, { stdio: ['ignore', 'ignore', 'ignore'] });
-    voicePreview = child;
-    child.on('exit', () => { if (voicePreview === child) voicePreview = null; });
+    speakAloud('Hello. This is how Bimax sounds when it talks with you.', { talkVoice: voiceId, talkRate: rate });
     return true;
   });
   // Dictation (voice.ts, native/voice): the on-device helper runs only between voice:start and voice:stop / voice:cancel.

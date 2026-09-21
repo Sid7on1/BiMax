@@ -64,7 +64,8 @@ export interface ThreadList {
  * may live outside the task's folder because the task only reads it.
  */
 export interface QuickAttachment { kind: 'file' | 'page' | 'document' | 'picture'; label: string; path?: string; url?: string }
-export interface QuickContext { root: string | null; source: string; error?: string; attachments?: QuickAttachment[] }
+/** `prompt`: words to put in the bar, as when a spoken request (talk anywhere, N8) had no folder to go to. */
+export interface QuickContext { root: string | null; source: string; error?: string; attachments?: QuickAttachment[]; prompt?: string }
 /** The thread the ⌘2 bar is showing, with its transcript state, so a reopened bar picks up where it was. */
 export interface QuickThread {
   id: string;

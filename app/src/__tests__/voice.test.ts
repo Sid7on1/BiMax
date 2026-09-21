@@ -120,3 +120,13 @@ test('a talk helper that explains its failure keeps the explanation, even when t
   expect(events).toEqual([{ event: 'error', code: 'microphone-denied', message: 'Microphone access is off for Bimax.' }]);
   expect(exits).toHaveBeenCalledTimes(1);
 });
+
+test('talk anywhere (N8): the helper watches the held key only when a real key code is given', () => {
+  const { sessions, spawn } = fixture();
+  sessions.start(-2, { locales: ['en-US'], context: ['Bimax'], hold: 49 });
+  expect(spawn.mock.calls[0][0]).toEqual(['--listen', '--locale', 'en-US', '--context', 'Bimax', '--hold', '49']);
+  sessions.start(-2, { locales: [], context: [], hold: 1.5 });
+  sessions.start(-2, { locales: [], context: [], hold: 300 });
+  sessions.start(-2, { locales: [], context: [] });
+  expect(spawn.mock.calls.slice(1).map((call) => call[0])).toEqual([['--listen'], ['--listen'], ['--listen']]);
+});
