@@ -31,7 +31,13 @@ const THREAD_DELETE_GUIDANCE = 'In a Bimax thread, deletes go to the Bin so the 
  * named 'engine-governor' — this floor is what stands between the model and mac_control.
  */
 
-export type SessionPermissionMode = 'interactive' | 'plan' | 'auto' | 'strict' | 'bypass';
+/**
+ * `unattended` (backlog FL5, night shift): nobody is there to answer, so what would be asked is decided instead.
+ * Work inside the workspace goes ahead without a prompt, but every floor still holds — workspace containment, the
+ * sensitive-target refusals, the spend cap (unlike `bypass`, which lifts it) and the taint block, which turns into a
+ * refusal because nobody can knowingly allow it. Computer control is refused outright.
+ */
+export type SessionPermissionMode = 'interactive' | 'plan' | 'auto' | 'strict' | 'bypass' | 'unattended';
 
 export interface ToolPermissionRule {
   tool: string;
@@ -232,6 +238,14 @@ export class Governor implements IGovernor {
       taskType === 'OS_COMMAND' ? taintRestriction(payload.command || '', this.mode) : null;
     if (taintCut?.action === 'block') {
       throw new GovernorVetoError(`Blocked: ${taintCut.reason}`);
+    }
+
+    // Unattended (a night shift): a tainted network command was already refused above — taintRestriction blocks
+    // rather than asks when nobody is watching — so what reaches here is decided without a prompt.
+    if (this.mode === 'unattended') {
+      if (taskType === 'COMPUTER_CONTROL') throw new GovernorVetoError('Computer control is not allowed while unattended.');
+      engineEvents.emit('status', `Approved (unattended): ${taskType}`);
+      return;
     }
 
     // Layer 1: Persistent Rules Check

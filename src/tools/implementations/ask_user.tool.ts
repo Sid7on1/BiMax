@@ -33,6 +33,10 @@ The execution will pause until the user selects one of the provided options. The
     required: ['question', 'options']
   },
   execute: async (args: { question: string, options: string[], isMultiSelect?: boolean }) => {
+    // A night shift (FL5): nobody will answer until morning, so a question would stall the whole night.
+    if (process.env.BIMAX_UNATTENDED === '1') {
+      return `Nobody is here to answer until the morning. Choose the safer option yourself, write the question and your choice in NIGHT-QUESTIONS.md, commit it, and carry on with work that does not depend on it. Question: ${String(args.question ?? '').slice(0, 300)}`;
+    }
     // Refuse degenerate / gratuitous prompts (greetings, identity, single-option "decisions").
     // The model must answer the user directly instead of blocking the session on a fake choice.
     const degenerate = detectDegenerateAsk(args.question, args.options);

@@ -29,6 +29,9 @@ export function registerDiffApprover(fn: DiffApprover | null): void {
  */
 export async function requestDiffApproval(summary: string, diff: string): Promise<boolean> {
   if (!enabled || !approver) return true;
+  // A night shift (FL5) works unattended on its own branch in an isolated checkout: the branch is what the person
+  // reviews in the morning, so no single diff waits all night for an answer.
+  if (process.env.BIMAX_UNATTENDED === '1') return true;
   // Theory of mind: if this diff resembles ones the user has rejected before, say so
   // right in the approval summary — the learned taste is visible at decision time.
   let shownSummary = summary;

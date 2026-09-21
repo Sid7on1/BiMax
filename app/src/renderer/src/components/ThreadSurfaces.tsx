@@ -82,6 +82,9 @@ export function ThreadQuickBar(): React.ReactElement {
   const talkVoice = talking && talk.view.voice ? `Voice: ${talk.view.voice.name}${talk.view.voice.quality === 'default' ? ' (basic)' : ''}` : '';
   // This folder's rules, while they are being edited (⋯ → Rules for …); null when the editor is closed.
   const [rules, setRules] = useState<{ root: string; text: string; protect: string[] } | null>(null);
+  // FL5: the night shift card.
+  const [night, setNight] = useState<{ root: string; goal: string; cap: number; budget: string; until: string } | null>(null);
+  useEffect(() => window.bimax.threads.onOpenNight((value) => setNight({ ...value, budget: String(value.cap > 0 ? Math.min(value.cap, 5) : 5), until: '07:00' })), []);
   // FL1 part 2: the folder's outcome editor, opened from ⋯ or the menu bar.
   const [outcome, setOutcome] = useState<{ root: string; goal: string; checkNow: boolean; queue: { ready: string[]; needsYou: Array<{ path: string; reason: string }> } | null } | null>(null);
   useEffect(() => window.bimax.threads.onOpenOutcome(() => {
@@ -136,7 +139,7 @@ export function ThreadQuickBar(): React.ReactElement {
   }, []);
 
   const busy = state.spinner.state !== 'idle' && state.spinner.state !== '';
-  const hasConversation = Boolean(thread) || state.items.length > 0 || Boolean(outcome);
+  const hasConversation = Boolean(thread) || state.items.length > 0 || Boolean(outcome) || Boolean(night);
   const request = state.request as (RequestMsg & { approvalToken?: string }) | null;
   const root = thread?.root ?? context.root;
   // Text that stops arriving mid-turn means the model is running a tool or reading its result. Say so, instead
@@ -358,6 +361,7 @@ export function ThreadQuickBar(): React.ReactElement {
         if (e.key === 'Escape' && rules) { e.preventDefault(); setRules(null); return; }
         if (e.key === 'Escape' && outcome) { e.preventDefault(); setOutcome(null); return; }
         if (e.key === 'Escape' && changes) { e.preventDefault(); setChanges(null); return; }
+        if (e.key === 'Escape' && night) { e.preventDefault(); setNight(null); return; }
         if (e.key === 'Escape') { e.preventDefault(); window.bimax.threads.hide(); }
         if (e.key.toLowerCase() === 'n' && e.metaKey) { e.preventDefault(); window.bimax.threads.quickReset(); input.current?.focus(); }
       }}
@@ -471,6 +475,19 @@ export function ThreadQuickBar(): React.ReactElement {
           <div ref={body} className="quick-body">
             {rules ? (
               <QuickRules value={rules} onChange={setRules} onPick={() => void protectMore()} onSave={() => void saveRules()} onCancel={() => setRules(null)} />
+            ) : null}
+            {night ? (
+              <QuickNight
+                value={night}
+                onChange={setNight}
+                onStart={() => {
+                  void window.bimax.threads.nightStart(night.goal, Number(night.budget), night.until).then((r) => {
+                    if (r.ok) setNight(null);
+                    setError(r.error || r.note || '');
+                  });
+                }}
+                onCancel={() => setNight(null)}
+              />
             ) : null}
             {changes ? <QuickHistory value={changes} onUndo={(id, backTo) => void historyUndo(id, backTo)} onClose={() => setChanges(null)} /> : null}
             {outcome ? (
@@ -732,6 +749,36 @@ function QuickTeach({ value, onChange, onSave, onDismiss }: {
       <div className="quick-request-options">
         <button type="button" className="quick-choice quick-choice-primary" disabled={!value.rule.trim()} onClick={onSave}>Save as a folder rule</button>
         <button type="button" className="quick-choice" onClick={onDismiss}>Not now</button>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Night shift (backlog FL5): work on something overnight on its own git branch, in an isolated checkout, within a
+ * budget, until a morning time — then a briefing. The daily spending cap is Mac-wide, and the card says when it would
+ * stop the shift first.
+ */
+function QuickNight({ value, onChange, onStart, onCancel }: {
+  value: { root: string; goal: string; cap: number; budget: string; until: string };
+  onChange: (value: { root: string; goal: string; cap: number; budget: string; until: string }) => void;
+  onStart: () => void;
+  onCancel: () => void;
+}): React.ReactElement {
+  const budget = Number(value.budget);
+  return (
+    <section className="quick-request quick-rules" aria-label="Night shift">
+      <p className="quick-request-question">Work on this tonight in {folderName(value.root)}</p>
+      <textarea autoFocus rows={3} className="quick-rules-text" value={value.goal} placeholder="e.g. Migrate the tests from Jest to Vitest, one package at a time." onChange={(e) => onChange({ ...value, goal: e.target.value })} />
+      <p className="quick-note flex flex-wrap items-center gap-2">
+        <label>At most $<input className="quick-rules-text inline-block w-16" inputMode="decimal" value={value.budget} onChange={(e) => onChange({ ...value, budget: e.target.value })} aria-label="Budget in dollars" /></label>
+        <label>until <input className="quick-rules-text inline-block w-20" value={value.until} onChange={(e) => onChange({ ...value, until: e.target.value })} aria-label="Morning time" /></label>
+      </p>
+      <p className="quick-note">It works on a new branch in a separate checkout, so your working copy is not touched; it commits each milestone, writes down questions instead of waiting, keeps the Mac awake, and leaves a briefing in the morning.</p>
+      {value.cap > 0 && budget > value.cap ? <p className="quick-error">Your daily spending cap is ${value.cap}, so the shift stops at ${value.cap} unless you raise it in Settings → Agent behavior.</p> : null}
+      <div className="quick-request-options">
+        <button type="button" className="quick-choice quick-choice-primary" disabled={!value.goal.trim()} onClick={onStart}>Start the night shift</button>
+        <button type="button" className="quick-choice" onClick={onCancel}>Cancel</button>
       </div>
     </section>
   );

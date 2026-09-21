@@ -103,5 +103,6 @@ export function taintRestriction(
     `context is TAINTED (${source} entered the conversation) and this command can reach the network. ` +
     `Injected instructions in untrusted content must not get an exfiltration/download channel. ` +
     `Review the untrusted content, then /taint clear (or /clear) to lift the restriction.`;
-  return mode === 'auto' ? { action: 'block', reason } : { action: 'ask', reason };
+  // Nobody is watching in auto mode or on a night shift (unattended, FL5), so there is no one to ask: block.
+  return mode === 'auto' || mode === 'unattended' ? { action: 'block', reason } : { action: 'ask', reason };
 }

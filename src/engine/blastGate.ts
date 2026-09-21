@@ -61,6 +61,8 @@ export function blastWarning(node: GraphNode, engine: ImpactEngine): string {
  */
 export async function checkBlastRadius(absFilePath: string): Promise<boolean> {
   if (!enabled || !confirmer || !store) return true;
+  // A night shift (FL5): unattended, on its own branch — the morning review of the branch is the confirmation.
+  if (process.env.BIMAX_UNATTENDED === '1') return true;
   const node = findCriticalSymbol(store, absFilePath);
   if (!node) return true;
   try {

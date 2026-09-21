@@ -125,7 +125,8 @@ async function main() {
 
   const container = await createContainer(config);
   const { governor, graphStore } = container;
-  governor.mode = config.dangerouslySkipPermissions ? 'bypass' : 'interactive';
+  // A night shift (FL5) runs unattended: set by the Bimax app for that task only, in its isolated checkout.
+  governor.mode = config.dangerouslySkipPermissions ? 'bypass' : process.env.BIMAX_UNATTENDED === '1' ? 'unattended' : 'interactive';
 
   // Wire genome pattern store, recipe loader, and graph store for context injection
   setGlobalPatternStore(new GenomePatternStore(process.cwd()));

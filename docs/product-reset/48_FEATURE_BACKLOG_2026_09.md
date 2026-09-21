@@ -605,6 +605,22 @@ fail a test. **Still Target:** grouping by kind ("undo the renames but keep the 
 **FL5. Night Shift.** "Work on this migration tonight, at most $12, a reviewable branch by morning." Milestones,
 an isolated checkout, a check per milestone, and a morning briefing. Independent work continues while one
 question waits. Value high · Effort L · Needs F1–F7 · Only while the Mac is awake unless a remote worker is added.
+**First version built 2026-09-22.** ⌘2 bar ⋯ → **Work on This Tonight…**: the goal, a budget ($1–$100) and a morning
+time (HH:MM, within 16 hours). Bimax makes an **isolated checkout** — `git worktree add -b bimax/night-<date-time>`
+in its own app data, so the working copy is never touched — and starts a task there that runs **unattended**: a new
+governor mode where work inside the checkout goes ahead without prompts but every floor holds (workspace containment,
+the sensitive-target refusals, the spend cap — which `bypass` lifts and this does not — and the taint block, which
+refuses instead of asking); computer control is refused; AskUserTool answers "nobody is here: choose the safer option,
+write it in NIGHT-QUESTIONS.md and carry on"; diff approval and the blast-radius gate let edits through because the
+branch is what gets reviewed. The words ask for **milestones**, each checked and committed ("milestone: …"), never
+pushed. When a turn ends early, the shift is continued (at most 20 times) until it says NIGHT SHIFT DONE, reaches its
+budget (summed across UTC days, since the engine's per-task cap resets at midnight UTC), fails, is stopped, or hits
+the morning time (Bimax interrupts it then). Bimax keeps the Mac **awake** (`powerSaveBlocker`) while any shift runs.
+The **briefing** — how it ended, commits, diffstat, spend of budget, the check, recorded questions, its own summary,
+and the commands to review, merge or drop the branch — goes into the task, a Markdown file in app data and a
+notification. The card says when the Mac-wide daily cap would stop the shift first. Proof: `night.shift.test.ts`
+(8 tests, one on a real git repository) and `governor.unattended.test.ts` (4); 20 mutants each fail a test (a
+redundant taint check was removed after its mutant survived). **Not verified live** — no real overnight run yet.
 
 **FL6. Muscle memory.** After a task succeeds and passes its checks, offer to save it as a versioned skill with
 inputs, sample data and output checks. When an input stops matching, it goes back to reasoning.

@@ -123,6 +123,9 @@ const api = {
     onOpenRules: (cb: (value: any) => void) => subscribe('threads:open-rules', cb),
     // FL1 part 2: a folder's outcome — what it should be ready for — and its queue.
     onOpenOutcome: (cb: () => void) => subscribe('threads:open-outcome', cb),
+    // FL5: a night shift — isolated checkout, budget, morning time.
+    onOpenNight: (cb: (value: { root: string; goal: string; cap: number }) => void) => subscribe('threads:open-night', cb),
+    nightStart: (goal: string, budget: number, until: string): Promise<{ ok: boolean; error?: string; note?: string }> => ipcRenderer.invoke('threads:night-start', goal, budget, until),
     outcomeGet: (): Promise<{ root: string; goal: string; queue: { ready: string[]; needsYou: Array<{ path: string; reason: string }> } | null } | null> => ipcRenderer.invoke('threads:outcome-get'),
     outcomeSet: (goal: string, checkNow: boolean): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('threads:outcome-set', goal, checkNow),
     outcomeClear: (): Promise<boolean> => ipcRenderer.invoke('threads:outcome-clear'),
