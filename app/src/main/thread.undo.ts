@@ -267,3 +267,16 @@ export async function undoBackTo(stateRoot: string, threadRoot: string, bin: Bin
   }
   return { undone };
 }
+
+/** The files a thread's changes from `since` on produced or moved (FL6: a skill's sample files and input kinds). */
+export function touchedSince(stateRoot: string, since: number): string[] {
+  const out: string[] = [];
+  for (const change of pendingChanges(stateRoot)) {
+    if (change.at < since) continue;
+    for (const op of change.ops) {
+      const file = op.op === 'move' ? op.to : op.op === 'trash' ? null : op.path;
+      if (file && !out.includes(file)) out.push(file);
+    }
+  }
+  return out;
+}

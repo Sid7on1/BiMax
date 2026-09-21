@@ -9,7 +9,7 @@ import { finderContext } from './finder.context';
 import type { QuickAttachment, QuickContext, QuickThread, ThreadSummary } from '../shared/threads';
 import { threadNotice } from '../shared/threads';
 import { QUICK_BAR, quickBarBounds, quickBarOrigin } from './quick.bar';
-import { changeHistory, changesSince, journalFile, lastUndoable, threadStateEnvironment, threadStateRoot, undoBackTo, undoChange, undoLast } from './thread.undo';
+import { changeHistory, changesSince, journalFile, lastUndoable, threadStateEnvironment, threadStateRoot, touchedSince, undoBackTo, undoChange, undoLast } from './thread.undo';
 import { insideFolder, needsFolder, PICTURE_EXTENSIONS, screenshotName, validAttachments, withContext } from './quick.context';
 import { nextQuickThread, trayEntries, trayTitle, trayTooltip } from './thread.tray';
 import { modelMenuItems, type CatalogModel, type ModelMenuItem, type ModelTime } from './thread.models';
@@ -31,6 +31,7 @@ import { alreadyARule, correctionRule, sampleApplications, withRule } from './te
 import { applyReport, cleanGoal, filesToCheck, forgetGone, outcomeEnvironment, outcomeQueue, outcomeTaskWords, queueLine, validOutcomes, type FolderOutcome } from './folder.outcomes';
 import { applyPlan, cleanFolder, includeKept, isRevision, keepFile, keepManual, manualEdits, moveFile, moveGroup, planConflicts, previewTree, receivePlan, revisionHint, type AppliedPlan, type OrganizePlan } from './organize.plan';
 import { briefing, budgetNote, nightBranch, nightBudget, nightContinue, nightDeadline, nightNext, nightWords, spentBy, worktreeCommand, type NightShift } from './night.shift';
+import { saveSkill, skillDraft, skillName, type SkillDraft } from './skill.capture';
 import type { TranscriptItem } from '../renderer/src/engine.state';
 import { randomUUID } from 'node:crypto';
 import { macBin } from './bin';
@@ -903,6 +904,24 @@ async function endNightShift(id: string, stoppedBy: 'finished' | 'morning' | 'bu
     note.show();
   }
 }
+// ── Muscle memory (backlog FL6, skill.capture.ts) ────────────────────────────────────────────────
+/** The draft a "Save as a Skill" card is editing; only its name and description come back from the bar. */
+let skillEditing: { threadId: string; draft: SkillDraft } | null = null;
+/** Threads already told "its check passed — save it as a skill", so a follow-up does not repeat it. */
+const skillHinted = new Set<string>();
+function draftSkill(id: string): SkillDraft {
+  const { summary, state } = threads.get(id);
+  const first = state.items.find((item) => item.kind === 'msg' && item.msg.role === 'user');
+  const since = first && first.kind === 'msg' ? Date.parse(String(first.msg.timestamp)) || 0 : 0;
+  const touched = touchedSince(threadStateRoot(app.getPath('userData'), summary.root, summary.origin), since);
+  return skillDraft({ title: summary.title, request: firstPrompt(id) ?? summary.title, items: state.items, touched });
+}
+function openSkillCard(id: string): void {
+  const draft = draftSkill(id);
+  skillEditing = { threadId: id, draft };
+  quickWindow?.webContents.send('threads:open-skill', draft);
+}
+
 /** The bar's night shift card: the folder it would work on, and the cap to warn about. */
 let nightEditingRoot: string | null = null;
 
@@ -1060,6 +1079,8 @@ function showMoreMenu(): void {
   template.push(root
     ? { label: `Rules for ${path.basename(root)}…`, click: () => quickWindow?.webContents.send('threads:open-rules') }
     : { label: 'Rules for this folder…', enabled: false, sublabel: 'Choose a folder first' });
+  // FL6: keep what worked as a skill.
+  if (snapshot && prompt) template.push({ label: 'Save as a Skill…', click: () => openSkillCard(snapshot.id) });
   // FL5: work on something overnight in an isolated checkout.
   if (root) template.push({ label: 'Work on This Tonight…', click: () => { nightEditingRoot = root; quickWindow?.webContents.send('threads:open-night', { root, goal: snapshot && prompt ? prompt : '', cap: dailyCapUsd() }); } });
   // FL1 part 2: this folder's outcome and its queue.
@@ -1492,7 +1513,7 @@ function auxiliaryChannelAllowed(event: IpcMainEvent | IpcMainInvokeEvent, chann
     ? ['threads:context', 'threads:pick-folder', 'threads:quick-submit', 'threads:hide', 'threads:list', 'threads:reply',
       'threads:quick-current', 'threads:quick-reset', 'threads:quick-interrupt', 'threads:quick-resize', 'threads:quick-open',
       'threads:undo-info', 'threads:undo', 'threads:history', 'threads:undo-change', 'threads:undo-back-to', 'threads:open-path', 'threads:quick-switch', 'threads:model-menu',
-      'threads:more-menu', 'threads:rules-get', 'threads:rules-set', 'threads:rules-pick', 'threads:screenshot', 'threads:paste-picture', 'threads:teach', 'threads:outcome-get', 'threads:outcome-set', 'threads:outcome-clear', 'threads:night-start',
+      'threads:more-menu', 'threads:rules-get', 'threads:rules-set', 'threads:rules-pick', 'threads:screenshot', 'threads:paste-picture', 'threads:teach', 'threads:outcome-get', 'threads:outcome-set', 'threads:outcome-clear', 'threads:night-start', 'threads:skill-save',
       'voice:available', 'voice:start', 'voice:stop', 'voice:cancel', 'talk:start', 'talk:end', 'talk:interrupt', 'talk:current']
     : event.sender.id === organizeWindow?.webContents.id
       ? ['organize:current', 'organize:move', 'organize:move-group', 'organize:keep', 'organize:include', 'organize:apply', 'organize:cancel']
@@ -1916,6 +1937,12 @@ app.whenReady().then(async () => {
       // A night shift (FL5) is continued or briefed, not announced after every milestone.
       if (nightShifts.has(id)) afterNightTurn(id);
       else if (spoken) { pushTalkThreads.delete(id); deliverPushTalkAnswer(id, spoken); } else { notifyFinished(id); speakFinished(id); }
+      // FL6: a ⌘2 task whose check passed can become a skill; said once per task.
+      const done = threads.get(id).summary;
+      if (done.origin !== 'project' && done.check === 'passed' && !nightShifts.has(id) && !skillHinted.has(id)) {
+        skillHinted.add(id);
+        threads.addNote(id, 'Its check passed. To have Bimax do this kind of job the same way again, ⋯ → Save as a Skill.');
+      }
       // Its folder's rules changed mid-turn: restart on them now that the turn is over (unless a message is queued).
       if (rulesStale.delete(id) && !threads.restartIfIdle(id)) rulesStale.add(id);
       // A folder trigger's run may be over, or a trigger may have been waiting for this folder.
@@ -2292,6 +2319,21 @@ app.whenReady().then(async () => {
     const rules = cleanRules(root, raw);
     saveFolderRules(root, rules, rules.text || rules.protect.length ? `Rules for ${path.basename(root)} saved.` : `Rules for ${path.basename(root)} cleared.`);
     return { ok: true };
+  });
+  // FL6: save the skill the card was opened for, with the name and description as edited.
+  secureHandle('threads:skill-save', { ok: false } as { ok: boolean; error?: string }, async (_e, rawName: unknown, rawDescription: unknown) => {
+    const editing = skillEditing;
+    if (!editing) return { ok: false, error: 'There is no skill to save.' };
+    const name = skillName(typeof rawName === 'string' ? rawName : editing.draft.name);
+    const description = typeof rawDescription === 'string' && rawDescription.trim() ? rawDescription.replace(/\s+/g, ' ').trim().slice(0, 200) : editing.draft.description;
+    try {
+      const { file, version } = await saveSkill(path.join(os.homedir(), '.bimax', 'skills'), { ...editing.draft, name, description }, new Date());
+      skillEditing = null;
+      threads.addNote(editing.threadId, `Saved the skill “${name}”${version > 1 ? ` (version ${version}; the earlier one is kept beside it)` : ''} in ${path.dirname(file)}. Every new Bimax task sees it; ask for the same kind of job and it follows these steps — or works it out afresh when the input does not fit.`);
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, error: (error as Error).message };
+    }
   });
   // FL5: start a night shift on the folder the card was opened for.
   secureHandle('threads:night-start', { ok: false } as { ok: boolean; error?: string; note?: string }, async (_e, goal: unknown, budget: unknown, until: unknown) => {

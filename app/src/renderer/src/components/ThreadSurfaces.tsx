@@ -82,6 +82,9 @@ export function ThreadQuickBar(): React.ReactElement {
   const talkVoice = talking && talk.view.voice ? `Voice: ${talk.view.voice.name}${talk.view.voice.quality === 'default' ? ' (basic)' : ''}` : '';
   // This folder's rules, while they are being edited (⋯ → Rules for …); null when the editor is closed.
   const [rules, setRules] = useState<{ root: string; text: string; protect: string[] } | null>(null);
+  // FL6: the "Save as a Skill" card.
+  const [skill, setSkill] = useState<{ name: string; description: string; inputs: string[]; steps: string[]; checks: string[]; samples: string[] } | null>(null);
+  useEffect(() => window.bimax.threads.onOpenSkill(setSkill), []);
   // FL5: the night shift card.
   const [night, setNight] = useState<{ root: string; goal: string; cap: number; budget: string; until: string } | null>(null);
   useEffect(() => window.bimax.threads.onOpenNight((value) => setNight({ ...value, budget: String(value.cap > 0 ? Math.min(value.cap, 5) : 5), until: '07:00' })), []);
@@ -139,7 +142,7 @@ export function ThreadQuickBar(): React.ReactElement {
   }, []);
 
   const busy = state.spinner.state !== 'idle' && state.spinner.state !== '';
-  const hasConversation = Boolean(thread) || state.items.length > 0 || Boolean(outcome) || Boolean(night);
+  const hasConversation = Boolean(thread) || state.items.length > 0 || Boolean(outcome) || Boolean(night) || Boolean(skill);
   const request = state.request as (RequestMsg & { approvalToken?: string }) | null;
   const root = thread?.root ?? context.root;
   // Text that stops arriving mid-turn means the model is running a tool or reading its result. Say so, instead
@@ -362,6 +365,7 @@ export function ThreadQuickBar(): React.ReactElement {
         if (e.key === 'Escape' && outcome) { e.preventDefault(); setOutcome(null); return; }
         if (e.key === 'Escape' && changes) { e.preventDefault(); setChanges(null); return; }
         if (e.key === 'Escape' && night) { e.preventDefault(); setNight(null); return; }
+        if (e.key === 'Escape' && skill) { e.preventDefault(); setSkill(null); return; }
         if (e.key === 'Escape') { e.preventDefault(); window.bimax.threads.hide(); }
         if (e.key.toLowerCase() === 'n' && e.metaKey) { e.preventDefault(); window.bimax.threads.quickReset(); input.current?.focus(); }
       }}
@@ -475,6 +479,11 @@ export function ThreadQuickBar(): React.ReactElement {
           <div ref={body} className="quick-body">
             {rules ? (
               <QuickRules value={rules} onChange={setRules} onPick={() => void protectMore()} onSave={() => void saveRules()} onCancel={() => setRules(null)} />
+            ) : null}
+            {skill ? (
+              <QuickSkill value={skill} onChange={setSkill}
+                onSave={() => { void window.bimax.threads.skillSave(skill.name, skill.description).then((r) => { if (r.ok) setSkill(null); else setError(r.error || 'Could not save the skill.'); }); }}
+                onCancel={() => setSkill(null)} />
             ) : null}
             {night ? (
               <QuickNight
@@ -749,6 +758,32 @@ function QuickTeach({ value, onChange, onSave, onDismiss }: {
       <div className="quick-request-options">
         <button type="button" className="quick-choice quick-choice-primary" disabled={!value.rule.trim()} onClick={onSave}>Save as a folder rule</button>
         <button type="button" className="quick-choice" onClick={onDismiss}>Not now</button>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Muscle memory (backlog FL6): what the task did, as a skill every later task can follow — shown before it is saved,
+ * with its name and "when to use it" editable.
+ */
+function QuickSkill({ value, onChange, onSave, onCancel }: {
+  value: { name: string; description: string; inputs: string[]; steps: string[]; checks: string[]; samples: string[] };
+  onChange: (value: { name: string; description: string; inputs: string[]; steps: string[]; checks: string[]; samples: string[] }) => void;
+  onSave: () => void;
+  onCancel: () => void;
+}): React.ReactElement {
+  return (
+    <section className="quick-request quick-rules" aria-label="Save as a skill">
+      <p className="quick-request-question">Save this as a skill</p>
+      <input className="quick-rules-text" value={value.name} onChange={(e) => onChange({ ...value, name: e.target.value })} aria-label="Skill name" />
+      <textarea rows={2} className="quick-rules-text" value={value.description} onChange={(e) => onChange({ ...value, description: e.target.value })} aria-label="When to use it" />
+      {value.inputs.length || value.samples.length ? <p className="quick-note">Worked on: {[...value.inputs, ...value.samples].join(' · ')}. When a new input is not like that, a task works it out afresh instead.</p> : null}
+      <ol className="quick-note">{value.steps.slice(0, 8).map((step, i) => <li key={i}>{step}</li>)}{value.steps.length > 8 ? <li>… and {value.steps.length - 8} more</li> : null}</ol>
+      {value.checks.length ? <p className="quick-note">Checked by: {value.checks.join('; ')}</p> : null}
+      <div className="quick-request-options">
+        <button type="button" className="quick-choice quick-choice-primary" disabled={!value.name.trim()} onClick={onSave}>Save skill</button>
+        <button type="button" className="quick-choice" onClick={onCancel}>Cancel</button>
       </div>
     </section>
   );

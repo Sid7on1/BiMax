@@ -125,6 +125,9 @@ const api = {
     onOpenOutcome: (cb: () => void) => subscribe('threads:open-outcome', cb),
     // FL5: a night shift — isolated checkout, budget, morning time.
     onOpenNight: (cb: (value: { root: string; goal: string; cap: number }) => void) => subscribe('threads:open-night', cb),
+    // FL6: save a task that worked as a skill.
+    onOpenSkill: (cb: (draft: { name: string; description: string; inputs: string[]; steps: string[]; checks: string[]; samples: string[] }) => void) => subscribe('threads:open-skill', cb),
+    skillSave: (name: string, description: string): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('threads:skill-save', name, description),
     nightStart: (goal: string, budget: number, until: string): Promise<{ ok: boolean; error?: string; note?: string }> => ipcRenderer.invoke('threads:night-start', goal, budget, until),
     outcomeGet: (): Promise<{ root: string; goal: string; queue: { ready: string[]; needsYou: Array<{ path: string; reason: string }> } | null } | null> => ipcRenderer.invoke('threads:outcome-get'),
     outcomeSet: (goal: string, checkNow: boolean): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('threads:outcome-set', goal, checkNow),

@@ -626,6 +626,17 @@ redundant taint check was removed after its mutant survived). **Not verified liv
 inputs, sample data and output checks. When an input stops matching, it goes back to reasoning.
 Merges "teach Bimax a job once" (file workflows) and "apply this before/after change to the other 40".
 Value high · Effort L · Needs F3.
+**First version built 2026-09-22.** When a ⌘2 task's check passes (F3), it says once: "To have Bimax do this kind
+of job the same way again, ⋯ → Save as a Skill." The card shows the skill before it is saved — its name and "when to
+use it" (editable), what it worked on, its steps and its checks — written from what the task actually did, with no
+model call: its request, the kinds of files it changed and up to five samples (from its undo journal), its successful
+steps (not the reads and searches it made to find its way, not failed calls, not sub-agent calls, no repeats; at most
+25), and its F3 checks. It is saved to `~/.bimax/skills/<name>/SKILL.md`, where every Bimax task sees it. The skill
+opens with **Check first**: when a new input is not like what it worked on, do NOT follow the steps — work it out
+afresh and say the skill did not fit. Saving again keeps the earlier version in `versions/`. Proof:
+`app/src/__tests__/skill.capture.test.ts` (4 tests, frontmatter parsed with the engine's YAML library); the engine's
+own `parseSkillFile` read a generated skill whose request held ": "; 12 mutants each fail a test. **Not verified
+live:** a later task choosing the skill, and its "did not fit" path.
 
 **FL7. "Where was I?"** Bookmarks, plus changes since your last visit: what was compared, what was rejected
 and why, what arrived, the next step. *First version:* an explicit "leave myself a bookmark" button.
