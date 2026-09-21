@@ -255,7 +255,7 @@ Value medium · Effort M. **Done 2026-09-21.**
 - **Measured live and fixed:** every steering unit test passed while every steer vanished in the running engine — the
   stdio host passes its handlers by name and `onSteer` was not in the list. `stdio.handlers.test.ts` now sends every
   inbound kind through the real host and requires each to reach its handler, and fails if a new kind is not in its
-  table. After the fix, live: the running turn took the steer at its next step (`steer_queued`, then `steered`).
+  table. After the fix, live: asked to read four files and describe them, then steered after its first tool call with "also give the number of lines in each file, and finish with the total", the running turn took it (`steer_queued`, then `steered`) and answered with each file's line count and "Total lines across all files: 10" — correct.
 - Proof: `steering.test.ts` (the real AgentLoop and HeadlessSession), `thread.steer.test.ts` (the real ThreadManager),
   `stdio.handlers.test.ts`; 12 mutants each fail a test.
 
