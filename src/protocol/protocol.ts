@@ -389,6 +389,9 @@ export const FORWARDED_EVENTS: readonly string[] = [
   'completion_check',
   // F5: a run stopped at its time limit, so the front-end does not report it as done or as stopped by the user.
   'turn_limit',
+  // F4: a task asks to be resumed by an event, or cancels that; the app keeps and delivers wakes.
+  'wake_request',
+  'wake_cancel',
   'subagent_update',
   'thinking',
   'thinking_clear',

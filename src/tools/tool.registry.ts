@@ -45,6 +45,8 @@ const CORE_TOOLS = new Set<string>([
   // The engine itself asks the model to call CompletionCheckTool when a task changed files (F3). Deferred, the model
   // was told to call a tool it could not see, and searched the project's files for its name instead (measured live).
   'CompletionCheckTool',
+  // "Check back when CI finishes" has to reach the one tool that can do it (F4); deferred, a weak model would not find it.
+  'WakeTool',
 ]);
 
 /**

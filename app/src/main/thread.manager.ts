@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { engineReducer, initialEngineState, type EngineUiState } from '../renderer/src/engine.state';
-import type { ThreadSummary, ThreadSelection, ThreadApproval } from '../shared/threads';
+import type { ThreadSummary, ThreadSelection, ThreadApproval, ThreadWake } from '../shared/threads';
 import type { Outbound } from '../renderer/src/protocol';
 
 export interface ThreadEngine {
@@ -57,9 +57,27 @@ interface LiveThread extends SavedThread {
   /** The engine stopped this turn at the task's time limit (F5). */
   turnLimited?: boolean;
 }
+/** At most this many wakes wait on one thread (F4); a request past it is refused in the thread. */
+export const MAX_THREAD_WAKES = 5;
+const WAKE_KINDS: readonly ThreadWake['kind'][] = ['at', 'folder', 'ci', 'answer'];
+
+/** A wake request from the engine as a saved wake, or null when it is not one. */
+export function threadWakeFrom(value: unknown): ThreadWake | null {
+  const v = value as Partial<ThreadWake> | null;
+  if (!v || typeof v.id !== 'string' || !v.id || !WAKE_KINDS.includes(v.kind as ThreadWake['kind']) || typeof v.reason !== 'string') return null;
+  const wake: ThreadWake = { id: v.id.slice(0, 40), kind: v.kind as ThreadWake['kind'], reason: v.reason.slice(0, 500), createdAt: typeof v.createdAt === 'number' ? v.createdAt : Date.now() };
+  if (wake.kind === 'at' && typeof v.at !== 'number') return null;
+  if ((wake.kind === 'folder' || wake.kind === 'ci') && typeof v.path !== 'string') return null;
+  if (wake.kind === 'ci' && typeof v.sha !== 'string') return null;
+  for (const key of ['at', 'path', 'match', 'sha', 'question'] as const) if (v[key] !== undefined) (wake as any)[key] = v[key];
+  return wake;
+}
+
 interface Dependencies {
   engine(id: string): ThreadEngine;
   changed(): void;
+  /** A thread's wakes changed (F4): the app re-arms what it waits for. */
+  wakesChanged?(): void;
   selected(selection: ThreadSelection): void;
   message(id: string, msg: Outbound): void;
   approval(value: ThreadApproval): void;
@@ -313,6 +331,23 @@ export class ThreadManager {
     return true;
   }
   list(): ThreadSummary[] { return [...this.records.values()].map(r => this.summaryOf(r)).sort((a,b) => b.updatedAt-a.updatedAt); }
+  /** Every thread's wakes, for the app's wake scheduler (F4). */
+  wakeEntries(): Array<{ threadId: string; wakes: ThreadWake[] }> {
+    return [...this.records.values()].filter((r) => r.summary.wakes?.length).map((r) => ({ threadId: r.summary.id, wakes: [...r.summary.wakes!] }));
+  }
+  /**
+   * An event a thread waited for happened (F4): drop that wake and send the task `text`, which starts its engine and
+   * brings its conversation back when it was shut down. Returns false when the thread or the wake is gone.
+   */
+  wakeUp(id: string, wakeId: string, text: string, display: string): boolean {
+    const r = this.records.get(id);
+    if (!r || !r.summary.wakes?.some((w) => w.id === wakeId)) return false;
+    r.summary.wakes = r.summary.wakes.filter((w) => w.id !== wakeId);
+    if (!r.summary.wakes.length) delete r.summary.wakes;
+    this.submit(id, text, display);
+    this.deps.wakesChanged?.();
+    return true;
+  }
   /** One thread's summary as lists show it, with its queue and why it waits (backlog N12). */
   summary(id: string): ThreadSummary {
     const r = this.records.get(id);
@@ -466,6 +501,12 @@ export class ThreadManager {
       r.holdInputs = false;
       if (r.pending.delete(RESUME_CHOICE_ID)) r.state = { ...r.state, request: null };
     }
+    // The user's own message is the answer an "answer" wake waited for (F4); a wake's own message is not.
+    if (!text.startsWith('[Wake]') && r.summary.wakes?.some((w) => w.kind === 'answer')) {
+      r.summary.wakes = r.summary.wakes.filter((w) => w.kind !== 'answer');
+      if (!r.summary.wakes.length) delete r.summary.wakes;
+      this.deps.wakesChanged?.();
+    }
     this.start(id);
     if (r.summary.title.startsWith('New thread in ')) r.summary.title = display.trim().slice(0,80);
     // Recorded when submitted, not when dispatched: a queued or not-yet-started thread still shows the turn.
@@ -530,6 +571,28 @@ export class ThreadManager {
     // Only a turn's end reads it, and every turn starts with it cleared, so an error between turns changes nothing.
     if (msg.t === 'event' && msg.name === 'message' && (msg.args[0] as { level?: unknown } | undefined)?.level === 'error') r.turnError = true;
     if (msg.t === 'event' && msg.name === 'turn_limit') r.turnLimited = true;
+    // Wakes (F4): kept with the thread, so the app can wait for them and they survive a restart.
+    if (msg.t === 'event' && msg.name === 'wake_request') {
+      const wake = threadWakeFrom(msg.args[0]);
+      const wakes = r.summary.wakes ?? [];
+      if (wake && !wakes.some((w) => w.id === wake.id)) {
+        if (wakes.length >= MAX_THREAD_WAKES) {
+          const note = { t: 'event', name: 'message', args: [{ id: `wake-refused-${wake.id}`, role: 'system', level: 'warn', content: `This task already waits for ${MAX_THREAD_WAKES} things, so it will not also wake ${wake.kind === 'at' ? 'at that time' : 'for that'}. Cancel one first.`, timestamp: new Date().toISOString() }] } as Outbound;
+          r.state = engineReducer(r.state, { type: 'outbound', msg: note });
+          this.deps.message(id, note);
+        } else {
+          r.summary.wakes = [...wakes, wake];
+          this.deps.wakesChanged?.();
+        }
+      }
+    }
+    if (msg.t === 'event' && msg.name === 'wake_cancel') {
+      const cancel = String((msg.args[0] as { id?: unknown } | undefined)?.id ?? '');
+      const before = r.summary.wakes?.length ?? 0;
+      r.summary.wakes = cancel === 'all' ? [] : (r.summary.wakes ?? []).filter((w) => w.id !== cancel);
+      if (!r.summary.wakes.length) delete r.summary.wakes;
+      if ((r.summary.wakes?.length ?? 0) !== before) this.deps.wakesChanged?.();
+    }
     // The engine's completion check (F3): what the sidebar, the menu bar and the notification say about a finished turn.
     if (msg.t === 'event' && msg.name === 'completion_check') {
       const check = msg.args[0] as { state?: unknown; testsEdited?: unknown } | undefined;

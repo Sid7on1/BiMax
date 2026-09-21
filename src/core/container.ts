@@ -86,6 +86,7 @@ import { createPlanTool } from '../tools/implementations/plan.tool';
 import { createScoutTool } from '../tools/implementations/scout.tool';
 import { createOutcomeTool } from '../tools/implementations/outcome.tool';
 import { createCompletionCheckTool } from '../tools/implementations/completion.check.tool';
+import { createWakeTool } from '../tools/implementations/wake.tool';
 
 import { Governor } from '../governor/governor';
 import { EngineConfig } from '../engine/config';
@@ -214,6 +215,8 @@ export async function createContainer(config?: Partial<EngineConfig>): Promise<{
   toolRegistry.register(createOutcomeTool(governor));
   // F3: how a task that changes files will be checked; the engine runs the check when the task finishes.
   toolRegistry.register(createCompletionCheckTool(governor));
+  // F4: resume this task on a time, a folder change, a CI result or the user's answer; the app does the waiting.
+  toolRegistry.register(createWakeTool(governor));
   toolRegistry.register(createWebFetchTool(governor));
   toolRegistry.register(createCdTool(governor));
   toolRegistry.register(createGraphQueryTool(governor, graphStore));

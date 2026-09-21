@@ -21,13 +21,14 @@ import {
   ARRIVAL_KINDS, FolderTriggers, MAX_TRIGGERS, arrivalLabel, changeListNote, changesDuring, describeTrigger, newTrigger, runMessage,
   triggerFolderProblem, validTriggers, type FolderEntry, type FolderTrigger, type StartResult,
 } from './folder.triggers';
+import { Wakes, type CiState } from './wakes';
 import { randomUUID } from 'node:crypto';
 import { macBin } from './bin';
 import { answerFromNotification, notificationChoices } from './approval.notification';
 import { linkConfirmation, parseTaskLink } from './bimax.link';
 import { DEFAULT_SHORTCUT, SHORTCUT_CHOICES, chosenShortcut, shortcutLabel, switchShortcut } from './quick.shortcut';
 import os from 'node:os';
-import { spawn } from 'node:child_process';
+import { spawn, execFile } from 'node:child_process';
 import { readFileSync, writeFileSync, renameSync, mkdirSync, realpathSync, existsSync, appendFileSync, statSync, watch as watchFolder } from 'node:fs';
 import fsp from 'node:fs/promises';
 import {
@@ -522,6 +523,24 @@ function scheduleMenu(): Electron.MenuItemConstructorOptions[] {
 }
 /** Watches folders for their triggers while Bimax is open; created once threads exist. */
 let folderTriggers: FolderTriggers | null = null;
+/** Wakes tasks asked for (backlog F4, wakes.ts): a time, a folder change, a CI result. Armed once threads load. */
+let wakes: Wakes | null = null;
+
+/** The CI runs for one commit, from the GitHub CLI in the task's folder (F4). */
+function ciRunsFor(root: string, sha: string): Promise<CiState> {
+  return new Promise((resolve) => {
+    execFile('gh', ['run', 'list', '--commit', sha, '--json', 'name,status,conclusion,url', '--limit', '30'], { cwd: root, timeout: 20_000 }, (error, stdout, stderr) => {
+      if (error) { resolve({ state: 'error', message: (stderr || error.message).trim().split('\n')[0].slice(0, 200) }); return; }
+      try {
+        const runs = JSON.parse(stdout) as Array<{ name?: string; status?: string; conclusion?: string; url?: string }>;
+        if (!runs.length || runs.some((run) => run.status !== 'completed')) { resolve({ state: 'waiting' }); return; }
+        resolve({ state: 'done', runs: runs.map((run) => ({ name: String(run.name ?? 'run'), status: String(run.status), conclusion: String(run.conclusion ?? ''), url: run.url })) });
+      } catch {
+        resolve({ state: 'error', message: 'gh returned something that is not a list of runs' });
+      }
+    });
+  });
+}
 const loadTriggers = (): FolderTrigger[] => validTriggers(loadSettings().folderTriggers, os.homedir());
 function saveTriggers(list: FolderTrigger[]): void {
   saveSettings({ folderTriggers: list });
@@ -1008,7 +1027,8 @@ function createSupervisor(threadId?: string): EngineSupervisor {
         // Keychain-backed secrets enter only at the child boundary. They never pass through the
         // renderer or the engine protocol and are not written to diagnostics.
         ...providerCredentialEnvironment(),
-        ...(threadId ? { ...threadBroker.environment(threadId), BIMAX_THREAD_ROOT: project, WORKSPACE_ROOT: project,
+        // BIMAX_WAKES: this app keeps and delivers the task's wakes (F4), so the engine's WakeTool may promise one.
+        ...(threadId ? { ...threadBroker.environment(threadId), BIMAX_THREAD_ROOT: project, WORKSPACE_ROOT: project, BIMAX_WAKES: '1',
           // Which optional subsystems this thread may run, by origin — see threadCapabilityEnvironment.
           // These four used to be pinned off here for every thread, which silenced codebase memory and
           // the drives boot across the whole product once every conversation became a thread.
@@ -1252,6 +1272,7 @@ app.whenReady().then(async () => {
   });
   threads = new ThreadManager({
     engine: id => createSupervisor(id), changed: threadChanged,
+    wakesChanged: () => wakes?.sync(threads.wakeEntries()),
     // The live-engine budget reads the same corrected availability the capability ladder does, so
     // the two memory decisions in this app cannot disagree about how much room the machine has.
     memory: () => ({ freeBytes: availableMemoryBytes() }),
@@ -1319,6 +1340,26 @@ app.whenReady().then(async () => {
   // Hand back the memory of engines nobody is using. An engine costs 227 MB whether it is mid-turn
   // or finished, and before this nothing reclaimed one until a NEW task hit the live-engine limit.
   threads.startIdleReaper();
+  // Wakes (F4): armed from what the threads saved, so a wake set before Bimax quit still happens.
+  wakes = new Wakes({
+    now: () => Date.now(),
+    // setTimeout overflows past 24.8 days; the engine refuses a wake more than 7 days ahead, so the cap never shortens one.
+    timer: (fn, ms) => { const handle = setTimeout(fn, Math.min(ms, 2 ** 31 - 1)); return () => clearTimeout(handle); },
+    watch: (root, changed) => {
+      try {
+        const watcher = watchFolder(root, { persistent: false, recursive: true }, (_event, file) => changed(String(file ?? '')));
+        watcher.on('error', () => { /* the folder went away; the wake waits until it is cancelled */ });
+        return () => watcher.close();
+      } catch {
+        return () => {};
+      }
+    },
+    ci: ciRunsFor,
+    fire: (threadId, wake, text) => {
+      try { threads.wakeUp(threadId, wake.id, text, text); } catch (error) { console.warn(`[wakes] could not wake ${threadId}: ${(error as Error).message}`); }
+    },
+  });
+  wakes.sync(threads.wakeEntries());
   // Repeating ⌘2 tasks (schedules.ts): checked every minute, shortly after launch, and when the Mac wakes.
   setInterval(() => void runSchedules(), 60_000);
   setTimeout(() => void runSchedules(), 15_000);

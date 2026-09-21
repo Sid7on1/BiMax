@@ -1,6 +1,20 @@
 import type { EngineUiState } from '../renderer/src/engine.state';
 import type { RequestMsg } from '../renderer/src/protocol';
 
+/** A wake a task registered with the engine's WakeTool (backlog F4): resume the task when this happens. */
+export interface ThreadWake {
+  id: string;
+  kind: 'at' | 'folder' | 'ci' | 'answer';
+  /** What the task said it would do when woken. */
+  reason: string;
+  createdAt: number;
+  at?: number;
+  path?: string;
+  match?: 'any' | 'pdf' | 'image' | 'document';
+  sha?: string;
+  question?: string;
+}
+
 export interface ThreadSummary {
   id: string;
   title: string;
@@ -23,6 +37,8 @@ export interface ThreadSummary {
    * those edits. Absent when there was nothing to check. Kept across turns, as the engine keeps it.
    */
   check?: 'passed' | 'tests-edited' | 'failed' | 'unchecked';
+  /** Wakes the task is waiting for (F4). Saved, so they survive a restart of the app. */
+  wakes?: ThreadWake[];
   /** Messages accepted and not yet sent to the engine. Filled in for lists; never saved. */
   queued?: number;
   /** Why queued messages wait: another task holds the folder, the engine is not ready, or the task is stopped. Never saved. */
@@ -63,7 +79,24 @@ export function isQuickThread(thread: Pick<ThreadSummary, 'origin'>): boolean {
   return thread.origin !== 'project';
 }
 
-type ActivityFields = Pick<ThreadSummary, 'status' | 'outcome' | 'queued' | 'waiting' | 'check'>;
+type ActivityFields = Pick<ThreadSummary, 'status' | 'outcome' | 'queued' | 'waiting' | 'check' | 'wakes'>;
+
+/** What a waiting task waits for, in a few words: the soonest time, else the first other wake (F4). */
+export function wakeLabel(wakes: readonly ThreadWake[] | undefined, now = Date.now()): string | null {
+  if (!wakes?.length) return null;
+  const times = wakes.filter((w) => w.kind === 'at' && typeof w.at === 'number').sort((a, b) => a.at! - b.at!);
+  const first = times[0] ?? wakes[0];
+  const more = wakes.length > 1 ? ` · ${wakes.length} wakes` : '';
+  if (first.kind === 'at') {
+    const when = new Date(first.at!);
+    const sameDay = new Date(now).toDateString() === when.toDateString();
+    const clock = when.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return `Waiting · wakes ${sameDay ? `at ${clock}` : `${when.toLocaleDateString([], { weekday: 'short' })} ${clock}`}${more}`;
+  }
+  if (first.kind === 'folder') return `Waiting for changes in ${(first.path ?? '').split('/').filter(Boolean).pop() ?? 'a folder'}${more}`;
+  if (first.kind === 'ci') return `Waiting for CI${more}`;
+  return `Waiting for your answer${more}`;
+}
 
 /**
  * A thread's state in plain words (backlog N12): `label` for the sidebar, and `short` after a title in the menu bar
@@ -79,6 +112,9 @@ export function threadActivity(t: ActivityFields): { label: string; short: strin
   if (t.waiting === 'resume') return { label: `Stopped · ${queued}, sent when it resumes`, short: 'messages kept' };
   if (t.waiting === 'folder') return { label: `Waiting for another task in this folder · ${queued}`, short: 'waiting for its folder' };
   if (n) return { label: `Waiting to start · ${queued}`, short: 'waiting' };
+  // A task with a wake is not done: it is waiting for the event it asked for (F4).
+  const waking = wakeLabel(t.wakes);
+  if (waking) return { label: waking, short: waking.startsWith('Waiting for your answer') ? 'needs your answer' : 'waiting' };
   if (t.outcome === 'failed') return { label: 'Failed', short: 'failed' };
   if (t.outcome === 'interrupted') return { label: 'Interrupted', short: 'interrupted' };
   if (t.outcome === 'time-limit') return { label: 'Stopped · time limit reached', short: 'time limit' };

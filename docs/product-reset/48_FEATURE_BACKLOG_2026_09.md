@@ -147,13 +147,35 @@ only if the model chose to define one — 22 saved tasks on the development mach
   was deferred, the model searched the project for its name; it is now in the core tool set.
 - Proof: `completion.check.test.ts` (22, three through the real AgentLoop with a scripted model) and
   `thread.activity.test.ts`; 21 mutants each fail a test. Live, `gpt-oss-20b` fixed a real bug, set `node test.js`,
-  and the engine ran it and saw it pass.
+  and the engine ran it and saw it pass. Given a test it could not pass, it rewrote the test again, and the answer
+  ended "✓ Completion check passed … This task also changed test files (test-strings.js), so the pass may rest on
+  those edits — review them."
 - **Limit:** a check is only as good as what the model picks; a check that runs one test file passes while the
   project's other tests fail. The check is shown to the user for exactly that reason.
 
 **F4. Event wakeups.** One mechanism resumes a task on a folder change, a time, a CI result or a user's
 answer. Value high · Effort M · Needs F2. *Why:* folder triggers, Guardian and living deliverables share it,
-so build it once.
+so build it once. **Done 2026-09-21.**
+
+- **Engine** (`src/tools/implementations/wake.tool.ts`, a core tool): the model registers a wake — `at` a time ("14:30",
+  an ISO date-time, or minutes from now; at most 7 days ahead), `folder` changes (default the task folder; any, PDF,
+  image or document files), `ci` for the current commit (refused, with the reason, when the folder has no commit or
+  `gh` is missing or signed out), or the user's `answer` — with the reason it will act on, then ends its turn. It
+  refuses when `BIMAX_WAKES` is unset: without the app nothing would deliver the wake.
+- **App** (`app/src/main/wakes.ts`): the app waits, not the engine, because an idle task's engine is shut down to save
+  memory. Wakes are saved with the thread (they survive an app restart; an overdue one fires when re-armed). A folder
+  change is reported after 2 s of quiet, ignoring `.git`, `node_modules` and unfinished downloads; CI is polled every
+  minute through `gh run list --commit` until every run finished, and a wait with no result ends after 6 hours with
+  why. Delivery is a message starting "[Wake]" that says what happened and repeats the reason; it starts the engine
+  and the conversation comes back (F2). The user's own message answers an `answer` wake.
+- **Limits:** 5 wakes per thread, 12 wakes per thread per hour (the next waits for the hour), one delivery per wake.
+- **Seen:** the sidebar and menu bar say "Waiting · wakes at 14:30", "Waiting for changes in Downloads", "Waiting for
+  CI", or "Waiting for your answer".
+- Proof: `wake.tool.test.ts` and `wakes.test.ts` (a fake clock drives the scheduler and the real ThreadManager);
+  17 mutants each fail a test. Live: asked to "check back in 20 minutes" and then edit a file, `gpt-oss-20b` registered
+  a 20-minute wake and left the file alone.
+- **Not yet:** folder triggers (FL1) still use their own watcher; moving them onto this mechanism is FL1 part 2's
+  work. A wake cannot be listed or cancelled from the app's UI yet — only by the task, or by "cancel all" through it.
 
 **F5. Per-task limits.** Spend, retries, concurrency and wall-clock time, with the cost visible (see N6).
 Value high · Effort S–M. **Spend and concurrency done 2026-09-19; retries and wall-clock are not.**
