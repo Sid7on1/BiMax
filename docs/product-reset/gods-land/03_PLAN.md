@@ -358,3 +358,9 @@ no permission). A menu bar item, "Remember Files Used in the Notch", turns it of
 classifier** as personal-data handling. It was not pursued another way. Whether Bimax may ever read Spotlight's
 usage dates — as a candidate source or for an offline evaluation — is an **open owner decision**; stage 8 uses only
 what the person did through Bimax.
+
+**Full-suite record, corrected.** Four full jest runs after stage 8: two had no failures (3,388 passed) and two had one
+failure each. The failure seen by name was `src/__tests__/paired.runner.test.ts` › "calls two identical implementations
+no-change": a timing test that compares two 4 ms arms and becomes flaky when the whole suite loads this 8 GB Mac
+(see the jest worker contention note). It is not in stage 8's code. The stage 8 suites passed 8 runs out of 8 on their
+own. A first report of "0 failed" was based on one clean run and was wrong for the run before it.
