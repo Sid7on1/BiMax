@@ -3,6 +3,7 @@ import * as path from 'path';
 import { isQuickThread, threadActivity, type ThreadSummary } from '../shared/threads';
 import type { ShelfFrom, ShelfInput, ShelfView } from './shelf';
 import { nextGlassChange, notchGlass, outcomeOf, type Glass, type Unseen } from './glass';
+import type { ClipView } from './clipboard';
 
 /**
  * God's Land, stage 1 (docs/product-reset/gods-land/03_PLAN.md): the notch talks. This is the app's half — what the
@@ -117,6 +118,16 @@ export function shelfInputs(raw: unknown): ShelfInput[] {
     .map((i) => ({ kind: i.kind, ...(typeof i.path === 'string' ? { path: i.path } : {}), ...(typeof i.url === 'string' ? { url: i.url } : {}), ...(typeof i.text === 'string' ? { text: i.text } : {}) }));
 }
 
+/** The clipboard history (clipboard.ts), as the deck uses it, and the person's on/off choice. */
+export interface NotchClipboard {
+  enabled(): boolean;
+  setEnabled(on: boolean): void;
+  add(text: string, source?: string): boolean;
+  pin(id: string, pinned: boolean): boolean;
+  remove(id: string): boolean;
+  view(enabled: boolean): ClipView;
+}
+
 export interface NotchDeckOptions {
   helper: string;
   onOpenTask: (id: string) => void;
@@ -124,6 +135,8 @@ export interface NotchDeckOptions {
   shelf?: NotchShelf;
   /** Files handed to "Edit with Bimax" (stage 3): the app plays the Droplet and opens the ⌘2 bar with them. */
   onEdit?: (paths: string[]) => void;
+  /** Stage 5: the smart clipboard. Off until the person turns it on; without it the notch has no clipboard. */
+  clipboard?: NotchClipboard;
   /** Stage 4: which tasks have a Night Shift running, for the night glass. */
   nightIds?: () => ReadonlySet<string>;
   /** The clock, for tests. */
@@ -139,6 +152,7 @@ export class NotchDeck {
   private stopped = false;
   private lastContent = '';
   private lastShelf = '';
+  private lastClips = '';
   private landing: (() => void) | null = null;
   /** Stage 4: results the person has not looked at (cleared when the notch opens), and the next timed change. */
   private unseen = new Map<string, Unseen>();
@@ -171,6 +185,7 @@ export class NotchDeck {
       this.child = null;
       this.lastContent = '';
       this.lastShelf = '';
+      this.lastClips = '';
       if (this.stopped) return;
       this.options.log?.(`notch helper exited code=${code} signal=${signal ?? '-'}`);
       this.crashes.push(Date.now());
@@ -180,11 +195,11 @@ export class NotchDeck {
   }
 
   private received(line: string): void {
-    let message: { t?: string; id?: unknown; items?: unknown; ids?: unknown; amber?: unknown; open?: unknown };
+    let message: { t?: string; id?: unknown; items?: unknown; ids?: unknown; amber?: unknown; open?: unknown; text?: unknown; source?: unknown; pinned?: unknown };
     try { message = JSON.parse(line); } catch { return; }
     const shelf = this.options.shelf;
     if (message.t === 'open-task' && typeof message.id === 'string') this.options.onOpenTask(message.id);
-    else if (message.t === 'ready') { this.options.log?.(`notch helper ready: ${line}`); this.sendShelf(); }
+    else if (message.t === 'ready') { this.options.log?.(`notch helper ready: ${line}`); this.sendShelf(); this.sendClips(true); }
     else if (message.t === 'hover' && message.open === true) {
       this.sendShelf(); // amber and missing change with time
       // Opening the notch is looking: the unseen results have been seen.
@@ -203,6 +218,35 @@ export class NotchDeck {
       if (paths.length) this.options.onEdit?.(paths);
     }
     else if (message.t === 'droplet-landed') { this.landing?.(); this.landing = null; }
+    else if (this.options.clipboard) this.clipboardMessage(message);
+  }
+
+  /** Stage 5. A copy is kept only while the person has history on, whatever the helper sends. */
+  private clipboardMessage(message: { t?: string; id?: unknown; text?: unknown; source?: unknown; pinned?: unknown }): void {
+    const clipboard = this.options.clipboard!;
+    if (message.t === 'clip' && typeof message.text === 'string') {
+      if (clipboard.enabled() && clipboard.add(message.text, typeof message.source === 'string' ? message.source.slice(0, 80) : undefined)) this.sendClips();
+    } else if (message.t === 'clip-enable' || message.t === 'clip-disable') {
+      clipboard.setEnabled(message.t === 'clip-enable');
+      this.sendClips(true);
+    } else if (message.t === 'clip-pin' && typeof message.id === 'string') {
+      if (clipboard.pin(message.id, message.pinned === true)) this.sendClips();
+    } else if (message.t === 'clip-remove' && typeof message.id === 'string') {
+      if (clipboard.remove(message.id)) this.sendClips();
+    }
+  }
+
+  /** The history and whether it is on; `config` also tells the helper to start or stop watching. */
+  sendClips(config = false): void {
+    const clipboard = this.options.clipboard;
+    if (!clipboard) return;
+    const enabled = clipboard.enabled();
+    if (config) this.send({ t: 'clip-config', enabled });
+    const view = clipboard.view(enabled);
+    const serialized = JSON.stringify(view);
+    if (serialized === this.lastClips) return;
+    this.lastClips = serialized;
+    this.send(view);
   }
 
   private sendShelf(): void {

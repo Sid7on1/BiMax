@@ -86,6 +86,11 @@ final class NotchModel: ObservableObject {
     @Published var say: Say?
     /// Stage 4: the notch's material (Glass.swift), decided by the app (glass.ts).
     @Published var glass = Glass()
+    // Stage 5: tabs and the clipboard (Clipboard.swift).
+    @Published var tab: NotchTab = .now
+    @Published var clips: [ClipCard] = []
+    @Published var clipEnabled = false
+    @Published var clipAccess = ClipboardWatch.accessBehavior
     // The shelf (Shelf.swift, stage 2).
     @Published var shelf: [ShelfCard] = []
     @Published var archived: [ShelfCard] = []
@@ -112,6 +117,8 @@ enum Inbound: Equatable {
     case shelf(items: [ShelfCard], archived: [ShelfCard])
     /// Play the Droplet to where the ⌘2 bar opens: Electron screen coordinates (top-left origin of the main display).
     case droplet(to: CGRect, icon: String?)
+    case clipConfig(enabled: Bool)
+    case clips(enabled: Bool, items: [ClipCard])
     case quit
 }
 
@@ -143,6 +150,10 @@ func parseInbound(_ line: String) -> Inbound? {
         guard let to = object["to"] as? [String: Any], let x = to["x"] as? Double, let y = to["y"] as? Double,
               let width = to["width"] as? Double, let height = to["height"] as? Double, width > 0, height > 0 else { return nil }
         return .droplet(to: CGRect(x: x, y: y, width: width, height: height), icon: object["icon"] as? String)
+    case "clip-config":
+        return .clipConfig(enabled: object["enabled"] as? Bool ?? false)
+    case "clips":
+        return .clips(enabled: object["enabled"] as? Bool ?? false, items: (object["items"] as? [[String: Any]] ?? []).compactMap(ClipCard.init(json:)))
     case "quit":
         return .quit
     default:
@@ -217,6 +228,7 @@ final class NotchController {
     private var sayTask: Task<Void, Never>?
     private var resting: DynamicNotchState = .hidden
     private let dragWatch = DragWatch()
+    private let clipboardWatch = ClipboardWatch()
     /// --demo keeps dropped things itself, since there is no app to keep them.
     var demo = false
 
@@ -229,7 +241,8 @@ final class NotchController {
                 ExpandedView(model: model, open: { id in self?.openTask(id) },
                              act: { action in self?.shelfAction(action) },
                              dropped: { providers in self?.dropped(providers) ?? false },
-                             edit: { providers in self?.editDropped(providers) ?? false })
+                             edit: { providers in self?.editDropped(providers) ?? false },
+                             clip: { command in self?.clipCommand(command) })
             },
             compactLeading: { CompactLeadingView(model: model) },
             compactTrailing: { CompactTrailingView(model: model) }
@@ -241,6 +254,7 @@ final class NotchController {
             MainActor.assumeIsolated {
                 guard let self else { return }
                 self.model.dragging = dragging
+                if dragging { self.model.tab = .shelf } // the drop zones live on the Shelf tab
                 if !dragging {
                     self.model.draggingOut = false
                     self.model.dropTargeted = false
@@ -249,6 +263,11 @@ final class NotchController {
             }
         }
         dragWatch.start()
+        clipboardWatch.copied = { text, source in
+            var message: [String: Any] = ["t": "clip", "text": text]
+            if let source { message["source"] = source }
+            Outbox.send(message)
+        }
         NotificationCenter.default.addObserver(forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main) { [weak self] _ in
             Task { @MainActor in self?.screensChanged() }
         }
@@ -438,6 +457,7 @@ final class NotchController {
             board.clearContents()
             if let url = card.fileURL { board.writeObjects([url as NSURL]) }
             else { board.setString(card.url ?? card.text ?? card.title, forType: .string) }
+            clipboardWatch.markOwnWrite()
             handle(.say(text: "Copied \(card.title)", tone: .info, seconds: 1.5))
         case let .reveal(card):
             touch(card)
@@ -491,8 +511,29 @@ final class NotchController {
             if archived.isEmpty { model.showArchive = false }
         case let .droplet(to, icon):
             playDroplet(to: to, icon: icon)
+        case let .clipConfig(enabled):
+            model.clipEnabled = enabled
+            model.clipAccess = ClipboardWatch.accessBehavior
+            if enabled { clipboardWatch.start() } else { clipboardWatch.stop() }
+        case let .clips(enabled, items):
+            model.clipEnabled = enabled
+            model.clips = items
         case .quit:
             NSApp.terminate(nil)
+        }
+    }
+
+    func clipCommand(_ command: ClipCommand) {
+        switch command {
+        case let .copy(text):
+            clipboardWatch.copy(text)
+            handle(.say(text: "Copied", tone: .info, seconds: 1.2))
+        case let .pin(clip):
+            Outbox.send(["t": "clip-pin", "id": clip.id, "pinned": !clip.pinned])
+        case let .remove(clip):
+            Outbox.send(["t": "clip-remove", "id": clip.id])
+        case .enable:
+            Outbox.send(["t": "clip-enable"])
         }
     }
 
@@ -513,7 +554,8 @@ final class NotchController {
 
     func announceReady() {
         let notchSize = geometry?.screen.notchSize ?? .zero
-        Outbox.send(["t": "ready", "hasNotch": geometry?.hasNotch ?? false, "notchWidth": notchSize.width, "notchHeight": notchSize.height])
+        Outbox.send(["t": "ready", "hasNotch": geometry?.hasNotch ?? false, "notchWidth": notchSize.width, "notchHeight": notchSize.height,
+                     "pasteboard": ClipboardWatch.accessBehavior])
     }
 }
 
@@ -527,6 +569,7 @@ struct ExpandedView: View {
     let act: (ShelfAction) -> Void
     let dropped: ([NSItemProvider]) -> Bool
     let edit: ([NSItemProvider]) -> Bool
+    let clip: (ClipCommand) -> Void
 
     private var dropTargeted: Binding<Bool> {
         Binding(get: { model.dropTargeted }, set: { model.dropTargeted = $0 })
@@ -551,17 +594,27 @@ struct ExpandedView: View {
                     .font(.system(size: 11)).foregroundStyle(.white.opacity(0.85)).lineLimit(1)
             }
             .accessibilityElement(children: .combine)
-            if model.tasks.isEmpty {
-                Text("Nothing running right now.").font(.system(size: 12)).foregroundStyle(dim)
-            } else {
-                VStack(spacing: 2) {
-                    ForEach(model.tasks.prefix(model.shelf.isEmpty ? 4 : 3)) { task in
-                        Button { open(task.id) } label: { TaskRowView(task: task) }
-                            .buttonStyle(RowButtonStyle())
+            TabChips(model: model)
+            switch model.tab {
+            case .now:
+                if model.tasks.isEmpty {
+                    Text("Nothing running right now.").font(.system(size: 12)).foregroundStyle(dim)
+                } else {
+                    VStack(spacing: 2) {
+                        ForEach(model.tasks.prefix(4)) { task in
+                            Button { open(task.id) } label: { TaskRowView(task: task) }
+                                .buttonStyle(RowButtonStyle())
+                        }
                     }
                 }
+            case .shelf:
+                if model.shelf.isEmpty && model.archived.isEmpty && !model.dragging {
+                    Text("Drag files, links or text onto the notch to keep them here.").font(.system(size: 12)).foregroundStyle(dim)
+                }
+                ShelfSection(model: model, act: act, edit: edit)
+            case .clipboard:
+                ClipboardSection(model: model, run: clip)
             }
-            ShelfSection(model: model, act: act, edit: edit)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
@@ -646,6 +699,12 @@ struct BimaxNotch {
                     TaskRow(id: "c", title: "Summarise the Q3 report", state: "done", detail: "Check passed"),
                 ], glass: demoGlass))
             }
+            if ProcessInfo.processInfo.environment["BIMAX_NOTCH_TAB"] == "clipboard" {
+                // Sample copies, as the app would classify them (clipboard.ts), for looking at the tab.
+                let sample = ##"{"t": "clips", "enabled": true, "items": [{"id": "1", "kind": "color", "preview": "#3B82F6", "text": "#3B82F6", "swatch": "#3b82f6", "detail": "blue-500", "actions": [{"label": "HEX", "value": "#3b82f6"}, {"label": "RGB", "value": "rgb(59, 130, 246)"}, {"label": "HSL", "value": "hsl(217 91% 60%)"}, {"label": "Swift", "value": "Color(red: 0.231, green: 0.51, blue: 0.965)"}, {"label": "Tailwind", "value": "bg-blue-500"}], "pinned": true}, {"id": "2", "kind": "json", "preview": "{ \"id\": 7, \"name\": \"Ana\", \"orders\": [ … ] }", "text": "{}", "detail": "JSON · 3 keys", "actions": [{"label": "Minify", "value": "{}"}, {"label": "Pretty", "value": "{}"}, {"label": "TS type", "value": "x"}], "pinned": false}, {"id": "3", "kind": "url", "preview": "https://shop.example/p/42?utm_source=news&color=red", "text": "u", "detail": "shop.example · tracking removed", "actions": [{"label": "Clean link", "value": "https://shop.example/p/42?color=red"}], "pinned": false}, {"id": "4", "kind": "code", "preview": "npm install …", "text": "c", "detail": "Shell", "actions": [{"label": "One line", "value": "npm install && npm test"}], "pinned": false}]}"##
+                if let message = parseInbound(sample) { MainActor.assumeIsolated { controller.handle(message); controller.model.tab = .clipboard } }
+                else { FileHandle.standardError.write("demo clipboard sample did not parse\n".data(using: .utf8)!) }
+            }
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                 MainActor.assumeIsolated { controller.handle(.say(text: "Summarise the Q3 report is done", tone: .done, seconds: 4)) }
             }
@@ -692,6 +751,30 @@ struct BimaxNotch {
         check(parseInbound(#"{"t":"droplet","to":{"x":395,"y":229,"width":680,"height":64},"icon":"/a.md"}"#)
               == .droplet(to: CGRect(x: 395, y: 229, width: 680, height: 64), icon: "/a.md"), "droplet")
         check(parseInbound(#"{"t":"droplet","to":{"x":1,"y":2,"width":0,"height":64}}"#) == nil, "an empty droplet target is refused")
+        check(ClipboardWatch.shouldSkip(types: ["public.utf8-plain-text", "org.nspasteboard.ConcealedType"]), "a password manager's copy is skipped")
+        check(ClipboardWatch.shouldSkip(types: ["org.nspasteboard.TransientType"]) && ClipboardWatch.shouldSkip(types: ["org.nspasteboard.AutoGeneratedType"]), "transient and generated copies are skipped")
+        check(!ClipboardWatch.shouldSkip(types: ["public.utf8-plain-text"]), "an ordinary copy is kept")
+        if case let .clips(enabled, items)? = parseInbound(##"{"t":"clips","enabled":true,"items":[{"id":"c","kind":"color","preview":"#3b82f6","text":"#3b82f6","swatch":"#3b82f6","actions":[{"label":"HEX","value":"#3b82f6"},{"bad":1}],"pinned":true}]}"##) {
+            check(enabled && items.count == 1 && items[0].actions == [ClipAction(label: "HEX", value: "#3b82f6")] && items[0].pinned, "clips")
+        } else { check(false, "clips parse") }
+        check(parseInbound(#"{"t":"clip-config","enabled":true}"#) == .clipConfig(enabled: true), "clip-config")
+        // The watcher end to end, on a private clipboard (never the person's): an ordinary copy is seen, a password
+        // manager's is not, the notch's own copy is not, and nothing is seen while it is stopped.
+        let privateBoard = NSPasteboard.withUniqueName()
+        let watch = ClipboardWatch(board: privateBoard)
+        var seen: [String] = []
+        watch.copied = { text, _ in seen.append(text) }
+        func settle() { let until = Date().addingTimeInterval(1.1); while Date() < until { RunLoop.main.run(until: Date().addingTimeInterval(0.05)) } }
+        watch.start()
+        privateBoard.clearContents(); privateBoard.setString("hello from a copy", forType: .string); settle()
+        privateBoard.clearContents()
+        privateBoard.setString("hunter2", forType: .string)
+        privateBoard.setString("", forType: NSPasteboard.PasteboardType("org.nspasteboard.ConcealedType")); settle()
+        watch.copy("the notch's own copy"); settle()
+        watch.stop()
+        privateBoard.clearContents(); privateBoard.setString("after stopping", forType: .string); settle()
+        check(seen == ["hello from a copy"], "the watcher sees ordinary copies only (\(seen))")
+        privateBoard.releaseGlobally()
         // The Droplet's path: it starts at the notch's lip, falls, and ends spread over the bar and invisible.
         let lip = CGPoint(x: 100, y: 32), bar = CGRect(x: 20, y: 230, width: 680, height: 64)
         let early = DropletFrame(t: 0.05, lip: lip, notchWidth: 180, target: bar)

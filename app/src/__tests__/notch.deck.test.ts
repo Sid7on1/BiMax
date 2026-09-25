@@ -287,3 +287,51 @@ describe('stage 4: the glass through the deck', () => {
     deck.stop();
   });
 });
+
+describe('stage 5: the clipboard through the deck', () => {
+  const flush = () => new Promise((resolve) => setImmediate(resolve));
+
+  function setup(startEnabled: boolean) {
+    let enabled = startEnabled;
+    const kept: string[] = [];
+    const calls: string[] = [];
+    const clipboard = {
+      enabled: () => enabled,
+      setEnabled: (on: boolean) => { enabled = on; calls.push(`enabled ${on}`); },
+      add: (text: string, source?: string) => { kept.push(`${text}${source ? ` @${source}` : ''}`); return true; },
+      pin: (id: string, pinned: boolean) => { calls.push(`pin ${id} ${pinned}`); return true; },
+      remove: (id: string) => { calls.push(`remove ${id}`); return true; },
+      view: (on: boolean) => ({ t: 'clips' as const, enabled: on, items: kept.map((text, i) => ({ id: `c${i}`, kind: 'text' as const, preview: text, text, actions: [], pinned: false })) }),
+    };
+    const helpers: FakeHelper[] = [];
+    const deck = new NotchDeck({ helper: '/x', onOpenTask: () => undefined, clipboard, spawnHelper: () => { const h = new FakeHelper(); helpers.push(h); return h as never; } });
+    deck.start();
+    const say = async (line: string) => { helpers[0].stdout.write(`${line}\n`); await flush(); };
+    const sent = () => helpers[0].written.map((l) => JSON.parse(l));
+    return { kept, calls, say, sent };
+  }
+
+  test('with history off a copy is NOT kept, whatever the helper sends; turning it on tells the helper to watch', async () => {
+    const { kept, calls, say, sent } = setup(false);
+    await say('{"t":"ready"}');
+    expect(sent().find((m) => m.t === 'clip-config')).toEqual({ t: 'clip-config', enabled: false });
+    await say('{"t":"clip","text":"private note"}');
+    expect(kept).toEqual([]);
+    await say('{"t":"clip-enable"}');
+    expect(calls).toEqual(['enabled true']);
+    expect(sent().filter((m) => m.t === 'clip-config').pop()).toEqual({ t: 'clip-config', enabled: true });
+    await say('{"t":"clip","text":"#3b82f6","source":"Figma"}');
+    expect(kept).toEqual(['#3b82f6 @Figma']);
+    expect(sent().filter((m) => m.t === 'clips').pop().items.map((i: { text: string }) => i.text)).toEqual(['#3b82f6 @Figma']);
+  });
+
+  test('pin, remove and turning it off reach the store; malformed ones do not', async () => {
+    const { calls, say } = setup(true);
+    await say('{"t":"clip-pin","id":"c0","pinned":true}');
+    await say('{"t":"clip-pin","id":3}');
+    await say('{"t":"clip-remove","id":"c0"}');
+    await say('{"t":"clip","text":42}');
+    await say('{"t":"clip-disable"}');
+    expect(calls).toEqual(['pin c0 true', 'remove c0', 'enabled false']);
+  });
+});

@@ -19,6 +19,7 @@ import { TALK_TURN_HINT, TalkSession, talkModel, type TalkView } from './talk.se
 import { talkTrayTitle } from '../shared/talk';
 import { NotchDeck, notchHelperPath } from './notch';
 import { Shelf } from './shelf';
+import { ClipHistory } from './clipboard';
 import { describeSchedule, dueSchedules, newSchedule, type Cadence, type Schedule } from './schedules';
 import {
   ARRIVAL_KINDS, FolderTriggers, MAX_TRIGGERS, arrivalLabel, changeListNote, changesDuring, describeTrigger, newTrigger, runMessage,
@@ -445,6 +446,18 @@ function syncNotch(): void {
       // Stage 2: the shelf, kept beside the app's other state; copies of temporary files live under it.
       shelf: new Shelf(path.join(shelfRoot, 'shelf.json'), path.join(shelfRoot, 'shelf-copies')),
       onEdit: (paths) => { void editFromNotch(paths); },
+      // Stage 5: the clipboard history, kept on this Mac only and off until the person turns it on.
+      clipboard: (() => {
+        const history = new ClipHistory(path.join(shelfRoot, 'clipboard.json'));
+        return {
+          enabled: () => loadSettings().clipboardHistory === true,
+          setEnabled: (on: boolean) => { saveSettings({ clipboardHistory: on }); updateTray(); },
+          add: (text: string, source?: string) => history.add(text, source),
+          pin: (id: string, pinned: boolean) => history.pin(id, pinned),
+          remove: (id: string) => history.remove(id),
+          view: (on: boolean) => history.view(on),
+        };
+      })(),
       // Stage 4: a Night Shift task working turns the glass to night (FL5's own list).
       nightIds: () => new Set(nightShifts.keys()),
     });
@@ -1247,6 +1260,10 @@ function updateTray(): void {
     ...(existsSync(notchHelperPath({ packaged: app.isPackaged, resourcesPath: process.resourcesPath, appPath: app.getAppPath() })) ? [{
       label: 'Show Bimax in the Notch', type: 'checkbox' as const, checked: loadSettings().notchDeck !== false,
       click: (item: Electron.MenuItem) => { saveSettings({ notchDeck: item.checked }); syncNotch(); updateTray(); },
+    }, {
+      label: 'Keep Clipboard History in the Notch', type: 'checkbox' as const, checked: loadSettings().clipboardHistory === true,
+      enabled: loadSettings().notchDeck !== false,
+      click: (item: Electron.MenuItem) => { saveSettings({ clipboardHistory: item.checked }); notchDeck?.sendClips(true); updateTray(); },
     }] : []),
     existsSync(quickActionPath(os.homedir()))
       ? { label: `Remove “${QUICK_ACTION_NAME}” from Finder`, click: () => void removeQuickAction() }

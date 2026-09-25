@@ -52,6 +52,8 @@ export interface AppSettings {
   speakUpdates?: boolean;
   /** God's Land (docs/product-reset/gods-land): Bimax in the notch. On when absent; the menu bar item turns it off. */
   notchDeck?: boolean;
+  /** God's Land stage 5: keep a clipboard history in the notch. Off when absent — it is only ever turned on by the person. */
+  clipboardHistory?: boolean;
   /** Talk mode keeps listening while Bimax speaks, so the person can interrupt by talking (FL10). Off when absent. */
   talkBargeIn?: boolean;
   /** Folders with an outcome, keyed by real path (folder.outcomes.ts, backlog FL1 part 2). */
