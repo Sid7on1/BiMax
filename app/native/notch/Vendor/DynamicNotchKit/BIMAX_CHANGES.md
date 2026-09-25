@@ -20,3 +20,6 @@ Changes from upstream:
    with `ignoresMouseEvents = true`. The panel is half the screen wide and tall and stays up while tasks run, so the
    host (`main.swift`) turns mouse events on only over the drawn content — the transparent rest can never take a
    menu bar or window click, whatever the window server does with transparent pixels.
+7. `Views/NotchView.swift`, `Views/NotchlessView.swift`: the `.onHover` tracking removed. The panel is half the screen
+   and SwiftUI's hover tracking made it handle every mouse move over that area even while it ignored clicks (1.8% of a
+   core with the mouse moving there, measured 2026-09-26). The host decides open and closed from `contentFrame`.

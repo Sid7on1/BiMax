@@ -45,7 +45,7 @@ struct NotchlessView<Expanded, CompactLeading, CompactTrailing>: View where Expa
                 windowHeight = newHeight
             }
             .offset(y: dynamicNotch.state == .expanded ? dynamicNotch.notchSize.height : -windowHeight)
-            .onHover(perform: dynamicNotch.updateHoverState)
+            // Bimax: no .onHover — the host tracks the cursor itself (BIMAX_CHANGES 7).
             .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .global) }) { dynamicNotch.contentFrame = $0 }
     }
 

@@ -107,7 +107,7 @@ struct NotchView<Expanded, CompactLeading, CompactTrailing>: View where Expanded
         .padding(.horizontal, topCornerRadius)
         .fixedSize()
         .frame(minWidth: minWidth, minHeight: dynamicNotch.notchSize.height)
-        .onHover(perform: dynamicNotch.updateHoverState)
+        // Bimax: no .onHover — the host tracks the cursor itself (BIMAX_CHANGES 7).
     }
 
     func compactContent() -> some View {

@@ -248,7 +248,11 @@ final class NotchController {
     init() {
         let model = self.model
         notch = DynamicNotch(
-            hoverBehavior: [.keepVisible],
+            // No SwiftUI hover: this controller decides open and closed itself from `contentFrame` (overNotch). Hover
+            // tracking made the half-screen panel handle every mouse move over it even while ignoring clicks — 1.8% of a
+            // core with the mouse moving there, 0.0% elsewhere (measured 2026-09-26) — and `.keepVisible` could leave
+            // hide() retrying on a hover-exit lost while the panel ignored the mouse.
+            hoverBehavior: [],
             style: .auto,
             expanded: { [weak self] in
                 ExpandedView(model: model, open: { id in self?.openTask(id) },
