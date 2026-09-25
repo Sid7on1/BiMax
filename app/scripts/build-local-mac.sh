@@ -66,6 +66,7 @@ npx electron scripts/verify-engine.js
 
 echo "→ voice helper"
 bash scripts/build-voice.sh "$ARCH"
+bash scripts/build-notch.sh "$ARCH"
 
 # The App Intents extension (WP-9 step 3). electron-builder.yml embeds it at Contents/PlugIns via
 # `extraFiles`; without this step that path does not exist and the packaging gate below fails —

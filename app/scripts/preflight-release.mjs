@@ -138,6 +138,7 @@ else ok.push('release entitlements present');
 // error arrives minutes into the upload naming only that file.
 const looseSources = [
   { path: path.join(appRoot, 'voice', 'bimax-voice'), what: 'the dictation helper', build: 'scripts/build-voice.sh' },
+  { path: path.join(appRoot, 'notch', 'bimax-notch'), what: 'the notch helper', build: 'scripts/build-notch.sh' },
 ];
 for (const { path: file, what, build } of looseSources) {
   if (!existsSync(file)) {

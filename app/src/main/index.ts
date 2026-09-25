@@ -17,6 +17,7 @@ import { cleanRules, rulesEnvironment } from './folder.rules';
 import { helperArguments, localeArguments, talkHelper, VoiceSessions, voiceHelperPath, voiceSupported } from './voice';
 import { TALK_TURN_HINT, TalkSession, talkModel, type TalkView } from './talk.session';
 import { talkTrayTitle } from '../shared/talk';
+import { NotchDeck, notchHelperPath } from './notch';
 import { describeSchedule, dueSchedules, newSchedule, type Cadence, type Schedule } from './schedules';
 import {
   ARRIVAL_KINDS, FolderTriggers, MAX_TRIGGERS, arrivalLabel, changeListNote, changesDuring, describeTrigger, newTrigger, runMessage,
@@ -148,6 +149,7 @@ function threadChanged(): void {
     listTimer = undefined;
     broadcast('threads:list', threadList());
     updateTray();
+    notchDeck?.update(threads.list());
     if (quickWindow && !quickWindow.isDestroyed()) quickWindow.webContents.send('threads:quick-activity', quickActivity());
     if (approvalWindow && !approvalWindow.isDestroyed()) {
       approvalWindow.webContents.send('threads:approvals', threads.approvals());
@@ -387,6 +389,23 @@ function notifyFinished(id: string, force = false): void {
 }
 /** Dictation (voice.ts): one on-device helper per dictation; its events go only to the window that started it. */
 const voiceHelper = (): string => voiceHelperPath({ packaged: app.isPackaged, resourcesPath: process.resourcesPath, appPath: app.getAppPath() });
+/**
+ * God's Land, stage 1: Bimax in the notch (notch.ts, native/notch). On unless turned off in the menu bar; it needs the
+ * helper on disk (a build without it simply has no notch) and a Mac, and it follows the ⌘2 tasks from here on.
+ */
+let notchDeck: NotchDeck | null = null;
+function syncNotch(): void {
+  if (process.platform !== 'darwin') return;
+  const wanted = loadSettings().notchDeck !== false;
+  const helper = notchHelperPath({ packaged: app.isPackaged, resourcesPath: process.resourcesPath, appPath: app.getAppPath() });
+  if (wanted && !notchDeck && existsSync(helper)) {
+    notchDeck = new NotchDeck({ helper, onOpenTask: (id) => { try { openThread(id); } catch { /* the task is gone */ } }, log: (line) => console.log(`[notch] ${line}`) });
+  }
+  if (!notchDeck) return;
+  if (!wanted) { if (notchDeck.running()) notchDeck.pause(); return; }
+  notchDeck.start();
+  if (threads) notchDeck.update(threads.list());
+}
 const voice = new VoiceSessions({
   spawn: (args) => {
     const child = spawn(voiceHelper(), args, { stdio: ['pipe', 'pipe', 'ignore'] });
@@ -1177,6 +1196,10 @@ function updateTray(): void {
       { label: 'Answer as a notification', type: 'radio', checked: pushTalkAnswer(loadSettings().pushTalkAnswer) === 'notification', click: () => { saveSettings({ pushTalkAnswer: 'notification' }); updateTray(); } },
     ] },
     { label: 'Speak When a Task Finishes', type: 'checkbox', checked: loadSettings().speakUpdates === true, click: (item) => { saveSettings({ speakUpdates: item.checked }); updateTray(); } },
+    ...(existsSync(notchHelperPath({ packaged: app.isPackaged, resourcesPath: process.resourcesPath, appPath: app.getAppPath() })) ? [{
+      label: 'Show Bimax in the Notch', type: 'checkbox' as const, checked: loadSettings().notchDeck !== false,
+      click: (item: Electron.MenuItem) => { saveSettings({ notchDeck: item.checked }); syncNotch(); updateTray(); },
+    }] : []),
     existsSync(quickActionPath(os.homedir()))
       ? { label: `Remove “${QUICK_ACTION_NAME}” from Finder`, click: () => void removeQuickAction() }
       : { label: `Add “${QUICK_ACTION_NAME}” to Finder…`, click: () => void addQuickAction() },
@@ -2089,6 +2112,7 @@ app.whenReady().then(async () => {
   if (app.isPackaged) app.setAsDefaultProtocolClient('bimax');
   createWindow();
   updateTray();
+  syncNotch();
   wantedShortcut = chosenShortcut(loadSettings().quickShortcut);
   shortcutAvailable = switchShortcut(shortcutRegistry, null, wantedShortcut, () => { void showQuickBar(); }).ok;
   // Talk anywhere (N8), when the person turned it on; a shortcut another app now holds leaves it off, with the menu saying so.
@@ -3018,6 +3042,7 @@ app.on('before-quit', (event) => {
   quitCleanupDone = true;
   talk.end();
   voice.dispose();
+  notchDeck?.stop();
   globalShortcut.unregisterAll();
   quickWindow?.destroy(); approvalWindow?.destroy();
   threads?.dispose(); threadBroker?.close();
