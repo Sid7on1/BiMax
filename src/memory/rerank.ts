@@ -73,10 +73,18 @@ export interface RerankedHit {
   logit: number;
 }
 
+/** What a store needs from a reranker: the remote one, the on-device one (local.rerank.ts), or the two chained. */
+export interface Reranker {
+  readonly model: string;
+  /** Candidates re-scored against the query, best first; null — never a guessed order — when it cannot answer. */
+  rerank(query: string, candidates: RerankCandidate[]): Promise<RerankedHit[] | null>;
+  unavailableReason(): string | null;
+}
+
 const DEFAULT_MAX_CANDIDATES = 24;
 const DEFAULT_TIMEOUT_MS = 20_000;
 
-export class RemoteReranker {
+export class RemoteReranker implements Reranker {
   readonly model: string;
   private readonly resolve: () => Promise<RerankCredentials | null>;
   private readonly maxCandidates: number;
@@ -208,4 +216,52 @@ const defaultTransport: RerankTransport = async (url, init) => {
 
 function trimSlash(url: string): string {
   return url.endsWith('/') ? url.slice(0, -1) : url;
+}
+
+/**
+ * The configured remote reranker first, the on-device one when it cannot answer.
+ *
+ * Remote stays first because it is the one the user configured and, when provisioned, the larger model. But it fails
+ * for whole classes of install — no key, a local server without a rerank route, and (measured 2026-09-12) the live
+ * account, whose rerank function answers 404 — and each of those used to mean no reranking at all. A remote failure
+ * that the on-device model covered is not a degradation the user needs to act on, so it is reported as covered.
+ */
+export class ChainedReranker implements Reranker {
+  private lastModel: string;
+
+  constructor(
+    private readonly remote: Reranker | null,
+    private readonly local: Reranker | null,
+    private readonly statusId = 'reranking',
+  ) {
+    this.lastModel = remote?.model ?? local?.model ?? 'none';
+  }
+
+  /** The model that produced the most recent ranking. */
+  get model(): string {
+    return this.lastModel;
+  }
+
+  unavailableReason(): string | null {
+    const reasons = [this.remote?.unavailableReason(), this.local?.unavailableReason()].filter(Boolean);
+    return reasons.length ? reasons.join('; ') : null;
+  }
+
+  async rerank(query: string, candidates: RerankCandidate[]): Promise<RerankedHit[] | null> {
+    const fromRemote = this.remote ? await this.remote.rerank(query, candidates).catch(() => null) : null;
+    if (fromRemote) {
+      this.lastModel = this.remote!.model;
+      return fromRemote;
+    }
+    const fromLocal = this.local ? await this.local.rerank(query, candidates).catch(() => null) : null;
+    if (fromLocal) {
+      this.lastModel = this.local!.model;
+      if (this.remote) {
+        reportCapability({ id: this.statusId, label: 'Search reranking', state: 'ready',
+          reason: `Reranked on this Mac (${this.local!.model}); the remote reranker did not answer: ${this.remote.unavailableReason() ?? 'transient failure'}.`,
+          impact: '', action: '' });
+      }
+    }
+    return fromLocal;
+  }
 }

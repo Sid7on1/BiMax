@@ -62,7 +62,8 @@ import { createComposerSearchTool, createComposerIngestTool } from '../tools/imp
 import { SocketRegistry, setSocketRegistry } from '../sockets/registry';
 import { createSocketQueryTool } from '../tools/implementations/socket.tool';
 import { RemoteEmbeddingBackend } from '../memory/embeddings';
-import { RemoteReranker } from '../memory/rerank';
+import { ChainedReranker, RemoteReranker } from '../memory/rerank';
+import { LocalReranker } from '../memory/local.rerank';
 import { resolveMemorySettings, rerankURLFor } from '../memory/settings';
 import { createCodeSearchTool } from '../tools/implementations/code.search.tool';
 import { createSpawnSubagentTool } from '../tools/implementations/spawn.tool';
@@ -262,7 +263,8 @@ export async function createContainer(config?: Partial<EngineConfig>): Promise<{
    * is good at putting the right document somewhere in the top twenty and mediocre at putting it in
    * the top three — and the top three is all that fits in a prompt.
    */
-  const reranker = new RemoteReranker({
+  const remoteReranker = new RemoteReranker({
+    statusId: 'reranking',
     resolve: async () => {
       const key = await apiKeyManager.getNextKey();
       if (!key.keyStr) return null;
@@ -270,6 +272,11 @@ export async function createContainer(config?: Partial<EngineConfig>): Promise<{
     },
     model: memorySettings.rerankModel,
   });
+  // The on-device reranker is OFF unless BIMAX_LOCAL_RERANK=1 (record 61): loaded, it costs ~240 MB — about one more
+  // engine on an 8 GB Mac — for a gain measured only on a 15-query set. When on, memory, the Composer and code search
+  // share its single model, loaded by the first search that needs it, never at boot.
+  const localReranker = process.env.BIMAX_LOCAL_RERANK === '1' ? new LocalReranker() : null;
+  const reranker = localReranker ? new ChainedReranker(remoteReranker, localReranker) : remoteReranker;
   const vectorStore = new VectorStore(embeddings, reranker);
   // One store process-wide. Without this, globalProjectMemory searches with a bare BM25-only
   // VectorStore (no embeddings backend) even when keys exist, and its whole-file writes race
@@ -355,6 +362,9 @@ export async function createContainer(config?: Partial<EngineConfig>): Promise<{
         return [];
       }
     };
+    // Source text reaches a remote reranker only with the same consent as remote embeddings; the on-device one sends
+    // nothing, so when it is on, code search reranks either way.
+    const codeReranker = remoteCodeEmbeddings ? reranker : localReranker ? new ChainedReranker(null, localReranker, 'reranking-code') : null;
     const budget = parseInt(process.env.BIMAX_CODE_INDEX_BUDGET || '', 10) || 200;
     const codeIndexes = new Map<string, InstanceType<typeof CodeIndex>>();
     const indexFor = async (cwd: string): Promise<InstanceType<typeof CodeIndex>> => {
@@ -363,7 +373,7 @@ export async function createContainer(config?: Partial<EngineConfig>): Promise<{
       if (!index) {
         index = new CodeIndex(
           remoteCodeEmbeddings ? embeddings : null,
-          remoteCodeEmbeddings ? reranker : null,
+          codeReranker,
           { root, expandHit: root === projectRoot ? expandHit : undefined },
         );
         codeIndexes.set(root, index);
@@ -376,7 +386,7 @@ export async function createContainer(config?: Partial<EngineConfig>): Promise<{
     };
     const codeIndex = new CodeIndex(
       remoteCodeEmbeddings ? embeddings : null,
-      remoteCodeEmbeddings ? reranker : null,
+      codeReranker,
       { root: projectRoot, expandHit },
     );
     codeIndexes.set(projectRoot, codeIndex);

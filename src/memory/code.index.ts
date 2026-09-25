@@ -37,7 +37,7 @@ import { readEvidenceFile } from '../core/workflow.evidence';
 import type { VectorDocument } from './vector.store';
 import { SqliteCodeVectorStore } from './sqlite.code.store';
 import type { EmbeddingBackend } from './embeddings';
-import type { RemoteReranker } from './rerank';
+import type { Reranker } from './rerank';
 import { Logger } from '../utils';
 
 /** Directories never worth indexing. Matched by basename anywhere in the tree. */
@@ -211,7 +211,7 @@ export class CodeIndex {
     return { syncing: this.syncFlight !== null, pending: this.pendingFiles };
   }
 
-  constructor(embeddings: EmbeddingBackend | null, reranker: RemoteReranker | null = null, options: CodeIndexOptions = {}) {
+  constructor(embeddings: EmbeddingBackend | null, reranker: Reranker | null = null, options: CodeIndexOptions = {}) {
     this.root = path.resolve(options.root ?? process.cwd());
     this.contextualHeaders = options.contextualHeaders ?? true;
     this.expandHit = options.expandHit;

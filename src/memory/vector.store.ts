@@ -9,7 +9,7 @@ import { contentStems } from './sufficiency';
 import { reciprocalRankFusion } from './fusion';
 import { chunkDocument } from './chunking';
 import { dot, type EmbeddingBackend } from './embeddings';
-import type { RemoteReranker } from './rerank';
+import type { Reranker } from './rerank';
 
 /**
  * File-backed memory with a four-stage retrieval pipeline.
@@ -215,7 +215,7 @@ export class VectorStore {
   private readonly MAX_VECTORS: number;
 
   private readonly embeddings: EmbeddingBackend | null;
-  private readonly reranker: RemoteReranker | null;
+  private readonly reranker: Reranker | null;
   private readonly chunk: (id: string, text: string) => { id: string; text: string }[];
   private readonly dedup: boolean;
   /** Indexed over CHUNKS, not documents — the unit retrieval scores. */
@@ -231,7 +231,7 @@ export class VectorStore {
 
   constructor(
     embeddings: EmbeddingBackend | null = null,
-    reranker: RemoteReranker | null = null,
+    reranker: Reranker | null = null,
     options: VectorStoreOptions = {},
   ) {
     this.embeddings = embeddings;

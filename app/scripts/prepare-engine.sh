@@ -43,4 +43,11 @@ mkdir -p "$out"
 ( cd "$repo" && bun build src/index.ts --target=node --outdir "$out" )
 
 [ -f "$out/index.js" ] || { echo "error: engine bundle missing at $out/index.js" >&2; exit 1; }
+
+# The on-device reranker's model and runtime (record 61), only when asked for: BIMAX_LOCAL_RERANK=1. The engine itself
+# is never downloaded; the model is data, pulled in by its own script at a pinned revision and checked by SHA-256.
+if [ "${BIMAX_LOCAL_RERANK:-0}" = "1" ]; then
+  bash "$(pwd)/scripts/stage-local-rerank.sh" "$out/models/rerank" "$repo"
+fi
+
 echo "engine bundle: $(du -sh "$out" | cut -f1) at $out"

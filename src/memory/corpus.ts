@@ -5,7 +5,7 @@ import * as crypto from 'crypto';
 import { VectorDocument } from './vector.store';
 import { SqliteCodeVectorStore } from './sqlite.code.store';
 import type { EmbeddingBackend } from './embeddings';
-import type { RemoteReranker } from './rerank';
+import type { Reranker } from './rerank';
 import { chunkDocument } from './chunking';
 import { extractFile, describeLocator, ExtractionResult, Segment } from '../documents/extract';
 import { FactStore, factsFromSegment } from './facts';
@@ -216,7 +216,7 @@ export function composerStorePath(root: string = process.cwd()): string {
 
 export function createComposerStore(
   embeddings: EmbeddingBackend | null,
-  reranker: RemoteReranker | null,
+  reranker: Reranker | null,
   storePath: string = composerStorePath(),
 ): CorpusStore {
   return new SqliteCodeVectorStore(embeddings, reranker, { storePath, ...COMPOSER_STORE_OPTIONS });

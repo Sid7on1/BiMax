@@ -39,7 +39,7 @@ import { reciprocalRankFusion } from './fusion';
 import { type SearchMode, type SearchOptions } from './vector.store';
 import type { VectorDocument } from './vector.store';
 import type { EmbeddingBackend } from './embeddings';
-import type { RemoteReranker } from './rerank';
+import type { Reranker } from './rerank';
 
 export interface SqliteStoreOptions {
   storePath?: string;
@@ -68,7 +68,7 @@ export class SqliteCodeVectorStore {
 
   constructor(
     private readonly embeddings: EmbeddingBackend | null,
-    private readonly reranker: RemoteReranker | null,
+    private readonly reranker: Reranker | null,
     options: SqliteStoreOptions = {},
   ) {
     this.storePath = options.storePath ?? path.join(stateDir('.breakglass'), 'memory', 'code-index.db');
