@@ -294,3 +294,12 @@ are not fully qualified; live R02 and Product-ready remain Target. No competitiv
 [Record 52](../52_NOVEL_FEATURE_RECOMMENDATIONS.md) adds ten ranked research proposals with narrow
 contracts, existing-backlog distinctions and falsifiers. These are Target recommendations, not new
 implemented capabilities or an automatic expansion of the committed build sequence.
+
+
+## Reranking reality — 2026-09-25
+
+[Record 61](../61_CONTEXT_RERANK_AND_CU_PLAN.md): the "reranked" figures above come from a stand-in cross-encoder in
+unit tests. In use, no search was reranked — the live rerank function answers 404 and keyless installs have none. An
+on-device reranker is **Implemented, off by default** (`BIMAX_LOCAL_RERANK=1`); quality is **not Measured** beyond a
+15-query set, and its ~240 MB cost is why it is off. **Target:** a completed SciFact (or R02 live) comparison, one
+model per process, before it is turned on.

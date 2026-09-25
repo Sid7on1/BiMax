@@ -1,5 +1,14 @@
 # Bimax product reset
 
+## Context fix, an on-device reranker, and a parked Computer Use plan — 2026-09-25
+
+[61_CONTEXT_RERANK_AND_CU_PLAN.md](61_CONTEXT_RERANK_AND_CU_PLAN.md): "ok"/"go on" no longer push a user's instruction
+out of a long task's continuation state. No search was being reranked (the live account's rerank function answers
+404); an on-device reranker is built and verified bundled, but it costs ~240 MB loaded and its gain is measured only
+on 15 queries, so it is **off** unless `BIMAX_LOCAL_RERANK=1`. laya-mlx reranks well on that small set but is ~40×
+slower, ~1.1 GB, Python-only, and stalled this Mac twice. The Computer Use return plan (stages 0–6, laya only as
+approval-adding advice) is written and **parked by the owner**; the code-only gate is unchanged.
+
 ## A Jev-style decision layer, step 1 — 2026-09-21
 
 [60_DECISION_LAYER_PROBE.md](60_DECISION_LAYER_PROBE.md) measures laya-mlx (an open, on-device Jev-like
