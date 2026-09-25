@@ -120,3 +120,47 @@ test('past its cap the state keeps the task and the newest messages, and archive
   engine.absorb([{ role: 'user', content: '[BrowserScreenshot] fresh screen' }] as any, archive);
   expect(engine.render(archive)).toBeNull();
 });
+
+test('short replies like "ok" and "go on" never push an earlier instruction out of the state', () => {
+  // Record 48 F2's open limit: past the cap the OLDEST message after the task was archived, so eleven different
+  // acknowledgements typed while a long task ran pushed the user's constraint behind a handle the model rarely reads.
+  const archive = (text: string) => `archive:${String(text.length).padStart(32, '0')}`;
+  const state = new ContinuationState();
+  const acknowledgements = ['ok', 'go on', 'continue', 'yes', 'keep going', 'okay next', 'sure, go ahead', 'thanks!', 'oky', 'proceed', 'good, carry on', 'next please'];
+  state.absorb([
+    { role: 'user', content: 'Refactor the uploader.' },
+    { role: 'user', content: 'Never modify package.json.' },
+    ...acknowledgements.map((content) => ({ role: 'user', content })),
+  ] as any, archive);
+  const text = state.render(archive)!;
+  expect(text).toContain('"Refactor the uploader."');
+  expect(text).toContain('"Never modify package.json."');
+  // The newest reply is still quoted: it may be the answer to a question the assistant just asked.
+  expect(text).toContain('"next please"');
+  expect(text).not.toContain('"go on"');
+
+  // Rendering under a character budget also moves replies to the archive before an instruction.
+  const budget = text.length - 60;
+  const tight = state.render(archive, budget)!;
+  expect(tight.length).toBeLessThanOrEqual(budget);
+  expect(tight).toContain('"Never modify package.json."');
+  expect(tight).not.toContain('"sure, go ahead"');
+
+  // Control: with no replies to give up, the oldest instruction after the task is still the one archived.
+  const plain = new ContinuationState();
+  plain.absorb(Array.from({ length: 12 }, (_, i) => ({ role: 'user', content: `Rule ${i}: keep file ${i} unchanged.` })) as any, archive);
+  const plainText = plain.render(archive)!;
+  expect(plainText).toContain('"Rule 0: keep file 0 unchanged."');
+  expect(plainText).not.toContain('"Rule 1: keep file 1 unchanged."');
+  expect(plainText).toContain('"Rule 11: keep file 11 unchanged."');
+
+  // The newest reply keeps its place even when it is the only acknowledgement: "yes" may answer the last question.
+  const answered = new ContinuationState();
+  answered.absorb([
+    ...Array.from({ length: 10 }, (_, i) => ({ role: 'user', content: `Rule ${i}: keep file ${i} unchanged.` })),
+    { role: 'user', content: 'yes' },
+  ] as any, archive);
+  const answeredText = answered.render(archive)!;
+  expect(answeredText).toContain('"yes"');
+  expect(answeredText).not.toContain('"Rule 1: keep file 1 unchanged."');
+});

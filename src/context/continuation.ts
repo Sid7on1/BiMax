@@ -15,7 +15,8 @@ import { contentToText } from '../core/multimodal';
  *   verified facts.
  * Decisions and next steps still come from the summary and the task list.
  *
- * Bounded: each kind keeps its newest entries, and the user's first message (the task) is always kept. The user's
+ * Bounded: each kind keeps its newest entries, and the user's first message (the task) is always kept. Replies that only
+ * acknowledge ("ok", "go on") give up their place first. The user's
  * messages that fall out are archived together under one handle rather than silently lost. One handle each cost more
  * tokens than the messages: sixteen of them were 40% of a block (measured on the long-session fixture).
  */
@@ -34,6 +35,35 @@ const OUTCOME = /\b(?:pass(?:ed|es)?|fail(?:ed|s|ing|ure)?|did not|didn't|does n
 /** A user-role message the engine wrote (a screenshot, a nudge), not something the user said. */
 const ENGINE_TAG = /^\[[A-Za-z][\w -]*\]/;
 const HANDLE = /archive:[0-9a-f]{32}/;
+/**
+ * The words a reply made only of acknowledgement is written in: "ok", "go on", "sure, go ahead", "thanks!". Such a reply
+ * carries no instruction, so past the cap it gives up its place before any message that might (record 48 F2's limit:
+ * a dozen of them pushed the user's constraint into the archive). A closed list, not a length rule: "use Python 3.9"
+ * is short and is exactly what must stay.
+ */
+const ACK_WORDS = new Set([
+  'ok', 'okay', 'oky', 'okk', 'kk', 'k', 'yes', 'yeah', 'yep', 'yup', 'ya', 'sure', 'fine', 'alright', 'right', 'cool', 'nice',
+  'good', 'great', 'perfect', 'thanks', 'thank', 'you', 'thx', 'ty', 'please', 'pls', 'plz', 'go', 'on', 'ahead', 'continue',
+  'proceed', 'next', 'keep', 'going', 'carry', 'do', 'it', 'that', 'and', 'then', 'now', 'lets', "let's", 'bro', 'dude',
+  'yes,', 'done', 'looks', 'lgtm',
+]);
+const MAX_ACK_CHARS = 40;
+
+/** Whether a quoted user message is an acknowledgement and nothing more. */
+export function isAcknowledgement(text: string): boolean {
+  if (text.length > MAX_ACK_CHARS) return false;
+  const words = text.toLowerCase().replace(/[^\p{L}\p{N}'\s]+/gu, ' ').split(/\s+/).filter(Boolean);
+  return words.length > 0 && words.every((word) => ACK_WORDS.has(word));
+}
+
+/**
+ * Which of `quotes` (after the first, the task) gives up its place: the oldest acknowledgement, else the oldest message.
+ * The newest is never chosen while another can go: it may be the answer to a question the assistant just asked.
+ */
+function evictionIndex(quotes: readonly Quote[]): number {
+  for (let i = 1; i < quotes.length - 1; i++) if (isAcknowledgement(quotes[i].text)) return i;
+  return 1;
+}
 
 interface Quote {
   text: string;
@@ -217,7 +247,7 @@ export class ContinuationState {
       if (claims.length) { claims = claims.slice(1); omitted++; }
       else if (commands.length) { commands = commands.slice(1); omitted++; }
       else if (instructions.length > 1) {
-        const [moved] = instructions.splice(1, 1);
+        const [moved] = instructions.splice(evictionIndex(instructions), 1);
         evicted.push(moved.handle ? `${moved.text} (whole message: ${moved.handle})` : moved.text);
         evictedTotal++;
       } else break;
@@ -229,9 +259,10 @@ export class ContinuationState {
     const kept = quote(text, archive);
     this.instructions = this.instructions.filter((entry) => entry.text !== kept.text);
     this.instructions.push({ ...kept, order: this.order++ });
-    // The first message is the task: it stays. Past the cap the oldest of the rest is archived and named.
+    // The first message is the task: it stays. Past the cap the oldest acknowledgement, else the oldest of the rest, is
+    // archived and named.
     while (this.instructions.length > MAX_INSTRUCTIONS) {
-      const [evicted] = this.instructions.splice(1, 1);
+      const [evicted] = this.instructions.splice(evictionIndex(this.instructions), 1);
       this.evicted.push(evicted.handle ? `${evicted.text} (whole message: ${evicted.handle})` : evicted.text);
       this.evictedTotal++;
       let chars = this.evicted.reduce((sum, text) => sum + text.length, 0);
