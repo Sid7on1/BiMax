@@ -273,3 +273,18 @@ in front, the notch opens on Secrets. Secrets never reach a model.
 bits, which repeat — `AKIAQAAAAAAAAAYAAAAA` — and the entropy floor rightly refused them. The generator now uses the
 high bits. **Not verified:** the Touch ID prompt from the installed app, Force Touch pressure by a person, the lock
 notifications on a real lock.
+
+## Installed, and a measurement mistake corrected — 2026-09-25/26
+
+Stages 1–6 were built into one app and installed at the owner's request ("delete the current and rebuild"); the old
+app copies were deleted, not kept.
+
+**Correction to stage 1's "0.0% CPU at rest".** That was measured with nobody moving the mouse. In real use the helper
+cost 3–5% of a core. A first theory — the global mouse-moved monitor — was wrong: measured with the cursor moved in a
+circle and two helpers side by side, it costs **0.0%** with the mouse moving elsewhere, and **1.8%** with it moving
+over the top-centre area that the notch's half-screen panel covers. The cause was that panel's SwiftUI hover
+tracking (DynamicNotchKit's `.onHover` and the `.keepVisible` hover behaviour), which handled every move there even
+while the panel ignored clicks; the notch never used it. Both are removed (`25409d0`, BIMAX_CHANGES 7). A sensor window
+built on the wrong theory was set aside, not merged. **Rule going forward:** idle cost is measured with the mouse
+moving over the notch's area and elsewhere, not only still. The corrected numbers are measured when the owner is away
+from the Mac (the cursor-moving checks never run while they are using it).
