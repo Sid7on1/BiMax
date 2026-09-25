@@ -2,6 +2,7 @@ import { spawn, type ChildProcessWithoutNullStreams } from 'child_process';
 import * as path from 'path';
 import { isQuickThread, threadActivity, type ThreadSummary } from '../shared/threads';
 import type { ShelfFrom, ShelfInput, ShelfView } from './shelf';
+import { nextGlassChange, notchGlass, outcomeOf, type Glass, type Unseen } from './glass';
 
 /**
  * God's Land, stage 1 (docs/product-reset/gods-land/03_PLAN.md): the notch talks. This is the app's half — what the
@@ -13,7 +14,7 @@ import type { ShelfFrom, ShelfInput, ShelfView } from './shelf';
  */
 
 export interface NotchTask { id: string; title: string; state: 'working' | 'waiting' | 'done' | 'failed' | 'idle'; detail: string }
-export interface NotchContent { t: 'content'; active: number; waiting: number; tasks: NotchTask[] }
+export interface NotchContent { t: 'content'; active: number; waiting: number; tasks: NotchTask[]; glass?: Glass }
 export interface NotchSay { t: 'say'; text: string; tone: 'done' | 'waiting' | 'failed' | 'info'; seconds: number }
 
 const TITLE_MAX = 48;
@@ -123,6 +124,10 @@ export interface NotchDeckOptions {
   shelf?: NotchShelf;
   /** Files handed to "Edit with Bimax" (stage 3): the app plays the Droplet and opens the ⌘2 bar with them. */
   onEdit?: (paths: string[]) => void;
+  /** Stage 4: which tasks have a Night Shift running, for the night glass. */
+  nightIds?: () => ReadonlySet<string>;
+  /** The clock, for tests. */
+  now?: () => number;
   log?: (line: string) => void;
   spawnHelper?: (file: string) => ChildProcessWithoutNullStreams;
 }
@@ -135,6 +140,10 @@ export class NotchDeck {
   private lastContent = '';
   private lastShelf = '';
   private landing: (() => void) | null = null;
+  /** Stage 4: results the person has not looked at (cleared when the notch opens), and the next timed change. */
+  private unseen = new Map<string, Unseen>();
+  private threadsNow: readonly ThreadSummary[] = [];
+  private glassTimer: NodeJS.Timeout | null = null;
   private previous = new Map<string, ThreadSummary>();
 
   constructor(private readonly options: NotchDeckOptions) {}
@@ -176,7 +185,11 @@ export class NotchDeck {
     const shelf = this.options.shelf;
     if (message.t === 'open-task' && typeof message.id === 'string') this.options.onOpenTask(message.id);
     else if (message.t === 'ready') { this.options.log?.(`notch helper ready: ${line}`); this.sendShelf(); }
-    else if (message.t === 'hover' && message.open === true) this.sendShelf(); // amber and missing change with time
+    else if (message.t === 'hover' && message.open === true) {
+      this.sendShelf(); // amber and missing change with time
+      // Opening the notch is looking: the unseen results have been seen.
+      if (this.unseen.size) { this.unseen.clear(); this.sendContent(); }
+    }
     else if (shelf && message.t === 'shelf-add') { shelf.add(shelfInputs(message.items)); this.sendShelf(); }
     else if (shelf && message.t === 'shelf-touch' && typeof message.id === 'string') { if (shelf.touch(message.id)) this.sendShelf(); }
     else if (shelf && message.t === 'shelf-archive') {
@@ -233,20 +246,36 @@ export class NotchDeck {
    * ⌘2 tasks that just finished, for the Hatchback.
    */
   update(threads: readonly ThreadSummary[]): ThreadSummary[] {
-    const content = notchContent(threads);
+    const now = this.options.now?.() ?? Date.now();
+    const finished = justFinished(this.previous, threads);
+    for (const t of finished) this.unseen.set(t.id, { outcome: outcomeOf(t), title: t.title, at: now });
+    this.threadsNow = threads;
+    this.sendContent();
+    for (const say of notchSays(this.previous, threads)) this.send(say);
+    this.previous = new Map(threads.map((t) => [t.id, t]));
+    return finished;
+  }
+
+  /** The tasks and the glass, sent when they differ from what the helper has; then the next timed change is armed. */
+  private sendContent(): void {
+    const now = this.options.now?.() ?? Date.now();
+    const content: NotchContent = { ...notchContent(this.threadsNow), glass: notchGlass({ threads: this.threadsNow, now, night: this.options.nightIds?.(), unseen: this.unseen }) };
     const serialized = JSON.stringify(content);
     if (serialized !== this.lastContent) {
       this.lastContent = serialized;
       this.send(content);
     }
-    for (const say of notchSays(this.previous, threads)) this.send(say);
-    const finished = justFinished(this.previous, threads);
-    this.previous = new Map(threads.map((t) => [t.id, t]));
-    return finished;
+    if (this.glassTimer) clearTimeout(this.glassTimer);
+    this.glassTimer = null;
+    const next = nextGlassChange({ threads: this.threadsNow, now, unseen: this.unseen });
+    // Only while the helper runs: a stopped notch has no glass to keep current.
+    if (next !== null && this.child) this.glassTimer = setTimeout(() => { this.glassTimer = null; this.sendContent(); }, Math.max(1_000, next - now + 50));
   }
 
   stop(): void {
     this.stopped = true;
+    if (this.glassTimer) clearTimeout(this.glassTimer);
+    this.glassTimer = null;
     const child = this.child;
     if (!child) return;
     this.send({ t: 'quit' });

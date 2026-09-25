@@ -84,6 +84,8 @@ final class NotchModel: ObservableObject {
     @Published var active = 0
     @Published var waiting = 0
     @Published var say: Say?
+    /// Stage 4: the notch's material (Glass.swift), decided by the app (glass.ts).
+    @Published var glass = Glass()
     // The shelf (Shelf.swift, stage 2).
     @Published var shelf: [ShelfCard] = []
     @Published var archived: [ShelfCard] = []
@@ -105,7 +107,7 @@ final class NotchModel: ObservableObject {
 // MARK: - Protocol
 
 enum Inbound: Equatable {
-    case content(active: Int, waiting: Int, tasks: [TaskRow])
+    case content(active: Int, waiting: Int, tasks: [TaskRow], glass: Glass)
     case say(text: String, tone: Tone, seconds: Double)
     case shelf(items: [ShelfCard], archived: [ShelfCard])
     /// Play the Droplet to where the ⌘2 bar opens: Electron screen coordinates (top-left origin of the main display).
@@ -125,7 +127,10 @@ func parseInbound(_ line: String) -> Inbound? {
             guard let id = row["id"] as? String, let title = row["title"] as? String else { return nil }
             return TaskRow(id: id, title: title, state: row["state"] as? String ?? "idle", detail: row["detail"] as? String ?? "")
         }
-        return .content(active: object["active"] as? Int ?? 0, waiting: object["waiting"] as? Int ?? 0, tasks: rows)
+        let glassObject = object["glass"] as? [String: Any]
+        let glass = Glass(state: GlassState(rawValue: glassObject?["state"] as? String ?? "") ?? .water,
+                          label: glassObject?["label"] as? String ?? "All quiet")
+        return .content(active: object["active"] as? Int ?? 0, waiting: object["waiting"] as? Int ?? 0, tasks: rows, glass: glass)
     case "say":
         guard let text = object["text"] as? String, !text.isEmpty else { return nil }
         let seconds = (object["seconds"] as? Double) ?? Double(object["seconds"] as? Int ?? 4)
@@ -344,7 +349,7 @@ final class NotchController {
         guard let geometry else { return }
         if isOpen { Outbox.send(["t": "hover", "open": false]) }
         isOpen = false
-        if model.active > 0 && geometry.hasNotch {
+        if model.glass.state != .water && geometry.hasNotch {
             resting = .compact
             await notch.compact(on: geometry.screen)
         } else {
@@ -460,12 +465,13 @@ final class NotchController {
 
     func handle(_ message: Inbound) {
         switch message {
-        case let .content(active, waiting, tasks):
+        case let .content(active, waiting, tasks, glass):
             model.active = active
             model.waiting = waiting
             model.tasks = tasks
+            model.glass = glass
             if !isOpen {
-                let wanted: DynamicNotchState = active > 0 && (geometry?.hasNotch ?? false) ? .compact : .hidden
+                let wanted: DynamicNotchState = glass.state != .water && (geometry?.hasNotch ?? false) ? .compact : .hidden
                 if wanted != resting { Task { await rest() } }
             }
         case let .say(text, tone, seconds):
@@ -537,11 +543,14 @@ struct ExpandedView: View {
                 .accessibilityElement(children: .combine)
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
-            HStack {
+            HStack(spacing: 6) {
                 Text("Bimax").font(.system(size: 11, weight: .semibold)).foregroundStyle(.white.opacity(0.85))
                 Spacer()
-                Text(model.summary).font(.system(size: 11)).foregroundStyle(dim)
+                GlassGlyph(glass: model.glass).accessibilityHidden(true)
+                Text(model.glass.state == .water ? model.summary : model.glass.label)
+                    .font(.system(size: 11)).foregroundStyle(.white.opacity(0.85)).lineLimit(1)
             }
+            .accessibilityElement(children: .combine)
             if model.tasks.isEmpty {
                 Text("Nothing running right now.").font(.system(size: 12)).foregroundStyle(dim)
             } else {
@@ -557,6 +566,7 @@ struct ExpandedView: View {
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
         .frame(width: 380, alignment: .leading)
+        .background(alignment: .top) { GlassMaterial(state: model.glass.state) }
         .onDrop(of: DropReader.types, isTargeted: dropTargeted) { providers in dropped(providers) }
         .animation(.spring(response: 0.26, dampingFraction: 0.85), value: model.say)
     }
@@ -592,15 +602,12 @@ struct RowButtonStyle: ButtonStyle {
     }
 }
 
-/// Beside the notch while tasks run: one dot, yellow when something needs you.
+/// Beside the notch at rest: the glass's still symbol (stage 4). Nothing moves here, so an idle Mac pays nothing.
 struct CompactLeadingView: View {
     @ObservedObject var model: NotchModel
 
     var body: some View {
-        Circle()
-            .fill(model.waiting > 0 ? Tone.waiting.color : Tone.info.color)
-            .frame(width: 7, height: 7)
-            .accessibilityLabel(model.summary)
+        GlassGlyph(glass: model.glass)
     }
 }
 
@@ -608,8 +615,10 @@ struct CompactTrailingView: View {
     @ObservedObject var model: NotchModel
 
     var body: some View {
-        Text("\(model.active)").font(.system(size: 11, weight: .semibold, design: .rounded)).foregroundStyle(.white.opacity(0.8))
-            .accessibilityHidden(true)
+        if model.active > 0 {
+            Text("\(model.active)").font(.system(size: 11, weight: .semibold, design: .rounded)).foregroundStyle(.white.opacity(0.8))
+                .accessibilityHidden(true)
+        }
     }
 }
 
@@ -629,11 +638,13 @@ struct BimaxNotch {
         if arguments.contains("--demo") {
             MainActor.assumeIsolated {
                 controller.demo = true
+                // BIMAX_NOTCH_GLASS=molten|frost|… shows that material in the demo.
+                let demoGlass = Glass(state: GlassState(rawValue: ProcessInfo.processInfo.environment["BIMAX_NOTCH_GLASS"] ?? "") ?? .ink, label: "Tidy Downloads needs you")
                 controller.handle(.content(active: 2, waiting: 1, tasks: [
                     TaskRow(id: "a", title: "Rename the holiday photos", state: "working", detail: "Renaming 48 of 212"),
                     TaskRow(id: "b", title: "Tidy Downloads", state: "waiting", detail: "Wants to move 31 files"),
                     TaskRow(id: "c", title: "Summarise the Q3 report", state: "done", detail: "Check passed"),
-                ]))
+                ], glass: demoGlass))
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                 MainActor.assumeIsolated { controller.handle(.say(text: "Summarise the Q3 report is done", tone: .done, seconds: 4)) }
@@ -655,8 +666,20 @@ struct BimaxNotch {
     static func selfTest() -> Bool {
         var ok = true
         func check(_ condition: Bool, _ what: String) { if !condition { ok = false; FileHandle.standardError.write("selftest failed: \(what)\n".data(using: .utf8)!) } }
-        check(parseInbound(#"{"t":"content","active":2,"waiting":1,"tasks":[{"id":"a","title":"T","state":"working","detail":"d"}]}"#)
-              == .content(active: 2, waiting: 1, tasks: [TaskRow(id: "a", title: "T", state: "working", detail: "d")]), "content")
+        check(parseInbound(#"{"t":"content","active":2,"waiting":1,"tasks":[{"id":"a","title":"T","state":"working","detail":"d"}],"glass":{"state":"frost","label":"T · no progress for 30 s"}}"#)
+              == .content(active: 2, waiting: 1, tasks: [TaskRow(id: "a", title: "T", state: "working", detail: "d")], glass: Glass(state: .frost, label: "T · no progress for 30 s")), "content")
+        check(parseInbound(#"{"t":"content","active":0,"waiting":0,"tasks":[],"glass":{"state":"lava"}}"#)
+              == .content(active: 0, waiting: 0, tasks: [], glass: Glass()), "an unknown glass is water")
+        // Glass contrast: each symbol at least 3:1 on the notch's black (WCAG non-text), and the words — white at 85% —
+        // at least 4.5:1 over the strongest material each state draws behind them.
+        for state in GlassState.allCases {
+            let black = (0.0, 0.0, 0.0)
+            check(contrastRatio(state.rgb, black) >= 3, "\(state) symbol contrast \(contrastRatio(state.rgb, black))")
+            let peak = GlassState.materialPeak
+            let behind = (state.rgb.0 * peak, state.rgb.1 * peak, state.rgb.2 * peak)
+            let words = (0.85 + 0.15 * behind.0, 0.85 + 0.15 * behind.1, 0.85 + 0.15 * behind.2)
+            check(contrastRatio(words, behind) >= 4.5, "\(state) words contrast \(contrastRatio(words, behind))")
+        }
         check(parseInbound(#"{"t":"say","text":"Done","tone":"done","seconds":3}"#) == .say(text: "Done", tone: .done, seconds: 3), "say")
         check(parseInbound(#"{"t":"say","text":"x","tone":"nonsense","seconds":999}"#) == .say(text: "x", tone: .info, seconds: 30), "say clamps")
         check(parseInbound(#"{"t":"say","text":""}"#) == nil, "empty say ignored")

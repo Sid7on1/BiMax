@@ -145,3 +145,32 @@ showed a black drop vanishing on a dark window; a light glass rim (a second, sli
 **Not verified:** a person dropping a file on Edit in the installed app and seeing the bar open with it; the Droplet
 landing exactly on the bar at a remembered bar position; the Hatchback with a real task's changes; the gap between
 the splat and the bar appearing (the plan's one-frame bound) — the recording shows the splat, not yet the bar with it.
+
+## Stage 4 — glass states, built 2026-09-25
+
+**What exists:** `app/src/main/glass.ts` decides one state for the notch, most urgent first, each from a signal the
+app really has — **ink** (a task needs you), **fissure** (an unseen result failed: turn failed, time limit, or check
+failed), **frost** (working, but the record unchanged for 30 s — the summary moves only on real progress), **night**
+(a Night Shift task working), **molten** (working), **bubbles** (messages queued, nothing working), **prism** (an
+unseen result passed), **water** (quiet). Opening the notch marks results seen; unseen ones fade after 15 min. The
+deck arms one timer for the next moment the glass would change on its own (a task crossing 30 s), never a poll.
+`app/native/notch/Glass.swift` draws it: at rest a still symbol beside the notch (flame, snowflake, hand, sparkles,
+crack, bubbles, moon), open a material behind the words — heat shimmer, ice from the corners with crystal lines, an
+ink swirl, a turning spectrum with a glint, a red glow with a hairline crack, rising bubbles, indigo with a twinkling
+star. Reduce Motion stops the animation; Reduce Transparency / Increase Contrast draw one solid line instead.
+
+**Not built: Mercury (live streaming).** The app has no per-task streaming signal; a state that guesses is worse than
+none. It needs the engine's stream events surfaced first.
+
+| Exit evidence | Result |
+|---|---|
+| Each situation → exactly one state; the priority order | `notch.glass.test.ts` 16 tests (table-driven) |
+| Unseen results cleared by opening; frost on time with nothing else happening; night from FL5's list | `notch.deck.test.ts` +3 |
+| Mutants | 8 of 8 caught (one needed rewriting first: it did not compile) |
+| Contrast | `--selftest` (build gate): every symbol ≥ 3:1 on the notch's black; the words ≥ 4.5:1 over each state's strongest material |
+| Seen on this screen | Every material photographed open (via the demo's own "say", no cursor used) and every rest symbol — all distinct in shape and colour. The first frost and ink photos caught the installed app's own notch instead and were retaken |
+| Cost | 4.6% CPU while open and animating (only while hovered), **0.0% at rest**, 16 MB |
+| Suite | jest 3265 passed / 0 failed; app typecheck clean |
+
+**Not verified:** VoiceOver reading the labels aloud; the Reduce Transparency / Increase Contrast forms on screen;
+the states driven by real tasks in the installed app.

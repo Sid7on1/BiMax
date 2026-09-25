@@ -445,6 +445,8 @@ function syncNotch(): void {
       // Stage 2: the shelf, kept beside the app's other state; copies of temporary files live under it.
       shelf: new Shelf(path.join(shelfRoot, 'shelf.json'), path.join(shelfRoot, 'shelf-copies')),
       onEdit: (paths) => { void editFromNotch(paths); },
+      // Stage 4: a Night Shift task working turns the glass to night (FL5's own list).
+      nightIds: () => new Set(nightShifts.keys()),
     });
   }
   if (!notchDeck) return;

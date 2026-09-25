@@ -238,3 +238,52 @@ describe('stage 3: edit, the Droplet and the Hatchback', () => {
     expect(added).toEqual([{ kind: 'file', path: '/w/contract.md', from: { task: 'Make it formal', check: 'passed' } }]);
   });
 });
+
+describe('stage 4: the glass through the deck', () => {
+  const flush = () => new Promise((resolve) => setImmediate(resolve));
+
+  test('a finished task stays unseen — prism or fissure — until the notch is opened', async () => {
+    const helpers: FakeHelper[] = [];
+    const deck = new NotchDeck({ helper: '/x', onOpenTask: () => undefined, now: () => 5_000_000, spawnHelper: () => { const h = new FakeHelper(); helpers.push(h); return h as never; } });
+    deck.start();
+    const working = task('t', { status: 'working', title: 'Tidy', updatedAt: 5_000_000 });
+    deck.update([working]);
+    deck.update([{ ...working, status: 'idle', outcome: 'completed', check: 'failed' }]);
+    await flush();
+    const glasses = () => helpers[0].written.map((l) => JSON.parse(l)).filter((m) => m.t === 'content').map((m) => m.glass.state);
+    expect(glasses()).toEqual(['molten', 'fissure']);
+    helpers[0].stdout.write('{"t":"hover","open":true}\n');
+    await flush();
+    expect(glasses()).toEqual(['molten', 'fissure', 'water']);
+    deck.stop();
+  });
+
+  test('a working task frosts on time, without anything else happening', () => {
+    jest.useFakeTimers();
+    try {
+      let now = 1_000_000;
+      const helpers: FakeHelper[] = [];
+      const deck = new NotchDeck({ helper: '/x', onOpenTask: () => undefined, now: () => now, spawnHelper: () => { const h = new FakeHelper(); helpers.push(h); return h as never; } });
+      deck.start();
+      deck.update([task('t', { status: 'working', title: 'Build', updatedAt: now })]);
+      const states: string[] = [];
+      helpers[0].stdin.on('data', (chunk) => { for (const line of String(chunk).split('\n').filter(Boolean)) { const m = JSON.parse(line); if (m.t === 'content') states.push(m.glass.state); } });
+      now += 30_100;
+      jest.advanceTimersByTime(30_100);
+      expect(states).toContain('frost');
+      deck.stop();
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  test('night comes from the app\'s Night Shift list', async () => {
+    const helpers: FakeHelper[] = [];
+    const deck = new NotchDeck({ helper: '/x', onOpenTask: () => undefined, nightIds: () => new Set(['n']), spawnHelper: () => { const h = new FakeHelper(); helpers.push(h); return h as never; } });
+    deck.start();
+    deck.update([task('n', { status: 'working', updatedAt: Date.now() })]);
+    await flush();
+    expect(JSON.parse(helpers[0].written[0]!).glass).toEqual({ state: 'night', label: 'Night Shift is working' });
+    deck.stop();
+  });
+});
