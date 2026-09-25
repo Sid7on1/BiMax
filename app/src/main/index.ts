@@ -18,6 +18,7 @@ import { helperArguments, localeArguments, talkHelper, VoiceSessions, voiceHelpe
 import { TALK_TURN_HINT, TalkSession, talkModel, type TalkView } from './talk.session';
 import { talkTrayTitle } from '../shared/talk';
 import { NotchDeck, notchHelperPath } from './notch';
+import { Shelf } from './shelf';
 import { describeSchedule, dueSchedules, newSchedule, type Cadence, type Schedule } from './schedules';
 import {
   ARRIVAL_KINDS, FolderTriggers, MAX_TRIGGERS, arrivalLabel, changeListNote, changesDuring, describeTrigger, newTrigger, runMessage,
@@ -399,7 +400,12 @@ function syncNotch(): void {
   const wanted = loadSettings().notchDeck !== false;
   const helper = notchHelperPath({ packaged: app.isPackaged, resourcesPath: process.resourcesPath, appPath: app.getAppPath() });
   if (wanted && !notchDeck && existsSync(helper)) {
-    notchDeck = new NotchDeck({ helper, onOpenTask: (id) => { try { openThread(id); } catch { /* the task is gone */ } }, log: (line) => console.log(`[notch] ${line}`) });
+    const shelfRoot = path.join(app.getPath('userData'), 'gods-land');
+    notchDeck = new NotchDeck({
+      helper, onOpenTask: (id) => { try { openThread(id); } catch { /* the task is gone */ } }, log: (line) => console.log(`[notch] ${line}`),
+      // Stage 2: the shelf, kept beside the app's other state; copies of temporary files live under it.
+      shelf: new Shelf(path.join(shelfRoot, 'shelf.json'), path.join(shelfRoot, 'shelf-copies')),
+    });
   }
   if (!notchDeck) return;
   if (!wanted) { if (notchDeck.running()) notchDeck.pause(); return; }

@@ -93,3 +93,24 @@ when it is clicked. It takes no input.
 labels read aloud, and live task transitions seen by a person. Two defects found while measuring and fixed: a
 mouse-move hop that could let a click land during the opening animation, and the root `vendor/` ignore rule that
 left the vendored library out of the first commit.
+
+## Stage 2 — the shelf, built 2026-09-25
+
+**What exists:** `app/src/main/shelf.ts` (the rules), `app/native/notch/Shelf.swift` (drops, drags, cards, Quick
+Look, archive drawer), shelf messages routed by `NotchDeck`. Dragging anything toward the notch opens it with a
+"Drop to keep it here" zone; dropped files, http(s) links, images and text become cards. Click previews a file (Quick
+Look), opens a link, copies text; right-click offers Show in Finder, Copy, Move to Archive; a card drags out into any
+app on any Space. Files are kept by reference and show "missing" when gone; files in temporary folders are copied.
+After a day untouched a card turns amber and moves to the end; "Sweep old" archives ambers; "Put back" restores.
+Nothing is deleted. Saved in `<userData>/gods-land/shelf.json`.
+
+| Exit evidence | Result |
+|---|---|
+| Store rules (reference, temp copies, duplicates, amber, archive/restore, limit, restart, damaged file) | `shelf.test.ts` 9 tests |
+| Helper ↔ store routing, malformed helper input filtered | `notch.deck.test.ts` +2 tests (18 with shelf.test) |
+| Mutants | 8 of 8 caught (missing, temp copy, amber, limit, duplicates, URL scheme, unknown kinds, resend) |
+| What a drop reads; what a drag out carries | `--selftest` (build gate): file, http link and text read; `javascript:` refused; file/link/text providers |
+| Real drag onto the notch and back out | `scripts/notch/shelf-check.swift` written; **not passed yet** — its first run was invalid because the owner was using the mouse at the same moment. Run `app/scripts/check-notch.sh` hands-off |
+
+**Not verified:** the drag-in and drag-out end to end on screen (above), across Spaces and over a full-screen app,
+dragging from Safari and from a screenshot thumbnail. Suite: jest 3241 passed / 0 failed; app typecheck clean.

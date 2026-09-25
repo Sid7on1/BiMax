@@ -19,6 +19,7 @@
 
 import AppKit
 import SwiftUI
+import UniformTypeIdentifiers
 
 // MARK: - Model
 
@@ -83,6 +84,15 @@ final class NotchModel: ObservableObject {
     @Published var active = 0
     @Published var waiting = 0
     @Published var say: Say?
+    // The shelf (Shelf.swift, stage 2).
+    @Published var shelf: [ShelfCard] = []
+    @Published var archived: [ShelfCard] = []
+    @Published var dragging = false
+    @Published var draggingOut = false
+    @Published var dropTargeted = false
+    @Published var showArchive = false
+    /// Card frames in the panel's SwiftUI space, reported for the on-screen check (not published: no redraws).
+    var cardFrames: [String: CGRect] = [:]
 
     var summary: String {
         if active == 0 { return "All quiet" }
@@ -96,6 +106,7 @@ final class NotchModel: ObservableObject {
 enum Inbound: Equatable {
     case content(active: Int, waiting: Int, tasks: [TaskRow])
     case say(text: String, tone: Tone, seconds: Double)
+    case shelf(items: [ShelfCard], archived: [ShelfCard])
     case quit
 }
 
@@ -116,6 +127,10 @@ func parseInbound(_ line: String) -> Inbound? {
         guard let text = object["text"] as? String, !text.isEmpty else { return nil }
         let seconds = (object["seconds"] as? Double) ?? Double(object["seconds"] as? Int ?? 4)
         return .say(text: text, tone: Tone(rawValue: object["tone"] as? String ?? "info") ?? .info, seconds: min(max(seconds, 1), 30))
+    case "shelf":
+        let items = (object["items"] as? [[String: Any]] ?? []).compactMap(ShelfCard.init(json:))
+        let archived = (object["archived"] as? [[String: Any]] ?? []).compactMap(ShelfCard.init(json:))
+        return .shelf(items: items, archived: archived)
     case "quit":
         return .quit
     default:
@@ -142,6 +157,8 @@ struct NotchGeometry {
     let hasNotch: Bool
     /// Where the cursor opens the notch.
     let trigger: NSRect
+    /// Where a cursor carrying a drag opens it: wider and deeper, so a drop does not need precision.
+    var dragTrigger: NSRect { trigger.insetBy(dx: -90, dy: 0).offsetBy(dx: 0, dy: -60).union(trigger.insetBy(dx: -90, dy: 0)) }
 
     /// The built-in notched display if there is one, else the main display.
     static func current() -> NotchGeometry? {
@@ -173,7 +190,7 @@ func contentRectOnScreen(content: CGRect, window: NSRect, margin: CGFloat = 10) 
 }
 
 /// BIMAX_NOTCH_DEBUG=1 traces every mouse decision to stderr (how the click-through test was debugged).
-private let debugging = ProcessInfo.processInfo.environment["BIMAX_NOTCH_DEBUG"] != nil
+let debugging = ProcessInfo.processInfo.environment["BIMAX_NOTCH_DEBUG"] != nil
 
 // MARK: - Controller
 
@@ -187,19 +204,38 @@ final class NotchController {
     private var closeTask: Task<Void, Never>?
     private var sayTask: Task<Void, Never>?
     private var resting: DynamicNotchState = .hidden
+    private let dragWatch = DragWatch()
+    /// --demo keeps dropped things itself, since there is no app to keep them.
+    var demo = false
 
     init() {
         let model = self.model
         notch = DynamicNotch(
             hoverBehavior: [.keepVisible],
             style: .auto,
-            expanded: { [weak self] in ExpandedView(model: model, open: { id in self?.openTask(id) }) },
+            expanded: { [weak self] in
+                ExpandedView(model: model, open: { id in self?.openTask(id) },
+                             act: { action in self?.shelfAction(action) },
+                             dropped: { providers in self?.dropped(providers) ?? false })
+            },
             compactLeading: { CompactLeadingView(model: model) },
             compactTrailing: { CompactTrailingView(model: model) }
         )
         applyMotionPreference()
         geometry = NotchGeometry.current()
         startMonitoring()
+        dragWatch.changed = { [weak self] dragging in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                self.model.dragging = dragging
+                if !dragging {
+                    self.model.draggingOut = false
+                    self.model.dropTargeted = false
+                    Task { await self.closeIfLeft() }
+                }
+            }
+        }
+        dragWatch.start()
         NotificationCenter.default.addObserver(forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main) { [weak self] _ in
             Task { @MainActor in self?.screensChanged() }
         }
@@ -264,7 +300,7 @@ final class NotchController {
         if debugging {
             FileHandle.standardError.write("move \(point) open=\(isOpen) over=\(overNotch(point)) ignore=\(notch.windowController?.window?.ignoresMouseEvents as Any)\n".data(using: .utf8)!)
         }
-        let inTrigger = geometry.trigger.contains(point)
+        let inTrigger = geometry.trigger.contains(point) || (model.dragging && !model.draggingOut && geometry.dragTrigger.contains(point))
         if !isOpen {
             if inTrigger { open() }
             return
@@ -284,7 +320,7 @@ final class NotchController {
 
     private func closeIfLeft() async {
         closeTask = nil
-        guard isOpen, !overNotch(NSEvent.mouseLocation), model.say == nil else { return }
+        guard isOpen, !overNotch(NSEvent.mouseLocation), model.say == nil, !(model.dragging && !model.draggingOut) else { return }
         await rest()
     }
 
@@ -315,6 +351,71 @@ final class NotchController {
         Task { await rest() }
     }
 
+    private func dropped(_ providers: [NSItemProvider]) -> Bool {
+        DropReader.read(providers) { [weak self] items in
+            guard let self, !items.isEmpty else { return }
+            Outbox.send(["t": "shelf-add", "items": items])
+            if self.demo { self.demoKeep(items) }
+        }
+        model.dragging = false
+        model.dropTargeted = false
+        return true
+    }
+
+    private func demoKeep(_ items: [[String: Any]]) {
+        let cards = items.map { item -> ShelfCard in
+            let kind = item["kind"] as? String ?? "text"
+            let path = item["path"] as? String
+            let title = path.map { ($0 as NSString).lastPathComponent } ?? (item["url"] as? String) ?? (item["text"] as? String) ?? "Item"
+            return ShelfCard(id: UUID().uuidString, kind: kind, title: title, path: path, url: item["url"] as? String, text: item["text"] as? String)
+        }
+        model.shelf = cards + model.shelf
+        if debugging {
+            // Tell the on-screen check where the cards are, once they are laid out.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { [weak self] in
+                MainActor.assumeIsolated { self?.reportCardFrames() }
+            }
+        }
+    }
+
+    private func reportCardFrames() {
+        guard let window = notch.windowController?.window else { return }
+        let frames = model.shelf.compactMap { card -> [Double]? in
+            guard let frame = model.cardFrames[card.id], let rect = contentRectOnScreen(content: frame, window: window.frame, margin: 0) else { return nil }
+            return [rect.minX, rect.minY, rect.width, rect.height]
+        }
+        Outbox.send(["t": "debug-cards", "frames": frames])
+    }
+
+    func shelfAction(_ action: ShelfAction) {
+        func touch(_ card: ShelfCard) { Outbox.send(["t": "shelf-touch", "id": card.id]) }
+        switch action {
+        case let .open(card):
+            touch(card)
+            if card.kind == "file", !card.missing, let url = card.fileURL { Previewer.shared.show(url) }
+            else if card.kind == "url", let link = card.url.flatMap(URL.init(string:)) { NSWorkspace.shared.open(link) }
+            else if card.kind == "text" { shelfAction(.copy(card)) }
+        case let .copy(card):
+            touch(card)
+            let board = NSPasteboard.general
+            board.clearContents()
+            if let url = card.fileURL { board.writeObjects([url as NSURL]) }
+            else { board.setString(card.url ?? card.text ?? card.title, forType: .string) }
+            handle(.say(text: "Copied \(card.title)", tone: .info, seconds: 1.5))
+        case let .reveal(card):
+            touch(card)
+            if let url = card.fileURL { NSWorkspace.shared.activateFileViewerSelecting([url]) }
+        case let .archive(card):
+            Outbox.send(["t": "shelf-archive", "ids": [card.id]])
+        case .sweep:
+            Outbox.send(["t": "shelf-archive", "amber": true])
+        case let .restore(id):
+            Outbox.send(["t": "shelf-restore", "id": id])
+        case let .dragged(card):
+            touch(card)
+        }
+    }
+
     private func screensChanged() {
         geometry = NotchGeometry.current()
         Task {
@@ -343,6 +444,10 @@ final class NotchController {
                 self.model.say = nil
                 await self.closeIfLeft()
             }
+        case let .shelf(items, archived):
+            model.shelf = items
+            model.archived = archived
+            if archived.isEmpty { model.showArchive = false }
         case .quit:
             NSApp.terminate(nil)
         }
@@ -361,6 +466,12 @@ private let dim = Color.white.opacity(0.55)
 struct ExpandedView: View {
     @ObservedObject var model: NotchModel
     let open: (String) -> Void
+    let act: (ShelfAction) -> Void
+    let dropped: ([NSItemProvider]) -> Bool
+
+    private var dropTargeted: Binding<Bool> {
+        Binding(get: { model.dropTargeted }, set: { model.dropTargeted = $0 })
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -382,16 +493,18 @@ struct ExpandedView: View {
                 Text("Nothing running right now.").font(.system(size: 12)).foregroundStyle(dim)
             } else {
                 VStack(spacing: 2) {
-                    ForEach(model.tasks.prefix(4)) { task in
+                    ForEach(model.tasks.prefix(model.shelf.isEmpty ? 4 : 3)) { task in
                         Button { open(task.id) } label: { TaskRowView(task: task) }
                             .buttonStyle(RowButtonStyle())
                     }
                 }
             }
+            ShelfSection(model: model, act: act)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
         .frame(width: 380, alignment: .leading)
+        .onDrop(of: DropReader.types, isTargeted: dropTargeted) { providers in dropped(providers) }
         .animation(.spring(response: 0.26, dampingFraction: 0.85), value: model.say)
     }
 }
@@ -462,6 +575,7 @@ struct BimaxNotch {
 
         if arguments.contains("--demo") {
             MainActor.assumeIsolated {
+                controller.demo = true
                 controller.handle(.content(active: 2, waiting: 1, tasks: [
                     TaskRow(id: "a", title: "Rename the holiday photos", state: "working", detail: "Renaming 48 of 212"),
                     TaskRow(id: "b", title: "Tidy Downloads", state: "waiting", detail: "Wants to move 31 files"),
@@ -496,6 +610,28 @@ struct BimaxNotch {
         check(parseInbound("not json") == nil, "garbage ignored")
         check(parseInbound(#"{"t":"future-message"}"#) == nil, "unknown ignored")
         check(parseInbound(#"{"t":"quit"}"#) == .quit, "quit")
+        check(parseInbound(#"{"t":"shelf","items":[{"id":"1","kind":"file","title":"a.pdf","path":"/x/a.pdf","missing":true,"amber":false}],"archived":[]}"#)
+              == .shelf(items: [ShelfCard(id: "1", kind: "file", title: "a.pdf", path: "/x/a.pdf", missing: true)], archived: []), "shelf")
+        check(ShelfCard(id: "1", kind: "file", title: "a", path: "/nope", missing: true).itemProvider() == nil, "a missing file cannot be dragged out")
+        // What a drop reads, per kind of thing dropped (the same NSItemProviders a drag from Finder or a browser gives).
+        let dropped = FileManager.default.temporaryDirectory.appendingPathComponent("bimax-notch-selftest.txt")
+        try? "x".write(to: dropped, atomically: true, encoding: .utf8)
+        let providers = [NSItemProvider(contentsOf: dropped)!, NSItemProvider(object: NSURL(string: "https://bimax.app/x")!),
+                         NSItemProvider(object: NSURL(string: "javascript:alert(1)")!), NSItemProvider(object: "hello" as NSString)]
+        // Keep the main run loop turning while waiting: loading a file drop can need it.
+        var read: [[String: Any]]?
+        DropReader.read(providers) { read = $0 }
+        let deadline = Date().addingTimeInterval(5)
+        while read == nil, Date() < deadline { RunLoop.main.run(until: Date().addingTimeInterval(0.02)) }
+        check(read != nil, "drops are read")
+        let kinds = (read ?? []).map { "\($0["kind"] ?? "")=\($0["path"] ?? $0["url"] ?? $0["text"] ?? "")" }
+        check(kinds == ["file=\(dropped.path)", "url=https://bimax.app/x", "text=hello"], "a file, an http link and text are read; a javascript: link is refused (\(kinds))")
+        try? FileManager.default.removeItem(at: dropped)
+        // What a drag out carries: the file itself, the link, the text.
+        let card = ShelfCard(id: "2", kind: "file", title: "f", path: "/etc/hosts")
+        check(card.itemProvider()?.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) == true, "a file card drags out as a file")
+        check(ShelfCard(id: "3", kind: "url", title: "u", url: "https://bimax.app").itemProvider()?.canLoadObject(ofClass: NSURL.self) == true, "a link card drags out as a link")
+        check(ShelfCard(id: "4", kind: "text", title: "t", text: "hi").itemProvider()?.canLoadObject(ofClass: NSString.self) == true, "a text card drags out as text")
         let window = NSRect(x: 367, y: 478, width: 735, height: 478)
         let drawn = contentRectOnScreen(content: CGRect(x: 170, y: 0, width: 400, height: 120), window: window, margin: 0)
         check(drawn == NSRect(x: 537, y: 836, width: 400, height: 120), "content rect converts to screen space")

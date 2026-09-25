@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Compiles God's Land's notch helper (native/notch/main.swift + the vendored DynamicNotchKit, MIT) into
+# Compiles God's Land's notch helper (native/notch/*.swift + the vendored DynamicNotchKit, MIT) into
 # notch/bimax-notch, which electron-builder packages as an extraResource. docs/product-reset/gods-land/03_PLAN.md.
 #
 # Same toolchain rule as build-voice.sh: prefer Xcode, and fall back to the Command Line Tools when Xcode refuses
@@ -15,7 +15,8 @@ if [ "$(uname)" != "Darwin" ]; then
   exit 0
 fi
 mkdir -p notch
-sources=(native/notch/main.swift)
+sources=()
+for file in native/notch/*.swift; do sources+=("$file"); done
 while IFS= read -r file; do sources+=("$file"); done < <(find native/notch/Vendor -name '*.swift' | sort)
 compile() { xcrun swiftc -O -swift-version 5 -parse-as-library -target "$ARCH-apple-macos13.0" "${sources[@]}" -o notch/bimax-notch.tmp; }
 if ! compile 2>/tmp/bimax-notch-build.log; then

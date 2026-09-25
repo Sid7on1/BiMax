@@ -136,3 +136,52 @@ describe('the helper process', () => {
     }
   });
 });
+
+describe('the shelf through the helper (stage 2)', () => {
+  const flush = () => new Promise((resolve) => setImmediate(resolve));
+
+  function setup() {
+    const calls: string[] = [];
+    let items: Array<{ id: string; title: string }> = [];
+    const shelf = {
+      add: (inputs: readonly { kind: string; path?: string; url?: string; text?: string }[]) => {
+        calls.push(`add ${JSON.stringify(inputs)}`);
+        items = [...inputs.map((input, i) => ({ id: `n${items.length + i}`, title: input.path ?? input.url ?? input.text ?? '' })), ...items];
+        return items.map((i) => i.id);
+      },
+      touch: (id: string) => { calls.push(`touch ${id}`); return true; },
+      archive: (target: { ids?: readonly string[]; amber?: boolean }) => { calls.push(`archive ${JSON.stringify(target)}`); return 1; },
+      restore: (id: string) => { calls.push(`restore ${id}`); return id === 'known'; },
+      view: () => ({ t: 'shelf' as const, items: items.map((i) => ({ ...i, kind: 'file' as const, missing: false, amber: false })), archived: [] }),
+    };
+    const helpers: FakeHelper[] = [];
+    const deck = new NotchDeck({ helper: '/x', onOpenTask: () => undefined, shelf, spawnHelper: () => { const h = new FakeHelper(); helpers.push(h); return h as never; } });
+    deck.start();
+    const say = async (line: string) => { helpers[0].stdout.write(`${line}\n`); await flush(); };
+    const sent = () => helpers[0].written.map((l) => JSON.parse(l)).filter((m) => m.t === 'shelf');
+    return { calls, say, sent };
+  }
+
+  test('ready sends the shelf; a drop is kept and the new shelf sent back; an unchanged shelf is not resent', async () => {
+    const { calls, say, sent } = setup();
+    await say('{"t":"ready","hasNotch":true}');
+    expect(sent()).toHaveLength(1);
+    await say('{"t":"shelf-add","items":[{"kind":"file","path":"/Users/me/a.pdf","extra":1},{"kind":"evil","path":"/x"},{"kind":"url","url":"https://bimax.app"},null,7]}');
+    expect(calls).toEqual(['add [{"kind":"file","path":"/Users/me/a.pdf"},{"kind":"url","url":"https://bimax.app"}]']);
+    expect(sent()).toHaveLength(2);
+    expect(sent()[1].items.map((i: { title: string }) => i.title)).toEqual(['/Users/me/a.pdf', 'https://bimax.app']);
+    await say('{"t":"hover","open":true}');
+    expect(sent()).toHaveLength(2);
+  });
+
+  test('touch, archive (by id or all amber) and restore reach the store; malformed ones do not', async () => {
+    const { calls, say } = setup();
+    await say('{"t":"shelf-touch","id":"a"}');
+    await say('{"t":"shelf-touch","id":5}');
+    await say('{"t":"shelf-archive","ids":["a",3,"b"]}');
+    await say('{"t":"shelf-archive","amber":true}');
+    await say('{"t":"shelf-restore","id":"known"}');
+    await say('{"t":"shelf-restore"}');
+    expect(calls).toEqual(['touch a', 'archive {"ids":["a","b"],"amber":false}', 'archive {"amber":true}', 'restore known']);
+  });
+});

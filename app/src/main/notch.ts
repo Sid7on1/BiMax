@@ -1,6 +1,7 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'child_process';
 import * as path from 'path';
 import { isQuickThread, threadActivity, type ThreadSummary } from '../shared/threads';
+import type { ShelfInput, ShelfView } from './shelf';
 
 /**
  * God's Land, stage 1 (docs/product-reset/gods-land/03_PLAN.md): the notch talks. This is the app's half — what the
@@ -79,9 +80,28 @@ export function mayRestart(crashes: readonly number[], now: number, limit = NOTC
   return crashes.filter((at) => now - at < limit.windowMs).length < limit.max;
 }
 
+/** The shelf store (shelf.ts), as the deck uses it. */
+export interface NotchShelf {
+  add(inputs: readonly ShelfInput[]): string[];
+  touch(id: string): boolean;
+  archive(target: { ids?: readonly string[]; amber?: boolean }): number;
+  restore(id: string): boolean;
+  view(): ShelfView;
+}
+
+const SHELF_KINDS = new Set(['file', 'url', 'text']);
+/** Only well-formed inputs from the helper reach the store; the store validates the values themselves. */
+export function shelfInputs(raw: unknown): ShelfInput[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.filter((i): i is ShelfInput => !!i && typeof i === 'object' && SHELF_KINDS.has((i as ShelfInput).kind)).slice(0, 50)
+    .map((i) => ({ kind: i.kind, ...(typeof i.path === 'string' ? { path: i.path } : {}), ...(typeof i.url === 'string' ? { url: i.url } : {}), ...(typeof i.text === 'string' ? { text: i.text } : {}) }));
+}
+
 export interface NotchDeckOptions {
   helper: string;
   onOpenTask: (id: string) => void;
+  /** The shelf (stage 2); without one the notch has no shelf. */
+  shelf?: NotchShelf;
   log?: (line: string) => void;
   spawnHelper?: (file: string) => ChildProcessWithoutNullStreams;
 }
@@ -92,6 +112,7 @@ export class NotchDeck {
   private crashes: number[] = [];
   private stopped = false;
   private lastContent = '';
+  private lastShelf = '';
   private previous = new Map<string, ThreadSummary>();
 
   constructor(private readonly options: NotchDeckOptions) {}
@@ -118,6 +139,7 @@ export class NotchDeck {
       if (this.child !== child) return;
       this.child = null;
       this.lastContent = '';
+      this.lastShelf = '';
       if (this.stopped) return;
       this.options.log?.(`notch helper exited code=${code} signal=${signal ?? '-'}`);
       this.crashes.push(Date.now());
@@ -127,10 +149,29 @@ export class NotchDeck {
   }
 
   private received(line: string): void {
-    let message: { t?: string; id?: unknown };
+    let message: { t?: string; id?: unknown; items?: unknown; ids?: unknown; amber?: unknown; open?: unknown };
     try { message = JSON.parse(line); } catch { return; }
+    const shelf = this.options.shelf;
     if (message.t === 'open-task' && typeof message.id === 'string') this.options.onOpenTask(message.id);
-    else if (message.t === 'ready') this.options.log?.(`notch helper ready: ${line}`);
+    else if (message.t === 'ready') { this.options.log?.(`notch helper ready: ${line}`); this.sendShelf(); }
+    else if (message.t === 'hover' && message.open === true) this.sendShelf(); // amber and missing change with time
+    else if (shelf && message.t === 'shelf-add') { shelf.add(shelfInputs(message.items)); this.sendShelf(); }
+    else if (shelf && message.t === 'shelf-touch' && typeof message.id === 'string') { if (shelf.touch(message.id)) this.sendShelf(); }
+    else if (shelf && message.t === 'shelf-archive') {
+      const ids = Array.isArray(message.ids) ? message.ids.filter((id): id is string => typeof id === 'string') : undefined;
+      if (shelf.archive({ ids, amber: message.amber === true })) this.sendShelf();
+    }
+    else if (shelf && message.t === 'shelf-restore' && typeof message.id === 'string') { if (shelf.restore(message.id)) this.sendShelf(); }
+  }
+
+  private sendShelf(): void {
+    if (!this.options.shelf) return;
+    let view: ShelfView;
+    try { view = this.options.shelf.view(); } catch (error) { this.options.log?.(`shelf unreadable: ${String(error)}`); return; }
+    const serialized = JSON.stringify(view);
+    if (serialized === this.lastShelf) return;
+    this.lastShelf = serialized;
+    this.send(view);
   }
 
   private send(message: object): void {
