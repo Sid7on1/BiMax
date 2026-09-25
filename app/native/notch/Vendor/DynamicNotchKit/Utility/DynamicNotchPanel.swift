@@ -22,6 +22,8 @@ final class DynamicNotchPanel: NSPanel {
         )
         self.hasShadow = false
         self.backgroundColor = .clear
+        // Bimax: dark glass whatever the system appearance — the notch is an extension of black hardware (BIMAX_CHANGES 8).
+        self.appearance = NSAppearance(named: .darkAqua)
         self.level = .screenSaver
         // Bimax: click-through until the host sees the cursor over drawn content (DynamicNotch.contentFrame).
         self.ignoresMouseEvents = true

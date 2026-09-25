@@ -152,9 +152,9 @@ struct TabStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 10.5, weight: selected ? .semibold : .medium))
-            .foregroundStyle(.white.opacity(selected ? 0.95 : 0.6))
+            .foregroundStyle(Color.white.opacity(selected ? 1 : notchSecondary))
             .padding(.horizontal, 8).padding(.vertical, 3)
-            .background(Capsule().fill(Color.white.opacity(selected ? 0.16 : (configuration.isPressed ? 0.1 : 0))))
+            .background(Capsule().fill(Color.primary.opacity(selected ? 0.16 : (configuration.isPressed ? 0.1 : 0))))
     }
 }
 
@@ -185,7 +185,7 @@ struct ClipboardSection: View {
     }
 
     private func explainer(_ text: String) -> some View {
-        Text(text).font(.system(size: 11)).foregroundStyle(.white.opacity(0.7)).fixedSize(horizontal: false, vertical: true)
+        Text(text).font(.system(size: 11)).foregroundStyle(Color.white.opacity(notchSecondary)).fixedSize(horizontal: false, vertical: true)
     }
 }
 
@@ -204,19 +204,19 @@ struct ClipRow: View {
                 HStack(spacing: 8) {
                     if let swatch {
                         RoundedRectangle(cornerRadius: 4, style: .continuous).fill(swatch).frame(width: 16, height: 16)
-                            .overlay(RoundedRectangle(cornerRadius: 4, style: .continuous).strokeBorder(Color.white.opacity(0.25), lineWidth: 0.5))
+                            .overlay(RoundedRectangle(cornerRadius: 4, style: .continuous).strokeBorder(Color.primary.opacity(0.25), lineWidth: 0.5))
                     } else {
-                        Image(systemName: clip.symbol).font(.system(size: 11)).foregroundStyle(.white.opacity(0.65)).frame(width: 16)
+                        Image(systemName: clip.symbol).font(.system(size: 11)).foregroundStyle(Color.white.opacity(notchSecondary)).frame(width: 16)
                     }
                     VStack(alignment: .leading, spacing: 1) {
                         Text(clip.preview).font(.system(size: 11.5, design: clip.kind == "code" || clip.kind == "json" ? .monospaced : .default))
-                            .foregroundStyle(.white.opacity(0.92)).lineLimit(1)
+                            .foregroundStyle(.primary).lineLimit(1)
                         if let detail = clip.detail {
-                            Text(detail).font(.system(size: 10)).foregroundStyle(.white.opacity(0.55)).lineLimit(1)
+                            Text(detail).font(.system(size: 10)).foregroundStyle(Color.white.opacity(notchSecondary)).lineLimit(1)
                         }
                     }
                     Spacer(minLength: 0)
-                    if clip.pinned { Image(systemName: "pin.fill").font(.system(size: 9)).foregroundStyle(.white.opacity(0.6)) }
+                    if clip.pinned { Image(systemName: "pin.fill").font(.system(size: 9)).foregroundStyle(Color.white.opacity(notchSecondary)) }
                 }
                 .contentShape(Rectangle())
             }

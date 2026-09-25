@@ -88,6 +88,10 @@ public final class DynamicNotch<Expanded, CompactLeading, CompactTrailing>: Obse
     /// to make the rest of the panel ignore the mouse, so the transparent part can never swallow a menu bar click.
     @Published public internal(set) var contentFrame: CGRect = .zero
 
+    /// Bimax: what the open notch is made of. Set, it is the system's Liquid Glass (macOS 26+) with this tint and
+    /// clarity instead of upstream's black slab; nil keeps the black. At rest the notch stays black, like the hardware.
+    @Published public var expandedGlass: NotchGlassStyle?
+
     private var closePanelTask: Task<(), Never>? // Used to close the panel after hiding completes
 
     /// Creates a new DynamicNotch with custom content and style.

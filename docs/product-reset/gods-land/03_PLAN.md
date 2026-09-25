@@ -364,3 +364,32 @@ failure each. The failure seen by name was `src/__tests__/paired.runner.test.ts`
 no-change": a timing test that compares two 4 ms arms and becomes flaky when the whole suite loads this 8 GB Mac
 (see the jest worker contention note). It is not in stage 8's code. The stage 8 suites passed 8 runs out of 8 on their
 own. A first report of "0 failed" was based on one clean run and was wrong for the run before it.
+
+## Stage 9 — the glass, first pass built 2026-09-26 (awaiting the owner's eye)
+
+**What changed:** the open notch is now the system's **Liquid Glass** (`glassEffect`, macOS 26+), drawn in the notch's
+own outline (the concave flares where it meets the top edge, the rounded bottom), growing out of the black hardware
+notch. At rest the notch stays black, like the hardware. The painted gradients of stage 4 are gone (`GlassMaterial`
+deleted), and so is the floating style's hairline border. Each state is **its colour laid inside the glass**, and
+"check passed" (Prism) is the clear, crystal variant, which shows what is behind it sharply, bent at the edges. Words
+use one light palette on always-dark glass (the notch extends black hardware; light glass measured too faint).
+
+| Keep what is measured | Result |
+|---|---|
+| Words ≥ 4.5:1 | Screen captures of all 8 states over a black window, a white window and a photo (the demo's `BIMAX_NOTCH_BACKDROP`, so the owner's own windows are never touched): the faintest text measured **5.8:1** (Prism over white), most 6–10:1. First pass failed — 2.4–3.5:1 on light tinted glass over white — and was fixed by always-dark glass, deeper smoked colours and brighter secondary words |
+| Every state looks like itself, every time | Two full runs of the 24 captures: **0 of 24 differed** |
+| 0% CPU at rest | Helper `ps` after the notch closed: 0.0%; nothing animates |
+| Memory | A fresh helper at rest: 28 MB, the same as the installed stage 6 helper started fresh (27–32 MB); the long-running installed one shows 10.5 MB after paging. The stage 1 "≤ 20 MB" figure was a long-running reading |
+| Click-through, Mission Control | Unchanged code paths (`contentFrame`, `.transient`); **not re-run** — the cursor checks need the owner away from the Mac |
+| Reduce Transparency / Increase Contrast | The system's own glass forms — **not photographed** |
+
+**A platform defect found and worked around.** The glass's own tint (`Glass.tint(_:)`, and AppKit's
+`NSGlassEffectView.tintColor`, tried too) was unreliable on this Mac (macOS 27): the same state came out tinted on some
+opens and plain grey on others; the calm state was grey in every capture, and any state opened straight from hidden
+was grey 10 times in 10. Opening order, delays, forced active appearance and rebuilding the glass after it appeared
+were each tried and measured; none fixed it. The colour is therefore a translucent layer in the glass's outline — over
+the glass, under the words — which is drawn every time. The glass still blurs and bends what is behind it.
+
+**Not done in this pass:** the Droplet is still the stage 3 gooey drop, not glass (the plan's "one material family"
+with the ⌘2 bar); the floating style for Macs without a notch was changed but not photographed (no external display
+here). **The exit rule for this stage is the owner's judgement on the real screen** — it needs an install.

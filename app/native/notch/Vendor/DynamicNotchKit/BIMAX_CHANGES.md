@@ -23,3 +23,12 @@ Changes from upstream:
 7. `Views/NotchView.swift`, `Views/NotchlessView.swift`: the `.onHover` tracking removed. The panel is half the screen
    and SwiftUI's hover tracking made it handle every mouse move over that area even while it ignored clicks (1.8% of a
    core with the mouse moving there, measured 2026-09-26). The host decides open and closed from `contentFrame`.
+8. `Views/NotchGlass.swift` (new), `Views/NotchView.swift`, `Views/NotchlessView.swift`, `DynamicNotch/DynamicNotch.swift`,
+   `Utility/DynamicNotchPanel.swift`: the open notch is the system's Liquid Glass (`glassEffect`, macOS 26+) in the
+   notch's own outline, with the host's colour laid inside it (`expandedGlass`), instead of a black slab; at rest it
+   stays black like the hardware. Only the content is masked, so the glass keeps its own edge. The floating (notchless)
+   style uses the same glass and loses its hairline border. The panel and views are always dark (`darkAqua`,
+   `.colorScheme(.dark)`): the notch extends black hardware, and words measured too faint on light glass. The colour is
+   a layer in the outline, not the glass's `tint` — `Glass.tint(_:)` and `NSGlassEffectView.tintColor` both came out
+   untinted on some opens here (macOS 27; see NotchGlass.swift). Below macOS 26 the fallback is the system's
+   behind-window blur. The owner's review asked for this (docs/product-reset/gods-land/03_PLAN.md, stage 9).

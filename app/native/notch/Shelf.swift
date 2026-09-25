@@ -200,7 +200,7 @@ struct ShelfSection: View {
             }
             if !model.shelf.isEmpty || !model.archived.isEmpty {
                 HStack(spacing: 10) {
-                    Text("Shelf").font(.system(size: 11, weight: .semibold)).foregroundStyle(.white.opacity(0.85))
+                    Text("Shelf").font(.system(size: 11, weight: .semibold)).foregroundStyle(.primary)
                     Spacer()
                     if model.shelf.contains(where: \.amber) {
                         Button("Sweep old") { act(.sweep) }.buttonStyle(ChipStyle())
@@ -214,7 +214,7 @@ struct ShelfSection: View {
                     VStack(spacing: 2) {
                         ForEach(model.archived.prefix(6)) { card in
                             HStack {
-                                Text(card.title).font(.system(size: 11)).foregroundStyle(.white.opacity(0.7)).lineLimit(1)
+                                Text(card.title).font(.system(size: 11)).foregroundStyle(Color.white.opacity(notchSecondary)).lineLimit(1)
                                 Spacer()
                                 Button("Put back") { act(.restore(card.id)) }.buttonStyle(ChipStyle())
                             }
@@ -258,12 +258,12 @@ struct DropZone: View {
             Image(systemName: symbol).font(.system(size: 13, weight: .semibold))
             Text(title).font(.system(size: 12, weight: .semibold))
         }
-        .foregroundStyle(.white.opacity(targeted ? 1 : 0.75))
+        .foregroundStyle(Color.white.opacity(targeted ? 1 : notchSecondary))
         .frame(maxWidth: .infinity, minHeight: 44)
         .background(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .strokeBorder(Color.white.opacity(targeted ? 0.9 : 0.35), style: StrokeStyle(lineWidth: 1.5, dash: [5, 4]))
-                .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(targeted ? 0.12 : 0.04)))
+                .strokeBorder(Color.primary.opacity(targeted ? 0.9 : 0.35), style: StrokeStyle(lineWidth: 1.5, dash: [5, 4]))
+                .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(targeted ? 0.12 : 0.04)))
         )
         .animation(.spring(response: 0.2, dampingFraction: 0.8), value: targeted)
     }
@@ -294,13 +294,13 @@ struct ShelfCardView: View {
         let content = VStack(spacing: 4) {
             Group {
                 if let icon { Image(nsImage: icon).resizable().interpolation(.high) }
-                else { Image(systemName: symbol).font(.system(size: 20)).foregroundStyle(.white.opacity(0.75)) }
+                else { Image(systemName: symbol).font(.system(size: 20)).foregroundStyle(Color.white.opacity(notchSecondary)) }
             }
             .frame(width: 32, height: 32)
             .opacity(card.missing ? 0.4 : 1)
             Text(card.missing ? "missing" : card.title)
                 .font(.system(size: 9.5, weight: card.missing ? .semibold : .regular))
-                .foregroundStyle(card.missing ? Tone.failed.color : .white.opacity(0.85))
+                .foregroundStyle(card.missing ? AnyShapeStyle(Tone.failed.color) : AnyShapeStyle(.primary))
                 .lineLimit(2).multilineTextAlignment(.center)
                 .frame(width: 60)
         }
@@ -308,9 +308,9 @@ struct ShelfCardView: View {
         .frame(width: 68, height: 76)
         .background(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(card.amber ? Color(red: 1.0, green: 0.62, blue: 0.1).opacity(0.18) : Color.white.opacity(0.07))
+                .fill(card.amber ? Color(red: 1.0, green: 0.62, blue: 0.1).opacity(0.18) : Color.primary.opacity(0.07))
         )
-        .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(selected ? Color.white.opacity(0.7) : (card.amber ? Color(red: 1.0, green: 0.62, blue: 0.1).opacity(0.5) : .clear), lineWidth: selected ? 1.5 : 1))
+        .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(selected ? Color.primary.opacity(0.7) : (card.amber ? Color(red: 1.0, green: 0.62, blue: 0.1).opacity(0.5) : .clear), lineWidth: selected ? 1.5 : 1))
         .overlay(alignment: .topTrailing) { CheckBadge(check: card.check).padding(4) }
         .scaleEffect(card.amber ? 0.9 : 1)
         .contentShape(Rectangle())
@@ -356,9 +356,9 @@ struct ChipStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 10.5, weight: .medium))
-            .foregroundStyle(.white.opacity(0.85))
+            .foregroundStyle(.primary)
             .padding(.horizontal, 8).padding(.vertical, 3)
-            .background(Capsule().fill(Color.white.opacity(configuration.isPressed ? 0.22 : 0.1)))
+            .background(Capsule().fill(Color.primary.opacity(configuration.isPressed ? 0.22 : 0.1)))
     }
 }
 
@@ -405,7 +405,7 @@ struct CardActions: View {
                 if working {
                     HStack(spacing: 4) {
                         ProgressView().controlSize(.mini)
-                        Text("Working…").font(.system(size: 10.5)).foregroundStyle(.white.opacity(0.7))
+                        Text("Working…").font(.system(size: 10.5)).foregroundStyle(Color.white.opacity(notchSecondary))
                     }
                     .padding(.horizontal, 6)
                 }

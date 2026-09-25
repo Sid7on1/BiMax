@@ -31,15 +31,13 @@ struct NotchlessView<Expanded, CompactLeading, CompactTrailing>: View where Expa
 
     var body: some View {
         notchContent()
-            .background {
-                VisualEffectView(material: .popover, blendingMode: .behindWindow)
-                    .overlay {
-                        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                            .strokeBorder(.quaternary, lineWidth: 1)
-                    }
-            }
+            // Bimax: the same glass as the notch, and no hairline border (BIMAX_CHANGES 8).
             .clipShape(.rect(cornerRadius: cornerRadius))
+            .background {
+                NotchGlassFill(style: dynamicNotch.expandedGlass ?? NotchGlassStyle(), shape: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            }
             .padding(20)
+            .environment(\.colorScheme, .dark) // Bimax: one glass, the notch's (BIMAX_CHANGES 8)
             .onGeometryChange(for: CGFloat.self, of: \.size.height) { newHeight in
                 // This makes sure that the floating window FULLY slides off before disappearing
                 windowHeight = newHeight

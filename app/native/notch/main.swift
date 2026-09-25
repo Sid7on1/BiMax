@@ -288,6 +288,7 @@ final class NotchController {
             compactTrailing: { CompactTrailingView(model: model) }
         )
         applyMotionPreference()
+        notch.expandedGlass = model.glass.state.style // stage 9: the open notch is glass from the first open
         geometry = NotchGeometry.current()
         startMonitoring()
         dragWatch.changed = { [weak self] dragging in
@@ -552,6 +553,7 @@ final class NotchController {
             model.waiting = waiting
             model.tasks = tasks
             model.glass = glass
+            notch.expandedGlass = glass.state.style
             if !isOpen {
                 let wanted: DynamicNotchState = glass.state != .water && (geometry?.hasNotch ?? false) ? .compact : .hidden
                 if wanted != resting { Task { await rest() } }
@@ -707,7 +709,7 @@ final class NotchController {
 
 // MARK: - Views
 
-private let dim = Color.white.opacity(0.55)
+private let dim = Color.white.opacity(notchSecondary)
 
 struct ExpandedView: View {
     @ObservedObject var model: NotchModel
@@ -727,18 +729,18 @@ struct ExpandedView: View {
             if let say = model.say {
                 HStack(alignment: .top, spacing: 8) {
                     Image(systemName: say.tone.symbol).foregroundStyle(say.tone.color).font(.system(size: 13, weight: .semibold))
-                    Text(say.text).font(.system(size: 12.5, weight: .semibold)).foregroundStyle(.white).lineLimit(2)
+                    Text(say.text).font(.system(size: 12.5, weight: .semibold)).foregroundStyle(.primary).lineLimit(2)
                     Spacer(minLength: 0)
                 }
                 .accessibilityElement(children: .combine)
                 .transition(.opacity.combined(with: .move(edge: .top)))
             }
             HStack(spacing: 6) {
-                Text("Bimax").font(.system(size: 11, weight: .semibold)).foregroundStyle(.white.opacity(0.85))
+                Text("Bimax").font(.system(size: 11, weight: .semibold)).foregroundStyle(.primary)
                 Spacer()
                 GlassGlyph(glass: model.glass).accessibilityHidden(true)
                 Text(model.glass.state == .water ? model.summary : model.glass.label)
-                    .font(.system(size: 11)).foregroundStyle(.white.opacity(0.85)).lineLimit(1)
+                    .font(.system(size: 11)).foregroundStyle(.primary).lineLimit(1)
             }
             .accessibilityElement(children: .combine)
             TabChips(model: model)
@@ -771,7 +773,6 @@ struct ExpandedView: View {
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
         .frame(width: 380, alignment: .leading)
-        .background(alignment: .top) { GlassMaterial(state: model.glass.state) }
         .onDrop(of: DropReader.types, isTargeted: dropTargeted) { providers in dropped(providers) }
         .animation(.spring(response: 0.26, dampingFraction: 0.85), value: model.say)
     }
@@ -782,9 +783,9 @@ struct TaskRowView: View {
 
     var body: some View {
         HStack(spacing: 9) {
-            Circle().fill(task.tone?.color ?? Color.white.opacity(0.35)).frame(width: 7, height: 7)
+            Circle().fill(task.tone?.color ?? Color.primary.opacity(0.35)).frame(width: 7, height: 7)
             VStack(alignment: .leading, spacing: 1) {
-                Text(task.title).font(.system(size: 12, weight: .medium)).foregroundStyle(.white).lineLimit(1)
+                Text(task.title).font(.system(size: 12, weight: .medium)).foregroundStyle(.primary).lineLimit(1)
                 if !task.detail.isEmpty {
                     Text(task.detail).font(.system(size: 10.5)).foregroundStyle(dim).lineLimit(1)
                 }
@@ -803,7 +804,7 @@ struct TaskRowView: View {
 struct RowButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.white.opacity(configuration.isPressed ? 0.14 : 0.0)))
+            .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.primary.opacity(configuration.isPressed ? 0.14 : 0.0)))
     }
 }
 
@@ -839,6 +840,29 @@ struct BimaxNotch {
         app.setActivationPolicy(.accessory)
         let controller = MainActor.assumeIsolated { NotchController() }
         MainActor.assumeIsolated { controller.announceReady() }
+
+        // --demo with BIMAX_NOTCH_BACKDROP=white|black|photo: a still backdrop under the notch, so the glass can be
+        // photographed over light, dark and busy content without touching the person's own windows (stage 9).
+        var backdrop: NSWindow?
+        if arguments.contains("--demo"), let kind = ProcessInfo.processInfo.environment["BIMAX_NOTCH_BACKDROP"], let screen = NotchGeometry.current()?.screen {
+            let frame = NSRect(x: screen.frame.midX - 300, y: screen.frame.maxY - 520, width: 600, height: 520)
+            let window = NSWindow(contentRect: frame, styleMask: .borderless, backing: .buffered, defer: false)
+            window.level = .statusBar
+            window.ignoresMouseEvents = true
+            window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+            switch kind {
+            case "photo":
+                let view = NSImageView(frame: NSRect(origin: .zero, size: frame.size))
+                view.image = NSImage(contentsOfFile: "/System/Library/Desktop Pictures/.thumbnails/Big Sur Coastline.heic")
+                view.imageScaling = .scaleAxesIndependently
+                window.contentView = view
+            default:
+                window.backgroundColor = kind == "white" ? .white : .black
+            }
+            window.orderFrontRegardless()
+            backdrop = window
+        }
+        _ = backdrop
 
         if arguments.contains("--demo") {
             MainActor.assumeIsolated {
@@ -892,15 +916,13 @@ struct BimaxNotch {
               == .content(active: 2, waiting: 1, tasks: [TaskRow(id: "a", title: "T", state: "working", detail: "d")], glass: Glass(state: .frost, label: "T · no progress for 30 s")), "content")
         check(parseInbound(#"{"t":"content","active":0,"waiting":0,"tasks":[],"glass":{"state":"lava"}}"#)
               == .content(active: 0, waiting: 0, tasks: [], glass: Glass()), "an unknown glass is water")
-        // Glass contrast: each symbol at least 3:1 on the notch's black (WCAG non-text), and the words — white at 85% —
-        // at least 4.5:1 over the strongest material each state draws behind them.
+        // Glass: each resting symbol at least 3:1 on the notch's black (WCAG non-text). Open, every state is its own glass —
+        // no two alike, every one smoked (stage 9). Words over the glass are measured on screen captures.
         for state in GlassState.allCases {
             let black = (0.0, 0.0, 0.0)
             check(contrastRatio(state.rgb, black) >= 3, "\(state) symbol contrast \(contrastRatio(state.rgb, black))")
-            let peak = GlassState.materialPeak
-            let behind = (state.rgb.0 * peak, state.rgb.1 * peak, state.rgb.2 * peak)
-            let words = (0.85 + 0.15 * behind.0, 0.85 + 0.15 * behind.1, 0.85 + 0.15 * behind.2)
-            check(contrastRatio(words, behind) >= 4.5, "\(state) words contrast \(contrastRatio(words, behind))")
+            check(GlassState.allCases.filter { $0.style == state.style }.count == 1, "\(state) glass is distinct")
+            check(state == .prism || state.style.tint != nil, "\(state) glass is smoked")
         }
         check(parseInbound(#"{"t":"say","text":"Done","tone":"done","seconds":3}"#) == .say(text: "Done", tone: .done, seconds: 3), "say")
         check(parseInbound(#"{"t":"say","text":"x","tone":"nonsense","seconds":999}"#) == .say(text: "x", tone: .info, seconds: 30), "say clamps")

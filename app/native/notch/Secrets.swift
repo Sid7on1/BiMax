@@ -123,7 +123,7 @@ struct SecretsSection: View {
     var body: some View {
         if model.secrets.isEmpty && !model.clips.contains(where: { $0.kind == "secret" }) {
             Text("No secrets found. Bimax looks only in .env files of folders you opened in it, and keeps secrets you copy sealed.")
-                .font(.system(size: 11)).foregroundStyle(.white.opacity(0.7)).fixedSize(horizontal: false, vertical: true)
+                .font(.system(size: 11)).foregroundStyle(Color.white.opacity(notchSecondary)).fixedSize(horizontal: false, vertical: true)
         } else {
             VStack(spacing: 3) {
                 ForEach(model.secrets.prefix(6)) { item in SecretRow(item: item, revealed: model.revealed, run: run) }
@@ -133,7 +133,7 @@ struct SecretsSection: View {
                 }
             }
             Text("Press and hold to reveal · Copy asks for Touch ID and clears in 60 s")
-                .font(.system(size: 9.5)).foregroundStyle(.white.opacity(0.5))
+                .font(.system(size: 9.5)).foregroundStyle(Color.white.opacity(notchSecondary))
         }
     }
 }
@@ -147,16 +147,16 @@ struct SecretRow: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            Image(systemName: "key.fill").font(.system(size: 10)).foregroundStyle(.white.opacity(0.6)).frame(width: 16)
+            Image(systemName: "key.fill").font(.system(size: 10)).foregroundStyle(Color.white.opacity(notchSecondary)).frame(width: 16)
             VStack(alignment: .leading, spacing: 1) {
                 HStack(spacing: 6) {
-                    Text(item.key).font(.system(size: 11, weight: .semibold)).foregroundStyle(.white.opacity(0.9)).lineLimit(1)
-                    Text(item.where_).font(.system(size: 9.5)).foregroundStyle(.white.opacity(0.5)).lineLimit(1)
+                    Text(item.key).font(.system(size: 11, weight: .semibold)).foregroundStyle(.primary).lineLimit(1)
+                    Text(item.where_).font(.system(size: 9.5)).foregroundStyle(Color.white.opacity(notchSecondary)).lineLimit(1)
                 }
                 ZStack(alignment: .leading) {
                     // Smoked obsidian: the masked form until pressed; the value comes through as the smoke clears.
                     Text(shown?.value ?? item.masked)
-                        .font(.system(size: 11, design: .monospaced)).foregroundStyle(.white.opacity(0.85)).lineLimit(1)
+                        .font(.system(size: 11, design: .monospaced)).foregroundStyle(.primary).lineLimit(1)
                         .blur(radius: shown.map { (1 - $0.amount) * 5 } ?? 0)
                     if let shown {
                         Rectangle().fill(Color.black.opacity((1 - shown.amount) * 0.8)).allowsHitTesting(false)

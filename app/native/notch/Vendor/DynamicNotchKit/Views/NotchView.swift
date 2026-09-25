@@ -61,26 +61,47 @@ struct NotchView<Expanded, CompactLeading, CompactTrailing>: View where Expanded
         (compactTrailingWidth - compactLeadingWidth) / 2
     }
 
+    /// Bimax: the notch's outline, sized as upstream sized its mask.
+    private func outlined(_ content: some View) -> some View {
+        content
+            .padding(.horizontal, 0.5)
+            .frame(
+                width: dynamicNotch.state != .hidden ? nil : minWidth,
+                height: dynamicNotch.state != .hidden ? nil : dynamicNotch.notchSize.height
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+    }
+
+    private var shape: NotchShape {
+        NotchShape(topCornerRadius: topCornerRadius, bottomCornerRadius: bottomCornerRadius)
+    }
+
+    /// Bimax: open, the notch is glass (BIMAX_CHANGES 8); at rest and hidden it is black like the hardware it extends.
+    private var glass: NotchGlassStyle? {
+        dynamicNotch.state == .expanded ? dynamicNotch.expandedGlass : nil
+    }
+
     var body: some View {
         notchContent()
+            // Only the content is clipped to the outline: the glass draws its own edge, which a mask would cut off.
+            .mask { outlined(shape) }
             .background {
-                Rectangle()
-                    .foregroundStyle(.black)
-                    .padding(-50) // The opening/closing animation can overshoot, so this makes sure that it's still black
-            }
-            .mask {
-                NotchShape(
-                    topCornerRadius: topCornerRadius,
-                    bottomCornerRadius: bottomCornerRadius
-                )
-                .padding(.horizontal, 0.5)
-                .frame(
-                    width: dynamicNotch.state != .hidden ? nil : minWidth,
-                    height: dynamicNotch.state != .hidden ? nil : dynamicNotch.notchSize.height
-                )
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                ZStack {
+                    Rectangle()
+                        .foregroundStyle(.black)
+                        .padding(-50) // The opening/closing animation can overshoot, so this makes sure that it's still black
+                        .mask { outlined(shape) }
+                        .opacity(glass == nil ? 1 : 0)
+                    if let glass {
+                        outlined(NotchGlassFill(style: glass, shape: shape))
+                            .transition(.opacity)
+                    }
+                }
+                .animation(.easeOut(duration: 0.18), value: glass)
             }
             .offset(x: xOffset)
+            // Bimax: the notch grows out of black hardware, so its glass is dark glass in light mode too.
+            .environment(\.colorScheme, .dark)
             .animation(.smooth, value: [compactLeadingWidth, compactTrailingWidth])
             // Bimax: report the drawn area (see DynamicNotch.contentFrame).
             .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .global) }) { dynamicNotch.contentFrame = $0 }

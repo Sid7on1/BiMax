@@ -72,7 +72,7 @@ struct NextSection: View {
     var body: some View {
         if model.recallEnabled && !model.recallNext.isEmpty {
             VStack(alignment: .leading, spacing: 4) {
-                Text(model.recallLabel).font(.system(size: 11, weight: .semibold)).foregroundStyle(.white.opacity(0.85))
+                Text(model.recallLabel).font(.system(size: 11, weight: .semibold)).foregroundStyle(.primary)
                 RecallRow(items: model.recallNext, act: act)
             }
             .accessibilityElement(children: .contain)
@@ -89,16 +89,16 @@ struct RecallSection: View {
     var body: some View {
         if !model.recallEnabled {
             Text("Recall is off. Turn on “Remember Files Used in the Notch” in the Bimax menu.")
-                .font(.system(size: 12)).foregroundStyle(.white.opacity(0.55)).fixedSize(horizontal: false, vertical: true)
+                .font(.system(size: 12)).foregroundStyle(Color.white.opacity(notchSecondary)).fixedSize(horizontal: false, vertical: true)
         } else if model.recallGroups.isEmpty {
             Text("Files you drop, use or get back from tasks show up here, by when and where you used them.")
-                .font(.system(size: 12)).foregroundStyle(.white.opacity(0.55)).fixedSize(horizontal: false, vertical: true)
+                .font(.system(size: 12)).foregroundStyle(Color.white.opacity(notchSecondary)).fixedSize(horizontal: false, vertical: true)
         } else {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 6) {
                     ForEach(model.recallGroups) { group in
                         VStack(alignment: .leading, spacing: 3) {
-                            Text(group.cue).font(.system(size: 11, weight: .semibold)).foregroundStyle(.white.opacity(0.85)).lineLimit(1)
+                            Text(group.cue).font(.system(size: 11, weight: .semibold)).foregroundStyle(.primary).lineLimit(1)
                             RecallRow(items: group.items, act: act)
                         }
                         .accessibilityElement(children: .contain)

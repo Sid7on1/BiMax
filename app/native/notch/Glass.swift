@@ -1,10 +1,10 @@
-// God's Land stage 4: the glass (docs/product-reset/gods-land/00 §"The Palette of Glass States", 01 §1). The app decides
-// the state (app/src/main/glass.ts); this draws it — a material inside the notch while it is open, and a still symbol
-// beside it at rest. Every state has a symbol and words, never colour alone (01 §1 rule).
+// God's Land stage 4, redrawn in stage 9: the glass (docs/product-reset/gods-land/00 §"The Palette of Glass States",
+// 01 §1). The app decides the state (app/src/main/glass.ts); this says what it looks like — the tint and clarity of the
+// open notch's Liquid Glass (DynamicNotchKit's `expandedGlass`, BIMAX_CHANGES 8), and a still symbol beside the notch
+// at rest. Every state has a symbol and words, never colour alone (01 §1 rule).
 //
-// Cost: the materials animate only while the notch is open (the person is looking); at rest the symbol is still, so
-// an idle Mac pays nothing. Reduce Motion stops the animation; Reduce Transparency or Increase Contrast replace the
-// material with one solid line in the state's colour.
+// Nothing animates: the glass is the system's, so Reduce Transparency and Increase Contrast are the system's forms of
+// it, and an idle Mac pays nothing.
 
 import AppKit
 import SwiftUI
@@ -44,9 +44,34 @@ enum GlassState: String, CaseIterable {
         }
     }
 
-    /// The strongest the material gets behind the words (see contrast in --selftest).
-    static let materialPeak = 0.34
+    /// Stage 9: the state infused in the notch's glass (the owner's review: "it must look like real life infused in
+    /// glass"). The glass is the system's Liquid Glass; a state is the colour laid in it and its clarity — Prism (a check
+    /// passed) is the clear, crystal variant, which shows what is behind it sharply; every other state is regular glass.
+    var style: NotchGlassStyle {
+        let (r, g, b) = smoke
+        return NotchGlassStyle(tint: Color(red: r, green: g, blue: b).opacity(self == .prism ? 0.7 : 0.62), clear: self == .prism)
+    }
+
+    /// The colour each state's glass is smoked with: its own hue, dark enough that light words stay ≥ 4.5:1 over a white
+    /// window as well as a dark one (measured on captures over black, white and a photo: 5.8:1 at worst). Even the calm
+    /// states carry a hue — steel blue for Water, teal for Prism.
+    var smoke: (Double, Double, Double) {
+        switch self {
+        case .water: return (0.16, 0.24, 0.36)
+        case .molten: return (0.45, 0.20, 0.02)
+        case .frost: return (0.24, 0.29, 0.34)
+        case .ink: return (0.12, 0.22, 0.55)
+        case .prism: return (0.06, 0.20, 0.22)
+        case .fissure: return (0.50, 0.10, 0.10)
+        case .bubbles: return (0.05, 0.30, 0.45)
+        case .night: return (0.20, 0.13, 0.50)
+        }
+    }
 }
+
+/// Secondary words in the open notch: white at this strength measured ≥ 5.8:1 on every state's glass over black, white
+/// and a photo (stage 9). The notch is always dark glass, so its words are always light.
+let notchSecondary = 0.78
 
 struct Glass: Equatable {
     var state: GlassState = .water
@@ -62,110 +87,6 @@ struct GlassGlyph: View {
             .font(.system(size: 10, weight: .semibold))
             .foregroundStyle(glass.state.color)
             .accessibilityLabel(glass.label)
-    }
-}
-
-/// The material inside the open notch, behind its words. Fades toward the bottom so the words stay on near-black.
-struct GlassMaterial: View {
-    let state: GlassState
-
-    private var plain: Bool {
-        NSWorkspace.shared.accessibilityDisplayShouldReduceTransparency || NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast
-    }
-
-    var body: some View {
-        if state == .water {
-            EmptyView()
-        } else if plain {
-            VStack(spacing: 0) {
-                Rectangle().fill(state.color).frame(height: 2)
-                Spacer(minLength: 0)
-            }
-        } else {
-            TimelineView(.animation(minimumInterval: 1.0 / 30, paused: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion)) { timeline in
-                let t = timeline.date.timeIntervalSinceReferenceDate
-                material(at: t)
-                    .mask(LinearGradient(colors: [.white, .white.opacity(0.35), .clear], startPoint: .top, endPoint: .bottom))
-            }
-            .allowsHitTesting(false)
-            .accessibilityHidden(true)
-        }
-    }
-
-    @ViewBuilder
-    private func material(at t: Double) -> some View {
-        let peak = GlassState.materialPeak
-        let tint = state.color
-        switch state {
-        case .molten:
-            // Heat: amber warmth with a shimmer that drifts like air over a hot surface.
-            let x = 0.5 + 0.35 * sin(t * 1.3)
-            LinearGradient(colors: [tint.opacity(0), tint.opacity(peak), Color(red: 1, green: 0.4, blue: 0.05).opacity(peak * 0.6), tint.opacity(0)],
-                           startPoint: UnitPoint(x: x - 0.6, y: 0), endPoint: UnitPoint(x: x + 0.6, y: 0.4))
-        case .frost:
-            // Ice creeping in from the edges, with a few crystal lines at the corners.
-            ZStack {
-                RadialGradient(colors: [Color.white.opacity(peak * 0.8), .clear], center: .topLeading, startRadius: 0, endRadius: 110)
-                RadialGradient(colors: [Color.white.opacity(peak * 0.8), .clear], center: .topTrailing, startRadius: 0, endRadius: 110)
-                Canvas { context, size in
-                    var path = Path()
-                    for (corner, dir) in [(CGPoint(x: 0, y: 0), 1.0), (CGPoint(x: size.width, y: 0), -1.0)] {
-                        for i in 0..<5 {
-                            let angle = Double(i) * 0.3 + 0.15
-                            let length = 26.0 + Double(i % 3) * 12
-                            path.move(to: corner)
-                            path.addLine(to: CGPoint(x: corner.x + dir * cos(angle) * length, y: corner.y + sin(angle) * length))
-                        }
-                    }
-                    context.stroke(path, with: .color(.white.opacity(0.28)), lineWidth: 0.7)
-                }
-            }
-        case .ink:
-            // Ink turning slowly in water: waiting, never urgent.
-            AngularGradient(colors: [tint.opacity(peak), Color(red: 0.5, green: 0.3, blue: 0.9).opacity(peak * 0.4), .clear, tint.opacity(peak * 0.7), tint.opacity(peak)],
-                            center: .top, angle: .degrees(t * 24))
-        case .prism:
-            // Cut glass: a faint spectrum turning, and a glint along the top.
-            ZStack(alignment: .top) {
-                AngularGradient(colors: ([.red, .orange, .yellow, .green, .blue, .purple, .red] as [Color]).map { $0.opacity(peak * 0.45) }, center: .top, angle: .degrees(t * 12))
-                Rectangle().fill(LinearGradient(colors: [.clear, .white.opacity(0.7), .clear], startPoint: .leading, endPoint: .trailing)).frame(height: 1)
-            }
-        case .fissure:
-            // Tempered glass with a hairline crack.
-            ZStack {
-                RadialGradient(colors: [tint.opacity(peak * 0.8), .clear], center: .top, startRadius: 0, endRadius: 160)
-                Canvas { context, size in
-                    var crack = Path()
-                    let start = CGPoint(x: size.width * 0.72, y: 0)
-                    crack.move(to: start)
-                    for (i, point) in [(10.0, 9.0), (-6, 18), (8, 27), (-3, 37), (6, 46)].enumerated() {
-                        crack.addLine(to: CGPoint(x: start.x + point.0, y: point.1))
-                        if i == 2 { crack.move(to: CGPoint(x: start.x + point.0, y: point.1)); crack.addLine(to: CGPoint(x: start.x + 22, y: 34)); crack.move(to: CGPoint(x: start.x + point.0, y: point.1)) }
-                    }
-                    context.stroke(crack, with: .color(tint.opacity(0.75)), lineWidth: 0.9)
-                }
-            }
-        case .bubbles:
-            // Queued work: small bubbles rising.
-            Canvas { context, size in
-                for i in 0..<7 {
-                    let seed = Double(i) * 0.137
-                    let x = size.width * (0.1 + (seed * 7).truncatingRemainder(dividingBy: 0.8))
-                    let y = size.height - (t * (14 + Double(i) * 3) + seed * 400).truncatingRemainder(dividingBy: size.height + 10)
-                    let r = 2.0 + Double(i % 3)
-                    context.stroke(Path(ellipseIn: CGRect(x: x, y: y, width: r * 2, height: r * 2)), with: .color(tint.opacity(0.4)), lineWidth: 0.8)
-                }
-            }
-        case .night:
-            // Night Shift: deep indigo and one star that twinkles.
-            ZStack(alignment: .topTrailing) {
-                LinearGradient(colors: [tint.opacity(peak), .clear], startPoint: .top, endPoint: .bottom)
-                Image(systemName: "sparkle").font(.system(size: 8)).foregroundStyle(.white.opacity(0.35 + 0.35 * (0.5 + 0.5 * sin(t * 2.2))))
-                    .padding(.top, 8).padding(.trailing, 26)
-            }
-        case .water:
-            EmptyView()
-        }
     }
 }
 

@@ -3,7 +3,7 @@
 The owner's idea (2026-09-25): turn the MacBook notch into a shelf, a smart clipboard and the on-ramp to the ⌘2
 Thread bar — drop a file, say what you want, and it becomes a task — with a liquid-glass physical design language.
 **Status (2026-09-26): stages 1–8 are built; 1–6 are installed on the owner's Mac, 7–8 are built and tested but not
-installed.** Stage 9, the front-end overhaul to real Liquid Glass, is next (the owner's order). Each stage's record in
+installed.** Stage 9, the front-end overhaul to real Liquid Glass, has its first pass built and awaits the owner's eye. Each stage's record in
 03 says what was measured and what remains Target.
 
 | File | What it holds |
