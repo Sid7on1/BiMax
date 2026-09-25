@@ -21,6 +21,7 @@ import { NotchDeck, notchHelperPath } from './notch';
 import { Shelf } from './shelf';
 import { ClipHistory } from './clipboard';
 import { scanFolders } from './secrets';
+import { countUse, envExample } from './transmute';
 import { describeSchedule, dueSchedules, newSchedule, type Cadence, type Schedule } from './schedules';
 import {
   ARRIVAL_KINDS, FolderTriggers, MAX_TRIGGERS, arrivalLabel, changeListNote, changesDuring, describeTrigger, newTrigger, runMessage,
@@ -406,7 +407,7 @@ let notchDeck: NotchDeck | null = null;
 let notchEditPending: { files: string[]; at: number } | null = null;
 const notchTasks = new Map<string, number>();
 const NOTCH_EDIT_WINDOW_MS = 10 * 60_000;
-async function editFromNotch(paths: string[]): Promise<void> {
+async function editFromNotch(paths: string[], prompt?: string): Promise<void> {
   const files: string[] = [];
   for (const file of paths) { try { files.push(await fsp.realpath(file)); } catch { /* gone since it was dropped */ } }
   if (!files.length) return;
@@ -416,7 +417,7 @@ async function editFromNotch(paths: string[]): Promise<void> {
   const area = screen.getDisplayMatching({ ...anchor, width: QUICK_BAR.width, height: QUICK_BAR.collapsedHeight }).workArea;
   await notchDeck?.playDroplet(quickBarBounds(anchor, QUICK_BAR.collapsedHeight, area), files[0]);
   notchEditPending = { files, at: Date.now() };
-  await openFilesInBar(files);
+  await openFilesInBar(files, prompt);
 }
 /** A ⌘2 task just started: it is a notch task when it carries a file handed over by "Edit with Bimax". */
 function noteNotchTask(id: string, attachments: readonly QuickAttachment[]): void {
@@ -446,7 +447,16 @@ function syncNotch(): void {
       helper, onOpenTask: (id) => { try { openThread(id); } catch { /* the task is gone */ } }, log: (line) => console.log(`[notch] ${line}`),
       // Stage 2: the shelf, kept beside the app's other state; copies of temporary files live under it.
       shelf: new Shelf(path.join(shelfRoot, 'shelf.json'), path.join(shelfRoot, 'shelf-copies')),
-      onEdit: (paths) => { void editFromNotch(paths); },
+      onEdit: (paths, prompt) => { void editFromNotch(paths, prompt); },
+      // Stage 7: one-tap conversions. Results go in the notch's own folder; the learned order is kept in settings.
+      transmute: {
+        counts: () => loadSettings().transmuteCounts ?? {},
+        record: (file: string, id: string) => saveSettings({ transmuteCounts: countUse(loadSettings().transmuteCounts ?? {}, file, id) }),
+        madeDir: (() => { const dir = path.join(shelfRoot, 'made'); mkdirSync(dir, { recursive: true }); return dir; })(),
+        envExample: (source: string, out: string) => {
+          try { writeFileSync(out, envExample(readFileSync(source, 'utf8')), { flag: 'wx' }); return out; } catch { return null; }
+        },
+      },
       // Stage 5: the clipboard history, kept on this Mac only and off until the person turns it on.
       clipboard: (() => {
         // Stage 6: a secret copy is kept sealed by Electron's safeStorage (the Keychain-held key, as provider keys are).
@@ -1384,9 +1394,10 @@ function gatherOpenedFiles(): void {
   openedFilesTimer = setTimeout(() => { openedFilesTimer = null; void openFilesInBar(openedFiles.splice(0)); }, 250);
 }
 /** A new ⌘2 task on the files' folder with the files attached; nothing runs until the person sends (finder.action.ts). */
-async function openFilesInBar(files: string[]): Promise<void> {
+async function openFilesInBar(files: string[], prompt?: string): Promise<void> {
   if (!files.length) return;
-  const context = await openedFilesContext(files, os.homedir());
+  // A one-tap action from the notch (God's Land stage 7) arrives with its request already written.
+  const context = { ...(await openedFilesContext(files, os.homedir())), ...(prompt ? { prompt } : {}) };
   if (talkOwner === 'quick') talk.end();
   quickThreadId = null;
   app.focus({ steal: true });

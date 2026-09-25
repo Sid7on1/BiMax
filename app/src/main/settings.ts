@@ -54,6 +54,8 @@ export interface AppSettings {
   notchDeck?: boolean;
   /** God's Land stage 5: keep a clipboard history in the notch. Off when absent — it is only ever turned on by the person. */
   clipboardHistory?: boolean;
+  /** God's Land stage 7: how often each one-tap conversion was used, per file type (`family:action`), for the learned order. */
+  transmuteCounts?: Record<string, number>;
   /** Talk mode keeps listening while Bimax speaks, so the person can interrupt by talking (FL10). Off when absent. */
   talkBargeIn?: boolean;
   /** Folders with an outcome, keyed by real path (folder.outcomes.ts, backlog FL1 part 2). */

@@ -376,3 +376,65 @@ describe('stage 6: secrets through the deck', () => {
     deck.stop();
   });
 });
+
+describe('stage 7: one-tap conversions through the deck', () => {
+  const flush = () => new Promise((resolve) => setImmediate(resolve));
+  const cards = [
+    { id: 'img', kind: 'file' as const, title: 'hero.png', path: '/Users/me/hero.png', missing: false, amber: false },
+    { id: 'code', kind: 'file' as const, title: 'parser.ts', path: '/w/parser.ts', missing: false, amber: false },
+    { id: 'env', kind: 'file' as const, title: '.env.local', path: '/w/.env.local', missing: false, amber: false },
+    { id: 'gone', kind: 'file' as const, title: 'x.png', path: '/w/x.png', missing: true, amber: false },
+  ];
+
+  function setup() {
+    const docked: unknown[] = [];
+    const edits: Array<[string[], string | undefined]> = [];
+    const uses: string[] = [];
+    const shelf = { add: (i: readonly unknown[]) => { docked.push(...i); return []; }, touch: () => true, archive: () => 0, restore: () => true, view: () => ({ t: 'shelf' as const, items: cards, archived: [] }) };
+    const transmute = {
+      counts: () => ({ 'image:ocr': 3 }), record: (file: string, id: string) => uses.push(`${file}:${id}`), madeDir: '/made',
+      envExample: (source: string, out: string) => `${out}`,
+    };
+    const helpers: FakeHelper[] = [];
+    const deck = new NotchDeck({ helper: '/x', onOpenTask: () => undefined, shelf, transmute, onEdit: (p, prompt) => edits.push([p, prompt]), spawnHelper: () => { const h = new FakeHelper(); helpers.push(h); return h as never; } });
+    deck.start();
+    const say = async (line: string) => { helpers[0].stdout.write(`${line}\n`); await flush(); };
+    const sent = () => helpers[0].written.map((l) => JSON.parse(l));
+    return { docked, edits, uses, say, sent };
+  }
+
+  test('cards carry their actions, the learned one first; a missing file has none', async () => {
+    const { say, sent } = setup();
+    await say('{"t":"ready"}');
+    const items = sent().find((m) => m.t === 'shelf').items;
+    expect(items[0].actions[0].id).toBe('ocr');
+    expect(items[1].actions[0].id).toBe('task:tests');
+    expect(items[3].actions).toBeUndefined();
+  });
+
+  test('a local action goes to the helper with an output inside madeDir; a task opens ⌘2 with the request; bad ones do nothing', async () => {
+    const { edits, uses, say, sent } = setup();
+    await say('{"t":"transmute","id":"img","action":"compress"}');
+    expect(sent().find((m) => m.t === 'transmute-run')).toEqual({ t: 'transmute-run', id: 'img', action: 'compress', source: '/Users/me/hero.png', out: '/made/hero.jpg', label: 'Compress' });
+    await say('{"t":"transmute","id":"code","action":"task:tests"}');
+    expect(edits).toEqual([[['/w/parser.ts'], expect.stringContaining('unit tests')]]);
+    await say('{"t":"transmute","id":"img","action":"pdf-page1"}');
+    await say('{"t":"transmute","id":"gone","action":"compress"}');
+    await say('{"t":"transmute","id":"nope","action":"compress"}');
+    expect(uses).toEqual(['/Users/me/hero.png:compress', '/w/parser.ts:task:tests']);
+  });
+
+  test('.env.example is made in the app, named visibly; a helper result is kept only inside madeDir', async () => {
+    const { docked, say } = setup();
+    await say('{"t":"transmute","id":"env","action":"env-example"}');
+    expect(docked).toEqual([expect.objectContaining({ kind: 'file', path: '/made/env.local.example' })]);
+    await say('{"t":"made","source":"/Users/me/hero.png","path":"/made/hero.jpg","note":"Compressed −68%"}');
+    await say('{"t":"made","path":"/Users/me/Documents/evil.jpg","note":"x"}');
+    await say('{"t":"made","path":"/made/../etc/x","note":"x"}');
+    await say('{"t":"made","copied":true,"note":"Copied text"}');
+    expect(docked).toEqual([
+      expect.objectContaining({ path: '/made/env.local.example' }),
+      { kind: 'file', path: '/made/hero.jpg', from: { task: 'Compressed −68%' } },
+    ]);
+  });
+});

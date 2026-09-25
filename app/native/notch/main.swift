@@ -19,6 +19,8 @@
 
 import AppKit
 import SwiftUI
+import PDFKit
+import ImageIO
 import UniformTypeIdentifiers
 
 // MARK: - Model
@@ -94,6 +96,9 @@ final class NotchModel: ObservableObject {
     // Stage 6: secrets, masked; at most one revealed at a time, and only while pressed (Secrets.swift).
     @Published var secrets: [SecretItem] = []
     @Published var revealed: Revealed?
+    // Stage 7: the selected shelf card, and the cards whose conversion is running.
+    @Published var selectedCard: String?
+    @Published var working: Set<String> = []
     // The shelf (Shelf.swift, stage 2).
     @Published var shelf: [ShelfCard] = []
     @Published var archived: [ShelfCard] = []
@@ -124,6 +129,7 @@ enum Inbound: Equatable {
     case clips(enabled: Bool, items: [ClipCard])
     case secrets(items: [SecretItem])
     case secret(id: String, purpose: String, value: String?)
+    case transmuteRun(id: String, action: String, source: String, out: String, label: String)
     case quit
 }
 
@@ -164,6 +170,10 @@ func parseInbound(_ line: String) -> Inbound? {
     case "secret":
         guard let id = object["id"] as? String else { return nil }
         return .secret(id: id, purpose: object["purpose"] as? String == "copy" ? "copy" : "reveal", value: object["value"] as? String)
+    case "transmute-run":
+        guard let id = object["id"] as? String, let action = object["action"] as? String, let source = object["source"] as? String,
+              let out = object["out"] as? String else { return nil }
+        return .transmuteRun(id: id, action: action, source: source, out: out, label: object["label"] as? String ?? action)
     case "quit":
         return .quit
     default:
@@ -498,6 +508,12 @@ final class NotchController {
             Outbox.send(["t": "shelf-restore", "id": id])
         case let .dragged(card):
             touch(card)
+        case let .select(card):
+            model.selectedCard = model.selectedCard == card.id ? nil : card.id
+        case let .transmute(card, action):
+            touch(card)
+            if action.kind != "task" { model.working.insert(card.id) }
+            Outbox.send(["t": "transmute", "id": card.id, "action": action.id])
         case let .edit(card):
             touch(card)
             if let path = card.path { Outbox.send(["t": "edit", "items": [["kind": "file", "path": path]]]) }
@@ -546,6 +562,8 @@ final class NotchController {
         case let .clips(enabled, items):
             model.clipEnabled = enabled
             model.clips = items
+        case let .transmuteRun(id, action, source, out, label):
+            runTransmutation(id: id, action: action, source: source, out: out, label: label)
         case let .secrets(items):
             model.secrets = items
             if let shown = model.revealed, !items.contains(where: { $0.id == shown.id }), !model.clips.contains(where: { $0.id == shown.id }) { model.revealed = nil }
@@ -581,6 +599,31 @@ final class NotchController {
             Outbox.send(["t": "clip-remove", "id": clip.id])
         case .enable:
             Outbox.send(["t": "clip-enable"])
+        }
+    }
+
+    /// Stage 7: a local conversion, off the main thread; the result is reported and lands on the shelf as a new card.
+    private func runTransmutation(id: String, action: String, source: String, out: String, label: String) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            // Clipboard writes go back to the main thread, through the watcher, so they are not recorded as copies.
+            let copy: (String) -> Void = { text in DispatchQueue.main.async { MainActor.assumeIsolated { self.clipboardWatch.copy(text) } } }
+            let result: Result<Made, Error> = Result { try Transmute.run(action, source: URL(fileURLWithPath: source), out: URL(fileURLWithPath: out), copy: copy) }
+            DispatchQueue.main.async {
+                MainActor.assumeIsolated {
+                    self.model.working.remove(id)
+                    switch result {
+                    case let .success(made):
+                        var message: [String: Any] = ["t": "made", "source": source, "note": made.note]
+                        if let path = made.path { message["path"] = path }
+                        if made.copied { message["copied"] = true }
+                        Outbox.send(message)
+                        self.handle(.say(text: made.note, tone: .done, seconds: 2.5))
+                    case let .failure(error):
+                        Outbox.send(["t": "made", "source": source, "error": String(describing: error)])
+                        self.handle(.say(text: "\(label): \(error)", tone: .failed, seconds: 3))
+                    }
+                }
+            }
         }
     }
 
@@ -780,6 +823,9 @@ struct BimaxNotch {
                     TaskRow(id: "c", title: "Summarise the Q3 report", state: "done", detail: "Check passed"),
                 ], glass: demoGlass))
             }
+            if ProcessInfo.processInfo.environment["BIMAX_NOTCH_TAB"] == "shelf" {
+                if let message = parseInbound(##"{"t": "shelf", "archived": [], "items": [{"id": "a", "kind": "file", "title": "hero.png", "path": "/System/Library/Desktop Pictures/.thumbnails/Sequoia.heic", "missing": false, "amber": false, "actions": [{"id": "compress", "label": "Compress", "kind": "local"}, {"id": "avif", "label": "To AVIF", "kind": "local"}, {"id": "remove-background", "label": "Remove Background", "kind": "local"}, {"id": "ocr", "label": "Copy Text", "kind": "local"}]}, {"id": "b", "kind": "file", "title": "parser.ts", "path": "/etc/hosts", "missing": false, "amber": false, "actions": [{"id": "task:tests", "label": "Add Tests", "kind": "task"}, {"id": "task:document", "label": "Document", "kind": "task"}]}, {"id": "c", "kind": "file", "title": "report (compressed).jpg", "path": "/etc/hosts", "missing": false, "amber": false, "task": "Compressed −68%", "check": "passed"}]}"##) { MainActor.assumeIsolated { controller.handle(message); controller.model.tab = .shelf; controller.model.selectedCard = "a" } }
+            }
             if ProcessInfo.processInfo.environment["BIMAX_NOTCH_TAB"] == "secrets" {
                 // Sample masked secrets (as secrets.ts sends them — never values), for looking at the tab.
                 if let message = parseInbound(##"{"t": "secrets", "items": [{"id": "s1", "label": "Stripe key", "key": "STRIPE_KEY", "masked": "sk_live_••••Yc7D", "where": "shop/.env.local"}, {"id": "s2", "label": "Password in a URL", "key": "DATABASE_URL", "masked": "postgres://app:••••@localhost:5432/shop", "where": "shop/.env"}, {"id": "s3", "label": "Secret", "key": "SESSION_SECRET", "masked": "9f8••••d015", "where": "shop/api/.env"}]}"##) { MainActor.assumeIsolated { controller.handle(message); controller.model.tab = .secrets } }
@@ -860,6 +906,101 @@ struct BimaxNotch {
         let keep = Date().addingTimeInterval(0.7); while Date() < keep { RunLoop.main.run(until: Date().addingTimeInterval(0.05)) }
         check(secretBoard.string(forType: .string) == "the person's own copy" && outcomes == [true, false], "a later copy by the person is never cleared")
         secretBoard.releaseGlobally()
+        // Stage 7: every local conversion run for real on generated files, and each output opened and checked.
+        let work = FileManager.default.temporaryDirectory.appendingPathComponent("bimax-notch-selftest-\(ProcessInfo.processInfo.processIdentifier)")
+        try? FileManager.default.createDirectory(at: work, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: work) }
+        func props(_ url: URL) -> (w: Int, h: Int, type: String) {
+            guard let src = CGImageSourceCreateWithURL(url as CFURL, nil), let p = CGImageSourceCopyPropertiesAtIndex(src, 0, nil) as? [CFString: Any] else { return (0, 0, "") }
+            return (p[kCGImagePropertyPixelWidth] as? Int ?? 0, p[kCGImagePropertyPixelHeight] as? Int ?? 0, CGImageSourceGetType(src) as String? ?? "")
+        }
+        // A 1200×800 photo-like PNG — smooth gradients with per-pixel grain, which PNG stores badly and JPEG well — with a
+        // transparent top-left corner. (A first version drew 4-pixel blocks: graphics, which PNG stores better than
+        // JPEG, so compress rightly refused it. That case is checked separately below.)
+        let photo = work.appendingPathComponent("photo.png")
+        var pixels = [UInt8](repeating: 0, count: 1200 * 800 * 4)
+        var seed: UInt32 = 7
+        for y in 0..<800 { for x in 0..<1200 {
+            seed = seed &* 1664525 &+ 1013904223
+            let grain = Int(seed >> 28) - 8
+            let o = (y * 1200 + x) * 4
+            let clear = x < 100 && y < 100
+            pixels[o] = clear ? 0 : UInt8(max(0, min(255, x * 255 / 1200 + grain)))
+            pixels[o + 1] = clear ? 0 : UInt8(max(0, min(255, y * 255 / 800 + grain)))
+            pixels[o + 2] = clear ? 0 : UInt8(max(0, min(255, 128 + grain * 3)))
+            pixels[o + 3] = clear ? 0 : 255
+        } }
+        if let provider = CGDataProvider(data: Data(pixels) as CFData),
+           let image = CGImage(width: 1200, height: 800, bitsPerComponent: 8, bitsPerPixel: 32, bytesPerRow: 1200 * 4, space: CGColorSpace(name: CGColorSpace.sRGB)!,
+                               bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue), provider: provider, decode: nil, shouldInterpolate: false, intent: .defaultIntent) {
+            try? Transmute.write(image, to: photo, type: .png, quality: nil)
+        }
+        let compressed = work.appendingPathComponent("photo.jpg")
+        let compressResult = try? Transmute.run("compress", source: photo, out: compressed, copy: { _ in })
+        let cp = props(compressed)
+        let sizes = [photo, compressed].map { ((try? FileManager.default.attributesOfItem(atPath: $0.path))?[.size] as? Int) ?? 0 }
+        check(cp.w == 1200 && cp.h == 800 && cp.type == "public.jpeg" && sizes[1] < sizes[0] && compressResult?.note.hasPrefix("Compressed −") == true,
+              "compress: a smaller JPEG of the same size (\(cp) \(sizes))")
+        // Refusal: when the result would not be smaller, no card is made and nothing is left behind. A 32×32 PNG is
+        // certain to be smaller than any JPEG of it — the JPEG header alone is bigger. (A first version used an 800×600
+        // solid colour and assumed JPEG loses; it measured 9,787 B PNG vs 8,631 B JPEG, and ImageIO's output sizes vary
+        // between runs, so that premise was wrong and flaky, not the product.)
+        let tiny = work.appendingPathComponent("tiny.png")
+        if let ctx = CGContext(data: nil, width: 32, height: 32, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpace(name: CGColorSpace.sRGB)!, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) {
+            ctx.setFillColor(CGColor(red: 0.2, green: 0.5, blue: 0.9, alpha: 1)); ctx.fill(CGRect(x: 0, y: 0, width: 32, height: 32))
+            if let image = ctx.makeImage() { try? Transmute.write(image, to: tiny, type: .png, quality: nil) }
+        }
+        let tinyOut = work.appendingPathComponent("tiny.jpg")
+        let tinySizes = { [tiny, tinyOut].map { ((try? FileManager.default.attributesOfItem(atPath: $0.path))?[.size] as? Int) ?? 0 } }
+        switch Result(catching: { try Transmute.run("compress", source: tiny, out: tinyOut, copy: { _ in }) }) {
+        case let .failure(error): check("\(error)" == "already as small as it gets" && !FileManager.default.fileExists(atPath: tinyOut.path), "compress refuses a result that is not smaller (\(error), \(tinySizes()))")
+        case let .success(made): check(false, "compress refuses a result that is not smaller (made \(made.note), sizes \(tinySizes()))")
+        }
+        if let src = CGImageSourceCreateWithURL(compressed as CFURL, nil), let image = CGImageSourceCreateImageAtIndex(src, 0, nil),
+           let ctx = CGContext(data: nil, width: 1, height: 1, bitsPerComponent: 8, bytesPerRow: 4, space: CGColorSpace(name: CGColorSpace.sRGB)!, bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue) {
+            ctx.draw(image, in: CGRect(x: -10, y: -(800 - 11), width: 1200, height: 800)) // image pixel (10, 10) from the top-left
+            let pixel = ctx.data!.assumingMemoryBound(to: UInt8.self)
+            check(pixel[0] > 240 && pixel[1] > 240 && pixel[2] > 240, "transparent areas become white in a JPEG, not black (\(pixel[0]),\(pixel[1]),\(pixel[2]))")
+        }
+        for (action, type) in [("avif", "public.avif"), ("heic", "public.heic"), ("png", "public.png")] {
+            let out = work.appendingPathComponent("photo-out.\(action)")
+            _ = try? Transmute.run(action, source: compressed, out: out, copy: { _ in })
+            let p = props(out)
+            check(p.type == type && p.w == 1200 && p.h == 800, "\(action): \(p)")
+        }
+        // Text in an image comes back as text.
+        let words = work.appendingPathComponent("words.png")
+        if let ctx = CGContext(data: nil, width: 900, height: 200, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpace(name: CGColorSpace.sRGB)!, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) {
+            ctx.setFillColor(CGColor(red: 1, green: 1, blue: 1, alpha: 1)); ctx.fill(CGRect(x: 0, y: 0, width: 900, height: 200))
+            let text = NSAttributedString(string: "BIMAX NOTCH 2026", attributes: [.font: NSFont.systemFont(ofSize: 72, weight: .bold), .foregroundColor: NSColor.black])
+            let line = CTLineCreateWithAttributedString(text)
+            ctx.textPosition = CGPoint(x: 30, y: 70); CTLineDraw(line, ctx)
+            if let image = ctx.makeImage() { try? Transmute.write(image, to: words, type: .png, quality: nil) }
+        }
+        var copied = ""
+        _ = try? Transmute.run("ocr", source: words, out: work.appendingPathComponent("unused"), copy: { copied = $0 })
+        check(copied.uppercased().contains("BIMAX") && copied.contains("2026"), "OCR reads the words (\(copied))")
+        _ = try? Transmute.run("base64", source: words, out: work.appendingPathComponent("unused"), copy: { copied = $0 })
+        let payload = copied.components(separatedBy: "base64,").last ?? ""
+        check(copied.hasPrefix("data:image/png;base64,") && Data(base64Encoded: payload) == (try? Data(contentsOf: words)), "Base64 decodes back to the same bytes")
+        // A 3-page PDF with an image on each page.
+        let pdfURL = work.appendingPathComponent("report.pdf")
+        if let consumer = CGDataConsumer(url: pdfURL as CFURL), let ctx = CGContext(consumer: consumer, mediaBox: nil, nil),
+           let src = CGImageSourceCreateWithURL(photo as CFURL, nil), let image = CGImageSourceCreateImageAtIndex(src, 0, nil) {
+            for _ in 0..<3 { var box = CGRect(x: 0, y: 0, width: 612, height: 792); ctx.beginPage(mediaBox: &box); ctx.draw(image, in: CGRect(x: 36, y: 200, width: 540, height: 360)); ctx.endPage() }
+            ctx.closePDF()
+        }
+        let page1 = work.appendingPathComponent("page1.pdf"), flat = work.appendingPathComponent("flat.pdf"), small = work.appendingPathComponent("small.pdf")
+        _ = try? Transmute.run("pdf-page1", source: pdfURL, out: page1, copy: { _ in })
+        _ = try? Transmute.run("pdf-flatten", source: pdfURL, out: flat, copy: { _ in })
+        let pdfCompress = Result { try Transmute.run("pdf-compress", source: pdfURL, out: small, copy: { _ in }) }
+        check(PDFDocument(url: page1)?.pageCount == 1, "Extract Page 1: one page")
+        check(PDFDocument(url: flat)?.pageCount == 3, "Flatten: every page")
+        switch pdfCompress {
+        case .success: check(PDFDocument(url: small)?.pageCount == 3, "Compress for Email: a smaller, readable PDF")
+        case let .failure(error): check("\(error)" == "already as small as it gets", "Compress for Email: \(error)")
+        }
+        check((try? Transmute.run("webp", source: photo, out: work.appendingPathComponent("x.webp"), copy: { _ in })) == nil, "WebP is refused, not faked")
         // The watcher end to end, on a private clipboard (never the person's): an ordinary copy is seen, a password
         // manager's is not, the notch's own copy is not, and nothing is seen while it is stopped.
         let privateBoard = NSPasteboard.withUniqueName()

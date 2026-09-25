@@ -288,3 +288,35 @@ while the panel ignored clicks; the notch never used it. Both are removed (`2540
 built on the wrong theory was set aside, not merged. **Rule going forward:** idle cost is measured with the mouse
 moving over the notch's area and elsewhere, not only still. The corrected numbers are measured when the owner is away
 from the Mac (the cursor-moving checks never run while they are using it).
+
+## Stage 7 — one-tap conversions, built 2026-09-26
+
+**What exists:** tapping a file card on the shelf selects it and shows its actions (right-click lists them too),
+most used first for that file type — the order is learned from the owner's own taps (`transmuteCounts`). Two kinds:
+- **Local, no model** (`app/native/notch/Transmute.swift`, the Mac's ImageIO, PDFKit and Vision): images — Compress
+  (fit to 2560 px, JPEG; transparency laid on white, not black), To AVIF / HEIC / PNG / JPEG, Remove Background (Vision
+  foreground mask), Copy Text (Vision OCR), Copy as Base64 (≤ 5 MB); PDFs — Compress for Email (Apple's JPEG +
+  screen-optimised image options), Extract Page 1, Flatten (every page redrawn, annotations and form fields included);
+  `.env` — Make `.env.example` (done in the app, which holds the secret values; harmless values kept, secret-like ones
+  replaced by `<key>` placeholders). Results are written into the notch's own folder and land on the shelf as new
+  cards beside the original; a result that is not smaller is refused, not made.
+- **A ⌘2 task** (code, data, notes, PDFs): Add Tests, Document, Optimise, Summarise, Types, Mock Data, Make Concise,
+  Fix Grammar, Tables to CSV, Validate — the Droplet, the file attached, the request already written in the bar.
+
+**Not offered: WebP.** ImageIO on this Mac reads WebP but cannot write it (`CGImageDestinationCopyTypeIdentifiers`,
+measured 2026-09-26); AVIF and HEIC are offered instead. The helper's requests are checked against the file's own
+actions, and a result outside the notch's folder (including `..` tricks) is refused.
+
+| Exit evidence | Result |
+|---|---|
+| Each local transform's output opened and checked | `--selftest` (build gate), every run: Compress → a smaller JPEG at the same 1200×800; the transparent corner comes out white; AVIF / HEIC / PNG really are those types at the same size; OCR reads "BIMAX NOTCH 2026" back; Base64 decodes to the same bytes; Extract Page 1 → 1 page; Flatten → all 3 pages; Compress for Email → a smaller readable PDF; WebP refused; a result that is not smaller is refused and nothing left behind |
+| A task action starts the thread with the intent and the file | `notch.deck.test.ts`: `onEdit([file], prompt)`; the bar fills `context.prompt` (ThreadSurfaces) |
+| Families, the learned order, requests checked (including another family's actions), `.env.example` | `transmute.test.ts` 6 tests; deck +3; 7 of 7 mutants caught (one survived first — a cross-family request — and the test was strengthened) |
+| Seen on this screen | The Shelf tab photographed via the demo: the selected card and its chips, and a task result's check badge |
+
+**Two self-test defects found and fixed on the way,** both the test's premise, not the product: a blocky "photo" that
+PNG stores better than JPEG (compress rightly refused it), and a solid-colour image assumed to be bigger as JPEG
+(measured 9,787 B PNG vs 8,631 B JPEG, and ImageIO's output sizes vary between runs). The refusal is now proven with a
+32×32 image, where it is certain; the check passed 8 runs of 8. **Not verified:** background removal on a real photo
+(Vision needs a real subject; the call is exercised only through the app), the task actions opening the installed
+app's bar, and the learned order after real use.

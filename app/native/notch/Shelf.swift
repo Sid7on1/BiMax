@@ -25,6 +25,8 @@ struct ShelfCard: Identifiable, Equatable {
     /// Stage 3, the Hatchback: the task that put it here, and how that task's check went.
     let task: String?
     let check: String?
+    /// Stage 7: what this card can become, most used first (transmute.ts).
+    var actions: [TransmuteAction] = []
 
     init(id: String, kind: String, title: String, path: String? = nil, url: String? = nil, text: String? = nil, missing: Bool = false, amber: Bool = false,
          task: String? = nil, check: String? = nil) {
@@ -37,6 +39,7 @@ struct ShelfCard: Identifiable, Equatable {
         self.init(id: id, kind: kind, title: title, path: row["path"] as? String, url: row["url"] as? String, text: row["text"] as? String,
                   missing: row["missing"] as? Bool ?? false, amber: row["amber"] as? Bool ?? false,
                   task: row["task"] as? String, check: row["check"] as? String)
+        actions = (row["actions"] as? [[String: Any]] ?? []).compactMap(TransmuteAction.init(json:))
     }
 
     var fileURL: URL? { kind == "file" ? path.map { URL(fileURLWithPath: $0) } : nil }
@@ -221,13 +224,17 @@ struct ShelfSection: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
                             ForEach(model.shelf) { card in
-                                ShelfCardView(card: card, act: act, dragStarted: { model.draggingOut = true })
+                                ShelfCardView(card: card, selected: model.selectedCard == card.id, act: act, dragStarted: { model.draggingOut = true })
                                     // Where each card is drawn, for the on-screen check's drag-out (BIMAX_NOTCH_DEBUG only).
                                     .onGeometryChange(for: CGRect.self, of: { $0.frame(in: .global) }) { model.cardFrames[card.id] = $0 }
                             }
                         }
                     }
                     .frame(height: 80)
+                    // Stage 7: the selected card's one-tap conversions.
+                    if let card = model.shelf.first(where: { $0.id == model.selectedCard }) {
+                        CardActions(card: card, working: model.working.contains(card.id), act: act)
+                    }
                 }
             }
         }
@@ -236,6 +243,7 @@ struct ShelfSection: View {
 
 enum ShelfAction {
     case open(ShelfCard), copy(ShelfCard), reveal(ShelfCard), archive(ShelfCard), sweep, restore(String), dragged(ShelfCard), edit(ShelfCard)
+    case select(ShelfCard), transmute(ShelfCard, TransmuteAction)
 }
 
 struct DropZone: View {
@@ -261,6 +269,7 @@ struct DropZone: View {
 
 struct ShelfCardView: View {
     let card: ShelfCard
+    var selected = false
     let act: (ShelfAction) -> Void
     let dragStarted: () -> Void
 
@@ -297,14 +306,19 @@ struct ShelfCardView: View {
             RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .fill(card.amber ? Color(red: 1.0, green: 0.62, blue: 0.1).opacity(0.18) : Color.white.opacity(0.07))
         )
-        .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(card.amber ? Color(red: 1.0, green: 0.62, blue: 0.1).opacity(0.5) : .clear, lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(selected ? Color.white.opacity(0.7) : (card.amber ? Color(red: 1.0, green: 0.62, blue: 0.1).opacity(0.5) : .clear), lineWidth: selected ? 1.5 : 1))
         .overlay(alignment: .topTrailing) { CheckBadge(check: card.check).padding(4) }
         .scaleEffect(card.amber ? 0.9 : 1)
         .contentShape(Rectangle())
-        .onTapGesture { act(.open(card)) }
+        // A file card is selected, to show what it can become (stage 7); a link opens and text copies, as before.
+        .onTapGesture { act(card.kind == "file" && !card.missing ? .select(card) : .open(card)) }
         .contextMenu {
             if card.kind == "file", !card.missing {
+                Button("Quick Look") { act(.open(card)) }
                 Button("Edit with Bimax") { act(.edit(card)) }
+                ForEach(card.actions, id: \.self) { action in
+                    Button(action.kind == "task" ? "\(action.label) with Bimax" : action.label) { act(.transmute(card, action)) }
+                }
                 Button("Show in Finder") { act(.reveal(card)) }
             }
             if !card.missing { Button("Copy") { act(.copy(card)) } }
@@ -362,5 +376,41 @@ struct CheckBadge: View {
         default:
             EmptyView()
         }
+    }
+}
+
+/// The selected card's conversions (stage 7): Quick Look first, then the actions, most used first. A task action is
+/// marked with a spark: it becomes a ⌘2 task with the request written, not an instant change.
+struct CardActions: View {
+    let card: ShelfCard
+    let working: Bool
+    let act: (ShelfAction) -> Void
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 4) {
+                Button("Quick Look") { act(.open(card)) }.buttonStyle(ChipStyle())
+                if working {
+                    HStack(spacing: 4) {
+                        ProgressView().controlSize(.mini)
+                        Text("Working…").font(.system(size: 10.5)).foregroundStyle(.white.opacity(0.7))
+                    }
+                    .padding(.horizontal, 6)
+                }
+                ForEach(card.actions, id: \.self) { action in
+                    Button { act(.transmute(card, action)) } label: {
+                        HStack(spacing: 3) {
+                            if action.kind == "task" { Image(systemName: "sparkle").font(.system(size: 8)) }
+                            Text(action.label)
+                        }
+                    }
+                    .buttonStyle(ChipStyle())
+                    .disabled(working && action.kind != "task")
+                    .accessibilityLabel(action.kind == "task" ? "\(action.label): starts a Bimax task with this file" : action.label)
+                }
+            }
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Actions for \(card.title)")
     }
 }

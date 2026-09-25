@@ -37,7 +37,7 @@ export interface ShelfItem {
 }
 export interface ShelfInput { kind: ShelfKind; path?: string; url?: string; text?: string; from?: ShelfFrom }
 /** What the helper draws. */
-export interface ShelfCard { id: string; kind: ShelfKind; title: string; path?: string; url?: string; text?: string; missing: boolean; amber: boolean; task?: string; check?: ShelfCheck }
+export interface ShelfCard { id: string; kind: ShelfKind; title: string; path?: string; url?: string; text?: string; missing: boolean; amber: boolean; task?: string; check?: ShelfCheck; actions?: import('./transmute').Transmutation[] }
 export interface ShelfView { t: 'shelf'; items: ShelfCard[]; archived: ShelfCard[] }
 
 export const AMBER_AFTER_MS = 24 * 60 * 60 * 1000;

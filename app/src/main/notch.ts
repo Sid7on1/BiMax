@@ -1,9 +1,11 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'child_process';
+import { existsSync } from 'fs';
 import * as path from 'path';
 import { isQuickThread, threadActivity, type ThreadSummary } from '../shared/threads';
 import type { ShelfFrom, ShelfInput, ShelfView } from './shelf';
 import { nextGlassChange, notchGlass, outcomeOf, type Glass, type Unseen } from './glass';
 import type { ClipView } from './clipboard';
+import { isTransmutation, transmutationsFor, type Transmutation } from './transmute';
 
 /**
  * God's Land, stage 1 (docs/product-reset/gods-land/03_PLAN.md): the notch talks. This is the app's half — what the
@@ -90,6 +92,19 @@ export interface DropletTarget { x: number; y: number; width: number; height: nu
 /** The longest the app waits for the helper's Droplet before opening the bar anyway. */
 export const DROPLET_TIMEOUT_MS = 1_200;
 
+/** The extension each local action writes (the rest keep the source's). */
+const OUT_EXT: Record<string, string> = { compress: '.jpg', avif: '.avif', heic: '.heic', png: '.png', jpeg: '.jpg', 'remove-background': '.png', 'pdf-compress': '.pdf', 'pdf-page1': '.pdf', 'pdf-flatten': '.pdf' };
+
+/** A new, unused file name in `dir` for a result made from `source`: "report (compressed).jpg" style, numbered. */
+export function madeName(dir: string, source: string, ext: string, exists: (file: string) => boolean = existsSync, keepExtension = false): string {
+  const base = keepExtension ? path.basename(source) : path.basename(source, path.extname(source));
+  // No leading dot: a result named ".env.example" would be hidden in Finder, where it is meant to be dragged from.
+  const stem = base.replace(/^\.+/, '') || 'file';
+  let candidate = path.join(dir, `${stem}${ext}`);
+  for (let i = 2; exists(candidate); i++) candidate = path.join(dir, `${stem} ${i}${ext}`);
+  return candidate;
+}
+
 export function notchHelperPath(input: { packaged: boolean; resourcesPath: string; appPath: string }): string {
   return input.packaged ? path.join(input.resourcesPath, 'notch', 'bimax-notch') : path.join(input.appPath, 'notch', 'bimax-notch');
 }
@@ -130,6 +145,16 @@ export interface NotchClipboard {
   reveal?(id: string): string | null;
 }
 
+/** Stage 7: one-tap conversions on shelf cards — the learned order, where results go, the one done in the app. */
+export interface NotchTransmute {
+  counts(): Record<string, number>;
+  record(file: string, id: string): void;
+  /** Where results are written: the helper may only write here, and a result elsewhere is refused. */
+  madeDir: string;
+  /** `.env` → `.env.example`, done in the app (it reads secret values, which stay in this process). Returns the file. */
+  envExample(source: string, out: string): string | null;
+}
+
 /** Stage 6: secrets found in `.env` files of the folders opened in Bimax (secrets.ts). */
 export interface NotchSecrets {
   scan(): Array<{ id: string; label: string; key: string; masked: string; where: string; value: string }>;
@@ -142,8 +167,11 @@ export interface NotchDeckOptions {
   onOpenTask: (id: string) => void;
   /** The shelf (stage 2); without one the notch has no shelf. */
   shelf?: NotchShelf;
-  /** Files handed to "Edit with Bimax" (stage 3): the app plays the Droplet and opens the ⌘2 bar with them. */
-  onEdit?: (paths: string[]) => void;
+  /** Files handed to "Edit with Bimax" (stage 3): the app plays the Droplet and opens the ⌘2 bar with them — and, from a
+   * stage 7 action, the request already written. */
+  onEdit?: (paths: string[], prompt?: string) => void;
+  /** Stage 7: one-tap conversions. */
+  transmute?: NotchTransmute;
   /** Stage 5: the smart clipboard. Off until the person turns it on; without it the notch has no clipboard. */
   clipboard?: NotchClipboard;
   /** Stage 6: secrets from `.env` files; values stay here until the notch asks for one. */
@@ -210,7 +238,7 @@ export class NotchDeck {
   }
 
   private received(line: string): void {
-    let message: { t?: string; id?: unknown; items?: unknown; ids?: unknown; amber?: unknown; open?: unknown; text?: unknown; source?: unknown; pinned?: unknown; purpose?: unknown };
+    let message: { t?: string; id?: unknown; items?: unknown; ids?: unknown; amber?: unknown; open?: unknown; text?: unknown; source?: unknown; pinned?: unknown; purpose?: unknown; action?: unknown; path?: unknown; note?: unknown; copied?: unknown; error?: unknown };
     try { message = JSON.parse(line); } catch { return; }
     const shelf = this.options.shelf;
     if (message.t === 'open-task' && typeof message.id === 'string') this.options.onOpenTask(message.id);
@@ -234,6 +262,8 @@ export class NotchDeck {
       if (paths.length) this.options.onEdit?.(paths);
     }
     else if (message.t === 'droplet-landed') { this.landing?.(); this.landing = null; }
+    else if (message.t === 'transmute' && typeof message.id === 'string' && typeof message.action === 'string') this.transmute(message.id, message.action);
+    else if (message.t === 'made') this.made(message);
     else if (message.t === 'secret-value' && typeof message.id === 'string') this.sendSecret(message.id, message.purpose === 'copy' ? 'copy' : 'reveal');
     else if (this.options.clipboard) this.clipboardMessage(message);
   }
@@ -291,10 +321,50 @@ export class NotchDeck {
     this.send(view);
   }
 
-  private sendShelf(): void {
+  /**
+   * Stage 7. A card's action, checked against that file's own actions (the helper's word is not trusted). A task opens
+   * the ⌘2 bar with the request written; `.env.example` is made here; anything else the helper makes, into madeDir.
+   */
+  private transmute(cardId: string, action: string): void {
+    const tools = this.options.transmute;
+    const card = this.options.shelf?.view().items.find((c) => c.id === cardId);
+    if (!tools || !card || card.kind !== 'file' || !card.path || card.missing) return;
+    const known = isTransmutation(card.path, action);
+    if (!known) return;
+    tools.record(card.path, action);
+    if (known.kind === 'task') {
+      this.options.onEdit?.([card.path], known.prompt);
+    } else if (action === 'env-example') {
+      const out = madeName(tools.madeDir, card.path, '.example', existsSync, true);
+      const made = tools.envExample(card.path, out);
+      if (made) this.dock([made], { task: `${known.label} from ${path.basename(card.path)}` });
+      this.send({ t: 'say', text: made ? `Made ${path.basename(out)} — secrets replaced` : 'Could not make the example file', tone: made ? 'done' : 'failed', seconds: 2.5 });
+    } else {
+      this.send({ t: 'transmute-run', id: cardId, action, source: card.path, out: madeName(tools.madeDir, card.path, OUT_EXT[action] ?? path.extname(card.path)), label: known.label });
+    }
+    this.sendShelf(true);
+  }
+
+  /** The helper made something. Only a file inside madeDir is kept; a copy to the clipboard only counts. */
+  private made(message: { source?: unknown; path?: unknown; note?: unknown; copied?: unknown; error?: unknown }): void {
+    const tools = this.options.transmute;
+    if (!tools || typeof message.path !== 'string' || message.copied === true || typeof message.error === 'string') return;
+    const inside = path.resolve(message.path).startsWith(path.resolve(tools.madeDir) + path.sep);
+    if (!inside) { this.options.log?.(`made file outside ${tools.madeDir} refused`); return; }
+    const note = typeof message.note === 'string' ? message.note.slice(0, 120) : 'Made';
+    this.dock([message.path], { task: note });
+  }
+
+  private sendShelf(force = false): void {
     if (!this.options.shelf) return;
     let view: ShelfView;
     try { view = this.options.shelf.view(); } catch (error) { this.options.log?.(`shelf unreadable: ${String(error)}`); return; }
+    // Stage 7: each usable file card carries its actions, most used first for its type.
+    const counts = this.options.transmute?.counts() ?? {};
+    if (this.options.transmute) {
+      view = { ...view, items: view.items.map((c) => (c.kind === 'file' && c.path && !c.missing ? { ...c, actions: transmutationsFor(c.path, counts) } : c)) };
+    }
+    if (force) this.lastShelf = '';
     const serialized = JSON.stringify(view);
     if (serialized === this.lastShelf) return;
     this.lastShelf = serialized;
