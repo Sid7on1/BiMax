@@ -70,3 +70,26 @@ Every stage passes `08_ACCEPTANCE_GATES.md` "Gates for every product change": a 
 neutered, typecheck and the packaged app, and a claim that names the build and the measurement. The code-only product
 gate is unaffected through stage 8: the helper requests no Accessibility, Screen Recording or Input Monitoring, and
 ships no Computer Use component. Decision 1(a) would change that and needs its own gate change.
+
+## Stage 1 — built and installed, 2026-09-25 (`5ae7fbc`, `6b2a759`)
+
+**What exists:** `app/native/notch/main.swift` (the helper) with DynamicNotchKit vendored and moulded
+(`Vendor/DynamicNotchKit/BIMAX_CHANGES.md`); `app/src/main/notch.ts` (what it shows, when it speaks, restarts); menu
+bar item "Show Bimax in the Notch". The notch opens when the cursor reaches it, shows the ⌘2 tasks, rests as a glow
+with a count while tasks run, speaks up when a task finishes / needs you / fails / fails its check, and opens a task
+when it is clicked. It takes no input.
+
+| Exit evidence | Result |
+|---|---|
+| Idle memory ≤ 20 MB | **15 MB** physical footprint in `--demo`, **16 MB** in the installed app (RSS reads ~51 MB; it counts shared system frameworks) |
+| Idle CPU ~0% | **0.0%** over 5 s, installed app, at rest |
+| Hover opens / leaving closes | `scripts/check-notch.sh` on the real screen: **22 consecutive runs 4/4** |
+| Menu bar clicks never blocked | Same check, resting and open. **Finding:** macOS does *not* pass clicks through the panel's transparent area — with click-through removed, 0 clicks reached the window under it. Mouse events now reach the panel only over drawn content |
+| Exits with the app | Helper gone 1 s after Bimax quit; restarted with it |
+| Protocol and geometry | `--selftest` in the build (fails the build if it fails); `notch.deck.test.ts` 7 tests, 5 mutants fail it |
+| Packaging | Four package gates pass; code-only gate unaffected (no new permission) |
+
+**Not verified:** a display without a notch (the floating pill), full-screen Spaces, Reduce Motion, VoiceOver
+labels read aloud, and live task transitions seen by a person. Two defects found while measuring and fixed: a
+mouse-move hop that could let a click land during the opening animation, and the root `vendor/` ignore rule that
+left the vendored library out of the first commit.
