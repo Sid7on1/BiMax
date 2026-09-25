@@ -524,3 +524,14 @@ Local evidence: eight synthetic audit limitations reproduced under Bun, source h
 56 existing focused tests passed. Initial Node FTS5 failures are retained as invalid SQLite probe
 results. All compiler mechanisms remain **Target**, with no measured quality or competitive claim.
 Guidance and unresolved missing capability-matrix/topology documentation are recorded in record 47.
+
+## God's Land (notch deck) research — checked 2026-09-25
+
+See [gods-land/02_RESEARCH.md](../gods-land/02_RESEARCH.md) for every URL. Three repositories were shallow-cloned
+outside the repository and their window, event and drop code read: boring.notch@bf0724d NotchDrop@e70b3d7 DynamicNotchKit@cd0b3e5 . Licenses: boring.notch
+**GPL-3.0** (study only, no code reused), NotchDrop and DynamicNotchKit **MIT**. Data sources: gitleaks rules **MIT**;
+ClearURLs rules **LGPL-3.0+** (not bundled). Platform facts recorded there and marked for re-checking on this Mac:
+pasteboard privacy (`NSPasteboard.accessBehavior`, macOS 15.4+), ScreenCaptureKit ignoring `sharingType = .none`
+(macOS 15+), three haptic patterns only, Electron's declined notch API, Liquid Glass merging
+(`NSGlassEffectContainerView`, `glassEffectID`). Papers: Citrine (UIST 2004), Quick Access (KDD 2017) and its
+KDD 2020 follow-up, Stuff I've Seen (SIGIR 2003). No code was executed or incorporated; no claim about Bimax follows.

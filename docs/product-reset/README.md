@@ -1,5 +1,13 @@
 # Bimax product reset
 
+## God's Land, the living notch deck — 2026-09-25
+
+The owner's new feature: the MacBook notch as a shelf, a smart clipboard and the drop-and-speak on-ramp to the ⌘2
+Thread bar, in a liquid-glass design language. [gods-land/](gods-land/README.md) holds the owner's brainstorm
+verbatim, extensions, research (prior art and licenses, platform limits, papers) and an eight-stage plan. **Target;
+nothing built.** Four owner decisions are open in its plan, the first being whether Ghost Paste may ask for Input
+Monitoring.
+
 ## Context fix, an on-device reranker, and a parked Computer Use plan — 2026-09-25
 
 [61_CONTEXT_RERANK_AND_CU_PLAN.md](61_CONTEXT_RERANK_AND_CU_PLAN.md): "ok"/"go on" no longer push a user's instruction
