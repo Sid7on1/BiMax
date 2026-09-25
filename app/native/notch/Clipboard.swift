@@ -129,7 +129,7 @@ final class ClipboardWatch {
 // MARK: - Views
 
 enum NotchTab: String, CaseIterable {
-    case now = "Now", shelf = "Shelf", clipboard = "Clipboard", secrets = "Secrets"
+    case now = "Now", shelf = "Shelf", recall = "Recall", clipboard = "Clipboard", secrets = "Secrets"
 }
 
 struct TabChips: View {

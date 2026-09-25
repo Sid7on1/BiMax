@@ -22,6 +22,7 @@ import { Shelf } from './shelf';
 import { ClipHistory } from './clipboard';
 import { scanFolders } from './secrets';
 import { countUse, envExample } from './transmute';
+import { ActivityLog, type Verdict } from './recall';
 import { describeSchedule, dueSchedules, newSchedule, type Cadence, type Schedule } from './schedules';
 import {
   ARRIVAL_KINDS, FolderTriggers, MAX_TRIGGERS, arrivalLabel, changeListNote, changesDuring, describeTrigger, newTrigger, runMessage,
@@ -486,6 +487,17 @@ function syncNotch(): void {
       },
       // Stage 4: a Night Shift task working turns the glass to night (FL5's own list).
       nightIds: () => new Set(nightShifts.keys()),
+      // Stage 8: what the person did with files through the notch, kept on this Mac, for recall and "Probably next".
+      // The replay's verdict is kept beside it (counts only, no file names), so the exit rule can be read later.
+      recall: (() => {
+        const log = new ActivityLog(path.join(shelfRoot, 'activity.jsonl'));
+        return {
+          enabled: () => loadSettings().notchRecall !== false,
+          record: (input: Parameters<ActivityLog['record']>[0]) => log.record(input),
+          all: () => log.all(),
+          onVerdict: (v: Verdict) => { try { writeFileSync(path.join(shelfRoot, 'recall-verdict.json'), JSON.stringify({ ...v, at: new Date().toISOString() })); } catch { /* next time */ } },
+        };
+      })(),
     });
   }
   if (!notchDeck) return;
@@ -1290,6 +1302,10 @@ function updateTray(): void {
       label: 'Keep Clipboard History in the Notch', type: 'checkbox' as const, checked: loadSettings().clipboardHistory === true,
       enabled: loadSettings().notchDeck !== false,
       click: (item: Electron.MenuItem) => { saveSettings({ clipboardHistory: item.checked }); notchDeck?.sendClips(true); updateTray(); },
+    }, {
+      label: 'Remember Files Used in the Notch', type: 'checkbox' as const, checked: loadSettings().notchRecall !== false,
+      enabled: loadSettings().notchDeck !== false,
+      click: (item: Electron.MenuItem) => { saveSettings({ notchRecall: item.checked }); notchDeck?.sendRecall(); updateTray(); },
     }] : []),
     existsSync(quickActionPath(os.homedir()))
       ? { label: `Remove “${QUICK_ACTION_NAME}” from Finder`, click: () => void removeQuickAction() }

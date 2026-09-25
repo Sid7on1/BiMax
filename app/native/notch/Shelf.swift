@@ -244,6 +244,8 @@ struct ShelfSection: View {
 enum ShelfAction {
     case open(ShelfCard), copy(ShelfCard), reveal(ShelfCard), archive(ShelfCard), sweep, restore(String), dragged(ShelfCard), edit(ShelfCard)
     case select(ShelfCard), transmute(ShelfCard, TransmuteAction)
+    /// Stage 8: put a recall card on the shelf.
+    case keep(ShelfCard)
 }
 
 struct DropZone: View {
@@ -270,6 +272,8 @@ struct DropZone: View {
 struct ShelfCardView: View {
     let card: ShelfCard
     var selected = false
+    /// Stage 8: a recall card — a file used before, not on the shelf. Tapping looks at it; right-click keeps it.
+    var memory = false
     let act: (ShelfAction) -> Void
     let dragStarted: () -> Void
 
@@ -311,9 +315,15 @@ struct ShelfCardView: View {
         .scaleEffect(card.amber ? 0.9 : 1)
         .contentShape(Rectangle())
         // A file card is selected, to show what it can become (stage 7); a link opens and text copies, as before.
-        .onTapGesture { act(card.kind == "file" && !card.missing ? .select(card) : .open(card)) }
+        .onTapGesture { act(card.kind == "file" && !card.missing && !memory ? .select(card) : .open(card)) }
         .contextMenu {
-            if card.kind == "file", !card.missing {
+            if memory {
+                Button("Quick Look") { act(.open(card)) }
+                Button("Keep on Shelf") { act(.keep(card)) }
+                Button("Edit with Bimax") { act(.edit(card)) }
+                Button("Show in Finder") { act(.reveal(card)) }
+                Button("Copy") { act(.copy(card)) }
+            } else if card.kind == "file", !card.missing {
                 Button("Quick Look") { act(.open(card)) }
                 Button("Edit with Bimax") { act(.edit(card)) }
                 ForEach(card.actions, id: \.self) { action in
@@ -321,8 +331,10 @@ struct ShelfCardView: View {
                 }
                 Button("Show in Finder") { act(.reveal(card)) }
             }
-            if !card.missing { Button("Copy") { act(.copy(card)) } }
-            Button("Move to Archive") { act(.archive(card)) }
+            if !memory {
+                if !card.missing { Button("Copy") { act(.copy(card)) } }
+                Button("Move to Archive") { act(.archive(card)) }
+            }
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(card.title)\(card.missing ? ", missing" : "")\(card.amber ? ", not used for a day" : "")\(card.task.map { ", from \($0)" } ?? "")\(CheckBadge.words(card.check).map { ", \($0)" } ?? "")")

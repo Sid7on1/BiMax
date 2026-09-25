@@ -320,3 +320,41 @@ PNG stores better than JPEG (compress rightly refused it), and a solid-colour im
 32×32 image, where it is certain; the check passed 8 runs of 8. **Not verified:** background removal on a real photo
 (Vision needs a real subject; the call is exercised only through the app), the task actions opening the installed
 app's bar, and the learned order after real use.
+
+## Stage 8 — recall and "Probably next", built 2026-09-26
+
+**What exists:** the notch keeps a small log of what the person did with files **through Bimax** — dropped on the
+shelf, used from it (looked at, copied, dragged out), handed to a ⌘2 task, made by a one-tap conversion, brought back
+by a task — each with the app that was in front at the time (`app/src/main/recall.ts`, stored in
+`gods-land/activity.jsonl`, capped at 20,000 events). Nothing else is watched: no Spotlight, no folder scan, no file
+contents. The helper reports the app in front only when it changes (`NSWorkspace` activation notifications — no timer,
+no permission). A menu bar item, "Remember Files Used in the Notch", turns it off; off means nothing is recorded.
+
+- **Recall tab** (owner decision 3: the notch takes no input, so this is browsing, not a search box): the log grouped
+  by the cues people remember (Stuff I've Seen, 02 §3) — "Yesterday afternoon, in Figma", "This morning, in Mail",
+  "From “Add tests”". Newest first, five groups, six files each; a group that only repeats one already shown is left
+  out; files that no longer exist are not shown. Tap looks (Quick Look); right-click keeps it on the shelf, edits it
+  with Bimax, shows it in Finder or copies it.
+- **"Probably next" on Now:** three files the person is likely to want, never the one just used and never one already
+  at the front of the shelf. The ranker is a recency/frequency time series at three scales (hours, a day, a week) with
+  three context multipliers — the app in front now, the time of day, and what usually came after the file used last
+  (Quick Access, 02 §3). **The plan's exit rule runs live, on the person's own log:** the log is replayed (each time
+  the person went back to a file they had used before, would the ranker have had it in its top 3, knowing only the
+  past?) against plain most-recent-first. The ranker is used only after at least 30 such re-finds **and** more hits
+  than the baseline — a tie is not a win. Until then the row says **"Recent"** and is most-recent-first. The verdict
+  (counts only, no file names) is written to `gods-land/recall-verdict.json` each time it is worked out, every 20 new
+  events.
+
+| Exit evidence | Result |
+|---|---|
+| The ranker must beat "most recent first" or it does not ship | Enforced at runtime per person (above). **Not yet Measured on the owner's real use** — the log starts empty at install; `recall-verdict.json` will hold the first real numbers |
+| Gate machinery | `recall.test.ts`: on a simulated person with app habits (400 events, 5 seeds) the ranker hit 75–78% top-3 vs 54–58% for most-recent-first, and the verdict switched; a tie stays "Recent"; a short log where the ranker already leads stays "Recent"; a ranker shown only the past cannot see the event it predicts. **Simulated — evidence the gate works, not that the ranker helps a real person** |
+| A held-out set of the owner's own "find the …" questions, top-3 recall | **Target.** Not written: the owner's questions are needed, and owner decision 3 moved typed search to the ⌘2 thread, so the notch's recall is browsing. A ⌘2 search over this log is not built |
+| Tests fail when the feature is neutered | 12 recall tests + 5 deck tests; **14 of 14 mutants caught** (one — ignoring the 30-re-find minimum — survived first, and the test was strengthened) |
+| Native side | `--selftest` parses the recall message (bad cards and empty groups dropped, defaults to off); the demo's Now row and Recall tab photographed |
+
+**An evaluation path that was refused, and why.** Measuring the ranker on the owner's wider file history (Spotlight's
+`kMDItemUsedDates` for their home folder) was attempted before building and **denied by the session's permission
+classifier** as personal-data handling. It was not pursued another way. Whether Bimax may ever read Spotlight's
+usage dates — as a candidate source or for an offline evaluation — is an **open owner decision**; stage 8 uses only
+what the person did through Bimax.

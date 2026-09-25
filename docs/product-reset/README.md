@@ -4,9 +4,11 @@
 
 The owner's new feature: the MacBook notch as a shelf, a smart clipboard and the drop-and-speak on-ramp to the ⌘2
 Thread bar, in a liquid-glass design language. [gods-land/](gods-land/README.md) holds the owner's brainstorm
-verbatim, extensions, research (prior art and licenses, platform limits, papers) and an eight-stage plan. **Target;
-nothing built.** Four owner decisions are open in its plan, the first being whether Ghost Paste may ask for Input
-Monitoring.
+verbatim, extensions, research (prior art and licenses, platform limits, papers) and the staged plan. **Updated
+2026-09-26:** stages 1–8 built (notch, shelf, Droplet → ⌘2, glass states, clipboard, secrets, one-tap conversions,
+recall); 1–6 installed. Ghost Paste was dropped by the owner; the notch takes no input and has no shortcut. The
+"Probably next" ranker is gated on the owner's own log and is not yet Measured on real use. Stage 9 (real Liquid
+Glass) is next.
 
 ## Context fix, an on-device reranker, and a parked Computer Use plan — 2026-09-25
 

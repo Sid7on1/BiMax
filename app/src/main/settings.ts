@@ -56,6 +56,8 @@ export interface AppSettings {
   clipboardHistory?: boolean;
   /** God's Land stage 7: how often each one-tap conversion was used, per file type (`family:action`), for the learned order. */
   transmuteCounts?: Record<string, number>;
+  /** God's Land stage 8: remember what was done with files through the notch (recall.ts). On when absent. */
+  notchRecall?: boolean;
   /** Talk mode keeps listening while Bimax speaks, so the person can interrupt by talking (FL10). Off when absent. */
   talkBargeIn?: boolean;
   /** Folders with an outcome, keyed by real path (folder.outcomes.ts, backlog FL1 part 2). */

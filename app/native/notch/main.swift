@@ -98,6 +98,11 @@ final class NotchModel: ObservableObject {
     @Published var revealed: Revealed?
     // Stage 7: the selected shelf card, and the cards whose conversion is running.
     @Published var selectedCard: String?
+    // Stage 8: recall (Recall.swift) — "Probably next" on Now, and files by the cues people remember.
+    @Published var recallEnabled = true
+    @Published var recallLabel = "Recent"
+    @Published var recallNext: [ShelfCard] = []
+    @Published var recallGroups: [RecallGroup] = []
     @Published var working: Set<String> = []
     // The shelf (Shelf.swift, stage 2).
     @Published var shelf: [ShelfCard] = []
@@ -130,6 +135,7 @@ enum Inbound: Equatable {
     case secrets(items: [SecretItem])
     case secret(id: String, purpose: String, value: String?)
     case transmuteRun(id: String, action: String, source: String, out: String, label: String)
+    case recall(enabled: Bool, label: String, next: [ShelfCard], groups: [RecallGroup])
     case quit
 }
 
@@ -174,6 +180,11 @@ func parseInbound(_ line: String) -> Inbound? {
         guard let id = object["id"] as? String, let action = object["action"] as? String, let source = object["source"] as? String,
               let out = object["out"] as? String else { return nil }
         return .transmuteRun(id: id, action: action, source: source, out: out, label: object["label"] as? String ?? action)
+    case "recall":
+        let next = object["next"] as? [String: Any]
+        return .recall(enabled: object["enabled"] as? Bool ?? false, label: next?["label"] as? String ?? "Recent",
+                       next: (next?["items"] as? [[String: Any]] ?? []).compactMap(ShelfCard.init(json:)),
+                       groups: (object["groups"] as? [[String: Any]] ?? []).compactMap(RecallGroup.init(json:)))
     case "quit":
         return .quit
     default:
@@ -250,6 +261,7 @@ final class NotchController {
     private let dragWatch = DragWatch()
     private let clipboardWatch = ClipboardWatch()
     private let secretGuard = SecretGuard()
+    private let frontAppWatch = FrontAppWatch()
     /// The secret being pressed, whether Force Touch pressure has been seen, and the pressure so far.
     private var pressing: (id: String, sawPressure: Bool, amount: Double)?
     /// --demo keeps dropped things itself, since there is no app to keep them.
@@ -297,6 +309,7 @@ final class NotchController {
                 self?.model.revealed = nil
             }
         }
+        frontAppWatch.start { app in Outbox.send(["t": "front", "app": app]) }
         clipboardWatch.copied = { text, source in
             var message: [String: Any] = ["t": "clip", "text": text]
             if let source { message["source"] = source }
@@ -517,6 +530,11 @@ final class NotchController {
         case let .edit(card):
             touch(card)
             if let path = card.path { Outbox.send(["t": "edit", "items": [["kind": "file", "path": path]]]) }
+        case let .keep(card):
+            if let path = card.path {
+                Outbox.send(["t": "recall-keep", "path": path])
+                handle(.say(text: "Kept \(card.title) on the shelf", tone: .info, seconds: 1.5))
+            }
         }
     }
 
@@ -583,6 +601,11 @@ final class NotchController {
                 clipboardWatch.markOwnWrite()
                 handle(.say(text: "Copied \(name) · clears in 60 s", tone: .info, seconds: 2.5))
             }
+        case let .recall(enabled, label, next, groups):
+            model.recallEnabled = enabled
+            model.recallLabel = label
+            model.recallNext = next
+            model.recallGroups = groups
         case .quit:
             NSApp.terminate(nil)
         }
@@ -675,8 +698,10 @@ final class NotchController {
 
     func announceReady() {
         let notchSize = geometry?.screen.notchSize ?? .zero
-        Outbox.send(["t": "ready", "hasNotch": geometry?.hasNotch ?? false, "notchWidth": notchSize.width, "notchHeight": notchSize.height,
-                     "pasteboard": ClipboardWatch.accessBehavior])
+        var ready: [String: Any] = ["t": "ready", "hasNotch": geometry?.hasNotch ?? false, "notchWidth": notchSize.width, "notchHeight": notchSize.height,
+                                    "pasteboard": ClipboardWatch.accessBehavior]
+        if let app = FrontAppWatch.current { ready["app"] = app } // stage 8: the app in front from the start
+        Outbox.send(ready)
     }
 }
 
@@ -729,11 +754,14 @@ struct ExpandedView: View {
                         }
                     }
                 }
+                NextSection(model: model, act: act)
             case .shelf:
                 if model.shelf.isEmpty && model.archived.isEmpty && !model.dragging {
                     Text("Drag files, links or text onto the notch to keep them here.").font(.system(size: 12)).foregroundStyle(dim)
                 }
                 ShelfSection(model: model, act: act, edit: edit)
+            case .recall:
+                RecallSection(model: model, act: act)
             case .clipboard:
                 ClipboardSection(model: model, run: clip)
             case .secrets:
@@ -830,6 +858,10 @@ struct BimaxNotch {
                 // Sample masked secrets (as secrets.ts sends them — never values), for looking at the tab.
                 if let message = parseInbound(##"{"t": "secrets", "items": [{"id": "s1", "label": "Stripe key", "key": "STRIPE_KEY", "masked": "sk_live_••••Yc7D", "where": "shop/.env.local"}, {"id": "s2", "label": "Password in a URL", "key": "DATABASE_URL", "masked": "postgres://app:••••@localhost:5432/shop", "where": "shop/.env"}, {"id": "s3", "label": "Secret", "key": "SESSION_SECRET", "masked": "9f8••••d015", "where": "shop/api/.env"}]}"##) { MainActor.assumeIsolated { controller.handle(message); controller.model.tab = .secrets } }
             }
+            // Stage 8: sample recall (as recall.ts sends it) — "Probably next" on Now, and the Recall tab.
+            if let message = parseInbound(#"{"t": "recall", "enabled": true, "next": {"label": "Probably next", "items": [{"id": "recall:/System/Library/Desktop Pictures/.thumbnails/Sequoia.heic", "kind": "file", "title": "hero.png", "path": "/System/Library/Desktop Pictures/.thumbnails/Sequoia.heic", "missing": false, "amber": false}, {"id": "recall:/etc/hosts", "kind": "file", "title": "parser.ts", "path": "/etc/hosts", "missing": false, "amber": false}, {"id": "recall:/etc/shells", "kind": "file", "title": "invoice.pdf", "path": "/etc/shells", "missing": false, "amber": false}]}, "groups": [{"cue": "This morning, in Mail", "items": [{"id": "recall:/etc/shells", "kind": "file", "title": "invoice.pdf", "path": "/etc/shells", "missing": false, "amber": false}, {"id": "recall:/etc/hosts", "kind": "file", "title": "contract.pdf", "path": "/etc/hosts", "missing": false, "amber": false}]}, {"cue": "From “Add tests”", "items": [{"id": "recall:/etc/hosts", "kind": "file", "title": "parser.test.ts", "path": "/etc/hosts", "missing": false, "amber": false}]}, {"cue": "Yesterday afternoon, in Figma", "items": [{"id": "recall:/etc/paths", "kind": "file", "title": "hero.png", "path": "/etc/paths", "missing": false, "amber": false}, {"id": "recall:/etc/zshrc", "kind": "file", "title": "logo.png", "path": "/etc/zshrc", "missing": false, "amber": false}, {"id": "recall:/etc/bashrc", "kind": "file", "title": "grid.png", "path": "/etc/bashrc", "missing": false, "amber": false}]}]}"#) {
+                MainActor.assumeIsolated { controller.handle(message); if ProcessInfo.processInfo.environment["BIMAX_NOTCH_TAB"] == "recall" { controller.model.tab = .recall } }
+            } else { FileHandle.standardError.write("demo recall sample did not parse\n".data(using: .utf8)!) }
             if ProcessInfo.processInfo.environment["BIMAX_NOTCH_TAB"] == "clipboard" {
                 // Sample copies, as the app would classify them (clipboard.ts), for looking at the tab.
                 let sample = ##"{"t": "clips", "enabled": true, "items": [{"id": "1", "kind": "color", "preview": "#3B82F6", "text": "#3B82F6", "swatch": "#3b82f6", "detail": "blue-500", "actions": [{"label": "HEX", "value": "#3b82f6"}, {"label": "RGB", "value": "rgb(59, 130, 246)"}, {"label": "HSL", "value": "hsl(217 91% 60%)"}, {"label": "Swift", "value": "Color(red: 0.231, green: 0.51, blue: 0.965)"}, {"label": "Tailwind", "value": "bg-blue-500"}], "pinned": true}, {"id": "2", "kind": "json", "preview": "{ \"id\": 7, \"name\": \"Ana\", \"orders\": [ … ] }", "text": "{}", "detail": "JSON · 3 keys", "actions": [{"label": "Minify", "value": "{}"}, {"label": "Pretty", "value": "{}"}, {"label": "TS type", "value": "x"}], "pinned": false}, {"id": "3", "kind": "url", "preview": "https://shop.example/p/42?utm_source=news&color=red", "text": "u", "detail": "shop.example · tracking removed", "actions": [{"label": "Clean link", "value": "https://shop.example/p/42?color=red"}], "pinned": false}, {"id": "4", "kind": "code", "preview": "npm install …", "text": "c", "detail": "Shell", "actions": [{"label": "One line", "value": "npm install && npm test"}], "pinned": false}]}"##
@@ -888,6 +920,11 @@ struct BimaxNotch {
         if case let .clips(enabled, items)? = parseInbound(##"{"t":"clips","enabled":true,"items":[{"id":"c","kind":"color","preview":"#3b82f6","text":"#3b82f6","swatch":"#3b82f6","actions":[{"label":"HEX","value":"#3b82f6"},{"bad":1}],"pinned":true}]}"##) {
             check(enabled && items.count == 1 && items[0].actions == [ClipAction(label: "HEX", value: "#3b82f6")] && items[0].pinned, "clips")
         } else { check(false, "clips parse") }
+        // Stage 8: recall — cards reuse the shelf's; a group without cards and a malformed card are dropped.
+        check(parseInbound(#"{"t":"recall","enabled":true,"next":{"label":"Probably next","items":[{"id":"recall:/a.md","kind":"file","title":"a.md","path":"/a.md"},{"bad":1}]},"groups":[{"cue":"Yesterday afternoon, in Figma","items":[{"id":"recall:/b.png","kind":"file","title":"b.png","path":"/b.png"}]},{"cue":"empty","items":[]}]}"#)
+              == .recall(enabled: true, label: "Probably next", next: [ShelfCard(id: "recall:/a.md", kind: "file", title: "a.md", path: "/a.md")],
+                         groups: [RecallGroup(cue: "Yesterday afternoon, in Figma", items: [ShelfCard(id: "recall:/b.png", kind: "file", title: "b.png", path: "/b.png")])]), "recall")
+        check(parseInbound(#"{"t":"recall"}"#) == .recall(enabled: false, label: "Recent", next: [], groups: []), "recall defaults to off")
         check(parseInbound(#"{"t":"clip-config","enabled":true}"#) == .clipConfig(enabled: true), "clip-config")
         check(parseInbound(#"{"t":"secrets","items":[{"id":"s1","label":"Stripe key","key":"STRIPE_KEY","masked":"sk_live_••••Yc7D","where":"shop/.env"},{"bad":1}]}"#)
               == .secrets(items: [SecretItem(id: "s1", label: "Stripe key", key: "STRIPE_KEY", masked: "sk_live_••••Yc7D", where_: "shop/.env")]), "secrets")

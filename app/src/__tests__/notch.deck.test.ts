@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import { PassThrough } from 'stream';
-import { DROPLET_TIMEOUT_MS, justFinished, mayRestart, NotchDeck, notchContent, notchSays, notchTask } from '../main/notch';
+import { DROPLET_TIMEOUT_MS, justFinished, mayRestart, NotchDeck, notchContent, notchSays, notchTask, recallView, VERDICT_EVERY } from '../main/notch';
+import type { Activity } from '../main/recall';
 import type { ThreadSummary } from '../shared/threads';
 
 /**
@@ -436,5 +437,95 @@ describe('stage 7: one-tap conversions through the deck', () => {
       expect.objectContaining({ path: '/made/env.local.example' }),
       { kind: 'file', path: '/made/hero.jpg', from: { task: 'Compressed −68%' } },
     ]);
+  });
+});
+
+describe('stage 8: recall through the deck', () => {
+  const flush = () => new Promise((resolve) => setImmediate(resolve));
+  const shelfCards = [{ id: 'c1', kind: 'file' as const, title: 'on-shelf.png', path: '/w/on-shelf.png', missing: false, amber: false }];
+
+  function setup(options: { enabled?: boolean; events?: Activity[] } = {}) {
+    let enabled = options.enabled ?? true;
+    const events: Activity[] = [...(options.events ?? [])];
+    const verdicts: unknown[] = [];
+    const added: unknown[] = [];
+    const recall = {
+      enabled: () => enabled,
+      record: (input: { kind: Activity['kind']; path: string; app?: string; task?: string }) => { events.push({ at: 5_000, ...input }); return null; },
+      all: () => events,
+      onVerdict: (v: unknown) => verdicts.push(v),
+    };
+    const shelf = { add: (i: readonly unknown[]) => { added.push(...i); return []; }, touch: () => true, archive: () => 0, restore: () => true, view: () => ({ t: 'shelf' as const, items: shelfCards, archived: [] }) };
+    const transmute = { counts: () => ({}), record: () => undefined, madeDir: '/made', envExample: () => null };
+    const helpers: FakeHelper[] = [];
+    const deck = new NotchDeck({
+      helper: '/x', onOpenTask: () => undefined, shelf, transmute, recall, onEdit: () => undefined, now: () => 10_000,
+      exists: (file) => !file.includes('gone'), spawnHelper: () => { const h = new FakeHelper(); helpers.push(h); return h as never; },
+    });
+    deck.start();
+    const say = async (line: string) => { helpers[0].stdout.write(`${line}\n`); await flush(); };
+    const views = () => helpers[0].written.map((l) => JSON.parse(l)).filter((m) => m.t === 'recall');
+    return { deck, events, verdicts, added, say, views, setEnabled: (on: boolean) => { enabled = on; } };
+  }
+
+  test('what is done with files is recorded with the app in front — drops, uses, edits, task results — and a one-tap result carries no task name', async () => {
+    const { deck, events, say } = setup();
+    await say('{"t":"ready","app":"Finder"}');
+    await say('{"t":"shelf-add","items":[{"kind":"file","path":"/w/a.pdf"},{"kind":"url","url":"https://bimax.app"}]}');
+    await say('{"t":"front","app":"Figma"}');
+    await say('{"t":"shelf-touch","id":"c1"}');
+    await say('{"t":"edit","items":[{"kind":"file","path":"/w/b.ts"}]}');
+    await say('{"t":"transmute","id":"c1","action":"compress"}');
+    deck.dock(['/w/out.ts'], { task: 'Add tests', check: 'passed' });
+    await say('{"t":"made","path":"/made/on-shelf.jpg","note":"Compressed −40%"}');
+    expect(events.map((e) => [e.kind, e.path, e.app, e.task])).toEqual([
+      ['drop', '/w/a.pdf', 'Finder', undefined],
+      ['use', '/w/on-shelf.png', 'Figma', undefined],
+      ['edit', '/w/b.ts', 'Figma', undefined],
+      ['use', '/w/on-shelf.png', 'Figma', undefined],
+      ['task-out', '/w/out.ts', 'Figma', 'Add tests'],
+      ['made', '/made/on-shelf.jpg', 'Figma', undefined],
+    ]);
+  });
+
+  test('with recall off nothing is recorded and the notch is told it is off', async () => {
+    const { events, say, views } = setup({ enabled: false });
+    await say('{"t":"ready","app":"Finder"}');
+    await say('{"t":"shelf-add","items":[{"kind":"file","path":"/w/a.pdf"}]}');
+    await say('{"t":"edit","items":[{"kind":"file","path":"/w/b.ts"}]}');
+    expect(events).toEqual([]);
+    expect(views()[0]).toEqual({ t: 'recall', enabled: false, next: { label: 'Recent', items: [] }, groups: [] });
+  });
+
+  test('the view leaves out the shelf\'s own cards and missing files; a recall card is kept only if the notch was showing it', async () => {
+    const events: Activity[] = [
+      { at: 1_000, kind: 'use', path: '/w/old.md' }, { at: 2_000, kind: 'use', path: '/w/gone.md' },
+      { at: 3_000, kind: 'use', path: '/w/on-shelf.png' }, { at: 4_000, kind: 'use', path: '/w/last.md' },
+    ];
+    const { added, say, views } = setup({ events });
+    await say('{"t":"ready"}');
+    expect(views()[0].next).toEqual({ label: 'Recent', items: [expect.objectContaining({ id: 'recall:/w/old.md', path: '/w/old.md', title: 'old.md' })] });
+    await say('{"t":"recall-keep","path":"/w/old.md"}');
+    await say('{"t":"recall-keep","path":"/etc/passwd"}');
+    expect(added).toEqual([{ kind: 'file', path: '/w/old.md' }]);
+  });
+
+  test('a recall card used counts only if it was shown; the replay is worked out again every few events', async () => {
+    const { events, verdicts, say } = setup({ events: [{ at: 1_000, kind: 'use', path: '/w/old.md' }, { at: 2_000, kind: 'use', path: '/w/last.md' }] });
+    await say('{"t":"ready"}');
+    expect(verdicts).toHaveLength(1);
+    await say('{"t":"shelf-touch","id":"recall:/w/old.md"}');
+    await say('{"t":"shelf-touch","id":"recall:/etc/hosts"}');
+    expect(events.slice(2).map((e) => e.path)).toEqual(['/w/old.md']);
+    for (let i = 0; i < VERDICT_EVERY; i++) await say('{"t":"edit","items":[{"kind":"file","path":"/w/b.ts"}]}');
+    await say('{"t":"hover","open":true}');
+    expect(verdicts).toHaveLength(2);
+  });
+
+  test('"Probably next" appears only when the replay chose the ranker', () => {
+    const events: Activity[] = [{ at: 1, kind: 'use', path: '/w/a' }, { at: 2, kind: 'use', path: '/w/b' }];
+    const base = { enabled: true, now: 10, inView: [], exists: () => true };
+    expect(recallView(events, { ...base, use: 'recent' }).next.label).toBe('Recent');
+    expect(recallView(events, { ...base, use: 'predict' }).next).toEqual({ label: 'Probably next', items: [expect.objectContaining({ path: '/w/a' })] });
   });
 });

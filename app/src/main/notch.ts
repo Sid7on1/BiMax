@@ -6,6 +6,7 @@ import type { ShelfFrom, ShelfInput, ShelfView } from './shelf';
 import { nextGlassChange, notchGlass, outcomeOf, type Glass, type Unseen } from './glass';
 import type { ClipView } from './clipboard';
 import { isTransmutation, transmutationsFor, type Transmutation } from './transmute';
+import { HISTORY, memoryGroups, mostRecent, predict, verdict as judge, type Activity, type ActivityKind, type Verdict } from './recall';
 
 /**
  * God's Land, stage 1 (docs/product-reset/gods-land/03_PLAN.md): the notch talks. This is the app's half — what the
@@ -155,6 +156,43 @@ export interface NotchTransmute {
   envExample(source: string, out: string): string | null;
 }
 
+/** Stage 8: the activity log (recall.ts) and the person's on/off choice. */
+export interface NotchRecall {
+  enabled(): boolean;
+  record(input: { kind: ActivityKind; path: string; app?: string; task?: string }): unknown;
+  all(): readonly Activity[];
+  /** The replay's verdict each time it is worked out, so it can be kept beside the log. */
+  onVerdict?(verdict: Verdict): void;
+}
+/** How many "Probably next" cards, and how many new events before the replay is worked out again. */
+export const RECALL_NEXT = 3;
+export const VERDICT_EVERY = 20;
+/** Shelf cards already in view, which "Probably next" does not repeat. */
+const SHELF_IN_VIEW = 6;
+
+export interface RecallCard { id: string; kind: 'file'; title: string; path: string; missing: false; amber: false }
+export interface RecallView { t: 'recall'; enabled: boolean; next: { label: string; items: RecallCard[] }; groups: Array<{ cue: string; items: RecallCard[] }> }
+
+const recallCard = (file: string): RecallCard => ({ id: `recall:${file}`, kind: 'file', title: path.basename(file), path: file, missing: false, amber: false });
+
+/**
+ * What stage 8 shows: "Probably next" (the ranker's picks once it has beaten most-recent-first on this person's own
+ * log, else plainly "Recent"), and the log grouped by the cues people remember. Only files that still exist.
+ */
+export function recallView(events: readonly Activity[], input: { enabled: boolean; now: number; app?: string; inView: readonly string[]; use: Verdict['use']; exists: (file: string) => boolean }): RecallView {
+  if (!input.enabled) return { t: 'recall', enabled: false, next: { label: 'Recent', items: [] }, groups: [] };
+  const recent = events.slice(-HISTORY).filter((e) => e.at <= input.now);
+  const last = recent[recent.length - 1]?.path;
+  const exclude = new Set([...input.inView, ...recent.map((e) => e.path).filter((p) => !input.exists(p))]);
+  const rank = input.use === 'predict' ? predict : mostRecent;
+  const next = rank(recent, { now: input.now, app: input.app, last, exclude }, RECALL_NEXT);
+  return {
+    t: 'recall', enabled: true,
+    next: { label: input.use === 'predict' ? 'Probably next' : 'Recent', items: next.map(recallCard) },
+    groups: memoryGroups(recent, input.now, input.exists).map((g) => ({ cue: g.cue, items: g.paths.map(recallCard) })),
+  };
+}
+
 /** Stage 6: secrets found in `.env` files of the folders opened in Bimax (secrets.ts). */
 export interface NotchSecrets {
   scan(): Array<{ id: string; label: string; key: string; masked: string; where: string; value: string }>;
@@ -176,6 +214,10 @@ export interface NotchDeckOptions {
   clipboard?: NotchClipboard;
   /** Stage 6: secrets from `.env` files; values stay here until the notch asks for one. */
   secrets?: NotchSecrets;
+  /** Stage 8: find by vague memory, and predictive cards. */
+  recall?: NotchRecall;
+  /** Whether a file is still there (tests pass their own). */
+  exists?: (file: string) => boolean;
   /** Stage 4: which tasks have a Night Shift running, for the night glass. */
   nightIds?: () => ReadonlySet<string>;
   /** The clock, for tests. */
@@ -201,6 +243,12 @@ export class NotchDeck {
   private threadsNow: readonly ThreadSummary[] = [];
   private glassTimer: NodeJS.Timeout | null = null;
   private previous = new Map<string, ThreadSummary>();
+  /** Stage 8: the app in front (the helper reports each change), the replay's last verdict, and what recall shows. */
+  private frontApp: string | undefined;
+  private recallVerdict: Verdict | null = null;
+  private verdictAt = 0;
+  private recallPaths = new Set<string>();
+  private lastRecall = '';
 
   constructor(private readonly options: NotchDeckOptions) {}
 
@@ -229,6 +277,7 @@ export class NotchDeck {
       this.lastShelf = '';
       this.lastClips = '';
       this.lastSecrets = '';
+      this.lastRecall = '';
       if (this.stopped) return;
       this.options.log?.(`notch helper exited code=${code} signal=${signal ?? '-'}`);
       this.crashes.push(Date.now());
@@ -238,19 +287,44 @@ export class NotchDeck {
   }
 
   private received(line: string): void {
-    let message: { t?: string; id?: unknown; items?: unknown; ids?: unknown; amber?: unknown; open?: unknown; text?: unknown; source?: unknown; pinned?: unknown; purpose?: unknown; action?: unknown; path?: unknown; note?: unknown; copied?: unknown; error?: unknown };
+    let message: { t?: string; id?: unknown; items?: unknown; ids?: unknown; amber?: unknown; open?: unknown; text?: unknown; source?: unknown; pinned?: unknown; purpose?: unknown; action?: unknown; path?: unknown; note?: unknown; copied?: unknown; error?: unknown; app?: unknown };
     try { message = JSON.parse(line); } catch { return; }
     const shelf = this.options.shelf;
     if (message.t === 'open-task' && typeof message.id === 'string') this.options.onOpenTask(message.id);
-    else if (message.t === 'ready') { this.options.log?.(`notch helper ready: ${line}`); this.sendShelf(); this.sendClips(true); this.refreshSecrets(true); }
+    else if (message.t === 'ready') {
+      this.options.log?.(`notch helper ready: ${line}`);
+      if (typeof message.app === 'string') this.frontApp = message.app.slice(0, 60) || undefined;
+      this.sendShelf(); this.sendClips(true); this.refreshSecrets(true); this.sendRecall();
+    }
+    else if (message.t === 'front') this.frontApp = typeof message.app === 'string' ? message.app.slice(0, 60) || undefined : undefined;
     else if (message.t === 'hover' && message.open === true) {
       this.sendShelf(); // amber and missing change with time
       this.refreshSecrets();
+      this.sendRecall(); // "Probably next" depends on the app in front and the time
       // Opening the notch is looking: the unseen results have been seen.
       if (this.unseen.size) { this.unseen.clear(); this.sendContent(); }
     }
-    else if (shelf && message.t === 'shelf-add') { shelf.add(shelfInputs(message.items)); this.sendShelf(); }
-    else if (shelf && message.t === 'shelf-touch' && typeof message.id === 'string') { if (shelf.touch(message.id)) this.sendShelf(); }
+    else if (shelf && message.t === 'shelf-add') {
+      const inputs = shelfInputs(message.items);
+      shelf.add(inputs);
+      for (const i of inputs) if (i.kind === 'file' && i.path && path.isAbsolute(i.path)) this.note('drop', i.path);
+      this.sendShelf();
+    }
+    else if (message.t === 'shelf-touch' && typeof message.id === 'string' && message.id.startsWith('recall:')) {
+      // A recall card looked at, copied or dragged out: only a file recall is showing counts.
+      const file = message.id.slice('recall:'.length);
+      if (this.recallPaths.has(file)) this.note('use', file);
+    }
+    else if (shelf && message.t === 'shelf-touch' && typeof message.id === 'string') {
+      const card = shelf.view().items.find((c) => c.id === message.id);
+      if (shelf.touch(message.id)) { if (card?.kind === 'file' && card.path) this.note('use', card.path); this.sendShelf(); }
+    }
+    else if (shelf && message.t === 'recall-keep' && typeof message.path === 'string' && this.recallPaths.has(message.path)) {
+      shelf.add([{ kind: 'file', path: message.path }]);
+      this.note('use', message.path);
+      this.sendShelf();
+      this.sendRecall();
+    }
     else if (shelf && message.t === 'shelf-archive') {
       const ids = Array.isArray(message.ids) ? message.ids.filter((id): id is string => typeof id === 'string') : undefined;
       if (shelf.archive({ ids, amber: message.amber === true })) this.sendShelf();
@@ -259,6 +333,7 @@ export class NotchDeck {
     else if (message.t === 'edit') {
       // Absolute paths only: a relative one would resolve against wherever the app happens to run.
       const paths = shelfInputs(message.items).filter((i) => i.kind === 'file' && i.path && path.isAbsolute(i.path)).map((i) => i.path!);
+      for (const file of paths) this.note('edit', file);
       if (paths.length) this.options.onEdit?.(paths);
     }
     else if (message.t === 'droplet-landed') { this.landing?.(); this.landing = null; }
@@ -332,12 +407,13 @@ export class NotchDeck {
     const known = isTransmutation(card.path, action);
     if (!known) return;
     tools.record(card.path, action);
+    this.note(known.kind === 'task' ? 'edit' : 'use', card.path);
     if (known.kind === 'task') {
       this.options.onEdit?.([card.path], known.prompt);
     } else if (action === 'env-example') {
       const out = madeName(tools.madeDir, card.path, '.example', existsSync, true);
       const made = tools.envExample(card.path, out);
-      if (made) this.dock([made], { task: `${known.label} from ${path.basename(card.path)}` });
+      if (made) this.dock([made], { task: `${known.label} from ${path.basename(card.path)}` }, 'made');
       this.send({ t: 'say', text: made ? `Made ${path.basename(out)} — secrets replaced` : 'Could not make the example file', tone: made ? 'done' : 'failed', seconds: 2.5 });
     } else {
       this.send({ t: 'transmute-run', id: cardId, action, source: card.path, out: madeName(tools.madeDir, card.path, OUT_EXT[action] ?? path.extname(card.path)), label: known.label });
@@ -352,7 +428,7 @@ export class NotchDeck {
     const inside = path.resolve(message.path).startsWith(path.resolve(tools.madeDir) + path.sep);
     if (!inside) { this.options.log?.(`made file outside ${tools.madeDir} refused`); return; }
     const note = typeof message.note === 'string' ? message.note.slice(0, 120) : 'Made';
-    this.dock([message.path], { task: note });
+    this.dock([message.path], { task: note }, 'made');
   }
 
   private sendShelf(force = false): void {
@@ -391,10 +467,42 @@ export class NotchDeck {
   }
 
   /** The Hatchback: a finished notch task's files onto the shelf, carrying the task and its check. */
-  dock(paths: readonly string[], from: ShelfFrom): void {
+  dock(paths: readonly string[], from: ShelfFrom, kind: 'task-out' | 'made' = 'task-out'): void {
     if (!this.options.shelf || !paths.length) return;
     this.options.shelf.add(paths.map((path) => ({ kind: 'file' as const, path, from })));
+    // A task's files are remembered by its name; a one-tap result's "task" is only a note ("Compressed −40%").
+    for (const file of paths) this.note(kind, file, kind === 'task-out' ? from.task : undefined);
     this.sendShelf();
+  }
+
+  /** Stage 8: one thing done with a file, with the app in front — only while the person has recall on. */
+  private note(kind: ActivityKind, file: string, task?: string): void {
+    const recall = this.options.recall;
+    if (!recall?.enabled()) return;
+    try { recall.record({ kind, path: file, ...(this.frontApp ? { app: this.frontApp } : {}), ...(task ? { task } : {}) }); }
+    catch (error) { this.options.log?.(`activity not recorded: ${String(error)}`); }
+  }
+
+  /** Stage 8: "Probably next" and the recall groups, worked out when the notch opens; the replay every few events. */
+  sendRecall(): void {
+    const recall = this.options.recall;
+    if (!recall) return;
+    const events = recall.enabled() ? recall.all() : [];
+    if (recall.enabled() && (!this.recallVerdict || events.length - this.verdictAt >= VERDICT_EVERY)) {
+      this.recallVerdict = judge(events);
+      this.verdictAt = events.length;
+      recall.onVerdict?.(this.recallVerdict);
+    }
+    const inView = (this.options.shelf?.view().items ?? []).slice(0, SHELF_IN_VIEW).flatMap((c) => (c.path ? [c.path] : []));
+    const view = recallView(events, {
+      enabled: recall.enabled(), now: this.options.now?.() ?? Date.now(), app: this.frontApp, inView,
+      use: this.recallVerdict?.use ?? 'recent', exists: this.options.exists ?? existsSync,
+    });
+    this.recallPaths = new Set([...view.next.items, ...view.groups.flatMap((g) => g.items)].map((c) => c.path));
+    const serialized = JSON.stringify(view);
+    if (serialized === this.lastRecall) return;
+    this.lastRecall = serialized;
+    this.send(view);
   }
 
   /**
