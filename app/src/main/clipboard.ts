@@ -1,6 +1,7 @@
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'fs';
 import { randomUUID } from 'crypto';
 import * as path from 'path';
+import { findSecrets, looksLikeSecret, maskSecret } from './secrets';
 
 /**
  * God's Land stage 5 (docs/product-reset/gods-land/03_PLAN.md): the smart clipboard. The helper sees a copy (when the
@@ -12,11 +13,12 @@ import * as path from 'path';
  * - JSON    → minified, pretty, and a TypeScript type (inferred here, deterministically);
  * - link    → the same link without tracking parameters (our own list, research 02 §4: ClearURLs' is LGPL);
  * - code    → its language, and one line for shell and SQL;
- * - anything that looks like a secret key is NOT kept at all until stage 6 can mask it (looksSecret).
+ * - a secret (secrets.ts, gitleaks' rules) is kept SEALED — encrypted by the app's Keychain-backed key — and shown
+ *   masked; with no way to seal, it is not kept at all. Its text never reaches the helper until revealed (stage 6).
  * Ghost Paste is not here: the owner dropped it (03, decision 1).
  */
 
-export type ClipKind = 'color' | 'json' | 'url' | 'code' | 'text';
+export type ClipKind = 'color' | 'json' | 'url' | 'code' | 'text' | 'secret';
 export interface ClipAction { label: string; value: string }
 export interface ClipCard { id: string; kind: ClipKind; preview: string; text: string; detail?: string; swatch?: string; actions: ClipAction[]; pinned: boolean; source?: string }
 export interface ClipView { t: 'clips'; enabled: boolean; items: ClipCard[] }
@@ -212,16 +214,13 @@ export function oneLine(text: string, language: string): string | null {
   return null;
 }
 
-// ── Secrets (kept out until stage 6) ────────────────────────────────────────────────────────────────────────────────
+// ── Secrets ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-/** The most common credential shapes (after gitleaks' rules, MIT): these are not kept in the history at all. */
-const SECRET = [
-  /\bAKIA[0-9A-Z]{16}\b/, /\b(sk|pk|rk)_(live|test)_[0-9A-Za-z]{16,}\b/, /\bgh[pousr]_[A-Za-z0-9]{36,}\b/, /\bgithub_pat_[A-Za-z0-9_]{50,}\b/,
-  /\bxox[abpors]-[A-Za-z0-9-]{10,}\b/, /-----BEGIN (RSA |EC |OPENSSH |DSA |PGP )?PRIVATE KEY-----/, /\bAIza[0-9A-Za-z_-]{35}\b/,
-  /\bsk-(proj-|ant-)?[A-Za-z0-9_-]{20,}\b/, /\bnvapi-[A-Za-z0-9_-]{20,}\b/, /\beyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/,
-  /\b[a-z][a-z0-9+.-]*:\/\/[^\s:/@]+:[^\s@/]{3,}@/i,
-];
-export function looksSecret(text: string): boolean { return SECRET.some((p) => p.test(text)); }
+/** One definition of a secret for the whole notch: gitleaks' rules in secrets.ts. */
+export function looksSecret(text: string): boolean { return looksLikeSecret(text); }
+
+/** Encrypts what the history keeps of a secret; in the app, Electron's safeStorage (the Keychain-held key). */
+export interface Sealer { seal(text: string): string; open(sealed: string): string }
 
 // ── What a copy is ───────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -270,7 +269,8 @@ export function classify(text: string): Omit<ClipCard, 'id' | 'pinned' | 'source
 export const MAX_CLIPS = 50;
 export const MAX_CLIP_CHARS = 20_000;
 export const CLIPS_SHOWN = 12;
-interface StoredClip { id: string; text: string; at: number; pinned?: boolean; source?: string }
+/** A kept copy. A secret has no `text` on disk: only `sealed` (ciphertext), its masked form and its kind. */
+interface StoredClip { id: string; text?: string; sealed?: string; masked?: string; label?: string; at: number; pinned?: boolean; source?: string }
 
 /**
  * The last MAX_CLIPS copies, newest first, pinned ones kept past the limit. Saved on this Mac only, in the app's data
@@ -279,10 +279,12 @@ interface StoredClip { id: string; text: string; at: number; pinned?: boolean; s
 export class ClipHistory {
   private clips: StoredClip[] = [];
 
-  constructor(private readonly file: string, private readonly now: () => number = Date.now) {
+  constructor(private readonly file: string, private readonly now: () => number = Date.now, private readonly sealer?: Sealer) {
     try {
       const parsed = JSON.parse(readFileSync(file, 'utf8')) as { clips?: StoredClip[] };
-      this.clips = Array.isArray(parsed.clips) ? parsed.clips.filter((c) => c && typeof c.id === 'string' && typeof c.text === 'string') : [];
+      this.clips = Array.isArray(parsed.clips)
+        ? parsed.clips.filter((c) => c && typeof c.id === 'string' && (typeof c.text === 'string' || typeof c.sealed === 'string'))
+        : [];
     } catch { this.clips = []; }
   }
 
@@ -293,15 +295,37 @@ export class ClipHistory {
     renameSync(temp, this.file);
   }
 
-  /** Keep a copy. Returns false for what is never kept: empty, too long, or shaped like a secret. */
+  /** The plain text of a sealed copy, or null when it cannot be opened. */
+  private opened(clip: StoredClip): string | null {
+    if (clip.text !== undefined) return clip.text;
+    if (!clip.sealed || !this.sealer) return null;
+    try { return this.sealer.open(clip.sealed); } catch { return null; }
+  }
+
+  /** A secret's plain text, for the notch's reveal or copy — never for the view. */
+  reveal(id: string): string | null {
+    const clip = this.clips.find((c) => c.id === id && c.sealed);
+    return clip ? this.opened(clip) : null;
+  }
+
+  /** Keep a copy. Returns false for what is not kept: empty, too long, or a secret with nothing to seal it with. */
   add(text: string, source?: string): boolean {
-    if (!text.trim() || text.length > MAX_CLIP_CHARS || looksSecret(text)) return false;
-    const existing = this.clips.find((c) => c.text === text);
+    if (!text.trim() || text.length > MAX_CLIP_CHARS) return false;
+    const secret = looksSecret(text);
+    if (secret && !this.sealer) return false;
+    const existing = this.clips.find((c) => (secret ? c.sealed !== undefined && this.opened(c) === text : c.text === text));
     if (existing) {
       existing.at = this.now();
       if (source) existing.source = source;
     } else {
-      this.clips.push({ id: randomUUID(), text, at: this.now(), ...(source ? { source } : {}) });
+      if (secret) {
+        let sealed: string;
+        try { sealed = this.sealer!.seal(text); } catch { return false; } // no key: not kept rather than kept in plain text
+        const found = findSecrets(text)[0];
+        this.clips.push({ id: randomUUID(), sealed, masked: maskSecret(found?.value ?? text), label: found?.label ?? 'Secret', at: this.now(), ...(source ? { source } : {}) });
+      } else {
+        this.clips.push({ id: randomUUID(), text, at: this.now(), ...(source ? { source } : {}) });
+      }
     }
     const unpinned = this.clips.filter((c) => !c.pinned).sort((a, b) => b.at - a.at);
     const drop = new Set(unpinned.slice(MAX_CLIPS).map((c) => c.id));
@@ -330,6 +354,15 @@ export class ClipHistory {
   /** Pinned first, then newest; each with what it is and what it can become. */
   view(enabled: boolean): ClipView {
     const ordered = [...this.clips].sort((a, b) => Number(!!b.pinned) - Number(!!a.pinned) || b.at - a.at).slice(0, CLIPS_SHOWN);
-    return { t: 'clips', enabled, items: ordered.map((c) => ({ id: c.id, pinned: !!c.pinned, ...(c.source ? { source: c.source } : {}), ...classify(c.text) })) };
+    return {
+      t: 'clips', enabled,
+      items: ordered.map((c) => ({
+        id: c.id, pinned: !!c.pinned, ...(c.source ? { source: c.source } : {}),
+        // A secret goes to the helper masked, with no text: the value only travels when revealed.
+        ...(c.sealed !== undefined
+          ? { kind: 'secret' as const, preview: c.masked ?? '••••', text: '', detail: c.label ?? 'Secret', actions: [] }
+          : classify(c.text ?? '')),
+      })),
+    };
   }
 }

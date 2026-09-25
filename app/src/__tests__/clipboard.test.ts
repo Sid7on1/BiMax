@@ -99,18 +99,18 @@ describe('code', () => {
   });
 });
 
-describe('secrets are never kept (stage 6 will mask them instead)', () => {
+// Real-shaped keys (random, as gitleaks makes its test keys); secrets.test.ts covers every rule.
+const AWS_KEY = 'AKIAQYLPMN5HHTRWFE6Z';
+const STRIPE_KEY = 'sk_live_51H8xQ2rTvKp9WmZa3BnYc7D';
+const GITHUB_KEY = 'ghp_R8mZ2kQ7xP4vN9tB6wL3yH5cJ1fD0sGaE2uK';
+
+describe('secrets: one definition for the notch (secrets.ts, gitleaks\' rules)', () => {
   test.each([
-    ['AWS', 'AKIAIOSFODNN7EXAMPLE'],
-    ['Stripe', 'sk_live_51H8abcdefghijklmnop'],
-    ['GitHub', 'ghp_' + 'a'.repeat(36)],
-    ['Slack', 'xoxb-1234567890-abcdefghij'],
-    ['private key', '-----BEGIN OPENSSH PRIVATE KEY-----\nabc'],
-    ['OpenAI-style', 'sk-proj-' + 'A'.repeat(24)],
+    ['AWS', AWS_KEY], ['Stripe', STRIPE_KEY], ['GitHub', GITHUB_KEY],
     ['password in a URL', 'postgres://user:hunter2@localhost:5432/db'],
   ])('%s', (_name, text) => expect(looksSecret(text)).toBe(true));
-  test('ordinary text and ordinary links are not secrets', () => {
-    for (const text of ['sk_other', 'https://user@example.com/x', 'hello world', '#3b82f6']) expect(looksSecret(text)).toBe(false);
+  test('ordinary text, ordinary links, and documentation placeholders are not secrets', () => {
+    for (const text of ['sk_other', 'https://user@example.com/x', 'hello world', '#3b82f6', 'AKIAIOSFODNN7EXAMPLE', 'ghp_' + 'a'.repeat(36)]) expect(looksSecret(text)).toBe(false);
   });
 });
 
@@ -128,10 +128,36 @@ describe('the history', () => {
     history.add('#3b82f6');
     now++;
     history.add('first');
-    expect(history.add('AKIAIOSFODNN7EXAMPLE')).toBe(false);
+    expect(history.add(AWS_KEY)).toBe(false); // no sealer: a secret is not kept at all
     expect(history.add('x'.repeat(20_001))).toBe(false);
     expect(history.view(true).items.map((c) => [c.preview, c.kind, c.source])).toEqual([['first', 'text', 'Safari'], ['#3b82f6', 'color', undefined]]);
     expect(fs.readFileSync(path.join(dir, 'clipboard.json'), 'utf8')).not.toContain('AKIA');
+  });
+
+  test('stage 6: a secret is kept SEALED — no plain text on disk or in the view — and opens only for reveal', () => {
+    // A stand-in for safeStorage: reversible, and visibly not the plain text.
+    const sealer = { seal: (t: string) => Buffer.from(t).toString('base64').split('').reverse().join(''), open: (s: string) => Buffer.from(s.split('').reverse().join(''), 'base64').toString() };
+    const history = new ClipHistory(path.join(dir, 'clipboard.json'), () => now, sealer);
+    expect(history.add(STRIPE_KEY, 'Terminal')).toBe(true);
+    now++;
+    expect(history.add(STRIPE_KEY)).toBe(true); // the same secret again is the same entry
+    const file = fs.readFileSync(path.join(dir, 'clipboard.json'), 'utf8');
+    expect(file).not.toContain(STRIPE_KEY);
+    expect(file).not.toContain('51H8xQ2r');
+    const [card] = history.view(true).items;
+    expect(history.view(true).items).toHaveLength(1);
+    expect(card).toMatchObject({ kind: 'secret', preview: 'sk_live_••••Yc7D', text: '', detail: 'Stripe key', actions: [], source: 'Terminal' });
+    expect(JSON.stringify(history.view(true))).not.toContain('51H8xQ2r');
+    expect(history.reveal(card!.id)).toBe(STRIPE_KEY);
+    expect(new ClipHistory(path.join(dir, 'clipboard.json'), () => now, sealer).reveal(card!.id)).toBe(STRIPE_KEY);
+    expect(history.reveal('no-such-id')).toBeNull();
+  });
+
+  test('a sealer that fails keeps nothing, rather than keeping the secret in plain text', () => {
+    const broken = { seal: () => { throw new Error('Keychain locked'); }, open: () => '' };
+    const history = new ClipHistory(path.join(dir, 'clipboard.json'), () => now, broken);
+    expect(history.add(GITHUB_KEY)).toBe(false);
+    expect(history.view(true).items).toEqual([]);
   });
 
   test(`past ${MAX_CLIPS} the oldest unpinned copy makes room; pinned ones stay first and are never dropped`, () => {

@@ -129,7 +129,7 @@ final class ClipboardWatch {
 // MARK: - Views
 
 enum NotchTab: String, CaseIterable {
-    case now = "Now", shelf = "Shelf", clipboard = "Clipboard"
+    case now = "Now", shelf = "Shelf", clipboard = "Clipboard", secrets = "Secrets"
 }
 
 struct TabChips: View {
@@ -174,11 +174,12 @@ struct ClipboardSection: View {
                 explainer("Keep a history of what you copy — colours, JSON, links and code become one-tap conversions. It stays on this Mac, and a password manager's copies are never kept.\(model.clipAccess == "ask" || model.clipAccess == "default" ? " macOS may ask once to allow it." : "")")
                 Button("Turn On Clipboard History") { run(.enable) }.buttonStyle(ChipStyle())
             }
-        } else if model.clips.isEmpty {
+        } else if model.clips.filter({ $0.kind != "secret" }).isEmpty {
             explainer("Copy something and it appears here.")
         } else {
             VStack(spacing: 3) {
-                ForEach(model.clips.prefix(6)) { clip in ClipRow(clip: clip, run: run) }
+                // Secrets are kept sealed and live on the Secrets tab, where they can be revealed or copied.
+                ForEach(model.clips.filter { $0.kind != "secret" }.prefix(6)) { clip in ClipRow(clip: clip, run: run) }
             }
         }
     }

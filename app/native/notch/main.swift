@@ -91,6 +91,9 @@ final class NotchModel: ObservableObject {
     @Published var clips: [ClipCard] = []
     @Published var clipEnabled = false
     @Published var clipAccess = ClipboardWatch.accessBehavior
+    // Stage 6: secrets, masked; at most one revealed at a time, and only while pressed (Secrets.swift).
+    @Published var secrets: [SecretItem] = []
+    @Published var revealed: Revealed?
     // The shelf (Shelf.swift, stage 2).
     @Published var shelf: [ShelfCard] = []
     @Published var archived: [ShelfCard] = []
@@ -119,6 +122,8 @@ enum Inbound: Equatable {
     case droplet(to: CGRect, icon: String?)
     case clipConfig(enabled: Bool)
     case clips(enabled: Bool, items: [ClipCard])
+    case secrets(items: [SecretItem])
+    case secret(id: String, purpose: String, value: String?)
     case quit
 }
 
@@ -154,6 +159,11 @@ func parseInbound(_ line: String) -> Inbound? {
         return .clipConfig(enabled: object["enabled"] as? Bool ?? false)
     case "clips":
         return .clips(enabled: object["enabled"] as? Bool ?? false, items: (object["items"] as? [[String: Any]] ?? []).compactMap(ClipCard.init(json:)))
+    case "secrets":
+        return .secrets(items: (object["items"] as? [[String: Any]] ?? []).compactMap(SecretItem.init(json:)))
+    case "secret":
+        guard let id = object["id"] as? String else { return nil }
+        return .secret(id: id, purpose: object["purpose"] as? String == "copy" ? "copy" : "reveal", value: object["value"] as? String)
     case "quit":
         return .quit
     default:
@@ -229,6 +239,9 @@ final class NotchController {
     private var resting: DynamicNotchState = .hidden
     private let dragWatch = DragWatch()
     private let clipboardWatch = ClipboardWatch()
+    private let secretGuard = SecretGuard()
+    /// The secret being pressed, whether Force Touch pressure has been seen, and the pressure so far.
+    private var pressing: (id: String, sawPressure: Bool, amount: Double)?
     /// --demo keeps dropped things itself, since there is no app to keep them.
     var demo = false
 
@@ -242,7 +255,8 @@ final class NotchController {
                              act: { action in self?.shelfAction(action) },
                              dropped: { providers in self?.dropped(providers) ?? false },
                              edit: { providers in self?.editDropped(providers) ?? false },
-                             clip: { command in self?.clipCommand(command) })
+                             clip: { command in self?.clipCommand(command) },
+                             secret: { command in self?.secretCommand(command) })
             },
             compactLeading: { CompactLeadingView(model: model) },
             compactTrailing: { CompactTrailingView(model: model) }
@@ -263,6 +277,12 @@ final class NotchController {
             }
         }
         dragWatch.start()
+        secretGuard.start { [weak self] in
+            MainActor.assumeIsolated {
+                self?.pressing = nil
+                self?.model.revealed = nil
+            }
+        }
         clipboardWatch.copied = { text, source in
             var message: [String: Any] = ["t": "clip", "text": text]
             if let source { message["source"] = source }
@@ -359,6 +379,10 @@ final class NotchController {
     private func open() {
         guard let geometry, !isOpen else { return }
         isOpen = true
+        // In a terminal or an API client, the secret is the likeliest thing wanted (00 §2B).
+        if let app = NSWorkspace.shared.frontmostApplication?.bundleIdentifier, secretFriendlyApps.contains(app), !model.secrets.isEmpty, !model.dragging {
+            model.tab = .secrets
+        }
         Outbox.send(["t": "hover", "open": true])
         Task { await notch.expand(on: geometry.screen) }
     }
@@ -518,6 +542,25 @@ final class NotchController {
         case let .clips(enabled, items):
             model.clipEnabled = enabled
             model.clips = items
+        case let .secrets(items):
+            model.secrets = items
+            if let shown = model.revealed, !items.contains(where: { $0.id == shown.id }), !model.clips.contains(where: { $0.id == shown.id }) { model.revealed = nil }
+        case let .secret(id, purpose, value):
+            guard let value else {
+                handle(.say(text: "That secret is no longer where it was", tone: .info, seconds: 2))
+                return
+            }
+            if purpose == "reveal" {
+                // Only if the person is still pressing that secret: a late answer after letting go shows nothing.
+                if let pressing, pressing.id == id { model.revealed = Revealed(id: id, value: value, amount: pressing.amount) }
+            } else {
+                let name = model.secrets.first(where: { $0.id == id })?.key ?? "The secret"
+                SecretCopy.copy(value) { [weak self] ours in
+                    MainActor.assumeIsolated { if ours { self?.handle(.say(text: "\(name) cleared from the clipboard", tone: .info, seconds: 2)) } }
+                }
+                clipboardWatch.markOwnWrite()
+                handle(.say(text: "Copied \(name) · clears in 60 s", tone: .info, seconds: 2.5))
+            }
         case .quit:
             NSApp.terminate(nil)
         }
@@ -534,6 +577,37 @@ final class NotchController {
             Outbox.send(["t": "clip-remove", "id": clip.id])
         case .enable:
             Outbox.send(["t": "clip-enable"])
+        }
+    }
+
+    func secretCommand(_ command: SecretCommand) {
+        switch command {
+        case let .press(id, down):
+            if down {
+                pressing = (id, false, 0.2)
+                Outbox.send(["t": "secret-value", "id": id, "purpose": "reveal"])
+                // No Force Touch pressure within 0.3 s (a mouse, or a light hold): holding reveals it fully.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                    MainActor.assumeIsolated {
+                        guard let self, let current = self.pressing, current.id == id, !current.sawPressure else { return }
+                        self.pressing?.amount = 1
+                        if self.model.revealed?.id == id { self.model.revealed?.amount = 1 }
+                    }
+                }
+            } else {
+                pressing = nil
+                model.revealed = nil
+            }
+        case let .pressure(id, amount):
+            guard pressing?.id == id else { return }
+            pressing?.sawPressure = true
+            pressing?.amount = amount
+            if model.revealed?.id == id { model.revealed?.amount = amount }
+        case let .copy(item):
+            SecretAuth.confirm("copy \(item.key.isEmpty ? item.label : item.key)") { ok in
+                guard ok else { return }
+                Outbox.send(["t": "secret-value", "id": item.id, "purpose": "copy"])
+            }
         }
     }
 
@@ -570,6 +644,7 @@ struct ExpandedView: View {
     let dropped: ([NSItemProvider]) -> Bool
     let edit: ([NSItemProvider]) -> Bool
     let clip: (ClipCommand) -> Void
+    let secret: (SecretCommand) -> Void
 
     private var dropTargeted: Binding<Bool> {
         Binding(get: { model.dropTargeted }, set: { model.dropTargeted = $0 })
@@ -614,6 +689,8 @@ struct ExpandedView: View {
                 ShelfSection(model: model, act: act, edit: edit)
             case .clipboard:
                 ClipboardSection(model: model, run: clip)
+            case .secrets:
+                SecretsSection(model: model, run: secret)
             }
         }
         .padding(.horizontal, 14)
@@ -699,6 +776,10 @@ struct BimaxNotch {
                     TaskRow(id: "c", title: "Summarise the Q3 report", state: "done", detail: "Check passed"),
                 ], glass: demoGlass))
             }
+            if ProcessInfo.processInfo.environment["BIMAX_NOTCH_TAB"] == "secrets" {
+                // Sample masked secrets (as secrets.ts sends them — never values), for looking at the tab.
+                if let message = parseInbound(##"{"t": "secrets", "items": [{"id": "s1", "label": "Stripe key", "key": "STRIPE_KEY", "masked": "sk_live_••••Yc7D", "where": "shop/.env.local"}, {"id": "s2", "label": "Password in a URL", "key": "DATABASE_URL", "masked": "postgres://app:••••@localhost:5432/shop", "where": "shop/.env"}, {"id": "s3", "label": "Secret", "key": "SESSION_SECRET", "masked": "9f8••••d015", "where": "shop/api/.env"}]}"##) { MainActor.assumeIsolated { controller.handle(message); controller.model.tab = .secrets } }
+            }
             if ProcessInfo.processInfo.environment["BIMAX_NOTCH_TAB"] == "clipboard" {
                 // Sample copies, as the app would classify them (clipboard.ts), for looking at the tab.
                 let sample = ##"{"t": "clips", "enabled": true, "items": [{"id": "1", "kind": "color", "preview": "#3B82F6", "text": "#3B82F6", "swatch": "#3b82f6", "detail": "blue-500", "actions": [{"label": "HEX", "value": "#3b82f6"}, {"label": "RGB", "value": "rgb(59, 130, 246)"}, {"label": "HSL", "value": "hsl(217 91% 60%)"}, {"label": "Swift", "value": "Color(red: 0.231, green: 0.51, blue: 0.965)"}, {"label": "Tailwind", "value": "bg-blue-500"}], "pinned": true}, {"id": "2", "kind": "json", "preview": "{ \"id\": 7, \"name\": \"Ana\", \"orders\": [ … ] }", "text": "{}", "detail": "JSON · 3 keys", "actions": [{"label": "Minify", "value": "{}"}, {"label": "Pretty", "value": "{}"}, {"label": "TS type", "value": "x"}], "pinned": false}, {"id": "3", "kind": "url", "preview": "https://shop.example/p/42?utm_source=news&color=red", "text": "u", "detail": "shop.example · tracking removed", "actions": [{"label": "Clean link", "value": "https://shop.example/p/42?color=red"}], "pinned": false}, {"id": "4", "kind": "code", "preview": "npm install …", "text": "c", "detail": "Shell", "actions": [{"label": "One line", "value": "npm install && npm test"}], "pinned": false}]}"##
@@ -758,6 +839,23 @@ struct BimaxNotch {
             check(enabled && items.count == 1 && items[0].actions == [ClipAction(label: "HEX", value: "#3b82f6")] && items[0].pinned, "clips")
         } else { check(false, "clips parse") }
         check(parseInbound(#"{"t":"clip-config","enabled":true}"#) == .clipConfig(enabled: true), "clip-config")
+        check(parseInbound(#"{"t":"secrets","items":[{"id":"s1","label":"Stripe key","key":"STRIPE_KEY","masked":"sk_live_••••Yc7D","where":"shop/.env"},{"bad":1}]}"#)
+              == .secrets(items: [SecretItem(id: "s1", label: "Stripe key", key: "STRIPE_KEY", masked: "sk_live_••••Yc7D", where_: "shop/.env")]), "secrets")
+        check(parseInbound(#"{"t":"secret","id":"s1","purpose":"copy","value":"v"}"#) == .secret(id: "s1", purpose: "copy", value: "v"), "secret")
+        check(parseInbound(#"{"t":"secret","id":"s1","missing":true}"#) == .secret(id: "s1", purpose: "reveal", value: nil), "missing secret")
+        // Evaporation, end state read back, on a private clipboard: our copy is cleared at the deadline and is marked
+        // Concealed meanwhile; a copy the person made after ours is never cleared.
+        let secretBoard = NSPasteboard.withUniqueName()
+        var outcomes: [Bool] = []
+        SecretCopy.copy("sk_live_example", to: secretBoard, after: 0.4) { outcomes.append($0) }
+        check(secretBoard.string(forType: .string) == "sk_live_example" && secretBoard.types?.contains(SecretCopy.concealed) == true, "a secret copy is marked Concealed")
+        let evaporate = Date().addingTimeInterval(0.7); while Date() < evaporate { RunLoop.main.run(until: Date().addingTimeInterval(0.05)) }
+        check(secretBoard.string(forType: .string) == nil && outcomes == [true], "the secret evaporated from the clipboard")
+        SecretCopy.copy("sk_live_example", to: secretBoard, after: 0.4) { outcomes.append($0) }
+        secretBoard.clearContents(); secretBoard.setString("the person's own copy", forType: .string)
+        let keep = Date().addingTimeInterval(0.7); while Date() < keep { RunLoop.main.run(until: Date().addingTimeInterval(0.05)) }
+        check(secretBoard.string(forType: .string) == "the person's own copy" && outcomes == [true, false], "a later copy by the person is never cleared")
+        secretBoard.releaseGlobally()
         // The watcher end to end, on a private clipboard (never the person's): an ordinary copy is seen, a password
         // manager's is not, the notch's own copy is not, and nothing is seen while it is stopped.
         let privateBoard = NSPasteboard.withUniqueName()

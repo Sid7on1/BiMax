@@ -126,7 +126,16 @@ export interface NotchClipboard {
   pin(id: string, pinned: boolean): boolean;
   remove(id: string): boolean;
   view(enabled: boolean): ClipView;
+  /** A sealed secret copy's plain text (stage 6), only for a reveal or a copy the person asked for. */
+  reveal?(id: string): string | null;
 }
+
+/** Stage 6: secrets found in `.env` files of the folders opened in Bimax (secrets.ts). */
+export interface NotchSecrets {
+  scan(): Array<{ id: string; label: string; key: string; masked: string; where: string; value: string }>;
+}
+/** How often opening the notch may rescan the folders. */
+export const SECRET_RESCAN_MS = 30_000;
 
 export interface NotchDeckOptions {
   helper: string;
@@ -137,6 +146,8 @@ export interface NotchDeckOptions {
   onEdit?: (paths: string[]) => void;
   /** Stage 5: the smart clipboard. Off until the person turns it on; without it the notch has no clipboard. */
   clipboard?: NotchClipboard;
+  /** Stage 6: secrets from `.env` files; values stay here until the notch asks for one. */
+  secrets?: NotchSecrets;
   /** Stage 4: which tasks have a Night Shift running, for the night glass. */
   nightIds?: () => ReadonlySet<string>;
   /** The clock, for tests. */
@@ -153,6 +164,9 @@ export class NotchDeck {
   private lastContent = '';
   private lastShelf = '';
   private lastClips = '';
+  private lastSecrets = '';
+  private secretValues = new Map<string, string>();
+  private lastScan = -Infinity;
   private landing: (() => void) | null = null;
   /** Stage 4: results the person has not looked at (cleared when the notch opens), and the next timed change. */
   private unseen = new Map<string, Unseen>();
@@ -186,6 +200,7 @@ export class NotchDeck {
       this.lastContent = '';
       this.lastShelf = '';
       this.lastClips = '';
+      this.lastSecrets = '';
       if (this.stopped) return;
       this.options.log?.(`notch helper exited code=${code} signal=${signal ?? '-'}`);
       this.crashes.push(Date.now());
@@ -195,13 +210,14 @@ export class NotchDeck {
   }
 
   private received(line: string): void {
-    let message: { t?: string; id?: unknown; items?: unknown; ids?: unknown; amber?: unknown; open?: unknown; text?: unknown; source?: unknown; pinned?: unknown };
+    let message: { t?: string; id?: unknown; items?: unknown; ids?: unknown; amber?: unknown; open?: unknown; text?: unknown; source?: unknown; pinned?: unknown; purpose?: unknown };
     try { message = JSON.parse(line); } catch { return; }
     const shelf = this.options.shelf;
     if (message.t === 'open-task' && typeof message.id === 'string') this.options.onOpenTask(message.id);
-    else if (message.t === 'ready') { this.options.log?.(`notch helper ready: ${line}`); this.sendShelf(); this.sendClips(true); }
+    else if (message.t === 'ready') { this.options.log?.(`notch helper ready: ${line}`); this.sendShelf(); this.sendClips(true); this.refreshSecrets(true); }
     else if (message.t === 'hover' && message.open === true) {
       this.sendShelf(); // amber and missing change with time
+      this.refreshSecrets();
       // Opening the notch is looking: the unseen results have been seen.
       if (this.unseen.size) { this.unseen.clear(); this.sendContent(); }
     }
@@ -218,6 +234,7 @@ export class NotchDeck {
       if (paths.length) this.options.onEdit?.(paths);
     }
     else if (message.t === 'droplet-landed') { this.landing?.(); this.landing = null; }
+    else if (message.t === 'secret-value' && typeof message.id === 'string') this.sendSecret(message.id, message.purpose === 'copy' ? 'copy' : 'reveal');
     else if (this.options.clipboard) this.clipboardMessage(message);
   }
 
@@ -234,6 +251,31 @@ export class NotchDeck {
     } else if (message.t === 'clip-remove' && typeof message.id === 'string') {
       if (clipboard.remove(message.id)) this.sendClips();
     }
+  }
+
+  /**
+   * Stage 6. The secrets list the helper shows — masked, with where each came from — rescanned when the notch opens, at
+   * most every SECRET_RESCAN_MS. The values stay in this process.
+   */
+  refreshSecrets(force = false): void {
+    if (!this.options.secrets) return;
+    const now = this.options.now?.() ?? Date.now();
+    if (!force && now - this.lastScan < SECRET_RESCAN_MS) return;
+    this.lastScan = now;
+    let entries: ReturnType<NotchSecrets['scan']>;
+    try { entries = this.options.secrets.scan(); } catch (error) { this.options.log?.(`secret scan failed: ${String(error)}`); return; }
+    this.secretValues = new Map(entries.map((e) => [e.id, e.value]));
+    const view = { t: 'secrets', items: entries.map(({ id, label, key, masked, where }) => ({ id, label, key, masked, where })) };
+    const serialized = JSON.stringify(view);
+    if (serialized === this.lastSecrets) return;
+    this.lastSecrets = serialized;
+    this.send(view);
+  }
+
+  /** One secret's value, because the person pressed to reveal it or authenticated to copy it. Never logged. */
+  private sendSecret(id: string, purpose: 'reveal' | 'copy'): void {
+    const value = this.secretValues.get(id) ?? this.options.clipboard?.reveal?.(id) ?? null;
+    this.send(value === null ? { t: 'secret', id, purpose, missing: true } : { t: 'secret', id, purpose, value });
   }
 
   /** The history and whether it is on; `config` also tells the helper to start or stop watching. */

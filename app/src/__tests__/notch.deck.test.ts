@@ -335,3 +335,44 @@ describe('stage 5: the clipboard through the deck', () => {
     expect(calls).toEqual(['pin c0 true', 'remove c0', 'enabled false']);
   });
 });
+
+describe('stage 6: secrets through the deck', () => {
+  const flush = () => new Promise((resolve) => setImmediate(resolve));
+  const VALUE = 'sk_live_51H8xQ2rTvKp9WmZa3BnYc7D';
+
+  test('the helper gets the list masked; a value only when it asks for that one; unknown ids are missing', async () => {
+    let scans = 0;
+    let now = 1_000_000;
+    const helpers: FakeHelper[] = [];
+    const deck = new NotchDeck({
+      helper: '/x', onOpenTask: () => undefined, now: () => now,
+      secrets: { scan: () => { scans++; return [{ id: 's1', label: 'Stripe key', key: 'STRIPE_KEY', masked: 'sk_live_••••Yc7D', where: 'shop/.env.local', value: VALUE }]; } },
+      clipboard: { enabled: () => true, setEnabled: () => undefined, add: () => true, pin: () => true, remove: () => true, view: (on: boolean) => ({ t: 'clips' as const, enabled: on, items: [] }), reveal: (id: string) => (id === 'clip-secret' ? 'ghp_sealed' : null) },
+      spawnHelper: () => { const h = new FakeHelper(); helpers.push(h); return h as never; },
+    });
+    deck.start();
+    const say = async (line: string) => { helpers[0].stdout.write(`${line}\n`); await flush(); };
+    const sent = () => helpers[0].written.map((l) => JSON.parse(l));
+
+    await say('{"t":"ready"}');
+    expect(sent().find((m) => m.t === 'secrets')).toEqual({ t: 'secrets', items: [{ id: 's1', label: 'Stripe key', key: 'STRIPE_KEY', masked: 'sk_live_••••Yc7D', where: 'shop/.env.local' }] });
+    expect(helpers[0].written.join('\n')).not.toContain(VALUE);
+
+    await say('{"t":"secret-value","id":"s1","purpose":"reveal"}');
+    await say('{"t":"secret-value","id":"clip-secret","purpose":"copy"}');
+    await say('{"t":"secret-value","id":"nope"}');
+    expect(sent().filter((m) => m.t === 'secret')).toEqual([
+      { t: 'secret', id: 's1', purpose: 'reveal', value: VALUE },
+      { t: 'secret', id: 'clip-secret', purpose: 'copy', value: 'ghp_sealed' },
+      { t: 'secret', id: 'nope', purpose: 'reveal', missing: true },
+    ]);
+
+    // Opening the notch rescans, but not more than once every 30 s.
+    await say('{"t":"hover","open":true}');
+    expect(scans).toBe(1);
+    now += 30_001;
+    await say('{"t":"hover","open":true}');
+    expect(scans).toBe(2);
+    deck.stop();
+  });
+});

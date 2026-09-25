@@ -1,5 +1,5 @@
 import { CapabilityReplay } from './capability.replay';
-import { app, BrowserWindow, ipcMain, dialog, shell, session, systemPreferences, powerMonitor, net, nativeTheme, globalShortcut, screen, Menu, Notification, Tray, nativeImage, ShareMenu, powerSaveBlocker, webContents as electronWebContents } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, shell, session, systemPreferences, powerMonitor, net, nativeTheme, globalShortcut, screen, Menu, Notification, Tray, nativeImage, ShareMenu, powerSaveBlocker, safeStorage, webContents as electronWebContents } from 'electron';
 import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron';
 import path from 'node:path';
 import { ThreadManager, threadCapabilityEnvironment, threadIndexEnvironment, threadVoiceEnvironment, workerCapacityEnvironment, spendLedgerEnvironment } from './thread.manager';
@@ -20,6 +20,7 @@ import { talkTrayTitle } from '../shared/talk';
 import { NotchDeck, notchHelperPath } from './notch';
 import { Shelf } from './shelf';
 import { ClipHistory } from './clipboard';
+import { scanFolders } from './secrets';
 import { describeSchedule, dueSchedules, newSchedule, type Cadence, type Schedule } from './schedules';
 import {
   ARRIVAL_KINDS, FolderTriggers, MAX_TRIGGERS, arrivalLabel, changeListNote, changesDuring, describeTrigger, newTrigger, runMessage,
@@ -448,7 +449,13 @@ function syncNotch(): void {
       onEdit: (paths) => { void editFromNotch(paths); },
       // Stage 5: the clipboard history, kept on this Mac only and off until the person turns it on.
       clipboard: (() => {
-        const history = new ClipHistory(path.join(shelfRoot, 'clipboard.json'));
+        // Stage 6: a secret copy is kept sealed by Electron's safeStorage (the Keychain-held key, as provider keys are).
+        // It is asked for only when a secret is actually copied or revealed — never at launch.
+        const sealer = {
+          seal: (text: string) => { if (!safeStorage.isEncryptionAvailable()) throw new Error('no storage key'); return safeStorage.encryptString(text).toString('base64'); },
+          open: (sealed: string) => safeStorage.decryptString(Buffer.from(sealed, 'base64')),
+        };
+        const history = new ClipHistory(path.join(shelfRoot, 'clipboard.json'), Date.now, sealer);
         return {
           enabled: () => loadSettings().clipboardHistory === true,
           setEnabled: (on: boolean) => { saveSettings({ clipboardHistory: on }); updateTray(); },
@@ -456,8 +463,17 @@ function syncNotch(): void {
           pin: (id: string, pinned: boolean) => history.pin(id, pinned),
           remove: (id: string) => history.remove(id),
           view: (on: boolean) => history.view(on),
+          reveal: (id: string) => history.reveal(id),
         };
       })(),
+      // Stage 6: secrets in .env files of the folders opened in Bimax — recent projects and the ⌘2 tasks' folders.
+      secrets: {
+        scan: () => {
+          const settings = loadSettings();
+          const roots = [...new Set([settings.lastProject, ...(settings.recentProjects ?? []), ...(threads ? threads.list().map((t) => t.root) : [])].filter((r): r is string => !!r))];
+          return scanFolders(roots);
+        },
+      },
       // Stage 4: a Night Shift task working turns the glass to night (FL5's own list).
       nightIds: () => new Set(nightShifts.keys()),
     });

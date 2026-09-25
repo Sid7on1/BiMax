@@ -239,3 +239,37 @@ from Other Apps). Watching reads only the change count (~twice a second, coalesc
 
 **Not verified:** the macOS permission prompt as the installed app meets it; copying from real apps into the history;
 the look (stage 9's overhaul covers it).
+
+## Stage 6 — secrets, built 2026-09-25
+
+**What exists:** a fourth tab, **Secrets**, and one definition of a secret for the whole notch: `app/src/main/secrets.ts`,
+22 rules ported from gitleaks (pinned at `b58d3f1`, MIT — regex, gitleaks' Shannon-entropy floor, and its allowlists,
+with Go's inline flags rewritten for JavaScript) plus two of Bimax's own (NVIDIA keys, a password inside a connection
+URL). Where they come from:
+- **`.env` files of folders opened in Bimax** — recent projects and the ⌘2 tasks' folders; never the home folder or the
+  disk, two levels deep, no `node_modules`/`.git`, ≤ 64 KB, ≤ 200 files; placeholders (`your_key_here`, `xxxx`,
+  `${VAR}`) are not offered. Rescanned when the notch opens, at most every 30 s. Values stay in the app process.
+- **Copies** — stage 5 refused secret copies; they are now kept **sealed** by Electron's `safeStorage` (the
+  Keychain-held key, as provider keys are), shown masked, and not kept at all if sealing fails. The Keychain is asked
+  only when a secret is actually copied or revealed.
+
+The notch only ever gets the **masked** form (`sk_live_••••89f2`) and where it came from. **Press and hold to reveal**:
+on a Force Touch trackpad the smoke clears with the pressure (an AppKit view reads `pressureChange`; a force click
+shows it all), otherwise holding 0.3 s reveals it; letting go masks it and drops the value. **Copy asks for Touch ID**
+(or the password), marks the copy Concealed, and **clears it after 60 s — only if it is still the clipboard's
+content**. Locking the screen, sleeping or switching user drops any revealed value. With a terminal or an API client
+in front, the notch opens on Secrets. Secrets never reach a model.
+
+| Exit evidence | Result |
+|---|---|
+| Rules on gitleaks' own fixtures | All 45 of its literal negatives rejected and its 7 literal positives found (`fixtures/gitleaks-b58d3f1.json`); one key per rule made the way gitleaks makes its test keys; entropy floors reject look-alikes |
+| A Concealed item never written in plain text | `clipboard.test.ts`: the history file holds no trace of the key; the view sends it masked with no text; reveal opens it; a failing sealer keeps nothing |
+| Masking, `.env` parsing, what is offered, scan boundaries (home, depth, node_modules, non-.env files) | `secrets.test.ts` |
+| Values reach the helper only on request; list masked; rescans throttled | `notch.deck.test.ts` +1 |
+| A copied secret gone from the clipboard at the deadline (end state read back); a later copy by the person untouched; the copy marked Concealed | `--selftest` (build gate), on a private pasteboard |
+| Seen on this screen | The Secrets tab photographed with demo data (masked values, where from, Copy) |
+
+**A test-harness defect found on the way:** the first generated test keys used a linear congruential generator's low
+bits, which repeat — `AKIAQAAAAAAAAAYAAAAA` — and the entropy floor rightly refused them. The generator now uses the
+high bits. **Not verified:** the Touch ID prompt from the installed app, Force Touch pressure by a person, the lock
+notifications on a real lock.
