@@ -138,7 +138,7 @@ enum Droplet {
         window.hasShadow = false
         window.ignoresMouseEvents = true
         window.level = .screenSaver
-        window.collectionBehavior = [.canJoinAllSpaces, .stationary, .fullScreenAuxiliary, .ignoresCycle]
+        window.collectionBehavior = [.canJoinAllSpaces, .transient, .fullScreenAuxiliary, .ignoresCycle]
         let local = { (point: CGPoint) in CGPoint(x: point.x - area.minX, y: area.maxY - point.y) }
         let lip = local(CGPoint(x: notch.midX, y: notch.minY))
         let targetLocal = CGRect(origin: local(CGPoint(x: target.minX, y: target.maxY)), size: target.size)

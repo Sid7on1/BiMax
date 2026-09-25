@@ -13,7 +13,8 @@ Changes from upstream:
    Xcode's SwiftUIMacros plugin expands, and Bimax builds its helpers with the Command Line Tools.
 4. `DynamicNotchInfo/` and `Documentation.docc/` removed: Bimax draws its own content.
 5. `Utility/DynamicNotchPanel.swift`: `.fullScreenAuxiliary` and `.ignoresCycle` added to the collection behaviour, so
-   the notch shows over full-screen apps and stays out of the window cycle.
+   the notch shows over full-screen apps and stays out of the window cycle; `.stationary` replaced by `.transient`, so
+   Mission Control hides it instead of the notch covering its Spaces bar.
 6. `DynamicNotch/DynamicNotch.swift`, `Views/NotchView.swift`, `Views/NotchlessView.swift`,
    `Utility/DynamicNotchPanel.swift`: a published `contentFrame` (where the content is drawn), and the panel starts
    with `ignoresMouseEvents = true`. The panel is half the screen wide and tall and stays up while tasks run, so the

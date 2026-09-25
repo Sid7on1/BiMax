@@ -174,3 +174,35 @@ none. It needs the engine's stream events surfaced first.
 
 **Not verified:** VoiceOver reading the labels aloud; the Reduce Transparency / Increase Contrast forms on screen;
 the states driven by real tasks in the installed app.
+
+## Owner review of stages 1–4, 2026-09-25
+
+The owner tried the installed notch and wrote: *"the notch is not glass, it has border and the state is worse the
+glasses u build is worse, not at all good and professional and its not even infused in glass, it must look like real
+life infused in glass but it does not … after completing all the stages we can do a notch front end overhaul"*, and
+reported that reaching for the notch showed it over Mission Control.
+
+**Fixed the same day — the notch over Mission Control.** Reproduced by opening Mission Control with the demo notch
+open: the notch was drawn on top of the Spaces bar, because its windows were `.stationary` (upstream
+DynamicNotchKit's choice), which Mission Control leaves in place. Both the notch and the Droplet window are now
+`.transient`, which Mission Control hides; photographed again: the Spaces bar is clear, and outside Mission Control the
+notch opens as before. What opened Mission Control is macOS's own gesture on this Mac (three-finger swipe up,
+`TrackpadThreeFingerVertSwipeGesture = 2`); hot corners are off.
+
+## Stage 9 — the front-end overhaul (after stage 8, owner's order)
+
+The visual layer of stages 1–4 does not meet the owner's bar and is to be rebuilt once the behaviour of all stages
+exists. What the review says, and what the research already points to:
+
+- **It must be glass, not black with colour painted on it.** Today the open notch is DynamicNotchKit's black shape, and
+  the states are gradients drawn over black. The overhaul builds the open notch from the system's Liquid Glass
+  (`NSGlassEffectView` / SwiftUI `.glassEffect`, macOS 26+; 02 §2), blooming out of the black hardware notch.
+- **No border.** The hairline edge and the rounded black slab go; the edge is the glass's own.
+- **States infused in the glass, not laid over it.** Each state becomes a property of the material — its tint, its
+  clarity (frost as reduced clarity, prism as dispersion, molten as a warm tint) — through the glass's own tint and
+  the container's merging, not an overlay.
+- **One material family** with the ⌘2 bar (which already uses Liquid Glass through electron-liquid-glass), so the
+  Droplet's morph (`GlassEffectContainer` + `glassEffectID`, 02 §2) joins two pieces of the same glass.
+- **Keep what is measured:** click-through outside drawn content, hidden in Mission Control, 0% CPU at rest, contrast
+  ≥ 4.5:1 for words, Reduce Motion / Transparency / Increase Contrast forms. Below macOS 26: a declared fallback.
+- **Judged by the owner on the real screen,** against this review — not by a checklist.
