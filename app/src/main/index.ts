@@ -9,7 +9,7 @@ import { finderContext } from './finder.context';
 import type { QuickAttachment, QuickContext, QuickThread, ThreadSummary } from '../shared/threads';
 import { threadNotice } from '../shared/threads';
 import { QUICK_BAR, quickBarBounds, quickBarOrigin } from './quick.bar';
-import { changeHistory, changesSince, journalFile, lastUndoable, threadStateEnvironment, threadStateRoot, touchedSince, undoBackTo, undoChange, undoLast } from './thread.undo';
+import { changeHistory, changesSince, filesChangedSince, journalFile, lastUndoable, threadStateEnvironment, threadStateRoot, touchedSince, undoBackTo, undoChange, undoLast } from './thread.undo';
 import { insideFolder, needsFolder, PICTURE_EXTENSIONS, screenshotName, validAttachments, withContext } from './quick.context';
 import { nextQuickThread, trayEntries, trayTitle, trayTooltip } from './thread.tray';
 import { modelMenuItems, quickModelFor, recordTurn, type CatalogModel, type ModelMenuItem, type ModelTime } from './thread.models';
@@ -150,7 +150,8 @@ function threadChanged(): void {
     listTimer = undefined;
     broadcast('threads:list', threadList());
     updateTray();
-    notchDeck?.update(threads.list());
+    const finished = notchDeck?.update(threads.list());
+    if (finished?.length) dockFinished(finished);
     if (quickWindow && !quickWindow.isDestroyed()) quickWindow.webContents.send('threads:quick-activity', quickActivity());
     if (approvalWindow && !approvalWindow.isDestroyed()) {
       approvalWindow.webContents.send('threads:approvals', threads.approvals());
@@ -395,6 +396,44 @@ const voiceHelper = (): string => voiceHelperPath({ packaged: app.isPackaged, re
  * helper on disk (a build without it simply has no notch) and a Mac, and it follows the ⌘2 tasks from here on.
  */
 let notchDeck: NotchDeck | null = null;
+/**
+ * Stage 3. Files handed to "Edit with Bimax" wait here until a ⌘2 task is started with them; that task is then a
+ * notch task, and when it finishes the files it changed come back to the shelf (the Hatchback). Real paths, so the
+ * bar's own resolved attachments match. Forgotten after ten minutes: an edit that was never started is not a task.
+ */
+let notchEditPending: { files: string[]; at: number } | null = null;
+const notchTasks = new Map<string, number>();
+const NOTCH_EDIT_WINDOW_MS = 10 * 60_000;
+async function editFromNotch(paths: string[]): Promise<void> {
+  const files: string[] = [];
+  for (const file of paths) { try { files.push(await fsp.realpath(file)); } catch { /* gone since it was dropped */ } }
+  if (!files.length) return;
+  // Where the bar is about to open — the same placement showQuickBar uses — so the Droplet lands on it.
+  const cursorArea = screen.getDisplayNearestPoint(screen.getCursorScreenPoint()).workArea;
+  const anchor = quickBarOrigin(loadSettings().quickBar, screen.getAllDisplays().map(d => d.workArea), cursorArea);
+  const area = screen.getDisplayMatching({ ...anchor, width: QUICK_BAR.width, height: QUICK_BAR.collapsedHeight }).workArea;
+  await notchDeck?.playDroplet(quickBarBounds(anchor, QUICK_BAR.collapsedHeight, area), files[0]);
+  notchEditPending = { files, at: Date.now() };
+  await openFilesInBar(files);
+}
+/** A ⌘2 task just started: it is a notch task when it carries a file handed over by "Edit with Bimax". */
+function noteNotchTask(id: string, attachments: readonly QuickAttachment[]): void {
+  const pending = notchEditPending;
+  if (!pending || Date.now() - pending.at > NOTCH_EDIT_WINDOW_MS) { notchEditPending = null; return; }
+  if (!attachments.some((a) => a.path && pending.files.includes(a.path))) return;
+  notchTasks.set(id, Date.now());
+  notchEditPending = null;
+}
+/** The Hatchback: a notch task finished, so the files it made or changed during that turn go to the shelf. */
+function dockFinished(finished: readonly ThreadSummary[]): void {
+  for (const t of finished) {
+    const since = notchTasks.get(t.id);
+    if (since === undefined) continue;
+    const files = filesChangedSince(threadStateRoot(app.getPath('userData'), t.root, t.origin), since);
+    notchDeck?.dock(files, { task: t.title, ...(t.check ? { check: t.check } : {}) });
+    notchTasks.set(t.id, Date.now()); // the next turn brings back only its own changes
+  }
+}
 function syncNotch(): void {
   if (process.platform !== 'darwin') return;
   const wanted = loadSettings().notchDeck !== false;
@@ -405,6 +444,7 @@ function syncNotch(): void {
       helper, onOpenTask: (id) => { try { openThread(id); } catch { /* the task is gone */ } }, log: (line) => console.log(`[notch] ${line}`),
       // Stage 2: the shelf, kept beside the app's other state; copies of temporary files live under it.
       shelf: new Shelf(path.join(shelfRoot, 'shelf.json'), path.join(shelfRoot, 'shelf-copies')),
+      onEdit: (paths) => { void editFromNotch(paths); },
     });
   }
   if (!notchDeck) return;
@@ -2187,6 +2227,7 @@ app.whenReady().then(async () => {
       if (outside) return { ok: false, error: `“${outside.label}” is outside ${path.basename(root)}. Choose its folder instead.` };
       const id = threads.create(root, '', 'quick', quickModel());
       quickThreadId = id;
+      noteNotchTask(id, attachments);
       threads.submit(id, withContext(prompt, attachments), prompt, false);
       sendQuickThread();
       offerRule(root, prompt);

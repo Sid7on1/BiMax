@@ -95,6 +95,25 @@ export function changesSince(stateRoot: string, since: number): MadeChange[] {
   });
 }
 
+/**
+ * The files a thread made or changed since `since` and that are still there: created, replaced, or the new place of
+ * a move — never a trashed one (God's Land stage 3: a task's results come back to the notch's shelf). Newest last,
+ * each once.
+ */
+export function filesChangedSince(stateRoot: string, since: number): string[] {
+  const files: string[] = [];
+  for (const change of pendingChanges(stateRoot).filter((c) => c.at >= since)) {
+    for (const op of change.ops) {
+      const file = op.op === 'move' ? op.to : op.op === 'create' || op.op === 'restore' ? op.path : null;
+      if (!file) continue;
+      const at = files.indexOf(file);
+      if (at >= 0) files.splice(at, 1);
+      files.push(file);
+    }
+  }
+  return files.filter((file) => { try { return fsSync.statSync(file).isFile(); } catch { return false; } });
+}
+
 /** The newest change that can still be undone, for the "↶ Undo" button. */
 export function lastUndoable(stateRoot: string): { id: string; title: string; at: number } | null {
   const pending = pendingChanges(stateRoot);

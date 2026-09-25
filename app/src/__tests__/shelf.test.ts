@@ -122,3 +122,22 @@ test('temporary folders are matched on whole path segments', () => {
   expect(isTemporaryPath('/private/tmpfiles/x.png', ['/private/tmp'])).toBe(false);
   expect(isTemporaryPath('/Users/me/Desktop/x.png', ['/private/tmp'])).toBe(false);
 });
+
+test('a task\'s results carry the task and its check, also onto a card that was already on the shelf', () => {
+  const draft = path.join(home, 'contract.md');
+  const summary = path.join(home, 'summary.md');
+  fs.writeFileSync(draft, 'v1');
+  fs.writeFileSync(summary, 's');
+  const shelf = open();
+  shelf.add([{ kind: 'file', path: draft }]);
+  now += 10;
+  shelf.add([
+    { kind: 'file', path: draft, from: { task: 'Make it formal', check: 'passed' } },
+    { kind: 'file', path: summary, from: { task: 'Make it formal', check: 'failed' } },
+  ]);
+  const cards = shelf.view().items;
+  expect(cards).toHaveLength(2);
+  expect(cards.find((c) => c.path === draft)).toMatchObject({ task: 'Make it formal', check: 'passed' });
+  expect(cards.find((c) => c.path === summary)).toMatchObject({ task: 'Make it formal', check: 'failed' });
+  expect(open().view().items.find((c) => c.path === draft)?.check).toBe('passed');
+});

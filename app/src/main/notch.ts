@@ -1,7 +1,7 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'child_process';
 import * as path from 'path';
 import { isQuickThread, threadActivity, type ThreadSummary } from '../shared/threads';
-import type { ShelfInput, ShelfView } from './shelf';
+import type { ShelfFrom, ShelfInput, ShelfView } from './shelf';
 
 /**
  * God's Land, stage 1 (docs/product-reset/gods-land/03_PLAN.md): the notch talks. This is the app's half — what the
@@ -69,6 +69,25 @@ export function notchSays(previous: ReadonlyMap<string, ThreadSummary>, next: re
   return says;
 }
 
+/**
+ * ⌘2 tasks that just stopped working with a result — completed (whatever its check said), failed or cut off by its
+ * time limit. The Hatchback (stage 3) brings a notch task's files back to the shelf at exactly this moment.
+ */
+export function justFinished(previous: ReadonlyMap<string, ThreadSummary>, next: readonly ThreadSummary[]): ThreadSummary[] {
+  return next.filter((t) => {
+    const before = previous.get(t.id);
+    if (!isQuickThread(t) || !before) return false;
+    const wasBusy = before.status === 'working' || before.status === 'starting';
+    const stillBusy = t.status === 'working' || t.status === 'starting' || t.status === 'needs-you';
+    return wasBusy && !stillBusy && (t.outcome === 'completed' || t.outcome === 'failed' || t.outcome === 'time-limit');
+  });
+}
+
+/** Where the Droplet lands, in Electron's screen coordinates (top-left origin). */
+export interface DropletTarget { x: number; y: number; width: number; height: number }
+/** The longest the app waits for the helper's Droplet before opening the bar anyway. */
+export const DROPLET_TIMEOUT_MS = 1_200;
+
 export function notchHelperPath(input: { packaged: boolean; resourcesPath: string; appPath: string }): string {
   return input.packaged ? path.join(input.resourcesPath, 'notch', 'bimax-notch') : path.join(input.appPath, 'notch', 'bimax-notch');
 }
@@ -102,6 +121,8 @@ export interface NotchDeckOptions {
   onOpenTask: (id: string) => void;
   /** The shelf (stage 2); without one the notch has no shelf. */
   shelf?: NotchShelf;
+  /** Files handed to "Edit with Bimax" (stage 3): the app plays the Droplet and opens the ⌘2 bar with them. */
+  onEdit?: (paths: string[]) => void;
   log?: (line: string) => void;
   spawnHelper?: (file: string) => ChildProcessWithoutNullStreams;
 }
@@ -113,6 +134,7 @@ export class NotchDeck {
   private stopped = false;
   private lastContent = '';
   private lastShelf = '';
+  private landing: (() => void) | null = null;
   private previous = new Map<string, ThreadSummary>();
 
   constructor(private readonly options: NotchDeckOptions) {}
@@ -162,6 +184,12 @@ export class NotchDeck {
       if (shelf.archive({ ids, amber: message.amber === true })) this.sendShelf();
     }
     else if (shelf && message.t === 'shelf-restore' && typeof message.id === 'string') { if (shelf.restore(message.id)) this.sendShelf(); }
+    else if (message.t === 'edit') {
+      // Absolute paths only: a relative one would resolve against wherever the app happens to run.
+      const paths = shelfInputs(message.items).filter((i) => i.kind === 'file' && i.path && path.isAbsolute(i.path)).map((i) => i.path!);
+      if (paths.length) this.options.onEdit?.(paths);
+    }
+    else if (message.t === 'droplet-landed') { this.landing?.(); this.landing = null; }
   }
 
   private sendShelf(): void {
@@ -179,8 +207,32 @@ export class NotchDeck {
     this.child.stdin.write(`${JSON.stringify(message)}\n`);
   }
 
-  /** The current tasks: always sent when they change, and anything worth saying about how they changed. */
-  update(threads: readonly ThreadSummary[]): void {
+  /**
+   * The Droplet (stage 3): the notch retracts and a drop falls to where the ⌘2 bar is about to open. Resolves when the
+   * helper says it landed, or after DROPLET_TIMEOUT_MS — the bar must open even if the animation never reports back.
+   */
+  playDroplet(to: DropletTarget, icon?: string): Promise<'landed' | 'timeout' | 'no-helper'> {
+    if (!this.child) return Promise.resolve('no-helper');
+    this.landing?.();
+    return new Promise((resolve) => {
+      const timer = setTimeout(() => { this.landing = null; resolve('timeout'); }, DROPLET_TIMEOUT_MS);
+      this.landing = () => { clearTimeout(timer); resolve('landed'); };
+      this.send({ t: 'droplet', to, ...(icon ? { icon } : {}) });
+    });
+  }
+
+  /** The Hatchback: a finished notch task's files onto the shelf, carrying the task and its check. */
+  dock(paths: readonly string[], from: ShelfFrom): void {
+    if (!this.options.shelf || !paths.length) return;
+    this.options.shelf.add(paths.map((path) => ({ kind: 'file' as const, path, from })));
+    this.sendShelf();
+  }
+
+  /**
+   * The current tasks: always sent when they change, and anything worth saying about how they changed. Returns the
+   * ⌘2 tasks that just finished, for the Hatchback.
+   */
+  update(threads: readonly ThreadSummary[]): ThreadSummary[] {
     const content = notchContent(threads);
     const serialized = JSON.stringify(content);
     if (serialized !== this.lastContent) {
@@ -188,7 +240,9 @@ export class NotchDeck {
       this.send(content);
     }
     for (const say of notchSays(this.previous, threads)) this.send(say);
+    const finished = justFinished(this.previous, threads);
     this.previous = new Map(threads.map((t) => [t.id, t]));
+    return finished;
   }
 
   stop(): void {

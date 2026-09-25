@@ -17,6 +17,9 @@ import * as path from 'path';
  */
 
 export type ShelfKind = 'file' | 'url' | 'text';
+export type ShelfCheck = 'passed' | 'tests-edited' | 'failed' | 'unchecked';
+/** A card a task put on the shelf (stage 3, the Hatchback): which task, and how its completion check went (F3). */
+export interface ShelfFrom { task: string; check?: ShelfCheck }
 export interface ShelfItem {
   id: string;
   kind: ShelfKind;
@@ -30,10 +33,11 @@ export interface ShelfItem {
   addedAt: number;
   touchedAt: number;
   archivedAt?: number;
+  from?: ShelfFrom;
 }
-export interface ShelfInput { kind: ShelfKind; path?: string; url?: string; text?: string }
+export interface ShelfInput { kind: ShelfKind; path?: string; url?: string; text?: string; from?: ShelfFrom }
 /** What the helper draws. */
-export interface ShelfCard { id: string; kind: ShelfKind; title: string; path?: string; url?: string; text?: string; missing: boolean; amber: boolean }
+export interface ShelfCard { id: string; kind: ShelfKind; title: string; path?: string; url?: string; text?: string; missing: boolean; amber: boolean; task?: string; check?: ShelfCheck }
 export interface ShelfView { t: 'shelf'; items: ShelfCard[]; archived: ShelfCard[] }
 
 export const AMBER_AFTER_MS = 24 * 60 * 60 * 1000;
@@ -120,11 +124,13 @@ export class Shelf {
       if (existing) {
         existing.touchedAt = at;
         delete existing.archivedAt;
+        // A task changed a file that was already on the shelf: it now carries that task's result.
+        if (raw.from) existing.from = raw.from;
         ids.push(existing.id);
         continue;
       }
       const id = randomUUID();
-      const item: ShelfItem = { id, kind: input.kind, title: titleFor(input), addedAt: at, touchedAt: at };
+      const item: ShelfItem = { id, kind: input.kind, title: titleFor(input), addedAt: at, touchedAt: at, ...(raw.from ? { from: raw.from } : {}) };
       if (input.kind === 'file') {
         item.path = input.path;
         if (isTemporaryPath(input.path!, this.temporaryRoots) && this.exists(input.path!)) {
@@ -195,6 +201,7 @@ export class Shelf {
       ...(item.path ? { path: item.path } : {}), ...(item.url ? { url: item.url } : {}), ...(item.text ? { text: item.text } : {}),
       missing: item.kind === 'file' && !this.exists(item.path ?? ''),
       amber: this.isAmber(item, at),
+      ...(item.from ? { task: item.from.task, ...(item.from.check ? { check: item.from.check } : {}) } : {}),
     };
   }
 

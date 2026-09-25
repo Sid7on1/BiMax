@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { PassThrough } from 'stream';
-import { mayRestart, NotchDeck, notchContent, notchSays, notchTask } from '../main/notch';
+import { DROPLET_TIMEOUT_MS, justFinished, mayRestart, NotchDeck, notchContent, notchSays, notchTask } from '../main/notch';
 import type { ThreadSummary } from '../shared/threads';
 
 /**
@@ -183,5 +183,58 @@ describe('the shelf through the helper (stage 2)', () => {
     await say('{"t":"shelf-restore","id":"known"}');
     await say('{"t":"shelf-restore"}');
     expect(calls).toEqual(['touch a', 'archive {"ids":["a","b"],"amber":false}', 'archive {"amber":true}', 'restore known']);
+  });
+});
+
+describe('stage 3: edit, the Droplet and the Hatchback', () => {
+  const flush = () => new Promise((resolve) => setImmediate(resolve));
+
+  test('a task that just finished is reported once — completed, failed or out of time; not a stop, not a question', () => {
+    const busy = ['done', 'fail', 'limit', 'stop', 'ask'].map((id) => task(id, { status: 'working' }));
+    const after = [
+      { ...busy[0], status: 'idle' as const, outcome: 'completed' as const, check: 'failed' as const },
+      { ...busy[1], status: 'idle' as const, outcome: 'failed' as const },
+      { ...busy[2], status: 'idle' as const, outcome: 'time-limit' as const },
+      { ...busy[3], status: 'stopped' as const, outcome: 'interrupted' as const },
+      { ...busy[4], status: 'needs-you' as const },
+    ];
+    expect(justFinished(byId(busy), after).map((t) => t.id)).toEqual(['done', 'fail', 'limit']);
+    expect(justFinished(byId(after), after)).toEqual([]);
+  });
+
+  test('edit hands only files to the app; the Droplet resolves when it lands, or times out so the bar still opens', async () => {
+    jest.useFakeTimers({ doNotFake: ['setImmediate'] });
+    try {
+      const helpers: FakeHelper[] = [];
+      const edits: string[][] = [];
+      const deck = new NotchDeck({ helper: '/x', onOpenTask: () => undefined, onEdit: (p) => edits.push(p), spawnHelper: () => { const h = new FakeHelper(); helpers.push(h); return h as never; } });
+      expect(await deck.playDroplet({ x: 0, y: 0, width: 1, height: 1 })).toBe('no-helper');
+      deck.start();
+      helpers[0].stdout.write('{"t":"edit","items":[{"kind":"file","path":"/Users/me/a.md"},{"kind":"url","url":"https://x.y"},{"kind":"file","path":"relative"}]}\n{"t":"edit","items":[{"kind":"text","text":"hi"}]}\n');
+      await flush();
+      expect(edits).toEqual([['/Users/me/a.md']]);
+
+      const landed = deck.playDroplet({ x: 395, y: 229, width: 680, height: 64 }, '/Users/me/a.md');
+      await flush();
+      expect(JSON.parse(helpers[0].written.at(-1)!)).toEqual({ t: 'droplet', to: { x: 395, y: 229, width: 680, height: 64 }, icon: '/Users/me/a.md' });
+      helpers[0].stdout.write('{"t":"droplet-landed"}\n');
+      await flush();
+      expect(await landed).toBe('landed');
+
+      const late = deck.playDroplet({ x: 0, y: 0, width: 1, height: 1 });
+      jest.advanceTimersByTime(DROPLET_TIMEOUT_MS);
+      expect(await late).toBe('timeout');
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  test('the Hatchback docks a task\'s files with the task and its check', () => {
+    const added: unknown[] = [];
+    const shelf = { add: (i: readonly unknown[]) => { added.push(...i); return []; }, touch: () => true, archive: () => 0, restore: () => true, view: () => ({ t: 'shelf' as const, items: [], archived: [] }) };
+    const deck = new NotchDeck({ helper: '/x', onOpenTask: () => undefined, shelf, spawnHelper: () => new FakeHelper() as never });
+    deck.dock(['/w/contract.md'], { task: 'Make it formal', check: 'passed' });
+    deck.dock([], { task: 'nothing' });
+    expect(added).toEqual([{ kind: 'file', path: '/w/contract.md', from: { task: 'Make it formal', check: 'passed' } }]);
   });
 });

@@ -114,3 +114,34 @@ Nothing is deleted. Saved in `<userData>/gods-land/shelf.json`.
 
 **Not verified:** the drag-in and drag-out end to end on screen (above), across Spaces and over a full-screen app,
 dragging from Safari and from a screenshot thumbnail. Suite: jest 3241 passed / 0 failed; app typecheck clean.
+
+## Stage 3 — Drop → ⌘2 → deliver, built 2026-09-25
+
+**What exists:** while dragging, the notch offers two zones — **Keep** and **Edit with Bimax**; file cards get "Edit
+with Bimax" on right-click. Edit sends the files to the app, which plays the **Droplet** (`native/notch/Droplet.swift`)
+to where the ⌘2 bar opens (the same placement `showQuickBar` uses), then opens the bar with the files attached
+(`openFilesInBar`, the Finder Quick Action's path). The task started from them is remembered; when it finishes, the
+files it made or changed during that turn — read from its undo journal (`filesChangedSince`), never guessed — dock
+on the shelf with the task's name and a badge for its completion check: a jewel for passed, a crack for failed, a
+caution for "passed after test files changed" (the owner's Prism and Fissure shades). Non-files dropped on Edit are
+kept instead, and the notch says so. Reduce Motion skips the Droplet. The bar opens even if the helper never reports
+the landing (1.2 s).
+
+**The Droplet, recorded on this Mac** (screen recording at 60 fps, frames read one by one): the lip swells under the
+notch → a teardrop stretches on a liquid neck with the file's icon inside → the neck snaps (a one-frame remnant, like
+real liquid) → the drop accelerates down → it spreads sideways into the bar's shape and fades. The first recording
+showed a black drop vanishing on a dark window; a light glass rim (a second, slightly larger liquid layer) fixed it.
+
+| Exit evidence | Result |
+|---|---|
+| Files changed by a turn, from the journal (created, replaced, moved-to; not trashed, undone, older or vanished) | `notch.hatchback.test.ts` |
+| Finished = completed / failed / time limit, once; not a stop or a question | `notch.deck.test.ts` |
+| Edit takes absolute file paths only; the Droplet lands or times out | `notch.deck.test.ts` |
+| A task's result is carried onto a card already on the shelf | `shelf.test.ts` |
+| Mutants | 7 of 7 caught (one survived first — the trash case — and the test was strengthened) |
+| Droplet path, droplet message parsing | `--selftest` (build gate) |
+| Suite | jest 3246 passed / 0 failed; app typecheck clean |
+
+**Not verified:** a person dropping a file on Edit in the installed app and seeing the bar open with it; the Droplet
+landing exactly on the bar at a remembered bar position; the Hatchback with a real task's changes; the gap between
+the splat and the bar appearing (the plan's one-frame bound) — the recording shows the splat, not yet the bar with it.

@@ -90,6 +90,7 @@ final class NotchModel: ObservableObject {
     @Published var dragging = false
     @Published var draggingOut = false
     @Published var dropTargeted = false
+    @Published var editTargeted = false
     @Published var showArchive = false
     /// Card frames in the panel's SwiftUI space, reported for the on-screen check (not published: no redraws).
     var cardFrames: [String: CGRect] = [:]
@@ -107,6 +108,8 @@ enum Inbound: Equatable {
     case content(active: Int, waiting: Int, tasks: [TaskRow])
     case say(text: String, tone: Tone, seconds: Double)
     case shelf(items: [ShelfCard], archived: [ShelfCard])
+    /// Play the Droplet to where the ⌘2 bar opens: Electron screen coordinates (top-left origin of the main display).
+    case droplet(to: CGRect, icon: String?)
     case quit
 }
 
@@ -131,6 +134,10 @@ func parseInbound(_ line: String) -> Inbound? {
         let items = (object["items"] as? [[String: Any]] ?? []).compactMap(ShelfCard.init(json:))
         let archived = (object["archived"] as? [[String: Any]] ?? []).compactMap(ShelfCard.init(json:))
         return .shelf(items: items, archived: archived)
+    case "droplet":
+        guard let to = object["to"] as? [String: Any], let x = to["x"] as? Double, let y = to["y"] as? Double,
+              let width = to["width"] as? Double, let height = to["height"] as? Double, width > 0, height > 0 else { return nil }
+        return .droplet(to: CGRect(x: x, y: y, width: width, height: height), icon: object["icon"] as? String)
     case "quit":
         return .quit
     default:
@@ -216,7 +223,8 @@ final class NotchController {
             expanded: { [weak self] in
                 ExpandedView(model: model, open: { id in self?.openTask(id) },
                              act: { action in self?.shelfAction(action) },
-                             dropped: { providers in self?.dropped(providers) ?? false })
+                             dropped: { providers in self?.dropped(providers) ?? false },
+                             edit: { providers in self?.editDropped(providers) ?? false })
             },
             compactLeading: { CompactLeadingView(model: model) },
             compactTrailing: { CompactTrailingView(model: model) }
@@ -362,6 +370,30 @@ final class NotchController {
         return true
     }
 
+    /// "Edit with Bimax": files go to the app, which plays the Droplet and opens the ⌘2 bar with them. Anything that
+    /// is not a file is kept on the shelf instead, and the notch says why.
+    private func editDropped(_ providers: [NSItemProvider]) -> Bool {
+        DropReader.read(providers) { [weak self] items in
+            guard let self else { return }
+            let files = items.filter { $0["kind"] as? String == "file" }
+            let others = items.filter { $0["kind"] as? String != "file" }
+            if !files.isEmpty { Outbox.send(["t": "edit", "items": files]) }
+            if !others.isEmpty {
+                Outbox.send(["t": "shelf-add", "items": others])
+                self.handle(.say(text: "Only files can be edited for now — kept the rest on the shelf", tone: .info, seconds: 3))
+            }
+            if self.demo, let first = files.first?["path"] as? String {
+                // No app in --demo: play the Droplet to where the bar would open.
+                let screen = self.geometry?.screen.frame ?? .zero
+                self.handle(.droplet(to: CGRect(x: screen.midX - 340, y: screen.height * 0.24, width: 680, height: 64), icon: first))
+            }
+        }
+        model.dragging = false
+        model.editTargeted = false
+        model.dropTargeted = false
+        return true
+    }
+
     private func demoKeep(_ items: [[String: Any]]) {
         let cards = items.map { item -> ShelfCard in
             let kind = item["kind"] as? String ?? "text"
@@ -413,6 +445,9 @@ final class NotchController {
             Outbox.send(["t": "shelf-restore", "id": id])
         case let .dragged(card):
             touch(card)
+        case let .edit(card):
+            touch(card)
+            if let path = card.path { Outbox.send(["t": "edit", "items": [["kind": "file", "path": path]]]) }
         }
     }
 
@@ -448,8 +483,25 @@ final class NotchController {
             model.shelf = items
             model.archived = archived
             if archived.isEmpty { model.showArchive = false }
+        case let .droplet(to, icon):
+            playDroplet(to: to, icon: icon)
         case .quit:
             NSApp.terminate(nil)
+        }
+    }
+
+    /// The shelf retracts into the notch and the Droplet falls to the ⌘2 bar's rect (Droplet.swift).
+    private func playDroplet(to electronRect: CGRect, icon: String?) {
+        guard let geometry else { Outbox.send(["t": "droplet-landed"]); return }
+        model.say = nil
+        Task { await rest() }
+        // Electron's coordinates start at the top-left of the main display; Cocoa's at its bottom-left.
+        let primaryTop = NSScreen.screens.first?.frame.maxY ?? geometry.screen.frame.maxY
+        let target = NSRect(x: electronRect.minX, y: primaryTop - electronRect.maxY, width: electronRect.width, height: electronRect.height)
+        let notch = geometry.screen.notchFrame ?? NSRect(x: geometry.screen.frame.midX - 90, y: geometry.screen.frame.maxY - 4, width: 180, height: 4)
+        let image = icon.map { NSWorkspace.shared.icon(forFile: $0) }
+        Droplet.play(on: geometry.screen, notch: notch, to: target, icon: image) {
+            Outbox.send(["t": "droplet-landed"])
         }
     }
 
@@ -468,6 +520,7 @@ struct ExpandedView: View {
     let open: (String) -> Void
     let act: (ShelfAction) -> Void
     let dropped: ([NSItemProvider]) -> Bool
+    let edit: ([NSItemProvider]) -> Bool
 
     private var dropTargeted: Binding<Bool> {
         Binding(get: { model.dropTargeted }, set: { model.dropTargeted = $0 })
@@ -499,7 +552,7 @@ struct ExpandedView: View {
                     }
                 }
             }
-            ShelfSection(model: model, act: act)
+            ShelfSection(model: model, act: act, edit: edit)
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
@@ -613,6 +666,17 @@ struct BimaxNotch {
         check(parseInbound(#"{"t":"shelf","items":[{"id":"1","kind":"file","title":"a.pdf","path":"/x/a.pdf","missing":true,"amber":false}],"archived":[]}"#)
               == .shelf(items: [ShelfCard(id: "1", kind: "file", title: "a.pdf", path: "/x/a.pdf", missing: true)], archived: []), "shelf")
         check(ShelfCard(id: "1", kind: "file", title: "a", path: "/nope", missing: true).itemProvider() == nil, "a missing file cannot be dragged out")
+        check(parseInbound(#"{"t":"droplet","to":{"x":395,"y":229,"width":680,"height":64},"icon":"/a.md"}"#)
+              == .droplet(to: CGRect(x: 395, y: 229, width: 680, height: 64), icon: "/a.md"), "droplet")
+        check(parseInbound(#"{"t":"droplet","to":{"x":1,"y":2,"width":0,"height":64}}"#) == nil, "an empty droplet target is refused")
+        // The Droplet's path: it starts at the notch's lip, falls, and ends spread over the bar and invisible.
+        let lip = CGPoint(x: 100, y: 32), bar = CGRect(x: 20, y: 230, width: 680, height: 64)
+        let early = DropletFrame(t: 0.05, lip: lip, notchWidth: 180, target: bar)
+        let falling = DropletFrame(t: 0.33, lip: lip, notchWidth: 180, target: bar)
+        let done = DropletFrame(t: DropletTiming.end, lip: lip, notchWidth: 180, target: bar)
+        check(early.drop == .zero && early.blobs.count == 1, "the lip swells before any drop forms")
+        check(falling.drop.midY > lip.y + 28 && falling.drop.midY < bar.midY, "the drop is between the notch and the bar while falling")
+        check(abs(done.drop.midY - bar.midY) < 0.5 && done.opacity < 0.01, "the drop ends on the bar, faded out")
         // What a drop reads, per kind of thing dropped (the same NSItemProviders a drag from Finder or a browser gives).
         let dropped = FileManager.default.temporaryDirectory.appendingPathComponent("bimax-notch-selftest.txt")
         try? "x".write(to: dropped, atomically: true, encoding: .utf8)

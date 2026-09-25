@@ -22,16 +22,21 @@ struct ShelfCard: Identifiable, Equatable {
     let text: String?
     let missing: Bool
     let amber: Bool
+    /// Stage 3, the Hatchback: the task that put it here, and how that task's check went.
+    let task: String?
+    let check: String?
 
-    init(id: String, kind: String, title: String, path: String? = nil, url: String? = nil, text: String? = nil, missing: Bool = false, amber: Bool = false) {
+    init(id: String, kind: String, title: String, path: String? = nil, url: String? = nil, text: String? = nil, missing: Bool = false, amber: Bool = false,
+         task: String? = nil, check: String? = nil) {
         self.id = id; self.kind = kind; self.title = title; self.path = path; self.url = url; self.text = text
-        self.missing = missing; self.amber = amber
+        self.missing = missing; self.amber = amber; self.task = task; self.check = check
     }
 
     init?(json row: [String: Any]) {
         guard let id = row["id"] as? String, let kind = row["kind"] as? String, let title = row["title"] as? String else { return nil }
         self.init(id: id, kind: kind, title: title, path: row["path"] as? String, url: row["url"] as? String, text: row["text"] as? String,
-                  missing: row["missing"] as? Bool ?? false, amber: row["amber"] as? Bool ?? false)
+                  missing: row["missing"] as? Bool ?? false, amber: row["amber"] as? Bool ?? false,
+                  task: row["task"] as? String, check: row["check"] as? String)
     }
 
     var fileURL: URL? { kind == "file" ? path.map { URL(fileURLWithPath: $0) } : nil }
@@ -175,11 +180,20 @@ final class Previewer: NSObject, QLPreviewPanelDataSource, QLPreviewPanelDelegat
 struct ShelfSection: View {
     @ObservedObject var model: NotchModel
     let act: (ShelfAction) -> Void
+    let edit: ([NSItemProvider]) -> Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             if model.dragging && !model.draggingOut {
-                DropZone(targeted: model.dropTargeted)
+                HStack(spacing: 8) {
+                    DropZone(title: "Keep", symbol: "tray.and.arrow.down.fill", targeted: model.dropTargeted)
+                        .accessibilityLabel("Drop here to keep it on the shelf")
+                    DropZone(title: "Edit with Bimax", symbol: "drop.fill", targeted: model.editTargeted)
+                        .onDrop(of: [.fileURL], isTargeted: Binding(get: { model.editTargeted }, set: { model.editTargeted = $0 })) { providers in
+                            edit(providers)
+                        }
+                        .accessibilityLabel("Drop files here to start a Bimax task with them")
+                }
             }
             if !model.shelf.isEmpty || !model.archived.isEmpty {
                 HStack(spacing: 10) {
@@ -221,16 +235,18 @@ struct ShelfSection: View {
 }
 
 enum ShelfAction {
-    case open(ShelfCard), copy(ShelfCard), reveal(ShelfCard), archive(ShelfCard), sweep, restore(String), dragged(ShelfCard)
+    case open(ShelfCard), copy(ShelfCard), reveal(ShelfCard), archive(ShelfCard), sweep, restore(String), dragged(ShelfCard), edit(ShelfCard)
 }
 
 struct DropZone: View {
+    let title: String
+    let symbol: String
     let targeted: Bool
 
     var body: some View {
         HStack(spacing: 8) {
-            Image(systemName: "tray.and.arrow.down.fill").font(.system(size: 13, weight: .semibold))
-            Text("Drop to keep it here").font(.system(size: 12, weight: .semibold))
+            Image(systemName: symbol).font(.system(size: 13, weight: .semibold))
+            Text(title).font(.system(size: 12, weight: .semibold))
         }
         .foregroundStyle(.white.opacity(targeted ? 1 : 0.75))
         .frame(maxWidth: .infinity, minHeight: 44)
@@ -240,7 +256,6 @@ struct DropZone: View {
                 .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.white.opacity(targeted ? 0.12 : 0.04)))
         )
         .animation(.spring(response: 0.2, dampingFraction: 0.8), value: targeted)
-        .accessibilityLabel("Drop here to keep it on the shelf")
     }
 }
 
@@ -283,16 +298,20 @@ struct ShelfCardView: View {
                 .fill(card.amber ? Color(red: 1.0, green: 0.62, blue: 0.1).opacity(0.18) : Color.white.opacity(0.07))
         )
         .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(card.amber ? Color(red: 1.0, green: 0.62, blue: 0.1).opacity(0.5) : .clear, lineWidth: 1))
+        .overlay(alignment: .topTrailing) { CheckBadge(check: card.check).padding(4) }
         .scaleEffect(card.amber ? 0.9 : 1)
         .contentShape(Rectangle())
         .onTapGesture { act(.open(card)) }
         .contextMenu {
-            if card.kind == "file", !card.missing { Button("Show in Finder") { act(.reveal(card)) } }
+            if card.kind == "file", !card.missing {
+                Button("Edit with Bimax") { act(.edit(card)) }
+                Button("Show in Finder") { act(.reveal(card)) }
+            }
             if !card.missing { Button("Copy") { act(.copy(card)) } }
             Button("Move to Archive") { act(.archive(card)) }
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(card.title)\(card.missing ? ", missing" : "")\(card.amber ? ", not used for a day" : "")")
+        .accessibilityLabel("\(card.title)\(card.missing ? ", missing" : "")\(card.amber ? ", not used for a day" : "")\(card.task.map { ", from \($0)" } ?? "")\(CheckBadge.words(card.check).map { ", \($0)" } ?? "")")
         .accessibilityAddTraits(.isButton)
 
         if let provider = card.itemProvider() {
@@ -314,5 +333,34 @@ struct ChipStyle: ButtonStyle {
             .foregroundStyle(.white.opacity(0.85))
             .padding(.horizontal, 8).padding(.vertical, 3)
             .background(Capsule().fill(Color.white.opacity(configuration.isPressed ? 0.22 : 0.1)))
+    }
+}
+
+/// A task's result on its card (stage 3): a jewel when its check passed, a crack when it failed (00 §glass shades,
+/// Prism and Fissure), a caution when it passed only after changing test files, nothing when there was no check.
+struct CheckBadge: View {
+    let check: String?
+
+    static func words(_ check: String?) -> String? {
+        switch check {
+        case "passed": return "check passed"
+        case "failed": return "check failed"
+        case "tests-edited": return "check passed after test files changed"
+        case "unchecked": return "not checked"
+        default: return nil
+        }
+    }
+
+    var body: some View {
+        switch check {
+        case "passed":
+            Image(systemName: "checkmark.seal.fill").font(.system(size: 11)).foregroundStyle(Tone.done.color)
+        case "failed":
+            Image(systemName: "bolt.horizontal.fill").font(.system(size: 10)).foregroundStyle(Tone.failed.color)
+        case "tests-edited":
+            Image(systemName: "exclamationmark.triangle.fill").font(.system(size: 10)).foregroundStyle(Tone.waiting.color)
+        default:
+            EmptyView()
+        }
     }
 }
