@@ -25,6 +25,9 @@ vendor/*/bin/
 vendor/*/cache/
 vendor/*/venv/
 vendor/
+# God's Land's notch helper compiles this vendored MIT library from source (app/native/notch/Vendor/DynamicNotchKit/
+# BIMAX_CHANGES.md); the rule above matches it on a case-insensitive disk.
+!app/native/notch/Vendor/
 
 # macOS Finder litter
 .DS_Store
