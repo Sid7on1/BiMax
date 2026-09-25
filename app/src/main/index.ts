@@ -16,6 +16,7 @@ import { modelMenuItems, quickModelFor, recordTurn, type CatalogModel, type Mode
 import { cleanRules, rulesEnvironment } from './folder.rules';
 import { helperArguments, localeArguments, talkHelper, VoiceSessions, voiceHelperPath, voiceSupported } from './voice';
 import { TALK_TURN_HINT, TalkSession, talkModel, type TalkView } from './talk.session';
+import { talkTrayTitle } from '../shared/talk';
 import { describeSchedule, dueSchedules, newSchedule, type Cadence, type Schedule } from './schedules';
 import {
   ARRIVAL_KINDS, FolderTriggers, MAX_TRIGGERS, arrivalLabel, changeListNote, changesDuring, describeTrigger, newTrigger, runMessage,
@@ -219,9 +220,13 @@ function auxiliaryWindow(kind: 'quick' | 'approval' | 'organize'): BrowserWindow
     // Hiding the bar must not strand a question its task is waiting on: it moves to the approval popup.
     window.on('hide', () => {
       voice.stop(window.webContents.id);
-      if (talkOwner === 'quick' && talk.active) { talkLog('ending: the ⌘2 bar was hidden'); talk.end(); }
+      // FL11: talking goes on in the background; the menu bar shows it and can stop it. A forgotten conversation still
+      // ends by itself after two minutes of silence (talk.session.ts QUIET_END_MS).
+      if (talkOwner === 'quick' && talk.active) { talkLog('the ⌘2 bar was hidden: talking goes on in the background'); updateTray(); }
       if (quickThreadId && threads.approvals().some(a => a.threadId === quickThreadId)) showThreadApproval();
     });
+    // FL11: back on screen, the bar shows the conversation again, so the menu bar goes back to the tasks.
+    window.on('show', () => { if (talkOwner === 'quick' && talk.active) updateTray(); });
   }
   const query = { surface: kind, glass: glassMode };
   const url = process.env.ELECTRON_RENDERER_URL;
@@ -467,13 +472,17 @@ const talk = new TalkSession({
   interrupt: (id) => threads.send(id, { t: 'interrupt' }),
   show: (view) => {
     if (view.state !== talkShown.state || view.error !== talkShown.error) talkLog(`state ${view.state}${view.error ? ` (${view.error})` : ''}`);
+    const stateChanged = view.state !== talkShown.state;
     talkShown = { state: view.state, error: view.error };
+    // FL11: the menu bar follows the conversation while the bar is hidden.
+    if (stateChanged && talkOwner === 'quick' && !quickWindow?.isVisible()) updateTray();
     const target = talkWindow();
     if (target && !target.isDestroyed()) target.webContents.send('talk:state', view);
   },
   // A project goes back to its own model and style once the talking is over.
   closed: (id) => {
     talkLog(`ended${id ? ` in thread ${id}` : ''}`);
+    updateTray();
     if (!id || talkOwner !== 'main') return;
     try { threads.setTalk(id, false); } catch { /* the thread is gone */ }
   },
@@ -1126,10 +1135,20 @@ function updateTray(): void {
   if (process.platform !== 'darwin' || !threads) return;
   const list = threads.list();
   if (!tray) tray = new Tray(nativeImage.createEmpty());
-  tray.setTitle(pushTalkListening ? '● Listening' : trayTitle(list));
+  const talkingInBackground = talkOwner === 'quick' && talk.active && !quickWindow?.isVisible();
+  tray.setTitle(pushTalkListening ? '● Listening' : (talkingInBackground ? talkTrayTitle(talk.current) : null) ?? trayTitle(list));
   tray.setToolTip(trayTooltip(list, shortcutLabel(wantedShortcut)));
   const entries = trayEntries(list);
+  // FL11: a conversation going on with the ⌘2 bar hidden can be seen and stopped from here.
+  const talkControls: Electron.MenuItemConstructorOptions[] = talkOwner === 'quick' && talk.active ? [
+    { label: `Talking · ${talkTrayTitle(talk.current)?.replace('🎙 ', '') ?? ''}`, enabled: false },
+    ...(['speaking', 'thinking', 'waiting'].includes(talk.current.state) ? [{ label: 'Interrupt and Listen', click: () => talk.interrupt() }] : []),
+    { label: 'Show the Conversation', click: () => { if (talk.threadId) showQuickThread(talk.threadId); } },
+    { label: 'Stop Talking', click: () => talk.end() },
+    { type: 'separator' },
+  ] : [];
   const template: Electron.MenuItemConstructorOptions[] = [
+    ...talkControls,
     { label: 'Bimax tasks', enabled: false },
     ...(entries.length ? entries.map((entry) => ({ label: entry.label, click: () => openThread(entry.id) })) : [{ label: 'No tasks yet', enabled: false }]),
     { type: 'separator' },

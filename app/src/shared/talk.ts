@@ -19,6 +19,21 @@ export interface TalkView {
 }
 
 /**
+ * Talking in the background (backlog FL11): with the ⌘2 bar hidden, the menu bar says what talk mode is doing, so a
+ * conversation you cannot see is never a surprise. Null when talk mode is off.
+ */
+export function talkTrayTitle(view: Pick<TalkView, 'state'>): string | null {
+  switch (view.state) {
+    case 'starting': return '🎙 Starting…';
+    case 'listening': return '🎙 Listening';
+    case 'thinking': return '🎙 Thinking…';
+    case 'speaking': return '🎙 Speaking…';
+    case 'waiting': return '🎙 Needs you';
+    default: return null;
+  }
+}
+
+/**
  * Goes to the engine with every spoken turn, never onto the screen. With the system prompt's spoken section alone,
  * gpt-oss-20b answered "What files are in this folder?" with a bare list; with this line it said "You have budget.csv
  * and notes.txt in this folder." (one run each through the real engine, 2026-09-14).

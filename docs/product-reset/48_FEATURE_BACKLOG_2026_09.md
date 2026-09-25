@@ -692,6 +692,12 @@ condition — needs a person at the Mac.
 
 **FL11. Talk in the background.** A floating orb or menu bar control while the window is hidden.
 Value low–medium · Effort M.
+**Built 2026-09-25, menu bar version (no orb).** Hiding the ⌘2 bar no longer ends talk mode. While it is hidden the menu
+bar title says what the conversation is doing (🎙 Listening / Thinking… / Speaking… / Needs you), and the menu gains
+Talking · <state>, Interrupt and Listen (while speaking, thinking or waiting), Show the Conversation and Stop Talking.
+Showing the bar again gives the menu bar back to the task list. A forgotten conversation still ends itself after two
+minutes of silence (`QUIET_END_MS`). Hiding stops dictation only; talk mode runs its own helper. Proof:
+`app/src/__tests__/talk.background.test.ts`; 2 mutants each fail it. **Not verified live** on the installed app.
 
 ## Later: valuable, needs a foundation or a narrower first version
 
