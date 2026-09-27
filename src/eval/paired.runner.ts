@@ -475,6 +475,12 @@ export interface PairedRunOptions<T> {
   manifestFiles?: string[];
   /** Collect whole-process-tree RSS around each run. Off by default: it spawns `ps`. */
   measureProcessTree?: boolean;
+  /**
+   * The clock each run is timed with, in ms. Defaults to `performance.now`. Tests of the VERDICT
+   * rule inject one: two 4 ms arms timed on a loaded machine differ by more than the 5% band from
+   * timer jitter alone, which made "identical implementations are no-change" fail now and then.
+   */
+  now?: () => number;
 }
 
 export async function runPaired<T>(options: PairedRunOptions<T>): Promise<PairedReport> {
@@ -492,14 +498,15 @@ export async function runPaired<T>(options: PairedRunOptions<T>): Promise<Paired
     const ctx: RunContext = { arm, pairIndex, positionInPair, runIndex: runIndex++ };
     const before = sampleResources();
     const treeBefore = options.measureProcessTree ? processTreeRssBytes() : null;
-    const t0 = performance.now();
+    const now = options.now ?? (() => performance.now());
+    const t0 = now();
     let outcome: ArmOutcome<T>;
     try {
       outcome = await fn(ctx);
     } catch (e: any) {
       outcome = { claimedSuccess: false, error: e?.message ?? String(e) };
     }
-    const durationMs = performance.now() - t0;
+    const durationMs = now() - t0;
     const after = sampleResources();
     const treeAfter = options.measureProcessTree ? processTreeRssBytes() : null;
 

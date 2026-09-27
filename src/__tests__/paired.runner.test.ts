@@ -69,9 +69,25 @@ describe('paired runner — statistics', () => {
 });
 
 describe('paired runner — verdicts', () => {
+  // The verdict rule is tested on a virtual clock. On the real one, two 4 ms arms on a loaded 8 GB Mac differed by
+  // more than the 5% band from timer jitter alone and this failed now and then (2 of 4 full-suite runs, 2026-09-26).
+  const virtualClock = () => {
+    let t = 0;
+    return { now: () => t, arm: (ms: number): Arm<Fixture> => async () => { t += ms; return { claimedSuccess: true, value: { produced: 'expected-output' } }; } };
+  };
+
   it('calls two identical implementations no-change', async () => {
-    const report = await runPaired({ config: config(), baseline: workingArm(4), candidate: workingArm(4), grade: gradeEndState });
+    const clock = virtualClock();
+    const report = await runPaired({ config: config(), baseline: clock.arm(4), candidate: clock.arm(4), grade: gradeEndState, now: clock.now });
     expect(report.comparison.verdict).toBe('no-change');
+    expect(report.comparison.relativeChange).toBe(0);
+  });
+
+  it('a move inside the predeclared band is no-change; one past it is a verdict', async () => {
+    const inside = virtualClock();
+    expect((await runPaired({ config: config(), baseline: inside.arm(100), candidate: inside.arm(103), grade: gradeEndState, now: inside.now })).comparison.verdict).toBe('no-change');
+    const past = virtualClock();
+    expect((await runPaired({ config: config(), baseline: past.arm(100), candidate: past.arm(106), grade: gradeEndState, now: past.now })).comparison.verdict).toBe('regressed');
   });
 
   it('MUTANT known delay: 30 ms of extra work in the candidate is reported as a regression', async () => {
