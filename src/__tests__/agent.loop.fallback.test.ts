@@ -70,6 +70,62 @@ describe('AgentLoop — fallback model chain', () => {
     return { llm: llm as unknown as LLMProvider, applied };
   }
 
+  it('a lite-routed turn fails over its QUICK model, not just the work model (measured live 2026-09-28)', async () => {
+    process.env.BIMAX_FALLBACK_MODEL = 'backup-model';
+    const applied: any[] = [];
+    let quick = 'stalled-quick';
+    const models: string[] = [];
+    const llm = {
+      userModel: 'stalled-quick',
+      liteModel: 'stalled-quick',
+      applyConfig(cfg: any) {
+        applied.push(cfg);
+        if (cfg.model) (llm as any).userModel = cfg.model;
+        if (cfg.liteModel) { quick = cfg.liteModel; (llm as any).liteModel = cfg.liteModel; }
+      },
+      async *chat(_m: any, opts: any): AsyncGenerator<ChatEvent> {
+        const model = opts?.lite ? quick : (llm as any).userModel;
+        models.push(model);
+        if (model === 'stalled-quick') {
+          yield { type: 'error', message: 'stream stalled', recoverable: true, kind: 'transient', retryAfterSecs: 0 };
+        } else {
+          yield { type: 'token', text: `Answered on ${model}.` };
+          yield { type: 'done' };
+        }
+      },
+    };
+    const loop = new AgentLoop(llm as unknown as LLMProvider, new ToolRegistry(), null as any);
+    let out = '';
+    for await (const t of loop.execute([{ role: 'user', content: 'go' }], 'sys', { maxIterations: 10, useLite: true } as any)) out += t;
+    expect(applied).toContainEqual({ model: 'backup-model', liteModel: 'backup-model' });
+    expect(models[models.length - 1]).toBe('backup-model');
+    expect(out).toContain('Answered on backup-model.');
+  });
+
+  it('when only the quick model fails, the healthy work model can be its fallback', async () => {
+    process.env.BIMAX_FALLBACK_MODEL = 'healthy-work';
+    let quick = 'stalled-quick';
+    const llm = {
+      userModel: 'healthy-work',
+      liteModel: 'stalled-quick',
+      applyConfig(cfg: any) { if (cfg.liteModel) quick = cfg.liteModel; if (cfg.model) (llm as any).userModel = cfg.model; },
+      async *chat(_m: any, opts: any): AsyncGenerator<ChatEvent> {
+        const model = opts?.lite ? quick : (llm as any).userModel;
+        if (model === 'stalled-quick') {
+          yield { type: 'error', message: 'stream stalled', recoverable: true, kind: 'transient', retryAfterSecs: 0 };
+        } else {
+          yield { type: 'token', text: `Answered on ${model}.` };
+          yield { type: 'done' };
+        }
+      },
+    };
+    const loop = new AgentLoop(llm as unknown as LLMProvider, new ToolRegistry(), null as any);
+    let out = '';
+    for await (const t of loop.execute([{ role: 'user', content: 'go' }], 'sys', { maxIterations: 10, useLite: true } as any)) out += t;
+    // The fallback equals the WORK model, which is fine: it is not the model that failed.
+    expect(out).toContain('Answered on healthy-work.');
+  });
+
   it('fails over after the transient budget is exhausted and completes on the fallback', async () => {
     process.env.BIMAX_FALLBACK_MODEL = 'backup-model';
     const { llm, applied } = makeFailoverLlm({ type: 'error', message: 'stream stalled', recoverable: true, kind: 'transient' });

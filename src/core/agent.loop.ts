@@ -175,7 +175,7 @@ export class AgentLoop {
    * The fallback model to fail over to, or null when there's nothing sensible to do: none
    * configured, already failed over, or the fallback IS the currently failing model.
    */
-  private async fallbackModelFor(): Promise<string | null> {
+  private async fallbackModelFor(failing?: string): Promise<string | null> {
     // Bimax for Mac can opt into an exact model contract. A fallback under that contract would be
     // a lie: the UI would still name the locked model while another model performed the work.
     if (String(process.env.BIMAX_DESKTOP_STRICT_MODEL || '').trim()) return null;
@@ -189,7 +189,8 @@ export class AgentLoop {
       } catch { return null; }
     }
     const llm = this.llm as any;
-    const current = String(llm?.userModel || llm?.defaultModel || '');
+    // The model that actually failed: the quick model on a lite-routed turn, else the work model.
+    const current = String(failing || llm?.userModel || llm?.defaultModel || '');
 
     // A CONFIGURED fallback is the user's own choice, so only evidence may disqualify it: the
     // provider must have actually rejected it this session. `avoidAutoSelect` used to disqualify it
@@ -751,10 +752,16 @@ export class AgentLoop {
             // rejection — try the configured fallback model ONCE. This is what keeps a day-long
             // autonomous run alive through a model outage or a rate-limit storm: switch the whole
             // session to the fallback, restore the retry budget, and re-ask the same turn.
-            const fb = await this.fallbackModelFor();
+            // A lite-routed turn runs every step on the QUICK model, so that is the model that failed.
+            // The fallback used to replace only the work model: measured live 2026-09-28, the status
+            // said "switched to fallback moonshotai/kimi-k3" and both remaining retries still went to the
+            // stalled quick model (gpt-oss-20b in both slots), so the failover changed nothing.
+            const llmAny = this.llm as any;
+            const failing = options?.useLite ? String(llmAny?.liteModel || llmAny?.userModel || '') : undefined;
+            const fb = await this.fallbackModelFor(failing);
             if (fb) {
               this.fallbackApplied = true;
-              (this.llm as any).applyConfig?.({ model: fb });
+              llmAny.applyConfig?.({ model: fb, ...(options?.useLite ? { liteModel: fb } : {}) });
               transientRetries = 0;
               engineEvents.emit('status', `Model failing — switched to fallback "${fb}"`);
               engineEvents.emit('log', { id: Date.now(), level: 'warn', text: `Active model kept failing (${event.message}); failed over to fallback model "${fb}".`, timestamp: new Date() });
