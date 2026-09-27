@@ -56,6 +56,15 @@ class FakeClock {
     }
     this.now = end;
   }
+  /**
+   * System sleep: the wall clock jumps while NO timer runs. On wake each overdue timer fires once
+   * (macOS collapses the missed intervals of a repeating timer into one late fire).
+   */
+  suspend(ms: number): void {
+    this.now += ms;
+    for (const t of this.timers) if (t.at < this.now) t.at = this.now;
+    this.advance(0);
+  }
 }
 
 class FakeChild implements EngineHandle {
@@ -298,6 +307,50 @@ describe('watchdog', () => {
     expect(h.phase()).toBe('ready');
     // …but a fully wedged event loop (no beats at all past the active threshold) does trip it.
     h.clock.advance(FAST.activeHeartbeatTimeoutMs + FAST.watchdogTickMs);
+    expect(child.killed).toContain('SIGTERM');
+  });
+
+  test('a Mac sleep does not kill an idle engine or shed its capabilities', () => {
+    const h = makeHarness();
+    h.sup.openProject('/proj');
+    const child = h.lastChild();
+    child.ready();
+    child.beat(false);
+    // Lid closed for ten minutes; the first watchdog tick runs on a background DarkWake, before the
+    // frozen engine has had a chance to send its next heartbeat.
+    h.clock.suspend(600_000);
+    expect(child.killed).toHaveLength(0);
+    expect(h.phase()).toBe('ready');
+    // Awake again and beating: still fine well past the idle deadline.
+    for (let i = 0; i < 5; i++) { h.clock.advance(FAST.idleHeartbeatTimeoutMs / 2); child.beat(false); }
+    expect(child.killed).toHaveLength(0);
+    expect(h.journalText()).toBeNull();
+  });
+
+  test('an engine that is truly wedged after a wake is still caught', () => {
+    const h = makeHarness();
+    h.sup.openProject('/proj');
+    const child = h.lastChild();
+    child.ready();
+    child.beat(false);
+    h.clock.suspend(600_000);
+    expect(child.killed).toHaveLength(0);
+    // No heartbeat ever arrives after the wake: the fresh idle deadline still applies.
+    h.clock.advance(FAST.idleHeartbeatTimeoutMs + FAST.watchdogTickMs + 1);
+    expect(child.killed).toContain('SIGTERM');
+    child.exit(null, 'SIGTERM');
+    expect(parseJournal(h.journalText())[0].kind).toBe('unresponsive');
+  });
+
+  test('a sleep during startup does not count against the startup deadline', () => {
+    const h = makeHarness();
+    h.sup.openProject('/proj');
+    const child = h.lastChild();
+    h.clock.advance(FAST.startupTimeoutMs / 2);
+    h.clock.suspend(600_000);
+    h.clock.advance(FAST.startupTimeoutMs / 2 - FAST.watchdogTickMs);
+    expect(child.killed).toHaveLength(0);
+    h.clock.advance(FAST.startupTimeoutMs);
     expect(child.killed).toContain('SIGTERM');
   });
 

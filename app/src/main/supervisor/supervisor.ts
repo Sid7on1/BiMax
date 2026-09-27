@@ -85,6 +85,13 @@ export const DEFAULT_TIMEOUTS: SupervisorTimeouts = {
   killEscalationMs: 3_000,
 };
 
+/**
+ * A watchdog tick that arrives this many intervals late means the main process itself was
+ * suspended (system sleep, App Nap), not that the engine hung. Five 2s ticks is 10s: far beyond
+ * timer jitter on a loaded 8 GB machine, and still well inside the 20s idle heartbeat deadline.
+ */
+const SUSPEND_GAP_TICKS = 5;
+
 // ---------------------------------------------------------------------------------------------
 // Renderer-originated inputs (validated — the renderer is not trusted)
 
@@ -163,6 +170,7 @@ export class EngineSupervisor {
   private interruptedSessionId: string | null = null;
 
   private watchdogTimer: unknown = null;
+  private lastTickAt: number | null = null;
   private restartTimer: unknown = null;
   private restartAt = 0;
   private killTimers = new Set<unknown>();
@@ -623,6 +631,7 @@ export class EngineSupervisor {
 
   private startWatchdog(): void {
     this.stopWatchdog();
+    this.lastTickAt = this.deps.now();
     this.watchdogTimer = this.deps.setInterval(() => this.tick(), this.timeouts.watchdogTickMs);
   }
 
@@ -635,8 +644,23 @@ export class EngineSupervisor {
 
   /** One watchdog evaluation. Public-ish for tests (deterministic, clock-injected). */
   tick(): void {
-    if (!this.child || this.watchdogVerdict) return;
     const now = this.deps.now();
+    const sinceLastTick = this.lastTickAt === null ? 0 : now - this.lastTickAt;
+    this.lastTickAt = now;
+    if (!this.child || this.watchdogVerdict) return;
+
+    // This timer did not run for many of its own intervals, so the MAIN process was suspended —
+    // the Mac slept (a background DarkWake is when this first runs again) or App Nap held the
+    // timer. The engine was frozen for exactly as long, so its silence proves nothing about a
+    // wedge. Before this check, every lid-close ended in "stopped responding": the first tick
+    // after wake saw a heartbeat minutes old and killed an idle engine, and the restart policy
+    // then counted that as a resource crash and started the next engine with capabilities shed.
+    // Re-arm both clocks from now; a truly wedged engine still misses the fresh deadline.
+    if (sinceLastTick > this.timeouts.watchdogTickMs * SUSPEND_GAP_TICKS) {
+      if (this.heartbeat) this.heartbeat = { ...this.heartbeat, at: now };
+      this.spawnedAt += sinceLastTick;
+      return;
+    }
 
     if (isStartupPhase(this.phase)) {
       if (now - this.spawnedAt > this.timeouts.startupTimeoutMs) {
