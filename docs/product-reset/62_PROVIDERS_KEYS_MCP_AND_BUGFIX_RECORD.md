@@ -95,3 +95,21 @@ updated to deliberate behaviour changes and say so in their commits), Desktop co
 
 Lint: the files this work added or changed carry no new ESLint errors; the errors ESLint reports in `app/src/main/index.ts`,
 `supervisor.ts`, `ThinkingIndicator.tsx` and `ThreadSurfaces.tsx` are on lines this work did not touch.
+
+## 6. Live run on NVIDIA (2026-09-28, 01:19–01:31 local)
+
+The built engine bundle (`app/engine/index.js`), forked as a utilityProcess the way the app forks it, the real
+`~/.breakglass` key and config (`openai/gpt-oss-20b` in Work and Quick), one request that needs a file-reading tool.
+
+- **Worked, live:** the shared ledger was created at `~/.breakglass/key-usage.json` (mode 0600, one 16-hex id, no key
+  text) and pruned starts older than a minute; the pool announced "1 key(s)… 40 requests/min each"; a 120 s first-token
+  stall benched the key, `acquire` waited 1 s and re-picked ("Rate limit — waiting 1s for a free API slot"); the loop
+  emitted "Provider hiccup — retrying in 1s (1/2)" and "(2/2)"; after that it failed over and said so; the turn ended with
+  an honest error instead of a spinner.
+- **Found and fixed (`fix(loop)` after this record):** the failover said "switched to fallback moonshotai/kimi-k3" but both
+  later retries still went to `gpt-oss-20b` — the turn was Quick-routed and the fallback only replaced the Work model.
+- **Not established:** a successful live tool call. NVIDIA answered nothing for ~12 minutes; a direct 16-token request to
+  `gpt-oss-20b` and to `kimi-k3` got no response headers within 40 s. An earlier harness attempt that looked like a stall
+  was a harness bug (messages sent without the trailing newline the engine reads by line), not a provider or product fault.
+- The run used the engine's default 120–180 s first-token budget; the app sets 45 s (`coding.runtime.paths.ts`), so the
+  same stall costs ~2¼ minutes per model in the app instead of ~6.
