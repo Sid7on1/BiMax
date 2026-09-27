@@ -15,6 +15,32 @@ import '../src/renderer/src/styles.css';
  * Browser harness for the app shell. Only the IPC surface the previewed components actually touch
  * is stubbed; anything else must fail loudly rather than be quietly faked.
  */
+/** In-memory stand-in for the Keychain-backed provider store (app/src/main/provider.credentials.ts). */
+function previewProviders() {
+  const pools: Record<string, string[]> = { nvidia: ['nvapi-demo-a1b2', 'nvapi-demo-c3d4', 'nvapi-demo-e5f6'], openrouter: ['sk-or-demo-9z8y'] };
+  const rpm: Record<string, number> = { nvidia: 40 };
+  let active = 'nvidia';
+  const names = ['nvidia', 'openai', 'anthropic', 'openrouter', 'deepseek', 'google'];
+  return {
+    localModels: async () => ({ runtimes: [], servable: [], scannedAt: new Date().toISOString() }),
+    credentialStatus: async () => names.map((name) => {
+      const pool = pools[name] ?? [];
+      const hints = pool.map((k) => `…${k.slice(-4)}`);
+      return { name, hasKey: pool.length > 0, keyCount: pool.length, keyHints: hints, ...(hints.length ? { keyHint: hints[hints.length - 1] } : {}), ...(name in rpm ? { rpm: rpm[name] } : {}), storage: pool.length ? 'keychain' : 'none', active: name === active };
+    }),
+    configure: async (input: { name: string; apiKey?: string; rpm?: number }) => {
+      if (input.apiKey) pools[input.name] = [...new Set([...(pools[input.name] ?? []), ...input.apiKey.split(/[\s,]+/).filter(Boolean)])];
+      if (input.rpm !== undefined) rpm[input.name] = input.rpm;
+      active = input.name;
+      return { ok: true };
+    },
+    removeKey: async (input: { name: string; index: number }) => {
+      pools[input.name] = (pools[input.name] ?? []).filter((_, i) => i !== input.index);
+      return { ok: true };
+    },
+  };
+}
+
 (window as unknown as { bimax: unknown }).bimax = {
   pickFolder: async () => null,
   // The sidebar lists Bimax Threads. The preview has no main process, so there are never any threads,
@@ -34,6 +60,10 @@ import '../src/renderer/src/styles.css';
     search: async () => [],
     archived: async () => [],
   },
+  // The model window's Providers pane. Keys live in this object only (never a real key); the shape
+  // matches `providers:credential-status` so the pane renders a pool with hints and a limit.
+  providers: previewProviders(),
+  supervisor: { getStatus: async () => ({ phase: 'ready' }) },
   // Only what the previewed components touch. The coach's IPC is stubbed so the overlay can be
   // looked at; anything it calls that is NOT stubbed must throw rather than be silently faked.
   permissionCoach: {

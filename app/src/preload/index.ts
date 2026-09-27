@@ -214,8 +214,12 @@ const api = {
     /** What this machine can run locally, and what is merely downloaded. */
     localModels: (): Promise<unknown> => ipcRenderer.invoke('models:local'),
     credentialStatus: (): Promise<unknown[]> => ipcRenderer.invoke('providers:credential-status'),
-    configure: (input: { name: string; apiKey?: string; baseURL?: string }): Promise<unknown> =>
+    /** Select a provider; `apiKey` ADDS one or more keys (newline/comma separated) to its pool. */
+    configure: (input: { name: string; apiKey?: string; baseURL?: string; rpm?: number }): Promise<unknown> =>
       ipcRenderer.invoke('providers:configure', input),
+    /** Remove one key from a provider's pool, by its position in the status `keyHints`. */
+    removeKey: (input: { name: string; index: number }): Promise<unknown> =>
+      ipcRenderer.invoke('providers:remove-key', input),
   },
   getProject: (): Promise<string> => ipcRenderer.invoke('app:get-project'),
   recentProjects: (): Promise<string[]> => ipcRenderer.invoke('app:recent-projects'),

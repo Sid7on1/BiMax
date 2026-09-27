@@ -109,6 +109,21 @@ export function ModelDialog({
     setRefreshing(false);
   }, [catalogGet, configGet]);
 
+  // Provider secrets are injected only when the engine starts. Wait for that new generation before
+  // asking for its catalogue; otherwise catalogGet is deliberately rejected by the supervisor while
+  // the child is booting.
+  const waitForEngineThenRefresh = useCallback(async () => {
+    const deadline = Date.now() + 45_000;
+    while (Date.now() < deadline) {
+      const status = (await window.bimax.supervisor.getStatus().catch(() => null)) as { phase?: string } | null;
+      if (status?.phase === 'ready' || status?.phase === 'degraded') break;
+      await new Promise((resolve) => setTimeout(resolve, 250));
+    }
+    const [next, cfg] = await Promise.all([catalogGet(true), configGet()]);
+    setCatalog(next);
+    setConfig(cfg);
+  }, [catalogGet, configGet]);
+
   const apply = useCallback(
     async (key: string, value: string) => {
       setOutcomes((current) => ({ ...current, [key]: { state: 'saving' } }));
@@ -191,6 +206,18 @@ export function ModelDialog({
           ) : pane.view === 'providers' ? (
             <ProviderPane
               catalog={catalog}
+              onRemoveKey={async (input) => {
+                const result = await window.bimax.providers.removeKey(input);
+                if (!result.ok) {
+                  setCatalog((current) => ({
+                    providers: current?.providers ?? [],
+                    models: current?.models ?? [],
+                    error: result.error || 'The key could not be removed.',
+                  }));
+                  return;
+                }
+                await waitForEngineThenRefresh();
+              }}
               onApply={async (input) => {
                 const result = await window.bimax.providers.configure(input);
                 if (!result.ok) {
@@ -201,20 +228,7 @@ export function ModelDialog({
                   }));
                   return;
                 }
-                // Provider secrets are injected only when the engine starts. Wait for that new
-                // generation before asking for its catalogue; otherwise catalogGet is deliberately
-                // rejected by the supervisor while the child is booting.
-                const deadline = Date.now() + 45_000;
-                while (Date.now() < deadline) {
-                  const status = (await window.bimax.supervisor.getStatus().catch(() => null)) as {
-                    phase?: string;
-                  } | null;
-                  if (status?.phase === 'ready' || status?.phase === 'degraded') break;
-                  await new Promise((resolve) => setTimeout(resolve, 250));
-                }
-                const [next, cfg] = await Promise.all([catalogGet(true), configGet()]);
-                setCatalog(next);
-                setConfig(cfg);
+                await waitForEngineThenRefresh();
               }}
             />
           ) : pane.view === 'pick' ? (
@@ -656,67 +670,93 @@ function ModelRow({
 
 /* ----------------------------------------------------------------------- providers ------------ */
 
+type CredentialStatus = Awaited<ReturnType<typeof window.bimax.providers.credentialStatus>>[number];
+
 function ProviderPane({
   catalog,
   onApply,
+  onRemoveKey,
 }: {
   catalog: EngineCatalog | null;
-  onApply: (input: { name: string; baseURL?: string; apiKey?: string }) => Promise<void>;
+  onApply: (input: { name: string; baseURL?: string; apiKey?: string; rpm?: number }) => Promise<void>;
+  onRemoveKey: (input: { name: string; index: number }) => Promise<void>;
 }): React.ReactElement {
   const [busy, setBusy] = useState<string | null>(null);
   const [keyFor, setKeyFor] = useState<string | null>(null);
   const [keyValue, setKeyValue] = useState('');
   const [baseURL, setBaseURL] = useState('');
-  const [credentialStatus, setCredentialStatus] = useState<
-    Awaited<ReturnType<typeof window.bimax.providers.credentialStatus>>
-  >([]);
+  const [rpm, setRpm] = useState('');
+  const [credentialStatus, setCredentialStatus] = useState<CredentialStatus[]>([]);
+
+  const refreshStatus = useCallback(async () => {
+    setCredentialStatus(await window.bimax.providers.credentialStatus().catch(() => []));
+  }, []);
 
   useEffect(() => {
-    void window.bimax.providers
-      .credentialStatus()
-      .then(setCredentialStatus)
-      .catch(() => setCredentialStatus([]));
-  }, [catalog]);
+    void refreshStatus();
+  }, [catalog, refreshStatus]);
 
   const run = useCallback(
-    async (input: { name: string; baseURL?: string; apiKey?: string }) => {
+    async (input: { name: string; baseURL?: string; apiKey?: string; rpm?: number }, keepOpen = false) => {
       setBusy(input.name);
       try {
         await onApply(input);
-        setCredentialStatus(await window.bimax.providers.credentialStatus().catch(() => []));
-        setKeyFor(null);
+        await refreshStatus();
         setKeyValue('');
-        setBaseURL('');
+        if (!keepOpen) {
+          setKeyFor(null);
+          setBaseURL('');
+          setRpm('');
+        }
       } finally {
         setBusy(null);
       }
     },
-    [onApply],
+    [onApply, refreshStatus],
   );
 
-  const fallback: ProviderEntry[] = [['nvidia', 'NVIDIA NIM · Kimi K3', 'NVIDIA_API_KEY']].map(
-    ([name, label, apiKeyEnv]) => ({
-      name,
-      label,
-      apiKeyEnv,
-      baseURL: '',
-      active: false,
-      hasKey: false,
-      keyCount: 0,
-    }),
+  const remove = useCallback(
+    async (name: string, index: number) => {
+      setBusy(name);
+      try {
+        await onRemoveKey({ name, index });
+        await refreshStatus();
+      } finally {
+        setBusy(null);
+      }
+    },
+    [onRemoveKey, refreshStatus],
   );
+
+  const fallback: ProviderEntry[] = [['nvidia', 'NVIDIA NIM', 'NVIDIA_API_KEY']].map(([name, label, apiKeyEnv]) => ({
+    name,
+    label,
+    apiKeyEnv,
+    baseURL: '',
+    active: false,
+    hasKey: false,
+    keyCount: 0,
+  }));
   const rows = (catalog?.providers.length ? catalog.providers : fallback).map((provider) => {
     const secure = credentialStatus.find((item) => item.name === provider.name);
-    return secure?.hasKey
-      ? { ...provider, hasKey: true, keyCount: 1, keyHint: secure.keyHint, active: secure.active || provider.active }
-      : { ...provider, active: secure?.active || provider.active };
+    // The engine counts every key it loaded (Keychain and ~/.breakglass/.env); Keychain lists its own.
+    const keyCount = Math.max(provider.keyCount || 0, secure?.keyCount || 0);
+    return {
+      ...provider,
+      hasKey: provider.hasKey || !!secure?.hasKey,
+      keyCount,
+      active: secure?.active || provider.active,
+      secure,
+    };
   });
 
   return (
     <div className="px-5 py-4">
       <p className="mb-3 text-[11.5px] leading-relaxed text-dim">
         Choose who serves the models Bimax uses. Keys you save here are protected by macOS Keychain and injected only
-        into the engine process — never written to a project or sent through chat.
+        into the engine process — never written to a project or sent through chat. Add several keys to one provider and
+        Bimax rotates them, keeping each under its per-minute limit and waiting for a free slot instead of hitting rate
+        limits.
       </p>
 
       {/* Local runtimes come FIRST: an on-machine model needs no key and sends nothing outward,
@@ -737,19 +777,35 @@ function ProviderPane({
           <ProviderRow
             key={provider.name}
             provider={provider}
+            secure={provider.secure}
             busy={busy === provider.name}
             expanded={keyFor === provider.name}
             keyValue={keyValue}
             baseURL={baseURL}
+            rpm={rpm}
             onKeyValue={setKeyValue}
             onBaseURL={setBaseURL}
+            onRpm={setRpm}
             onExpand={() => {
               setKeyFor(keyFor === provider.name ? null : provider.name);
               setKeyValue('');
               setBaseURL(provider.baseURL || '');
+              setRpm(provider.secure?.rpm !== undefined ? String(provider.secure.rpm) : '');
             }}
-            onUse={() => void run({ name: provider.name, ...(baseURL ? { baseURL } : {}) })}
-            onSaveKey={() => void run({ name: provider.name, apiKey: keyValue, ...(baseURL ? { baseURL } : {}) })}
+            onUse={() => void run({ name: provider.name })}
+            onSave={() => {
+              const limit = rpm.trim() === '' ? undefined : Number(rpm);
+              void run(
+                {
+                  name: provider.name,
+                  ...(keyValue.trim() ? { apiKey: keyValue } : {}),
+                  ...(baseURL.trim() && baseURL.trim() !== provider.baseURL ? { baseURL: baseURL.trim() } : {}),
+                  ...(limit !== undefined && Number.isInteger(limit) && limit >= 0 ? { rpm: limit } : {}),
+                },
+                true,
+              );
+            }}
+            onRemoveKey={(index) => void remove(provider.name, index)}
           />
         ))}
       </div>
@@ -761,28 +817,44 @@ function ProviderPane({
 
 function ProviderRow({
   provider,
+  secure,
   busy,
   expanded,
   keyValue,
   baseURL,
+  rpm,
   onKeyValue,
   onBaseURL,
+  onRpm,
   onExpand,
   onUse,
-  onSaveKey,
+  onSave,
+  onRemoveKey,
 }: {
   provider: ProviderEntry;
+  secure?: CredentialStatus;
   busy: boolean;
   expanded: boolean;
   keyValue: string;
   baseURL: string;
+  rpm: string;
   onKeyValue: (value: string) => void;
   onBaseURL: (value: string) => void;
+  onRpm: (value: string) => void;
   onExpand: () => void;
   onUse: () => void;
-  onSaveKey: () => void;
+  onSave: () => void;
+  onRemoveKey: (index: number) => void;
 }): React.ReactElement {
-  const servesKimiK3 = provider.name === 'nvidia';
+  const saved = secure?.keyHints ?? [];
+  const fromEnvFile = Math.max(0, provider.keyCount - saved.length);
+  const rpmValid = rpm.trim() === '' || (/^\d+$/.test(rpm.trim()) && Number(rpm) <= 100_000);
+  const canSave = !busy && rpmValid && (keyValue.trim() !== '' || rpm.trim() !== '' || baseURL.trim() !== (provider.baseURL || ''));
+  const summary = provider.hasKey
+    ? `${provider.keyCount} key${provider.keyCount === 1 ? '' : 's'}${
+        secure?.rpm ? ` · ${secure.rpm}/min each` : provider.name === 'nvidia' ? ' · 40/min each (free tier)' : ''
+      }`
+    : `no key · add one to use ${provider.label}`;
   return (
     <div
       className={cn(
@@ -795,23 +867,18 @@ function ProviderRow({
           <span className="flex items-center gap-1.5 text-[12.5px] font-medium text-ink">
             {provider.label}
             {provider.active && <Pill tone="ember">active</Pill>}
-            {!servesKimiK3 && <Pill tone="amber">not verified</Pill>}
           </span>
-          <span className="truncate text-[10.5px] text-faint">
-            {provider.hasKey
-              ? `${provider.keyCount} key${provider.keyCount === 1 ? '' : 's'}${provider.keyHint ? ` · ${provider.keyHint}` : ''}`
-              : `no key · set ${provider.apiKeyEnv}`}
-          </span>
+          <span className="truncate text-[10.5px] text-faint">{summary}</span>
         </span>
-        {servesKimiK3 && (
-          <button
-            onClick={onExpand}
-            className="shrink-0 cursor-pointer rounded-lg border border-line px-2 py-1.5 text-[11px] text-dim transition-colors hover:border-ember/50 hover:text-ink"
-          >
-            {provider.hasKey ? <KeyRound size={11} /> : <Plus size={11} />}
-          </button>
-        )}
-        {!provider.active && provider.hasKey && servesKimiK3 && (
+        <button
+          onClick={onExpand}
+          aria-label={`${provider.label} keys`}
+          aria-expanded={expanded}
+          className="shrink-0 cursor-pointer rounded-lg border border-line px-2 py-1.5 text-[11px] text-dim transition-colors hover:border-ember/50 hover:text-ink"
+        >
+          {provider.hasKey ? <KeyRound size={11} /> : <Plus size={11} />}
+        </button>
+        {!provider.active && provider.hasKey && (
           <button
             onClick={onUse}
             disabled={busy}
@@ -824,41 +891,84 @@ function ProviderRow({
 
       {expanded && (
         <div className="border-t border-line px-3 py-2.5">
+          {saved.length > 0 && (
+            <ul className="mb-2 flex flex-col gap-1" aria-label={`Saved ${provider.label} keys`}>
+              {saved.map((hint, index) => (
+                <li key={`${hint}-${index}`} className="flex items-center gap-2 text-[11px] text-dim">
+                  <KeyRound size={10} className="text-faint" />
+                  <span className="flex-1 font-mono">
+                    Key {index + 1} <span className="text-faint">{hint}</span>
+                  </span>
+                  <button
+                    onClick={() => onRemoveKey(index)}
+                    disabled={busy}
+                    aria-label={`Remove key ${index + 1}`}
+                    className="cursor-pointer rounded-md px-1.5 py-0.5 text-faint transition-colors hover:bg-well hover:text-ink disabled:opacity-40"
+                  >
+                    <X size={11} />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          {fromEnvFile > 0 && (
+            <p className="mb-2 text-[10.5px] text-faint">
+              {fromEnvFile} more key{fromEnvFile === 1 ? '' : 's'} from {provider.apiKeyEnv} in ~/.breakglass/.env
+            </p>
+          )}
           <label className="mb-1 block text-[10.5px] text-faint">
-            Paste a key for {provider.label}. Bimax protects it with macOS Keychain.
+            {saved.length ? 'Add more keys' : `Paste a key for ${provider.label}`} — one per line to add several. Keys
+            from different accounts add capacity; keys from one account usually share its limit.
           </label>
-          <div className="flex items-center gap-1.5">
-            <input
-              type="password"
-              value={keyValue}
-              spellCheck={false}
-              autoComplete="off"
-              placeholder={provider.apiKeyEnv}
-              onChange={(event) => onKeyValue(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' && keyValue) onSaveKey();
-              }}
-              className="min-w-0 flex-1 rounded-lg border border-line bg-well px-2.5 py-1.5 font-mono text-[11.5px] text-ink outline-none placeholder:text-faint focus:border-ember/60"
-            />
+          <textarea
+            value={keyValue}
+            rows={keyValue.includes('\n') ? 3 : 1}
+            spellCheck={false}
+            autoComplete="off"
+            placeholder={provider.apiKeyEnv}
+            onChange={(event) => onKeyValue(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' && (event.metaKey || !keyValue.includes('\n')) && canSave && !event.shiftKey) {
+                event.preventDefault();
+                onSave();
+              }
+            }}
+            className="w-full resize-none rounded-lg border border-line bg-well px-2.5 py-1.5 font-mono text-[11.5px] text-ink outline-none [-webkit-text-security:disc] placeholder:text-faint focus:border-ember/60"
+          />
+          <div className="mt-2 flex items-end gap-2">
+            <label className="flex w-36 flex-col text-[10.5px] text-faint">
+              Requests / min per key
+              <input
+                inputMode="numeric"
+                value={rpm}
+                placeholder={provider.name === 'nvidia' ? '40' : 'no limit'}
+                onChange={(event) => onRpm(event.target.value)}
+                aria-invalid={!rpmValid}
+                className={cn(
+                  'mt-1 rounded-lg border bg-well px-2.5 py-1.5 font-mono text-[11.5px] text-ink outline-none placeholder:text-faint focus:border-ember/60',
+                  rpmValid ? 'border-line' : 'border-amber',
+                )}
+              />
+            </label>
+            <label className="flex min-w-0 flex-1 flex-col text-[10.5px] text-faint">
+              Custom HTTPS endpoint <span className="sr-only">(optional)</span>
+              <input
+                type="url"
+                value={baseURL}
+                spellCheck={false}
+                placeholder={provider.baseURL || 'https://api.example.com/v1'}
+                onChange={(event) => onBaseURL(event.target.value)}
+                className="mt-1 w-full rounded-lg border border-line bg-well px-2.5 py-1.5 font-mono text-[11.5px] text-ink outline-none placeholder:text-faint focus:border-ember/60"
+              />
+            </label>
             <button
-              onClick={onSaveKey}
-              disabled={!keyValue || busy}
+              onClick={onSave}
+              disabled={!canSave}
               className="shrink-0 cursor-pointer rounded-lg bg-ember px-2.5 py-1.5 text-[11.5px] font-semibold text-bg transition-colors hover:bg-ember-bright disabled:opacity-40"
             >
               {busy ? <Loader size={11} className="animate-spin" /> : 'Save & use'}
             </button>
           </div>
-          <label className="mt-2 mb-1 block text-[10.5px] text-faint">
-            Custom HTTPS endpoint <span className="opacity-70">(optional)</span>
-          </label>
-          <input
-            type="url"
-            value={baseURL}
-            spellCheck={false}
-            placeholder={provider.baseURL || 'https://api.example.com/v1'}
-            onChange={(event) => onBaseURL(event.target.value)}
-            className="w-full rounded-lg border border-line bg-well px-2.5 py-1.5 font-mono text-[11.5px] text-ink outline-none placeholder:text-faint focus:border-ember/60"
-          />
         </div>
       )}
     </div>

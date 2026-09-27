@@ -204,11 +204,18 @@ declare global {
         credentialStatus: () => Promise<Array<{
           name: string;
           hasKey: boolean;
+          keyCount: number;
+          keyHints: string[];
           keyHint?: string;
+          rpm?: number;
           storage: 'keychain' | 'none';
           active: boolean;
         }>>;
-        configure: (input: { name: string; apiKey?: string; baseURL?: string }) => Promise<{
+        configure: (input: { name: string; apiKey?: string; baseURL?: string; rpm?: number }) => Promise<{
+          ok: boolean;
+          error?: string;
+        }>;
+        removeKey: (input: { name: string; index: number }) => Promise<{
           ok: boolean;
           error?: string;
         }>;

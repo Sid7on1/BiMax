@@ -84,7 +84,7 @@ import {
 } from '../phase9/workspace.capabilities';
 import {
   configureProviderCredential, loadProviderCredentials, providerCredentialEnvironment,
-  providerCredentialStatuses,
+  providerCredentialStatuses, removeProviderKey,
 } from './provider.credentials';
 
 /**
@@ -2861,18 +2861,35 @@ app.whenReady().then(async () => {
 
   secureHandle<unknown[]>('providers:credential-status', [], () => providerCredentialStatuses());
   secureHandle<{ ok: boolean; error?: string }>('providers:configure', { ok: false }, (_e, raw: unknown) => {
-    const request = raw as { name?: unknown; apiKey?: unknown; baseURL?: unknown } | null;
+    const request = raw as { name?: unknown; apiKey?: unknown; baseURL?: unknown; rpm?: unknown } | null;
     if (!request || typeof request.name !== 'string') throw new InvalidPayloadError('provider name is required');
     if (request.apiKey !== undefined && typeof request.apiKey !== 'string') throw new InvalidPayloadError('provider key must be text');
     if (request.baseURL !== undefined && typeof request.baseURL !== 'string') throw new InvalidPayloadError('provider endpoint must be text');
+    if (request.rpm !== undefined && (typeof request.rpm !== 'number' || !Number.isInteger(request.rpm))) throw new InvalidPayloadError('requests per minute must be a whole number');
     try {
       configureProviderCredential({
         name: request.name,
         ...(request.apiKey ? { apiKey: request.apiKey } : {}),
         ...(request.baseURL ? { baseURL: request.baseURL } : {}),
+        ...(typeof request.rpm === 'number' ? { rpm: request.rpm } : {}),
       });
       // A child cannot have its environment mutated in place. Start a new generation with the
       // Keychain-backed key and provider route; the provider pane waits for ready before refresh.
+      const dir = supervisor?.currentProject || pickInitialProject(loadSettings().lastProject);
+      if (dir) startEngine(dir, { restart: true });
+      return { ok: true };
+    } catch (error) {
+      return { ok: false, error: String((error as Error)?.message || error) };
+    }
+  });
+
+  secureHandle<{ ok: boolean; error?: string }>('providers:remove-key', { ok: false }, (_e, raw: unknown) => {
+    const request = raw as { name?: unknown; index?: unknown } | null;
+    if (!request || typeof request.name !== 'string') throw new InvalidPayloadError('provider name is required');
+    if (typeof request.index !== 'number' || !Number.isInteger(request.index)) throw new InvalidPayloadError('key position must be a whole number');
+    try {
+      removeProviderKey({ name: request.name, index: request.index });
+      // The removed key must stop being used now, not at the next launch: restart with the new pool.
       const dir = supervisor?.currentProject || pickInitialProject(loadSettings().lastProject);
       if (dir) startEngine(dir, { restart: true });
       return { ok: true };
