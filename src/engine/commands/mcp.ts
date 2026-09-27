@@ -59,6 +59,11 @@ globalCommandRegistry.register({
       const options: any[] = [];
       if (conn) options.push({ label: 'Show tools', value: `/mcp test ${name}`, desc: `${conn.toolNames.length} tool(s)` });
       if (!disabled) options.push({ label: '↻  Reconnect', value: `/mcp reconnect ${name}`, desc: 'Refresh tools and connection safely' });
+      const remote = loadMcpServers(os.homedir()).find(s => s.name === name)?.url;
+      if (remote && !disabled) {
+        options.push({ label: '🔑  Sign in', value: `/mcp login ${name}`, desc: 'Open the sign-in page in your browser' });
+        options.push({ label: '⎋  Sign out', value: `/mcp logout ${name}`, desc: 'Forget this server’s sign-in' });
+      }
       options.push(
         disabled
           ? { label: '▶  Enable', value: `/mcp enable ${name}`, desc: 'Allow this server to start' }
@@ -96,6 +101,27 @@ globalCommandRegistry.register({
         }
       }
       return { type: 'message', level: 'success', content: enabled ? `Enabled '${name}'.` : `Disabled '${name}' — it won't start until re-enabled.` };
+    }
+
+    if (sub === 'login') {
+      const name = args[1];
+      if (!name) return { type: 'message', level: 'error', content: 'Usage: /mcp login <name>' };
+      if (!registry || !governor) return { type: 'message', level: 'error', content: 'Tool registry unavailable in this context.' };
+      const conn = await globalMcpManager.login(name, registry, governor);
+      return {
+        type: 'message',
+        level: conn ? 'success' : 'error',
+        content: conn
+          ? `Signed in to '${name}' — ${conn.toolNames.length} tool(s) are live.`
+          : `Sign-in to '${name}' did not finish. ${globalMcpManager.lastErrorFor(name) || globalMcpManager.lastError || 'Unknown error.'}`,
+      };
+    }
+
+    if (sub === 'logout') {
+      const name = args[1];
+      if (!name) return { type: 'message', level: 'error', content: 'Usage: /mcp logout <name>' };
+      const ok = await globalMcpManager.logout(name, registry);
+      return { type: 'message', level: ok ? 'success' : 'info', content: ok ? `Signed out of '${name}'.` : `'${name}' is not a hosted server with a sign-in.` };
     }
 
     if (sub === 'doctor') {

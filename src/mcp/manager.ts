@@ -6,7 +6,8 @@ import { ToolRegistry } from '../tools/tool.registry';
 import { IGovernor } from '../core/interfaces';
 import { Logger } from '../utils/logger';
 import { McpServerSpec, loadHostCapabilityServers, loadMcpServers, normalizeArgs, missingPathArgs } from './config';
-import { connectAndRegister, ConnectedMcp } from './client';
+import { connectAndRegister, ConnectedMcp, OpenOptions } from './client';
+import { forgetSignIn } from './oauth';
 import { engineEvents } from '../engine/events';
 import { codebaseMemorySpec } from './builtin/codebaseMemory';
 import { withTimeout } from '../utils/withTimeout';
@@ -89,6 +90,7 @@ export class McpManager {
     spec: McpServerSpec,
     registry: ToolRegistry,
     governor: IGovernor,
+    options: OpenOptions = {},
   ): Promise<ConnectedMcp | null> {
     this.lastError = null;
     this.pending.add(spec.name);
@@ -103,7 +105,7 @@ export class McpManager {
         // in-flight call can retry once on it.
         const fresh = await this.connectSpec(spec, registry, governor);
         return fresh?.client ?? null;
-      });
+      }, options);
       if (!conn) {
         this.errors.set(spec.name, failure || 'Connection failed without an error message.');
         this.reportConnection(spec.name, false);
@@ -331,6 +333,29 @@ export class McpManager {
       return null;
     }
     return this.connectSpec(spec, registry, governor);
+  }
+
+  /**
+   * Sign in to a hosted server (OAuth) and connect it. Opens the browser — only ever from an
+   * explicit request; automatic connects fail with a "needs you to sign in" message instead.
+   */
+  public async login(name: string, registry: ToolRegistry, governor: IGovernor, cwd?: string): Promise<ConnectedMcp | null> {
+    const spec = loadMcpServers(this.configRoot(cwd)).find(s => s.name === name) ?? this.connections.get(name)?.spec;
+    const refuse = (msg: string) => { this.lastError = msg; this.errors.set(name, msg); return null; };
+    if (!spec) return refuse(`No MCP server named '${name}' is configured.`);
+    if (!spec.url) return refuse(`MCP '${name}' runs on this Mac, so it has no sign-in. Give it its keys in its "env" instead.`);
+    this.healFailures.delete(name);
+    return this.connectSpec(spec, registry, governor, { interactiveSignIn: true });
+  }
+
+  /** Forget a hosted server's sign-in and disconnect it. */
+  public async logout(name: string, registry?: ToolRegistry, cwd?: string): Promise<boolean> {
+    const spec = loadMcpServers(this.configRoot(cwd)).find(s => s.name === name) ?? this.connections.get(name)?.spec;
+    if (!spec?.url) return false;
+    forgetSignIn(spec.url);
+    await this.disconnect(name, registry);
+    this.errors.set(name, `Signed out. Run /mcp login ${name} to sign in again.`);
+    return true;
   }
 
   /** Live tool names contributed by all connected servers. */
