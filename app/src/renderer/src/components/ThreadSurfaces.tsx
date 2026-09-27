@@ -558,7 +558,7 @@ export function ThreadQuickBar(): React.ReactElement {
               />
             ) : null}
             {state.streaming ? <div className="quick-answer"><Markdown text={state.streaming} /></div> : null}
-            {showActivity ? <ThinkingIndicator thinking={state.thinking} /> : null}
+            {showActivity ? <ThinkingIndicator thinking={state.thinking} status={state.status} /> : null}
             {request ? <QuickRequest key={request.id} req={request} onReply={(value) => void reply(value)} /> : null}
           </div>
           </PathLinkContext.Provider>

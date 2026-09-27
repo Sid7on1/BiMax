@@ -136,7 +136,7 @@ const TranscriptEngine = createContext<EngineStore | null>(null);
 function StreamFooter(): React.ReactElement {
   const store = useContext(TranscriptEngine);
   if (!store) throw new Error('Transcript engine is missing');
-  const { streaming, thinking, busy } = useEngineDomain(store.domains.stream);
+  const { streaming, thinking, busy, status } = useEngineDomain(store.domains.stream);
   return (
     <div className="px-4 pb-3">
       {/* While a turn is in flight and no answer text has arrived: a rotating status word, the elapsed
@@ -144,7 +144,7 @@ function StreamFooter(): React.ReactElement {
           because a looping model rendered its token loop ("ellsellsells…") straight into the transcript;
           ThinkingIndicator keeps the stream visible and hides it only once it has degenerated, which is
           the case that motivated hiding it. */}
-      {busy && !streaming && <ThinkingIndicator thinking={thinking} />}
+      {busy && !streaming && <ThinkingIndicator thinking={thinking} status={status} />}
       {streaming && (
         <div className="reading-column mx-auto">
           <Markdown text={streaming} />

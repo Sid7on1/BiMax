@@ -83,7 +83,7 @@ describe('engine domain subscriptions', () => {
     store.dispatch(event('clear'));
     store.dispatch(event('stream_token', 'late'));
     store.dispatch(event('message', { id: 'old', role: 'assistant', content: 'late' }));
-    expect(store.domains.stream.getSnapshot()).toEqual({ streaming: '', thinking: '', busy: false });
+    expect(store.domains.stream.getSnapshot()).toEqual({ streaming: '', thinking: '', busy: false, status: '' });
     expect(store.domains.transcript.getSnapshot().items).toEqual([]);
     expect(store.domains.workspace.getSnapshot().hasActiveStream).toBe(false);
     store.dispatch({ type: 'turnStarted' });

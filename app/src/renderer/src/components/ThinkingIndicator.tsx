@@ -37,7 +37,7 @@ function useDecodingWord(word: string): string {
  * — in which case the row says so instead of rendering the loop. The full reasoning is still kept on
  * the finished message, behind its "Thought for Ns" line.
  */
-export function ThinkingIndicator({ thinking }: { thinking: string }): React.ReactElement {
+export function ThinkingIndicator({ thinking, status }: { thinking: string; status?: string }): React.ReactElement {
   const startedAt = useRef(Date.now());
   const [elapsed, setElapsed] = useState(0);
   const [verb, setVerb] = useState<string>(() => THINKING_VERBS[Math.floor(Math.random() * THINKING_VERBS.length)]);
@@ -71,6 +71,9 @@ export function ThinkingIndicator({ thinking }: { thinking: string }): React.Rea
           </button>
         ) : null}
       </div>
+      {/* Why the turn is waiting, when the engine says: a provider retry, a rate-limit wait, a
+          fallback model. Without it a 45-second provider stall looked exactly like a hang. */}
+      {status ? <p className="thinking-status mt-1 pl-3.5 text-dim" aria-live="polite">{status}</p> : null}
       {thinking && open ? (
         degenerate ? (
           <p className="mt-1 pl-3.5 italic">The reasoning started repeating itself, so it is hidden here. The answer will still arrive.</p>

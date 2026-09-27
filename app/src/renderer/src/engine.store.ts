@@ -40,6 +40,10 @@ export class EngineStore {
       stream: new EngineDomain((s) => ({
         streaming: s.streaming, thinking: s.thinking,
         busy: s.spinner.state !== 'idle' && s.spinner.state !== '',
+        // The engine's latest status line ("Provider hiccup — retrying in 2s", "Rate limit — waiting
+        // 12s…"). Kept beside the stream so the in-flight row can say WHY a turn is waiting; changes
+        // a few times per turn at most, so it does not add stream re-renders.
+        status: s.status,
       }), state),
       task: new EngineDomain((s) => ({
         spinner: s.spinner, status: s.status, todos: s.todos, subagents: s.subagents,
