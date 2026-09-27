@@ -170,15 +170,13 @@ export function waitForAuthorizationCode(
 ): { ready: Promise<void>; code: Promise<string>; close: () => void } {
   const port = options.port ?? oauthCallbackPort();
   const timeoutMs = options.timeoutMs ?? 5 * 60_000;
-  let server: http.Server;
-  let timer: ReturnType<typeof setTimeout>;
   let settle!: { resolve: (c: string) => void; reject: (e: Error) => void };
   const code = new Promise<string>((resolve, reject) => { settle = { resolve, reject }; });
   const close = () => { clearTimeout(timer); try { server.close(); } catch { /* closed */ } };
   const page = (title: string, body: string) =>
     `<!doctype html><meta charset="utf-8"><title>${title}</title><body style="font:15px -apple-system,system-ui;padding:48px;max-width:520px;margin:auto"><h2>${title}</h2><p>${body}</p></body>`;
 
-  server = http.createServer((req, res) => {
+  const server: http.Server = http.createServer((req, res) => {
     const url = new URL(req.url || '/', `http://127.0.0.1:${port}`);
     if (url.pathname !== OAUTH_CALLBACK_PATH) { res.writeHead(404).end(); return; }
     const error = url.searchParams.get('error');
@@ -210,7 +208,7 @@ export function waitForAuthorizationCode(
     });
     server.listen(port, '127.0.0.1', () => resolve());
   });
-  timer = setTimeout(() => { close(); settle.reject(new Error('Sign-in timed out after 5 minutes.')); }, timeoutMs);
+  const timer = setTimeout(() => { close(); settle.reject(new Error('Sign-in timed out after 5 minutes.')); }, timeoutMs);
   timer.unref?.();
   return { ready, code, close };
 }

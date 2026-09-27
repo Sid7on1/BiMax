@@ -1,5 +1,14 @@
 # Bimax product reset
 
+## Every provider, a key pool, every MCP server, and the audit's bugs — 2026-09-28
+
+[62_PROVIDERS_KEYS_MCP_AND_BUGFIX_RECORD.md](62_PROVIDERS_KEYS_MCP_AND_BUGFIX_RECORD.md): an audit of real use found a Mac
+sleep killing idle engines (29 of 30 crash records), an app that only let NVIDIA take a key, retired default models for
+every other provider, a dead default Quick model, retry messages never shown, and no code search on big projects. Built:
+a machine-wide hybrid round-robin key pool with per-key requests/min, provider-safe tool names and schemas (GPT-6 and
+Gemini rules), several keys per provider in the app, MCP sign-in (OAuth), every common MCP config shape, live tool-list
+updates, resources and roots. **Only NVIDIA was run live**; other providers are Implemented from their documentation.
+
 ## God's Land, the living notch deck — 2026-09-25
 
 The owner's new feature: the MacBook notch as a shelf, a smart clipboard and the drop-and-speak on-ramp to the ⌘2

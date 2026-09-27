@@ -126,7 +126,7 @@ export class FileKeyUsageStore implements KeyUsageStore {
     }
     if (fd === null) throw new Error('key usage ledger is busy');
     try {
-      let file: LedgerFile = { version: 1, keys: {} };
+      const file: LedgerFile = { version: 1, keys: {} };
       try {
         const parsed = JSON.parse(fs.readFileSync(this.filePath, 'utf8'));
         if (parsed?.version === 1 && parsed.keys && typeof parsed.keys === 'object') {

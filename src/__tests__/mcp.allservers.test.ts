@@ -166,10 +166,10 @@ async function startOAuthMcpServer() {
   const server = http.createServer(async (req, res) => {
     const url = new URL(req.url || '/', base);
     if (url.pathname.startsWith('/.well-known/oauth-protected-resource')) {
-      return json(res, 200, { resource: `${base}/mcp`, authorization_servers: [base] });
+      { json(res, 200, { resource: `${base}/mcp`, authorization_servers: [base] }); return; }
     }
     if (url.pathname === '/.well-known/oauth-authorization-server' || url.pathname === '/.well-known/openid-configuration') {
-      return json(res, 200, {
+      json(res, 200, {
         issuer: base,
         authorization_endpoint: `${base}/authorize`,
         token_endpoint: `${base}/token`,
@@ -179,11 +179,12 @@ async function startOAuthMcpServer() {
         code_challenge_methods_supported: ['S256'],
         token_endpoint_auth_methods_supported: ['none'],
       });
+      return;
     }
     if (url.pathname === '/register' && req.method === 'POST') {
       seen.registrations++;
       const meta = JSON.parse(await readBody(req));
-      return json(res, 201, { ...meta, client_id: 'client-1' });
+      { json(res, 201, { ...meta, client_id: 'client-1' }); return; }
     }
     if (url.pathname === '/authorize') {
       const code = crypto.randomBytes(8).toString('hex');
@@ -200,12 +201,12 @@ async function startOAuthMcpServer() {
       const entry = codes.get(form.get('code') || '');
       const verifier = form.get('code_verifier') || '';
       if (!entry || b64url(crypto.createHash('sha256').update(verifier).digest()) !== entry.challenge) {
-        return json(res, 400, { error: 'invalid_grant' });
+        { json(res, 400, { error: 'invalid_grant' }); return; }
       }
       codes.delete(form.get('code')!);
       const token = crypto.randomBytes(8).toString('hex');
       issued.add(token);
-      return json(res, 200, { access_token: token, token_type: 'Bearer', expires_in: 3600, refresh_token: 'refresh-1' });
+      { json(res, 200, { access_token: token, token_type: 'Bearer', expires_in: 3600, refresh_token: 'refresh-1' }); return; }
     }
     if (url.pathname === '/mcp') {
       const bearer = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');

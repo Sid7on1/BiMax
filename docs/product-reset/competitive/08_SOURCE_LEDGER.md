@@ -535,3 +535,30 @@ pasteboard privacy (`NSPasteboard.accessBehavior`, macOS 15.4+), ScreenCaptureKi
 (macOS 15+), three haptic patterns only, Electron's declined notch API, Liquid Glass merging
 (`NSGlassEffectContainerView`, `glassEffectID`). Papers: Citrine (UIST 2004), Quick Access (KDD 2017) and its
 KDD 2020 follow-up, Stuff I've Seen (SIGIR 2003). No code was executed or incorporated; no claim about Bimax follows.
+
+
+## Providers, rate limits and MCP sign-in — checked 2026-09-28
+
+Used by [record 62](../62_PROVIDERS_KEYS_MCP_AND_BUGFIX_RECORD.md). Re-check before relying on them; these change.
+
+- OpenAI models page (`https://developers.openai.com/api/docs/models`, redirected from platform.openai.com): current ids
+  `gpt-6-astra`, `gpt-6-sol`, `gpt-6-luna`. `.../models/gpt-6-sol`: Chat Completions and Responses supported; "Chat
+  Completions supports function calling only with `reasoning_effort` set to `none`"; 1,050,000 context, 128,000 output.
+- Google Gemini models (`https://ai.google.dev/gemini-api/docs/models`): `gemini-3.8-flash`, `gemini-3.1-pro-preview`,
+  `gemini-3.5-flash-lite` among current ids; Gemini 2.0 and 3-series previews deprecated. OpenAI compatibility page
+  (`https://ai.google.dev/gemini-api/docs/openai`) says Gemini 3 supports thought signatures through Chat Completions but
+  did not state the field; `extra_content` pass-through is a defensive choice, not a verified contract.
+- DeepSeek pricing/models (`https://api-docs.deepseek.com/quick_start/pricing`): `deepseek-flash` (V4.1 Flash, 1M, tools,
+  vision) and `deepseek-v4-pro`.
+- Anthropic OpenAI SDK compatibility (`https://platform.claude.com/docs/en/api/openai-sdk`): base `https://api.anthropic.com/v1/`;
+  tools, `tool_choice`, `parallel_tool_calls`, streaming supported; `reasoning_effort`, `response_format` ignored; prompt
+  caching not supported; "not considered a long-term or production-ready solution for most use cases". Model ids
+  `claude-opus-5-5`, `claude-sonnet-5`, `claude-haiku-4-5-20251001`.
+- OpenRouter public model list (`https://openrouter.ai/api/v1/models`, 458 models, 390 with `tools`): `anthropic/claude-sonnet-5`,
+  `openai/gpt-6-sol`, `google/gemini-3.8-flash`, `moonshotai/kimi-k3`, `openai/gpt-oss-20b`.
+- NVIDIA API catalog free tier: 40 requests/minute per model at the account level (third-party guides and NVIDIA
+  developer-forum threads found by search; no first-party page was fetched). Measured here: `/models` lists
+  `mistralai/mistral-7b-instruct-v0.3` and `google/gemma-3-4b-it`, and chat requests to both return 404 for this account.
+- MCP TypeScript SDK 1.29.0 (local `node_modules`): `OAuthClientProvider`, `StreamableHTTPClientTransport.finishAuth`,
+  `UnauthorizedError`, `ListRootsRequestSchema`, `ToolListChangedNotificationSchema` — read from the installed type
+  definitions, exercised by `mcp.allservers.test.ts`.

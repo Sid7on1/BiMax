@@ -303,3 +303,15 @@ unit tests. In use, no search was reranked — the live rerank function answers 
 on-device reranker is **Implemented, off by default** (`BIMAX_LOCAL_RERANK=1`); quality is **not Measured** beyond a
 15-query set, and its ~240 MB cost is why it is off. **Target:** a completed SciFact (or R02 live) comparison, one
 model per process, before it is turned on.
+
+
+## Providers, key pool and MCP — 2026-09-28
+
+[Record 62](../62_PROVIDERS_KEYS_MCP_AND_BUGFIX_RECORD.md). **Implemented, locally tested with mutants:** every provider
+selectable with a pool of keys in the app; one per-key request ledger shared by every engine on the Mac, hybrid round
+robin under each key's requests/min; provider-safe tool names/schemas with a 128-tool cap; GPT-6's tools-without-reasoning
+rule; Gemini thought-signature echo; MCP OAuth sign-in, VS Code/Windsurf/Gemini CLI config shapes, `${VAR}` secrets,
+`tools/list_changed`, resources, roots. The P0 row "No provider capability conformance suite" is **partly addressed**
+(wire-level compatibility) and stays **Target** for live probes. **Target:** live runs on OpenAI/Anthropic/Google/DeepSeek/
+OpenRouter, a native Anthropic Messages adapter, cross-provider failover, throughput measured under real 429s, OAuth
+against a real hosted server.
