@@ -100,8 +100,25 @@ describe('LlmAdapter.healModels', () => {
     const a = adapterServing(avoided);
     a.applyConfig({ model: 'dead/work', liteModel: 'dead/quick', visionModel: 'dead/vision' });
 
-    expect(await a.healModels()).toEqual([]);
+    // Nothing it may pick is served. The work pin stays for the user to change; the optional Quick
+    // and Vision slots are cleared so they answer with the work model instead of failing each
+    // session on a dead id — never re-pointed at an avoided model.
+    expect(await a.healModels()).toEqual([
+      { slot: 'quick', from: 'dead/quick', to: '' },
+      { slot: 'vision', from: 'dead/vision', to: '' },
+    ]);
+    expect(a.userModel).toBe('dead/work');
     for (const id of [a.userModel, a.liteModel, a.visionModel]) expect(avoided).not.toContain(id);
+  });
+
+  it('clears a dead Quick pin after a provider switch, so quick calls use the work model', async () => {
+    // Switching to a provider that serves only the work model: the Quick slot still names the old
+    // provider's id. Pinned, the first quick call of every session failed on it.
+    const a = adapterServing(SERVED('claude-sonnet-5'));
+    a.applyConfig({ model: 'claude-sonnet-5', liteModel: 'mistralai/mistral-7b-instruct-v0.3' });
+    const healed = await a.healModels();
+    expect(healed).toContainEqual({ slot: 'quick', from: 'mistralai/mistral-7b-instruct-v0.3', to: expect.any(String) });
+    expect(a.liteModel === '' || a.liteModel === 'claude-sonnet-5').toBe(true);
   });
 
   it('leaves a served pin alone when the only complaint is avoidAutoSelect', async () => {

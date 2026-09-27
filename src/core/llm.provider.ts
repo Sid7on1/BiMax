@@ -8,7 +8,7 @@ export interface Message {
   content?: string | ContentPart[];
   tool_call_id?: string;
   name?: string;
-  tool_calls?: { id: string; type: 'function'; function: { name: string; arguments: string } }[];
+  tool_calls?: { id: string; type: 'function'; function: { name: string; arguments: string }; extra_content?: unknown }[];
   /**
    * Some native-thinking providers require the complete prior assistant message on the next tool
    * round. Kimi K3 is one: dropping this field after a tool call makes the continuation invalid.
@@ -36,7 +36,7 @@ export type ChatEvent =
   // Note: args comes in as a string. `truncated` marks a call the model was still writing when it
   // hit the output-token ceiling — its arguments are cut mid-JSON, so a parse failure here is OUR
   // limit being reached, not the model emitting garbage, and the two need different advice.
-  | { type: 'tool_call'; id: string; name: string; args: string; truncated?: boolean }
+  | { type: 'tool_call'; id: string; name: string; args: string; truncated?: boolean; extra?: unknown }
   // Live, still-streaming tool call — args is the partial (possibly invalid) JSON accumulated so
   // far. Emitted only when the model supports partial-JSON tool streaming (caps.partialJsonTools);
   // display-only, the authoritative call still arrives as a final `tool_call`. Consumers that don't

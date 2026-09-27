@@ -303,7 +303,7 @@ export class HeadlessSession {
       // Session-scoped, like the boot healer: recover the turn without rewriting the model the
       // user chose. See the note in headless.entry.ts — persisting this is what made an explicit
       // pick silently revert to the top-ranked candidate on every later launch.
-      const lines = healed.map(h => `  • ${h.slot}: "${h.from}" → "${h.to}"`);
+      const lines = healed.map(h => `  • ${h.slot}: "${h.from}" → ${h.to ? `"${h.to}"` : 'the Work model'}`);
       engineEvents.emit('message', this.msg('system',
         `Switched to a model your provider actually serves — send that again:\n${lines.join('\n')}`, 'info'));
       engineEvents.emit('config_changed');

@@ -12,6 +12,7 @@ function keyManagerSpy() {
   return {
     reports,
     manager: {
+      acquire: async function (this: any) { return this.getNextKey(); },
       getNextKey: async () => ({ keyStr: 'k', model: 'mock', baseURL: 'http://127.0.0.1:9', provider: 'test', idx: 0, waitTimeSecs: 0 }),
       reportKeyResult: (idx: number, status: number) => { reports.push({ idx, status }); },
       reportKeyHang: () => {},

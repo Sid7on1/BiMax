@@ -619,7 +619,7 @@ export async function startHeadless(container: any, config: any, transport: Head
         // and says so again, which is honest; a stale pin is now fixed by the user in the picker,
         // never by the engine behind their back.
         const lines = (healed as Array<{ slot: string; from: string; to: string }>).map(
-          (h) => `  • ${h.slot}: "${h.from}" → "${h.to}"`,
+          (h) => `  • ${h.slot}: "${h.from}" → ${h.to ? `"${h.to}"` : 'the Work model'}`,
         );
         engineEvents.emit('message', {
           id: `heal-${Date.now()}`,

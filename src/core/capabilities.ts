@@ -74,6 +74,13 @@ export interface ModelCapabilities {
    * model never reasons inline, or its genuine reasoning WOULD leak as the reply.
    */
   plainContent: boolean;
+  /**
+   * Function calling over Chat Completions works only with reasoning switched off
+   * (`reasoning_effort: "none"`). True for OpenAI's GPT-6 family, whose model pages say Chat
+   * Completions "supports function calling only with reasoning_effort set to none". When set, a
+   * request that carries tools is sent with that effort; tool-free turns keep their reasoning.
+   */
+  toolsRequireNoReasoning: boolean;
   /** Image input. */
   visionInput: boolean;
   /** Approximate context window in tokens — compaction thresholds scale to this. */
@@ -97,6 +104,7 @@ export const FLOOR: ModelCapabilities = {
   requiresReasoningReplay: false,
   fixedSampling: false,
   plainContent: false,
+  toolsRequireNoReasoning: false,
   visionInput: false,
   contextWindow: 32_000,
 };
@@ -128,6 +136,22 @@ const RULES: CapabilityRule[] = [
       contextWindow: 200_000,
     },
   },
+  // --- OpenAI GPT-6 (Astra / Sol / Luna, 2026-09): 1.05M context; on Chat Completions, tools only
+  //     with reasoning off. Sampling fields are omitted — the model pages document none. ---
+  {
+    match: ['gpt-6'],
+    caps: {
+      structuredOutputs: true,
+      reasoningEffortKnob: true,
+      fixedSampling: true,
+      parallelToolCalls: true,
+      partialJsonTools: true,
+      nativeThinking: true,
+      toolsRequireNoReasoning: true,
+      visionInput: true,
+      contextWindow: 1_000_000,
+    },
+  },
   // --- OpenAI o-series reasoning models: structured outputs + reasoning_effort, no temp control. ---
   {
     match: ['o1', 'o3', 'o4-', 'gpt-5'],
@@ -155,7 +179,7 @@ const RULES: CapabilityRule[] = [
   },
   // --- Google Gemini 1.5 / 2.x. ---
   {
-    match: ['gemini-2', 'gemini-1.5', 'gemini-exp'],
+    match: ['gemini-3', 'gemini-2', 'gemini-1.5', 'gemini-exp'],
     caps: {
       structuredOutputs: true,
       parallelToolCalls: true,
@@ -176,7 +200,7 @@ const RULES: CapabilityRule[] = [
   // --- DeepSeek V4: 1M context and a structured reasoning channel. It remains opt-in because
   //     NVIDIA NIM did not produce a first token within 35s on five prompt sizes (2026-07-23). ---
   {
-    match: ['deepseek-v4'],
+    match: ['deepseek-v4', 'deepseek-flash', 'deepseek-pro'],
     caps: {
       nativeThinking: true,
       contextWindow: 1_000_000,

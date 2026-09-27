@@ -22,6 +22,7 @@ import { providerUsage } from '../telemetry/measure';
 import { attributeSlowWait, SLOW_WAIT_THRESHOLD_MS } from '../telemetry/netprobe';
 import { CircuitBreaker, Outcome, BreakerOpen, RetryPolicy, serverConfig } from './circuit-breaker';
 import { assertEgressAllowed } from '../security/egress.guard';
+import { buildWireTools, renameHistoryToolCalls, schemaFlavorFor, ToolNameMap } from './tool.wire';
 
 /**
  * The URL a `fetch` call is actually aimed at. The SDK may hand us a string, a `URL`, or a
@@ -136,6 +137,8 @@ export class LlmAdapter implements LLMProvider {
   public readonly strictModel = String(process.env.BIMAX_DESKTOP_STRICT_MODEL || '').trim();
   public defaultModel = process.env.BGW_MODEL || 'moonshotai/kimi-k3';
   public requestTimeout = parseInt(process.env.BGW_TIMEOUT || '120000', 10);
+  /** Logged once per engine: a tool list over the per-request cap (tool.wire.ts). */
+  private warnedToolCap = false;
   public temperature: number = parseFloat(process.env.BGW_TEMPERATURE || '0.1');
   // Nucleus sampling cap. Clipping the low-probability tail is what actually curbs the
   // "dropped a tool argument / fabricated a path" failures on reasoning models — far more
@@ -418,6 +421,16 @@ export class LlmAdapter implements LLMProvider {
       if (!reason) return;
       const to = replacementFor(tier);
       if (!to || to === current) {
+        // Quick and Vision are OPTIONAL slots: empty means "answer with the work model". Leaving a
+        // dead id pinned there made the first quick call of every session fail on a provider that
+        // does not serve it (after a provider switch the Quick pin is always the old provider's id).
+        // Only the work slot has nothing to fall back to, so only it stays pinned for the user.
+        if (slot !== 'work') {
+          assign('');
+          Logger.warn(`[LlmAdapter] ${slot} model "${current}" ${reason}; no curated replacement, so ${slot} answers with the work model this session.`);
+          healed.push({ slot, from: current, to: '' });
+          return;
+        }
         Logger.warn(`[LlmAdapter] ${slot} model "${current}" ${reason}, but no curated replacement is available; leaving it pinned.`);
         return;
       }
@@ -529,26 +542,37 @@ export class LlmAdapter implements LLMProvider {
   }
 
   private async getKey(): Promise<KeyResult> {
-    const kr = await this.apiKeyManager.getNextKey();
+    // Waits (bounded) for a key with room in its per-minute budget, re-picking on every wake so a
+    // key that another engine freed — or a faster sibling — is used instead of the one that was
+    // soonest when the wait began. It used to sleep once and then send on that same key.
+    let lastNotice = 0;
+    const kr = await this.apiKeyManager.acquire({
+      onWait: (waitSecs) => {
+        Logger.warn(`[LlmAdapter] All keys cooling down (rate limit / transient). Sleeping ${waitSecs.toFixed(1)}s...`);
+        // Say so where the person is looking, at most every 5s: a turn waiting on a rate limit
+        // otherwise looks exactly like a turn that hung.
+        if (Date.now() - lastNotice > 5_000) {
+          lastNotice = Date.now();
+          const keys = this.apiKeyManager.size();
+          engineEvents.emit('status', `Rate limit — waiting ${Math.ceil(waitSecs)}s for a free ${keys > 1 ? `slot on ${keys} keys` : 'API slot'}`);
+        }
+      },
+    });
     if (!kr.keyStr || kr.idx === null) throw new Error(`[LlmAdapter] FATAL: No API keys configured.`);
     // Request-path visibility (BIMAX_LLM_TRACE=1): which key each call lands on and why turns
     // stall is otherwise invisible — this one line made the sub-agent hang diagnosable.
     if (process.env.BIMAX_LLM_TRACE === '1') {
       Logger.info(`[LlmAdapter] → key #${(kr.idx ?? 0) + 1} (${kr.provider || '?'}) model=${this.userModel || this.defaultModel}`);
     }
-    if (kr.waitTimeSecs > 0) {
-      // Auth-dead pool: every key's last failure was 401/403. That is permanent for these key
-      // strings — sleeping through the cooldown and re-sending the same key can never succeed, it
-      // just made every turn feel hung (5s of silence per attempt). Fail fast and tell the user
-      // exactly how to fix it. (A key repaired mid-session recovers via reportKeyResult on success.)
-      if (this.apiKeyManager.allKeysAuthDead()) {
-        throw new Error(
-          `Provider rejected the API key (${kr.provider || 'active provider'}: unauthorized). ` +
-          `The key is expired or invalid — update it with /keys or in ~/.breakglass/.env, then retry.`,
-        );
-      }
-      Logger.warn(`[LlmAdapter] All keys cooling down (rate limit / transient). Sleeping ${kr.waitTimeSecs.toFixed(1)}s...`);
-      await new Promise(resolve => setTimeout(resolve, kr.waitTimeSecs * 1000));
+    // Auth-dead pool: every key's last failure was 401/403. That is permanent for these key
+    // strings — sleeping through the cooldown and re-sending the same key can never succeed, it
+    // just made every turn feel hung (5s of silence per attempt). Fail fast and tell the user
+    // exactly how to fix it. (A key repaired mid-session recovers via reportKeyResult on success.)
+    if (kr.waitTimeSecs > 0 && this.apiKeyManager.allKeysAuthDead()) {
+      throw new Error(
+        `Provider rejected the API key (${kr.provider || 'active provider'}: unauthorized). ` +
+        `The key is expired or invalid — update it in Settings → Models → Providers, then retry.`,
+      );
     }
     return kr;
   }
@@ -902,6 +926,8 @@ export class LlmAdapter implements LLMProvider {
     // usage chunk would release the same reservation twice (under-counting spend).
     let usageRecorded = false;
     let attemptedModel: string | undefined;
+    // Wire-name map for this request's tools; identity when no tool name needed rewriting.
+    let wireNames: ToolNameMap = new ToolNameMap([]);
 
     try {
       let finalMessages: any[] = options.system
@@ -964,15 +990,20 @@ export class LlmAdapter implements LLMProvider {
       }
 
       if (options.tools && options.tools.length > 0) {
-        requestOptions.tools = options.tools.map((t: any) => ({
-          type: 'function',
-          function: {
-            name: t.name,
-            description: t.description,
-            parameters: t.input_schema || t.parameters
-          }
-        }));
-        requestOptions.tool_choice = options.toolChoice || 'auto';
+        // Provider-safe names and schemas (tool.wire.ts): one badly named MCP tool used to make the
+        // provider refuse EVERY later request in the session.
+        const wire = buildWireTools(options.tools, schemaFlavorFor(kr.provider, model));
+        wireNames = wire.names;
+        if (wire.dropped.length > 0 && !this.warnedToolCap) {
+          this.warnedToolCap = true;
+          Logger.warn(`[LlmAdapter] ${options.tools.length} tools exceed the ${wire.defs.length}-per-request limit; left out this turn: ${wire.dropped.slice(0, 8).join(', ')}${wire.dropped.length > 8 ? '…' : ''}`);
+        }
+        requestOptions.tools = wire.defs;
+        requestOptions.messages = renameHistoryToolCalls(requestOptions.messages, wireNames);
+        const forced = options.toolChoice?.function?.name;
+        requestOptions.tool_choice = forced
+          ? { type: 'function', function: { name: wireNames.toWire(forced) } }
+          : 'auto';
         // NVIDIA NIM and several other OpenAI-compatible backends reject any
         // assistant turn that emits more than one tool call ("This model only
         // supports single tool-calls at once!"), which hard-aborts the task.
@@ -997,6 +1028,11 @@ export class LlmAdapter implements LLMProvider {
       const effort = options.reasoningEffort ?? this.reasoningEffort
         ?? (caps.requiresReasoningReplay ? 'low' : undefined);
       if (effort && caps.reasoningEffortKnob) requestOptions.reasoning_effort = effort;
+      // GPT-6 on Chat Completions accepts function calling ONLY with reasoning_effort "none"
+      // (developers.openai.com/api/docs/models/gpt-6-sol, read 2026-09-28). Any other effort — or
+      // the default, "medium" — makes a tool-bearing request fail, so every tool the model has
+      // would be unusable. Reasoning still applies to tool-free turns.
+      if (caps.toolsRequireNoReasoning && requestOptions.tools) requestOptions.reasoning_effort = 'none';
 
       // C6 — Anthropic beta-header features (1M context, token-efficient tools, interleaved
       // thinking). Host-gated to the genuine Anthropic endpoint and opt-in via BGW_ANTHROPIC_BETA,
@@ -1221,7 +1257,7 @@ export class LlmAdapter implements LLMProvider {
             if (now - lastPartialAt >= PARTIAL_EMIT_MS) {
               lastPartialAt = now;
               const slot = toolAcc.get(lastActiveIdx)!;
-              yield { type: 'tool_call_partial', id: slot.id || `idx-${lastActiveIdx}`, name: slot.name, args: slot.args };
+              yield { type: 'tool_call_partial', id: slot.id || `idx-${lastActiveIdx}`, name: wireNames.fromWire(slot.name), args: slot.args };
             }
           }
         }
@@ -1295,9 +1331,10 @@ export class LlmAdapter implements LLMProvider {
         yield {
           type: 'tool_call',
           id: slot.id || `call-${Date.now()}-${slot.name}`,
-          name: slot.name,
+          name: wireNames.fromWire(slot.name),
           args: slot.args,
           ...(slot.truncated ? { truncated: true } : {}),
+          ...(slot.extra !== undefined ? { extra: slot.extra } : {}),
         };
       }
 
@@ -1324,6 +1361,18 @@ export class LlmAdapter implements LLMProvider {
       if (this.budgetVeto && !usageRecorded) await this.budgetVeto.releaseReservation(estimatedCostUsd);
 
       this.enrichModelNotFound(e, kr, options.lite, attemptedModel);
+      // The QUICK model was just refused (NVIDIA lists ids it then 404s "for account"), and the work
+      // model is a different, healthy id. `quickModel()` already routes every LATER quick call to the
+      // work model, but this call used to surface as a failed turn — a greeting that errored while
+      // the model the user picked was fine. Ask the loop to re-send it now; it lands on the work model.
+      const quickRefused = !!options.lite && !!attemptedModel && attemptedModel === this.liteModel
+        && this.isUnservable(attemptedModel) && (this.userModel || this.defaultModel) !== attemptedModel;
+      if (quickRefused) {
+        this.apiKeyManager.reportKeyResult(kr.idx!, 200); // the key worked; the model id did not
+        engineEvents.emit('status', `Quick model ${attemptedModel!.split('/').pop()} is not served — answering with ${String(this.userModel || this.defaultModel).split('/').pop()}`);
+        yield { type: 'error', message: e.message, recoverable: true, kind: 'transient', retryAfterSecs: 0 };
+        return;
+      }
       const { status, recoverable, kind, retryAfterSecs } = classifyStreamError(e);
       // A first-token timeout means the provider is queueing/hanging THIS key — bench it so
       // rotation stops feeding the dead lane (reportKeyResult alone gives it a 2s cooldown,

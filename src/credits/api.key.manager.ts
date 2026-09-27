@@ -1,5 +1,6 @@
 import { Logger } from '../utils';
 import { Mutex } from 'async-mutex';
+import { KeyUsage, KeyUsageStore, RPM_WINDOW_MS, keyId, resolveKeyUsageStore } from './key.usage.ledger';
 
 export interface KeyConfig {
   keyStr: string;
@@ -7,9 +8,18 @@ export interface KeyConfig {
   baseURL?: string;
   provider?: string;
   label?: string;
+  /**
+   * The provider's per-key request limit, per minute, shared by every engine on the Mac (0 or
+   * absent = no known limit; the pool then learns only from 429s).
+   */
+  rpm?: number;
 }
 
 export interface KeyState extends KeyConfig {
+  /** Ledger identity: a hash prefix, never the key. */
+  id: string;
+  /** Starts this process handed out inside the window — the pacing used when the shared ledger is unusable. */
+  local_starts: number[];
   cooldown_until: number;
   consecutive_429: number;
   consecutive_403: number;
@@ -32,9 +42,18 @@ export interface KeyResult {
   waitTimeSecs: number;
 }
 
+export interface ApiKeyManagerOptions {
+  /** Shared per-key request ledger. Defaults to the machine-wide file (see key.usage.ledger.ts). */
+  store?: KeyUsageStore;
+  /** Clock, epoch ms. Injected by tests. */
+  now?: () => number;
+}
+
 export class ApiKeyManager {
   private keyStates: KeyState[] = [];
   private keyRR: number = 0;
+  private readonly store: KeyUsageStore;
+  private readonly clock: () => number;
 
   private readonly KEY_COOLDOWN_BASE = 2.0;
   private readonly KEY_COOLDOWN_MAX = 60.0;
@@ -45,7 +64,9 @@ export class ApiKeyManager {
   // never applies (nothing to prefer), so solo setups see zero added latency. Seconds.
   private readonly MIN_REUSE_SECS = Math.max(0, (parseInt(process.env.BIMAX_KEY_MIN_INTERVAL_MS || '1100', 10) || 0) / 1000);
 
-  constructor(keys: KeyConfig[]) {
+  constructor(keys: KeyConfig[], options: ApiKeyManagerOptions = {}) {
+    this.store = options.store ?? resolveKeyUsageStore();
+    this.clock = options.now ?? Date.now;
     this.setKeys(keys);
   }
 
@@ -64,6 +85,8 @@ export class ApiKeyManager {
       const old = prior.get(k.keyStr);
       return {
         ...k,
+        id: keyId(k.keyStr),
+        local_starts: old?.local_starts ?? [],
         cooldown_until: old?.cooldown_until ?? 0.0,
         consecutive_429: old?.consecutive_429 ?? 0,
         consecutive_403: old?.consecutive_403 ?? 0,
@@ -80,75 +103,148 @@ export class ApiKeyManager {
     this.keyRR = this.keyStates.length > 0
       ? (this.keyRR || Math.floor(Math.random() * this.keyStates.length)) % this.keyStates.length
       : 0;
-    Logger.info(`[ApiKeyManager] Key pool set: ${this.keyStates.length} key(s) across ${new Set(keys.map(k => k.provider || 'unknown')).size} provider(s).`);
+    const limits = Array.from(new Set(this.keyStates.map(s => s.rpm || 0)));
+    const rpmNote = limits.length === 1 && limits[0] > 0 ? `, ${limits[0]} requests/min each` : '';
+    Logger.info(`[ApiKeyManager] Key pool set: ${this.keyStates.length} key(s) across ${new Set(keys.map(k => k.provider || 'unknown')).size} provider(s)${rpmNote}.`);
   }
 
   private mutex = new Mutex();
 
+  /**
+   * The hybrid round robin. Every call walks the pool in rotation order and considers only keys
+   * that are usable right now: off this process's cooldown, off any cooldown another engine
+   * recorded for the key, and under the key's requests-per-minute limit counted across EVERY
+   * engine on the Mac. Among those it prefers, in order:
+   *   1. a key not used in the last MIN_REUSE_SECS (a burst fans out across the pool instead of
+   *      hammering one key into its limit), then
+   *   2. the lowest measured time-to-first-token, weighted up by how much of its minute the key
+   *      has already spent — NIM free-tier keys are queued individually server-side (1s on one
+   *      key, 40s on a sibling), so blind rotation kept walking calls into the slow lane.
+   * Ties go to rotation order. When no key is usable, nothing is reserved and `waitTimeSecs`
+   * says when the earliest one frees; the caller waits and asks again.
+   */
   public async getNextKey(): Promise<KeyResult> {
     return await this.mutex.runExclusive(async () => {
       if (this.keyStates.length === 0) return { keyStr: null, model: null, baseURL: null, provider: null, idx: null, waitTimeSecs: 0 };
 
-      const n = this.keyStates.length;
-      const now = Date.now() / 1000;
-
-      // Pass 1 (multi-key pools only): among keys that are off cooldown AND "cold" (not used
-      // within MIN_REUSE_SECS), pick the one with the LOWEST measured time-to-first-token.
-      // NIM free-tier keys are queued individually server-side (1s on one key, 20-40s on a
-      // sibling), so blind round-robin kept walking calls into the slow lane — this is the
-      // single biggest sub-agent latency fix. Keys with no data yet score as the median of the
-      // measured ones so they still get probed. Pass 2 is the original behavior (any
-      // off-cooldown key), so this NEVER blocks or delays a call — it only reorders preference.
-      if (n > 1 && this.MIN_REUSE_SECS > 0) {
-        const known = this.keyStates.filter(s => s.ewma_first_ms > 0).map(s => s.ewma_first_ms).sort((a, b) => a - b);
-        const median = known.length ? known[Math.floor(known.length / 2)] : 0;
-        let bestIdx = -1;
-        let bestScore = Infinity;
-        for (let i = 0; i < n; i++) {
-          const idx = (this.keyRR + i) % n;
-          const state = this.keyStates[idx];
-          if (now >= state.cooldown_until && now - state.last_used >= this.MIN_REUSE_SECS) {
-            const score = state.ewma_first_ms > 0 ? state.ewma_first_ms : median;
-            if (score < bestScore) {
-              bestScore = score;
-              bestIdx = idx;
-            }
-          }
-        }
-        if (bestIdx >= 0) {
-          const state = this.keyStates[bestIdx];
-          this.keyRR = (bestIdx + 1) % n;
-          state.last_used = now;
-          return { keyStr: state.keyStr, model: state.model || null, baseURL: state.baseURL || null, provider: state.provider || null, idx: bestIdx, waitTimeSecs: 0 };
-        }
+      const nowMs = this.clock();
+      let pickedIdx = -1;
+      let seen = new Map<string, KeyUsage>();
+      const choose = (usage: Map<string, KeyUsage>): string | null => {
+        seen = usage;
+        pickedIdx = this.choose(usage, nowMs);
+        return pickedIdx >= 0 ? this.keyStates[pickedIdx].id : null;
+      };
+      try {
+        this.store.reserve(this.keyStates.map(s => s.id), nowMs, choose);
+      } catch (e: any) {
+        // The shared ledger is unusable (disk full, a lock held by a dead process past its stale
+        // window). Pace from this process's own memory — the pre-ledger behaviour — rather than
+        // refuse a turn over bookkeeping.
+        Logger.warn(`[ApiKeyManager] shared key ledger unavailable (${e?.message || e}); pacing this engine alone.`);
+        choose(this.localUsage(nowMs));
       }
 
-      for (let i = 0; i < n; i++) {
-        const idx = (this.keyRR + i) % n;
-        const state = this.keyStates[idx];
-        if (now >= state.cooldown_until) {
-          this.keyRR = (idx + 1) % n;
-          state.last_used = now;
-          return { keyStr: state.keyStr, model: state.model || null, baseURL: state.baseURL || null, provider: state.provider || null, idx, waitTimeSecs: 0 };
-        }
+      if (pickedIdx >= 0) {
+        const state = this.keyStates[pickedIdx];
+        this.keyRR = (pickedIdx + 1) % this.keyStates.length;
+        state.last_used = nowMs / 1000;
+        state.local_starts = state.local_starts.filter(t => nowMs - t < RPM_WINDOW_MS);
+        state.local_starts.push(nowMs);
+        return { keyStr: state.keyStr, model: state.model || null, baseURL: state.baseURL || null, provider: state.provider || null, idx: pickedIdx, waitTimeSecs: 0 };
       }
 
-      let bestIdx = 0;
-      let soonestCooldown = this.keyStates[0].cooldown_until;
-      for (let i = 1; i < n; i++) {
-        if (this.keyStates[i].cooldown_until < soonestCooldown) {
-          bestIdx = i;
-          soonestCooldown = this.keyStates[i].cooldown_until;
-        }
+      // Nothing usable: report the key that frees soonest, and when. Not reserved — the caller
+      // must come back, because by then a different key may be the better pick.
+      let soonIdx = 0;
+      let soonest = Infinity;
+      for (let idx = 0; idx < this.keyStates.length; idx++) {
+        const freeAt = this.freeAt(this.keyStates[idx], seen.get(this.keyStates[idx].id), nowMs);
+        if (freeAt < soonest) { soonest = freeAt; soonIdx = idx; }
       }
-
-      this.keyStates[bestIdx].last_used = now;
-      return { keyStr: this.keyStates[bestIdx].keyStr, model: this.keyStates[bestIdx].model || null, baseURL: this.keyStates[bestIdx].baseURL || null, provider: this.keyStates[bestIdx].provider || null, idx: bestIdx, waitTimeSecs: Math.max(0, soonestCooldown - now) };
+      const s = this.keyStates[soonIdx];
+      return { keyStr: s.keyStr, model: s.model || null, baseURL: s.baseURL || null, provider: s.provider || null, idx: soonIdx, waitTimeSecs: Math.max(0, (soonest - nowMs) / 1000) };
     });
   }
 
+  /**
+   * A key that is usable now, waiting — for at most `maxWaitMs` — while every key is cooling down
+   * or at its per-minute limit. Each wake asks the pool again, because the key that frees first is
+   * not necessarily the one to use (another engine may have taken it, or a faster one freed).
+   *
+   * Stops waiting early when every key has failed authentication: that can never clear by itself.
+   * Past the budget it returns the soonest key anyway and lets the provider answer, so a
+   * misconfigured limit can slow a turn but never wedge it.
+   */
+  public async acquire(options: {
+    maxWaitMs?: number;
+    sleep?: (ms: number) => Promise<void>;
+    onWait?: (waitSecs: number) => void;
+  } = {}): Promise<KeyResult> {
+    const maxWaitMs = options.maxWaitMs ?? 120_000;
+    const sleep = options.sleep ?? ((ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms)));
+    const started = this.clock();
+    let kr = await this.getNextKey();
+    while (kr.keyStr && kr.waitTimeSecs > 0 && !this.allKeysAuthDead()) {
+      const remaining = maxWaitMs - (this.clock() - started);
+      if (remaining <= 0) break;
+      options.onWait?.(kr.waitTimeSecs);
+      // Never sleep less than a beat: a slot that frees "in 0.001s" would otherwise spin the loop.
+      await sleep(Math.max(50, Math.min(kr.waitTimeSecs * 1000, remaining)));
+      kr = await this.getNextKey();
+    }
+    return kr;
+  }
+
+  /** Index of the key to use now, or -1 when every key is cooling down or at its limit. */
+  private choose(usage: Map<string, KeyUsage>, nowMs: number): number {
+    const n = this.keyStates.length;
+    const now = nowMs / 1000;
+    const known = this.keyStates.filter(s => s.ewma_first_ms > 0).map(s => s.ewma_first_ms).sort((a, b) => a - b);
+    const median = known.length ? known[Math.floor(known.length / 2)] : 1000;
+    let bestIdx = -1;
+    let bestScore = Infinity;
+    for (let i = 0; i < n; i++) {
+      const idx = (this.keyRR + i) % n;
+      const state = this.keyStates[idx];
+      const u = usage.get(state.id) ?? { recent: 0, cooldownUntil: 0, starts: [] };
+      if (now < state.cooldown_until || u.cooldownUntil > nowMs) continue;
+      const rpm = state.rpm || 0;
+      if (rpm > 0 && u.recent >= rpm) continue;
+      const latency = state.ewma_first_ms > 0 ? state.ewma_first_ms : median;
+      const load = rpm > 0 ? u.recent / rpm : 0;
+      const warm = n > 1 && this.MIN_REUSE_SECS > 0 && now - state.last_used < this.MIN_REUSE_SECS;
+      const score = (warm ? 1e12 : 0) + latency * (1 + load);
+      if (score < bestScore) {
+        bestScore = score;
+        bestIdx = idx;
+      }
+    }
+    return bestIdx;
+  }
+
+  /** Epoch ms at which this key next becomes usable. */
+  private freeAt(state: KeyState, u: KeyUsage | undefined, nowMs: number): number {
+    let at = Math.max(nowMs, state.cooldown_until * 1000, u?.cooldownUntil ?? 0);
+    const rpm = state.rpm || 0;
+    if (rpm > 0 && u && u.recent >= rpm) at = Math.max(at, u.starts[u.recent - rpm] + RPM_WINDOW_MS);
+    return at;
+  }
+
+  private localUsage(nowMs: number): Map<string, KeyUsage> {
+    return new Map(this.keyStates.map(s => {
+      const starts = s.local_starts.filter(t => nowMs - t < RPM_WINDOW_MS).sort((a, b) => a - b);
+      return [s.id, { recent: starts.length, cooldownUntil: 0, starts }];
+    }));
+  }
+
+  /** Tell every other engine on the Mac that a provider asked for this key to be left alone. */
+  private shareCooldown(s: KeyState, untilSecs: number): void {
+    try { this.store.cooldown(s.id, untilSecs * 1000, this.clock()); } catch { /* local cooldown still applies */ }
+  }
+
   public reportKeyResult(idx: number, status: number, retryAfterSecs: number | null = null): void {
-    const now = Date.now() / 1000;
+    const now = this.clock() / 1000;
     const s = this.keyStates[idx];
     if (!s) return;
 
@@ -173,6 +269,7 @@ export class ApiKeyManager {
       const cooldown = retryAfterSecs ?? Math.min(this.KEY_COOLDOWN_BASE * Math.pow(2, s.consecutive_429 - 1), this.KEY_COOLDOWN_MAX);
       const jitter = Math.random() * this.KEY_COOLDOWN_JITTER;
       s.cooldown_until = now + cooldown + jitter;
+      this.shareCooldown(s, s.cooldown_until);
       Logger.warn(`[ApiKeyManager] KEY #${idx + 1} (${s.label || s.provider || '?'}) -> 429 cooldown ${cooldown.toFixed(1)}s`);
     } else if (status === 403) {
       s.consecutive_403++;
@@ -206,7 +303,7 @@ export class ApiKeyManager {
    * lane; a later success clears the strikes (reportKeyLatency).
    */
   public reportKeyHang(idx: number): void {
-    const now = Date.now() / 1000;
+    const now = this.clock() / 1000;
     const s = this.keyStates[idx];
     if (!s) return;
     s.hang_strikes++;
@@ -217,6 +314,7 @@ export class ApiKeyManager {
       ? 3
       : Math.min(45 * Math.pow(2, s.hang_strikes - 1), 600);
     s.cooldown_until = Math.max(s.cooldown_until, now + benchSecs);
+    if (this.keyStates.length > 1) this.shareCooldown(s, s.cooldown_until);
     // Poison the latency estimate too, so pass-1 stops preferring it even after the bench expires.
     s.ewma_first_ms = Math.max(s.ewma_first_ms, 60_000);
     Logger.warn(`[ApiKeyManager] KEY #${idx + 1} (${s.label || s.provider || '?'}) hung before first token — benched ${benchSecs.toFixed(0)}s (strike ${s.hang_strikes})`);
@@ -240,7 +338,7 @@ export class ApiKeyManager {
   }
 
   public getStates() {
-    const now = Date.now() / 1000;
+    const now = this.clock() / 1000;
     return this.keyStates.map(s => ({
       label: s.label || s.provider || 'key',
       model: s.model || 'default',
@@ -251,6 +349,8 @@ export class ApiKeyManager {
       cooldownSecs: Math.max(0, s.cooldown_until - now),
       firstTokenMs: s.ewma_first_ms,
       hangs: s.hang_strikes,
+      rpm: s.rpm || 0,
+      lastMinute: s.local_starts.filter(t => this.clock() - t < RPM_WINDOW_MS).length,
     }));
   }
 }

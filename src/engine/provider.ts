@@ -19,6 +19,11 @@ export interface LlmProvider {
   keyless?: boolean;
   /** Shown in the picker so an operator can tell a local preset from a cloud one at a glance. */
   label?: string;
+  /**
+   * The provider's documented per-key request limit, per minute, when it has one worth pacing to.
+   * `<API_KEY_ENV>_RPM` (e.g. NVIDIA_API_KEY_RPM=200) or BIMAX_KEY_RPM overrides it; 0 = unlimited.
+   */
+  defaultRpm?: number;
 }
 
 /**
@@ -39,13 +44,16 @@ const PROVIDERS: LlmProvider[] = [
   { name: 'vllm', label: 'vLLM (local/LAN)', baseURL: 'http://127.0.0.1:8000/v1', apiKeyEnv: 'VLLM_API_KEY', defaultModel: 'Qwen/Qwen2.5-Coder-7B-Instruct', isLocal: true, keyless: true },
   { name: 'lmstudio', label: 'LM Studio (local)', baseURL: 'http://127.0.0.1:1234/v1', apiKeyEnv: 'LMSTUDIO_API_KEY', defaultModel: 'qwen2.5-coder-7b-instruct', isLocal: true, keyless: true },
   { name: 'llamacpp', label: 'llama.cpp server (local)', baseURL: 'http://127.0.0.1:8080/v1', apiKeyEnv: 'LLAMACPP_API_KEY', defaultModel: 'local-model', isLocal: true, keyless: true },
-  // --- Hosted providers.
-  { name: 'nvidia', baseURL: 'https://integrate.api.nvidia.com/v1', apiKeyEnv: 'NVIDIA_API_KEY', defaultModel: 'moonshotai/kimi-k3' },
-  { name: 'openai', baseURL: 'https://api.openai.com/v1', apiKeyEnv: 'OPENAI_API_KEY', defaultModel: 'gpt-4o' },
-  { name: 'anthropic', baseURL: 'https://api.anthropic.com/v1', apiKeyEnv: 'ANTHROPIC_API_KEY', defaultModel: 'claude-3-opus-20240229' },
-  { name: 'openrouter', baseURL: 'https://openrouter.ai/api/v1', apiKeyEnv: 'OPENROUTER_API_KEY', defaultModel: 'openai/gpt-4o' },
-  { name: 'deepseek', baseURL: 'https://api.deepseek.com/v1', apiKeyEnv: 'DEEPSEEK_API_KEY', defaultModel: 'deepseek-chat' },
-  { name: 'google', baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai', apiKeyEnv: 'GOOGLE_API_KEY', defaultModel: 'gemini-2.0-flash' },
+  // --- Hosted providers. Default models re-read from each provider's own model list 2026-09-28
+  // (docs/product-reset/competitive/08_SOURCE_LEDGER.md); the old defaults named retired models.
+  // NVIDIA's free API catalog allows 40 requests a minute per model for an ACCOUNT, so several keys
+  // only add capacity when they come from different accounts.
+  { name: 'nvidia', baseURL: 'https://integrate.api.nvidia.com/v1', apiKeyEnv: 'NVIDIA_API_KEY', defaultModel: 'moonshotai/kimi-k3', defaultRpm: 40 },
+  { name: 'openai', baseURL: 'https://api.openai.com/v1', apiKeyEnv: 'OPENAI_API_KEY', defaultModel: 'gpt-6-sol' },
+  { name: 'anthropic', baseURL: 'https://api.anthropic.com/v1', apiKeyEnv: 'ANTHROPIC_API_KEY', defaultModel: 'claude-sonnet-5' },
+  { name: 'openrouter', baseURL: 'https://openrouter.ai/api/v1', apiKeyEnv: 'OPENROUTER_API_KEY', defaultModel: 'anthropic/claude-sonnet-5' },
+  { name: 'deepseek', baseURL: 'https://api.deepseek.com/v1', apiKeyEnv: 'DEEPSEEK_API_KEY', defaultModel: 'deepseek-flash' },
+  { name: 'google', baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai', apiKeyEnv: 'GOOGLE_API_KEY', defaultModel: 'gemini-3.8-flash' },
 ];
 
 // Runtime override set by the /provider command; null means "fall through". Resolved lazily
@@ -141,6 +149,16 @@ export function setProvider(name: string): LlmProvider | undefined {
   return found;
 }
 
+/** Requests per minute each key of `provider` may start, across every engine on the Mac (0 = no limit). */
+export function rpmFor(provider: LlmProvider, env: NodeJS.ProcessEnv = process.env): number {
+  const raw = env[`${provider.apiKeyEnv}_RPM`] ?? env.BIMAX_KEY_RPM;
+  if (raw !== undefined && String(raw).trim() !== '') {
+    const n = Math.floor(Number(raw));
+    return Number.isFinite(n) && n > 0 ? n : 0;
+  }
+  return provider.defaultRpm ?? 0;
+}
+
 function keysForProvider(provider: LlmProvider): KeyConfig[] {
   const envVal = process.env[provider.apiKeyEnv];
   // A local server has no account and therefore no key. Returning an empty pool here is what used
@@ -153,6 +171,7 @@ function keysForProvider(provider: LlmProvider): KeyConfig[] {
       baseURL: activeBaseURL(provider),
       provider: provider.name,
       label: `${provider.name} (keyless)`,
+      rpm: rpmFor(provider),
     }];
   }
   if (!envVal) return [];
@@ -164,6 +183,7 @@ function keysForProvider(provider: LlmProvider): KeyConfig[] {
     baseURL: activeBaseURL(provider),
     provider: provider.name,
     label: `${provider.name} #${i + 1}`,
+    rpm: rpmFor(provider),
   }));
 }
 

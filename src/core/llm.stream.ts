@@ -93,7 +93,15 @@ export function applyCacheBreakpoints(messages: any[]): any[] {
 }
 
 /** One accumulated streaming tool call: stable id, name, and the concatenated arguments JSON. */
-export interface ToolCallSlot { id: string; name: string; args: string; }
+export interface ToolCallSlot {
+  id: string; name: string; args: string;
+  /**
+   * Provider data attached to the call that must travel back with it on the next request —
+   * Gemini 3 carries its thought signature here (`extra_content.google.thought_signature`) and
+   * refuses a function-calling continuation without it. Opaque to Bimax; only ever echoed.
+   */
+  extra?: unknown;
+}
 
 /**
  * Whether a streamed completion chunk contains provider output that can advance the turn.
@@ -129,11 +137,12 @@ export function hasMeaningfulStreamPayload(chunk: any): boolean {
  * in the UI are the `tool_call_partial` activity events, which are incomplete by design — not a
  * decoding fault here.
  */
-export function applyToolCallDelta(acc: Map<number, ToolCallSlot>, tc: { index?: number; id?: string; function?: { name?: string; arguments?: string } }): number {
+export function applyToolCallDelta(acc: Map<number, ToolCallSlot>, tc: { index?: number; id?: string; function?: { name?: string; arguments?: string }; extra_content?: unknown }): number {
   const i = typeof tc.index === 'number' ? tc.index : 0;
   let slot = acc.get(i);
   if (!slot) { slot = { id: '', name: '', args: '' }; acc.set(i, slot); }
   if (tc.id) slot.id = tc.id;
+  if (tc.extra_content && typeof tc.extra_content === 'object') slot.extra = tc.extra_content;
   if (tc.function?.name) slot.name = tc.function.name;
   if (tc.function?.arguments) slot.args += tc.function.arguments;
   return i;

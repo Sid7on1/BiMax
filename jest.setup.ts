@@ -22,3 +22,12 @@ import * as path from 'path';
 if (!process.env.BIMAX_BREAKGLASS_DIR) {
   process.env.BIMAX_BREAKGLASS_DIR = path.join(os.tmpdir(), 'bimax-jest-breakglass', String(process.pid));
 }
+
+/**
+ * The key pool's per-minute request ledger is shared by every engine on a Mac through one file
+ * (`src/credits/key.usage.ledger.ts`). Inside a test worker that sharing would leak one test's 429
+ * cooldown into the next test's fresh pool. Tests get a process-local ledger unless they choose a file.
+ */
+if (!process.env.BIMAX_KEY_LEDGER_PATH) {
+  process.env.BIMAX_KEY_LEDGER_PATH = 'memory';
+}

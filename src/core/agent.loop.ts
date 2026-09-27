@@ -562,7 +562,7 @@ export class AgentLoop {
 
       // `truncated` is set when the model hit the output-token ceiling while still writing this
       // call's arguments — see the parse-failure branch, which needs to tell the two causes apart.
-      const toolCalls: { id: string; name: string; args: string; truncated?: boolean }[] = [];
+      const toolCalls: { id: string; name: string; args: string; truncated?: boolean; extra?: unknown }[] = [];
       let currentContent = '';
       // Kimi K3 requires its exact out-of-band reasoning to accompany the assistant tool-call
       // message on the next request. Most models do not, so the adapter marks only required chunks
@@ -1047,7 +1047,10 @@ export class AgentLoop {
             // EVERY later request — providers re-validate the arguments string as JSON and reject the
             // whole call ("Unterminated string … char 10"), so the session wedges until /clear. Coerce
             // to canonical JSON, falling back to `{}` so a bad emission can never corrupt the history.
-            function: { name: tc.name, arguments: sanitizeToolArgs(tc.args) }
+            function: { name: tc.name, arguments: sanitizeToolArgs(tc.args) },
+            // Echo provider data that belongs to the call (Gemini 3's thought signature): the
+            // provider refuses the next tool round without it. See ToolCallSlot.extra.
+            ...(tc.extra !== undefined ? { extra_content: tc.extra } : {}),
           });
         }
         

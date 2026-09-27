@@ -11,6 +11,7 @@ describe('LlmAdapter provider-gone recovery', () => {
   it('turns a strict Kimi K3 410 into a provider-specific Settings instruction', async () => {
     process.env.BIMAX_DESKTOP_STRICT_MODEL = 'moonshotai/kimi-k3';
     const manager = {
+      acquire: async function (this: any) { return this.getNextKey(); },
       getNextKey: async () => ({
         keyStr: 'secret', model: 'moonshotai/kimi-k3',
         baseURL: 'https://integrate.api.nvidia.com/v1', provider: 'nvidia', idx: 0, waitTimeSecs: 0,
