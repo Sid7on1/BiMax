@@ -27,32 +27,44 @@ func recognize(path: String) -> PageResult {
         return PageResult(path: path, text: "", confidence: nil, lines: 0, error: "could not read image")
     }
 
-    let request = VNRecognizeTextRequest()
-    // `accurate` over `fast`: an inspection report is read once and acted on, so a second of extra
-    // compute is worth more than a misread tag number.
-    request.recognitionLevel = .accurate
-    request.usesLanguageCorrection = true
-    // Vision's language models are on-device; this must never be allowed to fetch.
-    if #available(macOS 13.0, *) { request.automaticallyDetectsLanguage = true }
+    // A cross-check against dropped lines. MEASURED 2026-09-28 on macOS 27: an `accurate` read of a
+    // clean 150 dpi report returned 4 of its 8 lines — no title, no vessel tag, no 8.2 mm reading —
+    // with confidence 1.0, on several runs in a row; the same binary on the same image later read
+    // all 8. Nothing in the result marks the short read. So the page is also read with the `fast`
+    // recognizer, a different model (~50 ms): when it finds MORE lines, `accurate` is asked once
+    // more, and the read with the most lines wins, preferring `accurate` text on a tie (the fast
+    // model misreads characters — "Augusl" for "August" — but it does not invent whole lines).
+    func pass(_ level: VNRequestTextRecognitionLevel) throws -> (lines: [String], confidence: Double) {
+        let request = VNRecognizeTextRequest()
+        // `accurate` over `fast`: an inspection report is read once and acted on, so a second of extra
+        // compute is worth more than a misread tag number.
+        request.recognitionLevel = level
+        request.usesLanguageCorrection = true
+        // Vision's language models are on-device; this must never be allowed to fetch.
+        if #available(macOS 13.0, *) { request.automaticallyDetectsLanguage = true }
+        try VNImageRequestHandler(cgImage: cgImage, options: [:]).perform([request])
+        var found: [String] = []
+        var confidence: Double = 0
+        for observation in request.results ?? [] {
+            guard let candidate = observation.topCandidates(1).first else { continue }
+            found.append(candidate.string)
+            confidence += Double(candidate.confidence)
+        }
+        return (found, confidence)
+    }
 
-    let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+    var best: (lines: [String], confidence: Double)
     do {
-        try handler.perform([request])
+        best = try pass(.accurate)
     } catch {
         return PageResult(path: path, text: "", confidence: nil, lines: 0, error: "\(error)")
     }
-
-    guard let observations = request.results else {
-        return PageResult(path: path, text: "", confidence: nil, lines: 0, error: nil)
+    if let quick = try? pass(.fast), quick.lines.count > best.lines.count {
+        if let again = try? pass(.accurate), again.lines.count > best.lines.count { best = again }
+        if quick.lines.count > best.lines.count { best = quick }
     }
-
-    var lines: [String] = []
-    var confidenceSum: Double = 0
-    for observation in observations {
-        guard let candidate = observation.topCandidates(1).first else { continue }
-        lines.append(candidate.string)
-        confidenceSum += Double(candidate.confidence)
-    }
+    let lines = best.lines
+    let confidenceSum = best.confidence
     return PageResult(
         path: path,
         text: lines.joined(separator: "\n"),

@@ -44,11 +44,14 @@ Prefer GrepTool when you know the exact token (error code, identifier, string li
       if (!hits.length) {
         return droppedNote
           ? `No current match. ${droppedNote}`
-          : 'No matching code found. The index may still be syncing (first run trickles in over a minute) — try GrepTool for exact tokens.';
+          : activeIndex.coverage().partial
+            ? `No matching code in the ${activeIndex.coverage().partial!.indexed} most recently changed files the index covers (of ${activeIndex.coverage().partial!.total}). Older files are not indexed — use GrepTool for exact tokens.`
+            : 'No matching code found. The index may still be syncing (first run trickles in over a minute) — try GrepTool for exact tokens.';
       }
       const mode = activeIndex.stats().lastMode;
       const coverage = activeIndex.coverage();
-      const incomplete = coverage.syncing || coverage.pending === null || coverage.pending > 0;
+      const partial = (coverage as { partial?: { indexed: number; total: number } | null }).partial ?? null;
+      const incomplete = coverage.syncing || coverage.pending === null || coverage.pending > 0 || !!partial;
       const pipeline = `lexical${mode.dense ? '+dense' : ''}${mode.reranked ? '+rerank' : ''}`;
       // Files the results import, or that import them: a behaviour question rarely names the helper, contract or test a
       // change needs (record 50 step 7, benchmark M1 and M2).
@@ -65,7 +68,9 @@ Prefer GrepTool when you know the exact token (error code, identifier, string li
             : '';
           return `${h.path}:${h.startLine}-${h.endLine} · ${h.symbol}${related}\n\`\`\`\n${h.text.split('\n').slice(0, 12).join('\n')}\n\`\`\``;
         })
-        .join('\n---\n') + connectedText + (droppedNote ? `\n${droppedNote}` : '') + `\n(${pipeline}${incomplete ? '; index incomplete' : ''})`;
+        .join('\n---\n') + connectedText + (droppedNote ? `\n${droppedNote}` : '')
+        + (partial ? `\nThis project is large: the index covers the ${partial.indexed} most recently changed of ${partial.total} source files, so a missing result is not proof — use GrepTool for exact tokens.` : '')
+        + `\n(${pipeline}${incomplete ? '; index incomplete' : ''})`;
     },
   };
   return buildTool(def, governor);

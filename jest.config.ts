@@ -44,6 +44,7 @@ const config: Config = {
     '/node_modules/', '<rootDir>/archive/',
     '<rootDir>/src/__tests__/code.index.test.ts',
     '<rootDir>/src/__tests__/code.index.eval.test.ts',
+    '<rootDir>/src/__tests__/code.index.large.test.ts',
     '<rootDir>/src/__tests__/code.store.ram.ledger.test.ts',
     '<rootDir>/src/__tests__/composer.contextual.test.ts',
     '<rootDir>/src/__tests__/composer.corpus.test.ts',

@@ -110,6 +110,8 @@ export interface CodeIndexOptions {
   excludePath?: (relativePath: string) => boolean;
   /** Override {@link SLICE_BUDGET_MS}. 0 commits and yields after every file. */
   sliceBudgetMs?: number;
+  /** Override the file ceiling (BIMAX_CODE_INDEX_MAX_FILES, default 12,000). Tests use a small one. */
+  maxFiles?: number;
 }
 
 export interface CodeHit {
@@ -202,13 +204,19 @@ export class CodeIndex {
   private manifest: Manifest | null = null;
   private syncFlight: Promise<{ indexed: number; removed: number; pending: number }> | null = null;
   private pendingFiles: number | null = null;
+  private readonly maxFiles: number;
+  /**
+   * Set when the project had more indexable files than the ceiling: the index then covers the
+   * `indexed` most recently changed of `total` files, and says so wherever results are shown.
+   */
+  private partial: { indexed: number; total: number } | null = null;
   private reportIndex(reason: string, ready = false): void {
     reportCapability({ id: `code-index:${this.root}`, label: 'Code index', state: ready ? 'ready' : 'degraded',
       reason, impact: ready ? 'Index coverage is current.' : 'Search results are incomplete; absence from results does not prove absence from the project.',
       action: ready ? '' : 'Use file search for exact tokens. Further searches retry indexing.' });
   }
-  coverage(): { syncing: boolean; pending: number | null } {
-    return { syncing: this.syncFlight !== null, pending: this.pendingFiles };
+  coverage(): { syncing: boolean; pending: number | null; partial: { indexed: number; total: number } | null } {
+    return { syncing: this.syncFlight !== null, pending: this.pendingFiles, partial: this.partial };
   }
 
   constructor(embeddings: EmbeddingBackend | null, reranker: Reranker | null = null, options: CodeIndexOptions = {}) {
@@ -217,6 +225,7 @@ export class CodeIndex {
     this.expandHit = options.expandHit;
     this.excludePath = options.excludePath;
     this.sliceBudgetMs = Math.max(0, options.sliceBudgetMs ?? SLICE_BUDGET_MS);
+    this.maxFiles = Math.max(0, options.maxFiles ?? MAX_INDEXABLE_FILES);
     const storePath = options.storePath ?? path.join(stateDir('.breakglass', this.root), 'memory', 'code-index.db');
     // Per-STORE manifest: deriving it from the directory would make two indexes over the same
     // root (a benchmark's lexical/hybrid pair, or a future second space) share one manifest and
@@ -254,26 +263,26 @@ export class CodeIndex {
     try {
       if (!this.store.available()) throw new Error('Code index storage unavailable');
       await this.loadManifest();
-      const files = await this.walkSources();
+      let files = await this.walkSources();
 
-      // Refuse loudly rather than start something that cannot finish. Reported, never silent: a
-      // user whose code search is quietly absent will read every "I could not find it" as fact.
-      // Applies whenever the repo is oversized, NOT only on a cold index. Gating on an empty
-      // manifest made the cap unreachable in exactly the situation it exists for: the crash loop had
-      // already written a couple of hundred entries before each kill, so on every subsequent boot
-      // the manifest was non-empty and the cap was skipped.
-      if (MAX_INDEXABLE_FILES > 0 && files.length > MAX_INDEXABLE_FILES) {
-        this.oversized = files.length;
-        this.pendingFiles = files.length;
-        this.reportIndex(`Indexing was skipped: ${files.length} files exceed the configured limit.`);
+      // Too many files to index in one engine without starving its heartbeat (a 39,476-file repo
+      // once held the event loop 38s in synchronous SQLite and the supervisor killed it, forever).
+      // This used to SKIP the index outright, which left the biggest projects — the ones that need
+      // search most — with none. Index the most recently changed files up to the ceiling instead,
+      // and report the coverage honestly wherever results appear: a miss is then not proof.
+      // (Applies whenever the repo is oversized, not only on a cold index — see the crash note.)
+      this.partial = null;
+      this.oversized = 0;
+      if (this.maxFiles > 0 && files.length > this.maxFiles) {
+        const total = files.length;
+        files = [...files].sort((a, b) => b.mtimeMs - a.mtimeMs || a.rel.localeCompare(b.rel)).slice(0, this.maxFiles);
+        this.partial = { indexed: files.length, total };
+        this.oversized = total;
         Logger.warn(
-          `[CodeIndex] SKIPPED — ${files.length} indexable source files exceeds the ${MAX_INDEXABLE_FILES} `
-          + `limit. Indexing this repo would hold the event loop past the supervisor's liveness `
-          + `budget and the engine would be restarted before it finished. Semantic code search is `
-          + `unavailable for this project; every other tool works. Raise `
-          + `BIMAX_CODE_INDEX_MAX_FILES to override, or narrow the project root.`,
+          `[CodeIndex] ${total} indexable source files exceed the ${this.maxFiles} ceiling; indexing the `
+          + `${this.maxFiles} most recently changed. Raise BIMAX_CODE_INDEX_MAX_FILES to cover more, or open a `
+          + `narrower folder.`,
         );
-        return { indexed: 0, removed: 0, pending: files.length };
       }
 
       let removed = 0;
@@ -405,9 +414,14 @@ export class CodeIndex {
       const pending = changed.length - indexed;
       this.pendingFiles = pending;
       const pendingVectors = this.store.stats().denseConfigured ? this.store.stats().pending : 0;
-      this.reportIndex(pending || pendingVectors
-        ? `${pending} files and ${pendingVectors} embedding chunks remain pending.`
-        : 'Index synchronization completed.', pending === 0 && pendingVectors === 0);
+      if (this.partial) {
+        this.reportIndex(`Code search covers the ${this.partial.indexed.toLocaleString()} most recently changed of ${this.partial.total.toLocaleString()} files`
+          + (pending ? `; ${pending} of those are still being indexed.` : '.'));
+      } else {
+        this.reportIndex(pending || pendingVectors
+          ? `${pending} files and ${pendingVectors} embedding chunks remain pending.`
+          : 'Index synchronization completed.', pending === 0 && pendingVectors === 0);
+      }
       if (indexed || removed || pending) {
         Logger.info(`[CodeIndex] ${indexed} file(s) indexed, ${removed} removed, ${pending} pending.`);
       }
@@ -589,8 +603,51 @@ export class CodeIndex {
     }
   }
 
+  /**
+   * The project's source files as git sees them: tracked plus untracked-but-not-ignored, i.e.
+   * `.gitignore` is honoured. The directory walk below knows only a fixed list of build folders, so
+   * generated trees under any other name (a vendored SDK, `third_party/`, `Pods/`, a codegen dir)
+   * counted as source — which is how real projects reached 39k and 96k "source" files. Null when
+   * the root is not a git work tree or git is unavailable; the walk then decides.
+   */
+  private async gitListedFiles(): Promise<string[] | null> {
+    try {
+      const { execFile } = await import('child_process');
+      const stdout = await new Promise<string>((resolve, reject) => {
+        execFile('git', ['-C', this.root, 'ls-files', '-z', '--cached', '--others', '--exclude-standard'],
+          { maxBuffer: 256 * 1024 * 1024, timeout: 20_000, env: { ...process.env, GIT_OPTIONAL_LOCKS: '0' } },
+          (err, out) => (err ? reject(err) : resolve(out)));
+      });
+      // `git -C <subdir>` lists paths relative to that subdir, which is the index root.
+      return stdout.split('\0').filter(Boolean);
+    } catch {
+      return null;
+    }
+  }
+
   private async walkSources(): Promise<{ abs: string; rel: string; mtimeMs: number; size: number; ctimeMs: number }[]> {
     const out: { abs: string; rel: string; mtimeMs: number; size: number; ctimeMs: number }[] = [];
+    const listed = await this.gitListedFiles();
+    if (listed) {
+      let gitSliceStart = Date.now();
+      for (const rel of listed) {
+        if (Date.now() - gitSliceStart >= SLICE_BUDGET_MS) {
+          await new Promise<void>((resolve) => setImmediate(resolve));
+          gitSliceStart = Date.now();
+        }
+        if (!SOURCE_EXTENSIONS.has(path.extname(rel))) continue;
+        // Committed build output is still build output.
+        if (rel.split('/').slice(0, -1).some((segment) => IGNORED_DIRS.has(segment))) continue;
+        if (this.excludePath?.(rel)) continue;
+        const abs = path.join(this.root, rel);
+        try {
+          const stat = await fs.stat(abs);
+          if (!stat.isFile() || stat.size > MAX_FILE_BYTES) continue;
+          out.push({ abs, rel, mtimeMs: stat.mtimeMs, size: stat.size, ctimeMs: stat.ctimeMs });
+        } catch { /* listed but deleted in the working tree */ }
+      }
+      return out;
+    }
     // The walk gets the same liveness floor as the indexing phase. SLICE_BUDGET_MS used to guard
     // only the indexing loop, so a repo large enough to make the WALK take tens of seconds starved
     // the heartbeat before a single file was indexed — the supervisor then killed the engine during
