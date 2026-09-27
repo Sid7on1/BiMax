@@ -8,6 +8,7 @@ import { TaskGrants, endGrantsWithTask, grantFor, taskGrants } from '../governor
 import { planFileChange } from '../tools/thread.changes';
 import '../engine/commands/grants';
 import { globalCommandRegistry } from '../engine/commands/registry';
+import { __setUsageCounters, getUsageCounters } from '../mind/usage.counters';
 
 /**
  * Backlog N13: "Allow for this task". A thread asked afresh for every existing-file write and every mutating command;
@@ -25,6 +26,10 @@ beforeEach(() => {
   taskGrants.clear();
 });
 afterEach(() => {
+  // Running /grants records usage, and the counter writes <state>/.bimax/usage.json on a debounce. That write landed
+  // AFTER this cleanup and re-created the folder inside the repository (four `.task-grants-test-*` dirs were left in the
+  // repo root). Settle the pending write while the folder still exists, and give the next test a fresh counter.
+  getUsageCounters().flush(); __setUsageCounters(null);
   delete process.env.BIMAX_THREAD_ROOT; delete process.env.BIMAX_STATE_DIR; SafetyPolicy.allowedWorkspace = originalWorkspace;
   jest.restoreAllMocks(); taskGrants.clear(); fs.rmSync(dir, { recursive: true, force: true });
 });
