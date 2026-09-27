@@ -113,3 +113,10 @@ The built engine bundle (`app/engine/index.js`), forked as a utilityProcess the 
   was a harness bug (messages sent without the trailing newline the engine reads by line), not a provider or product fault.
 - The run used the engine's default 120–180 s first-token budget; the app sets 45 s (`coding.runtime.paths.ts`), so the
   same stall costs ~2¼ minutes per model in the app instead of ~6.
+
+## 7. Installed
+
+Built with `app/scripts/build-local-mac.sh` from `ccc2f7e` (all four package gates PASS, `codesign --verify --deep
+--strict` ok, bundled engine byte-identical to the tested bundle) and installed to `/Applications/Bimax.app`; a window
+appeared ~6 s after launch. The previous app was moved, not deleted, to
+`~/Developer/bimax-archive/apps/Bimax.app.before-r62-20260928`. Not yet used for a real turn inside the installed app.
