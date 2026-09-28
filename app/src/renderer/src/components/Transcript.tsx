@@ -34,7 +34,7 @@ function classify(name: string): 'edit' | 'explore' | null {
 }
 
 /** Fold consecutive same-category tool calls (per agent) into groups of ≥2. */
-function buildRows(items: TranscriptItem[]): Row[] {
+export function buildRows(items: TranscriptItem[]): Row[] {
   const rows: Row[] = [];
   let run: { kindOf: 'edit' | 'explore'; parent: string; calls: ToolCallEntry[] } | null = null;
 
@@ -72,6 +72,12 @@ function buildRows(items: TranscriptItem[]): Row[] {
         && it.msg.level !== 'error'
         && !it.msg.uiComponent;
       if (chatter) continue;
+      // A capability notice is a standing condition, not turn content: CapabilityBanner shows it and
+      // removes it when the engine reports the capability ready. In scrollback the "degraded" warning
+      // stayed forever while its "recovered" twin (level success) was dropped as chatter — every
+      // folder opened with "Code index: degraded. Indexing 1 changed or new files…" pinned on top,
+      // though indexing had finished in the same millisecond. The ⌘2 bar already skips these.
+      if (it.msg.role === 'system' && it.msg.payload?.capabilityStatus) continue;
       flush();
       rows.push({ kind: 'msg', key: it.msg.id, item: it });
     }
