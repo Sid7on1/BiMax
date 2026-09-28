@@ -23,6 +23,7 @@ import { attributeSlowWait, SLOW_WAIT_THRESHOLD_MS } from '../telemetry/netprobe
 import { CircuitBreaker, Outcome, BreakerOpen, RetryPolicy, serverConfig } from './circuit-breaker';
 import { assertEgressAllowed } from '../security/egress.guard';
 import { buildWireTools, renameHistoryToolCalls, schemaFlavorFor, ToolNameMap } from './tool.wire';
+import { hedgedRequest, isLoopbackEndpoint } from './hedged.request';
 
 /**
  * The URL a `fetch` call is actually aimed at. The SDK may hand us a string, a `URL`, or a
@@ -156,6 +157,9 @@ export class LlmAdapter implements LLMProvider {
   // model (minimax-m3) well past 120s before the first token, which surfaced as a spurious
   // "stream timeout" + retry loop. Also covers the whole reasoning phase (see chat()).
   public firstChunkTimeoutMs = parseInt(process.env.BGW_FIRST_CHUNK_TIMEOUT_MS || '180000', 10);
+  // A request with no response headers after this long gets one backup copy on another key
+  // (hedgedRequest). NIM grants in ~0.4–1.1 s; a held request was measured past 60 s. 0 turns it off.
+  public hedgeAfterMs = parseInt(process.env.BGW_HEDGE_AFTER_MS || '8000', 10);
   // Optional reasoning budget for thinking models (e.g. minimax). Off by default —
   // when set ('low'|'medium'|'high'), sent as reasoning_effort to trade depth for speed.
   public reasoningEffort?: string = process.env.BGW_REASONING_EFFORT || undefined;
@@ -916,7 +920,8 @@ export class LlmAdapter implements LLMProvider {
       }
       throw e;
     }
-    const kr = await this.getKey();
+    // `let`: a hedged request (below) can be answered first on a second key, which then owns the stream.
+    let kr = await this.getKey();
     const client = this.createClient(kr);
     const estimatedTokens = options.maxTokens || this.maxTokens || 4096;
     const estimatedCostUsd = this.estCost(estimatedTokens);
@@ -1047,7 +1052,7 @@ export class LlmAdapter implements LLMProvider {
       // deliberately starts BEFORE create(): some providers hold response headers while queued.
       // No-op when no turn timeline is active (classifier/critic/sub-agent calls, tests) and
       // idempotent within a turn (only the first streaming call of a turn counts).
-      const requestStartMs = Date.now();
+      let requestStartMs = Date.now();
       markProviderRequest();
       // NIM's per-key queue holds the RESPONSE HEADERS until the request is granted, so a hung key
       // stalls create() itself — before the stream iterator our chunk watchdog guards even exists.
@@ -1057,10 +1062,53 @@ export class LlmAdapter implements LLMProvider {
       const createBudgetMs = (!process.env.BGW_FIRST_CHUNK_TIMEOUT_MS && !capsSayReasoner && this.apiKeyManager.size() > 1)
         ? Math.min(this.firstChunkTimeoutMs, 60_000)
         : this.firstChunkTimeoutMs;
-      requestInit.timeout = Math.min(this.requestTimeout, createBudgetMs);
+      const headerBudgetMs = Math.min(this.requestTimeout, createBudgetMs);
       let stream: any;
       try {
-        stream = await client.chat.completions.create(requestOptions, requestInit);
+        // Hedged: a request NIM is still holding after `hedgeAfterMs` gets one backup copy on another
+        // key, and whichever answers first is used (see hedged.request.ts for the measurements). Never
+        // for a loopback endpoint — a local server loading a model holds headers too, and a second copy
+        // would only double its load.
+        const startedKey = kr;
+        const hedge = await hedgedRequest<KeyResult, any>({
+          first: kr,
+          budgetMs: headerBudgetMs,
+          hedgeAfterMs: isLoopbackEndpoint(kr.baseURL) ? 0 : this.hedgeAfterMs,
+          start: (legKey, budgetMs) => {
+            const leg = new AbortController();
+            const signal = options.signal ? AbortSignal.any([options.signal as AbortSignal, leg.signal]) : leg.signal;
+            const legClient = legKey === startedKey ? client : this.createClient(legKey);
+            return {
+              promise: legClient.chat.completions.create(requestOptions, { ...requestInit, timeout: budgetMs, signal }),
+              abort: () => leg.abort(),
+            };
+          },
+          nextKey: async () => {
+            if (options.signal?.aborted) return null;
+            const backup = await this.apiKeyManager.getNextKey({ exclude: startedKey.idx ?? undefined });
+            if (!backup.keyStr || backup.idx === null || backup.waitTimeSecs > 0 || backup.idx === startedKey.idx) return null;
+            // Same provider, endpoint and model, or the backup would be a different request.
+            if (backup.provider !== startedKey.provider || (backup.baseURL || '') !== (startedKey.baseURL || '')) return null;
+            if ((backup.model || '') !== (startedKey.model || '')) return null;
+            return backup;
+          },
+          onHedge: (backup) => {
+            Logger.warn(`[LlmAdapter] KEY #${(startedKey.idx ?? 0) + 1} has not answered in ${Math.round(this.hedgeAfterMs / 1000)}s — sending a backup on key #${(backup.idx ?? 0) + 1}`);
+            engineEvents.emit('status', 'Provider is slow — trying a second key');
+          },
+          onLoser: (loser, waitedMs, error) => {
+            if (loser.idx === null) return;
+            // Outraced, not failed: teach the picker this key was slow without benching it — the
+            // queue is per request, so the same key often answers the next one at once.
+            if (error === undefined) this.apiKeyManager.reportKeyLatency(loser.idx, waitedMs);
+            else if (loser !== startedKey) this.apiKeyManager.reportKeyResult(loser.idx, classifyStreamError(error).status);
+          },
+        });
+        stream = hedge.value;
+        if (hedge.key !== startedKey) {
+          kr = hedge.key;
+          requestStartMs = hedge.startedAt;
+        }
       } catch (e: any) {
         // The SDK surfaces our header-wait cap as APIConnectionTimeoutError ("Request timed out").
         // Normalize it to the watchdog's message so the catch below benches the key (reportKeyHang).

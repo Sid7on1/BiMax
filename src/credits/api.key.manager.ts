@@ -123,7 +123,7 @@ export class ApiKeyManager {
    * Ties go to rotation order. When no key is usable, nothing is reserved and `waitTimeSecs`
    * says when the earliest one frees; the caller waits and asks again.
    */
-  public async getNextKey(): Promise<KeyResult> {
+  public async getNextKey(options: { exclude?: number } = {}): Promise<KeyResult> {
     return await this.mutex.runExclusive(async () => {
       if (this.keyStates.length === 0) return { keyStr: null, model: null, baseURL: null, provider: null, idx: null, waitTimeSecs: 0 };
 
@@ -132,7 +132,7 @@ export class ApiKeyManager {
       let seen = new Map<string, KeyUsage>();
       const choose = (usage: Map<string, KeyUsage>): string | null => {
         seen = usage;
-        pickedIdx = this.choose(usage, nowMs);
+        pickedIdx = this.choose(usage, nowMs, options.exclude);
         return pickedIdx >= 0 ? this.keyStates[pickedIdx].id : null;
       };
       try {
@@ -196,8 +196,11 @@ export class ApiKeyManager {
     return kr;
   }
 
-  /** Index of the key to use now, or -1 when every key is cooling down or at its limit. */
-  private choose(usage: Map<string, KeyUsage>, nowMs: number): number {
+  /**
+   * Index of the key to use now, or -1 when every key is cooling down or at its limit. `exclude` is a
+   * key that must not be picked — the one a hedged request is already waiting on.
+   */
+  private choose(usage: Map<string, KeyUsage>, nowMs: number, exclude?: number): number {
     const n = this.keyStates.length;
     const now = nowMs / 1000;
     const known = this.keyStates.filter(s => s.ewma_first_ms > 0).map(s => s.ewma_first_ms).sort((a, b) => a - b);
@@ -206,6 +209,7 @@ export class ApiKeyManager {
     let bestScore = Infinity;
     for (let i = 0; i < n; i++) {
       const idx = (this.keyRR + i) % n;
+      if (idx === exclude) continue;
       const state = this.keyStates[idx];
       const u = usage.get(state.id) ?? { recent: 0, cooldownUntil: 0, starts: [] };
       if (now < state.cooldown_until || u.cooldownUntil > nowMs) continue;
