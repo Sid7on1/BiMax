@@ -2688,6 +2688,13 @@ app.whenReady().then(async () => {
   app.on('activate', () => {
     revealMainWindow();
   });
+}).catch((error: unknown) => {
+  // A throw anywhere in start-up used to be silent: the app sat in the menu bar with no window and no reason
+  // (flaw list E40). Say what failed, and keep it where it can be read later; engines already running stay up.
+  const detail = error instanceof Error ? `${error.message}\n\n${error.stack ?? ''}` : String(error);
+  console.error('[startup] failed:', detail);
+  try { appendFileSync(path.join(app.getPath('userData'), 'startup-error.log'), `${new Date().toISOString()} ${detail}\n`); } catch { /* the dialog still says it */ }
+  dialog.showErrorBox('Bimax could not finish starting', `${error instanceof Error ? error.message : String(error)}\n\nDetails are in ${path.join(app.getPath('userData'), 'startup-error.log')}.`);
 });
 
 // dispose() supersedes the child and cancels every timer — the supervisor can never relaunch the
