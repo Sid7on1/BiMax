@@ -10,7 +10,6 @@
     "dev": "tsx src/index.ts",
     "build": "tsc",
     "build:engine": "bash app/scripts/prepare-engine.sh",
-    "postinstall": "node -e \"try{require('fs').existsSync(require('path').join(process.cwd(),'.breakglass','config.json'))||require('./scripts/postinstall')()}catch(e){}\"",
     "test": "jest --coverage && npm run test:bun",
     "test:bun": "bun test src/__tests__/code.index.test.ts src/__tests__/code.index.eval.test.ts src/__tests__/code.index.large.test.ts src/__tests__/code.store.ram.ledger.test.ts src/__tests__/composer.contextual.test.ts src/__tests__/composer.corpus.test.ts src/__tests__/composer.facts.test.ts src/__tests__/composer.identifiers.test.ts src/__tests__/composer.retrieval.traps.test.ts src/__tests__/document.read.test.ts src/__tests__/local.rerank.model.test.ts src/__tests__/memory.eval.test.ts src/__tests__/memory.retrieval.test.ts src/__tests__/tool.registry.contract.test.ts",
     "test:ci": "jest --coverage=false && npm run test:bun",
