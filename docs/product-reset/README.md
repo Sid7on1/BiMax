@@ -1,5 +1,14 @@
 # Bimax product reset
 
+## Master flaw list: triage and fixes — 2026-09-29
+
+[63_MASTER_FLAW_LIST_2026_09_28.md](63_MASTER_FLAW_LIST_2026_09_28.md): a read-only audit's 61 flaws checked against the
+code. About a third did not hold (the sandbox is on for every engine the app starts; the unauthenticated `POST /events`
+server was never booted; `phase9/` and `design-preview/` are live). Fixed: secrets scrubbed from everything the engine
+saves, web/MCP output fenced as untrusted, fifteen silent prompt-block failures made loud, dead code and docs archived.
+Found on the way: the daily-journal block never reached the model, a crash log written into project folders, and every
+key save erasing the comments in `~/.breakglass/.env`. The monolith migration waits on the owner.
+
 ## Every provider, a key pool, every MCP server, and the audit's bugs — 2026-09-28
 
 [62_PROVIDERS_KEYS_MCP_AND_BUGFIX_RECORD.md](62_PROVIDERS_KEYS_MCP_AND_BUGFIX_RECORD.md): an audit of real use found a Mac

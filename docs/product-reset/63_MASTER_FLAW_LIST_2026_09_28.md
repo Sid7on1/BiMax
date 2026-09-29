@@ -1,3 +1,77 @@
+# 63 — Master flaw list: triage and fixes
+
+The list below the line is the 2026-09-28 read-only audit, kept verbatim. This section records what checking it against
+the code found and what was done, starting 2026-09-29 on `feat/sovereign-retrieval-and-layout-extraction`. Status words
+follow `competitive/README.md`: everything here is **Implemented and locally verified** unless it says otherwise; none
+of it is Measured on a live provider or in the installed app yet.
+
+## What the check found
+
+About a third of the list does not hold against the current code, and some of it describes the product before
+record 55 (the engine inside Electron):
+
+- **A1 "sandbox off by default" — not a flaw in the app.** Every engine the app starts is a Bimax Thread, the main
+  project window included (`startEngine` → `threads.create(root, '', 'project')`), and every Thread engine gets
+  `BIMAX_THREAD_ROOT`, which switches the sandbox on (`isSandboxEnabled`). Writes are held to the folder; reads and
+  network stay open as record 54 states. Only an engine run by hand outside the app has it off.
+- **A2/A4 `POST /events` and JWT-in-query** lived in `src/api/webhook.receiver.ts`, which nothing has booted since
+  2026-06-19 and nothing imported. Removed, not patched: the engine opens no inbound port.
+- **B6–B12 (headless-engine costs)** are mostly stale: since record 55 there is one app, the engine is built from this
+  repository and hosted in a `utilityProcess`, and the app imports the protocol types directly, so a contract change
+  breaks the typecheck instead of drifting. What remains true is a process boundary with NDJSON over it, and a supervisor.
+- **C20–C23 "duplicates"** are separate jobs with similar names: the model catalogue (`models.ts`), the provider and
+  key pool (`provider.ts`), message types (`llm.provider.ts`), quick-vs-work tier (`model.router.ts`), picture-vs-text
+  slot (`task.router.ts`); the settings file (`config.ts`) vs the credential file (`env.loader.ts`); the transcript
+  writer vs resume vs the store. Nothing was merged. Two folders next to them were simply dead (below).
+- **D33** the notch and voice helpers are not committed (`app/.gitignore` has `/voice/` and `/notch/`).
+- **D35 `app/src/phase9/`** is live: `App.tsx`, `main/index.ts`, `main/engine.ts`, Settings and Machine Health use it.
+- **D36 `app/design-preview/`** is the UI check harness (`npm run check:design-preview`), not a shadow app.
+- **E40** there are no empty `catch {}` blocks; there are 415 catches holding only a comment. Most are deliberate
+  best-effort observers, so they were not blanket-logged; the named ones were fixed.
+- **G49** `docs/DEVELOPER_ID_RELEASE.md` is the live runbook: record 59 found Developer ID is required for the App
+  Intents extension to register, not only for Gatekeeper. **G51** God's Land is the owner's current notch feature.
+
+## Done
+
+| Item | Result | Commit |
+|---|---|---|
+| A2, A4 | `src/api/` archived; `express`, `express-rate-limit` dropped | `a4d827d`, `7a7b3b6` |
+| A3 | One secret rule set (gitleaks port + NVIDIA + URL password + plain `sk-…` provider keys) in `src/security/secret.scan.ts`, shared by the app's notch and the engine. The engine scrubs the session transcript, archived tool output, mind episodes, the agent log, the execution ledger and the crash log before they reach disk; the live turn is untouched. Pattern-based: a secret of a shape no rule knows still passes | `4e224d8` |
+| A5 | Web and MCP output reaches the model inside `<untrusted source="…">`, explained in the system prompt; fence look-alikes in the text are renamed. One channel list drives the fence and the existing taint cut, which stays the enforcement | `6f2a02c` |
+| E40 | `base.persona.ts`: fifteen silent stanzas → one table; a failing block is left out and logged once. Pictures that cannot be attached say why | `06d0bb9` |
+| D30–D32, D34, D37–D39, C25, C27, G46–G48, G50 (part), H55 (part), H58 | Moved to `~/Developer/bimax-archive` at their repo paths, `cmp`-verified; `SECURITY_INSTALL.md` and the gap register updated for the retired manual-alpha channel | `a4d827d`, `d2357f7` |
+| C20–C23 (dead parts) | `src/config/` (EnvValidator) and `src/auth/` (CLI login) had no importers; archived with `ensureJwtSecret` and `jsonwebtoken` | `868ee7b` |
+
+**Found on the way, not on the list:**
+- The daily-journal prompt block (PR4) was built every turn and placed in no prompt segment, so it never reached the
+  model, while its policy arm logged decisions for it. Now in the turn context; a test fails if any built section is
+  left unplaced (`06d0bb9`).
+- The execution ledger's prefix rule had no word boundary: "task-runner-20260929" was stored as "ta[redacted]" (`4e224d8`).
+- `fatal-crash.log` was written into the working directory, i.e. the person's project folder (`4e224d8`).
+- Saving any key rewrote `~/.breakglass/.env` from `dotenv.parse`, erasing every comment and re-writing quoted values
+  bare; it now changes one line (`aa53e49`).
+
+**Verification that ran:** engine and app `tsc --noEmit`, engine `bun build`, app `electron-vite build`; new tests
+(9 redaction, 13 fence incl. one through the real `AgentLoop`, 3 prompt-block, 1 image-reason, 4 env-line); 30
+mutants across the five fixes, all killed (three survived first and got a test each); related suites green (34 suites /
+413 tests around the writers, 20 / 138 around the loop, persona and taint, 9 / 122 persona and multimodal). The full
+Jest suite was not run in this pass. Nothing has been exercised in the installed app yet.
+
+## Open
+
+- **C13–C18 god files** — splitting `app/src/main/index.ts` first (in progress).
+- **C19 and the monolith migration** — needs the owner's decision, not taken here. Moving the engine into the main
+  process would remove the NDJSON boundary, but every Bimax Thread runs its own engine process today (capped by
+  `MAX_LIVE_ENGINES`, a memory budget), and a stuck or crashing turn is isolated from the UI; in the main process it
+  would not be.
+- C24 (module singletons behind the inline `require()`s), C26, C28 (Docker: `dockerode` is still imported by
+  `plugin.sandbox.ts` and `egress.perimeter.ts`), C29 (`src/compliance/` has one importer, `/compliance`), E41–E44,
+  G52, H53–H54, H56 — not started. H57 is used by two files and was left. I59–I61 are storage outside the repo.
+- Acceptance gate 08 ("provider secrets … never appear in … logs"): advanced for key shapes the rules know; a full
+  proof would need every writer and the app's diagnostics under one test, which does not exist yet.
+
+---
+
 # Bimax — Master Flaw List
 Compiled 2026-09-28. Read-only audits of `/Users/vishsiddharth/Bimax` (the real repo).
 Sid's direction: **desktop app only, monolith architecture** (no Go TUI, no headless engine).
