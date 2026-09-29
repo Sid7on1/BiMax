@@ -29,6 +29,7 @@ import { getEventLedger } from '../../mind/event.ledger';
 import { getExemplarStore } from '../../mind/exemplar.store';
 import { getPolicyArms } from '../../mind/policy.arms';
 import { getHarnessTuner } from '../../mind/harness.tuner';
+import { Logger } from '../../utils/logger';
 
 
 type PersonaPromptOptions = {
@@ -38,6 +39,16 @@ type PersonaPromptOptions = {
   contextMode?: 'smart' | 'full';
   toolNames?: readonly string[];
 };
+
+const reportedBlockFailures = new Set<string>();
+/** An optional prompt block threw: leave it out, and say so once per distinct failure (not once per turn). */
+export function promptBlockFailed(section: string, error: unknown): void {
+  const message = error instanceof Error ? error.message : String(error);
+  const key = `${section}\u0000${message}`;
+  if (reportedBlockFailures.has(key)) return;
+  reportedBlockFailures.add(key);
+  Logger.warn(`Prompt block "${section}" left out: ${message}`);
+}
 
 export interface PersonaConfig {
   name: string;
@@ -269,77 +280,47 @@ export abstract class AgentPersona {
       sections.memory = opts.memory;
     }
 
-    // Persistent goals: inject active cross-session goals so the model knows the user's
-    // standing objectives without being re-briefed each session.
-    try {
-      const goalsBlock = getGoalManager().getSystemPromptBlock();
-      if (goalsBlock) sections.goals = goalsBlock;
-    } catch { /* goals are best-effort — getGoalManager() throws if not yet initialized */ }
-
-    // Multi-repo workspace: which repos are in context, their edit scopes, and any fresh clones
-    // awaiting the one-time registration ask. Empty (and omitted) in single-repo sessions.
-    try {
-      const { tryGetWorkspace } = require('../../core/workspace.manager') as typeof import('../../core/workspace.manager');
-      const wsBlock = tryGetWorkspace()?.contextBlock();
-      if (wsBlock) sections.workspace = wsBlock;
-    } catch { /* best-effort */ }
-
-    // Live task checklist: re-inject the agent's own todo list EVERY turn so it survives context
-    // compaction. Without this the list is UI-only and the model forgets its phases the moment the
-    // creating turn scrolls out of history ("what phases are you talking about?").
-    try {
-      const todoBlock = getTodoPromptBlock();
-      if (todoBlock) sections.todos = todoBlock;
-    } catch { /* best-effort */ }
-
-    // Engine-owned outcome contract: unlike prose instructions this survives compaction and its
-    // completion gate is derived from attributed evidence. Only present after a substantial task
-    // defines one through OutcomeTool, so greetings and simple questions stay lightweight.
-    try {
-      const { getOutcomeManager } = require('../../outcome/outcome.manager') as typeof import('../../outcome/outcome.manager');
-      const outcomeBlock = getOutcomeManager().getPromptBlock();
-      if (outcomeBlock) sections.outcome = outcomeBlock;
-    } catch { /* outcome runtime is headless/root-only and best-effort in legacy paths */ }
-
-    // Completion check (F3): while one is set, the model works toward it instead of learning of it when it stops.
-    try {
-      const { getCompletionChecks } = require('../../outcome/completion.check') as typeof import('../../outcome/completion.check');
-      const checkBlock = getCompletionChecks()?.promptBlock();
-      if (checkBlock) sections.completionCheck = checkBlock;
-    } catch { /* root-only, best-effort */ }
-
-    // Behavioral mode (5.2): explore / code specialization. Injected into the dynamic suffix.
-    // 'explore' relies on the governor being flipped to plan mode for the read-only enforcement,
-    // so the explicit plan-mode section below still renders the hard write-gate notice.
-    try {
-      const modeSection = agentModePromptSection();
-      if (modeSection) sections.agentMode = modeSection;
-    } catch { /* mode guidance is best-effort */ }
-
-    // Mind layer (all best-effort — the prompt must build even if a mind engine is broken):
-    //   self-knowledge — the agent's own measured failure rates, as routing rules;
-    //   compiled habits — recurring tool sequences to batch instead of re-derive;
-    //   user model — learned preferences from accepted/rejected diffs and corrections;
-    //   drives — homeostatic deviations (failing tests, type errors) the agent should offer to fix.
-    // Every non-empty block passes its policy ARM (v2 §4.4): the decision + propensity land
-    // in the ledger, so each intervention's effect is measurable offline (IPS in /arms) and
-    // a shadowed arm keeps logging what it WOULD have said without spending prompt tokens.
+    // Mind layer policy ARMS (v2 §4.4): every non-empty mind block passes its arm, so the decision + propensity land in
+    // the ledger and each intervention's effect is measurable offline (IPS in /arms); a shadowed arm keeps logging what
+    // it WOULD have said without spending prompt tokens. A broken arm store shows the block rather than hiding it.
     const arm = (id: Parameters<ReturnType<typeof getPolicyArms>['decide']>[0], block: string): string => {
       if (!block) return '';
-      try { return getPolicyArms().decide(id).show ? block : ''; } catch { return block; }
+      try { return getPolicyArms().decide(id).show ? block : ''; } catch (e) { promptBlockFailed('policy-arms', e); return block; }
     };
-    try { const b = arm('self-knowledge', getSelfModel().getPromptBlock()); if (b) sections.selfKnowledge = b; } catch { /* best-effort */ }
-    try { const b = arm('habits', getHabitMiner().getPromptBlock()); if (b) sections.habits = b; } catch { /* best-effort */ }
-    try { const b = arm('user-model', getUserModel().getPromptBlock()); if (b) sections.userModel = b; } catch { /* best-effort */ }
-    // Daily journal (PR4, pi-mem): today + yesterday's work, projected from the event ledger, so a
-    // new session opens with continuity instead of a cold start. Best-effort; empty when idle.
-    try { const b = arm('journal', journalPreloadBlock()); if (b) sections.journal = b; } catch { /* best-effort */ }
-    try { const b = arm('drives', getDrivesEngine().getPromptBlock()); if (b) sections.drives = b; } catch { /* best-effort */ }
-    try { const b = arm('calibration', getEpistemicLedger().getPromptBlock()); if (b) sections.calibration = b; } catch { /* best-effort */ }
-    // Harness self-tuning (Self-Harness pattern): steering patches mined from this agent's own
-    // recurring failure signatures, each carrying its effectiveness accounting (auto-retired
-    // when it stops beating its baseline). See src/mind/harness.tuner.ts.
-    try { const b = getHarnessTuner().getPromptBlock(); if (b) sections.harnessPatches = b; } catch { /* best-effort */ }
+    // Optional blocks, each added only when it has something to say. The prompt must build even when one of them is
+    // broken, so a throwing block is left out — and logged once (flaw list E40: these were fifteen identical silent
+    // catches, and a broken subsystem looked exactly like one with nothing to say).
+    const optional: Array<[section: string, build: () => string | null | undefined]> = [
+      // Persistent cross-session goals, so the model knows the standing objectives without a re-brief.
+      // getGoalManager() throws until it is initialised.
+      ['goals', () => getGoalManager().getSystemPromptBlock()],
+      // Multi-repo workspace: repos in context, their edit scopes, fresh clones awaiting registration.
+      ['workspace', () => (require('../../core/workspace.manager') as typeof import('../../core/workspace.manager')).tryGetWorkspace()?.contextBlock()],
+      // The agent's own checklist, re-injected every turn so its phases survive compaction.
+      ['todos', () => getTodoPromptBlock()],
+      // Engine-owned outcome contract: survives compaction; present only after OutcomeTool defines one.
+      ['outcome', () => (require('../../outcome/outcome.manager') as typeof import('../../outcome/outcome.manager')).getOutcomeManager().getPromptBlock()],
+      // Completion check (F3): while one is set, the model works toward it instead of learning of it when it stops.
+      ['completionCheck', () => (require('../../outcome/completion.check') as typeof import('../../outcome/completion.check')).getCompletionChecks()?.promptBlock()],
+      // Behavioural mode (explore / code); 'explore' also flips the governor to plan mode for the write gate.
+      ['agentMode', () => agentModePromptSection()],
+      // Mind: measured failure rates as routing rules, compiled habits, learned user preferences, today's and
+      // yesterday's work (PR4 journal), homeostatic drives, measured overconfidence.
+      ['selfKnowledge', () => arm('self-knowledge', getSelfModel().getPromptBlock())],
+      ['habits', () => arm('habits', getHabitMiner().getPromptBlock())],
+      ['userModel', () => arm('user-model', getUserModel().getPromptBlock())],
+      ['journal', () => arm('journal', journalPreloadBlock())],
+      ['drives', () => arm('drives', getDrivesEngine().getPromptBlock())],
+      ['calibration', () => arm('calibration', getEpistemicLedger().getPromptBlock())],
+      // Harness self-tuning: steering patches mined from recurring failures, auto-retired when they stop helping.
+      ['harnessPatches', () => getHarnessTuner().getPromptBlock()],
+    ];
+    for (const [section, build] of optional) {
+      try {
+        const block = build();
+        if (block) sections[section] = block;
+      } catch (e) { promptBlockFailed(section, e); }
+    }
 
     if (opts?.planMode) {
       sections.plan = `### PLAN MODE (ACTIVE — CRITICAL)\nYou are in read-only PLAN MODE. The Governor will reject every mutating action: writing or deleting files, and any non-read shell command. Do NOT attempt them — they will fail.\n- Use only read/search tools (read files, grep/glob, query the graph, fetch URLs, ask the user) to investigate.\n- When you understand the task, STOP and present a concrete, step-by-step implementation plan: the files you would change, what each change does, and any risks or open questions. Use a numbered list.\n- SAVE the plan: call PlanTool(action:"write", ...) — it is allowed in plan mode and persists to .bimax/plans/<slug>.md (git-tracked), so the plan survives the session and you can check off steps with PlanTool(action:"update_step") while executing. Tell the user the slug it saved under.\n- Do not claim you made any code changes. No source is written in plan mode (only the plan file itself).\n- End by telling the user they can approve and run \`/plan off\` to let you execute the plan.`;
@@ -394,6 +375,7 @@ export abstract class AgentPersona {
       sections.selfKnowledge, // mind: learned failure rates → routing rules
       sections.habits,        // mind: compiled procedural memory
       sections.userModel,     // mind: learned user preferences (theory of mind)
+      sections.journal,       // mind: today's and yesterday's work (PR4) — built since PR4, placed nowhere until 2026-09-29
       sections.drives,        // mind: homeostatic deviations to surface
       sections.calibration,   // mind: measured overconfidence → escalated verification
       sections.harnessPatches, // mind: self-tuned steering mined from recurring failures

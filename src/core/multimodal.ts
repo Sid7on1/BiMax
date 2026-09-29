@@ -42,18 +42,33 @@ export function looksLikeImagePath(p: string): boolean {
  * can fall back to text rather than send a broken request.
  */
 export function imagePartFromSource(source: string): ImagePart | null {
+  const loaded = loadImagePart(source);
+  return 'part' in loaded ? loaded.part : null;
+}
+
+/** `imagePartFromSource` that also says WHY a source could not be used, in words a person can act on (flaw list
+ *  E40: the file-system reason used to be discarded, so "Could not load image" never said whether it was missing,
+ *  unreadable, or not a picture). */
+export function loadImagePart(source: string): { part: ImagePart } | { reason: string } {
   if (source.startsWith('data:') || source.startsWith('http://') || source.startsWith('https://')) {
-    return { type: 'image_url', image_url: { url: source } };
+    return { part: { type: 'image_url', image_url: { url: source } } };
   }
   const dot = source.lastIndexOf('.');
-  if (dot < 0) return null;
-  const mime = MIME_BY_EXT[source.slice(dot + 1).toLowerCase()];
-  if (!mime) return null;
+  if (dot < 0) return { reason: 'no file extension' };
+  const extension = source.slice(dot + 1).toLowerCase();
+  const mime = MIME_BY_EXT[extension];
+  if (!mime) return { reason: `.${extension} is not a picture type that can be sent` };
   try {
     const b64 = fs.readFileSync(source).toString('base64');
-    return { type: 'image_url', image_url: { url: `data:${mime};base64,${b64}` } };
-  } catch {
-    return null;
+    return { part: { type: 'image_url', image_url: { url: `data:${mime};base64,${b64}` } } };
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    return {
+      reason: code === 'ENOENT' ? 'file not found'
+        : code === 'EACCES' || code === 'EPERM' ? 'permission denied'
+        : code === 'EISDIR' ? 'it is a folder'
+        : code || (error instanceof Error ? error.message : String(error)),
+    };
   }
 }
 
@@ -92,9 +107,9 @@ export function buildUserContent(text: string, imageSources: string[], visionCap
   if (text && text.length > 0) parts.push({ type: 'text', text });
   const failed: string[] = [];
   for (const src of sources) {
-    const part = imagePartFromSource(src);
-    if (part) parts.push(part);
-    else failed.push(src);
+    const loaded = loadImagePart(src);
+    if ('part' in loaded) parts.push(loaded.part);
+    else failed.push(`${src} (${loaded.reason})`);
   }
 
   const attached = parts.filter((p) => p.type === 'image_url').length;

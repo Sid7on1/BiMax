@@ -102,6 +102,16 @@ describe('buildUserContent', () => {
     expect(r.notice).toMatch(/could not load/i);
   });
 
+  it('says why each picture could not be used (flaw list E40)', () => {
+    const folder = fs.mkdtempSync(path.join(os.tmpdir(), 'bgw-mm-reason-'));
+    try {
+      const dir = path.join(folder, 'shots.png');
+      fs.mkdirSync(dir);
+      const r = buildUserContent('look', ['/no/such.png', `${folder}/notes.txt`, dir, `${folder}/noext`], true);
+      expect(r.notice).toBe(`Could not load images: /no/such.png (file not found), ${folder}/notes.txt (.txt is not a picture type that can be sent), ${dir} (it is a folder), ${folder}/noext (no file extension)`);
+    } finally { fs.rmSync(folder, { recursive: true, force: true }); }
+  });
+
   it('ignores blank sources', () => {
     const r = buildUserContent('x', ['', '   '], true);
     expect(r.content).toBe('x');
