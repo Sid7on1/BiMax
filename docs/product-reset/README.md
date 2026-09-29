@@ -1,5 +1,15 @@
 # Bimax product reset
 
+## The monolith: research and plan — 2026-09-29
+
+[64_MONOLITH_RESEARCH_AND_PLAN.md](64_MONOLITH_RESEARCH_AND_PLAN.md): the owner chose a monolith. Research (Electron,
+Node, V8, VS Code, Zed, Shopify) and a probe on this Mac settle its shape: one app and one process for Bimax's code,
+each Bimax Thread's engine a **worker thread** with its own isolate (so the engine's globals need no rewrite), never
+on the UI thread. Measured: 3 idle engines 494–521 MB as workers vs 649–791 MB as processes, same boot time. Found:
+a worker cannot `chdir`, so the engine silently ran in the wrong folder until a boot shim gave it its own. Costs stated
+plainly: a native crash or process-wide out-of-memory now ends every task, and all engines share 4 GB of JS heap.
+Phases M1–M6 are Target.
+
 ## Master flaw list: triage and fixes — 2026-09-29
 
 [63_MASTER_FLAW_LIST_2026_09_28.md](63_MASTER_FLAW_LIST_2026_09_28.md): a read-only audit's 61 flaws checked against the
