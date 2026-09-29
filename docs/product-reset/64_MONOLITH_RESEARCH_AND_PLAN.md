@@ -1,8 +1,8 @@
 # 64 — The monolith: research, measurements, and the plan
 
 **Date:** 2026-09-29 · **Status:** M1, M2 and M3 **Implemented and verified** (see "Progress" at the end — including an
-M3 follow-up: the installed M3 build had its hang watchdog off, now fixed); M5 slice 1 (the engine's public API and
-an enforced boundary) **Implemented**; the rest of M5, M4 and M6 **Target**. **Owner decision (2026-09-29):** "yes we need to go monolith … research on best monolith architecture
+M3 follow-up: the installed M3 build had its hang watchdog off, now fixed); M5 (the engine's public API and an
+enforced boundary) **Implemented** — its `process.cwd()` half withdrawn on measurement; M4 and M6 **Target**. **Owner decision (2026-09-29):** "yes we need to go monolith … research on best monolith architecture
 ever possible, then go beautifully into it." This answers flaw-list items B6–B12 and C19 (record 63).
 
 ## 1. What "monolith" should mean for Bimax
@@ -142,7 +142,8 @@ the NDJSON codec on this path, the stdin-driven shutdown in `headless.entry.ts` 
 contract, types) and the app may import only that and the protocol types; `src/` never imports `electron`; the
 renderer never imports main. Enforced by a dependency test in CI (Packwerk's idea, without a new dependency).
 `process.cwd()` is allowed only in one engine-context module; call sites move to it in slices, and when none are left
-the `fs`/`child_process` parts of the shim are retired.
+the `fs`/`child_process` parts of the shim are retired. *(This half was withdrawn on measurement — bundled
+dependencies need the shim too; see Progress, M5.)*
 
 **M6 — (Target, decide after M5) renderer ↔ engine direct ports** for streaming, as VS Code does, keeping approvals,
 file access and the IPC gate in main.
@@ -235,5 +236,12 @@ file access and the IPC gate in main.
   out under load again — alone it failed once, 4/15, straight after the full run while the load average was ~5, then
   passed 15/15 four times; it imports only `src/documents/`, which this slice does not touch), the engine bundle rebuilt and `verify-engine`
   passing as a worker and as a process, the app's `electron-vite` build (its main bundle holds no engine module).
-- Still Target in M5: `process.cwd()` — **107 call sites in 74 engine files** today — confined to one engine-context
-  module in slices, after which the `fs`/`child_process` parts of the worker-folder shim can be retired.
+- ~~Still Target in M5: `process.cwd()` confined to one engine-context module, after which the `fs`/`child_process`
+  parts of the worker-folder shim can be retired.~~ **Withdrawn on measurement (2026-09-29).** The built engine bundle
+  holds 113 `process.cwd()` calls: 102 are ours, **11 are in 8 bundled dependencies** (dotenv 3, typescript 2,
+  cross-spawn, which, rimraf, graceful-fs, zip-stream, archiver-utils), and dependencies also start child processes
+  with no `cwd` (the MCP SDK's stdio transport through cross-spawn). Inside a worker only the shim makes those right,
+  so the shim is permanent for as long as the engine runs in a worker, and moving our own 102 calls behind a wrapper
+  would retire nothing and change nothing at run time. Not done. What keeps the shim honest instead: it is the first
+  import of `src/index.ts`, it is unit-tested with mutants (M1), and `verify-engine`'s `folder` check runs the real
+  bundle in a worker.
