@@ -164,9 +164,14 @@ describe('through the real adapter', () => {
     adapter.applyConfig({ model: 'openai/gpt-oss-20b' });
     adapter.hedgeAfterMs = 30;
     let heldAborted = false;
+    // Whichever key is asked FIRST is the one NVIDIA holds. The pool starts its rotation at a random key on purpose
+    // (parallel sub-agents must not all pile onto key #1), so this test must not assume which key that is: it used to
+    // hold key #1 only, and failed whenever the random start picked key #2 first — there was then nothing to race.
+    let heldKey: string | null = null;
     (adapter as any).createClient = (kr: any) => ({
       chat: { completions: { create: (_req: any, init: any) => new Promise((resolve, reject) => {
-        if (kr.keyStr.startsWith('fast')) {
+        heldKey ??= kr.keyStr;
+        if (kr.keyStr !== heldKey) {
           resolve(streamOf([{ choices: [{ delta: { content: 'Hello from the fast key' }, finish_reason: 'stop' }] }]));
           return;
         }
@@ -174,7 +179,6 @@ describe('through the real adapter', () => {
         init.signal.addEventListener('abort', () => { heldAborted = true; reject(Object.assign(new Error('aborted'), { name: 'AbortError' })); });
       }) } },
     });
-    // Equal keys tie, and ties go to rotation order: the held key (index 0) is the first pick.
     const started = Date.now();
     const events: any[] = [];
     for await (const e of adapter.chat([{ role: 'user', content: 'hi' }], {})) events.push(e);

@@ -29,6 +29,6 @@ describe('LlmAdapter provider-gone recovery', () => {
     await expect(adapter.chatCompletion([{ role: 'user', content: 'hi' }])).rejects.toThrow(
       /Settings → Models → Providers.*NVIDIA API key/i,
     );
-    expect(manager.reportKeyResult).toHaveBeenCalledWith(0, 410);
+    expect(manager.reportKeyResult).toHaveBeenCalledWith(0, 410, null); // null: no Retry-After, the pool backs off itself
   });
 });

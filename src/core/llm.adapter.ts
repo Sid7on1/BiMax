@@ -1,4 +1,3 @@
-import { stateDir } from '../utils/state.dir';
 import OpenAI from 'openai';
 import { Logger } from '../utils';
 import { ApiKeyManager, KeyResult } from '../credits/api.key.manager';
@@ -20,108 +19,21 @@ import type { ToolCallSlot } from './llm.stream';
 import { markProviderRequest, markFirstRawChunk, recordProviderRound, attachRoundUsage } from '../telemetry/perf';
 import { providerUsage } from '../telemetry/measure';
 import { attributeSlowWait, SLOW_WAIT_THRESHOLD_MS } from '../telemetry/netprobe';
-import { CircuitBreaker, Outcome, BreakerOpen, RetryPolicy, serverConfig } from './circuit-breaker';
+import { CircuitBreaker, Outcome, BreakerOpen, serverConfig } from './circuit-breaker';
 import { assertEgressAllowed } from '../security/egress.guard';
 import { buildWireTools, renameHistoryToolCalls, schemaFlavorFor, ToolNameMap } from './tool.wire';
 import { hedgedRequest, isLoopbackEndpoint } from './hedged.request';
+import { ChatStreamReader, nextChunkWithin } from './chat.stream.reader';
+import { ProviderStallError, errorStatus, isLocalNetworkError, isProviderFault, isRequestTimeout, isUserAbort, retryAfterSecs } from './llm.errors';
+import { normalizeNvidiaMessages, normalizeProviderErrorResponse, requestUrlOf } from './provider.quirks';
+// Re-exported: callers and tests import these from the adapter.
+export { isProviderFault, normalizeNvidiaMessages, normalizeProviderErrorResponse };
 
-/**
- * The URL a `fetch` call is actually aimed at. The SDK may hand us a string, a `URL`, or a
- * `Request`, and the guard must classify the real destination rather than the configured base —
- * they differ whenever the SDK builds a path or a caller passes an absolute override. Falls back
- * to the base URL only when the argument carries no usable URL at all.
- */
-function requestUrlOf(input: unknown, fallback: string): string {
-  if (typeof input === 'string') return input;
-  if (input instanceof URL) return input.href;
-  const url = (input as { url?: unknown } | null)?.url;
-  return typeof url === 'string' && url ? url : fallback;
-}
-
-// Provider-fault classification for the LLM circuit breaker. The per-key ApiKeyManager already
-// rotates and cools individual keys; the breaker sits ABOVE that to catch a whole-provider outage,
-// where every rotated key fails and the agent loop would otherwise hot-retry chat() with no pause.
-const LLM_RETRY_POLICY = RetryPolicy.server(); // 429 + any 5xx are transient provider faults
-export function isProviderFault(status: number | null | undefined): boolean {
-  // No status = a timeout / dropped stream (a provider fault for outage purposes); 408 likewise.
-  if (status == null || status === 0 || status === 408) return true;
-  return LLM_RETRY_POLICY.shouldRetry(status);
-}
 export {
   markCacheBreakpoint, withCacheControl, applyCacheBreakpoints, applyToolCallDelta, finalizeToolCalls, classifyStreamError,
   ThinkTagFilter, stripThink, extractJson, chooseThinkStrategy, hasMeaningfulStreamPayload,
 };
 export type { ToolCallSlot };
-
-/**
- * NVIDIA NIM chat templates accept one system block at the beginning and reject system roles
- * later in the conversation. They also require a completed assistant turn between a tool result
- * and a fresh user turn. Normalize those provider-specific constraints at the final wire boundary
- * so context injectors cannot accidentally create another role-order 400.
- */
-export function normalizeNvidiaMessages(messages: Message[]): Message[] {
-  const systems = messages.filter(m => m.role === 'system');
-  const conversation = messages.filter(m => m.role !== 'system');
-  const out: Message[] = [];
-
-  if (systems.length > 0) {
-    out.push({
-      role: 'system',
-      content: systems.map(m => contentToText(m.content as any)).filter(Boolean).join('\n\n'),
-    });
-  }
-
-  for (const message of conversation) {
-    if (out[out.length - 1]?.role === 'tool' && message.role === 'user') {
-      out.push({
-        role: 'assistant',
-        content: 'Tool results received. I will use the new user-provided context to continue.',
-      });
-    }
-    out.push(message);
-  }
-  return out;
-}
-
-/**
- * OpenAI's SDK expects JSON errors to be shaped as `{ error: { message } }`. NVIDIA's API gateway
- * returns RFC 7807 problem documents instead (`{ title, status, detail }`). The SDK discards that
- * top-level document and constructs `410 status code (no body)`, hiding the one field that explains
- * the failure. Normalize only failed JSON/problem responses, keep the body bounded, and leave every
- * successful/unknown response byte-for-byte untouched.
- */
-export async function normalizeProviderErrorResponse(response: Response): Promise<Response> {
-  if (response.ok) return response;
-  const contentType = String(response.headers.get('content-type') || '').toLowerCase();
-  if (!contentType.includes('json') && !contentType.includes('problem')) return response;
-
-    let text: string;
-  try { text = await response.clone().text(); } catch { return response; }
-  if (!text || text.length > 16_384) return response;
-
-  let problem: any;
-  try { problem = JSON.parse(text); } catch { return response; }
-  if (!problem || typeof problem !== 'object' || problem.error) return response;
-  const detail = typeof problem.detail === 'string' ? problem.detail.trim() : '';
-  const title = typeof problem.title === 'string' ? problem.title.trim() : '';
-  const message = detail || title;
-  if (!message) return response;
-
-  const headers = new Headers(response.headers);
-  headers.set('content-type', 'application/json');
-  headers.delete('content-length');
-  return new Response(JSON.stringify({
-    error: {
-      message,
-      ...(title ? { type: title.toLowerCase().replace(/\s+/g, '_') } : {}),
-      ...(response.status === 410 ? { code: 'model_gone' } : {}),
-    },
-  }), {
-    status: response.status,
-    statusText: response.statusText,
-    headers,
-  });
-}
 
 /** Pure request router, exported so image-slot behavior stays regression-testable. */
 export function selectRequestModel(
@@ -587,29 +499,15 @@ export class LlmAdapter implements LLMProvider {
     return (tokens / 1000) * 0.002;
   }
 
-  // A failure that happened on THIS machine's network path — DNS refused to resolve, the socket
-  // never connected, or it reset before the provider said anything. The provider never saw the
-  // request, so the API key must not be blamed: cooling/benching the key for a local blip is how
-  // one DNS hiccup snowballed into "all keys cooling down" minutes (observed live on a 1-key
-  // pool, and this Mac's DNS genuinely drops out intermittently — same family as its git-fetch
-  // hangs). These report as status 0, which the key manager treats as neutral.
+  /** See llm.errors.ts. Kept on the class because callers and tests ask the adapter. */
   static isLocalNetworkError(e: any): boolean {
-    const codes = new Set(['ENOTFOUND', 'EAI_AGAIN', 'ECONNREFUSED', 'ECONNRESET', 'EPIPE', 'ENETUNREACH', 'EHOSTUNREACH', 'UND_ERR_CONNECT_TIMEOUT', 'UND_ERR_SOCKET']);
-    for (let err = e; err; err = err.cause) {
-      if (err?.code && codes.has(String(err.code))) return true;
-      if (/getaddrinfo|nodename nor servname|socket hang up|other side closed/i.test(String(err?.message || ''))) return true;
-    }
-    // OpenAI SDK connection errors with no HTTP status = the request never reached the API.
-    return e instanceof OpenAI.APIConnectionError && !(e instanceof OpenAI.APIConnectionTimeoutError) && e?.status == null;
+    return isLocalNetworkError(e);
   }
 
-  // Map an OpenAI/network error to a status code: local network failure → 0 (neutral — never
-  // bills the key), timeout → 408, otherwise the API-reported status, else 500. Was copy-pasted
-  // verbatim in every method's catch block.
+  // Map an OpenAI/network error to the status the key pool counts (llm.errors.ts): local network → 0, timeout → 408,
+  // else the API's status, else 500. Was copy-pasted verbatim in every method's catch block.
   private errorStatus(e: any): number {
-    if (LlmAdapter.isLocalNetworkError(e)) return 0;
-    if (e instanceof OpenAI.APIConnectionTimeoutError || e?.code === 'ECONNABORTED' || /timeout/i.test(e?.message || '')) return 408;
-    return e?.status || 500;
+    return errorStatus(e);
   }
 
   // WS1.3 (MASTER_REBUILD_PLAN): a 400 "model not found" must name WHICH provider rejected WHICH
@@ -643,127 +541,72 @@ export class LlmAdapter implements LLMProvider {
       `(API said: ${raw.trim()})`;
   }
 
-  async generateTinyPlans(userPrompt: string, systemContext: string) {
+  /**
+   * One non-streaming completion on the next key: the budget reserved, then settled with the provider's usage (or the
+   * estimate when it sends none), or released on failure. The key is reported 200 the moment the provider answers — a
+   * later client-side failure (parsing, bookkeeping) must never re-bill it: a malformed-but-200 response once threw at
+   * `.choices[0]`, the catch reported 500, and the sole key sat out a cooldown the next call slept through (~4s of
+   * self-inflicted latency per turn, measured live against a 120ms mock). A failure before that is reported with its
+   * real status (429/408/…) and the provider's Retry-After, because rotation and backoff depend on it.
+   *
+   * Three methods used to carry their own copy of this, and the copies had drifted: one never settled a reservation
+   * when the provider sent no usage, one reported every failure as a flat 5-second cooldown (flaw list E42).
+   */
+  private async completeOnce(
+    estimatedTokens: number,
+    build: (kr: KeyResult) => any,
+    opts: { lite?: boolean; explainModelErrors?: boolean } = {},
+  ): Promise<any> {
     const kr = await this.getKey();
     const client = this.createClient(kr);
-    
-    // Budget checking heuristics: ~100 tokens out, 50 in for tiny plans
-    const estimatedTokens = 150;
-    const estimatedCostUsd = this.estCost(estimatedTokens); // Very rough estimate
-    if (this.budgetVeto) {
-      await this.budgetVeto.checkVeto(estimatedCostUsd);
-    }
-    
-    try {
-      // Native fast-path: a model with constrained-output support is told to emit a JSON object,
-      // so the plan comes back well-formed instead of wrapped in prose/fences. `extractJson` below
-      // remains the universal fallback (and handles models that ignore the hint), so floor models —
-      // for whom this field is omitted — are unaffected.
-      const planReq: any = {
-        model: this.pickModel(kr),
-        messages: [
-          { role: 'system', content: systemContext },
-          { role: 'user', content: userPrompt }
-        ]
-      };
-      if (this.capabilitiesForKey(kr).structuredOutputs) {
-        planReq.response_format = { type: 'json_object' };
-      }
-      const response = await client.chat.completions.create(planReq, { timeout: this.requestTimeout });
-
-      const usage = response.usage;
-      if (this.budgetVeto && usage) {
-        const actualCostUsd = this.estCost(usage.prompt_tokens + usage.completion_tokens);
-        await this.budgetVeto.recordSpend(actualCostUsd, estimatedCostUsd, this.pickModel(kr));
-      }
-
-      this.apiKeyManager.reportKeyResult(kr.idx!, 200);
-      // Models often wrap the plan in a markdown fence or prose; extract the raw JSON before parsing.
-      const content = extractJson(stripThink(response.choices?.[0]?.message?.content || ""));
-      return { status: 200, data: JSON.parse(content || "{}"), retryAfter: null };
-    } catch (error: any) {
-      if (this.budgetVeto) {
-        await this.budgetVeto.releaseReservation(estimatedCostUsd);
-      }
-      Logger.error(`[LlmAdapter] Network Error: ${error.message}`);
-      const status = this.errorStatus(error);
-      let retryAfter: number | null = null;
-      if (error.headers?.['retry-after']) retryAfter = parseFloat(error.headers['retry-after']);
-      else if (status === 429) retryAfter = 5;
-      this.apiKeyManager.reportKeyResult(kr.idx!, status, retryAfter);
-      return { status, data: null, retryAfter, error };
-    }
-  }
-
-  async generateXmlCompletion(userPrompt: string, systemContext: string, maxTokens: number = 64) {
-    const kr = await this.getKey();
-    const client = this.createClient(kr);
-    const estimatedCostUsd = this.estCost(maxTokens);
-    if (this.budgetVeto) await this.budgetVeto.checkVeto(estimatedCostUsd);
-
-    try {
-      const response = await client.chat.completions.create({
-        model: this.pickModel(kr),
-        messages: [
-          { role: 'system', content: systemContext },
-          { role: 'user', content: userPrompt }
-        ],
-        max_tokens: maxTokens,
-        ...this.samplingFieldsFor(this.pickModel(kr), 0.0)
-      }, { timeout: this.requestTimeout });
-      this.apiKeyManager.reportKeyResult(kr.idx!, 200);
-      const usage = response.usage;
-      if (this.budgetVeto && usage) {
-        const actualCostUsd = this.estCost(usage.prompt_tokens + usage.completion_tokens);
-        await this.budgetVeto.recordSpend(actualCostUsd, estimatedCostUsd, this.pickModel(kr));
-      } else if (this.budgetVeto) {
-        await this.budgetVeto.recordSpend(estimatedCostUsd, estimatedCostUsd, this.pickModel(kr));
-      }
-      return { status: 200, content: stripThink(response.choices?.[0]?.message?.content || ""), retryAfter: null };
-    } catch (error: any) {
-      if (this.budgetVeto) await this.budgetVeto.releaseReservation(estimatedCostUsd);
-      Logger.error(`[LlmAdapter] Network Error: ${error.message}`);
-      const status = this.errorStatus(error);
-      this.apiKeyManager.reportKeyResult(kr.idx!, status);
-      return { status, content: "", retryAfter: null, error };
-    }
-  }
-
-  async generateChatResponse(messages: any[], systemContext: string) {
-    const kr = await this.getKey();
-    const client = this.createClient(kr);
-    const estimatedTokens = this.maxTokens || 4096;
     const estimatedCostUsd = this.estCost(estimatedTokens);
     if (this.budgetVeto) await this.budgetVeto.checkVeto(estimatedCostUsd);
-
+    let keySettled = false;
     try {
-      const response = await client.chat.completions.create({
-        model: this.pickModel(kr),
-        messages: [
-          { role: 'system', content: systemContext },
-          ...messages
-        ],
-        ...this.samplingFieldsFor(this.pickModel(kr), this.temperature),
-        max_tokens: this.maxTokens,
-      }, { timeout: this.requestTimeout });
+      const response = await client.chat.completions.create(build(kr), { timeout: this.requestTimeout });
       this.apiKeyManager.reportKeyResult(kr.idx!, 200);
+      keySettled = true;
       const usage = response.usage;
-      if (usage) {
-        Logger.info(`[LlmAdapter] Token Usage - Prompt: ${usage.prompt_tokens} | Completion: ${usage.completion_tokens} | Total: ${usage.total_tokens}`);
-        if (this.budgetVeto) {
-          const actualCostUsd = this.estCost(usage.prompt_tokens + usage.completion_tokens);
-          await this.budgetVeto.recordSpend(actualCostUsd, estimatedCostUsd, this.pickModel(kr));
-        }
-      } else if (this.budgetVeto) {
-        await this.budgetVeto.recordSpend(estimatedCostUsd, estimatedCostUsd, this.pickModel(kr));
+      if (this.budgetVeto) {
+        const spentUsd = usage ? this.estCost(usage.prompt_tokens + usage.completion_tokens) : estimatedCostUsd;
+        await this.budgetVeto.recordSpend(spentUsd, estimatedCostUsd, this.pickModel(kr));
       }
-      return { status: 200, content: stripThink(response.choices?.[0]?.message?.content || ""), retryAfter: null };
-    } catch (error: any) {
+      return response;
+    } catch (e: any) {
       if (this.budgetVeto) await this.budgetVeto.releaseReservation(estimatedCostUsd);
+      if (!keySettled) this.apiKeyManager.reportKeyResult(kr.idx!, this.errorStatus(e), retryAfterSecs(e));
+      if (opts.explainModelErrors) this.enrichModelNotFound(e, kr, opts.lite);
+      throw e;
+    }
+  }
+
+  /** A request that asks for a JSON object when the model can promise one (`extractJson` recovers it otherwise). */
+  private jsonRequest(kr: KeyResult, systemContext: string, userPrompt: string): any {
+    const req: any = {
+      model: this.pickModel(kr),
+      messages: [
+        { role: 'system', content: systemContext },
+        { role: 'user', content: userPrompt },
+      ],
+    };
+    // Capability-gated: sending response_format to a model that lacks it 400s (e.g. the minimax default), so floor
+    // models get the plain request and `extractJson` pulls the object out of fenced or prose output.
+    if (this.capabilitiesForKey(kr).structuredOutputs) req.response_format = { type: 'json_object' };
+    return req;
+  }
+
+  async generateTinyPlans(userPrompt: string, systemContext: string) {
+    try {
+      // ~100 tokens out, 50 in for a tiny plan.
+      const response = await this.completeOnce(150, (kr) => this.jsonRequest(kr, systemContext, userPrompt));
+      // Models often wrap the plan in a markdown fence or prose; extract the raw JSON before parsing.
+      const content = extractJson(stripThink(response.choices?.[0]?.message?.content || ''));
+      return { status: 200, data: JSON.parse(content || '{}'), retryAfter: null };
+    } catch (error: any) {
       Logger.error(`[LlmAdapter] Network Error: ${error.message}`);
       const status = this.errorStatus(error);
-      this.apiKeyManager.reportKeyResult(kr.idx!, status);
-      return { status, content: "", retryAfter: null, error };
+      const retryAfter = retryAfterSecs(error) ?? (status === 429 ? 5 : null);
+      return { status, data: null, retryAfter, error };
     }
   }
 
@@ -774,121 +617,29 @@ export class LlmAdapter implements LLMProvider {
     - riskScore (number: 0 to 100)
     Based on the following code snippet.`;
     const userPrompt = `Node ID: ${nodeId}\nNode Name: ${nodeName}\nType: ${type}\nCode:\n${codeSnippet}`;
-    const kr = await this.getKey();
-    const client = this.createClient(kr);
-    const estimatedCostUsd = this.estCost(200);
-    if (this.budgetVeto) await this.budgetVeto.checkVeto(estimatedCostUsd);
-
     try {
-      // Capability-gated structured output: only ask for a JSON object when the model supports it
-      // (sending response_format to a model that lacks it 400s — e.g. the minimax default). extractJson
-      // below is the universal fallback that recovers JSON from fenced/prose output for the rest.
-      const metaReq: any = {
-        model: this.pickModel(kr),
-        messages: [
-          { role: 'system', content: systemContext },
-          { role: 'user', content: userPrompt }
-        ],
-      };
-      if (this.capabilitiesForKey(kr).structuredOutputs) {
-        metaReq.response_format = { type: "json_object" };
-      }
-      const response = await client.chat.completions.create(metaReq, { timeout: this.requestTimeout });
-      this.apiKeyManager.reportKeyResult(kr.idx!, 200);
-      const usage = response.usage;
-      if (this.budgetVeto && usage) {
-        const actualCostUsd = this.estCost(usage.prompt_tokens + usage.completion_tokens);
-        await this.budgetVeto.recordSpend(actualCostUsd, estimatedCostUsd, this.pickModel(kr));
-      } else if (this.budgetVeto) {
-        await this.budgetVeto.recordSpend(estimatedCostUsd, estimatedCostUsd, this.pickModel(kr));
-      }
-      return JSON.parse(extractJson(stripThink(response.choices?.[0]?.message?.content || "")) || "{}");
-    } catch (e: any) {
-      if (this.budgetVeto) await this.budgetVeto.releaseReservation(estimatedCostUsd);
-      this.apiKeyManager.reportKeyResult(kr.idx!, this.errorStatus(e));
+      const response = await this.completeOnce(200, (kr) => this.jsonRequest(kr, systemContext, userPrompt));
+      return JSON.parse(extractJson(stripThink(response.choices?.[0]?.message?.content || '')) || '{}');
+    } catch {
       Logger.error(`[LlmAdapter] Failed semantic analysis for ${nodeId}`);
       return null;
     }
   }
 
   async chatCompletion(messages: any[], systemContext?: string, opts?: { lite?: boolean }): Promise<string> {
-    const kr = await this.getKey();
-    const client = this.createClient(kr);
-    const estimatedTokens = this.maxTokens || 4096;
-    const estimatedCostUsd = this.estCost(estimatedTokens);
-    if (this.budgetVeto) await this.budgetVeto.checkVeto(estimatedCostUsd);
-
-    // Once the provider has ANSWERED, the key did its job — a later client-side failure (response
-    // parsing, budget bookkeeping) must never re-bill the key as a server error. Without this flag
-    // a malformed-but-200 response threw at `.choices[0]`, the catch reported 500, and the sole
-    // key went on a 5s cooldown the NEXT call slept out ("All keys cooling down… Sleeping 2.8s"):
-    // ~4s of self-inflicted first-token latency per turn, measured live against a 120ms mock.
-    let keySettled = false;
-    try {
-      const finalMessages = systemContext
-        ? [{ role: 'system', content: systemContext }, ...messages]
-        : messages;
+    const finalMessages = systemContext
+      ? [{ role: 'system', content: systemContext }, ...messages]
+      : messages;
+    const response = await this.completeOnce(this.maxTokens || 4096, (kr) => {
       const chatModel = this.pickModel(kr, opts?.lite, LlmAdapter.messagesHaveImages(finalMessages));
-      const response = await client.chat.completions.create({
+      return {
         model: chatModel,
         messages: finalMessages,
         ...this.samplingFieldsFor(chatModel, this.temperature),
         max_tokens: this.maxTokens,
-      }, { timeout: this.requestTimeout });
-      this.apiKeyManager.reportKeyResult(kr.idx!, 200);
-      keySettled = true;
-      const usage = response.usage;
-      if (this.budgetVeto && usage) {
-        const actualCostUsd = this.estCost(usage.prompt_tokens + usage.completion_tokens);
-        await this.budgetVeto.recordSpend(actualCostUsd, estimatedCostUsd, this.pickModel(kr));
-      } else if (this.budgetVeto) {
-        await this.budgetVeto.recordSpend(estimatedCostUsd, estimatedCostUsd, this.pickModel(kr));
-      }
-      return stripThink(response.choices?.[0]?.message?.content || "");
-    } catch (e: any) {
-      if (this.budgetVeto) await this.budgetVeto.releaseReservation(estimatedCostUsd);
-      // Report the REAL status (429/408/…), not a blanket 500 — the key manager's rotation
-      // and backoff decisions depend on it (a 429 key should cool down, not be marked broken).
-      if (!keySettled) this.apiKeyManager.reportKeyResult(kr.idx!, this.errorStatus(e));
-      this.enrichModelNotFound(e, kr, opts?.lite);
-      throw e;
-    }
-  }
-
-  async *generateChatResponseStream(
-    messages: any[],
-    systemContext?: string,
-  ): AsyncGenerator<string> {
-    const kr = await this.getKey();
-    const client = this.createClient(kr);
-    const estimatedTokens = this.maxTokens || 4096;
-    const estimatedCostUsd = this.estCost(estimatedTokens);
-    if (this.budgetVeto) await this.budgetVeto.checkVeto(estimatedCostUsd);
-
-    try {
-      const finalMessages = systemContext
-        ? [{ role: 'system', content: systemContext }, ...messages]
-        : messages;
-      const stream = await client.chat.completions.create({
-        model: this.pickModel(kr),
-        messages: finalMessages,
-        stream: true,
-        ...this.samplingFieldsFor(this.pickModel(kr), this.temperature),
-        max_tokens: this.maxTokens,
-      }, { timeout: this.requestTimeout });
-      for await (const chunk of stream) {
-        const token = chunk.choices[0]?.delta?.content || '';
-        if (token) yield token;
-      }
-      if (this.budgetVeto) await this.budgetVeto.recordSpend(estimatedCostUsd, estimatedCostUsd, this.pickModel(kr));
-      this.apiKeyManager.reportKeyResult(kr.idx!, 200);
-    } catch (e: any) {
-      if (this.budgetVeto) await this.budgetVeto.releaseReservation(estimatedCostUsd);
-      const status = this.errorStatus(e);
-      this.apiKeyManager.reportKeyResult(kr.idx!, status);
-      this.enrichModelNotFound(e, kr);
-      throw e;
-    }
+      };
+    }, { lite: opts?.lite, explainModelErrors: true });
+    return stripThink(response.choices?.[0]?.message?.content || '');
   }
 
   /**
@@ -920,7 +671,7 @@ export class LlmAdapter implements LLMProvider {
       }
       throw e;
     }
-    // `let`: a hedged request (below) can be answered first on a second key, which then owns the stream.
+    // `let`: a hedged request (openStream) can be answered first on a second key, which then owns the stream.
     let kr = await this.getKey();
     const client = this.createClient(kr);
     const estimatedTokens = options.maxTokens || this.maxTokens || 4096;
@@ -931,468 +682,79 @@ export class LlmAdapter implements LLMProvider {
     // usage chunk would release the same reservation twice (under-counting spend).
     let usageRecorded = false;
     let attemptedModel: string | undefined;
-    // Wire-name map for this request's tools; identity when no tool name needed rewriting.
-    let wireNames: ToolNameMap = new ToolNameMap([]);
 
     try {
-      let finalMessages: any[] = options.system
-        ? [{ role: 'system', content: options.system }, ...messages]
-        : messages;
+      const request = this.buildChatRequest(kr, messages, options, (picked) => { attemptedModel = picked; });
+      const { model, caps } = request;
 
-      if (kr.provider === 'nvidia' || String(kr.baseURL || '').includes('api.nvidia.com')) {
-        finalMessages = normalizeNvidiaMessages(finalMessages);
-      }
+      // One reader per response: it turns chunks into tokens, reasoning and tool calls (chat.stream.reader.ts).
+      const reader = new ChatStreamReader({
+        model, caps, reasoners: this.detectedReasoners, implicitThink: this.implicitThink, wireNames: request.wireNames,
+        debugStream: process.env.BGW_DEBUG_STREAM === '1' || process.env.BGW_DEBUG_STREAM === 'true',
+        hadTools: !!(options.tools && options.tools.length),
+      });
 
-      // Resolve the model BEFORE any image handling: an image-bearing turn is exactly what
-      // reroutes to the dedicated vision slot (pickModel), so the images must still be present
-      // when the pick happens. Deriving caps from the RESOLVED model also keeps every knob below
-      // (sampling, reasoning, caching) aligned with the model actually called.
-      const model = this.pickModel(kr, options.lite, LlmAdapter.messagesHaveImages(finalMessages));
-      attemptedModel = model;
-      const caps = capabilitiesFor(kr.provider, model);
-      const primary = (options.lite && this.quickModel()) || this.userModel || kr.model || this.defaultModel;
-      if (LlmAdapter.messagesHaveImages(finalMessages) && model !== primary) {
-        engineEvents.emit('status', `Vision → ${model}`);
-      }
+      // First-token budget. Reasoning/cold-start models legitimately take minutes, but a PLAIN model (llama et al)
+      // answering in >1min means the provider is queueing/hanging THIS KEY server-side. When the pool can rotate (2+
+      // keys), plain models get a tight budget so a hung key costs ~1min, gets benched (reportKeyHang), and the retry
+      // lands on a fast key — instead of every sub-agent turn silently burning the full 180s. Explicit env wins.
+      const capsSayReasoner = caps.inlineReasoning || caps.nativeThinking || reader.knownReasoner;
+      const tightBudget = !process.env.BGW_FIRST_CHUNK_TIMEOUT_MS && !capsSayReasoner && this.apiKeyManager.size() > 1;
+      const firstBudgetMs = tightBudget ? Math.min(this.firstChunkTimeoutMs, 60_000) : this.firstChunkTimeoutMs;
 
-      // Vision safety net: only if the RESOLVED model (after any vision-slot reroute) still can't
-      // see images do we flatten image_url parts to a "[image]" text placeholder — never send
-      // multimodal content to a model that would 400 on it. Ordering bug fixed 2026-07-17: this
-      // used to run on the PRIMARY model's caps before the reroute, silently eating the screenshot
-      // the vision slot existed to see.
-      if (!caps.visionInput && finalMessages.some(m => Array.isArray(m.content))) {
-        finalMessages = finalMessages.map(m => Array.isArray(m.content) ? { ...m, content: contentToText(m.content) } : m);
-      }
+      const opened = await this.openStream(kr, client, request, options, firstBudgetMs);
+      kr = opened.key;
+      const { stream, startedAt: requestStartMs } = opened;
 
-      // Native fast-path: prompt caching. When the active model supports Anthropic `cache_control`
-      // (Claude, via OpenRouter/native/Bedrock), mark the large stable system prompt as a cache
-      // breakpoint so repeated turns in a session re-bill it at the cheap cached rate. For every
-      // other model this branch is skipped and messages stay as plain strings (FLOOR = unchanged).
-      // BiMax's universal answer to the same problem is the graph-native context engine (send less),
-      // which runs regardless — caching simply stacks on top when the model can do it.
-      // Two breakpoints (system + conversation tail) so the WHOLE stable prefix caches, not just the
-      // system prompt — the big win is each tool round within a turn re-reading the history from cache
-      // instead of re-billing it. (Adapted from Claude Code's cache-aware hot path; see
-      // docs/ENGINE_TUI_COMPARISON.md §A4.)
-      if (caps.promptCaching && options.system && finalMessages.length > 0) {
-        finalMessages = applyCacheBreakpoints(finalMessages);
-      }
-
-      const sampling = this.resolveSampling(model, options.temperature);
-      const requestOptions: any = {
-        model,
-        messages: finalMessages,
-        stream: true,
-        stream_options: { include_usage: true },
-        max_tokens: options.maxTokens ?? this.maxTokens,
-      };
-      // WS1.4 — per-provider request shaping: o-series/gpt-5 reject temperature/top_p overrides
-      // (400 "Unsupported value"). Only attach sampling when the model accepts it; every other
-      // model gets exactly the fields it got before.
-      if (!caps.fixedSampling) {
-        requestOptions.temperature = sampling.temperature;
-        requestOptions.top_p = sampling.top_p;
-      }
-
-      if (options.tools && options.tools.length > 0) {
-        // Provider-safe names and schemas (tool.wire.ts): one badly named MCP tool used to make the
-        // provider refuse EVERY later request in the session.
-        const wire = buildWireTools(options.tools, schemaFlavorFor(kr.provider, model));
-        wireNames = wire.names;
-        if (wire.dropped.length > 0 && !this.warnedToolCap) {
-          this.warnedToolCap = true;
-          Logger.warn(`[LlmAdapter] ${options.tools.length} tools exceed the ${wire.defs.length}-per-request limit; left out this turn: ${wire.dropped.slice(0, 8).join(', ')}${wire.dropped.length > 8 ? '…' : ''}`);
-        }
-        requestOptions.tools = wire.defs;
-        requestOptions.messages = renameHistoryToolCalls(requestOptions.messages, wireNames);
-        const forced = options.toolChoice?.function?.name;
-        requestOptions.tool_choice = forced
-          ? { type: 'function', function: { name: wireNames.toWire(forced) } }
-          : 'auto';
-        // NVIDIA NIM and several other OpenAI-compatible backends reject any
-        // assistant turn that emits more than one tool call ("This model only
-        // supports single tool-calls at once!"), which hard-aborts the task.
-        // The agent loop already executes tool calls sequentially, so constrain
-        // the model to one call per turn by default. Opt back in with
-        // BGW_PARALLEL_TOOL_CALLS=true for providers that support it.
-        // Default ON now (batched tool calls = faster). Only constrain to single-call for backends
-        // that reject multi-tool turns, via config / BGW_PARALLEL_TOOL_CALLS=false.
-        if (!this.parallelToolCalls || !caps.parallelToolCalls) {
-          requestOptions.parallel_tool_calls = false;
-        }
-      }
-
-      // Optional reasoning budget — only sent when explicitly configured, so default
-      // behavior is unchanged. Lets thinking models (minimax) trade depth for speed.
-      // Only send reasoning_effort to a model that advertises the knob — several backends 400 on an
-      // unknown sampling field. Reasoning models (o-series, deepseek-r1, minimax) are flagged in the
-      // table; unknowns can opt in with BGW_CAP_REASONING_EFFORT=true.
-      // Kimi K3 defaults to maximum reasoning at the provider, which is a poor interactive default
-      // and exceeded the bounded local first-token probes. Prefer its documented low setting unless
-      // the user explicitly asks for another effort. Other model families retain their old default.
-      const effort = options.reasoningEffort ?? this.reasoningEffort
-        ?? (caps.requiresReasoningReplay ? 'low' : undefined);
-      if (effort && caps.reasoningEffortKnob) requestOptions.reasoning_effort = effort;
-      // GPT-6 on Chat Completions accepts function calling ONLY with reasoning_effort "none"
-      // (developers.openai.com/api/docs/models/gpt-6-sol, read 2026-09-28). Any other effort — or
-      // the default, "medium" — makes a tool-bearing request fail, so every tool the model has
-      // would be unusable. Reasoning still applies to tool-free turns.
-      if (caps.toolsRequireNoReasoning && requestOptions.tools) requestOptions.reasoning_effort = 'none';
-
-      // C6 — Anthropic beta-header features (1M context, token-efficient tools, interleaved
-      // thinking). Host-gated to the genuine Anthropic endpoint and opt-in via BGW_ANTHROPIC_BETA,
-      // so on every other backend (the default) this is undefined and the request is unchanged.
-      const requestInit: any = { timeout: this.requestTimeout, signal: options.signal as any };
-      const betaHeaders = anthropicBetaHeaders(kr.baseURL);
-      if (betaHeaders) requestInit.headers = betaHeaders;
-
-      // Perf: mark the exact instant the provider request leaves the engine. Everything before this
-      // point is Bimax overhead (routing, context assembly); everything between here and the first
-      // meaningful payload is provider wait. The wall-clock twin also feeds per-key latency, so it
-      // deliberately starts BEFORE create(): some providers hold response headers while queued.
-      // No-op when no turn timeline is active (classifier/critic/sub-agent calls, tests) and
-      // idempotent within a turn (only the first streaming call of a turn counts).
-      let requestStartMs = Date.now();
-      markProviderRequest();
-      // NIM's per-key queue holds the RESPONSE HEADERS until the request is granted, so a hung key
-      // stalls create() itself — before the stream iterator our chunk watchdog guards even exists.
-      // Cap the header wait with the same first-token budget (plain models / multi-key pools get
-      // the tight one) so a hung key is benched and the retry rotates instead of waiting minutes.
-      const capsSayReasoner = caps.inlineReasoning || caps.nativeThinking || this.detectedReasoners.has(model);
-      const createBudgetMs = (!process.env.BGW_FIRST_CHUNK_TIMEOUT_MS && !capsSayReasoner && this.apiKeyManager.size() > 1)
-        ? Math.min(this.firstChunkTimeoutMs, 60_000)
-        : this.firstChunkTimeoutMs;
-      const headerBudgetMs = Math.min(this.requestTimeout, createBudgetMs);
-      let stream: any;
-      try {
-        // Hedged: a request NIM is still holding after `hedgeAfterMs` gets one backup copy on another
-        // key, and whichever answers first is used (see hedged.request.ts for the measurements). Never
-        // for a loopback endpoint — a local server loading a model holds headers too, and a second copy
-        // would only double its load.
-        const startedKey = kr;
-        const hedge = await hedgedRequest<KeyResult, any>({
-          first: kr,
-          budgetMs: headerBudgetMs,
-          hedgeAfterMs: isLoopbackEndpoint(kr.baseURL) ? 0 : this.hedgeAfterMs,
-          start: (legKey, budgetMs) => {
-            const leg = new AbortController();
-            const signal = options.signal ? AbortSignal.any([options.signal as AbortSignal, leg.signal]) : leg.signal;
-            const legClient = legKey === startedKey ? client : this.createClient(legKey);
-            return {
-              promise: legClient.chat.completions.create(requestOptions, { ...requestInit, timeout: budgetMs, signal }),
-              abort: () => leg.abort(),
-            };
-          },
-          nextKey: async () => {
-            if (options.signal?.aborted) return null;
-            const backup = await this.apiKeyManager.getNextKey({ exclude: startedKey.idx ?? undefined });
-            if (!backup.keyStr || backup.idx === null || backup.waitTimeSecs > 0 || backup.idx === startedKey.idx) return null;
-            // Same provider, endpoint and model, or the backup would be a different request.
-            if (backup.provider !== startedKey.provider || (backup.baseURL || '') !== (startedKey.baseURL || '')) return null;
-            if ((backup.model || '') !== (startedKey.model || '')) return null;
-            return backup;
-          },
-          onHedge: (backup) => {
-            Logger.warn(`[LlmAdapter] KEY #${(startedKey.idx ?? 0) + 1} has not answered in ${Math.round(this.hedgeAfterMs / 1000)}s — sending a backup on key #${(backup.idx ?? 0) + 1}`);
-            engineEvents.emit('status', 'Provider is slow — trying a second key');
-          },
-          onLoser: (loser, waitedMs, error) => {
-            if (loser.idx === null) return;
-            // Outraced, not failed: teach the picker this key was slow without benching it — the
-            // queue is per request, so the same key often answers the next one at once.
-            if (error === undefined) this.apiKeyManager.reportKeyLatency(loser.idx, waitedMs);
-            else if (loser !== startedKey) this.apiKeyManager.reportKeyResult(loser.idx, classifyStreamError(error).status);
-          },
-        });
-        stream = hedge.value;
-        if (hedge.key !== startedKey) {
-          kr = hedge.key;
-          requestStartMs = hedge.startedAt;
-        }
-      } catch (e: any) {
-        // The SDK surfaces our header-wait cap as APIConnectionTimeoutError ("Request timed out").
-        // Normalize it to the watchdog's message so the catch below benches the key (reportKeyHang).
-        if (e?.name === 'APIConnectionTimeoutError' || /timed? ?out/i.test(String(e?.message))) {
-          // Attribute from evidence, not assumption: probe the origin in the background so /perf
-          // can say WHERE this stall happened (provider-side vs DNS vs network path).
-          attributeSlowWait(kr.baseURL || 'https://integrate.api.nvidia.com/v1', createBudgetMs, true);
-          throw new Error(`LLM stream timeout: model '${model}' sent no response headers for ${Math.round(createBudgetMs / 1000)}s — benching this key and rotating (run /perf for network-path evidence)`, { cause: e });
-        }
-        throw e;
-      }
-
-      // Accumulate streamed tool calls keyed by their delta `index` — the OpenAI streaming contract:
-      // the first delta for an index carries id+name+the start of the args, later deltas append more
-      // args. The previous code keyed off the PRESENCE of `tc.id`, assuming it appears only on the
-      // first delta; minimax/NIM (and others) repeat `id` on every delta, so that mis-fired a "new
-      // call" each chunk and emitted truncated args (`{"query": "`, `richest person`, …) that then
-      // failed to parse. One slot per index, yielded only once the stream is complete, fixes it.
-      const toolAcc = new Map<number, { id: string; name: string; args: string }>();
-      let lastActiveIdx = -1;
-      // Throttle live tool-arg partials (C3): a big tool call streams hundreds of arg fragments, and
-      // emitting one partial per fragment would drive a UI re-render each time. Coalesce to at most
-      // one partial every PARTIAL_EMIT_MS; the final authoritative tool_call always fires regardless.
-      const PARTIAL_EMIT_MS = 80;
-      let lastPartialAt = 0;
-      // Track the provider's stop reason so we can detect a response cut off at the output-token
-      // ceiling (finish_reason === 'length') — otherwise a truncated answer is silently presented as
-      // if it were complete. Captured per-chunk; the last non-null value is authoritative.
-      let finishReason: string | null = null;
-      // Native-thinking fast-path: a model with a structured reasoning channel (Claude, o-series,
-      // DeepSeek-R1, minimax) delivers its reasoning out-of-band via `reasoning_content`; the
-      // content channel is the answer, with no opener-less `</think>` to guard against. Implicit
-      // mode buffers leading content until a closer proves it was reasoning — for these models that
-      // closer never comes, so it only adds latency (the answer arrives in one burst at stream end).
-      // Disable implicit mode when the capability is present so the answer streams token-by-token.
-      // FLOOR (caps.nativeThinking=false) leaves this exactly as before: `this.implicitThink`.
-      //
-      // Also disable it for CONFIRMED non-reasoning models (caps.plainContent, e.g. minimax): their
-      // content channel is always the answer, with no opener-less `</think>` closer to wait for. In
-      // implicit mode the filter would hold the leading content tentatively (up to the preamble cap)
-      // before releasing it — a visible head-of-reply stall that read as "minimax is very very slow".
-      // Streaming from token 1 cannot leak reasoning for these models (they don't reason inline).
-      // Seed the runtime reasoner set from the table so the preamble cap is placed correctly on the
-      // FIRST turn (openerless models emit long CoT then a `</think>`; capping early would slice it).
-      // Detection also runs at runtime below, so a model NOT in the table self-corrects the moment it
-      // reveals its behaviour.
-      if (caps.inlineReasoning || caps.nativeThinking) this.detectedReasoners.add(model);
-      const knownReasoner = this.detectedReasoners.has(model);
-      // chooseThinkStrategy is the single source of truth (see llm.stream.ts). OPENER-based inline
-      // opener-based/native reasoners get implicit=false → a tag-free answer streams from token 1
-      // while `<think>…</think>` reasoning is still hidden by the explicit filter path. Only genuinely
-      // OPENER-LESS reasoners (step-3.5) and UNKNOWN models buffer the ambiguous leading region.
-      const strategy = chooseThinkStrategy(caps, this.implicitThink, knownReasoner);
-      const thinkFilter = new ThinkTagFilter(strategy.implicit, /* capPreamble */ strategy.capBounded);
-
-      // Raw-stream capture. Records the exact `content`/`reasoning_content` bytes plus every delta
-      // field key the provider sent, then writes them to a dedicated debug file at stream end. This
-      // is how we learn the EXACT reasoning delimiter/channel a model uses (e.g. minimax's closer)
-      // without guessing. OPT-IN only — set BGW_DEBUG_STREAM=1 to enable. (It does sync disk writes
-      // at stream end, so leaving it on by default added I/O to every single turn.)
-      const debugStream = process.env.BGW_DEBUG_STREAM === '1' || process.env.BGW_DEBUG_STREAM === 'true';
-      let dbgContent = '';
-      let dbgReasoning = '';
-      const dbgDeltaKeys = new Set<string>();
-
-      const iterator = stream[Symbol.asyncIterator]();
+      const iterator: AsyncIterator<any> = stream[Symbol.asyncIterator]();
       let receivedFirstPayload = false;
-      // First-token budget. Reasoning/cold-start models legitimately take minutes, but a PLAIN
-      // model (llama et al) answering in >1min means the provider is queueing/hanging THIS KEY
-      // server-side. When the pool can rotate (2+ keys), give plain models a tight budget so a
-      // hung key costs ~1min, gets benched (reportKeyHang), and the retry lands on a fast key —
-      // instead of every sub-agent turn silently burning the full 180s. Explicit env wins.
-      let firstBudgetMs = this.firstChunkTimeoutMs;
-      if (!process.env.BGW_FIRST_CHUNK_TIMEOUT_MS && !knownReasoner && !capsSayReasoner && this.apiKeyManager.size() > 1) {
-        firstBudgetMs = Math.min(firstBudgetMs, 60_000);
-      }
       while (true) {
-        const nextPromise = iterator.next();
-        // Guard against a silently stalled stream. The first chunk (time-to-first-token) gets a
-        // longer budget than later chunks: a cold start is a legitimate long pause, a mid-stream
-        // gap is not. The timer MUST be cleared once the chunk arrives, or every chunk leaks a
-        // timer (and a later unhandled rejection) — a long reasoning stream would spawn hundreds.
-        // Empty role/usage preambles do not consume the first-token phase. Use an absolute deadline,
-        // though, so a server cannot keep the request alive forever by dripping empty frames.
-        const firstPayloadRemaining = Math.max(1, firstBudgetMs - (Date.now() - requestStartMs));
-        const chunkTimeoutMs = receivedFirstPayload ? this.streamReadTimeoutMs : firstPayloadRemaining;
+        // Guard against a silently stalled stream. The first chunk (time-to-first-token) gets a longer budget than later
+        // chunks: a cold start is a legitimate long pause, a mid-stream gap is not. Empty role/usage preambles do not
+        // consume the first-token phase; the deadline is absolute, though, so a server cannot keep the request alive
+        // forever by dripping empty frames.
+        const chunkTimeoutMs = receivedFirstPayload
+          ? this.streamReadTimeoutMs
+          : Math.max(1, firstBudgetMs - (Date.now() - requestStartMs));
         const phase = receivedFirstPayload ? 'mid-stream' : 'first token';
-        let timeoutHandle: ReturnType<typeof setTimeout>;
-        const timeoutPromise = new Promise<any>((_, reject) => {
-          timeoutHandle = setTimeout(() => {
-            // Never assert "provider cold/slow" without evidence: probe the origin in the
-            // background so /perf can attribute this stall (provider-side vs DNS vs network path).
-            if (!receivedFirstPayload) attributeSlowWait(kr.baseURL || 'https://integrate.api.nvidia.com/v1', Date.now() - requestStartMs, true);
-            reject(new Error(`LLM stream timeout: model '${model}' sent no ${phase} for ${Math.round(chunkTimeoutMs / 1000)}s — not a tool error (run /perf for network-path evidence)`));
-          }, chunkTimeoutMs);
-        });
-
-        let result: any;
-        try {
-          result = await Promise.race([nextPromise, timeoutPromise]);
-        } catch (raceErr) {
-          // The stall timer (or the stream itself) rejected. If the timer won, `nextPromise` is now
-          // an ORPHAN — if the underlying iterator later rejects (socket reset on a dead stream),
-          // that becomes an unhandledRejection, which kills the whole process on modern Node.
-          // Silence the orphan and abort the HTTP stream so the socket is actually released
-          // instead of lingering until the provider closes it.
-          nextPromise.catch(() => { /* orphaned after timeout — already handled via raceErr */ });
-          try { (stream as any)?.controller?.abort?.(); } catch { /* best-effort close */ }
-          throw raceErr;
-        } finally {
-          clearTimeout(timeoutHandle!);
-        }
+        const result = await nextChunkWithin(iterator, chunkTimeoutMs, () => {
+          // Never assert "provider cold/slow" without evidence: probe the origin in the background so /perf can
+          // attribute this stall (provider-side vs DNS vs network path).
+          if (!receivedFirstPayload) attributeSlowWait(kr.baseURL || 'https://integrate.api.nvidia.com/v1', Date.now() - requestStartMs, true);
+          return new ProviderStallError(model, phase, chunkTimeoutMs);
+        }, () => (stream as any)?.controller?.abort?.());
         if (result.done) break;
         const chunk = result.value;
-        // Many OpenAI-compatible streams open with an empty role-only delta. It proves the socket is
-        // alive, but says nothing about model latency. Only the first meaningful payload teaches the
-        // key picker and closes /perf's provider-wait phase; otherwise slow keys look instant and the
-        // model's wait is mislabeled as UI render time.
+        // Many OpenAI-compatible streams open with an empty role-only delta. It proves the socket is alive, but says
+        // nothing about model latency. Only the first meaningful payload teaches the key picker and closes /perf's
+        // provider-wait phase; otherwise slow keys look instant and the model's wait is mislabeled as UI render time.
         if (!receivedFirstPayload && hasMeaningfulStreamPayload(chunk)) {
           markFirstRawChunk(); // perf: first meaningful provider payload, not an SSE preamble
           const waitedMs = Date.now() - requestStartMs;
-          // Per-round record. markFirstRawChunk above is first-wins for the turn, so on a tool-using
-          // turn it only ever describes round 1; this one lands for every round, which is what makes
-          // a slow later round attributable instead of averaged away.
+          // Per-round record. markFirstRawChunk above is first-wins for the turn, so on a tool-using turn it only ever
+          // describes round 1; this one lands for every round, which makes a slow later round attributable.
           recordProviderRound({ waitMs: waitedMs, model });
           // Latency feedback: teach the key picker which keys answer fast (NIM queues per-key).
           this.apiKeyManager.reportKeyLatency(kr.idx!, waitedMs);
-          // Slow-but-successful first token: gather attribution evidence too, so /perf can say
-          // whether that long wait was provider-side or a degraded local network path.
+          // Slow-but-successful first token: gather attribution evidence too, so /perf can say whether that long wait
+          // was provider-side or a degraded local network path.
           if (waitedMs > SLOW_WAIT_THRESHOLD_MS) {
             attributeSlowWait(kr.baseURL || 'https://integrate.api.nvidia.com/v1', waitedMs, false);
           }
           receivedFirstPayload = true;
         }
-        if (chunk.choices?.[0]?.finish_reason) finishReason = chunk.choices[0].finish_reason;
 
-        if (debugStream) {
-          const delta = chunk.choices?.[0]?.delta;
-          if (delta && typeof delta === 'object') {
-            for (const k of Object.keys(delta)) dbgDeltaKeys.add(k);
-            if (typeof delta.content === 'string') dbgContent += delta.content;
-            if (typeof delta.reasoning_content === 'string') dbgReasoning += delta.reasoning_content;
-            // Some providers use `reasoning` instead of `reasoning_content`; capture it too.
-            if (typeof (delta as any).reasoning === 'string') dbgReasoning += (delta as any).reasoning;
-          }
-        }
+        yield* reader.read(chunk);
 
-        // Reasoning channel (DeepSeek-R1 / o-series style): never surface as the reply. Its mere
-        // presence PROVES this model reasons out-of-band, so the content channel is the answer —
-        // learn it (future turns skip buffering) and release anything the filter held tentatively.
-        const reasoning = chunk.choices[0]?.delta?.reasoning_content ?? (chunk.choices[0]?.delta as any)?.reasoning;
-        if (reasoning) {
-          if (!this.detectedReasoners.has(model)) {
-            this.detectedReasoners.add(model);
-            const released = thinkFilter.releaseAsAnswer();
-            if (released) yield { type: 'token', text: released };
-          }
-          yield { type: 'thinking', text: reasoning, ...(caps.requiresReasoningReplay ? { replay: true } : {}) };
-        }
-
-        // Yield tokens, with inline <think> spans diverted to the thinking channel.
-        // Normalize <thinking>/<\/thinking> (step-3.7, QwQ, etc.) to the canonical
-        // <think>/<\/think> form so the filter handles both tag variants uniformly.
-        const rawToken = chunk.choices[0]?.delta?.content;
-        if (rawToken) {
-          const token = rawToken.replace(/<thinking>/g, '<think>').replace(/<\/thinking>/g, '</think>');
-          // A `</think>` in the content channel PROVES this model reasons inline — learn it so later
-          // turns lift the preamble cap (wait for the closer instead of capping → no reasoning leak).
-          if (token.includes('</think>')) this.detectedReasoners.add(model);
-          const { text, thinking } = thinkFilter.process(token);
-          if (thinking) yield { type: 'thinking', text: thinking };
-          if (text) yield { type: 'token', text };
-        }
-
-        // Handle tool calls streaming
-        const toolCalls = chunk.choices[0]?.delta?.tool_calls;
-        if (toolCalls && toolCalls.length > 0) {
-          // The turn is producing a tool call, so any leading content-channel text the model emitted
-          // was reasoning (the answer is the call). Divert whatever the filter still holds tentatively
-          // to the thinking channel — covers models that reason inline then jump straight to a tool
-          // call without ever emitting a `</think>` closer. Idempotent: a no-op after it first fires.
-          const stray = thinkFilter.drainPending();
-          if (stray) yield { type: 'thinking', text: stray };
-          for (const tc of toolCalls) {
-            lastActiveIdx = applyToolCallDelta(toolAcc, tc);
-          }
-          // C3 — live tool-arg streaming. When the model streams partial-JSON tool args, surface the
-          // most-recently-updated call (name + args-so-far) as it forms so the UI shows activity before
-          // the turn finishes. Display-only: the authoritative `tool_call`(s) fire once at the end.
-          // FLOOR (caps.partialJsonTools=false) never emits this, so behavior is unchanged. Throttled
-          // so a large tool call doesn't flood the UI with a re-render per arg fragment.
-          if (caps.partialJsonTools && lastActiveIdx >= 0) {
-            const now = Date.now();
-            if (now - lastPartialAt >= PARTIAL_EMIT_MS) {
-              lastPartialAt = now;
-              const slot = toolAcc.get(lastActiveIdx)!;
-              yield { type: 'tool_call_partial', id: slot.id || `idx-${lastActiveIdx}`, name: wireNames.fromWire(slot.name), args: slot.args };
-            }
-          }
-        }
-        
-        // Handle usage if present in the stream (requires stream_options in some models).
-        // Guard against a provider sending more than one usage chunk: record once, or
-        // the reservation would be released repeatedly.
+        // Usage, if the stream reports it (requires stream_options on some models). Recorded once: a provider sending
+        // more than one usage chunk would otherwise release the reservation repeatedly.
         if (chunk.usage && !usageRecorded) {
-          // Coerce token counts to real numbers: several providers omit completion_tokens (or send
-          // null) on mid-stream usage chunks, and `prompt + undefined` is NaN — which would poison
-          // the context manager's token tracking AND the budget's currentDailySpend (NaN > cap is
-          // always false, so the daily veto silently never fires again, and NaN gets persisted).
-          const promptToks = Number(chunk.usage.prompt_tokens) || 0;
-          const completionToks = Number(chunk.usage.completion_tokens) || 0;
-          const cacheRead = chunk.usage.cache_read_input_tokens ?? 0;
-          const cacheCreate = chunk.usage.cache_creation_input_tokens ?? 0;
-          // The provider told us; record it as provider-sourced usage. Rounds with no usage chunk
-          // stay `unavailable` rather than being back-filled from a character count.
-          attachRoundUsage(providerUsage({
-            inputTokens: promptToks,
-            outputTokens: completionToks,
-            cachedInputTokens: Number(cacheRead) || 0,
-            cacheCreationTokens: Number(cacheCreate) || 0,
-          }));
-          globalTelemetry.recordUsage(promptToks, cacheRead, cacheCreate);
-          yield { type: 'usage', prompt: promptToks, completion: completionToks };
-          if (this.budgetVeto) {
-            const actualCostUsd = this.estCost(promptToks + completionToks);
-            await this.budgetVeto.recordSpend(actualCostUsd, estimatedCostUsd, this.pickModel(kr));
-          }
+          yield* this.settleStreamUsage(chunk.usage, kr, estimatedCostUsd);
           usageRecorded = true;
         }
       }
 
-      if (debugStream && (dbgContent || dbgReasoning)) {
-        // Write to a dedicated file (not console/Logger) so the TUI is never corrupted. JSON.stringify
-        // shows whitespace/special tokens literally, so the exact reasoning delimiter is visible.
-        try {
-          const fs = require('fs');
-          const path = require('path');
-          const dir = path.join(stateDir('.breakglass'), 'logs');
-          fs.mkdirSync(dir, { recursive: true });
-          const rec = {
-            ts: new Date().toISOString(),
-            model,
-            hadTools: !!(options.tools && options.tools.length),
-            deltaKeys: [...dbgDeltaKeys],
-            reasoningLen: dbgReasoning.length,
-            contentLen: dbgContent.length,
-            content: dbgContent.slice(0, 4000),
-            reasoning_content: dbgReasoning.slice(0, 2000),
-          };
-          fs.appendFileSync(path.join(dir, 'stream-debug.log'), JSON.stringify(rec) + '\n', 'utf-8');
-        } catch { /* diagnostic only — never break the stream */ }
-      }
-
-      // Flush any text held back by the think-tag filter
-      const tail = thinkFilter.flush();
-      if (tail.thinking) yield { type: 'thinking', text: tail.thinking };
-      if (tail.text) yield { type: 'token', text: tail.text };
-
-      // Yield every accumulated tool call, in index order, now that the stream is complete.
-      // (Skips empty slots a provider may have opened without a name.)
-      //
-      // "each one's arguments are whole" holds only when the model chose to stop. If it hit the
-      // output-token ceiling instead, the call it was still writing is cut mid-JSON — observed live
-      // as `{"action": "click", "elementIndex": 14, "frameId": "f20-65050-67`, which the agent loop
-      // reported as "Failed to parse arguments", i.e. as the model's fault. Only the LAST call can
-      // be the partial one, so mark it and let the loop give advice that matches the real cause.
-      for (const slot of finalizeToolCalls(toolAcc, finishReason)) {
-        yield {
-          type: 'tool_call',
-          id: slot.id || `call-${Date.now()}-${slot.name}`,
-          name: wireNames.fromWire(slot.name),
-          args: slot.args,
-          ...(slot.truncated ? { truncated: true } : {}),
-          ...(slot.extra !== undefined ? { extra: slot.extra } : {}),
-        };
-      }
-
-      // Output-limit truncation with no tool call at all: the answer itself is cut off. Signalled
-      // separately because the loop's recovery differs — it auto-continues the reply rather than
-      // reporting a tool failure.
-      if (finishReason === 'length' && toolAcc.size === 0) {
-        yield { type: 'truncated' };
-      }
-
+      yield* reader.finish();
       yield { type: 'done' };
 
       // Only fall back to the estimate if the stream never reported real usage,
@@ -1422,21 +784,233 @@ export class LlmAdapter implements LLMProvider {
         return;
       }
       const { status, recoverable, kind, retryAfterSecs } = classifyStreamError(e);
-      // A first-token timeout means the provider is queueing/hanging THIS key — bench it so
-      // rotation stops feeding the dead lane (reportKeyResult alone gives it a 2s cooldown,
-      // which put it right back in the mix). Message text is the watchdog's own, matched here.
-      if (typeof e?.message === 'string' && /sent no (first token|response headers)/.test(e.message)) {
-        this.apiKeyManager.reportKeyHang(kr.idx!);
-      }
+      // The provider is holding THIS KEY's request (no headers, or no first token) — bench it so rotation stops feeding
+      // the dead lane (reportKeyResult alone gives it a 2s cooldown, which put it right back in the mix).
+      if (e instanceof ProviderStallError && e.keyIsHeld) this.apiKeyManager.reportKeyHang(kr.idx!);
       this.apiKeyManager.reportKeyResult(kr.idx!, status, retryAfterSecs ?? null);
       // Feed the provider breaker: count only provider-side faults (5xx/429/timeouts), so a client
       // error (400 bad request, 401 auth) — the provider responding fine — never trips the breaker.
       // USER CANCELLATION is not a provider fault at all: an aborted request (Ctrl+C/esc) has no
       // status and would otherwise count as a timeout — a user interrupting three long streams
       // must never open the breaker. Record nothing for aborts.
-      const userAborted = options.signal?.aborted || e?.name === 'AbortError' || /abort/i.test(String(e?.message || ''));
-      if (!userAborted) this.providerBreaker.record(isProviderFault(status) ? Outcome.Failure : Outcome.Success);
+      if (!isUserAbort(e, options.signal)) this.providerBreaker.record(isProviderFault(status) ? Outcome.Failure : Outcome.Success);
       yield { type: 'error', message: e.message, recoverable, kind, retryAfterSecs };
+    }
+  }
+
+  /**
+   * The request one chat turn sends: the model resolved for this key and these messages, the messages in the shape
+   * that provider accepts, sampling, tools under provider-safe names, reasoning effort, and the transport options.
+   * Emits the `Vision → model` status when an image turn is rerouted.
+   */
+  private buildChatRequest(kr: KeyResult, messages: Message[], options: ChatOptions, onModel: (model: string) => void): {
+    model: string; caps: ModelCapabilities; requestOptions: any; requestInit: any; wireNames: ToolNameMap;
+  } {
+    let finalMessages: any[] = options.system
+      ? [{ role: 'system', content: options.system }, ...messages]
+      : messages;
+
+    if (kr.provider === 'nvidia' || String(kr.baseURL || '').includes('api.nvidia.com')) {
+      finalMessages = normalizeNvidiaMessages(finalMessages);
+    }
+
+    // Resolve the model BEFORE any image handling: an image-bearing turn is exactly what
+    // reroutes to the dedicated vision slot (pickModel), so the images must still be present
+    // when the pick happens. Deriving caps from the RESOLVED model also keeps every knob below
+    // (sampling, reasoning, caching) aligned with the model actually called.
+    const model = this.pickModel(kr, options.lite, LlmAdapter.messagesHaveImages(finalMessages));
+    onModel(model);
+    const caps = capabilitiesFor(kr.provider, model);
+    const primary = (options.lite && this.quickModel()) || this.userModel || kr.model || this.defaultModel;
+    if (LlmAdapter.messagesHaveImages(finalMessages) && model !== primary) {
+      engineEvents.emit('status', `Vision → ${model}`);
+    }
+
+    // Vision safety net: only if the RESOLVED model (after any vision-slot reroute) still can't
+    // see images do we flatten image_url parts to a "[image]" text placeholder — never send
+    // multimodal content to a model that would 400 on it. Ordering bug fixed 2026-07-17: this
+    // used to run on the PRIMARY model's caps before the reroute, silently eating the screenshot
+    // the vision slot existed to see.
+    if (!caps.visionInput && finalMessages.some(m => Array.isArray(m.content))) {
+      finalMessages = finalMessages.map(m => Array.isArray(m.content) ? { ...m, content: contentToText(m.content) } : m);
+    }
+
+    // Native fast-path: prompt caching. When the active model supports Anthropic `cache_control`
+    // (Claude, via OpenRouter/native/Bedrock), mark the large stable system prompt as a cache
+    // breakpoint so repeated turns in a session re-bill it at the cheap cached rate. For every
+    // other model this branch is skipped and messages stay as plain strings (FLOOR = unchanged).
+    // Two breakpoints (system + conversation tail) so the WHOLE stable prefix caches, not just the
+    // system prompt — the big win is each tool round within a turn re-reading the history from cache
+    // instead of re-billing it. (Adapted from Claude Code's cache-aware hot path.)
+    if (caps.promptCaching && options.system && finalMessages.length > 0) {
+      finalMessages = applyCacheBreakpoints(finalMessages);
+    }
+
+    const sampling = this.resolveSampling(model, options.temperature);
+    const requestOptions: any = {
+      model,
+      messages: finalMessages,
+      stream: true,
+      stream_options: { include_usage: true },
+      max_tokens: options.maxTokens ?? this.maxTokens,
+    };
+    // WS1.4 — per-provider request shaping: o-series/gpt-5 reject temperature/top_p overrides
+    // (400 "Unsupported value"). Only attach sampling when the model accepts it; every other
+    // model gets exactly the fields it got before.
+    if (!caps.fixedSampling) {
+      requestOptions.temperature = sampling.temperature;
+      requestOptions.top_p = sampling.top_p;
+    }
+
+    // Wire-name map for this request's tools; identity when no tool name needed rewriting.
+    let wireNames: ToolNameMap = new ToolNameMap([]);
+    if (options.tools && options.tools.length > 0) {
+      // Provider-safe names and schemas (tool.wire.ts): one badly named MCP tool used to make the
+      // provider refuse EVERY later request in the session.
+      const wire = buildWireTools(options.tools, schemaFlavorFor(kr.provider, model));
+      wireNames = wire.names;
+      if (wire.dropped.length > 0 && !this.warnedToolCap) {
+        this.warnedToolCap = true;
+        Logger.warn(`[LlmAdapter] ${options.tools.length} tools exceed the ${wire.defs.length}-per-request limit; left out this turn: ${wire.dropped.slice(0, 8).join(', ')}${wire.dropped.length > 8 ? '…' : ''}`);
+      }
+      requestOptions.tools = wire.defs;
+      requestOptions.messages = renameHistoryToolCalls(requestOptions.messages, wireNames);
+      const forced = options.toolChoice?.function?.name;
+      requestOptions.tool_choice = forced
+        ? { type: 'function', function: { name: wireNames.toWire(forced) } }
+        : 'auto';
+      // Batched tool calls are faster, so they are on by default; backends that reject a multi-tool turn ("This model
+      // only supports single tool-calls at once!", NVIDIA NIM and others) are constrained to one call per turn via
+      // config / BGW_PARALLEL_TOOL_CALLS=false or their capability row.
+      if (!this.parallelToolCalls || !caps.parallelToolCalls) {
+        requestOptions.parallel_tool_calls = false;
+      }
+    }
+
+    // Optional reasoning budget — sent only when configured, and only to a model that advertises the knob (several
+    // backends 400 on an unknown field; unknowns can opt in with BGW_CAP_REASONING_EFFORT=true). Kimi K3 defaults to
+    // maximum reasoning at the provider, a poor interactive default that exceeded the bounded first-token probes, so it
+    // gets its documented low setting unless the user asks for another. Other families keep their old default.
+    const effort = options.reasoningEffort ?? this.reasoningEffort
+      ?? (caps.requiresReasoningReplay ? 'low' : undefined);
+    if (effort && caps.reasoningEffortKnob) requestOptions.reasoning_effort = effort;
+    // GPT-6 on Chat Completions accepts function calling ONLY with reasoning_effort "none"
+    // (developers.openai.com/api/docs/models/gpt-6-sol, read 2026-09-28). Any other effort — or
+    // the default, "medium" — makes a tool-bearing request fail, so every tool the model has
+    // would be unusable. Reasoning still applies to tool-free turns.
+    if (caps.toolsRequireNoReasoning && requestOptions.tools) requestOptions.reasoning_effort = 'none';
+
+    // C6 — Anthropic beta-header features (1M context, token-efficient tools, interleaved
+    // thinking). Host-gated to the genuine Anthropic endpoint and opt-in via BGW_ANTHROPIC_BETA,
+    // so on every other backend (the default) this is undefined and the request is unchanged.
+    const requestInit: any = { timeout: this.requestTimeout, signal: options.signal as any };
+    const betaHeaders = anthropicBetaHeaders(kr.baseURL);
+    if (betaHeaders) requestInit.headers = betaHeaders;
+
+    return { model, caps, requestOptions, requestInit, wireNames };
+  }
+
+  /**
+   * Send the request and wait for response headers, hedged across keys. Returns the stream, the key that answered
+   * (a backup key may win), and when that key's request left the engine.
+   *
+   * NIM's per-key queue holds the RESPONSE HEADERS until the request is granted, so a hung key stalls create() itself —
+   * before the stream iterator the chunk watchdog guards even exists. The header wait is therefore capped with the
+   * first-token budget, and a timeout is raised as a {@link ProviderStallError} so the catch in chat() benches the key.
+   */
+  private async openStream(
+    kr: KeyResult, client: OpenAI, request: { model: string; requestOptions: any; requestInit: any },
+    options: ChatOptions, firstBudgetMs: number,
+  ): Promise<{ stream: any; key: KeyResult; startedAt: number }> {
+    // Perf: mark the exact instant the provider request leaves the engine. Everything before this
+    // point is Bimax overhead (routing, context assembly); everything between here and the first
+    // meaningful payload is provider wait. The wall-clock twin also feeds per-key latency, so it
+    // deliberately starts BEFORE create(): some providers hold response headers while queued.
+    // No-op when no turn timeline is active (classifier/critic/sub-agent calls, tests) and
+    // idempotent within a turn (only the first streaming call of a turn counts).
+    const startedAt = Date.now();
+    markProviderRequest();
+    const headerBudgetMs = Math.min(this.requestTimeout, firstBudgetMs);
+    const { model, requestOptions, requestInit } = request;
+    try {
+      // Hedged: a request NIM is still holding after `hedgeAfterMs` gets one backup copy on another
+      // key, and whichever answers first is used (see hedged.request.ts for the measurements). Never
+      // for a loopback endpoint — a local server loading a model holds headers too, and a second copy
+      // would only double its load.
+      const startedKey = kr;
+      const hedge = await hedgedRequest<KeyResult, any>({
+        first: kr,
+        budgetMs: headerBudgetMs,
+        hedgeAfterMs: isLoopbackEndpoint(kr.baseURL) ? 0 : this.hedgeAfterMs,
+        start: (legKey, budgetMs) => {
+          const leg = new AbortController();
+          const signal = options.signal ? AbortSignal.any([options.signal as AbortSignal, leg.signal]) : leg.signal;
+          const legClient = legKey === startedKey ? client : this.createClient(legKey);
+          return {
+            promise: legClient.chat.completions.create(requestOptions, { ...requestInit, timeout: budgetMs, signal }),
+            abort: () => leg.abort(),
+          };
+        },
+        nextKey: async () => {
+          if (options.signal?.aborted) return null;
+          const backup = await this.apiKeyManager.getNextKey({ exclude: startedKey.idx ?? undefined });
+          if (!backup.keyStr || backup.idx === null || backup.waitTimeSecs > 0 || backup.idx === startedKey.idx) return null;
+          // Same provider, endpoint and model, or the backup would be a different request.
+          if (backup.provider !== startedKey.provider || (backup.baseURL || '') !== (startedKey.baseURL || '')) return null;
+          if ((backup.model || '') !== (startedKey.model || '')) return null;
+          return backup;
+        },
+        onHedge: (backup) => {
+          Logger.warn(`[LlmAdapter] KEY #${(startedKey.idx ?? 0) + 1} has not answered in ${Math.round(this.hedgeAfterMs / 1000)}s — sending a backup on key #${(backup.idx ?? 0) + 1}`);
+          engineEvents.emit('status', 'Provider is slow — trying a second key');
+        },
+        onLoser: (loser, waitedMs, error) => {
+          if (loser.idx === null) return;
+          // Outraced, not failed: teach the picker this key was slow without benching it — the
+          // queue is per request, so the same key often answers the next one at once.
+          if (error === undefined) this.apiKeyManager.reportKeyLatency(loser.idx, waitedMs);
+          else if (loser !== startedKey) this.apiKeyManager.reportKeyResult(loser.idx, classifyStreamError(error).status);
+        },
+      });
+      return hedge.key !== startedKey
+        ? { stream: hedge.value, key: hedge.key, startedAt: hedge.startedAt }
+        : { stream: hedge.value, key: kr, startedAt };
+    } catch (e: any) {
+      // The SDK raises our header-wait cap as APIConnectionTimeoutError ("Request timed out"); make it the stall it is,
+      // so the catch in chat() benches this key (reportKeyHang).
+      if (isRequestTimeout(e)) {
+        // Attribute from evidence, not assumption: probe the origin in the background so /perf
+        // can say WHERE this stall happened (provider-side vs DNS vs network path).
+        attributeSlowWait(kr.baseURL || 'https://integrate.api.nvidia.com/v1', firstBudgetMs, true);
+        throw new ProviderStallError(model, 'response headers', firstBudgetMs, { cause: e });
+      }
+      throw e;
+    }
+  }
+
+  /** Record a usage chunk: perf and telemetry, the `usage` event, and the spend it settles. */
+  private async *settleStreamUsage(usage: any, kr: KeyResult, estimatedCostUsd: number): AsyncGenerator<ChatEvent> {
+    // Coerce token counts to real numbers: several providers omit completion_tokens (or send
+    // null) on mid-stream usage chunks, and `prompt + undefined` is NaN — which would poison
+    // the context manager's token tracking AND the budget's currentDailySpend (NaN > cap is
+    // always false, so the daily veto silently never fires again, and NaN gets persisted).
+    const promptToks = Number(usage.prompt_tokens) || 0;
+    const completionToks = Number(usage.completion_tokens) || 0;
+    const cacheRead = usage.cache_read_input_tokens ?? 0;
+    const cacheCreate = usage.cache_creation_input_tokens ?? 0;
+    // The provider told us; record it as provider-sourced usage. Rounds with no usage chunk
+    // stay `unavailable` rather than being back-filled from a character count.
+    attachRoundUsage(providerUsage({
+      inputTokens: promptToks,
+      outputTokens: completionToks,
+      cachedInputTokens: Number(cacheRead) || 0,
+      cacheCreationTokens: Number(cacheCreate) || 0,
+    }));
+    globalTelemetry.recordUsage(promptToks, cacheRead, cacheCreate);
+    yield { type: 'usage', prompt: promptToks, completion: completionToks };
+    if (this.budgetVeto) {
+      const actualCostUsd = this.estCost(promptToks + completionToks);
+      await this.budgetVeto.recordSpend(actualCostUsd, estimatedCostUsd, this.pickModel(kr));
     }
   }
 }
