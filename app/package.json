@@ -10,7 +10,6 @@
     "dev": "electron-vite dev",
     "dev:source": "BIMAX_ENGINE_CMD=\"$PWD/../node_modules/.bin/tsx $PWD/../src/index.ts\" electron-vite dev",
     "build": "electron-vite build",
-    "build:focus-harness": "electron-vite build --config electron.vite.focus.config.ts",
     "typecheck": "tsc --noEmit",
     "prepare:engine": "bash scripts/prepare-engine.sh",
     "verify:engine": "electron scripts/verify-engine.js",

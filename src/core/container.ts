@@ -1,6 +1,6 @@
 /**
  * Dependency Injection container for Bimax.
- * Creates and wires the core dependency graph for the TUI — tools, graph, LLM, governor.
+ * Creates and wires the engine's core dependency graph — tools, graph, LLM, governor.
  *
  * Ghost services removed (2026-06-19):
  *   - Express.js WebhookReceiver (booted port 8080 on every CLI start, never used by TUI)

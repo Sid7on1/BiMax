@@ -170,7 +170,8 @@ state does not get a box.
 
 ## Website plan
 
-The current website art direction and media manifest live in `docs/BIMAX_LIVING_SITE_BRIEF.md`.
+The website moved to its own repository; its art-direction brief is archived at
+`~/Developer/bimax-archive/docs/BIMAX_LIVING_SITE_BRIEF.md`.
 That brief supersedes website visual choices below where they conflict; the product-truth,
 accessibility, performance, and release-integrity requirements remain mandatory.
 

@@ -111,7 +111,6 @@ opencode.json
 
 # Locally built native helpers (staged by scripts/stage-desktop-helper.ts; never committed)
 app/native-service/
-tui/embed/bimax-desktop-helper
 
 # Transient benchmark runs. The FROZEN baseline is committed as
 # benchmarks/cu-baseline/frozen-v1.1.0.json; ad-hoc runs are not evidence.
@@ -134,3 +133,6 @@ dump.rdb
 
 # Built by app/scripts/build-intents.sh from native/intents/. Build output, like voice/ above.
 app/intents/
+
+# Lock file of the agent-skills installer (developer tooling, not the product)
+skills-lock.json

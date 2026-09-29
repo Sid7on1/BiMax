@@ -41,50 +41,14 @@ The pinned public key also lives in `install.sh` (`MINISIGN_PUBKEY`). Trust is r
 you already chose to run, so a compromised release host that swaps both the tarball and its adjacent
 `SHA256SUMS` still cannot forge a valid signature.
 
-## Bimax for Mac manual alpha
+## Bimax for Mac: no public channel yet
 
-The current Desktop channel is a deliberately **unsigned and unnotarized manual alpha**, not a
-stable release. A release is valid only when it includes the DMG, `Bimax-manual-alpha-manifest.json`
-(the exact DMG SHA-256 plus every file/symlink in `Bimax.app`), and `SHA256SUMS` (DMG + manifest).
-
-Verify before opening:
-
-```bash
-shasum -a 256 -c SHA256SUMS
-# Or compare directly with the manifest's dmg.sha256 value:
-shasum -a 256 Bimax-1.1.0-arm64.dmg
-```
-
-Trust Center shows the running app executable SHA-256, every resolved engine/native component
-SHA-256, actual signature kind, and actual Gatekeeper/notarization assessment. An unavailable fact
-stays `unknown`; it is never rendered as trusted.
-
-### First open on a fresh Mac
-
-Because this channel is unsigned, Finder should warn for a browser download. Choose **Done**, open
-**System Settings → Privacy & Security**, scroll to Security, choose **Open Anyway** for Bimax,
-authenticate, and confirm **Open**. This is a manual-alpha bypass, not notarization. Never disable
-Gatekeeper globally.
-
-Grant Screen Recording or Accessibility only when a Control Mac task needs it; coding works with
-both denied. Replacing `Bimax.app` can make macOS ask for either grant again. Open Trust Center after
-every update and re-check before continuing Control Mac work.
-
-### Rollback-safe manual update
-
-Quit Bimax, mount the verified DMG, then use an explicit source and destination:
-
-```bash
-node app/scripts/install-manual-alpha.mjs \
-  --source "/Volumes/Bimax/Bimax.app" \
-  --destination "/Applications/Bimax.app" \
-  --manifest ./Bimax-manual-alpha-manifest.json
-```
-
-The installer verifies the complete source tree, copies to a sibling staging path, verifies again,
-atomically moves the old app to `Bimax.app.previous`, activates/re-verifies the new app, and restores
-the old app if the postcondition fails. It refuses to overwrite an existing `.previous` copy.
-Project directories are outside the app bundle and are not removed.
+There is no published Desktop release. The earlier **manual alpha** channel (a DMG plus
+`Bimax-manual-alpha-manifest.json` and a rollback installer) was retired on 2026-09-29: nothing in the
+build produced its manifest any more. Its scripts are kept in `~/Developer/bimax-archive/app/scripts/`.
+A local build is made and installed with `app/scripts/build-local-mac.sh`, which is ad-hoc or
+self-signed and not notarized. If Finder warns on first open, use **System Settings → Privacy &
+Security → Open Anyway**; never disable Gatekeeper globally.
 
 Trust Center's **Export private diagnostics…** writes a user-selected local JSON file. It includes
 build/signature/hash/permission and bounded crash metadata, but excludes project paths, source/file
