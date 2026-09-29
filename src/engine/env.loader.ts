@@ -3,7 +3,6 @@ import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
 import * as readline from 'readline';
-import * as crypto from 'crypto';
 
 // The provider credential lives in ~/.breakglass/.env. It must be owner-only (dir 0700, file 0600):
 // a world/group-readable secret is a real defect (v1.0.0 shipped 0755/0644). Every entry point that
@@ -141,13 +140,4 @@ export function saveApiKeyToEnv(envVar: string, key: string): void {
     .join('\n') + '\n';
   writeGlobalEnv(globalEnvPath, content);
   process.env[envVar] = key;
-}
-
-export function ensureJwtSecret(): string {
-  if (process.env.JWT_SECRET) return process.env.JWT_SECRET;
-
-  const newSecret = crypto.randomBytes(32).toString('hex');
-  saveApiKeyToEnv('JWT_SECRET', newSecret);
-  process.env.JWT_SECRET = newSecret;
-  return newSecret;
 }
