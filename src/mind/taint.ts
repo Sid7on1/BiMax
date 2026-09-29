@@ -68,16 +68,40 @@ export function getTaintTracker(): TaintTracker {
  */
 export function markToolTaint(toolName: string, rawArgs: string, resultText: string): void {
   if (!resultText || !resultText.trim()) return;
-  let detail = toolName;
+  const channel = untrustedChannel(toolName);
+  if (channel === 'web') getTaintTracker().mark('web', taintDetail(toolName, rawArgs));
+  else if (channel === 'mcp') getTaintTracker().mark('mcp', toolName);
+}
+
+/** The untrusted channel a tool's output arrives through, or null for Bimax's own tools. The one list both the taint
+ *  mark above and the fence below use, so what narrows capabilities and what the model is told is data never differ. */
+export function untrustedChannel(toolName: string): TaintSource | null {
+  if (toolName === 'WebFetchTool' || toolName === 'WebSearchTool') return 'web';
+  if (toolName.startsWith('mcp__')) return 'mcp';
+  return null;
+}
+
+function taintDetail(toolName: string, rawArgs: string): string {
   try {
     const a = JSON.parse(rawArgs || '{}');
-    detail = a.url || a.query || toolName;
-  } catch { /* keep tool name */ }
-  if (toolName === 'WebFetchTool' || toolName === 'WebSearchTool') {
-    getTaintTracker().mark('web', String(detail));
-  } else if (toolName.startsWith('mcp__')) {
-    getTaintTracker().mark('mcp', toolName);
-  }
+    return String(a.url || a.query || toolName);
+  } catch { return toolName; }
+}
+
+/**
+ * Flaw list A5: web and MCP output reaches the model inside one consistent fence,
+ *   <untrusted source="web: https://…"> … </untrusted>
+ * which the system prompt's SECURITY section explains: data, never instructions. Whatever inside the text looks
+ * like the fence is renamed, so a page cannot close the fence early and speak as Bimax after it. This is a label,
+ * not a guarantee — the capability cut above (taintRestriction) is what holds when a model follows the page anyway.
+ */
+export function fenceUntrusted(toolName: string, rawArgs: string, text: string): string {
+  const channel = untrustedChannel(toolName);
+  if (!channel || !text || !text.trim()) return text;
+  const detail = channel === 'mcp' ? toolName : taintDetail(toolName, rawArgs);
+  const source = `${channel}: ${detail}`.slice(0, 200).replace(/["<>\n\r]/g, ' ');
+  const body = text.replace(/<(\/?)untrusted/gi, '<$1untrusted-quoted');
+  return `<untrusted source="${source}">\n${body}\n</untrusted>`;
 }
 
 // Programs that move bytes off the machine or pull attacker-controlled bytes onto it.

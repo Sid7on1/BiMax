@@ -23,7 +23,7 @@ import { taskMetrics } from '../telemetry/task.metrics';
 import { getSelfModel, domainOf, pathOf, labelOutcome, currentModelKey } from '../mind/self.model';
 import { TypedOutcome, typedFromError } from '../tools/outcome';
 import { getEventLedger } from '../mind/event.ledger';
-import { markToolTaint } from '../mind/taint';
+import { markToolTaint, fenceUntrusted } from '../mind/taint';
 import { getHabitMiner } from '../mind/habit.compiler';
 import { observeClaim, observeCommandOutcome } from '../mind/outcome.sensor';
 import { startEpisodeRecording, isReplayActive } from '../mind/episode.recorder';
@@ -1341,7 +1341,9 @@ export class AgentLoop {
         for (const tc of toolCalls) {
           const ran = resultById.get(tc.id);
           const result = ran ? ran.result : 'Tool call interrupted before it ran.';
-          this.messages.push({ role: 'tool', tool_call_id: tc.id, content: result });
+          // Web and MCP output goes to the model fenced as untrusted data (flaw list A5); every check below reads the
+          // tool's own unfenced result.
+          this.messages.push({ role: 'tool', tool_call_id: tc.id, content: ran ? fenceUntrusted(tc.name, tc.args || '{}', result) : result });
           if (ran) {
             let structuredFailure = false;
             try { structuredFailure = JSON.parse(result)?.ok === false; } catch { /* text result */ }
