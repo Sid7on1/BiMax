@@ -129,15 +129,34 @@ export async function ensureApiKeys(): Promise<void> {
 
 export function saveApiKeyToEnv(envVar: string, key: string): void {
   const globalEnvPath = globalEnvFile();
-  const existing: Record<string, string> = {};
-  if (fs.existsSync(globalEnvPath) && !isSymlink(globalEnvPath)) {
-    const parsed = dotenv.parse(fs.readFileSync(globalEnvPath, 'utf-8'));
-    Object.assign(existing, parsed);
-  }
-  existing[envVar] = key;
-  const content = Object.entries(existing)
-    .map(([k, v]) => `${k}=${v}`)
-    .join('\n') + '\n';
-  writeGlobalEnv(globalEnvPath, content);
+  const text = fs.existsSync(globalEnvPath) && !isSymlink(globalEnvPath) ? fs.readFileSync(globalEnvPath, 'utf-8') : '';
+  writeGlobalEnv(globalEnvPath, setEnvLine(text, envVar, key));
   process.env[envVar] = key;
+}
+
+/**
+ * `text` (a dotenv file) with `name` set to `value`: its assignment is replaced where it stands, or appended, and
+ * every other line — comments, blank lines, order, quoting — is kept byte for byte. This used to rebuild the whole
+ * file from dotenv.parse, which erased every comment and re-wrote quoted values bare (a value holding ` #` then read
+ * back truncated), each time any key was saved.
+ */
+export function setEnvLine(text: string, name: string, value: string): string {
+  const assignment = new RegExp(`^\\s*(?:export\\s+)?${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*=\\s*(.*)$`);
+  const line = `${name}=${/[\s#"'\\]/.test(value) ? JSON.stringify(value) : value}`;
+  const lines = text ? text.replace(/\n$/, '').split('\n') : [];
+  const out: string[] = [];
+  let placed = false;
+  for (let i = 0; i < lines.length; i++) {
+    const match = assignment.exec(lines[i]!);
+    if (!match) { out.push(lines[i]!); continue; }
+    // A quoted value that does not close on its own line spans the lines up to its closing quote: they go with it.
+    const quote = /^(["'`])/.exec(match[1]!)?.[1];
+    if (quote && !match[1]!.slice(1).includes(quote)) {
+      while (i + 1 < lines.length && !lines[i + 1]!.includes(quote)) i++;
+      if (i + 1 < lines.length) i++;
+    }
+    if (!placed) { out.push(line); placed = true; } // a later duplicate of the same name is dropped: one answer
+  }
+  if (!placed) out.push(line);
+  return out.join('\n') + '\n';
 }
