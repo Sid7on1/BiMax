@@ -13,6 +13,10 @@
 //   • itself — a one-shot sub-agent re-exec carrying BIMAX_SUBAGENT_CONFIG.
 // Every mode is chosen by ENVIRONMENT, never by argv, so there is no argument surface to drift.
 
+// FIRST, before any other module runs: an engine hosted as a worker thread in the app's process (the monolith,
+// record 64) gets a working folder of its own. Does nothing in any other host.
+import './engine/worker.folder';
+
 // Buffer boot logs so they don't fight the front-end for stdout during boot
 const bootLogs: string[] = [];
 const originalConsoleLog = console.log;

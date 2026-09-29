@@ -144,3 +144,39 @@ describe('SubAgentManager — crash-surviving worktree recovery', () => {
     }
   });
 });
+
+describe('SubAgentManager — sub-agents run the engine bundle the app started (record 64, M1)', () => {
+  let dir: string;
+  let bundle: string;
+  const previous = process.env.BIMAX_ENGINE_MODULE;
+
+  beforeAll(() => {
+    dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'bgw-bundle-')));
+    // A stand-in engine bundle in sub-agent mode: it reports, over the stdout sentinels, what it was given.
+    bundle = path.join(dir, 'engine.cjs');
+    fs.writeFileSync(bundle, `
+      const { workerData } = require('node:worker_threads');
+      const config = JSON.parse(process.env.BIMAX_SUBAGENT_CONFIG || '{}');
+      const heapMb = Math.round(require('node:v8').getHeapStatistics().heap_size_limit / 1048576);
+      process.stdout.write('\\u0000BIMAX_SUB_READY\\u0000\\n');
+      process.stdout.write('\\u0000BIMAX_SUB_RESULT\\u0000' + JSON.stringify({ result: JSON.stringify({ root: workerData.bimaxEngineRoot, prompt: config.prompt, heapMb }) }) + '\\n');
+    `);
+    process.env.BIMAX_ENGINE_MODULE = bundle;
+  });
+
+  afterAll(() => {
+    if (previous === undefined) delete process.env.BIMAX_ENGINE_MODULE; else process.env.BIMAX_ENGINE_MODULE = previous;
+    try { fs.rmSync(dir, { recursive: true, force: true }); } catch { /* ignore */ }
+  });
+
+  it('runs the bundle in a worker, in the sub-agent\'s folder, under its heap share', async () => {
+    const { SUBAGENT_WORKER_HEAP_MB } = await import('../core/subagent.manager');
+    const mgr = new SubAgentManager({ timeoutMs: 10_000 });
+    const envelope = await mgr.spawnWorker('t-bundle', { agentType: 'test', prompt: 'look around', cwd: dir, parentMode: 'safe' } as any);
+    const report = JSON.parse(envelope.report);
+    expect(report.root).toBe(dir);
+    expect(report.prompt).toBe('look around');
+    expect(report.heapMb).toBeLessThanOrEqual(SUBAGENT_WORKER_HEAP_MB + 64);
+    expect(mgr.activeCount()).toBe(0);
+  });
+});

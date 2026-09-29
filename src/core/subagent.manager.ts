@@ -74,6 +74,41 @@ export interface SubAgentConfig {
 /** Maximum nesting depth of the agent tree (main session = 0, so 3 ⇒ two nested worker layers). */
 export const MAX_SUBAGENT_DEPTH = 3;
 
+/**
+ * The heap limit of one sub-agent worker, a MEMORY cap. In the monolith (record 64) every isolate in the app's
+ * process shares one 4 GB V8 heap, so a sub-agent gets a bounded share: over it, that worker is terminated and its task
+ * fails, instead of the whole app hitting the process-wide limit. An engine indexing this whole repository peaked at
+ * 128 MB used heap; a sub-agent does less.
+ */
+export const SUBAGENT_WORKER_HEAP_MB = 384;
+
+/**
+ * Read a sub-agent's stdout sentinels and emit the messages a worker_thread would post. Shared by the subprocess and
+ * the bundle-worker paths, so the two can never parse differently.
+ */
+function translateSentinels(stdout: NodeJS.ReadableStream, emitter: import('events').EventEmitter): void {
+  let buf = '';
+  // StringDecoder, not per-chunk toString(): a multibyte UTF-8 char split across two pipe
+  // reads would otherwise decode to U+FFFD and corrupt the sub-agent's result text.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { StringDecoder } = require('string_decoder') as typeof import('string_decoder');
+  const utf8 = new StringDecoder('utf8');
+  stdout.on('data', (d: Buffer) => {
+    buf += utf8.write(d);
+    let nl: number;
+    while ((nl = buf.indexOf('\n')) >= 0) {
+      const line = buf.slice(0, nl); buf = buf.slice(nl + 1);
+      try {
+        if (line.startsWith(SUB_RESULT)) emitter.emit('message', { type: 'success', result: JSON.parse(line.slice(SUB_RESULT.length)).result });
+        else if (line.startsWith(SUB_ERROR)) emitter.emit('message', { type: 'error', error: JSON.parse(line.slice(SUB_ERROR.length)).error });
+        else if (line.startsWith(SUB_READY)) emitter.emit('message', { type: 'ready' });
+        else if (line.startsWith(SUB_EVENT)) { const e = JSON.parse(line.slice(SUB_EVENT.length)); emitter.emit('message', { type: 'tool_event', subtype: e.subtype, call: e.call }); }
+        // any other line is stray stdout — ignore it
+      } catch { /* malformed sentinel line — ignore */ }
+    }
+  });
+}
+
 export class SubAgentManager {
   private activeWorkers = new Map<string, WorkerHandle>();
   private workerScriptPath: string;
@@ -129,7 +164,39 @@ export class SubAgentManager {
     if (this.isBun && !this.hasScriptOverride) {
       return this.spawnSubprocessHandle(config, workerOpts);
     }
+    // The Bimax app names the engine bundle it started (BIMAX_ENGINE_MODULE). Run the sub-agent as that same
+    // bundle in a worker thread, in sub-agent mode. Before this, the app's bundle had no worker.entry.js beside it,
+    // so the packaged app fell through to the .ts entry (which cannot load there) and a development run picked up
+    // whatever stale dist/engine/worker.entry.js was lying around (record 64, M1).
+    const bundle = process.env.BIMAX_ENGINE_MODULE;
+    if (bundle && !this.hasScriptOverride && existsSync(bundle)) {
+      return this.spawnBundleWorkerHandle(bundle, config, workerOpts);
+    }
     return new Worker(this.workerScriptPath, { ...workerOpts, execArgv: this.workerExecArgv });
+  }
+
+  /**
+   * A sub-agent as a worker thread running the engine bundle itself with BIMAX_SUBAGENT_CONFIG: index.ts takes the
+   * sub-agent path, gets the sub-agent's folder as its working folder (worker.folder.ts), and reports over the same
+   * stdout sentinels the subprocess path uses — translated by the same code.
+   */
+  private spawnBundleWorkerHandle(bundle: string, config: SubAgentConfig, workerOpts: any): WorkerHandle {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { EventEmitter } = require('events') as typeof import('events');
+    const env = { ...(workerOpts.env || process.env), BIMAX_SUBAGENT_CONFIG: JSON.stringify(config) };
+    const worker = new Worker(bundle, {
+      env, stdout: true, stderr: false,
+      workerData: { bimaxEngineRoot: config.cwd || process.cwd() },
+      resourceLimits: { maxOldGenerationSizeMb: SUBAGENT_WORKER_HEAP_MB },
+    });
+    const emitter = new EventEmitter();
+    translateSentinels(worker.stdout, emitter);
+    worker.on('error', (e: Error) => emitter.emit('error', e));
+    worker.on('exit', (code: number) => emitter.emit('exit', code ?? 0));
+    return {
+      on: (ev, fn) => { emitter.on(ev, fn); },
+      terminate: () => { void worker.terminate().catch(() => undefined); },
+    };
   }
 
   // Re-exec THIS binary with BIMAX_SUBAGENT_CONFIG set; index.ts detects it and runs the sub-agent
@@ -143,26 +210,7 @@ export class SubAgentManager {
     const env = { ...(workerOpts.env || process.env), BIMAX_SUBAGENT_CONFIG: JSON.stringify(config) };
     const child = spawn(process.execPath, [], { env, stdio: ['ignore', 'pipe', 'inherit'] });
     const emitter = new EventEmitter();
-    let buf = '';
-    // StringDecoder, not per-chunk toString(): a multibyte UTF-8 char split across two pipe
-    // reads would otherwise decode to U+FFFD and corrupt the sub-agent's result text.
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { StringDecoder } = require('string_decoder') as typeof import('string_decoder');
-    const utf8 = new StringDecoder('utf8');
-    child.stdout?.on('data', (d: Buffer) => {
-      buf += utf8.write(d);
-      let nl: number;
-      while ((nl = buf.indexOf('\n')) >= 0) {
-        const line = buf.slice(0, nl); buf = buf.slice(nl + 1);
-        try {
-          if (line.startsWith(SUB_RESULT)) emitter.emit('message', { type: 'success', result: JSON.parse(line.slice(SUB_RESULT.length)).result });
-          else if (line.startsWith(SUB_ERROR)) emitter.emit('message', { type: 'error', error: JSON.parse(line.slice(SUB_ERROR.length)).error });
-          else if (line.startsWith(SUB_READY)) emitter.emit('message', { type: 'ready' });
-          else if (line.startsWith(SUB_EVENT)) { const e = JSON.parse(line.slice(SUB_EVENT.length)); emitter.emit('message', { type: 'tool_event', subtype: e.subtype, call: e.call }); }
-          // any other line is stray child stdout — ignore it
-        } catch { /* malformed sentinel line — ignore */ }
-      }
-    });
+    if (child.stdout) translateSentinels(child.stdout, emitter);
     child.on('error', (e: Error) => emitter.emit('error', e));
     child.on('exit', (code: number | null) => emitter.emit('exit', code ?? 0));
     return {

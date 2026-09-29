@@ -71,7 +71,7 @@ describe('failover obeys the same rule as healing', () => {
 
   test('failover still happens (the fix must not remove the recovery)', () => {
     expect(loop()).toContain('fallbackModelFor');
-    expect(loop()).toMatch(/applyConfig\?\.\(\{ model: fb \}\)/);
+    expect(loop()).toMatch(/applyConfig\?\.\(\{ model: fb\b/); // since ccc2f7e the call also carries the Quick slot
   });
 });
 
