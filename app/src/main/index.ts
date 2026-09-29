@@ -1,5 +1,5 @@
 import { CapabilityReplay } from './capability.replay';
-import { app, BrowserWindow, ipcMain, dialog, shell, session, systemPreferences, powerMonitor, net, nativeTheme, globalShortcut, screen, Menu, Notification, Tray, nativeImage, powerSaveBlocker, safeStorage, webContents as electronWebContents } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, shell, session, systemPreferences, powerMonitor, net, nativeTheme, globalShortcut, screen, Menu, Notification, Tray, nativeImage, safeStorage, webContents as electronWebContents } from 'electron';
 import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron';
 import path from 'node:path';
 import { ThreadManager, threadCapabilityEnvironment, threadIndexEnvironment, threadVoiceEnvironment, workerCapacityEnvironment, spendLedgerEnvironment } from './thread.manager';
@@ -39,7 +39,7 @@ import { alreadyARule, correctionRule, sampleApplications, withRule } from './te
 import { applyReport, cleanGoal, filesToCheck, forgetGone, outcomeEnvironment, outcomeQueue, outcomeTaskWords, queueLine, validOutcomes, type FolderOutcome } from './folder.outcomes';
 import { isRevision, revisionHint } from './organize.plan';
 import { loadOrganizeHistory, organizeWebContentsId, receiveOrganizePlan, registerOrganizeIpc, setOrganizeHost } from './organize.window';
-import { briefing, budgetNote, nightBranch, nightBudget, nightContinue, nightDeadline, nightNext, nightWords, spentBy, worktreeCommand, type NightShift } from './night.shift';
+import { afterNightTurn, dailyCapUsd, isNightShift, nightShiftBudget, nightShiftIds, setNightRunnerHost, startNightShift } from './night.runner';
 import { saveSkill, skillDraft, skillName, type SkillDraft } from './skill.capture';
 import { arrivalsSince, cleanBookmark, whereWasI } from './where.was.i';
 import { randomUUID } from 'node:crypto';
@@ -486,7 +486,7 @@ function syncNotch(): void {
         },
       },
       // Stage 4: a Night Shift task working turns the glass to night (FL5's own list).
-      nightIds: () => new Set(nightShifts.keys()),
+      nightIds: () => nightShiftIds(),
       // Stage 8: what the person did with files through the notch, kept on this Mac, for recall and "Probably next".
       // The replay's verdict is kept beside it (counts only, no file names), so the exit rule can be read later.
       recall: (() => {
@@ -850,105 +850,14 @@ setOrganizeHost({
   protectedIn: (root) => loadSettings().folderRules?.[root]?.protect ?? [],
 });
 
-// ── Night shift (backlog FL5, night.shift.ts) ────────────────────────────────────────────────────
-const nightShifts = new Map<string, NightShift & { continuations: number; timer?: NodeJS.Timeout }>();
-let nightAwake: number | null = null;
-const git = (cwd: string, args: string[]): Promise<string> => new Promise((resolve, reject) => {
-  execFile('git', ['-C', cwd, ...args], { timeout: 60_000, maxBuffer: 4 * 1024 * 1024 }, (error, stdout, stderr) => {
-    if (error) reject(new Error(String(stderr || error.message).trim().split('\n')[0])); else resolve(String(stdout));
-  });
+// Night shift (backlog FL5) runs in night.runner.ts; this is what it needs from here.
+setNightRunnerHost({
+  threads: () => threads,
+  quickModel: () => quickModel(),
+  showQuickThread: (id) => showQuickThread(id),
+  openThread: (id) => openThread(id),
 });
-/** The Mac-wide daily cap (N6): Settings wins, then MAX_DAILY_SPEND, then $5; 0 means none. */
-function dailyCapUsd(): number {
-  try {
-    const value = JSON.parse(readFileSync(path.join(os.homedir(), '.breakglass', 'config.json'), 'utf8')).spendDailyCapUsd;
-    if (typeof value === 'number' && value >= 0) return value;
-  } catch { /* no config yet */ }
-  const env = Number(process.env.MAX_DAILY_SPEND);
-  return Number.isFinite(env) && env >= 0 ? env : 5;
-}
-/** Bimax keeps the Mac awake while any shift runs; the shift cannot work while it sleeps. */
-function keepAwake(on: boolean): void {
-  if (on && nightAwake === null) nightAwake = powerSaveBlocker.start('prevent-app-suspension');
-  if (!on && nightAwake !== null && !nightShifts.size) { powerSaveBlocker.stop(nightAwake); nightAwake = null; }
-}
-async function startNightShift(folder: string, goal: string, rawBudget: unknown, untilText: unknown): Promise<{ ok: boolean; error?: string; note?: string }> {
-  const budget = nightBudget(rawBudget);
-  if (!budget) return { ok: false, error: 'Give a budget between $1 and $100.' };
-  const until = nightDeadline(String(untilText ?? ''), Date.now());
-  if (!until) return { ok: false, error: 'Give the morning time as HH:MM, within 16 hours.' };
-  if (!goal.trim()) return { ok: false, error: 'Say what the shift should work on.' };
-  let repo: string;
-  let base: string;
-  try {
-    repo = (await git(folder, ['rev-parse', '--show-toplevel'])).trim();
-    base = (await git(repo, ['rev-parse', 'HEAD'])).trim();
-  } catch {
-    return { ok: false, error: 'A night shift works on its own git branch, and this folder is not in a git repository with a commit.' };
-  }
-  const branch = nightBranch(new Date());
-  const worktree = path.join(app.getPath('userData'), 'night', branch.replace(/\//g, '-'));
-  try { await git(repo, worktreeCommand(worktree, branch)); } catch (error) { return { ok: false, error: `Could not make the isolated checkout: ${(error as Error).message}` }; }
-  const id = threads.create(worktree, '', 'quick', quickModel());
-  threads.rename(id, `Night shift: ${goal.replace(/\s+/g, ' ').trim().slice(0, 60)}`);
-  const shift: NightShift & { continuations: number; timer?: NodeJS.Timeout } = { threadId: id, repo, worktree, branch, base, goal, budgetUsd: budget, startedAt: Date.now(), until, continuations: 0 };
-  nightShifts.set(id, shift);
-  keepAwake(true);
-  shift.timer = setTimeout(() => {
-    const s = nightShifts.get(id);
-    if (!s) return;
-    const { status } = threads.get(id).summary;
-    if (status === 'working' || status === 'needs-you' || status === 'starting') threads.send(id, { t: 'interrupt' });
-    else void endNightShift(id, 'morning');
-  }, until - Date.now());
-  threads.submit(id, nightWords(goal, branch, budget, until), goal, true);
-  const morning = new Date(until).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  threads.addNote(id, `Night shift on ${branch} until ${morning}, at most $${budget}. It works in an isolated checkout, so your working copy is not touched, and Bimax keeps this Mac awake until it is done.`);
-  showQuickThread(id);
-  return { ok: true, note: budgetNote(budget, dailyCapUsd()) ?? undefined };
-}
-function readSpendLedger(): unknown {
-  try { return JSON.parse(readFileSync(path.join(app.getPath('userData'), 'spend-ledger.json'), 'utf8')); } catch { return null; }
-}
-const utcDate = (at: number): string => new Date(at).toISOString().slice(0, 10);
-/** A shift's turn ended: carry on with the next milestone, or stop and write the briefing. */
-function afterNightTurn(id: string): void {
-  const shift = nightShifts.get(id);
-  if (!shift) return;
-  const { summary, state } = threads.get(id);
-  const last = [...state.items].reverse().find((item) => item.kind === 'msg' && item.msg.role === 'assistant');
-  const answer = last && last.kind === 'msg' ? last.msg.content : '';
-  const spent = spentBy(readSpendLedger(), id, utcDate(shift.startedAt));
-  const next = nightNext({ now: Date.now(), until: shift.until, spent, budget: shift.budgetUsd, answer, outcome: summary.outcome, continuations: shift.continuations });
-  if (next === 'continue') {
-    shift.continuations += 1;
-    threads.submit(id, nightContinue((shift.until - Date.now()) / 60_000, shift.budgetUsd - spent), 'Night shift: next milestone', true);
-    return;
-  }
-  void endNightShift(id, next);
-}
-async function endNightShift(id: string, stoppedBy: 'finished' | 'morning' | 'budget' | 'failed' | 'stopped'): Promise<void> {
-  const shift = nightShifts.get(id);
-  if (!shift) return;
-  nightShifts.delete(id);
-  if (shift.timer) clearTimeout(shift.timer);
-  keepAwake(false);
-  const { summary, state } = threads.get(id);
-  const last = [...state.items].reverse().find((item) => item.kind === 'msg' && item.msg.role === 'assistant');
-  const answer = last && last.kind === 'msg' ? last.msg.content.replace(/NIGHT SHIFT DONE\s*$/, '').trim() : '';
-  const commits = await git(shift.worktree, ['log', '--oneline', '--no-decorate', `${shift.base}..HEAD`]).then((out) => out.split('\n').filter(Boolean), () => []);
-  const diffstat = await git(shift.worktree, ['diff', '--stat', `${shift.base}..HEAD`]).catch(() => '');
-  const questions = await fsp.readFile(path.join(shift.worktree, 'NIGHT-QUESTIONS.md'), 'utf8').then((t) => t.slice(0, 4000), () => '');
-  const text = briefing({ goal: shift.goal, branch: shift.branch, repo: shift.repo, worktree: shift.worktree, commits, diffstat, spentUsd: spentBy(readSpendLedger(), id, utcDate(shift.startedAt)), budgetUsd: shift.budgetUsd, check: summary.check, stoppedBy, answer, questions });
-  const file = path.join(app.getPath('userData'), 'night', `${shift.branch.replace(/\//g, '-')}-briefing.md`);
-  await fsp.writeFile(file, text, 'utf8').catch(() => undefined);
-  threads.addNote(id, text);
-  if (Notification.isSupported()) {
-    const note = new Notification({ title: 'Night shift briefing', subtitle: `${commits.length} commit${commits.length === 1 ? '' : 's'} on ${shift.branch}`, body: text.split('\n')[2] ?? '' });
-    note.on('click', () => openThread(id));
-    note.show();
-  }
-}
+
 // ── Muscle memory (backlog FL6, skill.capture.ts) ────────────────────────────────────────────────
 /** The draft a "Save as a Skill" card is editing; only its name and description come back from the bar. */
 let skillEditing: { threadId: string; draft: SkillDraft } | null = null;
@@ -1616,8 +1525,8 @@ function createSupervisor(threadId?: string): EngineSupervisor {
         // The same fix for money (backlog F5): one spend ledger for the Mac, and a per-Thread share
         // so one unattended task cannot spend the whole day before the others start.
         // A night shift's own budget replaces the per-task share (FL5); it also runs unattended.
-        ...spendLedgerEnvironment(app.getPath('userData'), threadId, (threadId && nightShifts.get(threadId)?.budgetUsd) || loadSettings().perTaskSpendUsd),
-        ...(threadId && nightShifts.has(threadId) ? { BIMAX_UNATTENDED: '1' } : {}),
+        ...spendLedgerEnvironment(app.getPath('userData'), threadId, (threadId && nightShiftBudget(threadId)) || loadSettings().perTaskSpendUsd),
+        ...(threadId && isNightShift(threadId) ? { BIMAX_UNATTENDED: '1' } : {}),
         // Keychain-backed secrets enter only at the child boundary. They never pass through the
         // renderer or the engine protocol and are not written to diagnostics.
         ...providerCredentialEnvironment(),
@@ -1938,11 +1847,11 @@ app.whenReady().then(async () => {
       recordModelTime(id, tookMs);
       const spoken = pushTalkThreads.get(id);
       // A night shift (FL5) is continued or briefed, not announced after every milestone.
-      if (nightShifts.has(id)) afterNightTurn(id);
+      if (isNightShift(id)) afterNightTurn(id);
       else if (spoken) { pushTalkThreads.delete(id); deliverPushTalkAnswer(id, spoken); } else { notifyFinished(id); speakFinished(id); }
       // FL6: a ⌘2 task whose check passed can become a skill; said once per task.
       const done = threads.get(id).summary;
-      if (done.origin !== 'project' && done.check === 'passed' && !nightShifts.has(id) && !skillHinted.has(id)) {
+      if (done.origin !== 'project' && done.check === 'passed' && !isNightShift(id) && !skillHinted.has(id)) {
         skillHinted.add(id);
         threads.addNote(id, 'Its check passed. To have Bimax do this kind of job the same way again, ⋯ → Save as a Skill.');
       }
