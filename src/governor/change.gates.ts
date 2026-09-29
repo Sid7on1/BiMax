@@ -14,7 +14,7 @@ import * as path from 'path';
  * This module answers the prerequisite question, which nothing in the engine could answer before:
  * **given the files a turn would touch, is there a check that would catch a mistake?**
  *
- * It is NOT the Test-Dependency Map. `src/substrate/tdm.ts` maps *test files* to the *source files*
+ * It is NOT the Test-Dependency Map. `src/mind/tdm.ts` maps *test files* to the *source files*
  * they cover, with tiered confidence, and answers "did this test exercise that code?". This maps
  * *areas of the repo* to the *project-level command* that grades them — a contrast checker, a token
  * generator, a typecheck. The two are complementary and a full answer wants both: TDM for "which

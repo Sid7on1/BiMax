@@ -1,5 +1,5 @@
 import { createStore } from './store';
-import { SessionPermissionMode } from '../governor/governor';
+import type { SessionPermissionMode } from '../governor/governor';
 
 export interface MessageEntry {
   id: string;

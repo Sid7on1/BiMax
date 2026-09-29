@@ -14,6 +14,12 @@ import { overflowMessage, planRequest } from '../context/request.budget';
 import { engineEvents, ToolCallEntry } from '../engine/events';
 import { getActiveTodos, todosTouchedThisTurn } from '../tools/implementations/todo.tool';
 import { changesFiles, getCompletionChecks } from '../outcome/completion.check';
+// These four were inline require()s, a workaround for import cycles that no longer exist: none of the modules below
+// reaches this file (flaw list C24, checked 2026-09-30). A new cycle would show up as an undefined import at start.
+import { getOutcomeManager } from '../outcome/outcome.manager';
+import { getConfig } from '../engine/config';
+import { autoSelectCandidates } from '../engine/models';
+import { getFailureMemory } from './failure.memory';
 import { drainSteer, hasSteer, steerMessage } from './steering';
 import { LoopDetector, LoopSignal } from './loop-detector';
 import { getGlobalPatternStore } from '../genome/pattern.store';
@@ -184,8 +190,7 @@ export class AgentLoop {
     let fb = String(process.env.BIMAX_FALLBACK_MODEL || '').trim();
     if (!fb) {
       try {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        fb = String((require('../engine/config') as typeof import('../engine/config')).getConfig().fallbackModel || '').trim();
+        fb = String(getConfig().fallbackModel || '').trim();
       } catch { return null; }
     }
     const llm = this.llm as any;
@@ -212,8 +217,6 @@ export class AgentLoop {
     // provider actually serves. Better a working model than none: the alternative is a dead turn.
     if (!fb) {
       try {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const { autoSelectCandidates } = require('../engine/models') as typeof import('../engine/models');
         const served = await llm?.listProviderModels?.();
         if (Array.isArray(served) && served.length) {
           fb = autoSelectCandidates('coding', served).find((id: string) => id !== current) || '';
@@ -1140,7 +1143,6 @@ export class AgentLoop {
             // low-confidence outcome defers to the classifier instead of overruling it.
             const outcomeLabel = labelOutcome(typed, result, isError);
             if (tc.name !== 'BrowserTool') try {
-              const { getFailureMemory } = require('./failure.memory');
               const verdict = getFailureMemory().report(
                 { tool: tc.name, args: tc.args || '{}' },
                 {
@@ -1502,7 +1504,6 @@ export class AgentLoop {
         }
         let outcomeNudge = '';
         try {
-          const { getOutcomeManager } = require('../outcome/outcome.manager') as typeof import('../outcome/outcome.manager');
           outcomeNudge = getOutcomeManager().continuationPrompt();
         } catch { /* root outcome runtime is optional in workers/tests */ }
         if (outcomeNudge && persistenceNudges < MAX_PERSISTENCE_NUDGES) {

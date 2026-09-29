@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Logger } from '../utils/logger';
 import { SubAgentClaim } from './subagent.blackboard';
-import { SubAgentConfig } from './subagent.manager';
+import type { SubAgentConfig } from './subagent.manager';
 
 /**
  * Agent-tree checkpointing (the Claude Code agent-tree checkpoint pattern): every change to the

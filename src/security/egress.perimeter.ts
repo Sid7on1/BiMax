@@ -161,8 +161,8 @@ function guard(target: string, layer: string): void {
  * The destination an `http.request`/`net.connect`-style options object names, or null when the
  * call is not network egress at all.
  *
- * Returning null for a Unix domain socket is load-bearing, not a shortcut: `dockerode` talks to
- * `/var/run/docker.sock` and MCP transports use local sockets. Those never leave the machine, and a
+ * Returning null for a Unix domain socket is load-bearing, not a shortcut: local daemons listen on
+ * sockets like `/var/run/docker.sock`, and MCP transports use local sockets. Those never leave the machine, and a
  * guard that treated a filesystem path as an unresolvable hostname would classify it `external` and
  * break local tooling the moment sovereign mode came on.
  */

@@ -4,7 +4,7 @@ import * as path from 'path';
 import { randomUUID } from 'crypto';
 import { mindSingletonRoot } from './self.model';
 import { wilsonInterval, isotonicFit, expectedCalibrationError } from './stats';
-import { TestDependencyMap, importReachable } from '../substrate/tdm';
+import { TestDependencyMap, importReachable } from './tdm';
 
 /**
  * EpistemicLedger v2 — calibrated confidence with SCOPED attribution.

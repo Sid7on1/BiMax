@@ -115,7 +115,7 @@ describe('what sovereign mode must NOT break', () => {
   });
 
   it('ignores a Unix domain socket — it is not a network hop', () => {
-    // dockerode talks to /var/run/docker.sock. Treating a filesystem path as an unresolvable
+    // A Docker client talks to /var/run/docker.sock. Treating a filesystem path as an unresolvable
     // hostname would classify it external and break local tooling the moment the mode came on.
     expect(() => attempt(() => net.connect('/var/run/docker.sock'))).not.toThrow();
     expect(() => attempt(() => http.request({ socketPath: '/var/run/docker.sock', path: '/info' }))).not.toThrow();
