@@ -13,7 +13,11 @@ M3 install found its heartbeat going to the log instead of the app, which left t
 gated. M5: the engine has one public API (`src/engine/api.ts`) and a test fails any import that goes around it; its
 plan to retire the worker-folder shim was withdrawn, because bundled dependencies read the folder too. Measured with
 three engines indexing at once (two runs each): 22–24% less memory as workers than as processes, and the UI thread no
-slower. M4 and M6 are Target.
+slower. **M4 done 2026-09-30:** the separate engine process and the engine's stdin/stdout protocol are gone — the
+engine runs only as a worker thread and refuses to start without the app's port; the pre-M4 code is at the git tag
+`keep/engine-process-fallback` and in `~/Developer/bimax-archive`. **M6 (window ↔ engine direct ports) declined by the
+owner** as a security compromise. Of the flaw list's B6–B12 and C19, M4 closes B6, B10 and B11, mostly B8, shrinks B9
+and B12, and leaves B7 and C19 open (record 64 says why).
 
 ## Master flaw list: triage and fixes — 2026-09-29
 
@@ -22,7 +26,8 @@ code. About a third did not hold (the sandbox is on for every engine the app sta
 server was never booted; `phase9/` and `design-preview/` are live). Fixed: secrets scrubbed from everything the engine
 saves, web/MCP output fenced as untrusted, fifteen silent prompt-block failures made loud, dead code and docs archived.
 Found on the way: the daily-journal block never reached the model, a crash log written into project folders, and every
-key save erasing the comments in `~/.breakglass/.env`. The monolith migration waits on the owner.
+key save erasing the comments in `~/.breakglass/.env`. The owner then chose the monolith (record 64, M1–M5 done, M6
+declined). Still open from the list: the remaining god files (C13–C18) and a handful of small items (record 63, Open).
 
 ## Every provider, a key pool, every MCP server, and the audit's bugs — 2026-09-28
 

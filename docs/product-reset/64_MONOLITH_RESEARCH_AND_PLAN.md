@@ -2,7 +2,9 @@
 
 **Date:** 2026-09-29 · **Status:** M1, M2 and M3 **Implemented and verified** (see "Progress" at the end — including an
 M3 follow-up: the installed M3 build had its hang watchdog off, now fixed); M5 (the engine's public API and an
-enforced boundary) **Implemented** — its `process.cwd()` half withdrawn on measurement; M4 and M6 **Target**. **Owner decision (2026-09-29):** "yes we need to go monolith … research on best monolith architecture
+enforced boundary) **Implemented** — its `process.cwd()` half withdrawn on measurement; **M4 Implemented 2026-09-30**
+(the separate engine process is gone; the pre-M4 code is at the git tag `keep/engine-process-fallback`); **M6
+declined by the owner** (2026-09-30) as a security compromise. **Owner decision (2026-09-29):** "yes we need to go monolith … research on best monolith architecture
 ever possible, then go beautifully into it." This answers flaw-list items B6–B12 and C19 (record 63).
 
 ## 1. What "monolith" should mean for Bimax
@@ -145,8 +147,10 @@ renderer never imports main. Enforced by a dependency test in CI (Packwerk's ide
 the `fs`/`child_process` parts of the shim are retired. *(This half was withdrawn on measurement — bundled
 dependencies need the shim too; see Progress, M5.)*
 
-**M6 — (Target, decide after M5) renderer ↔ engine direct ports** for streaming, as VS Code does, keeping approvals,
-file access and the IPC gate in main.
+**M6 — (declined by the owner, 2026-09-30) renderer ↔ engine direct ports** for streaming, as VS Code does, keeping
+approvals, file access and the IPC gate in main. The owner's reason: it would be a compromise to security. The window
+is the least trusted part of the app (it renders model output and web content); today everything it says to an engine
+passes main's IPC gate, and a direct port would open a second path to the engine that the gate does not see. Not built.
 
 ## 8. Not decided here
 
@@ -276,3 +280,72 @@ Read plainly:
 
 Still not exercised live in the installed app: export, Organize and a ⌘2 task (the window does not take scripted
 typing — only menu shortcuts reach it). These rows are one machine and two runs each: Measured, not a general claim.
+
+### M4 — done 2026-09-30: the separate engine process is gone
+
+**Owner decision (2026-09-30):** "M4 roll it carefully and delete it, but before it commit to the github so whenever i
+want it back i can bring it back." First the branch was pushed (31 commits) and the commit before M4 tagged
+`keep/engine-process-fallback` on GitHub; GitHub's push protection flagged two made-up keys in
+`secret.redaction.test.ts`, which were checked against the owner's key file (absent) and marked `used_in_tests` with the
+owner's OK. Removed code went to `~/Developer/bimax-archive` at its repo paths, `cmp`-verified; files that stayed but
+lost code have their pre-M4 copy there as `<name>.before-m4.<ext>`. Two commits:
+
+- **App** (`3160639`): `engine.ts` keeps only the worker (`spawnEngine` → `spawnEngineWorker`); the `utilityProcess`
+  and OS child-process transports, `BIMAX_ENGINE_TRANSPORT`, the `BIMAX_ENGINE_CMD` resolver and `npm run dev:source`
+  are gone. `verify-engine.js` runs the bundle only as the app does (`--worker` still accepted). The package gate had
+  **required** the shipped main to mention `BIMAX_ENGINE_CMD`; it now fails if the shipped main forks a
+  `utilityProcess`, reads `BIMAX_ENGINE_CMD`/`BIMAX_ENGINE_TRANSPORT`, or never starts a worker. The busy-engines
+  probe lost its `--process` half (the numbers above stay; the tag has the code). The Phase 5 Electron journey and its
+  fake engine (Computer Use era, no npm script, last run a failure on 2026-08-09) needed `BIMAX_ENGINE_CMD`: archived.
+  UI copy: "Launching engine…", "Previous engine exited", AGENTS.md's glossary says "engine worker".
+- **Engine**: `stdio.host.ts`, `parent.port.ts` and the NDJSON `codec.ts` are archived; `startHeadless` takes the port
+  and nothing else, and no longer watches stdin or registers SIGINT/SIGTERM (a worker receives no signals, so those
+  never ran). `src/index.ts` refuses to start without the app's port **before** it reads config or opens a store —
+  measured: exit 2 with a plain message; the only trace left is the empty `.breakglass/logs` folder module loading
+  creates. Boot phases no longer fall back to stdout. `doctor.sh`'s engine check (skipped since `commander` left) now
+  runs `verify-engine`. `scripts/e2e-turn.mjs` and `scripts/prove-capability-failures.mjs` spoke stdio to a stale
+  `dist/` and a binary that no longer exists: archived.
+- **Tests moved, not dropped:** the handler-coverage test drives the port host (`host.handlers.test.ts`); the four
+  "front-end that stops reading" tests drive the shared queued host with a sink that stops accepting; the capability
+  silence suite uses the real port host. Removed because the code they tested is gone: the NDJSON codec tests, the
+  UTF-8-split-across-chunks test (a port carries whole messages), "same messages over the port as over stdio", the
+  transport switch and the child-command resolver tests (all in the archive and the tag).
+
+**Verified:** app and engine `tsc --noEmit`; the changed suites (app: 7 suites / 79 tests; engine: 6 suites / 74 tests,
+plus the 2 FTS5 tests that always skip under plain Node); 4 mutants — steering dropped from the handler list,
+interrupt always discarding, the transport notice sent as bulk, the compile cache dropped from the worker's env — all
+killed; the engine bundle rebuilt (no stdio host in it) and `verify-engine` PASS 7/7, FAIL on a bundle that exits at
+start. Full Jest: 382 of 386 suites passed; of the other three, one was this change (`thread.model.env` counted "both
+engine transports" asking for the compile cache — now a behavioural check in `engine.worker.test.ts`, 10/10), and two
+are pre-existing timing flakes: `extract.layout.routing` (timeout under load, passes alone, known since M3) and
+`hedged.request`'s "raced by a second key", which failed 1 of 3 runs alone on this branch and 1 of 6 on the pre-M4
+tag — not caused by M4, recorded here rather than fixed.
+
+**Built and installed 2026-09-30** with `build-local-mac.sh` from `21aadf0`. The first build **stopped at the new
+package check**, and nothing was installed: it looked for `new Worker(` while the bundled main says
+`new node_worker_threads.Worker(`. The pattern now allows a module prefix, and the gate was run both ways on real
+artifacts — it passes the new build and **fails the installed pre-M4 app** ("still forks the engine as a separate
+process"). Then, on the new build: `codesign --verify --deep --strict` ok, the package gate PASS, `check-app-actions` 3/3,
+and the packaged engine byte-identical to the verified bundle (no stdio host in it). The icon catalog was skipped (the
+Xcode licence is not accepted on this Mac); the app it replaced had no catalog either, so the icon is unchanged. The
+previous app is at `~/Developer/bimax-archive/apps/Bimax.app.before-m4-20260930`.
+
+**Live, in the installed app:** a window in ~4 s, no start-up error; opening `~/Desktop/demo/invoice-parser` with ⌘O
+started its engine as `worker thread …/Resources/engine/index.js`, which indexed the folder; **no engine process
+exists**; one start and no restart over 45 s past the 20 s hang watchdog, so its heartbeats reach the app over the
+port. Not exercised live: a model turn, a ⌘2 task, export, Organize (scripted typing does not reach the window; each
+is unit-tested, and a real turn ran in worker mode in M1).
+
+**What M4 closes in the flaw list (record 63), honestly:**
+
+| Item | After M4 |
+|---|---|
+| B6 NDJSON over stdio on every interaction | **Closed.** One message per port message inside one process; outbound is still serialized once (JSON), on purpose, so the flow-control window counts bytes exactly |
+| B7 engine owns state, UI mirrors it | **Not closed.** Still true: the window mirrors the engine's state from its messages. The monolith moved the engine into the app's process, not into the window |
+| B8 the protocol is a product | **Mostly closed.** One build ships app and engine together (no version skew since record 55); logs are one process's. The protocol types remain a contract, now inside one codebase |
+| B9 crash handling is real work | **Smaller, not gone.** A worker can still crash or hang, so the supervisor, heartbeat watchdog and restarts stay; there is no process, pipe or signal handling left |
+| B10 two binaries | **Closed** (since record 55) |
+| B11 IPC surface as attack surface | **Closed.** No inbound port, no stdin: the engine listens only on an in-process MessagePort. M6 was declined partly to keep it that way |
+| B12 `Resources/engine/index.js` is a separate process | **Process gone; file stays.** It is loaded as a worker. It cannot be folded into the app's own bundle (Rollup cannot bundle the engine, §2) |
+| C19 `headless.entry.ts` "delete, don't split" | **Not closed.** Its transport part is gone (803 → 799 lines, most removals were elsewhere); the rest is the engine's session wiring — the handlers the app calls — which the monolith still needs. Splitting it is ordinary god-file work (C13–C18) |
+

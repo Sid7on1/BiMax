@@ -89,7 +89,8 @@ for (const [pattern, what] of [
 ]) {
   if (pattern.test(packagedMain)) fail(`packaged main process ${what}`);
 }
-if (!/new\s+\w*Worker\s*\(/.test(packagedMain)) {
+// The bundler keeps the module prefix (`new node_worker_threads.Worker(`), so allow one.
+if (!/new\s+(?:[\w$]+\.)*Worker\s*\(/.test(packagedMain)) {
   fail('packaged main process never starts a worker thread, so it cannot run the engine');
 }
 

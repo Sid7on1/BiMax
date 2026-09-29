@@ -77,10 +77,13 @@ Not exercised live: a model turn, export/share, Organize, a night shift or a sch
 
 - **C13–C18 god files** — `main/index.ts` continues (the Bimax Threads channels, voice/talk, tray, notch remain);
   `agent.loop.ts`, `llm.adapter.ts`, `thread.manager.ts`, `ModelDialog.tsx`, `ThreadSurfaces.tsx` not started.
-- **C19 and the monolith migration** — needs the owner's decision, not taken here. Moving the engine into the main
-  process would remove the NDJSON boundary, but every Bimax Thread runs its own engine process today (capped by
-  `MAX_LIVE_ENGINES`, a memory budget), and a stuck or crashing turn is isolated from the UI; in the main process it
-  would not be.
+- **B6–B12, C19 — the monolith, decided and built (record 64).** The owner chose it on 2026-09-29; M1–M5 are done and
+  M4 (2026-09-30) removed the separate engine process and the stdin/stdout protocol. Closed: B6, B10, B11; mostly
+  B8; smaller: B9 (a worker can still crash or hang, so the supervisor stays) and B12 (the process is gone, the
+  bundle file stays because Rollup cannot bundle the engine). **Still open: B7** (the window still mirrors the
+  engine's state) and **C19** (`headless.entry.ts` is the engine's session wiring, 799 lines; it cannot be deleted,
+  only split like the other god files). M6, direct window ↔ engine ports, was declined by the owner as a security
+  compromise.
 - C24 (module singletons behind the inline `require()`s), C26, C28 (Docker: `dockerode` is still imported by
   `plugin.sandbox.ts` and `egress.perimeter.ts`), C29 (`src/compliance/` has one importer, `/compliance`), E41–E44,
   G52, H53–H54, H56 — not started. H57 is used by two files and was left. I59–I61 are storage outside the repo.
