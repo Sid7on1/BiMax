@@ -29,7 +29,10 @@ function startBootCapture() {
 startBootCapture();
 
 import * as fs from 'fs';
+import * as path from 'path';
 import dotenv from 'dotenv';
+import { stateDir } from './utils/state.dir';
+import { redactSecrets } from './security/secret.scan';
 import { loadGlobalEnv } from './engine/env.loader';
 loadGlobalEnv();
 dotenv.config();
@@ -68,6 +71,16 @@ import { setContextManagerGraphStore } from './memory/context.manager';
   }
 }
 
+// A crash note goes to Bimax's own log folder, scrubbed of keys. It used to be written to the working directory —
+// the person's project folder — as `fatal-crash.log`, where nothing read it and it could land in their git status.
+function writeCrashLog(msg: string): void {
+  try {
+    const dir = path.join(stateDir('.breakglass'), 'logs');
+    fs.mkdirSync(dir, { recursive: true });
+    fs.appendFileSync(path.join(dir, 'fatal-crash.log'), new Date().toISOString() + ' ' + redactSecrets(msg) + '\n');
+  } catch { /* the process is exiting either way; the message still reaches stderr below */ }
+}
+
 // 4. Graceful Boot Error Handling (API-006)
 process.on('uncaughtException', (err) => {
   // A broken pipe means our reader — the desktop — closed stdout/stderr, i.e. it exited. That's a
@@ -75,7 +88,7 @@ process.on('uncaughtException', (err) => {
   if ((err as NodeJS.ErrnoException).code === 'EPIPE') { process.exit(0); }
 
   const msg = `[FATAL] Uncaught Exception: ${err.message}\n${err.stack}`;
-  fs.appendFileSync('fatal-crash.log', new Date().toISOString() + ' ' + msg + '\n');
+  writeCrashLog(msg);
 
   if (bootLogs.length > 0) {
     originalConsoleError(msg);
@@ -87,7 +100,7 @@ process.on('uncaughtException', (err) => {
 
 process.on('unhandledRejection', (reason, promise) => {
   const msg = `[FATAL] Unhandled Rejection at: ${promise}, reason: ${reason}`;
-  fs.appendFileSync('fatal-crash.log', new Date().toISOString() + ' ' + msg + '\n');
+  writeCrashLog(msg);
   if (bootLogs.length > 0) {
     originalConsoleError(msg);
   } else {

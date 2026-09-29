@@ -1,6 +1,7 @@
 import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
+import { redactSecrets } from '../security/secret.scan';
 
 // ─── BiMax Execution Ledger ─────────────────────────────────────────────────────────────────────
 // A durable, structured, append-only record of meaningful task execution — the foundation under
@@ -75,13 +76,15 @@ const MAX_STRING = 2048;             // large-output exclusion: no field stores 
 const SENSITIVE_KEY = /key|token|secret|password|authorization|credential|cookie/i;
 // Credential-shaped values get redacted even under innocent key names — including when they are
 // EMBEDDED inside a longer string (a shell command carrying `-H "auth: nvapi-…"` must not leak).
-const SENSITIVE_VALUE = /(nvapi-|sk-|ghp_|gho_|xox[bap]-|AKIA)[\w-]{8,}/g;
+// The shared rules (src/security/secret.scan.ts) run first; this prefix rule stays as a wider net. Its \b matters:
+// without it "task-runner-20260929" read as an `sk-` key and was stored as "ta[redacted]".
+const SENSITIVE_VALUE = /\b(nvapi-|sk-|ghp_|gho_|xox[bap]-|AKIA)[\w-]{8,}/g;
 
 /** Redact sensitive fields and bound string sizes — applied to every record before append. */
 export function redactForLedger<T>(value: T, depth = 0): T {
   if (depth > 6) return undefined as unknown as T;
   if (typeof value === 'string') {
-    const s = value.replace(SENSITIVE_VALUE, '[redacted]');
+    const s = redactSecrets(value).replace(SENSITIVE_VALUE, '[redacted]');
     return (s.length > MAX_STRING ? s.slice(0, MAX_STRING) + '…[truncated]' : s) as unknown as T;
   }
   if (Array.isArray(value)) return value.slice(0, 50).map(v => redactForLedger(v, depth + 1)) as unknown as T;

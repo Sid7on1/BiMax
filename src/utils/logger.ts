@@ -2,6 +2,7 @@ import { stateDir } from './state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import { getCorrelationId } from '../core/correlation';
+import { redactSecrets } from '../security/secret.scan';
 
 const LOG_DIR = path.join(stateDir('.breakglass'), 'logs');
 const LOG_FILE = path.join(LOG_DIR, 'agent.log');
@@ -13,7 +14,8 @@ if (!fs.existsSync(LOG_DIR)) {
 
 let telemetryBus: any = null;
 
-function writeToFile(level: string, message: string) {
+function writeToFile(level: string, raw: string) {
+  const message = redactSecrets(raw); // a logged command or error can carry a key
   const ts = new Date().toISOString();
   const logEntry = JSON.stringify({ timestamp: ts, level, message }) + '\n';
   

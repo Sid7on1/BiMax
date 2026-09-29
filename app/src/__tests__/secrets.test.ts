@@ -53,6 +53,7 @@ describe('each rule finds a key made the way gitleaks makes its test keys', () =
     ['jwt', `eyJ${random(ALNUM, 30)}.eyJ${random(ALNUM, 40)}.${random(ALNUM, 43)}`],
     ['url-password', `postgres://app:${random(ALNUM, 16)}@db.internal:5432/app`],
     ['nvidia-api-key', `nvapi-${random(ALNUM + '-_', 64)}`],
+    ['generic-sk-key', `sk-or-v1-${random(HEX, 64)}`],
   ];
   test.each(made)('%s', (rule, key) => {
     expect(findSecrets(`TOKEN="${key}"`).map((f) => f.rule)).toContain(rule);

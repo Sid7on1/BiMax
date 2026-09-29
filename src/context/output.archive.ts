@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { createHash } from 'crypto';
 import { stateDir } from '../utils/state.dir';
+import { redactSecrets } from '../security/secret.scan';
 
 /**
  * The context archive: tool output cleared or cut from the prompt, kept outside it and addressed by its hash.
@@ -86,7 +87,9 @@ const sha256Of = (data: string | Uint8Array): string => createHash('sha256').upd
 /** Save `text` and return its handle, or null when it cannot be saved. A caller then must not mention a handle. */
 export function archiveOutput(text: string): ArchivedOutput | null {
   try {
-    const bytes = Buffer.from(text, 'utf8');
+    // What is kept is scrubbed of keys and passwords, and the handle names the scrubbed bytes, so a read-back still
+    // verifies. The model saw the real output live; a recall gets `[redacted:<rule>]` where a secret was.
+    const bytes = Buffer.from(redactSecrets(text), 'utf8');
     if (bytes.length > MAX_ARCHIVED_BYTES) return null;
     const opened = directory(true);
     if (!('dir' in opened)) return null;

@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { engineEvents, MessageEntry, ToolCallEntry, getSessionTokenEstimate } from './events';
 import { sessionDir, newSessionId } from './session';
+import { redactSecretsDeep } from '../security/secret.scan';
 import {
   startSessionMeta, recordFirstUserMessage, recordSessionProgress, endSessionMeta, resumeSessionMeta,
 } from '../db/session.meta';
@@ -98,7 +99,8 @@ export class SessionRecorder {
   private append(line: object): void {
     try {
       const id = this.ensureSession();
-      fs.appendFileSync(path.join(sessionDir(), `${id}.jsonl`), JSON.stringify(line) + '\n', 'utf8');
+      // Scrubbed of keys and passwords on the way to disk; the live turn already had the real text.
+      fs.appendFileSync(path.join(sessionDir(), `${id}.jsonl`), JSON.stringify(redactSecretsDeep(line)) + '\n', 'utf8');
     } catch { /* persistence is best-effort — never break the live turn */ }
   }
 

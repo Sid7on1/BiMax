@@ -2,6 +2,7 @@ import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { MessageEntry } from './events';
+import { redactSecretsDeep } from '../security/secret.scan';
 import { Message } from '../core/llm.provider';
 
 /**
@@ -96,7 +97,7 @@ export class SessionStore {
   }
 
   async append(msg: MessageEntry): Promise<void> {
-    const line = JSON.stringify(msg) + '\n';
+    const line = JSON.stringify(redactSecretsDeep(msg)) + '\n';
     await fs.appendFile(this.path, line, 'utf-8').catch(() => {});
   }
 

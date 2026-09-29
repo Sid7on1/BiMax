@@ -5,6 +5,7 @@ import * as crypto from 'crypto';
 import { LLMProvider, Message, ChatOptions, ChatEvent } from '../core/llm.provider';
 import { mindSingletonRoot } from './self.model';
 import { getEventLedger } from './event.ledger';
+import { redactSecretsDeep } from '../security/secret.scan';
 
 /**
  * Episode bundles — the agent's black-box flight recorder (BiMax v2, Phase 4 minimal).
@@ -162,7 +163,8 @@ export class EpisodeWriter {
 
   file(): string { return this.filePath; }
 
-  private writeLine(obj: Record<string, any>): void {
+  private writeLine(raw: Record<string, any>): void {
+    const obj = redactSecretsDeep(raw); // scrubbed before hashing, so the chain covers what is on disk
     const body = JSON.stringify(obj);
     const h = crypto.createHash('sha256').update(`${this.prevHash}|${body}`).digest('hex');
     fs.appendFileSync(this.filePath, JSON.stringify({ ...obj, h }) + '\n', 'utf-8');
