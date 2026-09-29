@@ -120,3 +120,42 @@ Built with `app/scripts/build-local-mac.sh` from `ccc2f7e` (all four package gat
 --strict` ok, bundled engine byte-identical to the tested bundle) and installed to `/Applications/Bimax.app`; a window
 appeared ~6 s after launch. The previous app was moved, not deleted, to
 `~/Developer/bimax-archive/apps/Bimax.app.before-r62-20260928`. Not yet used for a real turn inside the installed app.
+
+## 8. Follow-up, 2026-09-29: a held request is raced, not waited out
+
+**The owner's report:** the installed app "is not responding, even if it does it takes 1 min to reply to hi", and a
+"Code index: degraded…" line sits at the top of every folder for good.
+
+**Measured.** The session file shows a question interrupted after 48 s with no answer, then "hi" answered after 46 s.
+Five NVIDIA keys probed directly, all five fired together: four held their response headers past 60 s, one answered at
+14.7 s. Minutes later the same five answered together in ~0.4 s (headers) / 1–2 s (reply); one at a time, 1.9–2.6 s.
+A 28,587-token prompt still got headers in ~1.1 s. So the stall is per request, and it sits in the header phase. The
+app sets `BGW_FIRST_CHUNK_TIMEOUT_MS=45000`, which (being explicit) also switched off the tighter multi-key budget —
+a held request cost the full 45 s before any retry. The real engine bundle, forked like the app forks it, answered
+"hi" in 5.3 s on one key and 3.5 s on five once NVIDIA granted the request.
+
+**Built.**
+- `src/core/hedged.request.ts` (`84e70e3`): after 8 s with no headers (`BGW_HEDGE_AFTER_MS`, 0 = off) one backup copy
+  goes out on a different free key with the same provider, endpoint and model; the first answer wins and the other is
+  cancelled. The first request is never abandoned, so a heavy model that legitimately queues still works. Never for a
+  loopback endpoint (a local server loading a model holds headers too). The outraced key is taught as slow
+  (`reportKeyLatency`), not benched. `ApiKeyManager.getNextKey({ exclude })` keeps the backup off the held key.
+  11 tests, one through the real adapter (a held key and a fast key); 6 mutants killed.
+- Transcript (`29a5abd`): capability notices are the banner's. The engine reports the code index `degraded` while it
+  syncs and `ready` when done — the same millisecond on a small folder — but the chat kept the warning and dropped the
+  recovery as chatter, so the line never left. 3 tests; 1 mutant killed (2 of 3 tests fail on it).
+
+**Not established.** The hedge has not yet fired live — NVIDIA granted every request during verification, so its
+benefit on a real stall is Implemented, not Measured. A pool only adds capacity if the keys are on different NVIDIA
+accounts (unknown for these five). The four new keys were not added to the app's Keychain store by this work; the
+owner adds them in Settings → Models. `gpt-oss-20b` answered one of three live questions with bare tool-argument JSON
+(the known weak-model behaviour); two repeat runs of the same questions were clean.
+
+**Verification that ran.** Engine and app `tsc --noEmit` clean; 19 suites / 188 tests around requests, keys, streaming,
+memory, the transcript and the ⌘2 bar pass. Live: the rebuilt bundle, three runs of "hi" / a tool question / "thanks"
+on five keys. The fixes were first built on a side branch (`feat/hindsight-memory`, commits `9615dd7` and `2f8628f`)
+and the app installed on 2026-09-29 came from that branch (four package gates PASS, `codesign --verify --deep --strict`
+ok; previous app at `~/Developer/bimax-archive/apps/Bimax.app.before-hedge-20260929`). That branch was retired the same
+day: only these two fixes were carried onto the main work branch (`84e70e3`, `29a5abd`); the rest of it is kept as a
+git bundle in `~/Developer/bimax-archive/hindsight-branch-20260929/`. Until the app is rebuilt from the work branch,
+the installed app also carries that branch's optional long-term-memory client (off unless `HINDSIGHT_BASE_URL` is set).
