@@ -38,7 +38,9 @@ export interface EngineHandle {
   pid?: number;
   /** Human-readable launch command for the crash journal (no env, no secrets). */
   command: string;
-  write(line: string): void;
+  /** Deliver one protocol message. Each transport encodes it as it needs: an NDJSON line for a process, the object
+   *  itself over the monolith's MessagePort (record 64, M3). */
+  send(msg: Record<string, unknown>): void;
   endStdin(): void;
   kill(signal: 'SIGTERM' | 'SIGKILL'): void;
 }
@@ -720,7 +722,7 @@ export class EngineSupervisor {
 
   private writeToChild(msg: unknown): void {
     if (!this.child) return;
-    try { this.child.write(JSON.stringify(msg) + '\n'); } catch { /* exit event will handle it */ }
+    try { this.child.send(msg as Record<string, unknown>); } catch { /* exit event will handle it */ }
   }
 
   private flushQueue(): void {

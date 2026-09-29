@@ -18,16 +18,21 @@ const fakeEngine = path.join(tmp, 'fake-engine.cjs');
 fs.writeFileSync(fakeEngine, `
 const { workerData } = require('node:worker_threads');
 const v8 = require('node:v8');
-const say = (m) => process.stdout.write(JSON.stringify(m) + '\\n');
-say({ t: 'ready', root: workerData && workerData.bimaxEngineRoot, module: process.env.BIMAX_ENGINE_MODULE,
+const port = workerData.bimaxEnginePort;
+let acked = 0;
+const say = (m) => port.postMessage(JSON.stringify(m));
+say({ t: 'ready', root: workerData.bimaxEngineRoot, module: process.env.BIMAX_ENGINE_MODULE,
       heapLimitMb: Math.round(v8.getHeapStatistics().heap_size_limit / 1048576) });
-require('node:readline').createInterface({ input: process.stdin }).on('line', (line) => {
-  const m = JSON.parse(line);
+process.stdout.write('a log line, never protocol\\n');
+port.on('message', (m) => {
+  if (m.t === '__ack') { acked += m.bytes; return; }
   if (m.t === 'ping') say({ t: 'pong', id: m.id });
+  if (m.t === 'burst') for (let i = 0; i < m.n; i++) say({ t: 'event', name: 'status', args: ['x'.repeat(100)] });
+  if (m.t === 'acked?') say({ t: 'acked', bytes: acked });
   if (m.t === 'crash') setTimeout(() => { throw new Error('the engine blew up'); });
   if (m.t === 'spin') { for (;;) { /* stuck */ } }
 });
-process.stdin.on('end', () => { say({ t: 'bye' }); process.exit(0); });
+port.on('close', () => { process.exit(0); });
 `);
 afterAll(() => fs.rmSync(tmp, { recursive: true, force: true }));
 
@@ -49,16 +54,16 @@ function start() {
   return { handle, messages, exited, errors, until };
 }
 
-test('the engine is told its folder and its own bundle, and talks NDJSON both ways', async () => {
+test('the engine is told its folder and its own bundle, and messages travel over the port both ways', async () => {
   const e = start();
   const ready = await e.until('ready');
   expect(ready).toEqual(expect.objectContaining({ root: path.join(tmp, 'project'), module: fakeEngine }));
-  e.handle.write(JSON.stringify({ t: 'ping', id: 7 }) + '\n');
+  e.handle.send({ t: 'ping', id: 7 });
   expect(await e.until('pong')).toEqual({ t: 'pong', id: 7 });
   e.handle.endStdin();
   e.handle.kill('SIGTERM');
-  expect(await e.exited).toBe(0);
-  expect(e.messages.some((m) => m.t === 'bye')).toBe(true); // it shut itself down, it was not cut off
+  expect(await e.exited).toBe(0); // closing the port let it shut itself down; it was not terminated
+  expect(fs.readFileSync(path.join(tmp, 'engine.log'), 'utf8')).toContain('a log line, never protocol');
 }, 20_000);
 
 test('the engine runs under its heap limit, a memory share of the process', async () => {
@@ -73,7 +78,7 @@ test('the engine runs under its heap limit, a memory share of the process', asyn
 test('an uncaught exception in the engine is reported with its message and ends only that worker', async () => {
   const e = start();
   await e.until('ready');
-  e.handle.write(JSON.stringify({ t: 'crash' }) + '\n');
+  e.handle.send({ t: 'crash' });
   expect(await e.exited).toBe(1);
   expect(e.errors.map((x) => x.message)).toEqual(['the engine blew up']);
   expect(fs.readFileSync(path.join(tmp, 'engine.log'), 'utf8')).toContain('engine worker error');
@@ -82,14 +87,14 @@ test('an uncaught exception in the engine is reported with its message and ends 
 test('a stuck engine is stopped: SIGKILL at once, SIGTERM after the grace period', async () => {
   const a = start();
   await a.until('ready');
-  a.handle.write(JSON.stringify({ t: 'spin' }) + '\n');
+  a.handle.send({ t: 'spin' });
   await new Promise((r) => setTimeout(r, 100));
   a.handle.kill('SIGKILL');
   expect(await a.exited).toBe(1);
 
   const b = start();
   await b.until('ready');
-  b.handle.write(JSON.stringify({ t: 'spin' }) + '\n');
+  b.handle.send({ t: 'spin' });
   const t0 = Date.now();
   b.handle.endStdin();
   b.handle.kill('SIGTERM');
@@ -105,3 +110,17 @@ test('the worker thread is the default transport (M2); the separate process stay
   expect(engineTransport({ BIMAX_ENGINE_TRANSPORT: ' Utility ' })).toBe('process');
   expect(engineTransport({ BIMAX_ENGINE_TRANSPORT: 'child' })).toBe('child');
 });
+
+test('the app acknowledges the output it handled, so the engine may send more', async () => {
+  const e = start();
+  await e.until('ready');
+  e.handle.send({ t: 'burst', n: 50 });
+  for (let i = 0; i < 200 && e.messages.filter((m) => m.t === 'event').length < 50; i++) await new Promise((r) => setTimeout(r, 10));
+  await new Promise((r) => setTimeout(r, 30)); // the end-of-tick acknowledgement
+  e.handle.send({ t: 'acked?' });
+  const acked = await e.until('acked');
+  const handled = e.messages.filter((m) => m.t !== 'acked').reduce((sum, m) => sum + JSON.stringify(m).length, 0);
+  expect(Number(acked!.bytes)).toBe(handled);
+  e.handle.kill('SIGKILL');
+  await e.exited;
+}, 20_000);

@@ -1,6 +1,6 @@
 import { spawn, execFileSync } from 'node:child_process';
 import { createInterface } from 'node:readline';
-import { Worker } from 'node:worker_threads';
+import { MessageChannel, Worker } from 'node:worker_threads';
 import { app, utilityProcess, type UtilityProcess } from 'electron';
 import { existsSync, mkdirSync, createWriteStream, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
@@ -330,9 +330,9 @@ export function spawnEngineProcess(projectDir: string, extraEnv: Record<string, 
   return {
     pid: child.pid,
     command,
-    write: (line: string) => {
+    send: (msg) => {
       const stdin = child.stdin;
-      if (stdin && stdin.writable) stdin.write(line);
+      if (stdin && stdin.writable) stdin.write(JSON.stringify(msg) + '\n');
     },
     endStdin: () => { try { child.stdin?.end(); } catch { /* already gone */ } },
     kill: (signal) => { try { child.kill(signal); } catch { /* already gone */ } },
@@ -479,7 +479,7 @@ export function spawnEngineUtilityProcess(
   return {
     pid: child.pid,
     command,
-    write: (line: string) => { try { child.postMessage(line); } catch { /* already gone */ } },
+    send: (msg) => { try { child.postMessage(JSON.stringify(msg) + '\n'); } catch { /* already gone */ } },
     // There is no stdin to close. The supervisor calls this immediately before kill('SIGTERM') at
     // both of its shutdown sites, so the terminate below is what actually ends the process — this
     // is a genuine no-op rather than an unimplemented one.
@@ -525,17 +525,25 @@ export const ENGINE_WORKER_HEAP_MB = 768;
 /** How long an engine worker gets to shut down on its own after its input closes, before it is terminated. */
 const WORKER_SHUTDOWN_GRACE_MS = 3000;
 
+/** Acknowledge handled engine output once this many bytes have piled up, or at the end of the current tick. */
+const ACK_EVERY_BYTES = 64 * 1024;
+
 /**
- * Run the engine as a worker thread inside this process — the monolith. Same `deps.spawn` contract as the process
- * transports, so the supervisor (phases, heartbeat watchdog, generation fencing, crash journal) is unchanged.
+ * Run the engine as a worker thread inside this process — the monolith (record 64). Same `deps.spawn` contract as
+ * the process transports, so the supervisor (phases, heartbeat watchdog, generation fencing, crash journal) is
+ * unchanged.
  *
  *   • The engine module is the same bundle; `workerData.bimaxEngineRoot` gives it its own working folder
  *     (src/engine/worker.folder.ts), because a worker cannot chdir.
- *   • In and out are the worker's stdin/stdout streams carrying the same NDJSON (phase M3 replaces them with typed
- *     messages). Worker stdio has real flow control: the worker's writes wait until this side reads.
+ *   • Messages travel over a MessageChannel, one protocol message per port message (M3): the engine posts each
+ *     outbound message as one JSON string, this side posts inbound messages as objects. No pipe, no line framing.
+ *     This side acknowledges what it has handled; the engine lets at most a window of unacknowledged output out and
+ *     queues the rest with its usual bounds (src/protocol/port.host.ts), so a stalled main thread cannot turn engine
+ *     output into unbounded memory.
+ *   • The worker's stdout and stderr are logs, never protocol, and go to engine.log.
  *   • An uncaught exception inside the engine emits 'error' (logged with its stack, reported like a process error)
- *     and ends only that worker. `kill('SIGTERM')` closes its input so it shuts down itself; `kill('SIGKILL')`, or the
- *     grace period running out, terminates it — which interrupts even a busy loop.
+ *     and ends only that worker. Closing our end of the port asks the engine to shut down; `kill('SIGTERM')` then
+ *     terminates it after a grace period, `kill('SIGKILL')` at once — which interrupts even a busy loop.
  */
 export function spawnEngineWorker(
   projectDir: string,
@@ -547,10 +555,12 @@ export function spawnEngineWorker(
   const { logLine, closeLog } = openEngineLog(projectDir, `worker thread ${modulePath}`);
   logCapabilityPlan(logLine, extraEnv);
 
+  const { port1: port, port2: enginePort } = new MessageChannel();
   const worker = new Worker(modulePath, {
     env: engineModuleEnv(projectDir, extraEnv, modulePath),
-    workerData: { bimaxEngineRoot: projectDir },
-    stdin: true, stdout: true, stderr: true,
+    workerData: { bimaxEngineRoot: projectDir, bimaxEnginePort: enginePort },
+    transferList: [enginePort],
+    stdout: true, stderr: true,
     resourceLimits: { maxOldGenerationSizeMb: ENGINE_WORKER_HEAP_MB },
     name: 'Bimax Engine',
   });
@@ -562,31 +572,52 @@ export function spawnEngineWorker(
     argumentClasses: ['headless-agent-protocol'],
   });
 
-  let stderrBuf = '';
-  worker.stderr.on('data', (chunk: Buffer | string) => {
-    stderrBuf += chunk.toString();
-    let nl: number;
-    while ((nl = stderrBuf.indexOf('\n')) !== -1) {
-      logLine(stderrBuf.slice(0, nl));
-      stderrBuf = stderrBuf.slice(nl + 1);
-    }
-  });
+  // Logs only: anything the engine prints is evidence, never protocol.
+  const logStream = (stream: NodeJS.ReadableStream): (() => void) => {
+    let buf = '';
+    stream.on('data', (chunk: Buffer | string) => {
+      buf += chunk.toString();
+      let nl: number;
+      while ((nl = buf.indexOf('\n')) !== -1) {
+        logLine(buf.slice(0, nl));
+        buf = buf.slice(nl + 1);
+      }
+    });
+    return () => { if (buf) { logLine(buf); buf = ''; } };
+  };
+  const flushStdout = logStream(worker.stdout);
+  const flushStderr = logStream(worker.stderr);
 
-  const rl = createInterface({ input: worker.stdout });
-  rl.on('line', (line) => {
-    const trimmed = line.trim();
-    if (!trimmed) return;
-    try {
-      const msg = JSON.parse(trimmed);
-      if (msg && typeof msg === 'object') cb.onMessage(msg as Record<string, unknown>);
-      else cb.onMalformed(trimmed);
-    } catch {
-      logLine(`[app] dropped malformed line (${trimmed.length} chars)`);
-      cb.onMalformed(trimmed);
-    }
-  });
-
+  let unacked = 0;
+  let ackScheduled = false;
   let exited = false;
+  const acknowledge = (): void => {
+    ackScheduled = false;
+    if (!unacked || exited) return;
+    const bytes = unacked;
+    unacked = 0;
+    try { port.postMessage({ t: '__ack', bytes }); } catch { /* the engine is gone */ }
+  };
+  port.on('message', (frame: unknown) => {
+    if (typeof frame !== 'string') {
+      logLine(`[app] dropped a non-string engine message (${typeof frame})`);
+      cb.onMalformed(String(frame));
+      return;
+    }
+    try {
+      const msg = JSON.parse(frame);
+      if (msg && typeof msg === 'object') cb.onMessage(msg as Record<string, unknown>);
+      else cb.onMalformed(frame);
+    } catch {
+      logLine(`[app] dropped malformed message (${frame.length} chars)`);
+      cb.onMalformed(frame);
+    }
+    // Handled: tell the engine it may send more — in bulk, not per message.
+    unacked += frame.length;
+    if (unacked >= ACK_EVERY_BYTES) acknowledge();
+    else if (!ackScheduled) { ackScheduled = true; setImmediate(acknowledge); }
+  });
+
   let graceTimer: NodeJS.Timeout | null = null;
   worker.on('error', (err: Error) => {
     // An uncaught exception or an out-of-heap: the worker ends after this, and 'exit' settles the launch.
@@ -598,9 +629,10 @@ export function spawnEngineWorker(
     exited = true;
     if (graceTimer) clearTimeout(graceTimer);
     processProvenance.finish(provenanceLaunchId, { exitCode: code, signal: null });
-    if (stderrBuf) { logLine(stderrBuf); stderrBuf = ''; }
+    flushStdout();
+    flushStderr();
+    try { port.close(); } catch { /* already closed */ }
     logLine(`[desktop] engine worker exited after ${Date.now() - startedAt}ms: code ${code}`);
-    rl.close();
     closeLog();
     cb.onExit(code, null);
   });
@@ -608,12 +640,13 @@ export function spawnEngineWorker(
   const terminate = (): void => { if (!exited) void worker.terminate().catch(() => undefined); };
   return {
     command,
-    write: (line: string) => { if (!exited && worker.stdin && !worker.stdin.writableEnded) worker.stdin.write(line); },
-    endStdin: () => { try { worker.stdin?.end(); } catch { /* already gone */ } },
+    send: (msg) => { if (!exited) { try { port.postMessage(msg); } catch { /* the engine is gone */ } } },
+    // Closing our end is the engine's signal to shut down (port.host.ts), as the end of stdin was.
+    endStdin: () => { try { port.close(); } catch { /* already closed */ } },
     kill: (signal) => {
       if (exited) return;
       if (signal === 'SIGKILL') { terminate(); return; }
-      // SIGTERM: the input is closed (endStdin, just before), so the engine is shutting itself down; stop waiting after
+      // SIGTERM: the port is closed (endStdin, just before), so the engine is shutting itself down; stop waiting after
       // the grace period.
       if (!graceTimer) graceTimer = setTimeout(terminate, WORKER_SHUTDOWN_GRACE_MS);
     },

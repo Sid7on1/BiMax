@@ -1,7 +1,7 @@
 # 64 — The monolith: research, measurements, and the plan
 
-**Date:** 2026-09-29 · **Status:** Research and plan. Phase M1 onward is **Target** until each phase's record says
-otherwise. **Owner decision (2026-09-29):** "yes we need to go monolith … research on best monolith architecture
+**Date:** 2026-09-29 · **Status:** M1, M2 and M3 **Implemented and verified** (see "Progress" at the end); M4–M6
+**Target**. **Owner decision (2026-09-29):** "yes we need to go monolith … research on best monolith architecture
 ever possible, then go beautifully into it." This answers flaw-list items B6–B12 and C19 (record 63).
 
 ## 1. What "monolith" should mean for Bimax
@@ -151,3 +151,46 @@ file access and the IPC gate in main.
 - Whether sub-agents should stay nested workers or share their parent engine's isolate — measured in M1.
 - The exact per-engine heap limit — M1 measures an engine's peak heap while indexing a large repository before a
   number is chosen, per `bimax-perf-constants-pinned-by-tests`.
+
+## 9. Progress
+
+### M1 — done 2026-09-29 (`4b028f7`, `b7c3a22`)
+
+- `src/engine/worker.folder.ts` (first import of `src/index.ts`): an engine worker's own working folder —
+  `process.cwd`/`chdir`, relative `fs`/`fs.promises` paths, `child_process` and `fs.glob` default `cwd`; symlink
+  targets and fd calls untouched; `util.promisify` custom forms wrapped (a test caught `promisify(exec)` bypassing
+  the folder). Default imports on purpose: `import * as fs` is a frozen namespace in the ESM bundle, which is how the
+  first real-worker run failed while every unit test passed.
+- **Sub-agents were broken in the packaged app before any of this**: the bundle has no `worker.entry.js` beside it,
+  so they fell through to a `.ts` entry that cannot load there (and a dev run used a stale Sep 21 `dist/`). They now
+  run the app's own bundle (`BIMAX_ENGINE_MODULE`) as a worker in their folder, under a 384 MB heap share.
+- Heap limit chosen from a measurement, not by feel: one engine indexing this whole repository peaked at 128 MB used
+  heap; `ENGINE_WORKER_HEAP_MB = 768`, and `MAX_LIVE_ENGINES × 768 ≤ 3 GB` is asserted by a test.
+- Live, installed app with `BIMAX_ENGINE_TRANSPORT=worker`: no engine process; a real turn ("MONOLITH OK"); a shell
+  tool call went through the approval card and ran `pwd && ls` in the task's folder.
+
+### M2 — done 2026-09-29 (`411661a`)
+
+- The worker thread is the default; `BIMAX_ENGINE_TRANSPORT=process` keeps the separate engine process for one
+  release, `child` stays for bisecting. Development picks the newer of `dist/index.js` and the bundle.
+- Live, installed default build: the project engine started as a worker thread, resumed its conversation, and ran
+  `find src -type f | wc -l` in the right folder. **Not exercised live:** two engines at once inside the app (the ⌘2
+  bar is a floating panel that scripted input could not reach), export, Organize. Several engines as workers were
+  measured in the probe (§4), and each path is unit-tested.
+- A failed build once proceeded to the install step and left `/Applications/Bimax.app` briefly missing; it was
+  restored from the archive within the minute. The install step is now gated on the build's result.
+
+### M3 — done 2026-09-29
+
+- `src/protocol/port.host.ts`: one protocol message per port message; the app posts inbound messages as objects,
+  the engine posts each outbound message as one JSON string (so the queue counts bytes exactly). Flow control by an
+  acknowledged window (1 MB): the app acknowledges handled output per tick or every 64 KB; beyond the window the
+  shared `WireQueue` holds output with its usual bounds, reserve and notices.
+- `src/protocol/queued.host.ts`: the queue, notices and interrupt rule, shared by the stdio and port hosts — the stdio
+  host is now only stream framing.
+- The supervisor's engine handle takes message objects (`send(msg)`), and each transport encodes as it needs.
+- Verified: the same engine events produce identical messages over the port and over stdio; congested + interrupted
+  drops queued display output and acknowledges the stop; acks and junk are never taken for protocol; closing the port
+  shuts the engine down. `verify-engine --worker` (real bundle, over the port): 5/5 and a live turn. 8 mutants, all
+  killed. Full Jest: every suite passes except `extract.layout.routing`, which times out intermittently under load
+  with and without these changes (each test ~0.5 s, an occasional hang past 5 s) — recorded, not fixed here.

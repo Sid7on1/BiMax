@@ -71,14 +71,23 @@ app.whenReady().then(() => {
   // One small adapter over the two hosts, so every check below reads the same for both.
   let child;
   if (wantsWorker) {
-    const worker = new Worker(target, { env, workerData: { bimaxEngineRoot: project }, stdin: true, stdout: true, stderr: true });
+    // The monolith's channel (record 64, M3): one protocol message per port message, acknowledged as handled.
+    const { MessageChannel } = require('node:worker_threads');
+    const { port1, port2 } = new MessageChannel();
+    const worker = new Worker(target, { env, workerData: { bimaxEngineRoot: project, bimaxEnginePort: port2 }, transferList: [port2], stdout: true, stderr: true });
+    worker.stdout.on('data', () => { /* logs, never protocol */ });
+    const frames = new (require('node:events').EventEmitter)();
+    port1.on('message', (frame) => {
+      frames.emit('line', typeof frame === 'string' ? frame : '');
+      port1.postMessage({ t: '__ack', bytes: typeof frame === 'string' ? frame.length : 0 });
+    });
     child = {
-      stdout: worker.stdout, stderr: worker.stderr,
-      postMessage: (line) => worker.stdin.write(line),
+      lines: frames, stderr: worker.stderr,
+      postMessage: (line) => port1.postMessage(JSON.parse(line)),
       kill: () => { void worker.terminate(); },
       on: (event, fn) => worker.on(event, fn),
     };
-    console.log('  (hosted as a worker thread in this process — the monolith)');
+    console.log('  (hosted as a worker thread in this process over a MessagePort — the monolith)');
   } else {
     child = utilityProcess.fork(target, [], {
       env,
@@ -92,7 +101,7 @@ app.whenReady().then(() => {
   let bytes = 0;
   let asked = false;
 
-  createInterface({ input: child.stdout }).on('line', (line) => {
+  (child.lines || createInterface({ input: child.stdout })).on('line', (line) => {
     const text = line.trim();
     if (!text) return;
     bytes += text.length;

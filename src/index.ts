@@ -161,7 +161,10 @@ async function main() {
   // exactly how desktop.runtime.ts and the two env builders came to drift, with the copy nobody ran
   // quietly losing features the other had. One file, one boot, one place a fix lands.
   const { underUtilityProcess, parentPortInput } = await import('./protocol/parent.port');
-  await startHeadless(container, config, underUtilityProcess() ? { input: parentPortInput() } : {});
+  const { engineWorkerPort } = await import('./protocol/port.host');
+  // A worker thread inside the app (the monolith, record 64) speaks over the port it was handed.
+  const port = engineWorkerPort();
+  await startHeadless(container, config, port ? { port } : underUtilityProcess() ? { input: parentPortInput() } : {});
   process.exit(0);
 }
 

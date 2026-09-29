@@ -76,7 +76,7 @@ class FakeChild implements EngineHandle {
   exited = false;
   constructor(public cb: SpawnCallbacks, pid: number) { this.pid = pid; }
 
-  write(line: string): void { this.written.push(line); }
+  send(msg: Record<string, unknown>): void { this.written.push(JSON.stringify(msg) + '\n'); }
   endStdin(): void { this.stdinEnded = true; }
   kill(signal: 'SIGTERM' | 'SIGKILL'): void { this.killed.push(signal); }
 

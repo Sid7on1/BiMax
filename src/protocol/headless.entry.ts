@@ -7,6 +7,8 @@ import { goalEvents } from '../memory/goal.manager';
 import { buildPersonas } from '../engine/personas/factory';
 import { HeadlessSession } from './headless.session';
 import { startStdioHost } from './stdio.host';
+import { startPortHost, type EnginePortLike } from './port.host';
+import type { HostHandlers } from './host';
 import { createConfigWire } from './config.wire';
 import { buildCatalog, type CatalogDeps } from './catalog.wire';
 import { getProviders, getProvider, getCurrentProvider, setProvider } from '../engine/provider';
@@ -43,6 +45,12 @@ import '../engine/commands';
 export interface HeadlessTransport {
   input?: NodeJS.ReadableStream;
   output?: NodeJS.WritableStream;
+  /**
+   * The monolith (record 64): the engine is a worker thread in the app's process and speaks over this MessagePort,
+   * one protocol message per port message (port.host.ts). When set, input/output are unused, and the app closing
+   * the port — not the end of stdin — shuts the engine down.
+   */
+  port?: EnginePortLike;
 }
 
 export async function startHeadless(container: any, config: any, transport: HeadlessTransport = {}): Promise<void> {
@@ -353,10 +361,8 @@ export async function startHeadless(container: any, config: any, transport: Head
   };
   const buildVisibleCatalog = (refresh: boolean) => buildCatalog(catalogDeps, 0, refresh);
 
-  const dispose = startStdioHost({
-    emitter: engineEvents,
-    ...(transport.input ? { input: transport.input } : {}),
-    ...(transport.output ? { output: transport.output } : {}),
+  // The handlers are the same whatever the transport; only how messages travel differs.
+  const handlers: HostHandlers = {
     onInput: (text) => {
       void session.dispatch(text);
     },
@@ -460,7 +466,15 @@ export async function startHeadless(container: any, config: any, transport: Head
       engineEvents.emit('config_changed');
       return rest;
     },
-  });
+  };
+  const dispose = transport.port
+    ? startPortHost({ emitter: engineEvents, port: transport.port, onClose: () => engineEvents.emit('shutdown'), ...handlers })
+    : startStdioHost({
+      emitter: engineEvents,
+      ...(transport.input ? { input: transport.input } : {}),
+      ...(transport.output ? { output: transport.output } : {}),
+      ...handlers,
+    });
 
   // Liveness heartbeat for the supervising front-end (desktop): a `health` line every few seconds
   // carrying event-loop responsiveness, memory, and whether a turn is executing. The desktop uses
@@ -796,8 +810,11 @@ export async function startHeadless(container: any, config: any, transport: Head
     engineEvents.once('shutdown', shutdown);
     process.once('SIGINT', shutdown);
     process.once('SIGTERM', shutdown);
-    // If the front-end (our stdin) goes away, the parent process is gone — exit cleanly.
-    process.stdin.once('end', shutdown);
-    process.stdin.once('close', shutdown);
+    // If the front-end (our stdin) goes away, the parent process is gone — exit cleanly. Over a port the app closes
+    // the port instead (port.host.ts emits 'shutdown'), and a worker's own stdin is not the app.
+    if (!transport.port) {
+      process.stdin.once('end', shutdown);
+      process.stdin.once('close', shutdown);
+    }
   });
 }
