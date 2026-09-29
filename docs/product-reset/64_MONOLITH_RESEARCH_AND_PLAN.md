@@ -245,3 +245,34 @@ file access and the IPC gate in main.
   would retire nothing and change nothing at run time. Not done. What keeps the shim honest instead: it is the first
   import of `src/index.ts`, it is unit-tested with mutants (M1), and `verify-engine`'s `folder` check runs the real
   bundle in a worker.
+
+### M2 gate — several engines busy at once (measured 2026-09-29)
+
+M2's gate asked for memory "measured again with several Bimax Threads busy, not idle"; until now only idle engines had
+been measured (§4). Probe: `app/benchmarks/engines/busy-engines.probe.js`, the engine bundle built from `e441f3c`,
+three engines started together, each on a **fresh** copy of this repository's `src/` (731 files) so each runs its
+first AST index and code-index sync; 60 s per run, sampled every second; this Mac (8 GB, Electron 43). Two runs per
+transport, alternating which went first.
+
+| 3 engines, all indexing | Workers (monolith) run 1 / run 2 | Processes (fallback) run 1 / run 2 |
+|---|---|---|
+| Peak working set, whole app (MB) | **1,061 / 1,127** | 1,389 / 1,446 |
+| Main (UI) thread event-loop delay: median of per-second p99 (ms) | 12.4 / 12.3 | 13.2 / 13.0 |
+| Main thread: worst per-second p99 / worst single stall (ms) | 21.9 / 28 · 35.4 / 84.5 | 30.3 / 50.5 · 42.8 / 61.5 |
+| Engine heap peak, each (MB) | 197–209 | 202–208 |
+| Longest gap between an engine's heartbeats (s) | 3.3–3.9 · 5.4–5.5 | 5.4 · 4.8–5.1 |
+| Engine `ping` round trip p95 / max (s) | 1.26–1.27 / 3.2 · 1.63–1.68 / 2.7 | 1.5–2.5 / 4.1 · 1.5–2.4 / 3.4 |
+
+Read plainly:
+- **Memory:** three busy engines as workers cost 22–24% less than as processes (~300 MB less), consistent with the
+  idle measurement (§4). One busy engine alone: 558 MB working set, heap peak 204 MB.
+- **The UI thread is not slowed by busy engines** in either transport: its median p99 stays at ~12 ms (the sampler's
+  own resolution is 10 ms), the same as with one engine. The worst single stall in any run was 85 ms.
+- **Engine responsiveness is the same in both transports.** A ping waits up to a few seconds while its engine does
+  synchronous indexing work; that is the engine's own loop, not the channel.
+- **The re-armed hang watchdog has margin:** the longest heartbeat gap under this load was 5.5 s against its 20 s idle
+  limit. Not measured: a repository near the 12,000-file index cap, where a single engine's first sync is longest.
+- Each engine's heap peaked near 200 MB, a quarter of its 768 MB limit.
+
+Still not exercised live in the installed app: export, Organize and a ⌘2 task (the window does not take scripted
+typing — only menu shortcuts reach it). These rows are one machine and two runs each: Measured, not a general claim.

@@ -11,8 +11,9 @@ plainly: a native crash or process-wide out-of-memory now ends every task, and a
 M1–M3 are Implemented (the engine is a worker thread by default and talks over a MessagePort); the live check of the
 M3 install found its heartbeat going to the log instead of the app, which left the hang watchdog off — fixed, and now
 gated. M5: the engine has one public API (`src/engine/api.ts`) and a test fails any import that goes around it; its
-plan to retire the worker-folder shim was withdrawn, because bundled dependencies read the folder too. M4 and M6 are
-Target.
+plan to retire the worker-folder shim was withdrawn, because bundled dependencies read the folder too. Measured with
+three engines indexing at once (two runs each): 22–24% less memory as workers than as processes, and the UI thread no
+slower. M4 and M6 are Target.
 
 ## Master flaw list: triage and fixes — 2026-09-29
 
