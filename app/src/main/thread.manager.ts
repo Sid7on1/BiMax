@@ -175,7 +175,7 @@ export const IDLE_ENGINE_SWEEP_MS = 60_000;
 
 /**
  * The ceiling on live **Bimax Threads** — the product feature: folder-bound conversations, each
- * with its own engine process, run instantly from the ⌘2 bar or from a project window.
+ * with its own engine worker, run instantly from the ⌘2 bar or from a project window.
  *
  * This is a MEMORY budget (see ENGINE_BUDGET_BYTES / RESERVE_BYTES below and `maxLiveEngines`).
  * It is NOT the CPU budget, and the two must never be conflated just because both happen to be 4:
@@ -238,7 +238,7 @@ export function threadIndexEnvironment(origin: ThreadSummary['origin']): Record<
  * One machine-wide budget for sub-agent **workers** (real `worker_threads` OS threads), shared by
  * every engine this app spawns.
  *
- * WHY this exists. `MAX_CONCURRENT_SUBAGENTS` is enforced per engine process, against the lease
+ * WHY this exists. `MAX_CONCURRENT_SUBAGENTS` is enforced per engine, against the lease
  * ledger `resolveCapacityContext` resolves. That ledger defaults to
  * `<cwd>/.bimax/subagent-capacity.json` — per FOLDER. Bimax Threads are folder-exclusive, so every
  * live Thread used to get its own private ledger and its own private ceiling of four. The ceiling
@@ -251,7 +251,7 @@ export function threadIndexEnvironment(origin: ThreadSummary['origin']): Record<
  * it at one file under userData makes the budget mean what the policy already thinks it means.
  *
  * Deliberately NOT derived from the Bimax Thread cap (`MAX_LIVE_ENGINES`): that is a memory budget
- * over engine processes, this is a CPU budget over workers, and a machine can be at one and nowhere
+ * over engines, this is a CPU budget over sub-agent workers, and a machine can be at one and nowhere
  * near the other. See the glossary in AGENTS.md.
  *
  * The env NAME is a literal rather than an import from `src/core/subagent.capacity.ts`, because the

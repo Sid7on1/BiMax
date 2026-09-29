@@ -43,7 +43,7 @@ export function isStartupPhase(phase: EnginePhase): boolean {
   return phase !== 'ready' && BOOT_LADDER.includes(phase);
 }
 
-/** True when the engine process is expected to be alive in this phase. */
+/** True when the engine is expected to be alive in this phase. */
 export function isLivePhase(phase: EnginePhase): boolean {
   return isStartupPhase(phase) || phase === 'ready' || phase === 'degraded' || phase === 'stopping';
 }
@@ -59,7 +59,7 @@ export function bootProgress(phase: EnginePhase): { step: number; total: number 
 export function phaseMessage(phase: EnginePhase): string {
   switch (phase) {
     case 'idle': return 'No engine running';
-    case 'spawning': return 'Launching engine process…';
+    case 'spawning': return 'Launching engine…';
     case 'booting': return 'Engine booting…';
     case 'loading_storage': return 'Loading configuration and storage…';
     case 'loading_graph': return 'Loading code graph…';

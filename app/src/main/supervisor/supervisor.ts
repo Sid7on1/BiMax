@@ -126,7 +126,7 @@ export function parseRecoveryAction(raw: unknown): RecoveryAction | null {
  * Protocol messages that are safe to hold and replay once a (re)started engine is ready: pure
  * reads with no side effects. Everything else — inputs, approval replies, menu selections, config
  * writes, interrupts — would duplicate or misdirect a mutation if replayed against a different
- * engine process, so it is rejected loudly instead of queued.
+ * engine, so it is rejected loudly instead of queued.
  */
 const SAFE_REPLAY = new Set(['ping', 'query', 'configGet']);
 const MAX_QUEUE = 32;
@@ -304,7 +304,7 @@ export class EngineSupervisor {
   /**
    * A protocol message from the renderer. Delivered when the engine is interactive; queued when
    * it's merely a safe-to-replay read; rejected (with a visible notice) otherwise — an unsafe
-   * message must never be silently replayed into a different engine process.
+   * message must never be silently replayed into a different engine.
    */
   sendFromRenderer(raw: unknown): void {
     if (!raw || typeof raw !== 'object' || typeof (raw as Record<string, unknown>).t !== 'string') {
@@ -533,7 +533,7 @@ export class EngineSupervisor {
     this.exitWaiters.get(gen)?.(true);
     if (gen !== this.childGen) {
       // Superseded child finished dying (project switch / manual restart) — evidence only.
-      this.deps.onNotice('info', `Previous engine process exited (${signal ?? `code ${code ?? '?'}`}).`);
+      this.deps.onNotice('info', `Previous engine exited (${signal ?? `code ${code ?? '?'}`}).`);
       return;
     }
     this.handleDeath(gen, code, signal, false);

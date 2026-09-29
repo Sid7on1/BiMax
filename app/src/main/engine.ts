@@ -1,16 +1,14 @@
-import { spawn, execFileSync } from 'node:child_process';
-import { createInterface } from 'node:readline';
+import { execFileSync } from 'node:child_process';
 import { MessageChannel, Worker } from 'node:worker_threads';
-import { app, utilityProcess, type UtilityProcess } from 'electron';
-import { existsSync, mkdirSync, createWriteStream, readFileSync, statSync } from 'node:fs';
+import { app } from 'electron';
+import { existsSync, mkdirSync, createWriteStream, statSync } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import type { EngineHandle, SpawnCallbacks } from './supervisor/supervisor';
 import { PORT_ACK, type EngineWorkerData, type PortAck } from '../../../src/engine/api';
 import { ProcessProvenanceTracker, type ProcessProvenanceRecord } from '../phase9/process.provenance';
 import {
-  resolveEngineCommand, describeRefusal, buildEngineChildEnv, EngineArtifactError, PackagedRuntimeError,
-  type RuntimeLayout, type Resolution,
+  buildEngineChildEnv, EngineArtifactError, PackagedRuntimeError, type Resolution,
 } from './coding.runtime.paths';
 
 /**
@@ -38,28 +36,19 @@ function userShellPath(): string {
 }
 
 /**
- * Engine process adapter — spawns and pipes the headless Bimax engine (BIMAX_HEADLESS=1), the
- * exact process the Go TUI drives (see tui/engine.go, which this ports). Outbound messages arrive
- * as NDJSON on the child's stdout; inbound commands go out as NDJSON on its stdin. Engine stderr
- * (boot logs) is diverted to <userData>/engine.log so it can never corrupt the protocol stream.
+ * Engine worker adapter — starts the Bimax engine as a worker thread inside this process, one per Bimax Thread, never
+ * on the UI thread: the monolith (record 64). Messages travel over a MessagePort; what the engine prints goes to
+ * <userData>/engine.log and is never protocol.
  *
- * Lifecycle policy lives in supervisor/supervisor.ts — this file is deliberately dumb: resolve
- * the command, spawn, decode lines, report exits. It never restarts anything itself.
+ * Lifecycle policy lives in supervisor/supervisor.ts — this file is deliberately dumb: resolve the engine module,
+ * start it, decode messages, report exits. It never restarts anything itself.
  *
- * There are three transports, and the default is the worker thread — the monolith, record 64 (see
- * spawnEngine at the foot of this file). The engine is no longer a separately published artifact that
- * the app downloads and pins: the app builds it from its own src/index.ts, and every transport runs
- * that same bundle.
+ * There is one transport. The separate engine process (Electron `utilityProcess`, the default until 2026-09-29) and the
+ * OS child process (`BIMAX_ENGINE_TRANSPORT`, `BIMAX_ENGINE_CMD`) were removed in record 64's M4 (2026-09-30); they are
+ * in ~/Developer/bimax-archive and at the git tag `keep/engine-process-fallback`.
  *
- *   worker thread (default)   The engine runs inside this process, one worker thread per Bimax Thread,
- *                             never on the UI thread. See spawnEngineWorker.
- *   utilityProcess            BIMAX_ENGINE_TRANSPORT=process: a separate process per engine, the
- *                             default until 2026-09-29. Kept one release as the fallback (M4 removes it).
- *   child process             BIMAX_ENGINE_TRANSPORT=child and an explicit $BIMAX_ENGINE_CMD. Kept so
- *                             an older engine build can be dropped in to bisect a regression.
- *
- * A PACKAGED app resolves from its own bundle and nowhere else — absent means fail visibly, never
- * fall back to a development engine.
+ * A PACKAGED app resolves from its own bundle and nowhere else — absent means fail visibly, never fall back to a
+ * development engine.
  */
 
 // S28-D starts with the process tree Bimax itself launches. This bounded tracker contains no raw
@@ -76,43 +65,17 @@ function devRepoRoot(): string {
   return path.resolve(__dirname, '..', '..', '..');
 }
 
-/** The injected view of this build that runtime.paths.ts reasons about. */
-function runtimeLayout(): RuntimeLayout {
-  return {
-    packaged: app.isPackaged,
-    resourcesPath: process.resourcesPath,
-    devRepoRoot: devRepoRoot(),
-    env: process.env,
-    exists: existsSync,
-  };
-}
-
 /**
  * The same resolution the spawn path uses, exposed for Trust diagnostics. Reporting must describe
  * exactly what a launch would do, so it deliberately shares one code path rather than re-deriving
  * paths — a diagnostics view that disagrees with the launcher is worse than none.
  */
 export function componentResolutions(): Array<{ name: 'engine'; resolution: Resolution }> {
-  const layout = runtimeLayout();
-
-  // The engine is resolved by a different function because a packaged build with no engine throws.
-  // For reporting, that condition is a missing component, not an exception.
+  // A packaged build with no engine throws; for reporting, that is a missing component, not an exception.
   let engine: Resolution;
   try {
-    // Report whichever transport a launch would actually take. Reporting the child-process command
-    // while the default forks a module would be a diagnostics view that disagrees with the
-    // launcher, which this function exists specifically not to be.
-    if ((process.env.BIMAX_ENGINE_TRANSPORT || '').trim().toLowerCase() !== 'child') {
-      const module = resolveEngineModule();
-      engine = { path: module, source: layout.packaged || module.includes(`${path.sep}engine${path.sep}`) ? 'bundle' : 'artifact' };
-    } else {
-      const resolved = resolveEngineCommand(layout, layout.devRepoRoot);
-      engine = {
-        path: resolved.cmd || undefined,
-        source: resolved.source,
-        ...(resolved.refusedOverride ? { refusedOverride: resolved.refusedOverride } : {}),
-      };
-    }
+    const module = resolveEngineModule();
+    engine = { path: module, source: app.isPackaged || module.includes(`${path.sep}engine${path.sep}`) ? 'bundle' : 'artifact' };
   } catch {
     engine = { source: 'missing' };
   }
@@ -122,41 +85,6 @@ export function componentResolutions(): Array<{ name: 'engine'; resolution: Reso
 /** Retired compatibility hook for historical diagnostics; no native helper is resolvable. */
 export function bimaxDesktopHelperBinary(): undefined {
   return undefined;
-}
-
-function resolveCommand(projectDir: string): { cmd: string; args: string[]; cwd: string; refusals: string[] } {
-  const layout = runtimeLayout();
-  const resolved = resolveEngineCommand(layout, projectDir);
-  const refusals: string[] = [];
-  if (resolved.refusedOverride) refusals.push(describeRefusal(resolved.refusedOverride));
-
-  return { cmd: resolved.cmd, args: resolved.args, cwd: resolved.cwd, refusals };
-}
-
-function engineReleaseEnv(command: string): Record<string, string> {
-  try {
-    const manifest = JSON.parse(readFileSync(path.join(path.dirname(command), 'manifest.json'), 'utf8')) as {
-      engine?: { version?: string; buildCommit?: string };
-      artifacts?: Array<{ platform?: string; arch?: string; sizeBytes?: number }>;
-    };
-    const arch = process.arch === 'arm64' ? 'arm64' : 'x64';
-    const artifact = manifest.artifacts?.find((a) => a.platform === 'darwin' && a.arch === arch);
-    if (!artifact) return {};
-    // electron-builder signs nested Mach-O executables after staging, which changes their byte
-    // size and digest while preserving the release artifact's code under the containing app seal.
-    // Comparing the post-sign binary to the pre-sign manifest made every installed DMG advertise
-    // `dev/unknown`. Bundle-only path resolution plus the app signature are the runtime integrity
-    // boundary; the release/package gates verify the pre-sign artifact against this manifest.
-    statSync(command); // still require the resolved engine to exist and be readable
-    return {
-      BIMAX_ENGINE_VERSION: String(manifest.engine?.version || 'unknown'),
-      BIMAX_ENGINE_COMMIT: String(manifest.engine?.buildCommit || 'unknown'),
-    };
-  } catch {
-    // Explicit contributor overrides are allowed to have no release manifest. Their hello identity
-    // remains dev/unknown, which is more truthful than inventing release provenance.
-    return {};
-  }
 }
 
 // Desktop-owned rolling log: the last few hundred engine stderr / lifecycle lines, in memory,
@@ -175,15 +103,6 @@ export function recentEngineLog(maxChars = 6000): string {
 }
 
 /**
- * Open <userData>/engine.log and the in-memory ring for one engine launch. Shared by both
- * transports so a lifecycle line, a crash tail and the Engine log panel read the same for an OS
- * child process and a utilityProcess — a second copy of this is how the log would quietly start
- * telling two different stories depending on how the engine happened to be hosted.
- *
- * Appends rather than truncates: a force-killed child cannot flush a final message, so retaining
- * the previous boot and the desktop-owned lifecycle lines is essential crash evidence.
- */
-/**
  * Where V8 keeps the engine bundle's compiled code between launches.
  *
  * Under userData because it is disposable per-user state: deleting it costs one slower boot. See
@@ -195,6 +114,13 @@ function engineCompileCacheDir(): string {
   return dir;
 }
 
+/**
+ * Open <userData>/engine.log and the in-memory ring for one engine launch, so a lifecycle line, a crash tail and the
+ * Engine log panel read the same.
+ *
+ * Appends rather than truncates: a terminated engine cannot flush a final message, so retaining the previous boot and
+ * the desktop-owned lifecycle lines is essential crash evidence.
+ */
 function openEngineLog(projectDir: string, command: string): {
   logLine: (line: string) => void;
   closeLog: () => void;
@@ -242,112 +168,11 @@ function logCapabilityPlan(logLine: (line: string) => void, extraEnv: Record<str
 }
 
 /**
- * Spawn one engine child for `projectDir`. Fits the supervisor's `deps.spawn` contract: callbacks
- * fire exactly once per event, the handle only exposes write/end/kill (no raw process access ever
- * reaches the renderer), and cleanup of streams + listeners happens on exit here.
- */
-export function spawnEngineProcess(projectDir: string, extraEnv: Record<string, string>, cb: SpawnCallbacks): EngineHandle {
-  const { cmd, args, cwd, refusals } = resolveCommand(projectDir);
-  const startedAt = Date.now();
-  const command = `${cmd} ${args.join(' ')}`.trim();
-
-  const { logLine, closeLog } = openEngineLog(projectDir, command);
-  const logStream = { end: closeLog };
-
-  for (const refusal of refusals) logLine(refusal);
-  logCapabilityPlan(logLine, extraEnv);
-
-  // The engine must START where its runtime resolves (repo root in dev), but the user's project
-  // is projectDir — BIMAX_CWD tells the engine to chdir there (same contract as the Go TUI).
-  // extraEnv is the supervisor's capability plan (headroom/codemem/autoIndex/drives gates).
-  // buildEngineChildEnv owns the native-component stripping — see its doc comment.
-  const child = spawn(cmd, args, {
-    cwd,
-    env: buildEngineChildEnv({
-      parentEnv: process.env,
-      extraEnv: { ...extraEnv, ...engineReleaseEnv(cmd) },
-      path: userShellPath(),
-      projectDir,
-      compileCacheDir: engineCompileCacheDir(),
-    }),
-    stdio: ['pipe', 'pipe', 'pipe'],
-  });
-  const provenanceLaunchId = processProvenance.begin({
-    pid: child.pid,
-    executableBasename: path.basename(cmd),
-    cwdClass: 'project',
-    argumentClasses: ['headless-agent-protocol'],
-  });
-
-  // stderr → engine.log + the in-memory ring (journal evidence), never the protocol stream.
-  let stderrBuf = '';
-  child.stderr?.on('data', (chunk: Buffer) => {
-    stderrBuf += chunk.toString('utf8');
-    let nl: number;
-    while ((nl = stderrBuf.indexOf('\n')) !== -1) {
-      logLine(stderrBuf.slice(0, nl));
-      stderrBuf = stderrBuf.slice(nl + 1);
-    }
-  });
-
-  // NDJSON decode. readline handles arbitrarily long lines (command menus serialize to one very
-  // long line), unlike a fixed-size scanner buffer.
-  const rl = createInterface({ input: child.stdout! });
-  rl.on('line', (line) => {
-    const trimmed = line.trim();
-    if (!trimmed) return;
-    try {
-      const msg = JSON.parse(trimmed);
-      if (msg && typeof msg === 'object') cb.onMessage(msg as Record<string, unknown>);
-      else cb.onMalformed(trimmed);
-    } catch {
-      // Never silently drop a malformed line — a desync is invisible otherwise.
-      logLine(`[app] dropped malformed line (${trimmed.length} chars)`);
-      cb.onMalformed(trimmed);
-    }
-  });
-
-  let settled = false;
-  child.on('exit', (code, signal) => {
-    if (settled) return;
-    settled = true;
-    processProvenance.finish(provenanceLaunchId, { exitCode: code, signal });
-    if (stderrBuf) logLine(stderrBuf); // flush a final partial stderr line
-    logLine(`[desktop] engine exited after ${Date.now() - startedAt}ms: ${signal ? `signal ${signal}` : `code ${code ?? 'unknown'}`}`);
-    rl.close();
-    logStream.end();
-    cb.onExit(code, signal);
-  });
-  child.on('error', (err) => {
-    if (settled) return;
-    settled = true;
-    processProvenance.finish(provenanceLaunchId, { spawnError: true });
-    logLine(`[desktop] engine process error after ${Date.now() - startedAt}ms: ${err.message}`);
-    rl.close();
-    logStream.end();
-    cb.onError(err);
-  });
-
-  return {
-    pid: child.pid,
-    command,
-    send: (msg) => {
-      const stdin = child.stdin;
-      if (stdin && stdin.writable) stdin.write(JSON.stringify(msg) + '\n');
-    },
-    endStdin: () => { try { child.stdin?.end(); } catch { /* already gone */ } },
-    kill: (signal) => { try { child.kill(signal); } catch { /* already gone */ } },
-  };
-}
-
-// ─── utilityProcess transport ──────────────────────────────────────────────────────────────────
-
-/**
- * The engine module a utilityProcess forks — always built from src/index.ts, never downloaded.
+ * The engine module a worker runs — always built from src/index.ts, never downloaded.
  *
  * PACKAGED: <resources>/engine/index.js, the bun bundle that scripts/prepare-engine.sh produces
  * (23 MB, architecture-independent, deps included). Missing means fail visibly; there is no
- * development fallback inside a shipped app, exactly as the binary path refused one.
+ * development fallback inside a shipped app.
  *
  * DEVELOPMENT: the `tsc` output at dist/index.js when it exists, because an unbundled module graph
  * gives real file paths in stack traces and a debugger that can step into src/. It falls back to
@@ -382,116 +207,8 @@ function resolveEngineModule(): string {
 }
 
 /**
- * Spawn the engine as an Electron `utilityProcess` instead of an OS child process.
- *
- * Fits the same `deps.spawn` contract, so the supervisor — phase machine, heartbeat watchdog,
- * generation fencing, crash journal, capability shedding — is untouched and keeps working exactly
- * as it does today. That is the point: the transport changes underneath a lifecycle owner that has
- * already been debugged.
- *
- * Two asymmetries with the child-process path, both forced by Electron and both deliberate:
- *
- *   • INBOUND goes over the MessagePort, because `utilityProcess` rejects any `stdio[0]` other than
- *     `'ignore'`. OUTBOUND stays on piped stdout, which keeps WireQueue's real backpressure — a
- *     MessagePort would accept unboundedly and make a stalled front-end invisible.
- *   • `kill()` takes no signal and `exit` carries none, so SIGTERM and SIGKILL both become the one
- *     graceful terminate Electron offers, and an exit is always reported as a code. The supervisor
- *     escalates by calling kill twice, which is still correct — the second call is simply not
- *     harder than the first.
- */
-export function spawnEngineUtilityProcess(
-  projectDir: string,
-  extraEnv: Record<string, string>,
-  cb: SpawnCallbacks,
-): EngineHandle {
-  const modulePath = resolveEngineModule();
-  const startedAt = Date.now();
-  const command = `${process.execPath} (utilityProcess) ${modulePath}`;
-  const { logLine, closeLog } = openEngineLog(projectDir, command);
-  logCapabilityPlan(logLine, extraEnv);
-
-  // buildEngineChildEnv is shared with the child-process path on purpose: the native-component
-  // stripping, the per-thread model override and the folder-rule scoping are transport-independent,
-  // and the two env builders that drifted apart once already are why this is not re-derived here.
-  const env = engineModuleEnv(projectDir, extraEnv, modulePath);
-
-  const child: UtilityProcess = utilityProcess.fork(modulePath, [], {
-    env,
-    cwd: devRepoRoot(),
-    serviceName: 'Bimax Engine',
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
-
-  const provenanceLaunchId = processProvenance.begin({
-    pid: child.pid,
-    executableBasename: path.basename(modulePath),
-    cwdClass: 'project',
-    argumentClasses: ['headless-agent-protocol'],
-  });
-
-  let stderrBuf = '';
-  child.stderr?.on('data', (chunk: Buffer | string) => {
-    stderrBuf += chunk.toString();
-    let nl: number;
-    while ((nl = stderrBuf.indexOf('\n')) !== -1) {
-      logLine(stderrBuf.slice(0, nl));
-      stderrBuf = stderrBuf.slice(nl + 1);
-    }
-  });
-
-  const rl = child.stdout ? createInterface({ input: child.stdout }) : null;
-  rl?.on('line', (line) => {
-    const trimmed = line.trim();
-    if (!trimmed) return;
-    try {
-      const msg = JSON.parse(trimmed);
-      if (msg && typeof msg === 'object') cb.onMessage(msg as Record<string, unknown>);
-      else cb.onMalformed(trimmed);
-    } catch {
-      logLine(`[app] dropped malformed line (${trimmed.length} chars)`);
-      cb.onMalformed(trimmed);
-    }
-  });
-
-  let settled = false;
-  const finish = (): void => {
-    if (stderrBuf) { logLine(stderrBuf); stderrBuf = ''; }
-    rl?.close();
-    closeLog();
-  };
-
-  child.on('exit', (code: number) => {
-    if (settled) return;
-    settled = true;
-    processProvenance.finish(provenanceLaunchId, { exitCode: code, signal: null });
-    logLine(`[desktop] engine exited after ${Date.now() - startedAt}ms: code ${code}`);
-    finish();
-    cb.onExit(code, null);
-  });
-
-  // A utilityProcess reports a Node fatal error with a diagnostic report rather than an Error, and
-  // it does NOT imply exit — so this is logged as evidence and surfaced, and the 'exit' above stays
-  // the single place that settles the launch.
-  child.on('error', (type: string, location: string, _report: string) => {
-    logLine(`[desktop] engine ${type} at ${location} after ${Date.now() - startedAt}ms`);
-    cb.onError(new Error(`engine ${type} at ${location}`));
-  });
-
-  return {
-    pid: child.pid,
-    command,
-    send: (msg) => { try { child.postMessage(JSON.stringify(msg) + '\n'); } catch { /* already gone */ } },
-    // There is no stdin to close. The supervisor calls this immediately before kill('SIGTERM') at
-    // both of its shutdown sites, so the terminate below is what actually ends the process — this
-    // is a genuine no-op rather than an unimplemented one.
-    endStdin: () => { /* utilityProcess has no stdin: Electron allows only stdio[0]='ignore' */ },
-    kill: () => { try { child.kill(); } catch { /* already gone */ } },
-  };
-}
-
-/**
- * The environment an engine module is started with, for both module transports. buildEngineChildEnv is shared on
- * purpose (native-component stripping, the per-thread model, folder-rule scoping); BIMAX_ENGINE_MODULE tells the
+ * The environment an engine worker is started with. buildEngineChildEnv owns what is not ours to pass on
+ * (native-component stripping, the per-thread model, folder-rule scoping); BIMAX_ENGINE_MODULE tells the
  * engine which bundle it is, so its sub-agents run that same bundle (subagent.manager.ts) instead of looking for a
  * worker entry file the packaged app never had.
  */
@@ -509,7 +226,7 @@ function engineModuleEnv(projectDir: string, extraEnv: Record<string, string>, m
   return env;
 }
 
-// ─── worker-thread transport: the monolith (record 64) ────────────────────────────────────────
+// ─── the engine worker: the monolith (record 64) ───────────────────────────────────────────────
 
 /**
  * The V8 heap limit of one engine worker, a MEMORY cap (named per AGENTS.md: it is not the Bimax Thread cap
@@ -530,9 +247,9 @@ const WORKER_SHUTDOWN_GRACE_MS = 3000;
 const ACK_EVERY_BYTES = 64 * 1024;
 
 /**
- * Run the engine as a worker thread inside this process — the monolith (record 64). Same `deps.spawn` contract as
- * the process transports, so the supervisor (phases, heartbeat watchdog, generation fencing, crash journal) is
- * unchanged.
+ * Run the engine as a worker thread inside this process — the monolith (record 64). It fits the supervisor's
+ * `deps.spawn` contract, which the separate engine process it replaced also fitted, so the supervisor (phases,
+ * heartbeat watchdog, generation fencing, crash journal) did not change with the host.
  *
  *   • The engine module is the same bundle; `workerData.bimaxEngineRoot` gives it its own working folder
  *     (src/engine/worker.folder.ts), because a worker cannot chdir.
@@ -655,28 +372,13 @@ export function spawnEngineWorker(
 }
 
 /**
- * Pick the transport. The default is the monolith (record 64): the engine as a worker thread in this process.
- *
- * `BIMAX_ENGINE_TRANSPORT=process` selects the separate utilityProcess engine, the default until 2026-09-29, kept
- * for one release as the fallback if a worker-only problem turns up. `child` still selects the OS child process,
- * useful with an explicit `BIMAX_ENGINE_CMD` to bisect a regression against an older engine build; without that
- * override it fails to resolve, which is the honest outcome rather than a silent fallback.
+ * Start the engine for `projectDir`: a worker thread in this process, the only transport since record 64's M4.
+ * Fits the supervisor's `deps.spawn` contract.
  */
 export function spawnEngine(
   projectDir: string,
   extraEnv: Record<string, string>,
   cb: SpawnCallbacks,
 ): EngineHandle {
-  const transport = engineTransport();
-  if (transport === 'child') return spawnEngineProcess(projectDir, extraEnv, cb);
-  if (transport === 'process') return spawnEngineUtilityProcess(projectDir, extraEnv, cb);
   return spawnEngineWorker(projectDir, extraEnv, cb);
-}
-
-/** Which transport a launch takes: 'worker' unless BIMAX_ENGINE_TRANSPORT names 'process' or 'child'. */
-export function engineTransport(env: NodeJS.ProcessEnv = process.env): 'worker' | 'process' | 'child' {
-  const named = (env.BIMAX_ENGINE_TRANSPORT || '').trim().toLowerCase();
-  if (named === 'child') return 'child';
-  if (named === 'process' || named === 'utility' || named === 'utilityprocess') return 'process';
-  return 'worker';
 }

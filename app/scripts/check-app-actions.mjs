@@ -124,7 +124,7 @@ checked.push('bundled engine');
 if (!existsSync(engine)) {
   failures.push([
     'The built app carries no engine in Contents/Resources/engine.',
-    'The app spawns the engine in a utilityProcess (record 55); without it every Thread fails to',
+    'The app runs the engine as a worker thread (record 64); without it every Thread fails to',
     'start, and nothing in the source tree would show it.',
   ].join('\n    '));
 }

@@ -754,7 +754,7 @@ function ProviderPane({
     <div className="px-5 py-4">
       <p className="mb-3 text-[11.5px] leading-relaxed text-dim">
         Choose who serves the models Bimax uses. Keys you save here are protected by macOS Keychain and injected only
-        into the engine process — never written to a project or sent through chat. Add several keys to one provider and
+        into the engine — never written to a project or sent through chat. Add several keys to one provider and
         Bimax rotates them, keeping each under its per-minute limit and waiting for a free slot instead of hitting rate
         limits.
       </p>

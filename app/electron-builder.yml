@@ -1,7 +1,7 @@
 # Bimax agentic IDE packaging — DMG for macOS only.
 # The headless engine is a JavaScript bundle of this repo's src/index.ts, built by
-# scripts/prepare-engine.sh and shipped as an extraResource. Electron's own Node runs it in a
-# utilityProcess, so no bun runtime is shipped and the artifact is architecture-independent —
+# scripts/prepare-engine.sh and shipped as an extraResource. Electron's own Node runs it as a
+# worker thread in the app's process (record 64), so no bun runtime is shipped and the artifact is architecture-independent —
 # one engine/ serves arm64 and x64 alike (the dist:* npm scripts still sequence the build).
 appId: ai.bimax.app
 productName: Bimax

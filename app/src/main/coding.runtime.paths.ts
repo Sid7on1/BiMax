@@ -1,21 +1,3 @@
-import path from 'node:path';
-
-export interface RuntimeLayout {
-  packaged: boolean;
-  resourcesPath: string;
-  devRepoRoot: string;
-  env: Record<string, string | undefined>;
-  exists: (candidate: string) => boolean;
-}
-
-export interface EngineCommand {
-  cmd: string;
-  args: string[];
-  cwd: string;
-  source: 'bundle' | 'artifact' | 'override';
-  refusedOverride?: { variable: string; value: string };
-}
-
 export interface Resolution {
   path?: string;
   source: 'bundle' | 'artifact' | 'override' | 'missing';
@@ -34,41 +16,6 @@ export class EngineArtifactError extends Error {
     super(message);
     this.name = 'EngineArtifactError';
   }
-}
-
-export function resolveEngineCommand(layout: RuntimeLayout, projectDir: string): EngineCommand {
-  const variable = 'BIMAX_ENGINE_CMD';
-  const override = layout.env[variable]?.trim();
-  if (layout.packaged) {
-    const bundled = path.join(layout.resourcesPath, 'engine', 'bimax-engine');
-    if (!layout.exists(bundled)) {
-      throw new PackagedRuntimeError(
-        `packaged Bimax.app is missing its bundled engine at ${bundled}; refusing a development fallback`,
-      );
-    }
-    return {
-      cmd: bundled,
-      args: [],
-      cwd: projectDir,
-      source: 'bundle',
-      ...(override ? { refusedOverride: { variable, value: override } } : {}),
-    };
-  }
-  if (override) {
-    const parts = override.split(/\s+/);
-    return { cmd: parts[0], args: parts.slice(1), cwd: projectDir, source: 'override' };
-  }
-  const staged = path.join(layout.devRepoRoot, 'app', 'engine', 'bimax-engine');
-  if (!layout.exists(staged)) {
-    throw new EngineArtifactError(
-      `Desktop engine artifact is not staged at ${staged}; run npm --prefix app run prepare:engine or set BIMAX_ENGINE_CMD explicitly`,
-    );
-  }
-  return { cmd: staged, args: [], cwd: projectDir, source: 'artifact' };
-}
-
-export function describeRefusal(refusal: { variable: string; value: string }): string {
-  return `[desktop] ignored ${refusal.variable} in a packaged build; requested: ${refusal.value}`;
 }
 
 export function buildEngineChildEnv(input: {

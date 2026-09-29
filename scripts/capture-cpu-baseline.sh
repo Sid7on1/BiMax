@@ -45,7 +45,8 @@ set +u
   printf '%-10s %-8s %-9s %-10s %s\n' "elapsed" "pid" "%cpu" "rss_mb" "process"
 } > "$OUT"
 
-# A Bimax process is the Electron app, its helpers, or an engine utilityProcess. Matched on the
+# A Bimax process is the Electron app or its helpers (engines are worker threads inside the app since
+# record 64; older builds ran each as a utilityProcess, which this still matches). Matched on the
 # command line rather than a pid list so processes that start mid-capture are picked up too.
 PATTERN='[B]imax|[b]imax-engine|[B]imax Helper'
 

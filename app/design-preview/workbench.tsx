@@ -20,7 +20,7 @@ const FILES: Record<string, string> = {
   'docs/ARCHITECTURE.md': [
     '# Architecture',
     '',
-    'The engine runs inside Electron as a `utilityProcess`, built from this repository by `bun build`.',
+    'The engine runs inside Electron as a worker thread, built from this repository by `bun build`.',
     '',
     '- **Main** owns the window, the panels and every file read.',
     '- **Renderer** owns the workbench you are looking at.',
@@ -28,7 +28,7 @@ const FILES: Record<string, string> = {
     '> Preview renders the LIVE document, so an unsaved edit shows up here.',
     '',
     '```ts',
-    'const engine = utilityProcess.fork(enginePath);',
+    'const engine = new Worker(enginePath, { workerData });',
     '```',
   ].join('\n'),
   'src/api/client.ts': [

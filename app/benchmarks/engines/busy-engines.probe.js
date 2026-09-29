@@ -1,13 +1,13 @@
 #!/usr/bin/env electron
-// Several engines BUSY at once, hosted as the app hosts them: worker threads inside this process (the monolith), or
-// with --process as separate utilityProcess engines (the fallback) — record 64, M2 gate.
-// Usage (from app/): npx electron benchmarks/engines/busy-engines.probe.js <engineBundle> <seconds> <project>... [--process]
+// Several engines BUSY at once, hosted as the app hosts them: worker threads inside this process (the monolith) —
+// record 64, M2 gate. The `--process` comparison (separate utilityProcess engines) was removed with that host in M4;
+// the numbers it produced are in record 64, and the git tag `keep/engine-process-fallback` has the code that made them.
+// Usage (from app/): npx electron benchmarks/engines/busy-engines.probe.js <engineBundle> <seconds> <project>...
 // Give each run FRESH project copies: an engine that has indexed a folder once is not busy the second time. Engine
 // state goes to a `state-<name>` folder beside each project (BIMAX_STATE_DIR), so the projects stay untouched.
 // Measures, each second: process RSS + app.getAppMetrics working set, the MAIN thread's event-loop delay (the UI
 // thread), ping round trip to each engine, and each engine's heartbeat (heap, its own loop delay, gaps between beats).
-const { app, utilityProcess } = require('electron');
-const asProcess = process.argv.includes('--process');
+const { app } = require('electron');
 const { Worker, MessageChannel } = require('node:worker_threads');
 const { monitorEventLoopDelay } = require('node:perf_hooks');
 const fs = require('node:fs');
@@ -26,21 +26,10 @@ app.whenReady().then(async () => {
     fs.mkdirSync(state, { recursive: true });
     const env = { ...process.env, BIMAX_HEADLESS: '1', BIMAX_CWD: project, WORKSPACE_ROOT: project, BIMAX_ENGINE_MODULE: bundle,
       BIMAX_STATE_DIR: state, BIMAX_SKIP_KEY_ONBOARDING: '1' };
-    let worker, port1;
-    if (asProcess) {
-      // Today's fallback transport: a utilityProcess, NDJSON on stdout, commands as lines over its port.
-      const child = utilityProcess.fork(bundle, [], { env, cwd: project, serviceName: `Bimax Engine ${i}`, stdio: ['ignore', 'pipe', 'pipe'] });
-      const lines = new (require('node:events').EventEmitter)();
-      let pbuf = '';
-      child.stdout.on('data', (c) => { pbuf += c.toString(); let n; while ((n = pbuf.indexOf('\n')) !== -1) { const l = pbuf.slice(0, n); pbuf = pbuf.slice(n + 1); if (l.startsWith('{')) lines.emit('message', l); } });
-      port1 = { on: (ev, fn) => lines.on(ev, fn), postMessage: (m) => { if (m && m.t !== '__ack') child.postMessage(JSON.stringify(m) + '\n'); }, close: () => {} };
-      worker = { stdout: new (require('node:stream').PassThrough)(), stderr: child.stderr, on: (ev, fn) => child.on(ev === 'error' ? 'error' : 'exit', fn), terminate: async () => child.kill() };
-    } else {
-      const ch = new MessageChannel();
-      port1 = ch.port1;
-      worker = new Worker(bundle, { env, workerData: { bimaxEngineRoot: project, bimaxEnginePort: ch.port2 }, transferList: [ch.port2],
-        stdout: true, stderr: true, resourceLimits: { maxOldGenerationSizeMb: HEAP_MB }, name: `Bimax Engine ${i}` });
-    }
+    const ch = new MessageChannel();
+    const port1 = ch.port1;
+    const worker = new Worker(bundle, { env, workerData: { bimaxEngineRoot: project, bimaxEnginePort: ch.port2 }, transferList: [ch.port2],
+      stdout: true, stderr: true, resourceLimits: { maxOldGenerationSizeMb: HEAP_MB }, name: `Bimax Engine ${i}` });
     const e = { i, project, worker, port: port1, readyAt: null, beats: [], maxGapMs: 0, lastBeat: null, pings: [], pending: new Map(),
       log: [], exited: null, heapPeak: 0, loopPeak: 0 };
     const logLine = (s) => { const t = ((Date.now() - t0) / 1000).toFixed(1); if (/Indexing|Graph saved|CodeIndex|code index|indexed|Error|error|FATAL/i.test(s)) e.log.push(`${t}s ${s.slice(0, 160)}`); };
@@ -87,7 +76,7 @@ app.whenReady().then(async () => {
   clearInterval(timer);
   const q = (arr, p) => { if (!arr.length) return null; const s = [...arr].sort((a, b) => a - b); return Math.round(s[Math.min(s.length - 1, Math.floor(p * s.length))] * 10) / 10; };
   const out = {
-    transport: asProcess ? 'utilityProcess' : 'worker', engines: projects.length, seconds,
+    transport: 'worker', engines: projects.length, seconds,
     memory: { rssPeakMb: q(samples.map((s) => s.rssMb), 1), rssMedianMb: q(samples.map((s) => s.rssMb), 0.5),
       workingSetPeakMb: q(samples.map((s) => s.workingSetMb), 1), browserWsPeakMb: q(samples.map((s) => s.mainWsMb), 1) },
     mainThread: { loopP99Median: q(samples.map((s) => s.mainLoopP99), 0.5), loopP99Worst: q(samples.map((s) => s.mainLoopP99), 1),

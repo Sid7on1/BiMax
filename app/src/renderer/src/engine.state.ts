@@ -332,7 +332,7 @@ export function engineReducer(state: EngineUiState, action: Action): EngineUiSta
         diagnostics: [],
         capabilities: {},
         review: null,
-        request: null, // any pending approval belonged to the previous engine process
+        request: null, // any pending approval belonged to the previous engine
         engine: action.dir ? state.engine : { state: 'idle', detail: '' },
       };
     case 'localUser': {

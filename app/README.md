@@ -19,14 +19,14 @@ A contract change now breaks the typecheck rather than a drift gate.
 ## Layout
 
 ```
-src/main/      Electron main — window + Engine host (ports tui/engine.go: spawn resolution,
-               NDJSON framing, stderr → <userData>/engine.log)
+src/main/      Electron main — window + Engine host (the engine is a worker thread per Bimax
+               Thread over a MessagePort; its logs → <userData>/engine.log)
 src/preload/   contextBridge: the renderer's only door to the engine
 src/renderer/  React chat UI — transcript, streaming, tool cards, approval/diff/ask modals,
                engine menus, slash/@ completions, ui_snapshot footer
 scripts/       prepare-engine.sh — bundles the repo's src/index.ts into app/engine/index.js
-               verify-engine.js  — forks that bundle with the real utilityProcess and speaks the
-                                   real protocol to it (the packaged artifact is otherwise untested)
+               verify-engine.js  — runs that bundle as a worker thread, as the app does, and speaks
+                                   the real protocol to it (the packaged artifact is otherwise untested)
 ```
 
 ## Dev
@@ -38,9 +38,10 @@ npm run verify:engine  # run that bundle the way Bimax runs it and require it to
 npm run dev            # Vite HMR renderer + Electron; engine runs from app/engine/index.js
 ```
 
-Engine resolution uses `app/engine/index.js`. Contributors can deliberately override the launch
-command with `BIMAX_ENGINE_CMD`. `npm run dev:source` runs the engine from `src/` through tsx
-instead of the bundle, so an engine change does not need a rebundle.
+In development the engine is the newer of `dist/index.js` (`npx tsc` in the repo root) and
+`app/engine/index.js`, run as a worker thread in the app's process. There is no launch-command
+override any more: `BIMAX_ENGINE_CMD`, `BIMAX_ENGINE_TRANSPORT` and `npm run dev:source` went with
+the separate engine process in record 64's M4 (git tag `keep/engine-process-fallback`).
 
 ## Package
 

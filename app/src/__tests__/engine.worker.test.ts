@@ -5,13 +5,13 @@ import * as path from 'path';
 /**
  * The monolith's engine transport (record 64, M1): the engine as a worker thread inside the app's process. These run a
  * small stand-in engine as a REAL worker thread through spawnEngineWorker and check the supervisor contract — what the
- * engine is told, NDJSON both ways, a clean shutdown, an engine crash, and a stuck engine.
+ * engine is told, messages both ways over the port, a clean shutdown, an engine crash, and a stuck engine.
  */
 
 const tmp = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'bimax-engine-worker-')));
-jest.mock('electron', () => ({ app: { getPath: () => tmp, isPackaged: false }, utilityProcess: {} }));
+jest.mock('electron', () => ({ app: { getPath: () => tmp, isPackaged: false } }));
 
-import { ENGINE_WORKER_HEAP_MB, engineTransport, spawnEngineWorker } from '../main/engine';
+import { ENGINE_WORKER_HEAP_MB, spawnEngineWorker } from '../main/engine';
 import { MAX_LIVE_ENGINES } from '../main/thread.manager';
 
 const fakeEngine = path.join(tmp, 'fake-engine.cjs');
@@ -101,15 +101,6 @@ test('a stuck engine is stopped: SIGKILL at once, SIGTERM after the grace period
   expect(await b.exited).toBe(1);
   expect(Date.now() - t0).toBeGreaterThanOrEqual(2500);
 }, 30_000);
-
-test('the worker thread is the default transport (M2); the separate process stays selectable for one release', () => {
-  expect(engineTransport({})).toBe('worker');
-  expect(engineTransport({ BIMAX_ENGINE_TRANSPORT: '' })).toBe('worker');
-  expect(engineTransport({ BIMAX_ENGINE_TRANSPORT: 'worker' })).toBe('worker');
-  expect(engineTransport({ BIMAX_ENGINE_TRANSPORT: 'process' })).toBe('process');
-  expect(engineTransport({ BIMAX_ENGINE_TRANSPORT: ' Utility ' })).toBe('process');
-  expect(engineTransport({ BIMAX_ENGINE_TRANSPORT: 'child' })).toBe('child');
-});
 
 test('the app acknowledges the output it handled, so the engine may send more', async () => {
   const e = start();

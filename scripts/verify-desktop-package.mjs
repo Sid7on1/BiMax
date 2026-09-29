@@ -47,8 +47,8 @@ if (!appDescription.includes(expectedArchitecture)) {
   fail(`appExecutable is not ${expectedArchitecture}: ${appDescription}`);
 }
 
-// The engine is JAVASCRIPT now, not a per-chip Mach-O binary — Electron's own Node runs it in a
-// utilityProcess, so there is no architecture to check and one artifact serves arm64 and x64. An
+// The engine is JAVASCRIPT now, not a per-chip Mach-O binary — Electron's own Node runs it as a
+// worker thread, so there is no architecture to check and one artifact serves arm64 and x64. An
 // arch assertion here would fail every build for the wrong reason. What matters instead is that the
 // bundle is real and complete: a non-trivial module plus the tree-sitter .wasm assets it loads at
 // runtime, which are emitted beside it and are exactly the kind of thing a bundler silently drops.
@@ -79,14 +79,21 @@ const packagedMain = asar.extractFile(files.asar, 'out/main/index.js').toString(
 if (!packagedMain.includes('refusing a development fallback')) {
   fail('packaged main process does not refuse a development engine fallback');
 }
-if (!packagedMain.includes('BIMAX_ENGINE_CMD')) {
-  fail('packaged main process does not account for BIMAX_ENGINE_CMD');
+// Since record 64's M4 there is no override left to refuse: the engine runs only as a worker thread, and the separate
+// engine process with its BIMAX_ENGINE_CMD / BIMAX_ENGINE_TRANSPORT switches is gone. Matched on code, not on names,
+// because a comment that explains the removal may keep the names.
+for (const [pattern, what] of [
+  [/utilityProcess\s*\.\s*fork\s*\(/, 'still forks the engine as a separate process (utilityProcess)'],
+  [/env\s*\.\s*BIMAX_ENGINE_CMD\b/, 'still reads BIMAX_ENGINE_CMD'],
+  [/env\s*\.\s*BIMAX_ENGINE_TRANSPORT\b/, 'still reads BIMAX_ENGINE_TRANSPORT'],
+]) {
+  if (pattern.test(packagedMain)) fail(`packaged main process ${what}`);
 }
-if (!packagedMain.includes('refusedOverride')) {
-  fail('packaged main process does not report a refused engine override');
+if (!/new\s+\w*Worker\s*\(/.test(packagedMain)) {
+  fail('packaged main process never starts a worker thread, so it cannot run the engine');
 }
 
 console.log(`desktop package gate: PASS ${bundle}`);
 console.log(`desktop package gate: PASS ${expectedArchitecture} app executable and bundled engine`);
 console.log('desktop package gate: PASS no Computer Use components are packaged (code-only build)');
-console.log('desktop package gate: PASS packaged run resolves the engine from the bundle and refuses overrides');
+console.log('desktop package gate: PASS packaged run resolves the engine from the bundle, as a worker thread, with no override');

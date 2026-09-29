@@ -48,16 +48,15 @@ echo "→ engine"
 # failure read as an auth problem and sent people hunting for a token they did not need.
 #
 # There is no binary and no download any more. prepare-engine.sh bundles ../src/index.ts to
-# app/engine/index.js (23 MB, ~0.3s) and Electron's own Node runs it in a utilityProcess. The bundle
-# is architecture-independent, so `target` no longer selects anything here.
+# app/engine/index.js (23 MB, ~0.3s) and Electron's own Node runs it as a worker thread inside the app
+# (record 64). The bundle is architecture-independent, so `target` no longer selects anything here.
 bash scripts/prepare-engine.sh "$target"
 
 # Run the artifact this build is about to ship, and refuse to package one that cannot answer. Reading
 # a script to check what it says is not the same as executing what it produced — that gap is how a
 # sidecar stub that exited 1 got shipped in v1.1.0 with every gate green.
+# It runs the bundle the way the app does: a worker thread inside the app's process (record 64).
 npx electron scripts/verify-engine.js
-# …and the way the monolith hosts it: a worker thread inside the app's process (record 64).
-npx electron scripts/verify-engine.js --worker
 
 # Computer Use staging removed 2026-09-04. Bimax has shipped code-only since the 2026-09-02 reset,
 # and electron-builder.yml declares no `mac.extraFiles`, so the four binaries prepare-native.sh

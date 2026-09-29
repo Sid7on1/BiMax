@@ -5,10 +5,10 @@ import path from 'node:path';
  * WP-0 (docs/product-reset/57): the word "thread" means the product feature, and nothing else.
  *
  * Three things in this repository have been called a thread — the Bimax Thread (a folder-bound
- * conversation with its own engine process), the sub-agent worker (a real `worker_threads` Worker),
+ * conversation with its own engine worker), the sub-agent worker (a real `worker_threads` Worker),
  * and a CPU core. Two of those carry resource caps that both happen to be `4`, and they were never
  * reconciled precisely BECAUSE the shared word hid that they govern different resources: one is a
- * memory budget over engine processes, the other a CPU budget over workers. That cost us WP-1,
+ * memory budget over engines, the other a CPU budget over sub-agent workers. That cost us WP-1,
  * where the per-machine worker ceiling was being handed to each Bimax Thread and so multiplied by
  * the number of live Threads. The glossary is in AGENTS.md; this is what keeps it true.
  *
