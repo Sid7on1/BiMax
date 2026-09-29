@@ -57,9 +57,26 @@ mutants across the five fixes, all killed (three survived first and got a test e
 413 tests around the writers, 20 / 138 around the loop, persona and taint, 9 / 122 persona and multimodal). The full
 Jest suite was not run in this pass. Nothing has been exercised in the installed app yet.
 
+**C13, `app/src/main/index.ts` (3,186 → 2,724 lines, in progress).** Six slices, each behaviour-neutral, each with
+the first tests its code ever had: `conversation.share.ts` (N4 export/share), `workspace.ipc.ts` (git, files, editor
+save, sessions, terminal), `organize.window.ts` (FL2/FL3), `night.runner.ts` (FL5), `schedule.runner.ts` (repeating
+tasks), `diagnostics.ipc.ts` (supervisor, diagnostics export, evidence). Modules register channels through an `IpcGate`
+(`ipc.gate.ts`) built from `secureHandle`/`secureOn`, and the guarded-channel security test now scans every
+main-process file (it read only `index.ts`) and requires every `register*Ipc` call to get exactly that gate. Also:
+start-up had no `.catch()`, so a throw left a windowless app with no reason; it now shows the error and writes
+`<userData>/startup-error.log` (`d01cdbb`). App suite 896 → 918 tests, all passing.
+
+**Installed 2026-09-29** from `d01cdbb` with `build-local-mac.sh` (four package gates PASS, 3 App Intents actions,
+`codesign --verify --deep --strict` ok, bundled engine byte-identical to `app/engine/index.js`); the previous app
+(built from the retired Hindsight branch) is at `~/Developer/bimax-archive/apps/Bimax.app.before-flawlist-20260929`.
+Live: a window in ~1 s, no start-up error, the welcome screen's recent projects listed; opening a project through ⌘O
+started its engine, which indexed the folder, and the Files panel listed it through the moved `workspace.ipc.ts`.
+Not exercised live: a model turn, export/share, Organize, a night shift or a schedule run (each is unit-tested).
+
 ## Open
 
-- **C13–C18 god files** — splitting `app/src/main/index.ts` first (in progress).
+- **C13–C18 god files** — `main/index.ts` continues (the Bimax Threads channels, voice/talk, tray, notch remain);
+  `agent.loop.ts`, `llm.adapter.ts`, `thread.manager.ts`, `ModelDialog.tsx`, `ThreadSurfaces.tsx` not started.
 - **C19 and the monolith migration** — needs the owner's decision, not taken here. Moving the engine into the main
   process would remove the NDJSON boundary, but every Bimax Thread runs its own engine process today (capped by
   `MAX_LIVE_ENGINES`, a memory budget), and a stuck or crashing turn is isolated from the UI; in the main process it
