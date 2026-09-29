@@ -45,17 +45,17 @@ function userShellPath(): string {
  * Lifecycle policy lives in supervisor/supervisor.ts — this file is deliberately dumb: resolve
  * the command, spawn, decode lines, report exits. It never restarts anything itself.
  *
- * There are two transports, and the default is the utilityProcess one (see spawnEngine at the foot
- * of this file). The engine is no longer a separately published artifact that the app downloads and
- * pins: the app builds it from its own src/index.ts, and both transports run that same source.
+ * There are three transports, and the default is the worker thread — the monolith, record 64 (see
+ * spawnEngine at the foot of this file). The engine is no longer a separately published artifact that
+ * the app downloads and pins: the app builds it from its own src/index.ts, and every transport runs
+ * that same bundle.
  *
- *   utilityProcess (default)  <resources>/engine/index.js packaged, dist/index.js in development.
- *                             Inbound over a MessagePort because Electron gives a utilityProcess no
- *                             stdin; outbound still NDJSON on a piped stdout, which keeps
- *                             WireQueue's backpressure. See spawnEngineUtilityProcess.
- *   child process             The historical path, now reachable with BIMAX_ENGINE_TRANSPORT=child
- *                             and an explicit $BIMAX_ENGINE_CMD. Kept so an older engine build can
- *                             be dropped in to bisect a regression.
+ *   worker thread (default)   The engine runs inside this process, one worker thread per Bimax Thread,
+ *                             never on the UI thread. See spawnEngineWorker.
+ *   utilityProcess            BIMAX_ENGINE_TRANSPORT=process: a separate process per engine, the
+ *                             default until 2026-09-29. Kept one release as the fallback (M4 removes it).
+ *   child process             BIMAX_ENGINE_TRANSPORT=child and an explicit $BIMAX_ENGINE_CMD. Kept so
+ *                             an older engine build can be dropped in to bisect a regression.
  *
  * A PACKAGED app resolves from its own bundle and nowhere else — absent means fail visibly, never
  * fall back to a development engine.
@@ -366,10 +366,13 @@ function resolveEngineModule(): string {
     return bundled;
   }
   const compiled = path.join(devRepoRoot(), 'dist', 'index.js');
-  if (existsSync(compiled)) return compiled;
-
   const bundled = path.join(devRepoRoot(), 'app', 'engine', 'index.js');
-  if (existsSync(bundled)) return bundled;
+  // The NEWER of the two. Preferring dist/ whenever it existed meant a `tsc` output from weeks ago beat a bundle
+  // built minutes ago — on this Mac a Sep 21 dist/ without the worker folder fix, which as a worker thread would
+  // have run every task in the app's folder (record 64, M2).
+  const built = [compiled, bundled].filter((file) => existsSync(file))
+    .sort((a, b) => statSync(b).mtimeMs - statSync(a).mtimeMs);
+  if (built.length) return built[0]!;
 
   throw new EngineArtifactError(
     `no engine found: expected the compiled source at ${compiled} (run \`npx tsc\` in the repo root) `
@@ -618,22 +621,28 @@ export function spawnEngineWorker(
 }
 
 /**
- * Pick the transport. The utilityProcess engine is the default: the app now builds its own engine
- * from its own source, so there is no standalone binary left for the child-process path to resolve.
+ * Pick the transport. The default is the monolith (record 64): the engine as a worker thread in this process.
  *
- * `BIMAX_ENGINE_TRANSPORT=child` still selects the OS-child-process path, which remains useful with
- * an explicit `BIMAX_ENGINE_CMD` — pointing at an older engine build to bisect a regression, say.
- * Without that override it will fail to resolve, and that is the honest outcome rather than a
- * silent fallback to something that is not there.
+ * `BIMAX_ENGINE_TRANSPORT=process` selects the separate utilityProcess engine, the default until 2026-09-29, kept
+ * for one release as the fallback if a worker-only problem turns up. `child` still selects the OS child process,
+ * useful with an explicit `BIMAX_ENGINE_CMD` to bisect a regression against an older engine build; without that
+ * override it fails to resolve, which is the honest outcome rather than a silent fallback.
  */
 export function spawnEngine(
   projectDir: string,
   extraEnv: Record<string, string>,
   cb: SpawnCallbacks,
 ): EngineHandle {
-  const transport = (process.env.BIMAX_ENGINE_TRANSPORT || '').trim().toLowerCase();
+  const transport = engineTransport();
   if (transport === 'child') return spawnEngineProcess(projectDir, extraEnv, cb);
-  // The monolith (record 64): opt-in during phase M1, the default from M2.
-  if (transport === 'worker') return spawnEngineWorker(projectDir, extraEnv, cb);
-  return spawnEngineUtilityProcess(projectDir, extraEnv, cb);
+  if (transport === 'process') return spawnEngineUtilityProcess(projectDir, extraEnv, cb);
+  return spawnEngineWorker(projectDir, extraEnv, cb);
+}
+
+/** Which transport a launch takes: 'worker' unless BIMAX_ENGINE_TRANSPORT names 'process' or 'child'. */
+export function engineTransport(env: NodeJS.ProcessEnv = process.env): 'worker' | 'process' | 'child' {
+  const named = (env.BIMAX_ENGINE_TRANSPORT || '').trim().toLowerCase();
+  if (named === 'child') return 'child';
+  if (named === 'process' || named === 'utility' || named === 'utilityprocess') return 'process';
+  return 'worker';
 }
