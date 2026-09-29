@@ -1,5 +1,5 @@
 import { CapabilityReplay } from './capability.replay';
-import { app, BrowserWindow, ipcMain, dialog, shell, session, systemPreferences, powerMonitor, net, nativeTheme, globalShortcut, screen, Menu, Notification, Tray, nativeImage, ShareMenu, powerSaveBlocker, safeStorage, webContents as electronWebContents } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, shell, session, systemPreferences, powerMonitor, net, nativeTheme, globalShortcut, screen, Menu, Notification, Tray, nativeImage, powerSaveBlocker, safeStorage, webContents as electronWebContents } from 'electron';
 import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron';
 import path from 'node:path';
 import { ThreadManager, threadCapabilityEnvironment, threadIndexEnvironment, threadVoiceEnvironment, workerCapacityEnvironment, spendLedgerEnvironment } from './thread.manager';
@@ -29,7 +29,8 @@ import {
   triggerFolderProblem, validTriggers, type FolderEntry, type FolderTrigger, type StartResult,
 } from './folder.triggers';
 import { Wakes, type CiState } from './wakes';
-import { conversationHtml, conversationMarkdown, exportFileName, sessionFile, sessionItems } from './thread.export';
+import { sessionFile } from './thread.export';
+import { exportMenuItems, sessionConversation, setConversationShareHost, threadConversation } from './conversation.share';
 import { installQuickAction, openedFilesContext, quickActionPath, QUICK_ACTION_NAME } from './finder.action';
 import { onlyBasicVoices, parseVoiceList, pickerVoices, speakingArguments, SPEECH_RATES, validRate, validVoice } from './voice.settings';
 import { PUSH_TALK_CHOICES, PushToTalk, pushTalkAnswer, pushTalkChoice, spokenSummary, type PushTalkAnswer, type PushTalkChoice } from './push.talk';
@@ -40,7 +41,6 @@ import { applyPlan, cleanFolder, includeKept, isRevision, keepFile, keepManual, 
 import { briefing, budgetNote, nightBranch, nightBudget, nightContinue, nightDeadline, nightNext, nightWords, spentBy, worktreeCommand, type NightShift } from './night.shift';
 import { saveSkill, skillDraft, skillName, type SkillDraft } from './skill.capture';
 import { arrivalsSince, cleanBookmark, whereWasI } from './where.was.i';
-import type { TranscriptItem } from '../renderer/src/engine.state';
 import { randomUUID } from 'node:crypto';
 import { macBin } from './bin';
 import { answerFromNotification, notificationChoices } from './approval.notification';
@@ -1084,86 +1084,14 @@ function triggerMenu(): Electron.MenuItemConstructorOptions[] {
  * ⋯ in the ⌘2 bar: repeat this task on a schedule (schedules.ts), run it when files arrive (folder.triggers.ts), or edit
  * this folder's rules (folder.rules.ts).
  */
-/**
- * Export a conversation (backlog N4). The PDF is printed from a hidden window with JavaScript off, no pop-ups and no
- * navigation, loading a page whose policy allows no script and no network load (thread.export.ts), so nothing in a
- * conversation can act while it is drawn.
- */
-async function conversationPdf(markdown: string, title: string): Promise<Buffer> {
-  const dir = await fsp.mkdtemp(path.join(app.getPath('temp'), 'bimax-export-'));
-  const page = path.join(dir, 'conversation.html');
-  const printer = new BrowserWindow({ show: false, webPreferences: { javascript: false, sandbox: true, contextIsolation: true, nodeIntegration: false } });
-  try {
-    printer.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
-    await fsp.writeFile(page, conversationHtml(markdown, title), 'utf8');
-    await printer.loadFile(page);
-    printer.webContents.on('will-navigate', (event) => event.preventDefault());
-    return await printer.webContents.printToPDF({ pageSize: 'A4', printBackground: true });
-  } finally {
-    printer.destroy();
-    await fsp.rm(dir, { recursive: true, force: true }).catch(() => undefined);
-  }
-}
 
-/** What an export reads: a live thread, or a session saved by the engine and listed in the Sessions gallery. */
-type Conversation = { summary: { title: string; root: string; model?: string }; items: readonly TranscriptItem[]; threadId?: string };
-
-function threadConversation(id: string): Conversation {
-  const { summary, state } = threads.get(id);
-  return { summary, items: state.items, threadId: id };
-}
-
-async function sessionConversation(id: string): Promise<Conversation> {
-  const root = projectDir();
-  const file = sessionFile(root, id);
-  if (!file) throw new Error('That is not a saved session.');
-  const meta = (await readSessionMeta(root)).find((m) => m.id === id);
-  const title = meta?.title && meta.title !== '(no messages yet)' ? meta.title : `Session ${id}`;
-  return { summary: { title, root: meta?.cwd || root }, items: sessionItems(await fsp.readFile(file, 'utf8')) };
-}
-
-async function exportConversation(load: () => Conversation | Promise<Conversation>, format: 'md' | 'pdf'): Promise<void> {
-  try {
-    const { summary, items, threadId } = await load();
-    const markdown = conversationMarkdown(summary, items);
-    const parent = quickWindow && !quickWindow.isDestroyed() && quickWindow.isVisible() ? quickWindow : win;
-    const options: Electron.SaveDialogOptions = {
-      title: 'Export conversation',
-      defaultPath: path.join(app.getPath('documents'), exportFileName(summary.title, format)),
-      filters: format === 'md' ? [{ name: 'Markdown', extensions: ['md'] }] : [{ name: 'PDF', extensions: ['pdf'] }],
-    };
-    const chosen = parent ? await dialog.showSaveDialog(parent, options) : await dialog.showSaveDialog(options);
-    if (chosen.canceled || !chosen.filePath) return;
-    await fsp.writeFile(chosen.filePath, format === 'md' ? markdown : await conversationPdf(markdown, summary.title));
-    if (threadId) threads.addNote(threadId, `Exported this conversation to ${path.basename(chosen.filePath)}.`);
-    shell.showItemInFolder(chosen.filePath);
-  } catch (error) {
-    void dialog.showMessageBox({ type: 'warning', message: 'Bimax could not export this conversation', detail: (error as Error).message });
-  }
-}
-
-/** The share sheet (AirDrop, Mail, Messages…) with the conversation as a Markdown file. */
-async function shareConversation(load: () => Conversation | Promise<Conversation>): Promise<void> {
-  try {
-    const { summary, items } = await load();
-    const dir = path.join(app.getPath('temp'), 'bimax-share');
-    await fsp.mkdir(dir, { recursive: true });
-    const file = path.join(dir, exportFileName(summary.title, 'md'));
-    await fsp.writeFile(file, conversationMarkdown(summary, items), 'utf8');
-    const parent = quickWindow && !quickWindow.isDestroyed() && quickWindow.isVisible() ? quickWindow : win;
-    new ShareMenu({ filePaths: [file] }).popup(parent ? { window: parent } : {});
-  } catch (error) {
-    void dialog.showMessageBox({ type: 'warning', message: 'Bimax could not share this conversation', detail: (error as Error).message });
-  }
-}
-
-function exportMenuItems(load: () => Conversation | Promise<Conversation>): Electron.MenuItemConstructorOptions[] {
-  return [
-    { label: 'Export as Markdown…', click: () => void exportConversation(load, 'md') },
-    { label: 'Export as PDF…', click: () => void exportConversation(load, 'pdf') },
-    { label: 'Share…', click: () => void shareConversation(load) },
-  ];
-}
+// Export or share a conversation (backlog N4) lives in conversation.share.ts; this is the state it reads.
+setConversationShareHost({
+  parentWindow: () => (quickWindow && !quickWindow.isDestroyed() && quickWindow.isVisible() ? quickWindow : win),
+  thread: (id) => { const { summary, state } = threads.get(id); return { summary, items: state.items }; },
+  addNote: (id, text) => threads.addNote(id, text),
+  projectDir: () => projectDir(),
+});
 
 function showMoreMenu(): void {
   if (!quickWindow || quickWindow.isDestroyed()) return;
