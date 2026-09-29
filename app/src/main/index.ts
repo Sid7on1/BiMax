@@ -37,7 +37,8 @@ import { PUSH_TALK_CHOICES, PushToTalk, pushTalkAnswer, pushTalkChoice, spokenSu
 import { shouldSpeakUpdate, spokenUpdate } from './spoken.updates';
 import { alreadyARule, correctionRule, sampleApplications, withRule } from './teach';
 import { applyReport, cleanGoal, filesToCheck, forgetGone, outcomeEnvironment, outcomeQueue, outcomeTaskWords, queueLine, validOutcomes, type FolderOutcome } from './folder.outcomes';
-import { applyPlan, cleanFolder, includeKept, isRevision, keepFile, keepManual, manualEdits, moveFile, moveGroup, planConflicts, previewTree, receivePlan, revisionHint, type AppliedPlan, type OrganizePlan } from './organize.plan';
+import { isRevision, revisionHint } from './organize.plan';
+import { loadOrganizeHistory, organizeWebContentsId, receiveOrganizePlan, registerOrganizeIpc, setOrganizeHost } from './organize.window';
 import { briefing, budgetNote, nightBranch, nightBudget, nightContinue, nightDeadline, nightNext, nightWords, spentBy, worktreeCommand, type NightShift } from './night.shift';
 import { saveSkill, skillDraft, skillName, type SkillDraft } from './skill.capture';
 import { arrivalsSince, cleanBookmark, whereWasI } from './where.was.i';
@@ -48,7 +49,7 @@ import { linkConfirmation, parseTaskLink } from './bimax.link';
 import { DEFAULT_SHORTCUT, SHORTCUT_CHOICES, chosenShortcut, shortcutLabel, switchShortcut } from './quick.shortcut';
 import os from 'node:os';
 import { spawn, execFile } from 'node:child_process';
-import { readFileSync, writeFileSync, renameSync, mkdirSync, realpathSync, existsSync, appendFileSync, statSync, readdirSync, watch as watchFolder } from 'node:fs';
+import { readFileSync, writeFileSync, renameSync, mkdirSync, realpathSync, existsSync, appendFileSync, statSync, watch as watchFolder } from 'node:fs';
 import fsp from 'node:fs/promises';
 import {
   spawnEngine, recentEngineLog, engineProcessProvenance,
@@ -841,106 +842,13 @@ async function pickOutcomeFolder(): Promise<void> {
   await openOutcomeEditor(await fsp.realpath(result.filePaths[0]));
 }
 // ── A preview you can rearrange (backlog FL2, organize.plan.ts) ──────────────────────────────────
-let organizeWindow: BrowserWindow | null = null;
-let organizing: OrganizePlan | null = null;
-/** What the preview window shows: the tree, what blocks applying, and how many moves the person changed. */
-function organizeView(): unknown {
-  if (!organizing) return null;
-  return {
-    id: organizing.id, title: organizing.title, root: organizing.root, total: organizing.moves.length,
-    byYou: organizing.moves.filter((m) => m.byYou).length,
-    tree: previewTree(organizing), conflicts: planConflicts(organizing, (file) => existsSync(file)),
-    kept: (organizing.kept ?? []).map((m) => ({ from: path.relative(organizing!.root, m.from), to: path.relative(organizing!.root, m.to) })),
-  };
-}
-/** The last plan applied in each folder, with each file's inode, so a revision can tell what the person moved since (FL3). */
-const organizeHistoryFile = (): string => path.join(app.getPath('userData'), 'organize-history.json');
-function loadOrganizeHistory(): Record<string, AppliedPlan> {
-  try { const raw = JSON.parse(readFileSync(organizeHistoryFile(), 'utf8')); return raw && typeof raw === 'object' ? raw : {}; } catch { return {}; }
-}
-function rememberApplied(plan: OrganizePlan): void {
-  const placements = plan.moves.filter((m) => existsSync(m.to) && !existsSync(m.from)).map((m) => ({ path: m.to, ino: statSync(m.to).ino }));
-  const all = loadOrganizeHistory();
-  all[plan.root] = { root: plan.root, threadId: plan.threadId, at: Date.now(), title: plan.title, placements };
-  try { writeFileSync(organizeHistoryFile(), JSON.stringify(all)); } catch { /* a revision then simply keeps nothing aside */ }
-}
-/** Where each wanted inode is now inside the folder, from one bounded walk (skipping .git and node_modules). */
-function locateInodes(root: string, wanted: ReadonlySet<number>, limit = 20_000): Map<number, string> {
-  const found = new Map<number, string>();
-  const queue = [root];
-  let seen = 0;
-  while (queue.length && found.size < wanted.size && seen < limit) {
-    const dir = queue.shift()!;
-    let entries: import('node:fs').Dirent[] = [];
-    try { entries = readdirSync(dir, { withFileTypes: true }); } catch { continue; }
-    for (const entry of entries) {
-      if (++seen > limit) break;
-      const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) { if (entry.name !== '.git' && entry.name !== 'node_modules') queue.push(full); continue; }
-      if (!entry.isFile()) continue;
-      try { const ino = statSync(full).ino; if (wanted.has(ino)) found.set(ino, full); } catch { /* gone */ }
-    }
-  }
-  return found;
-}
-function showOrganize(): void {
-  if (!organizeWindow || organizeWindow.isDestroyed()) organizeWindow = auxiliaryWindow('organize');
-  organizeWindow.setResizable(true);
-  organizeWindow.webContents.send('organize:plan', organizeView());
-  organizeWindow.show(); organizeWindow.focus();
-}
-/** A task proposed a plan: it replaces any plan still waiting (that task is told), and the preview opens. */
-function receiveOrganizePlan(threadId: string, raw: unknown): void {
-  const root = threads.get(threadId).summary.root;
-  let plan = receivePlan(raw, threadId, root);
-  if (!plan) return;
-  // FL3: a revision keeps the files the person moved by hand since the last plan here where they put them.
-  const applied = loadOrganizeHistory()[plan.root];
-  if (applied) {
-    const inodeAt = (file: string): number | null => { try { return statSync(file).ino; } catch { return null; } };
-    const missing = applied.placements.filter((p) => inodeAt(p.path) !== p.ino);
-    const where = missing.length ? locateInodes(plan.root, new Set(missing.map((p) => p.ino))) : new Map<number, string>();
-    const byHand = new Set(manualEdits(applied, inodeAt, (ino) => where.get(ino) ?? null).map((e) => e.now).filter((p): p is string => !!p));
-    plan = keepManual(plan, byHand);
-    if (plan.kept?.length) threads.addNote(threadId, `${plan.kept.length} file${plan.kept.length === 1 ? '' : 's'} you moved yourself since “${applied.title}” ${plan.kept.length === 1 ? 'is' : 'are'} kept where you put ${plan.kept.length === 1 ? 'it' : 'them'} (“Include anyway” in the preview).`);
-    if (!plan.moves.length && !plan.kept?.length) return;
-  }
-  if (organizing && organizing.threadId !== threadId) threads.addNote(organizing.threadId, 'Its organize plan was replaced by a newer one from another task, and nothing was moved.');
-  organizing = plan;
-  threads.addNote(threadId, `A plan to move ${plan.moves.length} files is waiting in the Organize preview. Nothing moves until you apply it.`);
-  showOrganize();
-}
-async function applyOrganizePlan(): Promise<{ ok: boolean; error?: string }> {
-  const plan = organizing;
-  if (!plan) return { ok: false, error: 'There is no plan to apply.' };
-  const summary = threads.get(plan.threadId).summary;
-  // Protected items (folder rules) never move, whoever planned it.
-  const protect = loadSettings().folderRules?.[plan.root]?.protect ?? [];
-  const guarded = plan.moves.find((m) => protect.some((p) => insideFolder(p, m.from) || insideFolder(p, m.to)));
-  if (guarded) return { ok: false, error: `${path.relative(plan.root, guarded.from)} is protected by this folder's rules.` };
-  const stateRoot = threadStateRoot(app.getPath('userData'), summary.root, summary.origin);
-  try {
-    const result = await applyPlan(plan, {
-      exists: (file) => existsSync(file),
-      mkdirp: async (dir) => { await fsp.mkdir(dir, { recursive: true }); },
-      rename: (from, to) => fsp.rename(from, to),
-      journal: async (line) => {
-        await fsp.mkdir(path.dirname(journalFile(stateRoot)), { recursive: true });
-        await fsp.appendFile(journalFile(stateRoot), `${JSON.stringify(line)}\n`, 'utf8');
-      },
-    }, Date.now());
-    organizing = null;
-    organizeWindow?.hide();
-    rememberApplied(plan);
-    const yours = plan.moves.filter((m) => m.byYou).length;
-    threads.addNote(plan.threadId, result.failed.length
-      ? `Moved ${result.moved} of ${plan.moves.length} files, then stopped: ${path.basename(result.failed[0]!.from)} — ${result.failed[0]!.error}. ↶ Undo reverses the ones that moved.`
-      : `Applied “${plan.title}”: moved ${result.moved} files${yours ? `, ${yours} where you put them` : ''}. ↶ Undo reverses the whole plan in one step.`);
-    return { ok: true };
-  } catch (error) {
-    return { ok: false, error: (error as Error).message };
-  }
-}
+// The Organize preview (backlog FL2) lives in organize.window.ts; this is what it needs from here.
+setOrganizeHost({
+  createWindow: () => auxiliaryWindow('organize'),
+  summary: (id) => threads.get(id).summary,
+  addNote: (id, text) => threads.addNote(id, text),
+  protectedIn: (root) => loadSettings().folderRules?.[root]?.protect ?? [],
+});
 
 // ── Night shift (backlog FL5, night.shift.ts) ────────────────────────────────────────────────────
 const nightShifts = new Map<string, NightShift & { continuations: number; timer?: NodeJS.Timeout }>();
@@ -1583,7 +1491,10 @@ function windowChrome(): WindowChromeState {
 function trustedRenderer(): TrustedRenderer {
   return {
     webContentsId: win && !win.isDestroyed() ? win.webContents.id : null,
-    auxiliaryWebContentsIds: [quickWindow, approvalWindow, organizeWindow].filter(w => w && !w.isDestroyed()).map(w => w!.webContents.id),
+    auxiliaryWebContentsIds: [
+      ...[quickWindow, approvalWindow].filter(w => w && !w.isDestroyed()).map(w => w!.webContents.id),
+      ...[organizeWebContentsId()].filter((id): id is number => id !== null),
+    ],
     devServerUrl: process.env.ELECTRON_RENDERER_URL,
   };
 }
@@ -1607,7 +1518,7 @@ function auxiliaryChannelAllowed(event: IpcMainEvent | IpcMainInvokeEvent, chann
       'threads:undo-info', 'threads:undo', 'threads:history', 'threads:bookmark-set', 'threads:where', 'threads:undo-change', 'threads:undo-back-to', 'threads:open-path', 'threads:quick-switch', 'threads:model-menu',
       'threads:more-menu', 'threads:rules-get', 'threads:rules-set', 'threads:rules-pick', 'threads:screenshot', 'threads:paste-picture', 'threads:teach', 'threads:outcome-get', 'threads:outcome-set', 'threads:outcome-clear', 'threads:night-start', 'threads:skill-save',
       'voice:available', 'voice:start', 'voice:stop', 'voice:cancel', 'talk:start', 'talk:end', 'talk:interrupt', 'talk:current']
-    : event.sender.id === organizeWindow?.webContents.id
+    : event.sender.id === organizeWebContentsId()
       ? ['organize:current', 'organize:move', 'organize:move-group', 'organize:keep', 'organize:include', 'organize:apply', 'organize:cancel']
       : ['threads:approvals', 'threads:reply', 'threads:hide', 'threads:stop'];
   return allowed.includes(channel);
@@ -2456,40 +2367,8 @@ app.whenReady().then(async () => {
     if (result.ok) nightEditingRoot = null;
     return result;
   });
-  // FL2: the Organize preview. Every change comes back as the whole view, so the window never holds its own copy.
-  secureHandle('organize:current', null as unknown, () => organizeView());
-  secureHandle('organize:move', null as unknown, (_e, from: unknown, rawFolder: unknown) => {
-    const folder = cleanFolder(rawFolder);
-    if (!organizing || typeof from !== 'string' || folder === null) return null;
-    const moved = moveFile(organizing, path.resolve(organizing.root, from), folder);
-    if (!moved) return null;
-    organizing = moved.plan;
-    return { view: organizeView(), offer: moved.others ? { group: moved.group, count: moved.others, folder } : null };
-  });
-  secureHandle('organize:move-group', null as unknown, (_e, group: unknown, rawFolder: unknown) => {
-    const folder = cleanFolder(rawFolder);
-    if (!organizing || typeof group !== 'string' || folder === null) return null;
-    organizing = moveGroup(organizing, group, folder);
-    return organizeView();
-  });
-  secureHandle('organize:keep', null as unknown, (_e, from: unknown) => {
-    if (!organizing || typeof from !== 'string') return null;
-    organizing = keepFile(organizing, path.resolve(organizing.root, from));
-    if (!organizing.moves.length) { threads.addNote(organizing.threadId, 'Every file was left where it is; nothing moved.'); organizing = null; organizeWindow?.hide(); }
-    return organizeView();
-  });
-  secureHandle('organize:include', null as unknown, (_e, from: unknown) => {
-    if (!organizing || typeof from !== 'string') return null;
-    organizing = includeKept(organizing, path.resolve(organizing.root, from));
-    return organizeView();
-  });
-  secureHandle('organize:apply', { ok: false } as { ok: boolean; error?: string }, () => applyOrganizePlan());
-  secureHandle('organize:cancel', false, () => {
-    if (organizing) threads.addNote(organizing.threadId, 'The organize plan was dismissed; nothing moved.');
-    organizing = null;
-    organizeWindow?.hide();
-    return true;
-  });
+  // FL2: the Organize preview's channels (organize.window.ts).
+  registerOrganizeIpc({ handle: secureHandle, on: secureOn });
   // FL1 part 2: the bar's outcome editor. Only the folder the editor was opened for can be changed.
   secureHandle('threads:outcome-get', null as unknown, () => {
     const root = outcomeEditingRoot ?? quickThreadSnapshot()?.root ?? quickContext.root ?? null;
