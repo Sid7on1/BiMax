@@ -12,12 +12,12 @@ import * as path from 'path';
  * seals the ones it keeps). The notch always gets the masked form first.
  *
  * The detection rules (ported from gitleaks) live in src/security/secret.scan.ts, shared with the engine, which uses
- * them to scrub what it saves to disk.
+ * them to scrub what it saves to disk. The app takes them through the engine's public API, src/engine/api.ts.
  */
 
-export { RULES, entropy, findSecrets, looksLikeSecret } from '../../../src/security/secret.scan';
-export type { SecretRule, Found } from '../../../src/security/secret.scan';
-import { findSecrets } from '../../../src/security/secret.scan';
+export { RULES, entropy, findSecrets, looksLikeSecret } from '../../../src/engine/api';
+export type { SecretRule, Found } from '../../../src/engine/api';
+import { findSecrets } from '../../../src/engine/api';
 
 const PREFIXES = ['nvapi-', 'sk-ant-api03-', 'sk-proj-', 'sk-svcacct-', 'sk-admin-', 'github_pat_', 'dop_v1_', 'sk_live_', 'sk_test_', 'sk_prod_', 'rk_live_', 'rk_test_',
   'ghp_', 'gho_', 'ghu_', 'ghs_', 'glpat-', 'xoxb-', 'xoxp-', 'xoxe-', 'shpat_', 'npm_', 'hf_', 'SG.', 'AKIA', 'ASIA', 'AIza', 'eyJ'];

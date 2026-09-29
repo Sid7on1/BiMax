@@ -10,7 +10,8 @@ a worker cannot `chdir`, so the engine silently ran in the wrong folder until a 
 plainly: a native crash or process-wide out-of-memory now ends every task, and all engines share 4 GB of JS heap.
 M1–M3 are Implemented (the engine is a worker thread by default and talks over a MessagePort); the live check of the
 M3 install found its heartbeat going to the log instead of the app, which left the hang watchdog off — fixed, and now
-gated. M4–M6 are Target.
+gated. M5 has begun: the engine has one public API (`src/engine/api.ts`) and a test fails any import that goes
+around it. M4, the rest of M5, and M6 are Target.
 
 ## Master flaw list: triage and fixes — 2026-09-29
 

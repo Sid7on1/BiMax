@@ -1,7 +1,8 @@
 # 64 — The monolith: research, measurements, and the plan
 
 **Date:** 2026-09-29 · **Status:** M1, M2 and M3 **Implemented and verified** (see "Progress" at the end — including an
-M3 follow-up: the installed M3 build had its hang watchdog off, now fixed); M4–M6 **Target**. **Owner decision (2026-09-29):** "yes we need to go monolith … research on best monolith architecture
+M3 follow-up: the installed M3 build had its hang watchdog off, now fixed); M5 slice 1 (the engine's public API and
+an enforced boundary) **Implemented**; the rest of M5, M4 and M6 **Target**. **Owner decision (2026-09-29):** "yes we need to go monolith … research on best monolith architecture
 ever possible, then go beautifully into it." This answers flaw-list items B6–B12 and C19 (record 63).
 
 ## 1. What "monolith" should mean for Bimax
@@ -215,3 +216,24 @@ file access and the IPC gate in main.
   `heapMb` is the engine's own. The protocol type now says so.
 - Checked and **not** a defect: two engines for the same folder four seconds apart in the log were two different
   conversations in that folder; the one left idle and off screen was stopped by the idle reaper after its 10 minutes.
+
+### M5 — slice 1: one door into the engine, enforced (2026-09-29)
+
+- `src/engine/api.ts` is the engine's public API: the worker contract (`EngineWorkerData`, `PORT_ACK`, `PortAck`,
+  `DEFAULT_PORT_WINDOW_BYTES` — the app had the acknowledgement as a bare `'__ack'` string), the evidence record format
+  and secret detection. The app's four imports of engine source now go through it or `src/protocol/protocol.ts`; the
+  engine's own port host and worker folder take the contract from it too.
+- `app/src/__tests__/module.boundaries.test.ts`, reading imports with the TypeScript parser (`import type`,
+  `export … from`, `import()`, `require()`): the app reaches `src/` only through those two files; what they expose
+  imports nothing further (Rollup cannot bundle the engine, so a re-export of an internal would break the app build or
+  drag the engine in); the engine never imports Electron or the app; the window never imports main-process code.
+  7 mutants (each kind of crossing, and two defects in the import reader), all killed.
+- **Interpretation stated:** the plan said "the renderer never imports main". The window already takes the
+  supervisor's wire shapes from main as **type-only** imports, deliberately, so they cannot drift (`global.d.ts`).
+  Those compile to nothing and are allowed; a value import is forbidden.
+- Verified: both type-checks, the related suites, the full Jest run (385 of 386 suites; `extract.layout.routing` timed
+  out under load again — alone it failed once, 4/15, straight after the full run while the load average was ~5, then
+  passed 15/15 four times; it imports only `src/documents/`, which this slice does not touch), the engine bundle rebuilt and `verify-engine`
+  passing as a worker and as a process, the app's `electron-vite` build (its main bundle holds no engine module).
+- Still Target in M5: `process.cwd()` — **107 call sites in 74 engine files** today — confined to one engine-context
+  module in slices, after which the `fs`/`child_process` parts of the worker-folder shim can be retired.

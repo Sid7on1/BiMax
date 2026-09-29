@@ -6,6 +6,7 @@ import { existsSync, mkdirSync, createWriteStream, readFileSync, statSync } from
 import path from 'node:path';
 import os from 'node:os';
 import type { EngineHandle, SpawnCallbacks } from './supervisor/supervisor';
+import { PORT_ACK, type EngineWorkerData, type PortAck } from '../../../src/engine/api';
 import { ProcessProvenanceTracker, type ProcessProvenanceRecord } from '../phase9/process.provenance';
 import {
   resolveEngineCommand, describeRefusal, buildEngineChildEnv, EngineArtifactError, PackagedRuntimeError,
@@ -558,7 +559,7 @@ export function spawnEngineWorker(
   const { port1: port, port2: enginePort } = new MessageChannel();
   const worker = new Worker(modulePath, {
     env: engineModuleEnv(projectDir, extraEnv, modulePath),
-    workerData: { bimaxEngineRoot: projectDir, bimaxEnginePort: enginePort },
+    workerData: { bimaxEngineRoot: projectDir, bimaxEnginePort: enginePort } satisfies EngineWorkerData,
     transferList: [enginePort],
     stdout: true, stderr: true,
     resourceLimits: { maxOldGenerationSizeMb: ENGINE_WORKER_HEAP_MB },
@@ -596,7 +597,7 @@ export function spawnEngineWorker(
     if (!unacked || exited) return;
     const bytes = unacked;
     unacked = 0;
-    try { port.postMessage({ t: '__ack', bytes }); } catch { /* the engine is gone */ }
+    try { port.postMessage({ t: PORT_ACK, bytes } satisfies PortAck); } catch { /* the engine is gone */ }
   };
   port.on('message', (frame: unknown) => {
     if (typeof frame !== 'string') {

@@ -7,6 +7,8 @@ import nodeChildProcess from 'node:child_process';
 import { isMainThread, workerData } from 'node:worker_threads';
 import { syncBuiltinESMExports } from 'node:module';
 import { promisify } from 'node:util';
+// Type-only: erased from the bundle, so this stays the first module the engine evaluates.
+import type { EngineWorkerData } from './api';
 
 /**
  * A working folder of its own for an engine running as a worker thread (record 64, M1).
@@ -162,7 +164,7 @@ export function installWorkerFolder(root: string, modules?: WorkerFolderModules)
 /** The folder a hosting app gave this engine worker, or null when this is not an engine worker. */
 export function engineWorkerRoot(): string | null {
   if (isMainThread) return null;
-  const root = (workerData as { bimaxEngineRoot?: unknown } | null)?.bimaxEngineRoot;
+  const root = (workerData as Partial<EngineWorkerData> | null)?.bimaxEngineRoot;
   return typeof root === 'string' && root ? root : null;
 }
 

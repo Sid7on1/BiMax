@@ -4,6 +4,7 @@ import { HostHandlers } from './host';
 import { Inbound, Outbound } from './protocol';
 import { WireQueueStats } from './wire.queue';
 import { createQueuedHost } from './queued.host';
+import { DEFAULT_PORT_WINDOW_BYTES, PORT_ACK, type EngineWorkerData, type PortAck } from '../engine/api';
 
 /**
  * The engine's protocol endpoint over a MessagePort — the monolith's transport (record 64, M3).
@@ -34,12 +35,10 @@ export interface EnginePortLike {
   start?(): void;
 }
 
-/** The acknowledgement the app posts for output it has handled. Not a protocol message: the host consumes it. */
-export interface PortAck { t: '__ack'; bytes: number }
-
-export const PORT_ACK = '__ack';
-/** Unacknowledged output allowed in flight, in bytes (UTF-16 code units, as the queue counts them). */
-export const DEFAULT_PORT_WINDOW_BYTES = 1024 * 1024;
+// The acknowledgement and the window are the app's side of the contract too, so they are declared in the engine's
+// public API (src/engine/api.ts); re-exported here for the engine's own code.
+export { DEFAULT_PORT_WINDOW_BYTES, PORT_ACK };
+export type { PortAck };
 
 export interface PortHostOptions extends HostHandlers {
   emitter: EventEmitter;
@@ -139,6 +138,6 @@ export function startPortHost(opts: PortHostOptions): PortHostHandle {
 /** The port the app handed this engine worker, or null when the engine is hosted any other way. */
 export function engineWorkerPort(): EnginePortLike | null {
   if (isMainThread) return null;
-  const port = (workerData as { bimaxEnginePort?: unknown } | null)?.bimaxEnginePort;
+  const port = (workerData as Partial<EngineWorkerData> | null)?.bimaxEnginePort;
   return port && typeof (port as EnginePortLike).postMessage === 'function' ? (port as EnginePortLike) : null;
 }
