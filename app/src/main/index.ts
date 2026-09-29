@@ -61,17 +61,16 @@ import { EngineSupervisor } from './supervisor/supervisor';
 import { CrashJournal, redactSecrets } from './supervisor/journal';
 import { SupervisorStatus } from './supervisor/types';
 import { availableBytes, type SystemMemorySample } from './supervisor/resources';
-import { gitDiff, gitBranches, gitLog, gitRemoteInfo, gitFetch, gitPull, gitPush, stampedGitStatus } from './git';
-import { discoverLocalModels } from './local.models';
-import { listDir, readFilePreview, writeFileContent, readSessionMeta, watchProject, searchFiles, ProjectWatch } from './files';
-import { createPty, writePty, resizePty, killPty, killAllPtys } from './pty';
+import { watchProject, ProjectWatch } from './files';
+import { killAllPtys } from './pty';
+import { registerWorkspaceIpc } from './workspace.ipc';
 import { pickInitialProject, loadSettings, recordProject, recentProjects, isRealProject, saveSettings } from './settings';
 import {
   REQUIRED_WEB_PREFERENCES, RENDERER_CSP, InvalidPayloadError,
   isTrustedSender, isAllowedNavigation, isAllowedPermission,
-  asBoundedInt, asFileContent, asPtyInput, asSupervisorAction,
+  asSupervisorAction,
   asPastedFileName, asPastedBytes,
-  isProtocolFrame, resolveWithinRoot,
+  isProtocolFrame,
   type SenderIdentity, type TrustedRenderer,
 } from './security';
 import {
@@ -2980,62 +2979,12 @@ app.whenReady().then(async () => {
   // renderer from the file extension instead. If real Finder icons are wanted later, they must be
   // fetched off the modal-dismiss path and proven not to fault before shipping.
 
-  // Review panel — native git reads (writes go through the engine's /git for attribution).
-  // Stamped with the project and generation captured BEFORE the read starts. A `git status` on a
-  // large repository is not instant, and without the stamp a reply that began under the previous
-  // project would be applied to the current one.
-  secureHandle<unknown>('git:status', null, () => stampedGitStatus(projectDir(), projectGeneration));
-  // gitDiff contains the pathspec against the project itself — see its doc comment.
-  secureHandle<string>('git:diff', '', (_e, file: unknown, untracked: unknown) =>
-    gitDiff(projectDir(), file, untracked === true));
-  secureHandle<unknown>('git:branches', { current: '', all: [] }, () => gitBranches(projectDir()));
-  // GitHub lane. Reads are free; the three network verbs are user-initiated only — nothing here is
-  // reachable by the engine or the model, and none of them takes or stores a credential.
-  secureHandle<unknown>('git:remote', null, () => gitRemoteInfo(projectDir()));
-  // Local model runtimes. Read-only probe of this machine — no network, no credentials.
-  secureHandle<unknown>('models:local', { runtimes: [], servable: [], scannedAt: '' }, () => discoverLocalModels());
-  // Filename search for the Files filter. Read-only, bounded, and confined to the project root by
-  // the same resolver the tree uses.
-  secureHandle<unknown>('files:search', { hits: [], truncated: false }, (_e, query: unknown) =>
-    searchFiles(projectDir(), query));
-  secureHandle<unknown>('git:fetch', { ok: false, output: 'unavailable' }, () => gitFetch(projectDir()));
-  secureHandle<unknown>('git:pull', { ok: false, output: 'unavailable' }, () => gitPull(projectDir()));
-  secureHandle<unknown>('git:push', { ok: false, output: 'unavailable' }, (_e, setUpstream: unknown) =>
-    gitPush(projectDir(), setUpstream === true));
-  secureHandle<unknown>('git:log', [], (_e, n: unknown) =>
-    gitLog(projectDir(), n === undefined ? 15 : asBoundedInt(n, 1, 1000, 'git log count')));
-
-  // Files panel — lazy tree + capped read-only viewer. Every path is resolved inside the project;
-  // with no project open the resolver fails closed rather than falling back to the filesystem root.
-  secureHandle<unknown>('files:list', [], (_e, rel: unknown) => listDir(projectDir(), rel));
-  secureHandle<unknown>('files:read', null, (_e, rel: unknown) => readFilePreview(projectDir(), rel));
-  secureHandle<void>('files:reveal', undefined, (_e, rel: unknown) => {
-    shell.showItemInFolder(resolveWithinRoot(projectDir(), rel, 'reveal path'));
+  // Review (git), Files, editor save, Sessions and the Terminal: workspace.ipc.ts.
+  registerWorkspaceIpc({ handle: secureHandle, on: secureOn }, {
+    projectDir: () => projectDir(),
+    projectGeneration: () => projectGeneration,
+    broadcast,
   });
-  // Editor pane ⌘S — the user's own edit, so it writes directly like any IDE (agent edits still
-  // flow through the engine's tools + Edit Shield).
-  secureHandle<void>('files:write', undefined, (_e, rel: unknown, content: unknown) =>
-    writeFileContent(projectDir(), rel, asFileContent(content)));
-
-  // Home dashboard + Sessions gallery: full session history from the engine's meta JSONL.
-  secureHandle<unknown>('sessions:meta', [], () => readSessionMeta(projectDir()));
-
-  // Terminal panel — pty lives here so the shell survives renderer tab switches.
-  secureHandle<number>('pty:create', -1, (_e, cols: unknown, rows: unknown) =>
-    createPty(projectDir(), asBoundedInt(cols, 2, 1000, 'cols'), asBoundedInt(rows, 2, 1000, 'rows'), {
-      onData: (id, data) => broadcast('pty:data', id, data),
-      onExit: (id, code) => broadcast('pty:exit', id, code),
-    }));
-  secureOn('pty:input', (_e, id: unknown, data: unknown) =>
-    writePty(asBoundedInt(id, 1, Number.MAX_SAFE_INTEGER, 'pty id'), asPtyInput(data)));
-  secureOn('pty:resize', (_e, id: unknown, cols: unknown, rows: unknown) =>
-    resizePty(
-      asBoundedInt(id, 1, Number.MAX_SAFE_INTEGER, 'pty id'),
-      asBoundedInt(cols, 2, 1000, 'cols'),
-      asBoundedInt(rows, 2, 1000, 'rows'),
-    ));
-  secureOn('pty:kill', (_e, id: unknown) =>
-    killPty(asBoundedInt(id, 1, Number.MAX_SAFE_INTEGER, 'pty id')));
 
   // Renderer signals it has mounted its listeners; only then spawn (so no early events are lost).
   // With a valid saved/override project we boot it; otherwise we broadcast an empty project so the

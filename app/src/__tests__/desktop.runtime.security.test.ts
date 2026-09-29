@@ -183,15 +183,28 @@ describe('sender identity gates every privileged channel', () => {
 
   test('no privileged channel is registered outside the guarded helpers', () => {
     const main = read('app/src/main/index.ts');
-    const raw = [...main.matchAll(/ipcMain\.(handle|on)\(/g)];
+    // Every main-process file, not only index.ts: a module that registered on ipcMain itself would skip the gate.
+    const dir = path.join(repo, 'app/src/main');
+    const files = fs.readdirSync(dir, { recursive: true } as { recursive: true }).map(String)
+      .filter((f) => f.endsWith('.ts') && !f.includes('__tests__'));
+    const raw = files.flatMap((f) => [...read(`app/src/main/${f}`).matchAll(/ipcMain\.(handle|on|once|handleOnce)\(/g)].map(() => f));
     // The only ipcMain.handle/ipcMain.on call sites are the two inside secureHandle/secureOn.
-    expect(raw).toHaveLength(2);
+    expect(raw).toEqual(['index.ts', 'index.ts']);
+    // A module registers channels through an IpcGate (ipc.gate.ts), and index.ts hands every one of them the gate.
+    const registrars = [...main.matchAll(/(register\w+Ipc)\(([^)]*?\})\s*,/g)];
+    expect(registrars.length).toBeGreaterThan(0);
+    for (const [, name, gate] of registrars) expect([name, gate!.trim()]).toEqual([name, '{ handle: secureHandle, on: secureOn }']);
+    expect(main.match(/register\w+Ipc\(/g)?.length).toBe(registrars.length); // none registered some other way
+    const gated = files.filter((f) => f !== 'index.ts' && registrars.some(([, name]) => read(`app/src/main/${f}`).includes(`export function ${name}(`)))
+      .map((f) => read(`app/src/main/${f}`)).join('\n');
     for (const channel of [
       'engine:send', 'engine:restart', 'app:pick-folder', 'app:pick-files', 'app:open-project',
       'supervisor:action', 'git:diff', 'files:read', 'files:write', 'files:reveal',
       'pty:create', 'pty:input', 'pty:kill', 'app:renderer-ready',
     ]) {
-      expect(main).toMatch(new RegExp(`secure(Handle|On)(<[^>]*>)?\\(\\s*'${channel}'`));
+      const inMain = new RegExp(`secure(Handle|On)(<[^>]*>)?\\(\\s*'${channel}'`).test(main);
+      const inModule = new RegExp(`ipc\\.(handle|on)(<[^>]*>)?\\(\\s*'${channel}'`).test(gated);
+      expect([channel, inMain || inModule]).toEqual([channel, true]);
     }
   });
 });
