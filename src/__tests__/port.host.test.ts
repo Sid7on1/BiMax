@@ -17,7 +17,7 @@ function open(options: { windowBytes?: number; handlers?: Record<string, unknown
   port2.on('message', (value: unknown) => { received.push(value as string); });
   const handle = startPortHost({ emitter, port: port1, windowBytes: options.windowBytes, onClose: options.onClose, ...(options.handlers as object) });
   const parsed = () => received.map((frame) => JSON.parse(frame) as { t: string; [k: string]: unknown });
-  return { app: port2 as MessagePort, emitter, handle, received, parsed, close: () => { handle(); port1.close(); port2.close(); } };
+  return { app: port2 as MessagePort, engine: port1 as MessagePort, emitter, handle, received, parsed, close: () => { handle(); port1.close(); port2.close(); } };
 }
 
 test('one protocol message per port message: a ping is answered with a pong, framed by nothing', async () => {
@@ -124,5 +124,54 @@ test('congested and interrupted: queued display output for the cancelled turn is
   await tick();
   expect(onInterrupt).toHaveBeenCalledTimes(1);
   expect(c.handle.stats().droppedBulkOnCancel).toBeGreaterThan(0);
+  c.close();
+});
+
+// ─── the engine's own lifecycle messages (record 64, M3 follow-up) ──────────────────────────────────────────────────
+// The heartbeat and the boot phases used to be written straight to stdout. Over the port stdout is only a log, so the
+// supervisor never saw a heartbeat — and its hang detection only arms on the first one — nor a single boot phase.
+
+test('the heartbeat goes out on the port, through the queue, like every other message', async () => {
+  const c = open();
+  c.handle.send({ t: 'health', uptimeMs: 1, rssMb: 2, heapMb: 3, eventLoopDelayMs: 4, activeTurn: false, phase: 'ready' });
+  await tick();
+  expect(c.parsed().find((m) => m.t === 'health')).toEqual(expect.objectContaining({ t: 'health', heapMb: 3, activeTurn: false }));
+  expect(c.handle.stats().enqueuedCritical).toBeGreaterThan(0);
+  c.close();
+});
+
+test('boot phases posted before the host exists are counted, so acknowledging them opens no room the window never gave', async () => {
+  const { postLifecycle } = await import('../protocol/port.host');
+  const { port1, port2 } = new MessageChannel();
+  const received: string[] = [];
+  port2.on('message', (value: unknown) => { received.push(value as string); });
+  postLifecycle(port1, { t: 'boot', phase: 'booting', pid: 1 });
+  postLifecycle(port1, { t: 'boot', phase: 'loading_tools', pid: 1, detail: 'container ready' });
+  await tick();
+  expect(received.map((frame) => JSON.parse(frame).t)).toEqual(['boot', 'boot']);
+  const bootBytes = received.reduce((sum, frame) => sum + frame.length, 0);
+
+  const handle = startPortHost({ emitter: new EventEmitter(), port: port1 });
+  await tick();
+  const hostBytes = received.slice(2).reduce((sum, frame) => sum + frame.length, 0);
+  expect(hostBytes).toBeGreaterThan(0);                               // the handshake
+  expect(handle.inFlightBytes()).toBe(bootBytes + hostBytes);
+  port2.postMessage({ t: PORT_ACK, bytes: bootBytes });              // the app acknowledges the boot frames only
+  await tick();
+  expect(handle.inFlightBytes()).toBe(hostBytes);                     // exactly what the host itself has in flight
+  handle();
+  port1.close();
+  port2.close();
+});
+
+test('a lifecycle message posted once the host is live takes its queue, not a side door', async () => {
+  const { postLifecycle } = await import('../protocol/port.host');
+  const c = open();
+  await tick();
+  const before = c.handle.stats().enqueuedCritical;
+  postLifecycle(c.engine, { t: 'boot', phase: 'restoring_session', pid: 1 });
+  await tick();
+  expect(c.handle.stats().enqueuedCritical).toBe(before + 1);
+  expect(c.parsed().filter((m) => m.t === 'boot')).toHaveLength(1);
   c.close();
 });

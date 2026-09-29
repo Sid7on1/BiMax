@@ -31,6 +31,12 @@ export interface QueuedHostSink {
 export interface QueuedHost {
   host: ProtocolHost;
   queue: WireQueue;
+  /**
+   * Send a message the engine itself originates rather than the host translating an engine event — the `health`
+   * heartbeat. It takes the same queue, and so the same channel and class, as everything else: a heartbeat written
+   * around the queue reaches only whatever the process's stdout happens to be, which in the monolith is a log file.
+   */
+  send: (msg: Outbound) => void;
   /** Detach from the engine and say what was never delivered. */
   dispose: () => void;
   stats: () => WireQueueStats;
@@ -76,11 +82,13 @@ export function createQueuedHost(sink: QueuedHostSink, opts: QueuedHostOptions, 
     },
   });
 
+  const send = (msg: Outbound): void => {
+    if (transportBroken) return;
+    queue.enqueue(serialize(msg), outboundClass(msg));
+  };
+
   const host = new ProtocolHost(
-    (msg: Outbound) => {
-      if (transportBroken) return;
-      queue.enqueue(serialize(msg), outboundClass(msg));
-    },
+    send,
     {
       onInput: opts.onInput,
       // Cancellation on one ordered channel: a stop acknowledgement cannot overtake display output already queued
@@ -107,6 +115,7 @@ export function createQueuedHost(sink: QueuedHostSink, opts: QueuedHostOptions, 
   return {
     host,
     queue,
+    send,
     stats: () => queue.snapshot(),
     dispose: () => {
       host.detach();

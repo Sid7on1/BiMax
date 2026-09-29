@@ -1,7 +1,7 @@
 # 64 — The monolith: research, measurements, and the plan
 
-**Date:** 2026-09-29 · **Status:** M1, M2 and M3 **Implemented and verified** (see "Progress" at the end); M4–M6
-**Target**. **Owner decision (2026-09-29):** "yes we need to go monolith … research on best monolith architecture
+**Date:** 2026-09-29 · **Status:** M1, M2 and M3 **Implemented and verified** (see "Progress" at the end — including an
+M3 follow-up: the installed M3 build had its hang watchdog off, now fixed); M4–M6 **Target**. **Owner decision (2026-09-29):** "yes we need to go monolith … research on best monolith architecture
 ever possible, then go beautifully into it." This answers flaw-list items B6–B12 and C19 (record 63).
 
 ## 1. What "monolith" should mean for Bimax
@@ -194,3 +194,24 @@ file access and the IPC gate in main.
   shuts the engine down. `verify-engine --worker` (real bundle, over the port): 5/5 and a live turn. 8 mutants, all
   killed. Full Jest: every suite passes except `extract.layout.routing`, which times out intermittently under load
   with and without these changes (each test ~0.5 s, an occasional hang past 5 s) — recorded, not fixed here.
+
+### M3 follow-up — the hang watchdog was off in the installed app (found and fixed 2026-09-29)
+
+- **Found in the live check of the M3 install, not by any test.** `engine.log` held the engine's `health` heartbeats
+  and `boot` phases as plain log lines. Both were written straight to `process.stdout`, around the protocol host; over
+  the M3 port a worker's stdout is only a log. So the supervisor never saw a heartbeat, and its hang detection arms
+  only on the first one (`heartbeatSeen`): **a wedged engine would never have been restarted**, crash records carried
+  no last heartbeat, and the app could show no start-up phase. Every M3 gate passed, because none asked for either
+  message. Present in the installed build from `e3f4358` until this fix; the process transport was unaffected.
+- Fix: the heartbeat goes through the host's queue (`send` on both hosts, `queued.host.ts`), so it takes the same
+  channel and class as every other message in both transports. Boot phases, which come before the host exists, go on
+  the worker's port (`postLifecycle`, `port.host.ts`) and are **counted** into the host's acknowledgement window, so
+  the app acknowledging them never opens room the window did not give; once the host is live they take its queue.
+- Gate: `verify-engine` now requires a `boot` and a `health` message on the protocol channel. Against the installed
+  (pre-fix) engine as a worker it fails (`missing: boot, health`); the fixed bundle passes as a worker and as a
+  process. Mutants: four in the hosts killed by unit tests; the heartbeat line alone, reverted and rebuilt, killed by
+  `verify-engine --worker` (`missing: health`).
+- Stated, not changed: inside a worker Node reports only process-wide `uptimeMs` and `rssMb`; the heartbeat's
+  `heapMb` is the engine's own. The protocol type now says so.
+- Checked and **not** a defect: two engines for the same folder four seconds apart in the log were two different
+  conversations in that folder; the one left idle and off screen was stopped by the idle reaper after its 10 minutes.

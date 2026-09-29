@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 import { StringDecoder } from 'string_decoder';
 import { HostHandlers } from './host';
 import { LineDecoder, encode } from './codec';
-import { Inbound } from './protocol';
+import { Inbound, Outbound } from './protocol';
 import { WireQueueStats } from './wire.queue';
 import { createQueuedHost } from './queued.host';
 
@@ -16,8 +16,11 @@ export interface StdioHostOptions extends HostHandlers {
   bulkLowWaterBytes?: number;
 }
 
-/** A disposer that also reports what the transport did, for diagnostics and budget checks. */
-export type StdioHostHandle = (() => void) & { stats: () => WireQueueStats };
+/**
+ * A disposer that also reports what the transport did, for diagnostics and budget checks, and sends the engine's own
+ * messages (the heartbeat) on the same queue as everything else.
+ */
+export type StdioHostHandle = (() => void) & { stats: () => WireQueueStats; send: (msg: Outbound) => void };
 
 /**
  * Bind the engine's protocol endpoint to process streams: events go out as NDJSON on stdout, the front-end's NDJSON
@@ -31,7 +34,7 @@ export function startStdioHost(opts: StdioHostOptions): StdioHostHandle {
   const out = opts.output ?? process.stdout;
   const inp = opts.input ?? process.stdin;
 
-  const { host, dispose: disposeHost, stats } = createQueuedHost({
+  const { host, dispose: disposeHost, stats, send } = createQueuedHost({
     write: (chunk) => out.write(chunk),
     onDrain: (listener) => {
       out.on('drain', listener);
@@ -65,5 +68,5 @@ export function startStdioHost(opts: StdioHostOptions): StdioHostHandle {
     inp.off('data', onData);
     disposeHost();
   };
-  return Object.assign(dispose, { stats });
+  return Object.assign(dispose, { stats, send });
 }

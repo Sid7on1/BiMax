@@ -52,15 +52,40 @@ export interface PortHostOptions extends HostHandlers {
   onClose?: () => void;
 }
 
-export type PortHostHandle = (() => void) & { stats: () => WireQueueStats; inFlightBytes: () => number };
+export type PortHostHandle = (() => void) & {
+  stats: () => WireQueueStats;
+  inFlightBytes: () => number;
+  /** Send one of the engine's own messages (the heartbeat) on the same queue and window as everything else. */
+  send: (msg: Outbound) => void;
+};
+
+/** Bytes posted on a port before its host existed; the host starts its window from them. */
+const postedBeforeHost = new WeakMap<EnginePortLike, number>();
+/** The live host's queue for a port, once there is one. */
+const liveHostSend = new WeakMap<EnginePortLike, (msg: Outbound) => void>();
+
+/**
+ * Post a lifecycle message that may come before the host exists: the `boot` phases, reported while the engine is
+ * still loading and there is no queue yet. They are few and small, so they need no queue — but the app acknowledges
+ * them like any other output, so they are counted, and the host's window starts from that count. Uncounted, their
+ * acknowledgement would later be taken for room the window never gave. Once the host is live, they take its queue.
+ */
+export function postLifecycle(port: EnginePortLike, msg: Outbound): void {
+  const send = liveHostSend.get(port);
+  if (send) { send(msg); return; }
+  const frame = JSON.stringify(msg);
+  port.postMessage(frame);
+  postedBeforeHost.set(port, (postedBeforeHost.get(port) ?? 0) + frame.length);
+}
 
 export function startPortHost(opts: PortHostOptions): PortHostHandle {
   const { port } = opts;
   const windowBytes = opts.windowBytes ?? DEFAULT_PORT_WINDOW_BYTES;
-  let inFlight = 0;
+  let inFlight = postedBeforeHost.get(port) ?? 0;
+  postedBeforeHost.delete(port);
   const drainListeners = new Set<() => void>();
 
-  const { host, dispose: disposeHost, stats } = createQueuedHost({
+  const { host, dispose: disposeHost, stats, send } = createQueuedHost({
     write: (chunk) => {
       port.postMessage(chunk);
       inFlight += chunk.length;
@@ -98,15 +123,17 @@ export function startPortHost(opts: PortHostOptions): PortHostHandle {
   port.on('message', onMessage);
   port.on('close', onClose);
   port.start?.();
+  liveHostSend.set(port, send);
   host.attach(opts.emitter);
 
   const dispose = (): void => {
+    if (liveHostSend.get(port) === send) liveHostSend.delete(port);
     port.off('message', onMessage);
     port.off('close', onClose);
     drainListeners.clear();
     disposeHost();
   };
-  return Object.assign(dispose, { stats, inFlightBytes: () => inFlight });
+  return Object.assign(dispose, { stats, inFlightBytes: () => inFlight, send });
 }
 
 /** The port the app handed this engine worker, or null when the engine is hosted any other way. */

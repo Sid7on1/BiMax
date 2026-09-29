@@ -19,6 +19,10 @@
  * really works in the task's folder. Under a worker thread that is not free — a worker cannot chdir — and it is exactly
  * what the first monolith probe got silently wrong (record 64).
  *
+ * Two messages the engine sends on its own, `boot` and `health`, must arrive on the PROTOCOL channel. Both used to be
+ * written straight to stdout, which over the monolith's port is only a log: every exchange above still passed while the
+ * supervisor saw no start-up phase and no heartbeat, so its hang detection (armed by the first heartbeat) was off.
+ *
  * Usage:  npx electron scripts/verify-engine.js [path/to/index.js] [--turn] [--worker]
  * Default target is app/engine/index.js — what prepare-engine.sh builds and electron-builder packs.
  * `--worker` hosts it the way the monolith does: a worker thread inside this process (record 64), not a
@@ -52,6 +56,8 @@ const expected = new Map([
   ['catalogResult', 'catalogGet'],
   ['queryResult', 'query (slash-command completions)'],
   ['folder', "query '@VerifyProbe' found the project's own file"],
+  ['boot', 'a start-up phase, on the protocol channel'],
+  ['health', 'a heartbeat, on the protocol channel (arms the hang watchdog)'],
 ]);
 
 let done = false;

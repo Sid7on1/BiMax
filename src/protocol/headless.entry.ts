@@ -498,8 +498,10 @@ export async function startHeadless(container: any, config: any, transport: Head
         phase: 'ready' as const,
       };
       loopDelay.reset();
+      // On the host's queue, like every other message: in a worker thread (the monolith) stdout is a log, and a
+      // heartbeat written there never reached the supervisor, whose hang detection only arms on the first one.
       try {
-        process.stdout.write(JSON.stringify(msg) + '\n');
+        dispose.send(msg);
       } catch {
         /* parent gone */
       }

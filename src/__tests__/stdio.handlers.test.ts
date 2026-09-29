@@ -35,3 +35,15 @@ test('each inbound kind reaches its handler through the stdio host', async () =>
   expect([...called].sort()).toEqual(expected);
   expect(called.has('onSteer')).toBe(true);
 });
+
+test('the engine\'s own heartbeat goes out through the stdio host, one NDJSON line on its output', async () => {
+  const input = new PassThrough();
+  const output = new PassThrough();
+  const lines: string[] = [];
+  output.on('data', (chunk: Buffer) => lines.push(...chunk.toString('utf8').split('\n').filter(Boolean)));
+  const dispose = startStdioHost({ emitter: new EventEmitter(), input, output });
+  dispose.send({ t: 'health', uptimeMs: 1, rssMb: 2, heapMb: 3, eventLoopDelayMs: 4, activeTurn: true, phase: 'ready' });
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  dispose();
+  expect(lines.map((line) => JSON.parse(line)).find((m) => m.t === 'health')).toEqual(expect.objectContaining({ heapMb: 3, activeTurn: true }));
+});

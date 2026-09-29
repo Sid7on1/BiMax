@@ -8,7 +8,9 @@ each Bimax Thread's engine a **worker thread** with its own isolate (so the engi
 on the UI thread. Measured: 3 idle engines 494–521 MB as workers vs 649–791 MB as processes, same boot time. Found:
 a worker cannot `chdir`, so the engine silently ran in the wrong folder until a boot shim gave it its own. Costs stated
 plainly: a native crash or process-wide out-of-memory now ends every task, and all engines share 4 GB of JS heap.
-Phases M1–M6 are Target.
+M1–M3 are Implemented (the engine is a worker thread by default and talks over a MessagePort); the live check of the
+M3 install found its heartbeat going to the log instead of the app, which left the hang watchdog off — fixed, and now
+gated. M4–M6 are Target.
 
 ## Master flaw list: triage and fixes — 2026-09-29
 

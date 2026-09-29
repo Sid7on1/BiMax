@@ -124,8 +124,9 @@ export interface ConfigResultMsg {
 }
 
 /**
- * Startup progress. Emitted on stdout BEFORE the protocol host attaches (boot.status.ts writes it
- * directly), so a supervising front-end can show real phases instead of an indefinite spinner.
+ * Startup progress. Emitted BEFORE the protocol host attaches (boot.status.ts writes it directly — on
+ * stdout, or on the worker's port when the engine is a worker thread in the app), so a supervising
+ * front-end can show real phases instead of an indefinite spinner.
  * Phases arrive in order; `ready` (the handshake) supersedes them all.
  */
 export interface BootMsg {
@@ -139,6 +140,9 @@ export interface BootMsg {
  * Periodic liveness heartbeat, emitted every few seconds once the engine is interactive. A stalled
  * stream of these means the event loop is wedged (or the process is gone) — the supervising
  * front-end distinguishes that from legitimate long work via `activeTurn`.
+ *
+ * When the engine is a worker thread in the app (record 64), `uptimeMs` and `rssMb` describe the
+ * whole app process, which is all Node reports inside a worker; `heapMb` is the engine's own isolate.
  */
 export interface HealthMsg {
   t: 'health';
