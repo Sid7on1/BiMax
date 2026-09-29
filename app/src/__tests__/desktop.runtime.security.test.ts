@@ -191,7 +191,7 @@ describe('sender identity gates every privileged channel', () => {
     // The only ipcMain.handle/ipcMain.on call sites are the two inside secureHandle/secureOn.
     expect(raw).toEqual(['index.ts', 'index.ts']);
     // A module registers channels through an IpcGate (ipc.gate.ts), and index.ts hands every one of them the gate.
-    const registrars = [...main.matchAll(/(register\w+Ipc)\(([^)]*?\})\s*,/g)];
+    const registrars = [...main.matchAll(/(register\w+Ipc)\((\{[^}]*\})\s*[,)]/g)];
     expect(registrars.length).toBeGreaterThan(0);
     for (const [, name, gate] of registrars) expect([name, gate!.trim()]).toEqual([name, '{ handle: secureHandle, on: secureOn }']);
     expect(main.match(/register\w+Ipc\(/g)?.length).toBe(registrars.length); // none registered some other way
