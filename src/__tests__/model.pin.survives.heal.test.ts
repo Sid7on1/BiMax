@@ -17,14 +17,17 @@ describe('an explicit model pick is not rewritten by healing', () => {
 
   test('neither heal site persists the swap', () => {
     const root = path.resolve(__dirname, '..', '..');
+    // The boot heal moved out of headless.entry.ts into headless.boot.ts (flaw list C19); the entry must still call it.
     const entry = stripComments(fs.readFileSync(path.join(root, 'src/protocol/headless.entry.ts'), 'utf8'));
+    const boot = stripComments(fs.readFileSync(path.join(root, 'src/protocol/headless.boot.ts'), 'utf8'));
     const session = stripComments(fs.readFileSync(path.join(root, 'src/protocol/headless.session.ts'), 'utf8'));
 
     // The heal blocks must not call saveConfig with a runtime origin.
-    expect(entry).not.toMatch(/saveConfig\([^)]*origin:\s*'runtime'/);
+    expect(boot).not.toMatch(/saveConfig\([^)]*origin:\s*'runtime'/);
     expect(session).not.toMatch(/saveConfig\([^)]*origin:\s*'runtime'/);
     // …and both must still actually heal, so this cannot be "fixed" by deleting the recovery.
-    expect(entry).toContain('healModels()');
+    expect(boot).toContain('healModels()');
+    expect(entry).toContain('healModelPins(llmAdapter)');
     expect(session).toContain('healModels()');
   });
 
