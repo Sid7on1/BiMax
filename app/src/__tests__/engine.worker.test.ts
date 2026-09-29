@@ -22,6 +22,7 @@ const port = workerData.bimaxEnginePort;
 let acked = 0;
 const say = (m) => port.postMessage(JSON.stringify(m));
 say({ t: 'ready', root: workerData.bimaxEngineRoot, module: process.env.BIMAX_ENGINE_MODULE,
+      compileCache: process.env.NODE_COMPILE_CACHE,
       heapLimitMb: Math.round(v8.getHeapStatistics().heap_size_limit / 1048576) });
 process.stdout.write('a log line, never protocol\\n');
 port.on('message', (m) => {
@@ -58,6 +59,8 @@ test('the engine is told its folder and its own bundle, and messages travel over
   const e = start();
   const ready = await e.until('ready');
   expect(ready).toEqual(expect.objectContaining({ root: path.join(tmp, 'project'), module: fakeEngine }));
+  // Every engine start pays to parse a 22 MB bundle; the V8 compile cache under userData cuts it (buildEngineChildEnv).
+  expect(ready!.compileCache).toBe(path.join(tmp, 'v8-compile-cache'));
   e.handle.send({ t: 'ping', id: 7 });
   expect(await e.until('pong')).toEqual({ t: 'pong', id: 7 });
   e.handle.endStdin();

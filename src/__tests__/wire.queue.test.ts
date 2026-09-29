@@ -1,8 +1,7 @@
 import { EventEmitter } from 'events';
-import { Writable } from 'stream';
 import { WireQueue, outboundClass } from '../protocol/wire.queue';
-import { startStdioHost } from '../protocol/stdio.host';
-import { Outbound } from '../protocol/protocol';
+import { createQueuedHost, type QueuedHostOptions } from '../protocol/queued.host';
+import { Inbound, Outbound } from '../protocol/protocol';
 
 /**
  * The transport slice of F04. Two properties carry the weight:
@@ -229,124 +228,107 @@ describe('WireQueue — cancellation', () => {
   });
 });
 
-/** A real stream that accepts one write and then never drains, i.e. a front-end that stopped reading. */
-class StalledStream extends Writable {
-  lines: string[] = [];
-  private release: (() => void) | null = null;
-  constructor() { super({ highWaterMark: 1, decodeStrings: false }); }
-  _write(chunk: any, _enc: string, cb: () => void): void {
-    this.lines.push(String(chunk));
-    this.release = cb;
-  }
-  /** Let the single in-flight write complete, which produces a 'drain'. */
-  releaseOne(): void { const cb = this.release; this.release = null; cb?.(); }
+/**
+ * The protocol host over the hand-driven sink above: what every transport shares (queued.host.ts). These four ran
+ * through the stdio host, over a real stream that stopped draining, until record 64's M4 removed that transport; a
+ * sink that answers `false` is the same front-end that stopped reading, and each drain lets exactly one write through.
+ */
+function hostOver(s: ReturnType<typeof sink>, options: Partial<QueuedHostOptions> = {}) {
+  const emitter = new EventEmitter();
+  const overflow: string[] = [];
+  const q = createQueuedHost({ ...s.options, reportOverflow: (text) => { overflow.push(text); } }, { emitter, ...options }, (m) => JSON.stringify(m));
+  q.host.attach(emitter);
+  const ingest = (msg: Inbound) => q.host.ingest(msg);
+  return { emitter, ingest, overflow, ...q };
 }
+const parsed = (written: string[]) => written.map(w => { try { return JSON.parse(w); } catch { return null; } });
 
-describe('stdio host — a front-end that stops reading', () => {
-  it('delivers the handshake, withholds bulk, and says so on the wire', async () => {
-    const emitter = new EventEmitter();
-    const output = new StalledStream();
-    const dispose = startStdioHost({
-      emitter, output,
-      input: Object.assign(new EventEmitter(), { off: EventEmitter.prototype.off }) as any,
-      maxQueuedBytes: 4_000, bulkHighWaterBytes: 1_500, bulkLowWaterBytes: 500,
-    });
+describe('queued host — a front-end that stops reading', () => {
+  it('delivers the handshake, withholds bulk, and says so on the channel', () => {
+    const s = sink();
+    s.setAccept(false);
+    const h = hostOver(s, { maxQueuedBytes: 4_000, bulkHighWaterBytes: 1_500, bulkLowWaterBytes: 500 });
 
-    // hello + ready are critical and go out before anything else can congest the pipe.
-    const first = output.lines.map(l => JSON.parse(l).t);
-    expect(first[0]).toBe('hello');
+    // hello + ready are critical and go out before anything else can congest the channel.
+    expect(parsed(s.written)[0]?.t).toBe('hello');
 
-    for (let i = 0; i < 500; i++) emitter.emit('log', { id: i, level: 'info', text: 'x'.repeat(200) });
+    for (let i = 0; i < 500; i++) h.emitter.emit('log', { id: i, level: 'info', text: 'x'.repeat(200) });
 
-    const stats = dispose.stats();
+    const stats = h.stats();
     expect(stats.bulkPaused).toBe(true);
     expect(stats.refusedBulk).toBeGreaterThan(0);
     expect(stats.queuedBytes).toBeLessThanOrEqual(4_000);
 
     // The notice about withheld output is itself delivered — enqueued as critical, because a
-    // warning that gets withheld by the condition it describes is useless. Drain the stalled
-    // stream one write at a time until the queue empties.
-    for (let i = 0; i < 500 && dispose.stats().queuedMessages > 0; i++) {
-      output.releaseOne();
-      await new Promise(r => setImmediate(r));
-    }
-    expect(dispose.stats().queuedMessages).toBe(0);
-    const texts = output.lines
-      .map(l => { try { return JSON.parse(l); } catch { return null; } })
+    // warning that gets withheld by the condition it describes is useless. Drain one write at a
+    // time until the queue empties.
+    for (let i = 0; i < 500 && h.stats().queuedMessages > 0; i++) s.drain();
+    expect(h.stats().queuedMessages).toBe(0);
+    const texts = parsed(s.written)
       .filter(m => m?.name === 'log')
       .map(m => String(m.args?.[0]?.text ?? ''));
     expect(texts.some(t => t.includes('[transport] output paused'))).toBe(true);
 
-    dispose();
+    h.dispose();
   });
 
-  it('discards queued display output on interrupt only when the pipe is congested', async () => {
-    const emitter = new EventEmitter();
-    const input = new EventEmitter() as any;
-    input.off = EventEmitter.prototype.off;
-    const output = new StalledStream();
+  it('discards queued display output on interrupt only when the channel is congested', () => {
+    const s = sink();
+    s.setAccept(false);
     let interrupted = 0;
-
-    const dispose = startStdioHost({
-      emitter, output, input,
+    const h = hostOver(s, {
       onInterrupt: () => { interrupted++; },
       maxQueuedBytes: 8_000, bulkHighWaterBytes: 3_000, bulkLowWaterBytes: 500,
     });
 
-    for (let i = 0; i < 40; i++) emitter.emit('log', { id: i, level: 'info', text: 'y'.repeat(100) });
-    expect(dispose.stats().queuedBytes).toBeGreaterThan(500);
+    for (let i = 0; i < 40; i++) h.emitter.emit('log', { id: i, level: 'info', text: 'y'.repeat(100) });
+    expect(h.stats().queuedBytes).toBeGreaterThan(500);
 
-    input.emit('data', Buffer.from(JSON.stringify({ t: 'interrupt' }) + '\n', 'utf8'));
+    h.ingest({ t: 'interrupt' } as Inbound);
 
     // The stop is acknowledged AND the cancelled turn's queued output is gone, which is the only
-    // way a stop stays responsive on a pipe that already has megabytes queued ahead of it.
+    // way a stop stays responsive on a channel that already has megabytes queued ahead of it.
     expect(interrupted).toBe(1);
-    expect(dispose.stats().droppedBulkOnCancel).toBeGreaterThan(0);
-    dispose();
+    expect(h.stats().droppedBulkOnCancel).toBeGreaterThan(0);
+    h.dispose();
   });
 
-  it('keeps queued output on an interrupt when the pipe is NOT congested', () => {
-    const emitter = new EventEmitter();
-    const input = new EventEmitter() as any;
-    input.off = EventEmitter.prototype.off;
+  it('keeps queued output on an interrupt when the channel is NOT congested', () => {
     // Stalled, so output really does queue — but the watermarks are far above what is queued, so
     // the stop acknowledgement is already prompt and there is no reason to throw work away.
-    const output = new StalledStream();
+    const s = sink();
+    s.setAccept(false);
     let interrupted = 0;
-    const dispose = startStdioHost({
-      emitter, output, input,
+    const h = hostOver(s, {
       onInterrupt: () => { interrupted++; },
       maxQueuedBytes: 200_000, bulkHighWaterBytes: 100_000, bulkLowWaterBytes: 50_000,
     });
 
-    for (let i = 0; i < 3; i++) emitter.emit('log', { id: i, level: 'info', text: 'a short line' });
-    const queuedBefore = dispose.stats().queuedMessages;
+    for (let i = 0; i < 3; i++) h.emitter.emit('log', { id: i, level: 'info', text: 'a short line' });
+    const queuedBefore = h.stats().queuedMessages;
     expect(queuedBefore).toBeGreaterThan(0);   // there IS something that could be discarded
-    expect(dispose.stats().queuedBytes).toBeLessThan(50_000);
+    expect(h.stats().queuedBytes).toBeLessThan(50_000);
 
-    input.emit('data', Buffer.from(JSON.stringify({ t: 'interrupt' }) + '\n', 'utf8'));
+    h.ingest({ t: 'interrupt' } as Inbound);
 
     expect(interrupted).toBe(1);
-    expect(dispose.stats().droppedBulkOnCancel).toBe(0);
-    expect(dispose.stats().queuedMessages).toBe(queuedBefore);
-    dispose();
+    expect(h.stats().droppedBulkOnCancel).toBe(0);
+    expect(h.stats().queuedMessages).toBe(queuedBefore);
+    h.dispose();
   });
 
-  it('leaves a healthy transport with nothing withheld and nothing queued', () => {
-    const emitter = new EventEmitter();
-    const input = new EventEmitter() as any;
-    input.off = EventEmitter.prototype.off;
-    const written: string[] = [];
-    const output = new Writable({ write(chunk, _e, cb) { written.push(String(chunk)); cb(); } });
-    const dispose = startStdioHost({ emitter, output, input });
+  it('leaves a healthy channel with nothing withheld and nothing queued', () => {
+    const s = sink();
+    const h = hostOver(s);
 
-    for (let i = 0; i < 200; i++) emitter.emit('log', { id: i, level: 'info', text: `line ${i}` });
-    const stats = dispose.stats();
+    for (let i = 0; i < 200; i++) h.emitter.emit('log', { id: i, level: 'info', text: `line ${i}` });
+    const stats = h.stats();
     expect(stats.refusedBulk).toBe(0);
     expect(stats.bulkPaused).toBe(false);
     expect(stats.overflowed).toBe(false);
     expect(stats.queuedMessages).toBe(0);
-    expect(written.length).toBe(stats.writtenMessages);
-    dispose();
+    expect(s.written.length).toBe(stats.writtenMessages);
+    expect(h.overflow).toEqual([]);
+    h.dispose();
   });
 });

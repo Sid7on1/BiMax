@@ -2,12 +2,11 @@ import * as http from 'http';
 import { testWithFts5 } from './fts5.support';
 import * as fs from 'fs';
 import * as path from 'path';
-import { PassThrough } from 'stream';
 import { RemoteEmbeddingBackend } from '../memory/embeddings';
 import { RemoteReranker } from '../memory/rerank';
 import { engineEvents } from '../engine/events';
 import { capabilitySnapshot, resetCapabilityStatus, reportCapability } from '../core/capability.status';
-import { startStdioHost } from '../protocol/stdio.host';
+import { startPortHost, type EnginePortLike } from '../protocol/port.host';
 import { engineReducer, initialEngineState } from '../../app/src/renderer/src/engine.state';
 import { Governor } from '../governor/governor';
 import { SafetyPolicy } from '../governor/policy.engine';
@@ -23,17 +22,26 @@ let reply: { status: number; payload?: any; hang?: boolean };
 let requests = 0;
 let wire: any[];
 let dispose: () => void;
-let input: PassThrough;
-let output: PassThrough;
+
+/**
+ * The engine's real protocol host over a port that hands every frame straight to `wire`, synchronously, so each test
+ * reads what reached the app the moment it was sent. The window is never the limit here: these tests are about what
+ * the engine says, not flow control (port.host.test.ts covers that over a real MessageChannel).
+ */
+function attachHost(): () => void {
+  const port = {
+    postMessage: (frame: unknown) => { wire.push(JSON.parse(String(frame))); },
+    on: () => port, off: () => port,
+  } as unknown as EnginePortLike;
+  return startPortHost({ emitter: engineEvents, port, windowBytes: Number.MAX_SAFE_INTEGER });
+}
 let root: string;
 let oldWorkspace: string;
 
 beforeEach(async () => {
   resetCapabilityStatus();
   wire = []; requests = 0;
-  input = new PassThrough(); output = new PassThrough();
-  output.on('data', chunk => { for (const line of chunk.toString().trim().split('\n')) wire.push(JSON.parse(line)); });
-  dispose = startStdioHost({ emitter: engineEvents, input, output });
+  dispose = attachHost();
   root = fs.mkdtempSync(path.join(process.cwd(), '.silence-test-'));
   oldWorkspace = SafetyPolicy.allowedWorkspace;
   SafetyPolicy.allowedWorkspace = root;
@@ -50,7 +58,7 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
-  dispose(); input.destroy(); output.destroy();
+  dispose();
   server.closeAllConnections();
   await new Promise<void>(resolve => server.close(() => resolve()));
   SafetyPolicy.allowedWorkspace = oldWorkspace;
@@ -208,7 +216,7 @@ test('pre-host failures replay and capability messages have reserved transport c
   dispose();
   reportCapability({ id: 'early', label: 'Early capability', state: 'unavailable', reason: 'Failed before attachment.', impact: '', action: '' });
   wire = [];
-  dispose = startStdioHost({ emitter: engineEvents, input, output });
+  dispose = attachHost();
   expect(ui().capabilities.early).toBeDefined();
   expect(outboundClass(notices('early')[0])).toBe('critical');
   expect(capabilitySnapshot().some(n => n.id === 'early')).toBe(true);

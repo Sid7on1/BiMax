@@ -81,18 +81,18 @@ else
   w "no API keys detected — set one in ~/.breakglass/.env or via /config"
 fi
 
-# 4) Engine boot — the ultimate check: does the headless engine reach 'ready'?
+# 4) Engine boot — the ultimate check: run the bundle the way the app does (a worker thread over a
+# MessagePort, record 64) and require it to answer. Until record 64's M4 this booted dist/index.js on
+# stdin/stdout; the engine no longer speaks there, and that check had been skipped since `commander` left.
 printf '\n\033[1mEngine boot\033[0m\n'
-if [ -f dist/index.js ] && node -e "require.resolve('commander')" >/dev/null 2>&1; then
-  # Boot the compiled entry DIRECTLY with the headless env var. (Going through bin/bimax.js takes the
-  # interactive path here and dies on /dev/tty in a no-TTY shell; headless is env-triggered, not a flag.)
-  if BIMAX_HEADLESS=1 timeout 35 node dist/index.js </dev/null 2>/dev/null | grep -q '"t":"ready"'; then
-    g "headless engine boots to ready"
+if [ -f app/engine/index.js ]; then
+  if (cd app && timeout 150 npx electron scripts/verify-engine.js >/dev/null 2>&1); then
+    g "engine bundle boots and answers as a worker (verify-engine)"
   else
-    f "headless engine did NOT reach ready in 35s — see ~/Library/Caches/bimax/engine.log"
+    f "engine bundle failed verify-engine — run: npm --prefix app run verify:engine"
   fi
 else
-  w "skipped engine boot (build/deps not healthy yet — fix those first)"
+  w "no engine bundle yet — run: npm --prefix app run prepare:engine"
 fi
 
 printf '\n\033[1mSummary:\033[0m %s fail(s), %s warning(s).\n' "$FAILS" "$WARNS"

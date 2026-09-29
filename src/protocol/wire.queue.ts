@@ -1,7 +1,9 @@
 import { Outbound } from './protocol';
 
 /**
- * Bounded, strictly ordered outbound queue for the NDJSON protocol pipe.
+ * Bounded, strictly ordered outbound queue for the engine's protocol channel. It was written for an NDJSON pipe; since
+ * record 64 the channel is a MessagePort, whose acknowledged window (port.host.ts) plays the part of `write()`
+ * returning false. The reasoning below is unchanged by that.
  *
  * The sink used to be `out.write(encode(msg))` with the return value discarded. `write()` returning
  * false is Node telling you the kernel buffer is full and it is now buffering in the process's own

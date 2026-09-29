@@ -4,8 +4,8 @@ import { startPortHost, PORT_ACK } from '../protocol/port.host';
 import { INBOUND_FIXTURES } from '../protocol/schema/fixtures';
 
 /**
- * The monolith's protocol transport (record 64, M3): one protocol message per port message, and the stdio transport's
- * bounds kept by an acknowledged window. Driven through a real MessageChannel.
+ * The monolith's protocol transport (record 64, M3), the only one since M4: one protocol message per port message, and
+ * the bounds the old stdio transport had kept by an acknowledged window. Driven through a real MessageChannel.
  */
 
 const tick = (ms = 20) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -29,7 +29,7 @@ test('one protocol message per port message: a ping is answered with a pong, fra
   c.close();
 });
 
-test('each inbound kind reaches its handler through the port host (the stdio host has the same test)', async () => {
+test('each inbound kind reaches its handler through the port host (host.handlers.test.ts checks every kind)', async () => {
   const called = new Set<string>();
   const names = ['onInput', 'onInterrupt', 'onSteer', 'onQuery', 'onMenuSelect', 'onConfigGet', 'onConfigSet', 'onCatalogGet', 'onProviderSet', 'onResume', 'onControls'];
   const handlers = Object.fromEntries(names.map((name) => [name, () => { called.add(name); return name === 'onQuery' ? [] : name === 'onConfigGet' || name === 'onConfigSet' ? {} : undefined; }]));
@@ -81,36 +81,6 @@ test('the app closing its end of the port is the engine\'s signal to shut down',
   await tick(50);
   expect(onClose).toHaveBeenCalledTimes(1);
   c.handle();
-});
-
-test('the same engine events produce the same messages over the port as over stdio', async () => {
-  const { PassThrough } = await import('stream');
-  const { startStdioHost } = await import('../protocol/stdio.host');
-  const script = (emitter: EventEmitter) => {
-    emitter.emit('status', 'Indexing…');
-    emitter.emit('message', { id: 'm1', role: 'assistant', content: 'héllo — 你好 🙂', timestamp: '2026-09-29T00:00:00.000Z' });
-    emitter.emit('stream_token', 'tok');
-  };
-
-  const stdioEmitter = new EventEmitter();
-  const input = new PassThrough();
-  const output = new PassThrough();
-  const lines: string[] = [];
-  output.on('data', (chunk: Buffer) => lines.push(...chunk.toString('utf8').split('\n').filter(Boolean)));
-  const disposeStdio = startStdioHost({ emitter: stdioEmitter, input, output });
-  script(stdioEmitter);
-  input.write(JSON.stringify({ t: 'ping', id: 1 }) + '\n');
-
-  const c = open();
-  script(c.emitter);
-  c.app.postMessage({ t: 'ping', id: 1 });
-  await tick(50);
-
-  const strip = (m: Record<string, unknown>) => JSON.parse(JSON.stringify(m, (k, v) => (k === 'ts' || k === 'pid' || k === 'uptimeMs' ? undefined : v)));
-  expect(c.parsed().map(strip)).toEqual(lines.map((line) => strip(JSON.parse(line))));
-  expect(lines.length).toBeGreaterThanOrEqual(4);
-  disposeStdio();
-  c.close();
 });
 
 test('congested and interrupted: queued display output for the cancelled turn is dropped, and the stop is acknowledged', async () => {

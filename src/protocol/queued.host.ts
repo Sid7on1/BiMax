@@ -10,8 +10,8 @@ import { WireQueue, WireQueueStats, outboundClass } from './wire.queue';
  * the one failure that cannot travel on the sink itself. Everything else is here once: the {@link WireQueue} with its
  * reserved capacity for approvals and lifecycle traffic, the visible notices when display output is withheld, and the
  * interrupt rule that discards queued display output for a cancelled turn so the stop is acknowledged promptly.
- * Before this, stdio.host.ts held it all; the MessagePort transport of the monolith (record 64, M3) is the second
- * user, and a second copy is how the two would drift.
+ * It was split out of stdio.host.ts when the monolith's MessagePort transport arrived (record 64, M3), so the two
+ * transports could not drift; since M4 removed the stdio host, the port host is its one user.
  */
 export interface QueuedHostOptions extends HostHandlers {
   emitter: EventEmitter;            // the engine's engineEvents

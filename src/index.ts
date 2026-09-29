@@ -7,14 +7,15 @@
 // the MCP graph server were reachable only through them. All of it now lives in
 // ~/Developer/bimax-archive at its repo path, cmp-verified, not deleted.
 //
-// What boots this process, and nothing else does:
-//   • the desktop app — an Electron `utilityProcess` (MessagePort in, piped stdout out), or an OS
-//     child process (stdin/stdout). The transport is DETECTED below, never configured.
-//   • itself — a one-shot sub-agent re-exec carrying BIMAX_SUBAGENT_CONFIG.
+// What boots this module, and nothing else does:
+//   • the desktop app — a worker thread inside the app's process, handed a MessagePort to speak on (the monolith,
+//     record 64). Since M4 (2026-09-30) that is the only way: the separate engine process that spoke NDJSON on
+//     stdin/stdout is gone, and an engine started without the app's port stops at once and says why.
+//   • itself — a one-shot sub-agent carrying BIMAX_SUBAGENT_CONFIG.
 // Every mode is chosen by ENVIRONMENT, never by argv, so there is no argument surface to drift.
 
 // FIRST, before any other module runs: an engine hosted as a worker thread in the app's process (the monolith,
-// record 64) gets a working folder of its own. Does nothing in any other host.
+// record 64) gets a working folder of its own. Does nothing on the main thread (a sub-agent re-exec, a test).
 import './engine/worker.folder';
 
 // Buffer boot logs so they don't fight the front-end for stdout during boot
@@ -122,6 +123,18 @@ async function main() {
     return;
   }
 
+  // The engine speaks only over the port the app hands its worker (record 64, M4). Checked before config, storage or
+  // indexing start: an engine started any other way stops having read no config and opened no store. (Loading the
+  // modules above may already have created the empty `.breakglass/logs` folder — measured, nothing else.)
+  const { engineWorkerPort } = await import('./protocol/port.host');
+  const port = engineWorkerPort();
+  if (!port) {
+    originalConsoleError('[bimax] The engine runs only as a worker thread inside the Bimax app, which hands it a port to '
+      + 'speak on (record 64). It was started without one, so it is stopping. To run it by hand, use '
+      + '`npx electron app/scripts/verify-engine.js`.');
+    process.exit(2);
+  }
+
   // Honor the front-end's working directory BEFORE anything reads config or the graph. The engine's
   // own cwd is wherever it was spawned; the user's actual PROJECT is passed as BIMAX_CWD. This must
   // run before loadConfig(), or the project config (`<cwd>/.breakglass/config.json`) is read from
@@ -150,21 +163,13 @@ async function main() {
   setGlobalRecipeLoader(new RecipeLoader(process.cwd()));
   if (graphStore) setContextManagerGraphStore(graphStore);
 
-  // The engine speaks its NDJSON stdio protocol and nothing else. The import below evaluates the
-  // whole command/persona tree — on a cold page cache that is the longest silent stretch of boot,
-  // so report it or the front-end shows a hang between the container and `ready`.
+  // The import below evaluates the whole command/persona tree — on a cold page cache that is the longest silent
+  // stretch of boot, so report it or the front-end shows a hang between the container and `ready`.
   reportBootPhase('loading_interface');
   const { startHeadless } = await import('./protocol/headless.entry');
-  // Transport is DETECTED, not configured, and this stays the only boot path. The desktop can host
-  // this same engine either as an OS child process (stdin/stdout) or as an Electron utilityProcess
-  // (MessagePort inbound, piped stdout outbound) — and a second entry file for the second case is
-  // exactly how desktop.runtime.ts and the two env builders came to drift, with the copy nobody ran
-  // quietly losing features the other had. One file, one boot, one place a fix lands.
-  const { underUtilityProcess, parentPortInput } = await import('./protocol/parent.port');
-  const { engineWorkerPort } = await import('./protocol/port.host');
-  // A worker thread inside the app (the monolith, record 64) speaks over the port it was handed.
-  const port = engineWorkerPort();
-  await startHeadless(container, config, port ? { port } : underUtilityProcess() ? { input: parentPortInput() } : {});
+  // One entry file, one boot, one place a fix lands: a second entry for a second host is how desktop.runtime.ts and
+  // the two env builders once drifted, with the copy nobody ran quietly losing features the other had.
+  await startHeadless(container, config, { port });
   process.exit(0);
 }
 

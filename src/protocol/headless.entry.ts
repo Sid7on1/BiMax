@@ -6,7 +6,6 @@ import { engineEvents, MessageEntry } from '../engine/events';
 import { goalEvents } from '../memory/goal.manager';
 import { buildPersonas } from '../engine/personas/factory';
 import { HeadlessSession } from './headless.session';
-import { startStdioHost } from './stdio.host';
 import { startPortHost, type EnginePortLike } from './port.host';
 import type { HostHandlers } from './host';
 import { createConfigWire } from './config.wire';
@@ -28,32 +27,23 @@ import type { OutcomeTask } from '../outcome/outcome.model';
 import '../engine/commands';
 
 /**
- * Run BiMax headless: no Ink, no TTY. The engine's events stream out as NDJSON on stdout and
- * the front-end's commands come in as NDJSON on stdin (see src/protocol). This is the process
- * the Go / Bubble Tea TUI spawns and drives. Activated by `BIMAX_HEADLESS=1` (or `--headless`),
- * forked in index.ts AFTER the container is built but BEFORE Ink would mount — so the in-process
- * Ink path is never touched.
+ * Run the engine's session for the app: the engine is a worker thread in the app's process (the monolith, record 64)
+ * and speaks over the MessagePort the app handed it, one protocol message per port message (port.host.ts). Called by
+ * index.ts once the container is built.
  *
- * `container` is the createContainer() result; `config` the loaded config. Resolves only when the
- * session shuts down (the stdio host keeps the process alive while stdin is open).
- */
-/**
- * Where the protocol's bytes come from and go to. Omitted means the process's own stdin/stdout,
- * which is the OS-child-process transport. The desktop passes a port-backed `input` when it hosts
- * the engine as an Electron utilityProcess, which cannot be given a stdin — see protocol/parent.port.ts.
+ * `container` is the createContainer() result; `config` the loaded config. Resolves only when the session shuts down:
+ * when the app closes its end of the port, or an `engineEvents` 'shutdown'.
+ *
+ * Until record 64's M4 (2026-09-30) the engine could also run as its own process, speaking NDJSON on stdin/stdout;
+ * that transport (stdio.host.ts, parent.port.ts, codec.ts) is in ~/Developer/bimax-archive and at the git tag
+ * `keep/engine-process-fallback`.
  */
 export interface HeadlessTransport {
-  input?: NodeJS.ReadableStream;
-  output?: NodeJS.WritableStream;
-  /**
-   * The monolith (record 64): the engine is a worker thread in the app's process and speaks over this MessagePort,
-   * one protocol message per port message (port.host.ts). When set, input/output are unused, and the app closing
-   * the port — not the end of stdin — shuts the engine down.
-   */
-  port?: EnginePortLike;
+  /** The port the app handed this engine worker. The app closing its end shuts the engine down. */
+  port: EnginePortLike;
 }
 
-export async function startHeadless(container: any, config: any, transport: HeadlessTransport = {}): Promise<void> {
+export async function startHeadless(container: any, config: any, transport: HeadlessTransport): Promise<void> {
   const { toolRegistry, llmAdapter, governor, graphStore, codebaseIndexer } = container;
 
   // User-defined slash commands: `.bimax/commands/<name>.md` in the project (winning) then
@@ -467,14 +457,7 @@ export async function startHeadless(container: any, config: any, transport: Head
       return rest;
     },
   };
-  const dispose = transport.port
-    ? startPortHost({ emitter: engineEvents, port: transport.port, onClose: () => engineEvents.emit('shutdown'), ...handlers })
-    : startStdioHost({
-      emitter: engineEvents,
-      ...(transport.input ? { input: transport.input } : {}),
-      ...(transport.output ? { output: transport.output } : {}),
-      ...handlers,
-    });
+  const dispose = startPortHost({ emitter: engineEvents, port: transport.port, onClose: () => engineEvents.emit('shutdown'), ...handlers });
 
   // Liveness heartbeat for the supervising front-end (desktop): a `health` line every few seconds
   // carrying event-loop responsiveness, memory, and whether a turn is executing. The desktop uses
@@ -782,8 +765,8 @@ export async function startHeadless(container: any, config: any, transport: Head
     const shutdown = () => {
       if (done) return;
       done = true;
-      // Signals/stdin loss do not necessarily travel through engineEvents. Flush every durable
-      // thread domain directly so the latest assignment/evidence cannot vanish on terminal close.
+      // Flush every durable domain directly, so the latest assignment and evidence cannot vanish when the app closes
+      // the port.
       try {
         outcomeManager.shutdown();
       } catch {
@@ -809,14 +792,8 @@ export async function startHeadless(container: any, config: any, transport: Head
       dispose();
       resolve();
     };
+    // The app closing the port emits 'shutdown' (port.host.ts). There is no stdin to watch and no signal to catch: a
+    // worker thread receives no signals, so SIGINT/SIGTERM listeners here never ran once the engine became a worker.
     engineEvents.once('shutdown', shutdown);
-    process.once('SIGINT', shutdown);
-    process.once('SIGTERM', shutdown);
-    // If the front-end (our stdin) goes away, the parent process is gone — exit cleanly. Over a port the app closes
-    // the port instead (port.host.ts emits 'shutdown'), and a worker's own stdin is not the app.
-    if (!transport.port) {
-      process.stdin.once('end', shutdown);
-      process.stdin.once('close', shutdown);
-    }
   });
 }

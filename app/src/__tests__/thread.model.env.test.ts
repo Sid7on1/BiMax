@@ -51,7 +51,6 @@ test('the engine bundle gets a V8 compile cache when one is offered, and none wh
   expect(plainEnv.NODE_COMPILE_CACHE).toBeUndefined();
 });
 
-test('both engine transports ask for the cache — a per-task cost fixed on only one path is fixed nowhere', () => {
-  const engine = require('fs').readFileSync(require('path').join(__dirname, '..', 'main', 'engine.ts'), 'utf8');
-  expect(engine.match(/compileCacheDir: engineCompileCacheDir\(\)/g)?.length).toBe(2);
-});
+// "Both engine transports ask for the cache" counted two call sites in engine.ts. Since record 64's M4 there is one
+// transport, and engine.worker.test.ts checks the cache behaviourally: the engine worker itself reports the
+// NODE_COMPILE_CACHE it was started with.
