@@ -15,16 +15,24 @@
  *   catalogGet  — ~36 KB outbound, which is what actually exercises the pipe
  *   query       — the completions channel, i.e. the slash-command registry really loaded
  *
- * Usage:  npx electron scripts/verify-engine.js [path/to/index.js] [--turn]
+ * A fifth check, `folder`: an `@` query must suggest a file that exists only in the scratch project, i.e. the engine
+ * really works in the task's folder. Under a worker thread that is not free — a worker cannot chdir — and it is exactly
+ * what the first monolith probe got silently wrong (record 64).
+ *
+ * Usage:  npx electron scripts/verify-engine.js [path/to/index.js] [--turn] [--worker]
  * Default target is app/engine/index.js — what prepare-engine.sh builds and electron-builder packs.
+ * `--worker` hosts it the way the monolith does: a worker thread inside this process (record 64), not a
+ * utilityProcess.
  *
  * `--turn` additionally runs ONE real model turn. It is opt-in, not part of the build gate, because
  * it needs a configured provider key and costs money — a packaging gate that fails on a machine
  * without credentials, or that bills per build, is a gate people start skipping.
  */
 const { app, utilityProcess } = require('electron');
+const { Worker } = require('node:worker_threads');
 const { createInterface } = require('node:readline');
-const { existsSync, mkdtempSync } = require('node:fs');
+const fs = require('node:fs');
+const { existsSync, mkdtempSync } = fs;
 const { tmpdir } = require('node:os');
 const path = require('node:path');
 
@@ -34,6 +42,7 @@ const target = process.argv[2] && !process.argv[2].startsWith('-')
   : path.join(appRoot, 'engine', 'index.js');
 
 const wantsTurn = process.argv.includes('--turn');
+const wantsWorker = process.argv.includes('--worker');
 let turnSent = false;
 let tokens = 0;
 
@@ -42,6 +51,7 @@ const expected = new Map([
   ['configResult', 'configGet'],
   ['catalogResult', 'catalogGet'],
   ['queryResult', 'query (slash-command completions)'],
+  ['folder', "query '@VerifyProbe' found the project's own file"],
 ]);
 
 let done = false;
@@ -56,12 +66,27 @@ app.whenReady().then(() => {
   // A scratch project, so verification never reads or writes a real one.
   const project = mkdtempSync(path.join(tmpdir(), 'bimax-verify-'));
 
-  const child = utilityProcess.fork(target, [], {
-    env: { ...process.env, BIMAX_HEADLESS: '1', BIMAX_CWD: project },
-    cwd: appRoot,
-    serviceName: 'Bimax Engine Verify',
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
+  fs.writeFileSync(path.join(project, 'VerifyProbeFile.md'), 'x');
+  const env = { ...process.env, BIMAX_HEADLESS: '1', BIMAX_CWD: project, BIMAX_ENGINE_MODULE: target };
+  // One small adapter over the two hosts, so every check below reads the same for both.
+  let child;
+  if (wantsWorker) {
+    const worker = new Worker(target, { env, workerData: { bimaxEngineRoot: project }, stdin: true, stdout: true, stderr: true });
+    child = {
+      stdout: worker.stdout, stderr: worker.stderr,
+      postMessage: (line) => worker.stdin.write(line),
+      kill: () => { void worker.terminate(); },
+      on: (event, fn) => worker.on(event, fn),
+    };
+    console.log('  (hosted as a worker thread in this process — the monolith)');
+  } else {
+    child = utilityProcess.fork(target, [], {
+      env,
+      cwd: appRoot,
+      serviceName: 'Bimax Engine Verify',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+  }
 
   const got = new Map();
   let bytes = 0;
@@ -76,14 +101,23 @@ app.whenReady().then(() => {
 
     if (msg.t === 'ready' && !asked) {
       asked = true;
-      for (const m of [{ t: 'ping', id: 1 }, { t: 'configGet', id: 2 }, { t: 'catalogGet', id: 3 }, { t: 'query', id: 4, text: '/' }]) {
+      for (const m of [{ t: 'ping', id: 1 }, { t: 'configGet', id: 2 }, { t: 'catalogGet', id: 3 }, { t: 'query', id: 4, text: '/' }, { t: 'query', id: 5, text: '@VerifyProbe' }]) {
         child.postMessage(JSON.stringify(m) + '\n');   // newline: the engine frames on it
       }
     }
 
-    if (expected.has(msg.t) && !got.has(msg.t)) {
-      got.set(msg.t, true);
-      console.log(`  ok  ${msg.t.padEnd(14)} ${String(text.length).padStart(7)} bytes  (${expected.get(msg.t)})`);
+    // The folder check is the id-5 query; its answer must name the file only the scratch project has.
+    let key = msg.t;
+    if (msg.t === 'queryResult' && msg.id === 5) {
+      if (!JSON.stringify(msg).includes('VerifyProbeFile.md')) {
+        child.kill();
+        return finish(1, `FAIL — the engine is not working in the project's folder: '@VerifyProbe' suggested ${JSON.stringify(msg).slice(0, 200)}`);
+      }
+      key = 'folder';
+    }
+    if (expected.has(key) && !got.has(key)) {
+      got.set(key, true);
+      console.log(`  ok  ${key.padEnd(14)} ${String(text.length).padStart(7)} bytes  (${expected.get(key)})`);
       if (got.size === expected.size) {
         if (!wantsTurn) {
           child.kill();

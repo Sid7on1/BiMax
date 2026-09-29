@@ -1,5 +1,6 @@
 import { spawn, execFileSync } from 'node:child_process';
 import { createInterface } from 'node:readline';
+import { Worker } from 'node:worker_threads';
 import { app, utilityProcess, type UtilityProcess } from 'electron';
 import { existsSync, mkdirSync, createWriteStream, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
@@ -408,16 +409,7 @@ export function spawnEngineUtilityProcess(
   // buildEngineChildEnv is shared with the child-process path on purpose: the native-component
   // stripping, the per-thread model override and the folder-rule scoping are transport-independent,
   // and the two env builders that drifted apart once already are why this is not re-derived here.
-  const childEnv = buildEngineChildEnv({
-    parentEnv: process.env,
-    extraEnv,
-    path: userShellPath(),
-    projectDir,
-    compileCacheDir: engineCompileCacheDir(),
-  });
-  // Electron's Env type admits no undefined values, unlike process.env.
-  const env: Record<string, string> = {};
-  for (const [k, v] of Object.entries(childEnv)) if (v !== undefined) env[k] = v;
+  const env = engineModuleEnv(projectDir, extraEnv, modulePath);
 
   const child: UtilityProcess = utilityProcess.fork(modulePath, [], {
     env,
@@ -494,6 +486,138 @@ export function spawnEngineUtilityProcess(
 }
 
 /**
+ * The environment an engine module is started with, for both module transports. buildEngineChildEnv is shared on
+ * purpose (native-component stripping, the per-thread model, folder-rule scoping); BIMAX_ENGINE_MODULE tells the
+ * engine which bundle it is, so its sub-agents run that same bundle (subagent.manager.ts) instead of looking for a
+ * worker entry file the packaged app never had.
+ */
+function engineModuleEnv(projectDir: string, extraEnv: Record<string, string>, modulePath: string): Record<string, string> {
+  const childEnv = buildEngineChildEnv({
+    parentEnv: process.env,
+    extraEnv: { ...extraEnv, BIMAX_ENGINE_MODULE: modulePath },
+    path: userShellPath(),
+    projectDir,
+    compileCacheDir: engineCompileCacheDir(),
+  });
+  // Electron's Env type admits no undefined values, unlike process.env.
+  const env: Record<string, string> = {};
+  for (const [k, v] of Object.entries(childEnv)) if (v !== undefined) env[k] = v;
+  return env;
+}
+
+// ─── worker-thread transport: the monolith (record 64) ────────────────────────────────────────
+
+/**
+ * The V8 heap limit of one engine worker, a MEMORY cap (named per AGENTS.md: it is not the Bimax Thread cap
+ * MAX_LIVE_ENGINES and not a CPU budget). Every isolate in this process shares ONE 4 GB V8 heap (Electron's pointer
+ * compression, Chromium's shared cage — record 64 §3), so an engine gets a bounded share: over it, that engine's
+ * worker is terminated and its supervisor restarts it, instead of the whole app reaching the process-wide limit.
+ *
+ * Measured 2026-09-29: one engine indexing this entire repository peaked at 128 MB used heap (163 MB allocated).
+ * 768 MB is six times that. MAX_LIVE_ENGINES (4) × 768 = 3 GB, leaving ~1 GB for this thread's own heap and the
+ * sub-agent workers (SUBAGENT_WORKER_HEAP_MB each).
+ */
+export const ENGINE_WORKER_HEAP_MB = 768;
+
+/** How long an engine worker gets to shut down on its own after its input closes, before it is terminated. */
+const WORKER_SHUTDOWN_GRACE_MS = 3000;
+
+/**
+ * Run the engine as a worker thread inside this process — the monolith. Same `deps.spawn` contract as the process
+ * transports, so the supervisor (phases, heartbeat watchdog, generation fencing, crash journal) is unchanged.
+ *
+ *   • The engine module is the same bundle; `workerData.bimaxEngineRoot` gives it its own working folder
+ *     (src/engine/worker.folder.ts), because a worker cannot chdir.
+ *   • In and out are the worker's stdin/stdout streams carrying the same NDJSON (phase M3 replaces them with typed
+ *     messages). Worker stdio has real flow control: the worker's writes wait until this side reads.
+ *   • An uncaught exception inside the engine emits 'error' (logged with its stack, reported like a process error)
+ *     and ends only that worker. `kill('SIGTERM')` closes its input so it shuts down itself; `kill('SIGKILL')`, or the
+ *     grace period running out, terminates it — which interrupts even a busy loop.
+ */
+export function spawnEngineWorker(
+  projectDir: string,
+  extraEnv: Record<string, string>,
+  cb: SpawnCallbacks,
+  modulePath: string = resolveEngineModule(),
+): EngineHandle {
+  const startedAt = Date.now();
+  const { logLine, closeLog } = openEngineLog(projectDir, `worker thread ${modulePath}`);
+  logCapabilityPlan(logLine, extraEnv);
+
+  const worker = new Worker(modulePath, {
+    env: engineModuleEnv(projectDir, extraEnv, modulePath),
+    workerData: { bimaxEngineRoot: projectDir },
+    stdin: true, stdout: true, stderr: true,
+    resourceLimits: { maxOldGenerationSizeMb: ENGINE_WORKER_HEAP_MB },
+    name: 'Bimax Engine',
+  });
+  const command = `worker thread ${worker.threadId} ${modulePath}`;
+  const provenanceLaunchId = processProvenance.begin({
+    pid: process.pid,
+    executableBasename: path.basename(modulePath),
+    cwdClass: 'project',
+    argumentClasses: ['headless-agent-protocol'],
+  });
+
+  let stderrBuf = '';
+  worker.stderr.on('data', (chunk: Buffer | string) => {
+    stderrBuf += chunk.toString();
+    let nl: number;
+    while ((nl = stderrBuf.indexOf('\n')) !== -1) {
+      logLine(stderrBuf.slice(0, nl));
+      stderrBuf = stderrBuf.slice(nl + 1);
+    }
+  });
+
+  const rl = createInterface({ input: worker.stdout });
+  rl.on('line', (line) => {
+    const trimmed = line.trim();
+    if (!trimmed) return;
+    try {
+      const msg = JSON.parse(trimmed);
+      if (msg && typeof msg === 'object') cb.onMessage(msg as Record<string, unknown>);
+      else cb.onMalformed(trimmed);
+    } catch {
+      logLine(`[app] dropped malformed line (${trimmed.length} chars)`);
+      cb.onMalformed(trimmed);
+    }
+  });
+
+  let exited = false;
+  let graceTimer: NodeJS.Timeout | null = null;
+  worker.on('error', (err: Error) => {
+    // An uncaught exception or an out-of-heap: the worker ends after this, and 'exit' settles the launch.
+    logLine(`[desktop] engine worker error after ${Date.now() - startedAt}ms: ${err.stack || err.message}`);
+    if (!exited) cb.onError(err);
+  });
+  worker.on('exit', (code: number) => {
+    if (exited) return;
+    exited = true;
+    if (graceTimer) clearTimeout(graceTimer);
+    processProvenance.finish(provenanceLaunchId, { exitCode: code, signal: null });
+    if (stderrBuf) { logLine(stderrBuf); stderrBuf = ''; }
+    logLine(`[desktop] engine worker exited after ${Date.now() - startedAt}ms: code ${code}`);
+    rl.close();
+    closeLog();
+    cb.onExit(code, null);
+  });
+
+  const terminate = (): void => { if (!exited) void worker.terminate().catch(() => undefined); };
+  return {
+    command,
+    write: (line: string) => { if (!exited && worker.stdin && !worker.stdin.writableEnded) worker.stdin.write(line); },
+    endStdin: () => { try { worker.stdin?.end(); } catch { /* already gone */ } },
+    kill: (signal) => {
+      if (exited) return;
+      if (signal === 'SIGKILL') { terminate(); return; }
+      // SIGTERM: the input is closed (endStdin, just before), so the engine is shutting itself down; stop waiting after
+      // the grace period.
+      if (!graceTimer) graceTimer = setTimeout(terminate, WORKER_SHUTDOWN_GRACE_MS);
+    },
+  };
+}
+
+/**
  * Pick the transport. The utilityProcess engine is the default: the app now builds its own engine
  * from its own source, so there is no standalone binary left for the child-process path to resolve.
  *
@@ -507,8 +631,9 @@ export function spawnEngine(
   extraEnv: Record<string, string>,
   cb: SpawnCallbacks,
 ): EngineHandle {
-  if ((process.env.BIMAX_ENGINE_TRANSPORT || '').trim().toLowerCase() === 'child') {
-    return spawnEngineProcess(projectDir, extraEnv, cb);
-  }
+  const transport = (process.env.BIMAX_ENGINE_TRANSPORT || '').trim().toLowerCase();
+  if (transport === 'child') return spawnEngineProcess(projectDir, extraEnv, cb);
+  // The monolith (record 64): opt-in during phase M1, the default from M2.
+  if (transport === 'worker') return spawnEngineWorker(projectDir, extraEnv, cb);
   return spawnEngineUtilityProcess(projectDir, extraEnv, cb);
 }

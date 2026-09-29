@@ -56,6 +56,8 @@ bash scripts/prepare-engine.sh "$target"
 # a script to check what it says is not the same as executing what it produced — that gap is how a
 # sidecar stub that exited 1 got shipped in v1.1.0 with every gate green.
 npx electron scripts/verify-engine.js
+# …and the way the monolith hosts it: a worker thread inside the app's process (record 64).
+npx electron scripts/verify-engine.js --worker
 
 # Computer Use staging removed 2026-09-04. Bimax has shipped code-only since the 2026-09-02 reset,
 # and electron-builder.yml declares no `mac.extraFiles`, so the four binaries prepare-native.sh
