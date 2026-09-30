@@ -143,6 +143,10 @@ function onEvent(state: EngineUiState, name: string, args: any[]): EngineUiState
   }
   switch (name) {
     case 'thread_user': return engineReducer(state, { type: 'localUser', text: String(args[0]) });
+    // The thread stopped waiting on a question: answered in another view (the approval popup, a notification), or gone
+    // with its turn. Only that question closes; a newer one stays.
+    case 'request_closed':
+      return state.request && state.request.id === (args[0] as { id?: unknown } | undefined)?.id ? { ...state, request: null } : state;
     case 'log': {
       const raw = args[0];
       const text = String(typeof raw === 'object' && raw ? raw.text ?? '' : raw ?? '')

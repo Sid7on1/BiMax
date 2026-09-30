@@ -371,7 +371,7 @@ export class ThreadManager {
     // A new message after a failed resume is the user acting: stop holding what was queued, and close the choice.
     if (r.holdInputs) {
       r.holdInputs = false;
-      if (r.pending.delete(RESUME_CHOICE_ID)) r.state = { ...r.state, request: null };
+      if (r.pending.delete(RESUME_CHOICE_ID)) this.dropRequest(r);
     }
     // The user's own message is the answer an "answer" wake waited for (F4); a wake's own message is not.
     if (!text.startsWith('[Wake]') && r.summary.wakes?.some((w) => w.kind === 'answer')) {
@@ -575,7 +575,7 @@ export class ThreadManager {
       if (choice) {
         r.pending.set(RESUME_CHOICE_ID, choice);
       } else {
-        r.state = { ...r.state, request: null };
+        this.dropRequest(r);
         r.summary.status = 'idle';
       }
     }
@@ -589,7 +589,8 @@ export class ThreadManager {
       // A turn cut off by the engine: failed when the engine died, interrupted when it restarted or stopped (backlog N12).
       if (r.summary.status === 'working' || r.summary.status === 'needs-you') r.summary.outcome = phase === 'failed' || phase === 'exited' ? 'failed' : 'interrupted';
       r.summary.status = phase === 'restarting' ? 'starting' : 'stopped';
-      r.state = { ...r.state, request:null, spinner:{ state:'idle',message:'' }, engine:{ state:'exited',detail } };
+      this.dropRequest(r);
+      r.state = { ...r.state, spinner:{ state:'idle',message:'' }, engine:{ state:'exited',detail } };
       // A failed or restarting engine used to take the queue with it. Queued messages stay; the one being worked on is
       // reported, not repeated.
       this.recoverInputs(r, phase === 'restarting' ? 'the engine restarted' : 'the engine stopped', true);
@@ -626,7 +627,7 @@ export class ThreadManager {
     if (!pending || msg.approvalToken !== pending.token) throw new Error('That approval has expired');
     if (!validApprovalChoice(pending.request, msg.value)) throw new Error('Invalid approval choice');
     r.pending.delete(msg.id);
-    r.state = { ...r.state, request: null };
+    this.dropRequest(r);
     if (msg.id === RESUME_CHOICE_ID) {
       this.resumeChoice(r, String(msg.value));
       this.persist(r);
@@ -641,7 +642,19 @@ export class ThreadManager {
     r.interruptAsked = true;
     r.inputs = [];
     r.pending.clear();
+    this.dropRequest(r);
+  }
+
+  /**
+   * The thread no longer waits on the question it showed, so every view showing it closes its card: the main window,
+   * the ⌘2 bar. Each view keeps its own copy of the thread's state, and only the one that sent a reply used to close
+   * its card — answering in the approval popup left the main window's card up for good, and a click on it was refused
+   * as expired.
+   */
+  private dropRequest(r: LiveThread): void {
+    const open = r.state.request;
     r.state = { ...r.state, request: null };
+    if (open) this.deps.message(r.summary.id, { t: 'event', name: 'request_closed', args: [{ id: open.id }] } as Outbound);
   }
 
   /** Restart an idle task's engine so it starts with fresh settings (folder rules); a busy one is never cut off. */
@@ -804,7 +817,8 @@ export class ThreadManager {
     r.resumeDeadline?.(); r.resumeDeadline = undefined; r.holdInputs = false;
     this.drain(r, engine);
     r.summary.status = 'stopped';
-    r.state = { ...r.state, request: null, spinner: { state: 'idle', message: '' }, engine: { state: 'exited', detail: options.reason ?? 'Thread stopped' } };
+    this.dropRequest(r);
+    r.state = { ...r.state, spinner: { state: 'idle', message: '' }, engine: { state: 'exited', detail: options.reason ?? 'Thread stopped' } };
     this.persist(r);
     for (const other of this.byPriority()) this.pump(other);
   }

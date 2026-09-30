@@ -7,7 +7,7 @@ import { threadCapabilityEnvironment, threadIndexEnvironment, threadVoiceEnviron
 import { ThreadStorage } from './thread.storage';
 import { createThreadBroker } from './thread.broker';
 import { finderContext } from './finder.context';
-import type { QuickAttachment, QuickContext, QuickThread, ThreadSummary } from '../shared/threads';
+import type { QuickAttachment, QuickContext, QuickThread, ThreadApproval, ThreadSummary } from '../shared/threads';
 import { threadNotice } from '../shared/threads';
 import { QUICK_BAR, quickBarBounds, quickBarOrigin } from './quick.bar';
 import { changeHistory, changesSince, filesChangedSince, journalFile, lastUndoable, threadStateEnvironment, threadStateRoot, touchedSince, undoBackTo, undoChange, undoLast } from './thread.undo';
@@ -46,7 +46,7 @@ import { saveSkill, skillDraft, skillName, type SkillDraft } from './skill.captu
 import { arrivalsSince, cleanBookmark, whereWasI } from './where.was.i';
 import { randomUUID } from 'node:crypto';
 import { macBin } from './bin';
-import { answerFromNotification, notificationChoices } from './approval.notification';
+import { answerFromNotification, notificationChoices, popupDecisions } from './approval.notification';
 import { linkConfirmation, parseTaskLink } from './bimax.link';
 import { DEFAULT_SHORTCUT, SHORTCUT_CHOICES, chosenShortcut, shortcutLabel, switchShortcut } from './quick.shortcut';
 import os from 'node:os';
@@ -158,8 +158,8 @@ function threadChanged(): void {
     if (finished?.length) dockFinished(finished);
     if (quickWindow && !quickWindow.isDestroyed()) quickWindow.webContents.send('threads:quick-activity', quickActivity());
     if (approvalWindow && !approvalWindow.isDestroyed()) {
-      approvalWindow.webContents.send('threads:approvals', threads.approvals());
-      if (!threads.approvals().length) approvalWindow.hide();
+      approvalWindow.webContents.send('threads:approvals', popupApprovals());
+      if (!popupApprovals().length) approvalWindow.hide();
     }
   }, 100);
 }
@@ -993,9 +993,20 @@ function updateTray(): void {
   ];
   tray.setContextMenu(Menu.buildFromTemplate(template));
 }
+/** The thread the main window is showing, while the window is on screen: it asks that thread's questions itself. */
+function mainWindowThread(): string | null {
+  return win && !win.isDestroyed() && win.isVisible() && !win.isMinimized() ? threads?.activeId ?? null : null;
+}
+/** The popup's decisions: not those the main window or a visible ⌘2 bar already asks (approval.notification.ts). */
+function popupApprovals(): ThreadApproval[] {
+  if (!threads) return [];
+  const inBar = quickWindow && !quickWindow.isDestroyed() && quickWindow.isVisible() ? quickThreadId : null;
+  return popupDecisions(threads.approvals(), [mainWindowThread(), inBar]);
+}
 function showThreadApproval(): void {
+  if (!popupApprovals().length) return;
   if (!approvalWindow || approvalWindow.isDestroyed()) approvalWindow = auxiliaryWindow('approval');
-  approvalWindow.webContents.send('threads:approvals', threads.approvals());
+  approvalWindow.webContents.send('threads:approvals', popupApprovals());
   approvalWindow.showInactive();
 }
 let projectWatcher: ProjectWatch | null = null;
@@ -1532,7 +1543,10 @@ function selectThread(id: string): void {
   projectWatcher?.close();
   projectWatcher = watchProject(root, () => broadcast('files:changed', generation));
   broadcast('app:project', root, generation);
+  const left = threads.activeId;
   threads.select(id);
+  // The thread left behind may still wait on a question; it is no longer on screen to ask it.
+  if (left && left !== id && threads.approvals().some((a) => a.threadId === left)) showThreadApproval();
   lastStatus = supervisor ? supervisor.status() : null;
   broadcast('supervisor:status', lastStatus);
 }
@@ -1616,6 +1630,12 @@ function createWindow(): void {
   win.on('maximize', sendChrome);
   win.on('unmaximize', sendChrome);
   win.on('restore', sendChrome);
+  // Put away with its thread waiting on a question, the question moves to the popup, as it does from the ⌘2 bar; back
+  // on screen, the window asks it again and the popup lets it go.
+  win.on('minimize', showThreadApproval);
+  win.on('hide', showThreadApproval);
+  win.on('restore', threadChanged);
+  win.on('show', threadChanged);
   // Key-window state (Prompt 2 §15), and the moment the user is most likely to have just changed
   // their accent colour in System Settings — they left, changed it, and came back.
   win.on('focus', sendChrome);
@@ -1733,7 +1753,8 @@ app.whenReady().then(async () => {
       if (threads.activeId === id) broadcast('engine:msg', msg, id);
       if (id === quickThreadId && quickWindow && !quickWindow.isDestroyed()) quickWindow.webContents.send('threads:quick-msg', msg);
     },
-    // The ⌘2 bar answers its own task's questions inline while it is on screen; everything else gets the popup.
+    // The ⌘2 bar answers its own task's questions inline while it is on screen, and the main window those of the
+    // thread it shows; everything else gets the popup.
     approval: (value) => {
       if (value.threadId === quickThreadId && quickWindow?.isVisible()) return;
       showThreadApproval();
@@ -1746,7 +1767,10 @@ app.whenReady().then(async () => {
           // under Options on a banner; clicking the notification still opens the full card.
           ...(choices ? { actions: [{ type: 'button' as const, text: choices.allow }, { type: 'button' as const, text: choices.deny }], closeButtonText: 'Later' } : {}),
         });
-        note.on('click', () => { showThreadApproval(); approvalWindow?.focus(); });
+        note.on('click', () => {
+          if (value.threadId === threads.activeId && win && !win.isDestroyed()) { revealMainWindow(); return; }
+          showThreadApproval(); approvalWindow?.focus();
+        });
         if (choices) {
           note.on('action', (_event, index) => {
             const answer = answerFromNotification(value, index, choices);
@@ -1921,7 +1945,8 @@ app.whenReady().then(async () => {
   // rather than a live browser. Payloads are validated here because the manager trusts its caller.
   secureHandle('threads:list', { activeId: null, threads: [], shortcutAvailable: false } as any, () => threadList());
   secureHandle('threads:context', { root: null, source: 'Choose a folder' } as QuickContext, () => quickContext);
-  secureHandle('threads:approvals', [] as any[], () => threads.approvals());
+  // The popup lists what is not asked on screen elsewhere; the main window checks a refused reply against all of them.
+  secureHandle('threads:approvals', [] as any[], (event) => (event.sender.id === approvalWindow?.webContents.id ? popupApprovals() : threads.approvals()));
   secureHandle('threads:pick-folder', null as string | null, async () => {
     quickPicking = true;
     const result = await dialog.showOpenDialog({ properties: ['openDirectory'], title: 'Choose this thread’s workspace' })

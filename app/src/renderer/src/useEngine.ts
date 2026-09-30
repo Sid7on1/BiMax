@@ -169,8 +169,15 @@ export function useEngine() {
   const reply = useCallback((id: number, value: string) => {
     const token = (state.request as any)?.approvalToken;
     if (!state.threadId || !token) return;
-    void window.bimax.threads.reply(state.threadId, id, value, token).then(ok => {
-      if (ok) dispatch({ type: 'closeRequest' });
+    const threadId = state.threadId;
+    void window.bimax.threads.reply(threadId, id, value, token).then(async (ok) => {
+      if (ok) return dispatch({ type: 'closeRequest' });
+      // Refused: it was answered somewhere else or went with its turn. A card that can no longer be answered used to stay
+      // on screen for good; it stays only while the thread really still waits on it.
+      const open = await window.bimax.threads.approvals().catch(() => []);
+      if (!open.some((a: { threadId: string; request: { id: number } }) => a.threadId === threadId && a.request.id === id)) {
+        dispatch({ type: 'closeRequest' });
+      }
     });
   }, [state.threadId, state.request]);
 

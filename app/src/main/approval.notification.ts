@@ -30,3 +30,12 @@ export function answerFromNotification(approval: ThreadApproval, index: number, 
   const value = index === 0 ? choices.allow : index === 1 ? choices.deny : undefined;
   return value === undefined ? null : { t: 'reply' as const, id: approval.request.id, value, approvalToken: approval.token };
 }
+
+/**
+ * The approval popup's decisions: every waiting question except those already asked on screen — by the main window for
+ * the thread it shows (RequestModal), and by the ⌘2 bar for its own. The popup used to show those too, so every
+ * question was asked twice, and answering one copy left the other up.
+ */
+export function popupDecisions(approvals: ThreadApproval[], askedOnScreen: ReadonlyArray<string | null>): ThreadApproval[] {
+  return approvals.filter((a) => !askedOnScreen.includes(a.threadId));
+}
