@@ -229,7 +229,13 @@ background; it failed 1 run in 3 alone (the file was read before it was written,
 next test). It now waits for each export's end state; 6/6 alone, and it still fails when the export's write is removed.
 
 **Not covered by the check:** glass, blur and colour (it grades numbers, not pixels); the native window; timing on a
-real GPU. The first-open menu stall of batch 5 is still unsettled. Not yet built, installed or felt in the real app.
+real GPU. The first-open menu stall of batch 5 is still unsettled.
+
+**Installed 2026-09-30 from 1aa166c** (batches 6 and 7 together): four package gates PASS, the packaged notch helper's
+self-test passes, the new CSS rule and the controller change confirmed inside `app.asar`, window up in 2 s and still
+running minutes later. Previous app kept at `~/Developer/bimax-archive/apps/Bimax.app.before-item22-20260930`. The
+build first stopped on the notch helper's OCR self-test: macOS refused accurate text recognition on this Mac
+(e5rtError 13) — Copy Text now falls back to the fast recognizer (1aa166c). Not yet felt by hand.
 
 ## Still open
 
