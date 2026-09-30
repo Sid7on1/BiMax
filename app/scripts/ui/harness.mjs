@@ -8,7 +8,7 @@
 // method the renderer can call exists here, and `bridgeCalls` records what the renderer asked for.
 // That is what lets a journey grade an END STATE ("the app told main to pause, and the UI now shows
 // the user in control") instead of "a click happened".
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
 import path from 'node:path';
 import { mkdirSync, existsSync } from 'node:fs';
 import { APP_DIR, RENDERER_ROOT, WINDOW_SIZES, serveRenderer, installBridge } from './renderer.mjs';
@@ -16,10 +16,10 @@ import { APP_DIR, RENDERER_ROOT, WINDOW_SIZES, serveRenderer, installBridge } fr
 export { APP_DIR, RENDERER_ROOT, WINDOW_SIZES, serveRenderer };
 
 export function chromeExecutable() {
-  const candidate = process.env.BIMAX_UI_CHROME || puppeteer.executablePath();
+  const candidate = process.env.BIMAX_UI_CHROME || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
   if (!candidate || !existsSync(candidate)) {
     throw new Error(
-      'Puppeteer managed Chromium is missing. Run the repository dependency install, or set '
+      'Chrome is missing. Install Chrome, or set '
       + 'BIMAX_UI_CHROME explicitly for this test process.',
     );
   }

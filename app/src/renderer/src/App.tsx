@@ -21,7 +21,7 @@ import { clearDraft } from './composer.model';
 import { RequestModal } from './components/RequestModal';
 import { SettingsDialog } from './components/SettingsDialog';
 import { WorkspaceSheet, type WorkspaceSheetTab } from './components/WorkspaceSheet';
-import { dropEditorBuffer, saveEditorBuffer } from './components/EditorPane';
+import { dropEditorBuffer, saveEditorBuffer, openEditorSearch } from './components/EditorPane';
 import { closeTabs, cycleTab, neighbourAfterClose } from './workbench.tabs';
 import { HomeView } from './components/HomeView';
 import { ProjectWelcome } from './components/ProjectWelcome';
@@ -386,10 +386,29 @@ export function App(): React.ReactElement {
       case 'terminal': openInspector('terminal'); return true;
       case 'settings': setSettingsOpen(true); return true;
       case 'app-health': setMachineHealthOpen(true); return true;
+      case 'review': openInspector('review'); return true;
+      case 'github': openInspector('github'); return true;
+      case 'files': openInspector('files'); return true;
+      case 'map': setWorkspaceSheet('map'); return true;
+      case 'memory': setWorkspaceSheet('memory'); return true;
+      case 'chats': setView('gallery'); return true;
+      case 'toggle-wide': setInspectorOpen(true); toggleWide(); return true;
+      case 'focus-composer': setView('chat'); setWideGrow(null); requestAnimationFrame(() => document.querySelector<HTMLTextAreaElement>('[data-bimax-composer]')?.focus()); return true;
+      case 'stop-task': if (!busy) return false; interrupt(); return true;
+      case 'models': setModelsOpen(true); return true;
+      case 'moonlight': setAppearance('moonlight'); return true;
+      case 'starlight': setAppearance('starlight'); return true;
+      case 'appearance-auto': setAppearance('auto'); return true;
+      case 'quick-bar': window.bimax.threads.quickOpen(); return true;
+      case 'find-file': return inspectorOpen && activeTab?.kind === 'file' && openEditorSearch();
+      case 'close-file': if (!inspectorOpen || activeTab?.kind !== 'file') return false; void closeFiles([activeTab.path]); return true;
+      case 'next-file': return tabKeys.current.cycle(1);
+      case 'previous-file': return tabKeys.current.cycle(-1);
+      case 'refresh-git': refreshGit(); return true;
       case 'close-tab': tabKeys.current.closeTab(); return true;
       default: return false;
     }
-  }, [newTask, togglePinned, openInspector]);
+  }, [newTask, togglePinned, openInspector, toggleWide, busy, interrupt, inspectorOpen, activeTab, closeFiles, refreshGit]);
   useEffect(() => window.bimax.onMenuCommand?.((command) => { runCommand(command); }), [runCommand]);
 
   useEffect(() => {
@@ -645,12 +664,9 @@ export function App(): React.ReactElement {
         <CommandPalette
           open={paletteOpen}
           onClose={() => { setPaletteOpen(false); clearCompletions(); }}
-          onOpenInspector={openInspector}
-          onOpenTerminal={() => openInspector('terminal')}
-          onOpenWorkspace={setWorkspaceSheet}
-          onOpenSettings={() => setSettingsOpen(true)}
-          onNewTask={newTask}
-          onOpenGallery={() => setView('gallery')}
+          onCommand={runCommand}
+          available={{ busy, editor: inspectorOpen && activeTab?.kind === 'file',
+            files: inspectorOpen && (activeTab?.kind === 'file' || (activeTab?.kind === 'lane' && activeTab.id === 'files')) && openFiles.length > 0 }}
         />
       )}
 

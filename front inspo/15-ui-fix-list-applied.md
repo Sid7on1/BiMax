@@ -455,6 +455,28 @@ hit targets at both zooms, motion tokens and design-preview build pass; editor g
 Implemented and locally measured; native vibrancy over the full wallpaper range and fresh-Mac release gates remain
 unmeasured. No broad competitive or visual-comfort claim. Not yet installed.
 
+## Batch 14 — item 35, keyboard commands you can reach (2026-10-01)
+
+**Measured first in the built renderer at 100% and 120%:** ten commands, and Arrow Down reached the last row without
+scrolling it into view at either zoom. The list could select −1 after an empty search. None of the proposed new
+outcomes was present, so appearance, composer focus and opening the floating bar failed the before journey.
+
+Now **26 commands** name actual outcomes. Palette, native menu and shortcuts use App's one dispatcher. The additional
+outcomes cover pane/sidebar layout, composer focus, Stop, models, app health, appearance, the floating bar, file find,
+close/cycle and Git refresh. Unavailable file actions and Stop are disabled, stay searchable, and are skipped by arrows.
+The input identifies the selected option accessibly; selection scrolls into view (632px / 695px at the two zooms).
+A command's focus destination survives the palette's dismissal instead of being stolen back by its focus restore.
+
+**Verification that ran:** four new model tests; 4/4 unit mutants and 4/4 rebuilt-renderer mutants caught. The compiled
+journey checks arrow navigation, empty search, an unavailable file action, actual Starlight application, actual
+composer focus and the floating-bar IPC request. All 26 dispatcher branches were inspected; this does not claim every
+native destination was exercised through the installed app. The full working-tree app suite passes **118 suites /
+1062 tests** (including five tests for the next, not-yet-mounted task-state surface); typecheck, morph's 32 flights,
+hit targets, motion tokens and design-preview build pass. The browser harness now uses the declared puppeteer-core
+and an explicit existing Chrome path, rather than an undeclared puppeteer package. Evidence: `batch14-*`.
+Product-reset 03/04, vision, 08 and competitive/06 guided the behavior checks. Implemented, locally verified;
+installed-app and human task-completion/mis-click studies remain unmeasured. Not yet installed.
+
 ## Still open
 
 | # | Item |

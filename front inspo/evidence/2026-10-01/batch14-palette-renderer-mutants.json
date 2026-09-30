@@ -1,0 +1,26 @@
+[
+  {
+    "name": "keyboard selection no longer follows scrolling",
+    "caught": true,
+    "exit": 1,
+    "output": "{\n  \"report\": [\n    {\n      \"zoom\": 1,\n      \"count\": 26,\n      \"selection\": {\n        \"text\": \"Refresh Git statusEvidence\",\n        \"visible\": false,\n        \"scrollTop\": 0\n      },\n      \"search\": {\n        \"query\": \"Starlight\",\n        \"selected\": \"command-starlight\"\n      },\n      \"problems\": [\n        \"keyboard selection outside visible list\"\n      ]\n    },\n    {\n      \"zoom\": 1.2,\n      \"count\": 26,\n      \"selection\": {\n        \"text\": \"Refresh Git statusEvidence\",\n        \"visible\": false,\n        \"scrollTop\": 0\n      },\n      \"search\": {\n        \"query\": \"Starlight\",\n        \"selected\": \"command-starlight\"\n      },\n      \"problems\": [\n        \"keyboard selection outside visible list\",\n        \"write command did not focus the composer\"\n      ]\n    }\n  ],\n  \"invalid\": null\n}\n"
+  },
+  {
+    "name": "appearance is a decorative command",
+    "caught": true,
+    "exit": 1,
+    "output": "{\n  \"report\": [\n    {\n      \"zoom\": 1,\n      \"count\": 26,\n      \"selection\": {\n        \"text\": \"Refresh Git statusEvidence\",\n        \"visible\": true,\n        \"scrollTop\": 632\n      },\n      \"search\": {\n        \"query\": \"Starlight\",\n        \"selected\": \"command-starlight\"\n      },\n      \"problems\": [\n        \"Starlight command did not apply appearance\"\n      ]\n    },\n    {\n      \"zoom\": 1.2,\n      \"count\": 26,\n      \"selection\": {\n        \"text\": \"Refresh Git statusEvidence\",\n        \"visible\": true,\n        \"scrollTop\": 695\n      },\n      \"search\": {\n        \"query\": \"Starlight\",\n        \"selected\": \"command-starlight\"\n      },\n      \"problems\": [\n        \"Starlight command did not apply appearance\"\n      ]\n    }\n  ],\n  \"invalid\": null\n}\n"
+  },
+  {
+    "name": "write no longer focuses the composer",
+    "caught": true,
+    "exit": 1,
+    "output": "{\n  \"report\": [\n    {\n      \"zoom\": 1,\n      \"count\": 26,\n      \"selection\": {\n        \"text\": \"Refresh Git statusEvidence\",\n        \"visible\": true,\n        \"scrollTop\": 632\n      },\n      \"search\": {\n        \"query\": \"Starlight\",\n        \"selected\": \"command-starlight\"\n      },\n      \"problems\": [\n        \"write command did not focus the composer\"\n      ]\n    },\n    {\n      \"zoom\": 1.2,\n      \"count\": 26,\n      \"selection\": {\n        \"text\": \"Refresh Git statusEvidence\",\n        \"visible\": true,\n        \"scrollTop\": 695\n      },\n      \"search\": {\n        \"query\": \"Starlight\",\n        \"selected\": \"command-starlight\"\n      },\n      \"problems\": [\n        \"write command did not focus the composer\"\n      ]\n    }\n  ],\n  \"invalid\": null\n}\n"
+  },
+  {
+    "name": "floating bar no longer reaches main",
+    "caught": true,
+    "exit": 1,
+    "output": "{\n  \"report\": [\n    {\n      \"zoom\": 1,\n      \"count\": 26,\n      \"selection\": {\n        \"text\": \"Refresh Git statusEvidence\",\n        \"visible\": true,\n        \"scrollTop\": 632\n      },\n      \"search\": {\n        \"query\": \"Starlight\",\n        \"selected\": \"command-starlight\"\n      },\n      \"problems\": [\n        \"floating bar never reached main\"\n      ]\n    },\n    {\n      \"zoom\": 1.2,\n      \"count\": 26,\n      \"selection\": {\n        \"text\": \"Refresh Git statusEvidence\",\n        \"visible\": true,\n        \"scrollTop\": 695\n      },\n      \"search\": {\n        \"query\": \"Starlight\",\n        \"selected\": \"command-starlight\"\n      },\n      \"problems\": [\n        \"floating bar never reached main\"\n      ]\n    }\n  ],\n  \"invalid\": null\n}\n"
+  }
+]
