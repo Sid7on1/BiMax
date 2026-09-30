@@ -1,0 +1,31 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { ThreadBinRecovery, BIN_UNDO_MS } from '../main/thread.bin.recovery';
+import { ThreadStorage } from '../main/thread.storage';
+import { initialEngineState } from '../renderer/src/engine.state';
+import type { SavedThread } from '../main/thread.manager';
+const saved=(id='one'):SavedThread=>({summary:{id,title:'Fix the fetch client',root:'/fixture/project',updatedAt:1,status:'stopped',peers:[]},state:{...initialEngineState,items:[{kind:'msg',msg:{id:'m',role:'assistant',content:'Actual conversation output',timestamp:'2026-10-01T00:00:00Z'}}],request:{password:'private approval'} as any},inputs:[{id:'q',text:'Later',display:'Later',state:'queued',at:1}]});
+let dir:string; let now:number; let storage:ThreadStorage;
+beforeEach(()=>{dir=fs.mkdtempSync(path.join(os.tmpdir(),'bimax-bin-undo-'));now=1000;storage=new ThreadStorage(dir);});
+afterEach(()=>fs.rmSync(dir,{recursive:true,force:true}));
+const recovery=(moveToBin=async(file:string)=>{fs.unlinkSync(file);return null;})=>new ThreadBinRecovery(dir,{moveToBin},()=>now);
+test('Bin fallback with no trash path still restores exact conversation and queued work, with private approval removed',async()=>{
+ const r=recovery(); await storage.writeFinal(saved());
+ // Defend against an older on-disk snapshot that still contains an approval request.
+ fs.writeFileSync(path.join(dir,'one.json'),JSON.stringify(saved()),{mode:0o600});
+ await r.move('one',false);
+ expect(storage.load()).toEqual([]);expect(r.latest()).toMatchObject({id:'one',title:'Fix the fetch client',expiresAt:now+BIN_UNDO_MS});
+ expect(fs.statSync(path.join(dir,'.bin-recovery','one.json')).mode&0o777).toBe(0o600);
+ expect(fs.statSync(path.join(dir,'.bin-recovery')).mode&0o777).toBe(0o700);
+ const back=r.undo('one');expect(back.archived).toBe(false);expect(back.value.state.request).toBeNull();expect(back.value.inputs).toEqual(saved().inputs);expect(back.value.state.items).toEqual(saved().state.items);
+ expect(storage.load()[0].summary.title).toBe(saved().summary.title);expect(r.latest()).toBeUndefined();
+ storage.readmit('one');storage.save({...back.value,summary:{...back.value.summary,title:'Resumed'}});await storage.flush();expect(storage.load()[0].summary.title).toBe('Resumed');
+});
+test('archived conversation returns to the archive',async()=>{const r=recovery();await storage.archive(saved());await r.move('one',true);expect(storage.archivedCount()).toBe(0);expect(r.undo('one').archived).toBe(true);expect(storage.archivedCount()).toBe(1);expect(storage.load()).toEqual([]);});
+test('conflicting live file is never overwritten, and undo remains available once conflict is removed',async()=>{const r=recovery();await storage.writeFinal(saved());await r.move('one',false);const file=path.join(dir,'one.json');fs.writeFileSync(file,'existing conversation');expect(()=>r.undo('one')).toThrow('Nothing was overwritten');expect(fs.readFileSync(file,'utf8')).toBe('existing conversation');fs.unlinkSync(file);expect(r.undo('one').value.summary.id).toBe('one');});
+test('failed/no-op Bin does not remove the conversation or offer false undo',async()=>{await storage.writeFinal(saved());const r=recovery(async()=>null);await expect(r.move('one',false)).rejects.toThrow('did not move');expect(r.latest()).toBeUndefined();expect(storage.load()).toHaveLength(1);});
+test('late saves cannot resurrect binned conversation',async()=>{const r=recovery();await storage.writeFinal(saved());await r.move('one',false);storage.save(saved());await storage.flush();expect(storage.load()).toEqual([]);expect(r.undo('one').value.summary.id).toBe('one');});
+test('expiry removes the private copy, including across relaunch',async()=>{const r=recovery();await storage.writeFinal(saved());await r.move('one',false);now+=BIN_UNDO_MS;expect(()=>r.undo('one')).toThrow('Undo expired');expect(fs.readdirSync(path.join(dir,'.bin-recovery'))).toEqual([]);expect(recovery().latest()).toBeUndefined();});
+test('only five recovery copies persist; restart can still undo the latest',async()=>{const r=recovery();for(let i=0;i<6;i++){now++;await storage.writeFinal(saved(`t${i}`));await r.move(`t${i}`,false);}expect(fs.readdirSync(path.join(dir,'.bin-recovery'))).toHaveLength(5);expect(()=>r.undo('t0')).toThrow();expect(recovery().undo('t5').value.summary.id).toBe('t5');});
+test('in-flight move cannot be undone or moved again, and no renderer path escapes the private store',async()=>{let finish!:(v:null)=>void;const r=recovery(async file=>{await new Promise<null>(resolve=>{finish=resolve;});fs.unlinkSync(file);return null;});await storage.writeFinal(saved());const moving=r.move('one',false).then(()=>null,error=>error);expect(r.latest()).toBeUndefined();expect(()=>r.undo('one')).toThrow('still being moved');await expect(r.move('one',false)).rejects.toThrow('already being moved');expect(()=>r.undo('../escape')).toThrow('Thread not found');finish(null);expect(await moving).toBeNull();expect(r.undo('one').value.summary.id).toBe('one');});

@@ -5,6 +5,8 @@ import path from 'node:path';
 import { ThreadManager } from './thread.manager';
 import { threadCapabilityEnvironment, threadIndexEnvironment, threadVoiceEnvironment, workerCapacityEnvironment, spendLedgerEnvironment } from './thread.environment';
 import { ThreadStorage } from './thread.storage';
+import { ThreadBinRecovery, BIN_UNDO_MS } from './thread.bin.recovery';
+import { threadBinActions } from './thread.bin.actions';
 import { createThreadBroker } from './thread.broker';
 import { finderContext } from './finder.context';
 import type { QuickAttachment, QuickContext, QuickThread, ThreadApproval, ThreadSummary } from '../shared/threads';
@@ -124,6 +126,7 @@ let supervisor: EngineSupervisor | null = null;
 // Bimax Threads: one engine, history and approval namespace per folder-bound conversation (thread.manager.ts).
 let threads: ThreadManager;
 let threadStorage: ThreadStorage;
+let binRecovery: ThreadBinRecovery;
 let threadBroker: Awaited<ReturnType<typeof createThreadBroker>>;
 let quickWindow: BrowserWindow | null = null;
 let approvalWindow: BrowserWindow | null = null;
@@ -147,6 +150,7 @@ function threadList() {
   return {
     activeId: threads?.activeId ?? null, threads: threads?.list() ?? [], shortcutAvailable, shortcut: shortcutLabel(wantedShortcut),
     archivedCount: threadStorage?.archivedCount() ?? 0,
+    undoBin: binRecovery?.latest(),
   };
 }
 function threadChanged(): void {
@@ -1749,6 +1753,7 @@ app.whenReady().then(async () => {
       }
     },
   });
+  binRecovery = new ThreadBinRecovery(path.join(app.getPath('userData'), 'threads'), macBin);
   threads = new ThreadManager({
     engine: id => createSupervisor(id), changed: threadChanged,
     wakesChanged: () => wakes?.sync(threads.wakeEntries()),
@@ -2465,6 +2470,7 @@ app.whenReady().then(async () => {
   secureHandle('threads:archive', { ok: false } as ThreadAction, async (_e, id: unknown) => {
     if (typeof id !== 'string') return { ok: false, error: 'No thread was given.' };
     if (id === threads.activeId) return { ok: false, error: onScreen };
+    if (binRecovery.isBusy(id)) return { ok: false, error: 'This conversation is still being moved.' };
     let saved: ReturnType<ThreadManager['release']>;
     try { saved = threads.release(id); } catch (error) { return refused(error); }
     leftBar(id);
@@ -2480,6 +2486,7 @@ app.whenReady().then(async () => {
   secureHandle('threads:unarchive', { ok: false } as ThreadAction, async (_e, id: unknown) => {
     if (typeof id !== 'string') return { ok: false, error: 'No thread was given.' };
     try {
+      if (binRecovery.isBusy(id)) throw new Error('This conversation is still being moved.');
       threads.ensureRoom();
       threads.restore(await threadStorage.unarchive(id));
       threadChanged();
@@ -2488,46 +2495,14 @@ app.whenReady().then(async () => {
       return refused(error);
     }
   });
-  secureHandle('threads:bin', { ok: false } as ThreadAction, async (event, id: unknown, archived: unknown) => {
-    if (typeof id !== 'string' || typeof archived !== 'boolean') return { ok: false, error: 'No thread was given.' };
-    try {
-      let title: string;
-      if (archived) {
-        threadStorage.archivedFile(id);
-        title = (await threadStorage.archived()).find((t) => t.id === id)?.title ?? 'this thread';
-      } else {
-        if (id === threads.activeId) return { ok: false, error: onScreen };
-        if (threads.engine(id)) return { ok: false, error: 'Stop this thread first.' };
-        title = threads.get(id).summary.title;
-      }
-      const options: Electron.MessageBoxOptions = {
-        type: 'warning', message: `Move “${title}” to the Bin?`, buttons: ['Move to Bin', 'Cancel'], defaultId: 1, cancelId: 1,
-        detail: 'Its conversation goes to the Bin, and Finder can put it back from there. Files the thread changed stay as they are.',
-      };
-      const parent = BrowserWindow.fromWebContents(event.sender);
-      const { response } = parent ? await dialog.showMessageBox(parent, options) : await dialog.showMessageBox(options);
-      if (response !== 0) return { ok: false, cancelled: true };
-      if (archived) {
-        await macBin.moveToBin(threadStorage.archivedFile(id));
-      } else {
-        // Checked again: the thread may have been opened or started while the question was on screen.
-        if (id === threads.activeId) return { ok: false, error: onScreen };
-        const saved = threads.release(id);
-        leftBar(id);
-        try {
-          await macBin.moveToBin(await threadStorage.writeFinal(saved));
-        } catch (error) {
-          threadStorage.readmit(id);
-          try { threads.restore(saved); } catch { /* still on disk: it is back when Bimax opens */ }
-          return { ok: false, error: `Could not move it to the Bin: ${(error as Error).message}` };
-        }
-      }
-      threadChanged();
-      return { ok: true };
-    } catch (error) {
-      return refused(error);
-    }
+  const binActions = threadBinActions({ threads, storage: threadStorage, recovery: binRecovery, changed: threadChanged, leftBar });
+  secureHandle('threads:bin', { ok: false } as ThreadAction, async (_event, id: unknown, archived: unknown) => {
+    const result = await binActions.move(id, archived);
+    // Expire the private recovery and the visible affordance even while the app stays open.
+    if (binRecovery.latest()) setTimeout(() => { binRecovery.prune(); threadChanged(); }, BIN_UNDO_MS + 1).unref();
+    return result;
   });
+  secureHandle('threads:undo-bin', { ok: false } as ThreadAction, (_event, id: unknown) => binActions.undo(id));
 
   secureOn('engine:send', (_e, msg: unknown, threadId: unknown) => {
     if (!isProtocolFrame(msg)) throw new InvalidPayloadError('not a protocol frame');

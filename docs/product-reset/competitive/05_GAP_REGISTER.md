@@ -2,12 +2,15 @@
 
 ## UI behavior update — 2026-10-01
 
-The current monolith's UI fix-list continuation is **Implemented and locally verified** through batches 11–15 in
+The current monolith's UI fix-list continuation is **Implemented and locally verified** through batches 11–18 in
 [the applied record](../../../front%20inspo/15-ui-fix-list-applied.md): a bounded motion ladder with impossible-edge
 rest corrected, named attention marks, readable quiet type in both themes, 26 wired palette outcomes, and persistent
 goal/step/current-run files/next action. A review beat describes only a live check after edits; scoped engine evidence
 still decides whether checks passed. Local Send/Stop acknowledgement was measured through the next browser frame,
-not through native WindowServer presentation. Geometry, theme and keyboard end states have deliberate mutants.
+not through native WindowServer presentation. Geometry, theme and keyboard end states have deliberate mutants. Ordinary controls now acknowledge presses;
+ambient status/starter spectacle is removed, history leads with the title, and the Files panel rejects stale replies
+inside a fixed viewport. Conversation Bin now has bounded five-minute/five-copy private recovery and actual Undo;
+one native system-Bin fallback restored exact bytes. Unsaved-buffer/rewind/authority confirmations remain.
 The requested uniform ~75% exit ratio, native display latency, full wallpaper/native-vibrancy range, provider-backed
 quality, human mis-click/task-completion studies and clean-Mac release qualification remain **Target/unmeasured**.
 No Product-ready or Win status is assigned, and no historical Computer Use route is activated.

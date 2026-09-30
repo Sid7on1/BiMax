@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Bin loses local acknowledgement",
+    "caught": true,
+    "exit": 1,
+    "output": "{\n  \"report\": [\n    {\n      \"zoom\": 1,\n      \"pending\": false,\n      \"reached\": true,\n      \"before\": 1,\n      \"removed\": 0,\n      \"undo\": true,\n      \"restored\": 1,\n      \"calls\": [\n        {\n          \"name\": \"threads.moveToBin\",\n          \"args\": {\n            \"id\": \"gone\",\n            \"archived\": false\n          }\n        },\n        {\n          \"name\": \"threads.undoBin\",\n          \"args\": \"gone\"\n        }\n      ],\n      \"problems\": [\n        \"Bin has no immediate pending acknowledgement\"\n      ]\n    },\n    {\n      \"zoom\": 1.2,\n      \"pending\": false,\n      \"reached\": true,\n      \"before\": 1,\n      \"removed\": 0,\n      \"undo\": true,\n      \"restored\": 1,\n      \"calls\": [\n        {\n          \"name\": \"threads.moveToBin\",\n          \"args\": {\n            \"id\": \"gone\",\n            \"archived\": false\n          }\n        },\n        {\n          \"name\": \"threads.undoBin\",\n          \"args\": \"gone\"\n        }\n      ],\n      \"problems\": [\n        \"Bin has no immediate pending acknowledgement\"\n      ]\n    }\n  ],\n  \"invalid\": null\n}\n"
+  },
+  {
+    "name": "Bin action is decorative",
+    "caught": true,
+    "exit": 1,
+    "output": "{\n  \"report\": [\n    {\n      \"zoom\": 1,\n      \"pending\": false,\n      \"reached\": false,\n      \"before\": 1,\n      \"removed\": 1,\n      \"undo\": false,\n      \"restored\": 1,\n      \"calls\": [],\n      \"problems\": [\n        \"Bin has no immediate pending acknowledgement\",\n        \"Bin never reached its host\",\n        \"Bin did not remove its conversation row\",\n        \"Bin has no immediate Undo\"\n      ]\n    },\n    {\n      \"zoom\": 1.2,\n      \"pending\": false,\n      \"reached\": false,\n      \"before\": 1,\n      \"removed\": 1,\n      \"undo\": false,\n      \"restored\": 1,\n      \"calls\": [],\n      \"problems\": [\n        \"Bin has no immediate pending acknowledgement\",\n        \"Bin never reached its host\",\n        \"Bin did not remove its conversation row\",\n        \"Bin has no immediate Undo\"\n      ]\n    }\n  ],\n  \"invalid\": null\n}\n"
+  },
+  {
+    "name": "Undo is decorative",
+    "caught": true,
+    "exit": 1,
+    "output": "{\n  \"report\": [\n    {\n      \"zoom\": 1,\n      \"pending\": true,\n      \"reached\": true,\n      \"before\": 1,\n      \"removed\": 0,\n      \"undo\": true,\n      \"restored\": 0,\n      \"calls\": [\n        {\n          \"name\": \"threads.moveToBin\",\n          \"args\": {\n            \"id\": \"gone\",\n            \"archived\": false\n          }\n        }\n      ],\n      \"problems\": [\n        \"Undo did not restore its conversation through main\"\n      ]\n    },\n    {\n      \"zoom\": 1.2,\n      \"pending\": true,\n      \"reached\": true,\n      \"before\": 1,\n      \"removed\": 0,\n      \"undo\": true,\n      \"restored\": 0,\n      \"calls\": [\n        {\n          \"name\": \"threads.moveToBin\",\n          \"args\": {\n            \"id\": \"gone\",\n            \"archived\": false\n          }\n        }\n      ],\n      \"problems\": [\n        \"Undo did not restore its conversation through main\"\n      ]\n    }\n  ],\n  \"invalid\": null\n}\n"
+  }
+]

@@ -63,7 +63,7 @@ export async function serveRenderer() {
  */
 export function installBridge(fixture) {
   window.__bimaxHarness = {
-    callbacks: { msg: [], state: [], project: [], supervisor: [], pty: [], takeover: [], files: [], adaptive: [], windowChrome: [], menu: [] },
+    callbacks: { msg: [], state: [], project: [], supervisor: [], pty: [], takeover: [], files: [], adaptive: [], windowChrome: [], menu: [], threadLists: [] },
     calls: [],
     fixture,
   };
@@ -144,8 +144,15 @@ export function installBridge(fixture) {
     threads: {
       // A world may bring its own Bimax Threads (`fixture.threads`); by default there are none.
       list: async () => ({ activeId: H.fixture.threadsActive ?? null, threads: H.fixture.threads ?? [], shortcutAvailable: true }),
-      onList: () => () => {},
+      onList: cb => { H.callbacks.threadLists.push(cb); return () => { H.callbacks.threadLists = H.callbacks.threadLists.filter(value => value !== cb); }; },
       onSelected: () => () => {},
+      rename: async (id, title) => { record('threads.rename', {id,title}); return {ok:false,error:'No native storage in this harness'}; },
+      search: async query => (H.fixture.threads ?? []).filter(t => `${t.title} ${t.root}`.toLowerCase().includes(query.toLowerCase())).map(t => t.id),
+      archived: async () => [],
+      archive: async id => { record('threads.archive',id); return {ok:false,error:'No native storage in this harness'}; },
+      unarchive: async id => { record('threads.unarchive',id); return {ok:false,error:'No native storage in this harness'}; },
+      moveToBin: async (id,archived) => { record('threads.moveToBin',{id,archived}); return {ok:false,error:'No native Bin in this harness'}; },
+      undoBin: async id => { record('threads.undoBin',id); return {ok:false,error:'No native storage in this harness'}; },
       create: async () => { record('threads.create'); return null; },
       select: async (id) => { record('threads.select', id); return false; },
       start: async (id) => { record('threads.start', id); return false; },
@@ -239,6 +246,7 @@ export function installBridge(fixture) {
     },
     files: {
       list: async (rel) => H.fixture.files[rel] ?? [],
+      search: async q => ({hits:Object.entries(H.fixture.files).flatMap(([parent,entries])=>entries.map(e=>({...e,rel:parent ? `${parent}/${e.name}` : e.name}))).filter(e=>e.rel.toLowerCase().includes(q.toLowerCase())),truncated:false}),
       read: async () => ({ content: H.fixture.fileContent, truncated: false, size: 42, binary: false }),
       reveal: async () => {},
       write: async () => {},

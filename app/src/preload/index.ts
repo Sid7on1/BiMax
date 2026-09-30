@@ -91,6 +91,7 @@ const api = {
     archive: (id: string) => ipcRenderer.invoke('threads:archive', id),
     unarchive: (id: string) => ipcRenderer.invoke('threads:unarchive', id),
     moveToBin: (id: string, archived: boolean) => ipcRenderer.invoke('threads:bin', id, archived),
+    undoBin: (id: string) => ipcRenderer.invoke('threads:undo-bin', id),
     // The ⌘2 bar: its own thread, its own message stream, and its size.
     quickCurrent: () => ipcRenderer.invoke('threads:quick-current'),
     onQuickThread: (cb: (value: any) => void) => subscribe('threads:quick-thread', cb),

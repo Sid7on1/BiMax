@@ -29,6 +29,7 @@ const PRIORITIES = [
 export function ThreadsList(): React.ReactElement {
   const [data,setData] = useState<ThreadList>({ activeId:null, threads:[], shortcutAvailable:true });
   const [error,setError] = useState('');
+  const [binPending,setBinPending] = useState(false);
   const [query,setQuery] = useState('');
   const [matches,setMatches] = useState<Set<string> | null>(null);
   const [renaming,setRenaming] = useState<{ id: string; title: string } | null>(null);
@@ -38,9 +39,10 @@ export function ThreadsList(): React.ReactElement {
   const [showArchived,setShowArchived] = useState(false);
   const [archived,setArchived] = useState<ThreadSummary[]>([]);
   useEffect(() => {
-    const off = window.bimax.threads.onList(setData);
-    void window.bimax.threads.list().then(setData);
-    return off;
+    let live = true; let changed = false;
+    const off = window.bimax.threads.onList(value => { changed = true; if (live) setData(value); });
+    void window.bimax.threads.list().then(value => { if (live && !changed) setData(value); });
+    return () => { live = false; off(); };
   },[]);
   // Projects opened from Recents run as threads too, but they are listed in Recents, not here.
   const quick = data.threads.filter(isQuickThread);
@@ -73,6 +75,11 @@ export function ThreadsList(): React.ReactElement {
       const result = await run() as ActionResult | boolean | null | undefined;
       if (result && typeof result === 'object' && !result.ok && !result.cancelled) setError(result.error ?? 'That did not work.');
     } catch(e) { setError(String((e as Error).message)); }
+  }
+  async function binAction(run: () => Promise<unknown>) {
+    if (binPending) return;
+    setBinPending(true);
+    try { await action(run); } finally { setBinPending(false); }
   }
   // Enter or leaving the field saves; Escape cancels. The ref makes a blur after Enter or Escape a no-op.
   function finishRename(save: boolean) {
@@ -119,7 +126,7 @@ export function ThreadsList(): React.ReactElement {
             ? <RowAction label="Resume" onClick={() => void action(() => window.bimax.threads.start(thread.id))}><Play size={12}/></RowAction>
             : <RowAction label="Stop only this thread" onClick={() => void action(() => window.bimax.threads.stop(thread.id))}><Square size={11}/></RowAction>}
           <RowAction label="Rename" onClick={() => setRenaming({ id: thread.id, title: thread.title })}><Pencil size={12}/></RowAction>
-          {stopped && <RowAction label="Move to the Bin" onClick={() => void action(() => window.bimax.threads.moveToBin(thread.id, false))}><Trash2 size={12}/></RowAction>}
+          {stopped && <RowAction disabled={binPending} label="Move to the Bin" onClick={() => void binAction(() => window.bimax.threads.moveToBin(thread.id, false))}><Trash2 size={12}/></RowAction>}
           <SeedMenu
             label="More actions for this thread"
             width={248}
@@ -170,18 +177,23 @@ export function ThreadsList(): React.ReactElement {
         </div>
         <div className="thread-row-actions absolute top-1 right-1 flex items-center gap-px rounded-md p-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
           <RowAction label="Restore" onClick={() => void action(() => window.bimax.threads.unarchive(thread.id))}><RotateCcw size={12}/></RowAction>
-          <RowAction label="Move to the Bin" onClick={() => void action(() => window.bimax.threads.moveToBin(thread.id, true))}><Trash2 size={12}/></RowAction>
+          <RowAction disabled={binPending} label="Move to the Bin" onClick={() => void binAction(() => window.bimax.threads.moveToBin(thread.id, true))}><Trash2 size={12}/></RowAction>
         </div>
       </div>)}
+    </div>}
+    {binPending && <p role="status" className="px-2.5 py-1 text-[11px] text-dim">Updating conversation…</p>}
+    {data.undoBin && <div role="status" className="flex items-center gap-2 px-2.5 py-1 text-[11px] text-dim">
+      <span className="min-w-0 truncate" title={`Removed “${data.undoBin.title}”. Undo is available for five minutes for the five most recent removals. Project files stay as they are.`}>Removed “{data.undoBin.title}”</span>
+      <button disabled={binPending} onClick={() => void binAction(() => window.bimax.threads.undoBin(data.undoBin!.id))} className="ml-auto min-h-[26px] shrink-0 cursor-pointer rounded-md px-1.5 text-ink hover:bg-hover disabled:cursor-default">Undo</button>
     </div>}
     {error && <p role="alert" className="px-2 text-xs text-rust">{error}</p>}
   </div>;
 }
 
 /** One icon action on a row. The label is its tooltip and its accessible name — an icon never stands alone. */
-function RowAction({ label, onClick, children }: { label: string; onClick: () => void; children: React.ReactNode }): React.ReactElement {
+function RowAction({ label, onClick, children, disabled }: { label: string; onClick: () => void; children: React.ReactNode; disabled?: boolean }): React.ReactElement {
   return (
-    <button type="button" title={label} aria-label={label} onClick={onClick}
+    <button type="button" title={label} aria-label={label} disabled={disabled} onClick={onClick}
       className="flex size-6 cursor-pointer items-center justify-center rounded-md text-dim hover:bg-hover hover:text-ink focus-visible:outline-2 focus-visible:outline-ember">
       {children}
     </button>

@@ -51,7 +51,10 @@ export interface ThreadSummary {
 export interface ThreadSelection { id: string; state: EngineUiState }
 /** The tallest the ⌘2 bar may grow, as a share of its screen's work area (main clamps, the bar follows text at it). */
 export const QUICK_BAR_MAX_HEIGHT_SHARE = 0.72;
+/** Most recent of at most five binned conversations, recoverable privately for five minutes. */
+export interface ThreadBinUndo { id: string; title: string; expiresAt: number }
 export interface ThreadList {
+  undoBin?: ThreadBinUndo;
   activeId: string | null;
   threads: ThreadSummary[];
   shortcutAvailable: boolean;

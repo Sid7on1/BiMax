@@ -558,6 +558,41 @@ passes 4.5:1. Evidence: `batch17-*`. Product-reset 03/04, vision, 08 and competi
 Implemented and locally measured; native slow-filesystem timing and perceived-speed/user studies remain
 unmeasured. The change does not claim faster host filesystem work. Not yet installed.
 
+## Batch 18 — item 40, Bin first with actual Undo (2026-10-01)
+
+**Measured first:** Bin was the routine native question: “Move … to the Bin?” before moving only a conversation.
+No inline Undo was available in the built renderer at either zoom. The existing engine undo journal describes
+project-file actions, so it is not reused as a conversation-recovery contract.
+
+Bin now acts directly and shows actual local pending feedback, then “Removed … · Undo”. The main-process actions
+keep the open/running/draining guards. A private recovery directory (0700; snapshots 0600) holds at most five
+conversation copies, with approval requests removed, for five minutes. Expiry prunes while the app is open;
+closed-app copies are pruned on next launch. Undo restores exact conversation content/queued work to its original
+list or archive location, refuses a conflicting file, and returns live history stopped without starting an engine.
+It works even when the system Bin API supplies no trash path. Project files stay unchanged. The conversation copy
+in the system Bin remains there; the app's short-lived recovery copy is consumed on Undo.
+
+**Confirmation audit:** unsaved editor discard still asks because its buffer would be lost. Rewind retains its
+inline confirmation: the safety checkpoint captures working-tree contents through a private index, while
+`read-tree --reset -u` does not retain the person's prior staging distinction. Link/deep-link prompts grant
+communication/execution authority, including effects that cannot be unsent. Schedule/share failure dialogs are
+information, not routine confirmation. None of these was removed to improve a superficial click count.
+
+**Verification that ran:** 13 new storage/action/IPC tests; **9/9 unit and 3/3 rebuilt-renderer mutants caught in
+valid runs**. The first no-op Bin mutant exposed an unhandled rejection in the deferred test; the test now observes
+the promise immediately and the rerun catches the actual missing move. The compiled journey grades pending feedback,
+row removal, bridge request, Undo and restored row at both zooms. A native Electron `shell.trashItem` run removed a
+temporary conversation and restored its exact bytes, then consumed recovery. Finder's reported trash path remains
+unmeasured. An initial ESM readiness bootstrap hung before actions; it was discarded, fixed and rerun, not counted.
+The reusable native probe is `app/scripts/ui/thread-bin-native.ts`. Evidence: `batch18-*`.
+
+Full **122 suites / 1085 tests**, app typecheck, 32 morph flights, hit targets, motion tokens and preview build pass;
+composited label/code contrast clears 4.5:1. The browser bridge now names its absent native-storage capabilities
+explicitly instead of missing methods. Product-reset 03/04, 05, 07, 08, vision and competitive/06 guided the work.
+Implemented and locally measured, including one native system-Bin fallback; clean-Mac distribution, installed-app
+user journeys and provider-backed task quality remain unmeasured. No permission or legacy Computer Use path added.
+Not yet installed.
+
 ## Still open
 
 | # | Item |
