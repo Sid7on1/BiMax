@@ -137,13 +137,19 @@ enum Transmute {
         return Made(path: out.path, note: "Background removed")
     }
 
+    /// Accurate recognition first; the fast recognizer when macOS refuses to run the accurate one. Measured 2026-09-30 on
+    /// the owner's Mac (macOS 27, 56% memory free): `.accurate` threw e5rtError 13 ("create_precompiled_compute_operation
+    /// … failed") on every call while `.fast` read the same image correctly — Copy Text copied nothing at all.
     static func recognizeText(_ source: URL) throws -> String {
         let image = try cgImage(source, fit: nil)
-        let request = VNRecognizeTextRequest()
-        request.recognitionLevel = .accurate
-        request.usesLanguageCorrection = true
-        try VNImageRequestHandler(cgImage: image).perform([request])
-        return (request.results ?? []).compactMap { $0.topCandidates(1).first?.string }.joined(separator: "\n")
+        func read(_ level: VNRequestTextRecognitionLevel) throws -> String {
+            let request = VNRecognizeTextRequest()
+            request.recognitionLevel = level
+            request.usesLanguageCorrection = true
+            try VNImageRequestHandler(cgImage: image).perform([request])
+            return (request.results ?? []).compactMap { $0.topCandidates(1).first?.string }.joined(separator: "\n")
+        }
+        do { return try read(.accurate) } catch { return try read(.fast) }
     }
 
     // MARK: PDFs
