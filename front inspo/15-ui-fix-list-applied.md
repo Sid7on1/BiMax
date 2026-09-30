@@ -593,6 +593,39 @@ Implemented and locally measured, including one native system-Bin fallback; clea
 user journeys and provider-backed task quality remain unmeasured. No permission or legacy Computer Use path added.
 Not yet installed.
 
+## Batch 19 — item 36, faster settled exits that retain interruption momentum (2026-10-01)
+
+**Measured first:** the earlier batch retained 84–100% exits because simply stiffening the critical tail broke either
+reversal momentum or the 80px conversation-shift limit. Those were real constraints, not an excuse to rename a pass.
+
+Settled menus now use their own critical-damping speed limit. Settled panels and structural edges use shorter,
+high-damping tails; interrupted openings keep their verified critical reversal springs. Opening timings are intact.
+The first candidate failed the 70%-open momentum test; the next failed the conversation-shift bound at 89.5px.
+Both were rejected. The accepted candidate retains all interruption tests and both existing movement limits.
+
+| Surface | Entrance, 100% / 120% | Exit, 100% / 120% |
+|---|---|---|
+| Model menu | 217 / 217ms | **167 / 167ms** |
+| Model window | 283 / 267ms | **217 / 183ms** |
+| Inspector | 300 / 283ms | **217 / 200ms** |
+| Sidebar | 267 / 250ms | **200 / 200ms** |
+
+Primary settled exits are 69–80% of entrance, inside **75% plus one 60Hz frame**; the tiny in-place menu remains
+faster (67ms / 183ms), without adding a hold just to make ratios uniform. Exit overshoot is zero in the measured
+flights; maximum surface step is 115.2px and inspector conversation step 78.1px. Interrupted exits have their own
+momentum requirement, rather than being compared with a completed entrance they never performed.
+
+**Verification that ran:** six new arithmetic/gate tests; existing tests retained, with the named-token assertion
+updated for the three exit families and its strict short-menu speed comparison retained. **4/4 unit and 3/3
+rebuilt-renderer mutants caught in valid runs**, including the gate reverting to merely “no slower”. The rebuilt
+checker now enforces the 75% bound; the golden was updated only after the accepted candidate passed all invariants.
+Full **124 suites / 1091 tests**, typecheck, 32 morph flights, hit targets, motion tokens and preview build pass.
+The five compiled behavior journeys also pass again at both zooms: palette, task context/Send/Stop, quiet feedback,
+file races/loading, and Bin/Undo. Final Send acknowledgement is 15.4 / 6.4ms, Stop 5.7 / 6.5ms through the next
+browser frame. Evidence: `batch19-*` and `final-*`. Theme inks/materials are unchanged from batch 18's 4.5:1 pass.
+Product-reset 03/04, vision, 08 and competitive/06 guided the bounds and mutation proof. Implemented and locally
+measured; native GPU/display latency and human feel remain unmeasured. Not yet installed.
+
 ## Still open
 
 | # | Item |

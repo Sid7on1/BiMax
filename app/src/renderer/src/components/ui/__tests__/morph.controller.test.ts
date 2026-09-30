@@ -498,12 +498,13 @@ describe('menus are quick (UI fix list item 16)', () => {
     }
   });
 
-  test('only menus take the fast fold; panes and panels keep the shared dismiss', () => {
+  test('menus, structural edges and seeded panels take their named exit token', () => {
     expect(dismissForKind('popover')).toBe(MOTION.dismissPopover);
     expect(dismissForKind('toolbarExpansion')).toBe(MOTION.dismissPopover);
-    for (const kind of ['sidebar', 'inspector', 'palette', 'floatingPanel', 'workspaceSurface'] as const) {
+    for (const kind of ['sidebar', 'inspector'] as const) {
       expect(dismissForKind(kind)).toBe(MOTION.dismiss);
     }
+    for (const kind of ['palette', 'floatingPanel', 'workspaceSurface'] as const) expect(dismissForKind(kind)).toBe(MOTION.dismissPanel);
     // And the controller really uses it: the same menu, closed as an inspector, takes longer. Measured on a short
     // flight, where the token decides — on the picker's long one the 120px-per-frame limit binds both closes since the
     // ladder (item 32) sped them up, and they finish 4ms apart.

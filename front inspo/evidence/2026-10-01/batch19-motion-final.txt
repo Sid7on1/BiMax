@@ -1,0 +1,66 @@
+
+> bimax-app@1.1.0 check:morph
+> electron-vite build && electron scripts/ui/morph-regression.mjs
+
+vite v6.4.3 building SSR bundle for production...
+transforming...
+✓ 84 modules transformed.
+rendering chunks...
+out/main/index.js  515.59 kB
+✓ built in 370ms
+vite v6.4.3 building SSR bundle for production...
+transforming...
+✓ 1 modules transformed.
+rendering chunks...
+out/preload/index.js  17.88 kB
+✓ built in 10ms
+vite v6.4.3 building for production...
+transforming...
+✓ 2011 modules transformed.
+rendering chunks...
+../../out/renderer/index.html                                                0.57 kB
+../../out/renderer/assets/inter-vietnamese-wght-normal-CBcvBZtf.woff2       10.25 kB
+../../out/renderer/assets/inter-greek-ext-wght-normal-DlzME5K_.woff2        11.23 kB
+../../out/renderer/assets/inter-cyrillic-wght-normal-DqGufNeO.woff2         18.75 kB
+../../out/renderer/assets/inter-greek-wght-normal-CkhJZR-_.woff2            19.00 kB
+../../out/renderer/assets/inter-cyrillic-ext-wght-normal-BOeWTOD4.woff2     25.96 kB
+../../out/renderer/assets/inter-latin-wght-normal-Dx4kXJAl.woff2            48.26 kB
+../../out/renderer/assets/inter-latin-ext-wght-normal-DO1Apj_S.woff2        85.07 kB
+../../out/renderer/assets/index-TxM9HBw4.css                               162.69 kB
+../../out/renderer/assets/index-BBO_loVr.js                              3,164.20 kB
+✓ built in 2.03s
+morph regression — 32 flights, 1180×800 window at 100% and 120%, built renderer
+  ✓ menu.open                           19 frames  settles 217ms  overshoot 0.6%  max step 99.1px
+  ✓ menu.close                          11 frames  settles 167ms  overshoot 0%  max step 103px
+  ✓ menu.close-mid-open                 16 frames  settles 250ms  overshoot 0%  max step 99.1px
+  ✓ menu.reopen-mid-close               22 frames  settles 250ms  overshoot 0%  max step 103px
+  ✓ dialog.open                         32 frames  settles 283ms  overshoot 0.1%  max step 98.9px
+  ✓ dialog.close                        14 frames  settles 217ms  overshoot 0%  max step 115.2px
+  ✓ inplace-menu.open                   21 frames  settles 183ms  overshoot 0%  max step 1.4px
+  ✓ inplace-menu.close                   5 frames  settles  67ms  overshoot 0%  max step 3.2px
+  ✓ inspector.close                     20 frames  settles 217ms  overshoot 0%  max step 78.1px
+  ✓ inspector.open                      26 frames  settles 300ms  overshoot 0%  max step 77.6px
+  ✓ sidebar.close                       21 frames  settles 200ms  overshoot 0%  max step 41.5px
+  ✓ sidebar.open                        28 frames  settles 267ms  overshoot 0%  max step 41.9px
+  ✓ reduced.menu.open                    3 frames  settles   0ms  overshoot 0%  max step 0px
+  ✓ reduced.menu.close                   1 frames  settles   0ms  overshoot 0%  max step 0px
+  ✓ reduced.inspector.close             12 frames  settles  17ms  overshoot 0%  max step 399.8px
+  ✓ reduced.inspector.open              28 frames  settles  17ms  overshoot 0%  max step 399.9px
+  ✓ at120%.menu.open                    19 frames  settles 217ms  overshoot 0.6%  max step 98.8px
+  ✓ at120%.menu.close                   11 frames  settles 167ms  overshoot 0%  max step 103px
+  ✓ at120%.menu.close-mid-open          16 frames  settles 250ms  overshoot 0%  max step 98.8px
+  ✓ at120%.menu.reopen-mid-close        22 frames  settles 250ms  overshoot 0%  max step 103px
+  ✓ at120%.dialog.open                  31 frames  settles 267ms  overshoot 0.1%  max step 87.1px
+  ✓ at120%.dialog.close                 12 frames  settles 183ms  overshoot 0%  max step 114.1px
+  ✓ at120%.inplace-menu.open            21 frames  settles 183ms  overshoot 0%  max step 1.4px
+  ✓ at120%.inplace-menu.close            5 frames  settles  67ms  overshoot 0%  max step 3.2px
+  ✓ at120%.inspector.close              13 frames  settles 200ms  overshoot 0%  max step 66.8px
+  ✓ at120%.inspector.open               24 frames  settles 283ms  overshoot 0%  max step 67px
+  ✓ at120%.sidebar.close                21 frames  settles 200ms  overshoot 0%  max step 38.3px
+  ✓ at120%.sidebar.open                 23 frames  settles 250ms  overshoot 0%  max step 38.8px
+  ✓ at120%.reduced.menu.open             3 frames  settles   0ms  overshoot 0%  max step 0px
+  ✓ at120%.reduced.menu.close            1 frames  settles   0ms  overshoot 0%  max step 0px
+  ✓ at120%.reduced.inspector.close       3 frames  settles  17ms  overshoot 0%  max step 333px
+  ✓ at120%.reduced.inspector.open       27 frames  settles  17ms  overshoot 0%  max step 334px
+
+all invariants held; every flight within tolerance of its baseline.

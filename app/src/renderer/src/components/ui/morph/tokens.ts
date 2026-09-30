@@ -51,11 +51,10 @@ const MENU_SPEED_LIMIT = 7000;
 /**
  * The one place a spring is chosen.
  *
- * `dismiss` is not the inverse of an opening token, and that asymmetry is deliberate: the user has
- * already decided, so the flight home is an acknowledgement rather than a presentation. It is
- * critically damped (nothing may grow again after a dismissal — an overshoot on close means the
- * panel briefly gets *bigger* after the user asked for it to go away) and stiffer, so it clears the
- * screen faster than it filled it.
+ * Settled surfaces use shorter exit tails; interrupted openings retain the verified reversal
+ * springs so momentum survives the next frame. Menus and interrupted flights are critically
+ * damped. Settled edges and seeded panels use high damping with the controller's pixel handoff;
+ * the built checker forbids visible rebound and retains both speed and conversation-shift bounds.
  */
 export const MOTION = {
   /** Press and release on a control. Barely visible, purely confirmatory. */
@@ -78,9 +77,9 @@ export const MOTION = {
    * ζ is unchanged, so the character — momentum resolved in a pixel or two — is the same one.
    *
    * 2026-10-01 (item 32, the owner's ladder: popovers 180–220ms, panels 240–300ms, exits no slower than entrances):
-   * k 1700 — the Model menu settles in 217ms in the built app (check:morph, which now holds every flight to the
-   * ladder); `dismissPopover` 2400 folds it in 183ms. `seedPanel` 740 (the model window, 383 → 283ms),
-   * `structuralPane` 1450 (the panes, 517/467 → 300/267ms), `dismiss` 1450 (their closes, 367/333 → 250/233ms).
+   * k 1700 opens the built model menu in 217ms. The later item-36 exit tuning uses the
+   * critical close's own speed limit (167ms), shorter settled-pane tails (217/200ms), and a
+   * seeded-panel tail (217ms). Mid-opening dismissals retain the verified reversal acceleration.
    */
   seedPopover: { spring: { stiffness: 1700, ratio: 0.82 }, reveal: { start: 0.42, end: 0.80 }, speedLimit: MENU_SPEED_LIMIT },
   /** A sheet or floating panel. */
@@ -102,25 +101,15 @@ export const MOTION = {
 
   /** A surface with no honest seed (⌘K). It does not fly; it arrives. */
   materialize: { spring: { stiffness: 460, ratio: 0.95 }, reveal: { start: 0.25, end: 0.65 } },
-  /**
-   * Every close but a menu's. The speed limit is the menus' own, for the same reason: at the ladder's pace
-   * (UI fix list item 32, panels 240–300ms) the model window folding home across the window moved 149px in one frame.
-   */
-  // Worked out at its own ζ of 1: no opening shares this limit, and the menus' ζ would slow it a further 13%.
-  dismiss: { spring: { stiffness: 1450, ratio: 1.0 }, reveal: { start: 0, end: 0.30 }, speedLimit: MENU_SPEED_LIMIT, limitRatio: 1 },
-  /**
-   * A menu closing. Once `seedPopover` opens in ~240ms, the shared `dismiss` (~300ms on a picker)
-   * would fold a menu away SLOWER than it arrived — the UI reluctant to let go. The list's item 36
-   * asks for an exit at about three quarters of the entrance; on a picker the speed limit is what
-   * stops short of that. Measured, picker open at k 1300 (242ms):
-   *
-   *   close k 1300 → 225ms    k 1800 → 208ms    k 2200 → 208ms (the speed limit binds at ~k 1840)
-   *
-   * A small menu is not limited and folds faster still. Still critically damped, for the reason
-   * `dismiss` gives. A menu closed early (10–30% open) keeps growing for a frame before it turns;
-   * closed at 70% it turns at once — as it did at the old k 520 / 700, because by then it is slowing.
-   */
-  dismissPopover: { spring: { stiffness: 2400, ratio: 1.0 }, reveal: { start: 0, end: 0.30 }, speedLimit: MENU_SPEED_LIMIT },
+  /** Structural exits shorten their tail without exceeding the 80px conversation-shift bound. */
+  dismiss: { spring: { stiffness: 1280, ratio: 0.88 }, reveal: { start: 0, end: 0.30 }, speedLimit: MENU_SPEED_LIMIT, limitRatio: 0.88 },
+  /** Mid-flight reversals retain the previously verified acceleration bound and momentum. */
+  dismissInterrupted: { spring: { stiffness: 1450, ratio: 1.0 }, reveal: { start: 0, end: 0.30 }, speedLimit: MENU_SPEED_LIMIT, limitRatio: 1 },
+  dismissPopoverInterrupted: { spring: { stiffness: 2400, ratio: 1.0 }, reveal: { start: 0, end: 0.30 }, speedLimit: MENU_SPEED_LIMIT },
+  /** A seeded panel's exit: a shorter tail, limited at its own damping ratio. */
+  dismissPanel: { spring: { stiffness: 1450, ratio: 0.89 }, reveal: { start: 0, end: 0.30 }, speedLimit: MENU_SPEED_LIMIT, limitRatio: 0.89 },
+  /** A settled menu uses its own critical-damping speed limit, instead of borrowing the opening ratio. */
+  dismissPopover: { spring: { stiffness: 2600, ratio: 1.0 }, reveal: { start: 0, end: 0.30 }, speedLimit: MENU_SPEED_LIMIT, limitRatio: 1 },
 
   /**
    * Reduce Motion. Not "no motion" — Prompt 2 §32 asks for the continuity to survive.
@@ -154,9 +143,12 @@ export function tokenForKind(kind: DestinationKind): MotionToken {
   }
 }
 
-/** Which token a destination kind closes with: a menu's own, faster fold, or the shared one. */
-export function dismissForKind(kind: DestinationKind): MotionToken {
-  return kind === 'popover' || kind === 'toolbarExpansion' ? MOTION.dismissPopover : MOTION.dismiss;
+/** Exit families preserve reversal momentum separately from a settled surface's faster dismissal. */
+export function dismissForKind(kind: DestinationKind, interrupted = false): MotionToken {
+  if (interrupted) return kind === 'popover' || kind === 'toolbarExpansion' ? MOTION.dismissPopoverInterrupted : MOTION.dismissInterrupted;
+  if (kind === 'popover' || kind === 'toolbarExpansion') return MOTION.dismissPopover;
+  if (kind === 'sidebar' || kind === 'inspector') return MOTION.dismiss;
+  return MOTION.dismissPanel;
 }
 
 /* ------------------------------------------------------------ size grading */

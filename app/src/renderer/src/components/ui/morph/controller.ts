@@ -268,7 +268,7 @@ export class MorphController {
     this.seeded = seed !== null && !this.reduced();
     this.target = this.launchGeometry(seed, destination);
     this.flightSpan = largestTravel(this.target, destination);
-    this.token = this.reduced() ? MOTION.reducedMotion : dismissForKind(this.options.kind());
+    this.token = this.reduced() ? MOTION.reducedMotion : dismissForKind(this.options.kind(), this.state === 'opening');
     this.state = 'closing';
     this.start();
   }

@@ -52,10 +52,10 @@ const MAX_COLUMN_STEP = 80;
 const REAL_TIME_LIMIT_MS = 1200;
 
 /**
- * The owner's motion ladder (UI fix list item 32): popovers 180–220ms, panels 240–300ms, exits no slower than their
- * entrance (item 36). Measured as `settleMs` — the frame after which nothing moves more than 1px — with one frame of
- * slack for the 60Hz grid. A closing menu's and the model window's exits sit at 84% and 100% of their entrances: the
- * 120px-per-frame rule, which a spring fast enough for 75% would break on a long flight home, wins.
+ * The owner's motion ladder: popovers 180–220ms, panels 240–300ms. A settled exit
+ * takes at most about three quarters of its entrance, with one 60Hz frame of quantisation
+ * slack. Very short in-place exits may be faster; interruptions retain momentum and are
+ * graded separately. The 120px surface-step and 80px conversation-step limits still apply.
  */
 const LADDER = {
   'menu.open': 220, 'inplace-menu.open': 220, 'menu.close': 220, 'inplace-menu.close': 220,
@@ -646,7 +646,7 @@ async function main() {
     for (const [exit, entrance] of EXITS) {
       const out = at(exit);
       const into = at(entrance);
-      if (out && into && out.settleMs > into.settleMs + FRAME_MS) results.find((r) => r.name === zoom.prefix + exit).faults.push(`the exit (${out.settleMs}ms) outlasts its entrance (${into.settleMs}ms) (UI fix list item 36)`);
+      if (out && into && out.settleMs > into.settleMs * 0.75 + FRAME_MS) results.find((r) => r.name === zoom.prefix + exit).faults.push(`the exit (${out.settleMs}ms) exceeds 75% of its entrance (${into.settleMs}ms) plus one frame (UI fix list item 36)`);
     }
     // Reduce Motion: no geometry animation at all — a surface does not move a pixel (item 32).
     for (const name of ['reduced.menu.open', 'reduced.menu.close']) {
