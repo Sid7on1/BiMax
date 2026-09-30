@@ -1,5 +1,5 @@
 import { CapabilityReplay } from './capability.replay';
-import { app, BrowserWindow, ipcMain, dialog, shell, session, systemPreferences, powerMonitor, net, nativeTheme, globalShortcut, screen, Menu, Notification, Tray, nativeImage, safeStorage, webContents as electronWebContents } from 'electron';
+import { app, BrowserWindow, clipboard, ipcMain, dialog, shell, session, systemPreferences, powerMonitor, net, nativeTheme, globalShortcut, screen, Menu, Notification, Tray, nativeImage, safeStorage, webContents as electronWebContents } from 'electron';
 import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron';
 import path from 'node:path';
 import { ThreadManager } from './thread.manager';
@@ -993,6 +993,8 @@ function updateTray(): void {
   ];
   tray.setContextMenu(Menu.buildFromTemplate(template));
 }
+/** The most a Copy button may put on the clipboard: a whole long reply fits many times over. */
+const MAX_COPY_CHARS = 5_000_000;
 /** The thread the main window is showing, while the window is on screen: it asks that thread's questions itself. */
 function mainWindowThread(): string | null {
   return win && !win.isDestroyed() && win.isVisible() && !win.isMinimized() ? threads?.activeId ?? null : null;
@@ -1370,7 +1372,8 @@ function auxiliaryChannelAllowed(event: IpcMainEvent | IpcMainInvokeEvent, chann
       'threads:quick-current', 'threads:quick-reset', 'threads:quick-interrupt', 'threads:quick-resize', 'threads:quick-open',
       'threads:undo-info', 'threads:undo', 'threads:history', 'threads:bookmark-set', 'threads:where', 'threads:undo-change', 'threads:undo-back-to', 'threads:open-path', 'threads:quick-switch', 'threads:model-menu',
       'threads:more-menu', 'threads:rules-get', 'threads:rules-set', 'threads:rules-pick', 'threads:screenshot', 'threads:paste-picture', 'threads:teach', 'threads:outcome-get', 'threads:outcome-set', 'threads:outcome-clear', 'threads:night-start', 'threads:skill-save',
-      'voice:available', 'voice:start', 'voice:stop', 'voice:cancel', 'talk:start', 'talk:end', 'talk:interrupt', 'talk:current']
+      'voice:available', 'voice:start', 'voice:stop', 'voice:cancel', 'talk:start', 'talk:end', 'talk:interrupt', 'talk:current',
+      'clipboard:write-text']
     : event.sender.id === organizeWebContentsId()
       ? ['organize:current', 'organize:move', 'organize:move-group', 'organize:keep', 'organize:include', 'organize:apply', 'organize:cancel']
       : ['threads:approvals', 'threads:reply', 'threads:hide', 'threads:stop'];
@@ -1945,6 +1948,14 @@ app.whenReady().then(async () => {
   // rather than a live browser. Payloads are validated here because the manager trusts its caller.
   secureHandle('threads:list', { activeId: null, threads: [], shortcutAvailable: false } as any, () => threadList());
   secureHandle('threads:context', { root: null, source: 'Choose a folder' } as QuickContext, () => quickContext);
+  // Copy buttons: a code block, a whole reply, a diagnostics report. `navigator.clipboard` needs a permission this app
+  // refuses to every page (security.ts isAllowedPermission), so every Copy button failed without a word; the main
+  // process writes the text instead. Text only, and bounded.
+  secureHandle('clipboard:write-text', false, (_e, text: unknown) => {
+    if (typeof text !== 'string' || !text || text.length > MAX_COPY_CHARS) return false;
+    clipboard.writeText(text);
+    return true;
+  });
   // The popup lists what is not asked on screen elsewhere; the main window checks a refused reply against all of them.
   secureHandle('threads:approvals', [] as any[], (event) => (event.sender.id === approvalWindow?.webContents.id ? popupApprovals() : threads.approvals()));
   secureHandle('threads:pick-folder', null as string | null, async () => {

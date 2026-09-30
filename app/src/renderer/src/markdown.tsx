@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { marked, Token, Tokens } from 'marked';
 import hljs from 'highlight.js/lib/common';
 import { Copy, Check } from 'lucide-react';
+import { copyText } from './copy.text';
 
 /**
  * Full markdown for chat messages: marked's lexer produces tokens, and we render tokens straight
@@ -165,7 +166,8 @@ export function CodeBlock({ code, lang }: { code: string; lang: string }): React
     html = '';
   }
   const copy = (): void => {
-    void navigator.clipboard.writeText(code).then(() => {
+    void copyText(code).then((ok) => {
+      if (!ok) return;
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     });

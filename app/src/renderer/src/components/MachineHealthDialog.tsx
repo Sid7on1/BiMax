@@ -4,6 +4,7 @@ import {
   ScrollText, ChevronRight, ChevronDown, Copy, Check, RefreshCcw,
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from './ui/dialog';
+import { copyText } from '../copy.text';
 import type { Phase9View } from '../usePhase9';
 import type { WorkspaceToolStatus } from '../../../phase9/workspace.capabilities';
 
@@ -125,9 +126,9 @@ function EngineLog(): React.ReactElement {
 
   const copy = useCallback((): void => {
     if (!text) return;
-    navigator.clipboard.writeText(text).then(
-      () => { setCopied(true); window.setTimeout(() => setCopied(false), 1500); },
-      () => { /* a refused clipboard is not worth an error state in a support panel */ },
+    void copyText(text).then(
+      // A refused clipboard is not worth an error state in a support panel; the button just does not say "Copied".
+      (ok) => { if (ok) { setCopied(true); window.setTimeout(() => setCopied(false), 1500); } },
     );
   }, [text]);
 

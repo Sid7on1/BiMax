@@ -173,6 +173,13 @@ const api = {
     diagnostics: (): Promise<string> => ipcRenderer.invoke('supervisor:diagnostics'),
     engineLog: (): Promise<string> => ipcRenderer.invoke('supervisor:engine-log'),
   },
+  /**
+   * Copy buttons write through the app (main 'clipboard:write-text'): the page's own clipboard API needs a permission
+   * the app refuses to every page. True when the text is on the clipboard.
+   */
+  clipboard: {
+    writeText: (text: string): Promise<boolean> => ipcRenderer.invoke('clipboard:write-text', text),
+  },
   /** Tells main which appearance is showing, so the native vibrancy material matches it. */
   setAppearance: (appearance: 'auto' | 'moonlight' | 'starlight'): void =>
     ipcRenderer.send('app:appearance', appearance),

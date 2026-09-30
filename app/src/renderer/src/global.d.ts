@@ -181,6 +181,8 @@ declare global {
         /** The engine's recent stderr, redacted and bounded. Live — does not require a crash. */
         engineLog: () => Promise<string>;
       };
+      /** Copy buttons write through the app; see copy.text.ts. */
+      clipboard: { writeText: (text: string) => Promise<boolean> };
       setAppearance: (appearance: 'auto' | 'moonlight' | 'starlight') => void;
       windowChrome: {
         get: () => Promise<WindowChromeState>;

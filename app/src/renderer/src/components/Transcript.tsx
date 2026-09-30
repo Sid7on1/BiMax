@@ -10,6 +10,7 @@ import { EngineStore } from '../engine.store';
 import { useEngineDomain } from '../useEngineDomain';
 import { MessageEntry, ToolCallEntry } from '../protocol';
 import { Markdown } from '../markdown';
+import { copyText } from '../copy.text';
 import { Dashboard } from './Dashboards';
 import { cn } from '../lib/cn';
 
@@ -292,7 +293,8 @@ function MessageActions({
   );
 
   const copy = (): void => {
-    void navigator.clipboard.writeText(text).then(() => {
+    void copyText(text).then((ok) => {
+      if (!ok) return;
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1400);
     });
