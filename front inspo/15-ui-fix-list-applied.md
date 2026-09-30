@@ -117,11 +117,42 @@ middle-click). An earlier test caught a missing Settings → Reduce motion twin 
 **Not verified:** the native sheet and the right-click menu are main-process pieces the preview cannot show; they are
 unit-tested, not yet clicked in the real app. ⌘W and ⌃Tab live in App.tsx, which the preview does not render.
 
+## Batch 5 — item 11, the jitter when a panel opens (2026-09-30)
+
+**Measured first**, in the built renderer (`out/renderer`) run in Electron with the journeys' bridge stand-in,
+recording each frame's width of the conversation, the pane and the flying glass shell while ⌘J / ⌘B toggled them:
+
+| | largest single-frame move of the conversation | how it moved |
+|---|---|---|
+| right panel closing | 57 px | with the edge, frame by frame (fixed 2026-09-13) |
+| **right panel opening, before** | **401 px** | the pane took its full width in ONE frame (967 → 566 px, all text rewrapped), then the glass swept in over ~600 ms |
+| **right panel opening, after** | **42 px** | with the edge, frame by frame |
+| **sidebar opening, before → after** | **204 → 23 px** | same defect, same fix |
+
+That is the jitter the owner saw "when right panel opens": opening had been left out of the 2026-09-13 fix
+(`pane.flight.ts` said "Opening is untouched"). Now `followFlight` runs the same layout override in both directions.
+Two traps found on the way, both measured: a just-mounted pane is drawn with the panel library's placeholder
+`flex: 1` (11.7 px) until the group lays it out, so its width is read from the group's layout, not its box; and the
+override has to take hold at zero width on the first frame, because the library sizes the pane after the flight's
+first frame and waiting for it painted one full-width frame. The morph driver's resize observer is now started
+before the first paint too (a layout effect).
+
+**Menus and popovers**, measured the same way (Long Animation Frames, three opens each of the permission and model
+menus): after the first open, no frame over 17 ms. The FIRST open of each stalls 150–390 ms, with no script, style
+or layout time attributed — compositor work, most likely first-time raster of the glass in this software-rendered
+harness. **Not settled here:** it needs the real GPU window, and is left open.
+
+**Verification that ran:** app typecheck clean; app suite 115 suites / 1019 tests pass; 10 deliberate breakages
+(opening left untouched, waiting for the layout instead of holding at zero, holding at the placeholder box, no clamp
+to the target, never releasing at rest, following under Reduce Motion, an uncaught layout read, separators counted
+as space, the observer after paint, the sidebar unwired) — every one failed a test. The timing and feel of the
+flight itself are unchanged.
+
 ## Still open
 
 | # | Item |
 |---|---|
 | 10 | Left and middle panel parity (one blur, radius, border and spacing set). |
-| 11 | Jitter in the seeded open/close animations — profile, then fix. |
+| 11 (rest) | The first open of each menu stalls 150–390 ms in the harness (compositor, not script); check in the real window. |
 | 22 | Visual-regression coverage for the morph paths in the design-preview harness. |
 | 23–45 | Research principles. Several already hold or were served by the items above (42 in item 18); the rest need picking one by one with the owner. |

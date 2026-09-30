@@ -154,7 +154,12 @@ export function useMorphDriver(options: MorphDriverOptions): MorphDriver {
   }, [elements]);
 
   // Both ends of the morph move when the world does (Prompt 2 §79).
-  useEffect(() => {
+  //
+  // A LAYOUT effect, so the observer exists before the first paint and its first callback lands in that same frame's
+  // rendering steps. It was a passive effect, which starts after paint: a structural region that its panel group sizes
+  // in a layout effect was therefore drawn once at full width before its flight could take hold of the layout —
+  // measured as the conversation snapping 401px narrower for one frame and back (UI fix list item 11).
+  useLayoutEffect(() => {
     if (!active) return;
     const onResize = (): void => controllerRef.current?.remeasure();
     window.addEventListener('resize', onResize);

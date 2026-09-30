@@ -1,7 +1,7 @@
 import { CapabilityBanner } from './components/CapabilityBanner';
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Group, Panel, Separator, type GroupImperativeHandle } from 'react-resizable-panels';
-import { followCollapse, releaseCollapse, settleCollapse } from './pane.flight';
+import { followFlight, settleCollapse } from './pane.flight';
 import { prefersReducedMotion } from './components/ui/motion';
 import { createHoverIntent } from './hover.intent';
 import { applyMotionPreference } from './motion.preference';
@@ -494,10 +494,7 @@ export function App(): React.ReactElement {
                 <MorphRegion
                   open={sidebarPinned}
                   kind="sidebar"
-                  onFrame={(frame) => {
-                    if (frame.state === 'closing') followCollapse(groupEl.current, 'sidebar', frame.geometry.width, prefersReducedMotion());
-                    else if (frame.state === 'opening') releaseCollapse(groupEl.current, 'sidebar');
-                  }}
+                  onFrame={(frame) => followFlight(groupEl.current, groupRef.current, 'sidebar', frame, prefersReducedMotion())}
                   onCollapsed={() => setSidebarMounted(false)}
                 >
                   <div className="h-full" onMouseLeave={peekIntent.close}>
@@ -608,10 +605,7 @@ export function App(): React.ReactElement {
                 <MorphRegion
                   open={inspectorOpen}
                   kind="inspector"
-                  onFrame={(frame) => {
-                    if (frame.state === 'closing') followCollapse(groupEl.current, 'inspector', frame.geometry.width, prefersReducedMotion());
-                    else if (frame.state === 'opening') releaseCollapse(groupEl.current, 'inspector');
-                  }}
+                  onFrame={(frame) => followFlight(groupEl.current, groupRef.current, 'inspector', frame, prefersReducedMotion())}
                   onCollapsed={() => setInspectorMounted(false)}
                 >
                   <Inspector
