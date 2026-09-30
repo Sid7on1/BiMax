@@ -202,7 +202,7 @@ export function TaskSidebar({
                   <span className="min-w-0 flex-1 truncate">
                     {session.title === '(no messages yet)' ? 'Untitled' : session.title}
                   </span>
-                  <span className="shrink-0 font-mono text-[10px] text-faint tabular-nums">
+                  <span className="shrink-0 text-[10px] text-faint tabular-nums">
                     {relTime(session.startedAt)}
                   </span>
                 </button>
@@ -465,7 +465,7 @@ function Section({
 
 function Keycap({ children }: { children: React.ReactNode }): React.ReactElement {
   return (
-    <span className="glass-key shrink-0 rounded-[5px] px-1.5 py-px font-mono text-[9.5px] leading-[15px] tracking-tight">
+    <span className="glass-key shrink-0 rounded-[5px] px-1.5 py-px text-[9.5px] leading-[15px] tracking-tight">
       {children}
     </span>
   );

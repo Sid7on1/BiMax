@@ -826,6 +826,12 @@
   .md .md-h2 { @apply text-[15px]; }
   .md .md-h3 { @apply text-[14px]; }
   .md .md-h4, .md .md-h5, .md .md-h6 { @apply text-[13.5px] text-dim; }
+  /* Running text stops near 70 characters a line (UI fix list item 38). The reading column grows with the window, up to
+     1180px, and a reply ran to it: measured 66 characters a line in the owner's usual layout (1180×800 at 120%, right
+     panel open) but 119 with the panel closed and 186 on a large window at 100%. Only the text is held back — code
+     blocks, tables and tool rows keep the whole column, where width is worth having. 34em ≈ 71 characters of Inter;
+     `.md-text` is a reply that is plain text rather than markdown. */
+  .md :is(p, ul, ol, blockquote, .md-h), .md-text { max-width: 34em; }
 
   /* Code in the chat takes the editor's syntax colours (the `--code-*` tokens), so a snippet reads the same in a reply
      as in the file it came from. It was monochrome — every class mapped to a grey — which the owner read as plain white
@@ -1389,7 +1395,9 @@
   padding: 1px 5px;
   background: color-mix(in srgb, var(--color-ink) 10%, transparent);
   color: var(--color-dim);
-  font: 9px var(--font-mono);
+  /* A count, not code: the interface face with even-width digits (UI fix list item 38). */
+  font: 9px var(--font-sans);
+  font-variant-numeric: tabular-nums;
   text-align: center;
 }
 
@@ -1479,7 +1487,7 @@
 }
 .alchemist-hero { background: var(--raise-veil); }
 .inspector-section-title { display: flex; align-items: center; gap: 7px; margin-bottom: 9px; color: var(--color-faint); font-size: 9.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
-.status-chip { display: inline-flex; align-items: center; border-radius: 999px; padding: 2px 6px; font: 8.5px var(--font-mono); color: var(--color-dim); background: color-mix(in srgb, var(--color-ink) 7%, transparent); }
+.status-chip { display: inline-flex; align-items: center; border-radius: 999px; padding: 2px 6px; font: 8.5px var(--font-sans); font-variant-numeric: tabular-nums; color: var(--color-dim); background: color-mix(in srgb, var(--color-ink) 7%, transparent); }
 .status-chip--ok { color: var(--color-moss); background: color-mix(in srgb, var(--color-moss) 10%, transparent); }
 .status-chip--warn { color: var(--color-amber); background: color-mix(in srgb, var(--color-amber) 10%, transparent); }
 .evidence-pill { display: inline-flex; max-width: 140px; align-items: center; border: 1px solid var(--color-line); border-radius: 999px; padding: 1px 6px; color: var(--color-faint); background: var(--color-well); font: 8.5px var(--font-mono); }
@@ -1967,7 +1975,7 @@ html.aux-surface, html.aux-surface body, html.aux-surface #root { background: tr
 .quick-choice:hover { background: color-mix(in srgb, var(--color-ink) 18%, transparent); }
 .quick-choice-primary { background: var(--color-ink); color: var(--color-bg); }
 .quick-choice-primary:hover { background: color-mix(in srgb, var(--color-ink) 86%, transparent); }
-.quick-footer { display: flex; flex: none; align-items: center; gap: 10px; min-height: 36px; padding: 6px 16px 8px 22px; color: color-mix(in srgb, var(--color-ink) 58%, transparent); font-size: 11.5px; }
+.quick-footer { display: flex; flex: none; align-items: center; gap: 10px; min-height: 36px; padding: 6px 16px 8px 22px; color: color-mix(in srgb, var(--color-ink) 58%, transparent); font-size: 11.5px; font-variant-numeric: tabular-nums; }
 .quick-status { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .quick-link { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 8px; color: color-mix(in srgb, var(--color-ink) 74%, transparent); cursor: pointer; }
 .quick-link:hover { background: color-mix(in srgb, var(--color-ink) 10%, transparent); color: var(--color-ink); }

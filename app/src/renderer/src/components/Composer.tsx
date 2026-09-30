@@ -695,7 +695,7 @@ export function Composer({
               furniture; one that appears at 60% is a warning. */}
           {ctxPct !== null && ctxPct >= 60 && (
             <span
-              className={cn('shrink-0 font-mono text-[10px] tabular-nums', ctxPct >= 85 ? 'text-rust' : 'text-amber')}
+              className={cn('shrink-0 text-[10px] tabular-nums', ctxPct >= 85 ? 'text-rust' : 'text-amber')}
               title={`Context ~${ctxPct}% of ${snapshot!.contextWindow.toLocaleString()} tokens`}
             >
               {ctxPct}% context

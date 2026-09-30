@@ -84,7 +84,7 @@ export function HomeView({
                 >
                   <MessageSquare size={14} className="shrink-0 text-faint group-hover:text-ember" />
                   <span className="min-w-0 flex-1 truncate text-[12.5px] text-dim group-hover:text-ink">{task.title}</span>
-                  <span className="shrink-0 font-mono text-[10px] text-faint">{relTime(task.startedAt)}</span>
+                  <span className="shrink-0 text-[10px] text-faint tabular-nums">{relTime(task.startedAt)}</span>
                   <ArrowUpRight size={13} className="shrink-0 text-faint opacity-0 transition-opacity group-hover:opacity-100" />
                 </button>
               ))}

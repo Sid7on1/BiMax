@@ -253,7 +253,8 @@ function Message({
   if (msg.role === 'user') {
     return (
       <div className="group reading-column mx-auto flex flex-col items-end">
-        <div className="max-w-[78%] rounded-[18px] bg-raise px-4 py-2.5 text-ink">
+        {/* The same measure as a reply's text (styles.css, `.md`): 34em of text plus the bubble's 32px of padding. */}
+        <div className="max-w-[min(78%,calc(34em+32px))] rounded-[18px] bg-raise px-4 py-2.5 text-ink">
           <Markdown text={msg.content} />
         </div>
         <MessageActions text={msg.content} id={msg.id} align="right" />

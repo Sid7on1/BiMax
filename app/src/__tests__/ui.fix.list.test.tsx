@@ -20,6 +20,7 @@ import { inspectorTabs, type WorkbenchTab } from '../renderer/src/inspector.mode
 import type {} from '../renderer/src/global';
 import { CONFIG_WIRE_KEYS } from '../../../src/protocol/config.wire';
 import { GATE_KEYS } from '../../../src/engine/gate.flags';
+import { Markdown } from '../renderer/src/markdown';
 
 /**
  * The owner's UI fix list, 2026-09-30 (`front inspo/14-ui-fix-list-2026-09-30.md`). One block per item,
@@ -456,5 +457,81 @@ describe('item 10 — the sidebar and the conversation are one window', () => {
     expect(sidebar).toContain("cn('sidebar-header flex h-11");
     expect(css).toContain('.sidebar-header { container-type: inline-size; }');
     expect(css).toContain('@container (max-width: 117px) { .sidebar-title { display: none; } }');
+  });
+});
+
+/** A rule's declarations, comments stripped, for the selector exactly as written in styles.css. */
+const ruleOf = (selector: string): string => {
+  const at = css.indexOf(`${selector} {`);
+  return at < 0 ? '' : css.slice(at, css.indexOf('}', at)).replace(/\/\*[\s\S]*?\*\//g, '');
+};
+
+describe('item 34 — every control takes clicks over at least 24×24', () => {
+  // `npm run check:hit-targets` measures this by clicking in the built app; these pin the source it measured.
+  test('`.hit-24` widens the clickable region to 24×24 and paints nothing', () => {
+    const ring = ruleOf('.hit-24::after');
+    expect(ring).toContain("content: '';");
+    expect(ring).toContain('width: max(100%, 24px);');
+    expect(ring).toContain('height: max(100%, 24px);');
+    expect(ring).toContain('translate: -50% -50%;');
+    expect(ring).not.toMatch(/background|border|box-shadow/);
+    expect(ruleOf('.hit-24')).toContain('position: relative;');
+  });
+
+  test('the small glyphs wear the ring: "Thought for", a tab’s ×, find’s toggles and chevron', () => {
+    expect(read('app/src/renderer/src/components/Transcript.tsx')).toContain("cn('hit-24 flex items-center gap-1 text-xs text-faint italic'");
+    expect(read('app/src/renderer/src/components/Inspector.tsx')).toContain('className="workbench-tab-close hit-24"');
+    const find = read('app/src/renderer/src/components/FindWidget.tsx');
+    expect(find).toContain('className="find-toggle hit-24"');
+    expect(find).toContain('className="find-expand hit-24"');
+  });
+
+  test('toggles 22px wide sit 2px apart, so neighbouring 24px rings meet and do not overlap', () => {
+    // At 1px apart each lost the pixel its neighbour's ring covered: measured 22.5px of clickable width.
+    expect(css).toMatch(/\n\.find-toggle \{ width: 22px; height: 20px;/);
+    expect(ruleOf('.find-field')).toMatch(/gap: 2px;/);
+  });
+
+  test('rows stacked edge to edge, and a path that truncates, get real height instead of a ring', () => {
+    expect(read('app/src/renderer/src/components/FilesPanel.tsx')).toContain("'group flex min-h-6 w-full cursor-pointer");
+    expect(read('app/src/renderer/src/components/TaskSidebar.tsx')).toContain('className="glass-row flex min-h-6 w-full cursor-pointer');
+    expect(read('app/src/renderer/src/components/Inspector.tsx')).toContain('className="workbench-crumb min-h-6 min-w-0 flex-1');
+  });
+});
+
+describe('item 38 — text a comfortable width, numbers that hold still, the code face only for code', () => {
+  test('running text in a reply stops near 70 characters; code and tables keep the whole column', () => {
+    // Measured in the built app: 66 characters a line in the owner's usual layout, 119 with the right panel closed,
+    // 186 on a large window. Inter averages 0.478em a character, so 30–36em is 63–75 characters.
+    const rule = /\.md :is\(([^)]*)\), \.md-text \{ max-width: (\d+(?:\.\d+)?)em; \}/.exec(css);
+    expect(rule).not.toBeNull();
+    const [, capped, em] = rule!;
+    expect(Number(em)).toBeGreaterThanOrEqual(30);
+    expect(Number(em)).toBeLessThanOrEqual(36);
+    expect(capped.split(',').map((s) => s.trim()).sort()).toEqual(['.md-h', 'blockquote', 'ol', 'p', 'ul']);
+    // What the rule reaches in a real reply: the prose is a <p>, the snippet a <pre> the rule does not name.
+    const reply = renderToStaticMarkup(<Markdown text={'A sentence of prose.\n\n```ts\nconst a = 1;\n```'} />);
+    expect(reply).toMatch(/^<div class="md"><p>A sentence of prose\.<\/p>/);
+    expect(reply).toContain('<pre');
+  });
+
+  test('your own message wraps at the same width', () => {
+    expect(read('app/src/renderer/src/components/Transcript.tsx')).toContain('max-w-[min(78%,calc(34em+32px))]');
+  });
+
+  test('times, percentages, counts and key badges use the interface face, with digits that hold their width', () => {
+    const sidebar = read('app/src/renderer/src/components/TaskSidebar.tsx');
+    expect(sidebar).toContain('<span className="shrink-0 text-[10px] text-faint tabular-nums">');
+    expect(sidebar).toContain('<span className="glass-key shrink-0 rounded-[5px] px-1.5 py-px text-[9.5px] leading-[15px] tracking-tight">');
+    expect(read('app/src/renderer/src/components/HomeView.tsx')).toContain('<span className="shrink-0 text-[10px] text-faint tabular-nums">{relTime(task.startedAt)}</span>');
+    expect(read('app/src/renderer/src/components/Composer.tsx')).toContain("cn('shrink-0 text-[10px] tabular-nums', ctxPct >= 85");
+    expect(read('app/src/renderer/src/components/ProjectWelcome.tsx')).toContain('<kbd className="glass-key shrink-0 rounded-md px-2 py-1 text-[13px] text-ink">{shortcut}</kbd>');
+    expect(read('app/src/renderer/src/components/MachineHealthDialog.tsx')).toContain('text-[16px] font-semibold tabular-nums');
+    for (const rule of ['.evidence-count', '.status-chip']) {
+      expect(ruleOf(rule)).toContain('var(--font-sans)');
+      expect(ruleOf(rule)).toContain('font-variant-numeric: tabular-nums;');
+    }
+    // The ⌘2 bar's footer counts a turn's seconds live.
+    expect(ruleOf('.quick-footer')).toContain('font-variant-numeric: tabular-nums;');
   });
 });

@@ -17,7 +17,7 @@ export function Markdown({ text }: { text: string }): React.ReactElement {
   try {
     tokens = marked.lexer(text);
   } catch {
-    return <div className="md whitespace-pre-wrap">{text}</div>;
+    return <div className="md md-text whitespace-pre-wrap">{text}</div>;
   }
   return <div className="md">{tokens.map((t, i) => <Block key={i} token={t} />)}</div>;
 }

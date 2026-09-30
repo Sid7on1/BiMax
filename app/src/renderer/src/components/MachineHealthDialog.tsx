@@ -65,7 +65,7 @@ function Tile({ label, value, note, tone }: {
   return (
     <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 text-center">
       <div className="text-[10px] text-zinc-400 uppercase tracking-wide">{label}</div>
-      <div className="text-[16px] font-mono font-semibold text-white mt-0.5">{value}</div>
+      <div className="text-[16px] font-semibold tabular-nums text-white mt-0.5">{value}</div>
       <div className={`text-[9.5px] mt-0.5 ${tone ?? 'text-zinc-400'}`}>{note}</div>
     </div>
   );

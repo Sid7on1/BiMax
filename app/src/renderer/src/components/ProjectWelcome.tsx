@@ -209,7 +209,7 @@ export function QuickBarLesson({ shortcut, initial }: { shortcut: string; initia
         </>
       ) : (
         <>
-          <kbd className="glass-key shrink-0 rounded-md px-2 py-1 font-mono text-[13px] text-ink">{shortcut}</kbd>
+          <kbd className="glass-key shrink-0 rounded-md px-2 py-1 text-[13px] text-ink">{shortcut}</kbd>
           <span className="min-w-0 flex-1 text-[12.5px] text-dim">
             <span className="text-ink">Try it now: press {shortcut}.</span> It opens a task bar from any app — no need to come back here.
           </span>
