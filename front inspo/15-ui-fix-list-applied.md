@@ -294,8 +294,38 @@ fail it with the control named. The morph regression check still holds every fli
 115 suites / 1022 tests pass. The stand-in bridge now takes `fixture.threads`, so a world can show Bimax Threads. Not
 yet installed.
 
+## Batch 9 — item 38, reading width, steady numbers, the code face only for code (2026-09-30, 7688b6c)
+
+**Line length, measured** in the built renderer (a long reply's prose, characters per line box):
+
+| window | right panel open | right panel closed |
+|---|---|---|
+| 1180×800 at 120% (the owner's) | 66 → 66 | 119 → 71 |
+| 1180×800 at 100% | 84 → 71 | 146 → 71 |
+| 1680×1050 at 120% | 101 → 71 | 179 → 71 |
+| 1680×1050 at 100% | 119 → 71 | 186 → 71 |
+
+The reading column grows with the window up to 1180px (an earlier review called the ceiling "a tuning call"), and the
+text ran to it. Now a reply's running text — paragraphs, lists, quotes, headings — stops at 34em (≈71 characters of
+Inter; the owner's usual layout stays at 66), and the owner's own message bubble wraps at the same width. Code blocks,
+tables and tool rows keep the whole column, where width is worth having. Shown to the owner as a before/after picture
+with the right panel closed.
+
+**Numbers that change** mostly already had even-width digits (the thinking timer, tool durations, the context meter,
+recents' ages, find's count). The ⌘2 bar's live footer timer did not; it does now.
+
+**The code face outside code:** recents' and the home view's ages, the ⌘N badge, the welcome's ⌘2 key, the context
+percentage, app health's figures, the evidence count and Settings' status chips were set in the monospace face. They
+now use the interface face with tabular digits. File paths, commands, model ids, settings inputs and approval
+previews keep monospace — they are code-like. Two unused rules (`.evidence-pill`, `.workflow-index`) were left alone.
+
+**Verification that ran:** 7 new unit tests in `ui.fix.list.test.tsx` (items 34 and 38); 12 deliberate breakages of
+the two batches (the measure widened to 60em, code blocks capped, the bubble back to 78%, each face and digit change
+undone, and four of item 34's fixes) — every one failed a test. App typecheck clean; app suite 115 suites / 1029 tests
+pass; `check:morph`, `check:hit-targets` and the design-preview build pass. Not yet installed.
+
 ## Still open
 
 | # | Item |
 |---|---|
-| 23–45 | Research principles. Done: 34 (batch 8). Next, by the owner's "your call": 38, then 24 + 41. 31 is not planned (its colours conflict with the owner's item 10 choice). |
+| 23–45 | Research principles. Done: 34 (batch 8), 38 (batch 9). Next, by the owner's "your call": 24 + 41. 31 is not planned (its colours conflict with the owner's item 10 choice). |
