@@ -18,6 +18,7 @@
     "check:design-preview": "vite build --config design-preview/vite.config.ts --logLevel warn",
     "gen:motion": "node scripts/gen-motion-tokens.mjs",
     "check:motion": "node scripts/gen-motion-tokens.mjs --check",
+    "check:morph": "electron-vite build && electron scripts/ui/morph-regression.mjs",
     "check:glass-contrast": "node scripts/check-glass-contrast.mjs",
     "check:app-actions": "node scripts/check-app-actions.mjs",
     "preflight:release": "node scripts/preflight-release.mjs",

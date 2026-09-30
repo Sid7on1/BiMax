@@ -1757,6 +1757,15 @@
 [data-flight-inspector] :is([data-panel][id="inspector"], [data-panel="inspector"], [data-panel-id="inspector"]) { flex: 0 0 var(--flight-inspector) !important; overflow: hidden !important; }
 [data-flight-inspector] :is([data-panel][id="inspector"], [data-panel="inspector"], [data-panel-id="inspector"]) .morph-region { width: var(--flight-start-inspector); min-width: var(--flight-start-inspector); margin-left: calc(var(--flight-inspector) - var(--flight-start-inspector)); }
 [data-flight-inspector] :is([data-panel][id="sidebar"], [data-panel="sidebar"], [data-panel-id="sidebar"]) { flex: 0 0 var(--hold-sidebar) !important; }
+/* A side pane never scrolls sideways; its lists scroll inside it. The panel library wraps each pane's content in its own
+   `overflow: auto` box, and a flying pane holds its content at full width inside a narrower pane — so that box scrolled
+   sideways for the whole flight. The app's scrollbars take space (they are styled), so a grey 10px bar flashed along
+   the bottom of the pane on every open and close, and the content measured 10px short: the flying glass started short
+   and crept to full height, which stretched the sidebar's opening from ~35 frames to ~65. Permanent rather than
+   flight-only, because an opening pane is measured on its first frame, before the flight's attribute exists.
+   Found by the morph regression check (UI fix list item 22). */
+:is([data-panel][id="sidebar"], [data-panel="sidebar"], [data-panel-id="sidebar"],
+  [data-panel][id="inspector"], [data-panel="inspector"], [data-panel-id="inspector"]) > * { overflow-x: hidden !important; }
 /* The enlarged workbench (App.tsx `toggleWide`): it fills everything between the sidebar and the right edge. The
    conversation column is taken out of the flow — zero width, hidden, still mounted — and the panel takes the share the
    sidebar leaves, so the sidebar keeps its width. The library's layout is never touched, so removing the attribute

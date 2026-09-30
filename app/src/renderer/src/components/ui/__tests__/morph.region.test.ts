@@ -269,6 +269,29 @@ describe('a bar growing from its own edge', () => {
     controller.dispose();
   });
 
+  test('the glass does not stretch: a bar is an edge moving, not an object with momentum', () => {
+    // The box above holds still vertically, but a velocity stretch is applied about the shell's centre on top of it —
+    // measured in the built app (UI fix list item 22): the inspector's glass pulled 6px off the top and bottom of the
+    // window, and 2px off its own window edge, for the fast frames of every open and close.
+    for (const kind of ['inspector', 'sidebar'] as const) {
+      const { controller } = makeRegionController({ kind, seed: edgeOf(REGION, kind === 'inspector' ? 'right' : 'left') });
+      const scales: number[] = [];
+      let fastest = 0;
+      controller.subscribe((frame) => {
+        scales.push(frame.deform.x, frame.deform.y);
+        fastest = Math.max(fastest, Math.abs(frame.velocity.x), Math.abs(frame.velocity.width));
+      });
+      controller.open();
+      runToRest(controller);
+      controller.close();
+      runToRest(controller);
+
+      expect(fastest).toBeGreaterThan(1000); // fast enough that a menu flying like this WOULD stretch
+      expect(scales.every((s) => s === 1)).toBe(true);
+      controller.dispose();
+    }
+  });
+
   test('the edge origin is still an honest seed, so the bar folds back into it', () => {
     // `seeded` is what tells the painter it may unmount without a fade. A bar ends its collapse as
     // a zero-width strip flush with the window edge, which is genuinely invisible — so the fade is

@@ -173,11 +173,68 @@ pinned blur back, the peek's blur gone, the name truncating, no container, the t
 one failed a test, the second only after the check was anchored to the unprefixed property. **Not yet installed:**
 the installed build (from 9a8f56d) predates this.
 
+## Batch 7 — item 22, regression coverage for the morph paths (2026-09-30)
+
+**Where it runs, and why not the design preview.** The list asked for the design-preview harness. The preview does not
+render `App.tsx`, and the side panes' flights are wired there — item 11's 401px jump lived in exactly that wiring. So
+the check drives the **built renderer** (`out/renderer`, the real App) with the journeys' bridge stand-in, in an
+offscreen Electron window: `npm run check:morph` (`app/scripts/ui/morph-regression.mjs`). The stand-in and the server
+moved out of `harness.mjs` into `renderer.mjs` so a runner without Puppeteer can use them (Puppeteer left the deps at
+725b28c, so the journeys themselves still cannot run).
+
+**How.** The page's animation clock is taken over: each real frame advances the morph by exactly 1/60 s, so a run is
+deterministic (the baseline came out byte-identical across runs) while layout, ResizeObservers and paint still happen
+between frames. Every frame it reads what the DOM holds. 32 flights: the Model menu (open, close, closed mid-open,
+reopened mid-close), the seeded model window, a menu that appears in place (file actions), the inspector and the
+sidebar (close and open), and Reduce Motion — each at 100% and at **120%, the owner's own zoom**. About 25 s with the
+build.
+
+**Two verdicts.** Invariants that always hold or the feel is broken: a flight starts on its trigger; nothing moves an
+edge more than 120px in a frame; the box on screen is the box the driver set (so a CSS transition or a clamping class
+cannot fight it unseen); content is never clickable below 0.6 opacity; a closing menu folds into its trigger and is
+unmounted; the conversation moves at most 80px a frame while a pane flies; a pane's glass keeps its window edge, never
+moves vertically and never stretches; nothing (override, shell, clip) is left at rest. And a baseline,
+`scripts/ui/morph.golden.json`: frames to rest, the progress curve, the content's reveal and the overshoot of every
+flight, with tolerances; `npm run check:morph -- --update` rewrites it, and the commit has to say why. Exit 0 held,
+1 regression, 2 invalid run (the renderer threw, or a flight ran long enough in real time for the 1.4 s watchdog to
+interfere) — an invalid run is neither a pass nor a failure.
+
+**What the first runs found in the app** (both fixed here, both invisible to the unit tests):
+
+| | measured | fixed |
+|---|---|---|
+| A scrollbar flashed along the bottom of a side pane on every open and close | The panel library wraps each pane's content in an `overflow: auto` box; a flying pane holds its content at full width inside a narrower pane, so that box scrolled sideways, and the app's styled scrollbars take 10px and paint a grey thumb. The content measured 10px short, the flying glass crept to full height, and the sidebar's opening took **65 frames instead of 44**. | A side pane never scrolls sideways (`styles.css`, permanent: an opening pane is measured before the flight's own rule exists). |
+| A side pane's glass stretched like a flying menu | The velocity stretch (≤3%) is right for an object in flight and wrong for a layout edge: about its centre, the inspector's glass pulled **6px off the top and bottom of the window** and off its own edge for the fast frames of every open and close. | No stretch for bars (`controller.ts`), with a unit test. |
+
+Also measured and **left**: the inspector's pinned edge drifts 2px while it opens (its target width is filled in a frame
+late and lands ~1px off the panel group's rounding) — the bound is 3px and says so. At 100% the conversation moves at
+most 42px a frame (inspector) and 23px (sidebar), the numbers batch 5 measured by hand.
+
+**Harness traps, recorded in the code:** Electron's default profile kept a per-site 120% zoom from an earlier harness
+run, so every box came out at 1/1.2 scale — the check now uses a throwaway profile; a morph started before the clock
+is taken holds a real frame request that ticks every live morph once with the wall clock — the check drains first;
+the stand-in never unsubscribed menu commands, so one command toggled a pane twice; an ESM Electron entry must not
+await `whenReady()` at top level (it never returns).
+
+**Verification that ran:** 12 deliberate breakages of the product, every one failed the final check (both zooms) with the right reason:
+the old menu spring (k 520), menus closing on the shared dismiss, a width/height transition on the glass (a first
+version put it on `.morph-surface`, where a later `.liquid-glass` rule silently replaced it — the breakage was dead,
+not the check), item 11's opening put back, chooser menus launched in place, the model window unseeded, content
+clickable at 5% reveal, the scrollbar fix removed, bars stretching, Reduce Motion ignored at launch, a closed menu
+never unmounted, a settled pane keeping its clip; and the new unit test fails with the stretch put back. App
+typecheck clean; app suite 115 suites / 1022 tests pass; design-preview build and motion-token check pass.
+
+**A flaky test fixed on the way:** `conversation.share.test.ts` waited a fixed 20ms for an export that runs in the
+background; it failed 1 run in 3 alone (the file was read before it was written, and the export's note landed in the
+next test). It now waits for each export's end state; 6/6 alone, and it still fails when the export's write is removed.
+
+**Not covered by the check:** glass, blur and colour (it grades numbers, not pixels); the native window; timing on a
+real GPU. The first-open menu stall of batch 5 is still unsettled. Not yet built, installed or felt in the real app.
+
 ## Still open
 
 | # | Item |
 |---|---|
 | 10 (rest) | Owner to judge: one surface for sidebar + conversation, or the current 4-level step? |
-| 11 (rest) | The first open of each menu stalls 150–390 ms in the harness (compositor, not script); check in the real window. |
-| 22 | Visual-regression coverage for the morph paths in the design-preview harness. |
+| 11 (rest) | The first open of each menu stalls 150–390 ms in the harness (compositor, not script); check in the real window. Batch 7 removed two pane artefacts (a scrollbar flash, a stretched glass) that may have been part of what was seen. |
 | 23–45 | Research principles. Several already hold or were served by the items above (42 in item 18); the rest need picking one by one with the owner. |

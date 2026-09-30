@@ -475,7 +475,11 @@ export class MorphController {
       geometry,
       progress,
       reveal,
-      deform: this.reduced()
+      // No stretch on a bar. The deformation says "an object with momentum", and a bar is the window's own layout edge
+      // moving (see `structuralPane`): stretched about its centre, the flying glass pulled 6px off the top and bottom of
+      // the window and off its own window edge for the fast frames of every side-pane open and close — measured by the
+      // morph regression check (UI fix list item 22), where the geometry alone looked perfect.
+      deform: this.reduced() || isBar(this.options.kind())
         ? { x: 1, y: 1 }
         : deformationFor(this.x.velocity, this.y.velocity),
       material,
@@ -493,6 +497,10 @@ export class MorphController {
     const frame = this.frame();
     for (const listener of this.listeners) listener(frame);
   }
+}
+
+function isBar(kind: DestinationKind): boolean {
+  return kind === 'sidebar' || kind === 'inspector';
 }
 
 function clamp01(value: number): number {
