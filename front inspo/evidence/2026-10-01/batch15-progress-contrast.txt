@@ -1,0 +1,21 @@
+
+> bimax-app@1.1.0 check:glass-contrast
+> node scripts/check-glass-contrast.mjs --json=/tmp/bimax-progress-contrast.json
+
+
+glass contrast — 1094 text nodes over their composited surface
+
+  [1] PRIMARY ink at baseline — all clear
+    worst 9.76:1  starlight/windowed  "Files"
+
+  [3] CODE (editor and chat code blocks) at baseline, every token — all 598 clear
+    moonlight  worst 5.12:1  windowed  ")" (rgb(167, 167, 161))
+    starlight  worst 5.32:1  windowed  "// before" (rgb(74, 74, 69))
+    line numbers: worst 4.66:1  moonlight/windowed
+
+  [2] EVERYTHING under prefers-contrast: more — all clear
+
+  [4] QUIET text at baseline — all clear
+
+✓ every readable label and code token clears 4.5:1 in both themes and contrast modes
+

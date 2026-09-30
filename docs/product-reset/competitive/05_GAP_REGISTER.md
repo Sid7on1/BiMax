@@ -1,5 +1,17 @@
 # Bimax gap register
 
+## UI behavior update — 2026-10-01
+
+The current monolith's UI fix-list continuation is **Implemented and locally verified** through batches 11–15 in
+[the applied record](../../../front%20inspo/15-ui-fix-list-applied.md): a bounded motion ladder with impossible-edge
+rest corrected, named attention marks, readable quiet type in both themes, 26 wired palette outcomes, and persistent
+goal/step/current-run files/next action. A review beat describes only a live check after edits; scoped engine evidence
+still decides whether checks passed. Local Send/Stop acknowledgement was measured through the next browser frame,
+not through native WindowServer presentation. Geometry, theme and keyboard end states have deliberate mutants.
+The requested uniform ~75% exit ratio, native display latency, full wallpaper/native-vibrancy range, provider-backed
+quality, human mis-click/task-completion studies and clean-Mac release qualification remain **Target/unmeasured**.
+No Product-ready or Win status is assigned, and no historical Computer Use route is activated.
+
 ## Threads audit and proposed Computer Use return — 2026-09-13
 
 [Record 46](../46_COMPUTER_USE_RETURN_AND_THREADS_STRATEGY.md) records the owner's strategy request.

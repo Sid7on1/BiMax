@@ -477,6 +477,39 @@ and an explicit existing Chrome path, rather than an undeclared puppeteer packag
 Product-reset 03/04, vision, 08 and competitive/06 guided the behavior checks. Implemented, locally verified;
 installed-app and human task-completion/mis-click studies remain unmeasured. Not yet installed.
 
+## Batch 15 — items 33 and 44, the current task stays in view (2026-10-01)
+
+**Measured first:** the built app had no persistent block for the four chunks. Goal and current activity could scroll
+away; changed files and the next move lived in Review or the ending. The new `TaskProgress` is outside scrollback,
+under the conversation chrome, and remains visible when the editor takes the conversation's space. It is four plain
+labels and their values, grouped by proximity, without a glass card inside a glass pane.
+
+It shows the latest person's goal, the actual active tool/plan/wait, files edited since that goal, and the next move.
+A new submission drops the previous plan/status, and cannot inherit old files or an old running tool. Questions
+outrank working; stopped/unavailable work says so; completed output never invents passing checks. The existing
+run-ending verdict remains the single scoped definition of checked.
+
+**Item 44:** “Checking changes · npm test” appears only while a real recognised check command is running after
+actual edits. It disappears when that work stops. No timed intermission, fake review, or successful-check claim from
+a command name. An `echo npm test` is ordinary activity, not the review beat.
+
+**Item 23 groundwork:** Send shows “Sent · waiting for Bimax” locally; Stop shows “Stopping” while the engine
+actually stops. Neither changes the engine's reported busy state optimistically. Final built-run acknowledgement
+through the next frame: **6.7 / 16ms Send, 7.5 / 8.5ms Stop** at 100% / 120%. The four-chunk block stays 102 CSS px
+through empty, scrolling, checking and completion; the intentional expanded-editor layout is 57.5px. No content
+update shifts its geometry. Universal control acknowledgement is checked separately; these are browser-frame
+measurements, not a native display-latency claim.
+
+**Verification that ran:** 8 new unit tests, 8/8 unit mutants and 3/3 rebuilt-renderer mutants caught; real scrolling,
+actual Send/Stop, current command, honest ending and expanded-editor end states at both zooms. Evidence: `batch15-*`.
+A cached Jest transform initially lost the preload declaration in the existing welcome-screen suite; a full fresh
+`--no-cache` run passes **118 suites / 1065 tests** without code/test weakening. App typecheck, 32 morph flights,
+hit targets, motion tokens and preview build pass. The real task-state component is now in the theme preview:
+**1,094 text samples and all 598 code tokens clear 4.5:1** at both zooms and both contrast settings.
+Guided by product-reset 03/04, vision, 08, competitive/06 and X01; the gap register is updated. Implemented, locally
+verified; native installed latency, provider-backed outcome quality, fresh-Mac and user studies remain unmeasured.
+Not yet installed.
+
 ## Still open
 
 | # | Item |
