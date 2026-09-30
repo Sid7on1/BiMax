@@ -110,7 +110,6 @@ export function useEngine() {
     // The text already arrived from the engine; the user should see it. Flush at the boundary
     // rather than discarding a frame's worth of the reply they just stopped.
     coalescer.current?.flush();
-    dispatch({ type: 'interruptRequested' });
     window.bimax.send({ t: 'interrupt' });
   }, []);
 

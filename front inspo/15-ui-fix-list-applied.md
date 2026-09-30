@@ -682,11 +682,40 @@ vibrancy coverage and provider-backed quality are also unmeasured; no Product-re
 changed text files before the final documentation commit; it is rerun after that commit. This is the repository
 scanner, not a claim that the gitleaks CLI ran. The branch has not been pushed.
 
+## Batch 21 — the owner's review of batches 11–19 (2026-10-01)
+
+**The owner used the installed `f307d98` build and said it got worse:** "weird text" (a screenshot of the
+Goal / Step / Files / Next block), open and close "too fast, it feels like disappearing", the model window folding
+into its own Done button, and "why did it remove those words". Every batch was re-read against the code before
+anything was changed. What was kept, what was reversed, and why:
+
+| Change (batch) | Verdict | Now |
+|---|---|---|
+| Faster springs and 75% exits (11, 19) | **Reversed.** The ladder came from the research half of the list; the owner's feel rejects it. My own interrupted session had started this retune; Codex committed it and shortened exits further. | Every spring is `5fd27ba`'s again — the build the owner had installed (`1aa166c`). `check:morph` against the pre-batch baseline: all normal-motion flights match; only Reduce Motion and one 3-frame shorter sidebar close (the kept rest fix) differ. The ladder and 75% rules are gone from the checker; the golden baseline pins the owner's feel. |
+| Edge-pinned pane rest, Reduce Motion fade (11) | Kept | Genuine fixes, unaffected by speed. |
+| Model window closes into Done | **Fixed** (not a batch change: the seed latched the freshest press, and Done is always the freshest) | A press inside a dialog never becomes its origin (`use-seed.ts`). New `check:morph` flight `dialog.close-by-done`; with the fix removed it lands 453px away, on Done. |
+| Goal / Step / Files / Next block (15) | **Removed from screen**, files archived at their repo paths in `~/Developer/bimax-archive` | Its reset of the last run's plan and stale status on a new message is kept, with a test. |
+| Quiet ink #e9e9e4 / #e0e0dc (13) | **Reversed.** Dim and faint sat within 1.1:1 of primary ink: labels and values read the same. | Original ladder (#b8b8b5 / #7c7c78, Starlight #555552 / #8a8a85, gutter #585854). `check:glass-contrast` enforces primary ink, code and Increase Contrast, and *reports* quiet text as it did before batch 13 (176 small labels below 4.5:1 at baseline, worst 1.87:1 in Starlight over the preview's busy backdrop; all clear under Increase Contrast). The large-text 3:1 floor is back. |
+| Rotating working words, blink, shimmer (16) | **Restored** — the owner asked for them on 2026-09-13 | `ThinkingIndicator` is `5fd27ba`'s again. |
+| Welcome-card entrance and lift, hover shine, history entrance (16) | **Restored** — the owner's record-44 visuals | History keeps batch 16's title-first order. |
+| Outline on every pressed button (16) | **Removed** — a box drawn inside every control on click | Presses still scale (`.pressable`, pills, rows). |
+| Files panel loading (17) | **Kept, one defect fixed** | Every file change refreshed each open folder and inserted a "Loading files…" row, pushing the tree 24px down and back. Loading now shows only for a folder with nothing to show yet, inside the list; the empty reserved strip above the tree is gone. `loading-check.mjs` has a new step; with the fix removed it reports the 24px move. |
+| Palette, 26 commands (14) | Kept, icons restored | Batch 14 gave every command its group's icon (Files, Code map and Memory all showed a terminal). |
+| Attention names (12), Bin with Undo (18) | Kept | Bin/Undo re-read: refuses running threads, never overwrites, private copy 0600 for five minutes. |
+
+**Verification that ran:** app typecheck; full suite from the repo root **122 suites / 1080 tests** (two suites
+archived with their features); `check:morph` 34 flights at 100% and 120%; hit targets; motion tokens; design-preview
+build; `check:glass-contrast`; the palette, Bin and Files journeys at both zooms. Mutants, each restored after:
+Codex's `ThinkingIndicator` (caught), Codex's inks (caught by the ladder test), the new-message reset removed
+(caught), the seed fix removed (caught by `check:morph`), the Files refresh fix removed (caught by the journey).
+`quiet-check.mjs` asserted the removals the owner rejected and is archived. Guided by product-reset README, 03/04,
+08 and the Mac Buddy vision. Implemented and locally verified; **not installed** — installing quits the running app.
+
 ## Remaining qualifications
 
 | # | Status |
 |---|---|
-| 1–30, 32–45 | Addressed within the behavior evidence and explicit exceptions in batches 1–20. Installed code is `f307d98`; the final audit commit changes only documentation/evidence. |
+| 1–30, 32–45 | Addressed within batches 1–20, with batch 21's owner review reversing 27/32/36's speeds, 33's block, 43's inks and parts of 23/28/30. Installed code is still `f307d98` until the next install. |
 | 31 | Deliberately not planned: its coral/four-elevation palette conflicts with the owner's item-10 decision. |
 | 23, 30, 44, 45 | Immediate feedback and honest progress are implemented; universal native latency, perceived trust, human task-completion and mis-click improvements are unmeasured. No artificial review delay was added. |
 | Release qualification | Local signing/install verified. Notarization, clean-Mac permission/update behavior, the historical no-Microphone gate conflict, and public-release qualification remain open. |

@@ -1,11 +1,19 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Search, FolderOpen, GitCompareArrows, SquareTerminal, Settings, SquarePen, PanelsTopLeft, Sun, Files } from 'lucide-react';
+import {
+  Search, FolderOpen, GitCompareArrows, SquareTerminal, Settings, SquarePen, PanelsTopLeft, Sun, Moon, Files,
+  Map as MapIcon, BrainCircuit, Activity, Square, RefreshCw, type LucideIcon,
+} from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from './ui/dialog';
 import { paletteEntries, movePaletteSelection, firstPaletteSelection, type PaletteCommand, type PaletteEntry, type PaletteAvailability } from '../palette.model';
 import { cn } from '../lib/cn';
 
 const GROUP_ICONS = { Task: SquarePen, Project: FolderOpen, Evidence: GitCompareArrows, Workspace: SquareTerminal,
   App: Settings, Layout: PanelsTopLeft, Appearance: Sun, Editor: Files };
+/** A command whose own picture says more than its group's — the palette had one icon per command before item 35. */
+const COMMAND_ICONS: Partial<Record<PaletteCommand, LucideIcon>> = {
+  files: Files, map: MapIcon, memory: BrainCircuit, chats: Files, 'app-health': Activity,
+  'stop-task': Square, moonlight: Moon, 'refresh-git': RefreshCw,
+};
 
 export function CommandPalette({ open, onClose, onCommand, available }: {
   open: boolean;
@@ -98,7 +106,7 @@ export function CommandPalette({ open, onClose, onCommand, available }: {
               onClick={() => execute(action)}
               className={cn('flex w-full cursor-pointer disabled:cursor-default disabled:opacity-45 items-center gap-3 rounded-[9px] px-3 py-2.5 text-left text-[12.5px]', selected === index ? 'bg-selected text-ink' : 'text-dim')}
             >
-              <span className={cn('text-faint', selected === index && 'text-ember')}>{React.createElement(GROUP_ICONS[action.group as keyof typeof GROUP_ICONS], { size: 14 })}</span>
+              <span className={cn('text-faint', selected === index && 'text-ember')}>{React.createElement(COMMAND_ICONS[action.id] ?? GROUP_ICONS[action.group as keyof typeof GROUP_ICONS], { size: 14 })}</span>
               <span className="flex-1">{action.label}</span>
               <span className="text-[10px] text-faint">{action.shortcut ?? (action.disabled ? 'Unavailable now' : action.group)}</span>
             </button>

@@ -268,7 +268,7 @@ export class MorphController {
     this.seeded = seed !== null && !this.reduced();
     this.target = this.launchGeometry(seed, destination);
     this.flightSpan = largestTravel(this.target, destination);
-    this.token = this.reduced() ? MOTION.reducedMotion : dismissForKind(this.options.kind(), this.state === 'opening');
+    this.token = this.reduced() ? MOTION.reducedMotion : dismissForKind(this.options.kind());
     this.state = 'closing';
     this.start();
   }
@@ -462,7 +462,7 @@ export class MorphController {
     const diagonal = Math.hypot(target.width, target.height);
     const distance = this.origin ? travelBetween(this.origin, target).distance : 0;
     const graded = gradeSpring(this.token.spring, diagonal, distance);
-    return this.token.speedLimit ? limitSpeed(graded, this.flightSpan, this.token.speedLimit, this.token.limitRatio) : graded;
+    return this.token.speedLimit ? limitSpeed(graded, this.flightSpan, this.token.speedLimit) : graded;
   }
 
   private frame(): MorphFrame {

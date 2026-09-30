@@ -52,15 +52,16 @@ export function HomeView({
           <div className="workspace-project-label">{projectName(project)} <span> / </span> New task</div>
 
           <div className="workspace-starters">
-            {STARTERS.map((item) => (
+            {STARTERS.map((item, index) => (
               <button
                 key={item.title}
                 onClick={() => start(item.prompt)}
                 className="workspace-starter group"
+                style={{ animationDelay: `${60 + index * 45}ms` }}
               >
                 <span className="workspace-starter-icon flex size-8 items-center justify-center rounded-xl bg-hover text-dim transition-colors group-hover:bg-ember/12 group-hover:text-ember">{item.icon}</span>
                 <span className="mt-auto flex items-center gap-2 pt-4 text-[12.5px] font-medium text-ink">
-                  {item.title}<ArrowUpRight size={13} className="ml-auto text-faint group-hover:text-ember" />
+                  {item.title}<ArrowUpRight size={13} className="ml-auto text-faint transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-ember" />
                 </span>
                 <span className="workspace-starter-description">{item.description}</span>
               </button>
@@ -69,7 +70,7 @@ export function HomeView({
         </section>
 
         {recent.length > 0 && (
-          <section className="workspace-recents">
+          <section className="workspace-recents anim-fade-up" style={{ animationDelay: '180ms' }}>
             <div className="mb-2.5 flex items-center">
               <span className="flex items-center gap-1.5 text-[10.5px] font-medium tracking-[0.08em] text-faint uppercase"><Sparkles size={12} /> Pick up where you left off</span>
               <button onClick={onBrowseSessions} className="ml-auto cursor-pointer rounded-lg px-2 py-1 text-[11px] text-faint hover:bg-hover hover:text-ink">View all</button>

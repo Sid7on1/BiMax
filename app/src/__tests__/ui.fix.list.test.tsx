@@ -594,11 +594,16 @@ describe('items 25, 26, 43 — a neutral interface with readable quiet type', ()
     expect(luminance(token(dark, '--color-raise'))).toBeGreaterThan(luminance(token(dark, '--color-bg')));
     expect(luminance(token(dark, '--color-bg'))).toBeGreaterThan(luminance(token(dark, '--color-well')));
   });
-  test('primary, secondary and quiet interface ink each clear 4.5:1 over the glass backdrops', () => {
-    // Moonlight's pane over white reaches ~95; Starlight's darkest sampled reading surface is
-    // #b8bbc1. Pixel verification additionally grades the real preview stages, both zooms.
+  test('primary ink clears 4.5:1 over the glass backdrops, and each quieter ink is a real step down', () => {
+    // Moonlight's pane over white reaches ~95; Starlight's darkest sampled reading surface is #b8bbc1.
     for (const [name, bg] of [['moonlight', '#5f5f5f'], ['starlight', '#b8bbc1']]) {
-      for (const colour of ['ink', 'dim', 'faint']) expect(contrast(token(theme(name), `--color-${colour}`), rgb(bg))).toBeGreaterThanOrEqual(4.5);
+      const ink = token(theme(name), '--color-ink');
+      expect(contrast(ink, rgb(bg))).toBeGreaterThanOrEqual(4.5);
+      // The owner's three-step ladder (2026-10-01): item 43 once lifted dim/faint to within 1.1:1 of ink so every label
+      // passed over the worst backdrop, and a label and its value read the same ("weird text"). Increase Contrast carries
+      // AA for quiet text (check:glass-contrast [2]); the default keeps the hierarchy.
+      expect(contrast(ink, token(theme(name), '--color-dim'))).toBeGreaterThanOrEqual(1.5);
+      expect(contrast(token(theme(name), '--color-dim'), token(theme(name), '--color-faint'))).toBeGreaterThanOrEqual(1.5);
     }
   });
 });

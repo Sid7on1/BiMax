@@ -15,8 +15,6 @@ import { TaskSidebar } from './components/TaskSidebar';
 import { Inspector } from './components/Inspector';
 import { EngineStatusBanner } from './components/EngineStatusBanner';
 import { CommandPalette } from './components/CommandPalette';
-import { TaskProgress } from './components/TaskProgress';
-import { taskProgress } from './task.progress.model';
 import { Transcript } from './components/Transcript';
 import { Composer } from './components/Composer';
 import { clearDraft } from './composer.model';
@@ -442,7 +440,6 @@ export function App(): React.ReactElement {
   }, [openFiles, activeFile, runCommand]);
 
   const showHome = view === 'chat' && state.items.length === 0 && !state.hasActiveStream;
-  const progress = useMemo(() => taskProgress({ ...state, busy, streaming: state.hasActiveStream, awaitingReply: Boolean(state.request), engineState: state.engine.state }), [state, busy]);
   const latestProblem = [...state.diagnostics].reverse().find((entry) => entry.level !== 'info');
 
   /**
@@ -555,7 +552,6 @@ export function App(): React.ReactElement {
                 onToggleInspector={() => setInspectorOpen((v) => !v)}
               />
               <CapabilityBanner notices={Object.values(state.capabilities)} />
-              {hasProject && !wide && <TaskProgress value={progress} onReview={() => openInspector('review')} />}
               {!hasProject ? (
                 <ProjectWelcome />
               ) : view === 'gallery' ? (
@@ -663,8 +659,6 @@ export function App(): React.ReactElement {
           )}
         </Group>
       </div>
-
-      {hasProject && wide && <TaskProgress value={progress} onReview={() => openInspector('review')} wide />}
 
       {hasProject && (
         <CommandPalette

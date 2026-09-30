@@ -51,19 +51,6 @@ const MAX_COLUMN_STEP = 80;
 /** A flight that takes this long in real time is at the mercy of the controller's 1.4 s watchdog: not gradeable. */
 const REAL_TIME_LIMIT_MS = 1200;
 
-/**
- * The owner's motion ladder: popovers 180–220ms, panels 240–300ms. A settled exit
- * takes at most about three quarters of its entrance, with one 60Hz frame of quantisation
- * slack. Very short in-place exits may be faster; interruptions retain momentum and are
- * graded separately. The 120px surface-step and 80px conversation-step limits still apply.
- */
-const LADDER = {
-  'menu.open': 220, 'inplace-menu.open': 220, 'menu.close': 220, 'inplace-menu.close': 220,
-  'dialog.open': 300, 'dialog.close': 300,
-  'inspector.open': 300, 'inspector.close': 300, 'sidebar.open': 300, 'sidebar.close': 300,
-};
-const EXITS = [['menu.close', 'menu.open'], ['dialog.close', 'dialog.open'], ['inspector.close', 'inspector.open'], ['sidebar.close', 'sidebar.open']];
-const FRAME_MS = 1000 / 60;
 
 /** How far a flight's feel may drift from the baseline before it is a regression. */
 const TOLERANCE = { frames: 2, curve: 0.05, reveal: 0.1, overshootPct: 1 };
@@ -250,6 +237,7 @@ const MODEL = { selector: 'button[aria-haspopup="menu"][aria-label="Model"]' };
 const CHANGE_MODEL = { selector: '[data-menuitem]', text: 'Change model', within: '.morph-surface[aria-label="Model"]' };
 const TREE_FILE = { selector: '[role="button"]', text: 'package.json', within: '[data-panel][id="inspector"]' };
 const FILE_MENU = { selector: 'button[aria-haspopup="menu"][aria-label="More actions for this file"]' };
+const DONE = { selector: 'button', text: 'Done', within: '.liquid-glass-panel' };
 const ESC = { key: 'Escape' };
 
 /**
@@ -282,6 +270,16 @@ const SCENARIOS = [
       { flight: 'dialog.open', action: { press: CHANGE_MODEL }, surface: 'dialog', seed: CHANGE_MODEL, seeded: true },
       // The row it grew from is gone (its menu closed), so it folds into where that row was: the open's seed.
       { flight: 'dialog.close', action: ESC, surface: 'dialog', seed: 'previous', seeded: true, closing: true },
+    ],
+  },
+  {
+    // Closed with its own Done button — the freshest press, and inside the window. It still folds into the control it
+    // came from; it once folded into Done itself (owner report, 2026-10-01).
+    name: 'model window closed by Done',
+    steps: [
+      { action: { press: MODEL } },
+      { action: { press: CHANGE_MODEL }, seed: CHANGE_MODEL },
+      { flight: 'dialog.close-by-done', action: { press: DONE }, surface: 'dialog', seed: 'previous', seeded: true, closing: true },
     ],
   },
   {
@@ -636,18 +634,10 @@ async function main() {
 
   /* ----------------------------------------------------------------------------------------- verdict */
 
-  // The ladder, per zoom.
+  // Speed is pinned by the golden baseline, which holds the owner's chosen feel (2026-10-01: the faster item-32/36
+  // ladder was tried, installed, and rejected as "feels like disappearing"; the springs went back to 5fd27ba's).
   for (const zoom of ZOOMS) {
     const at = (name) => results.find((r) => r.name === zoom.prefix + name)?.fingerprint;
-    for (const [name, limit] of Object.entries(LADDER)) {
-      const f = at(name);
-      if (f && f.settleMs > limit + FRAME_MS) results.find((r) => r.name === zoom.prefix + name).faults.push(`settles in ${f.settleMs}ms — the ladder allows ${limit}ms (UI fix list item 32)`);
-    }
-    for (const [exit, entrance] of EXITS) {
-      const out = at(exit);
-      const into = at(entrance);
-      if (out && into && out.settleMs > into.settleMs * 0.75 + FRAME_MS) results.find((r) => r.name === zoom.prefix + exit).faults.push(`the exit (${out.settleMs}ms) exceeds 75% of its entrance (${into.settleMs}ms) plus one frame (UI fix list item 36)`);
-    }
     // Reduce Motion: no geometry animation at all — a surface does not move a pixel (item 32).
     for (const name of ['reduced.menu.open', 'reduced.menu.close']) {
       const f = at(name);

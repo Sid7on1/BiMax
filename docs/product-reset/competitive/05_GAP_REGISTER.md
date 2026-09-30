@@ -2,6 +2,12 @@
 
 ## UI behavior update — 2026-10-01
 
+**Owner review, batch 21 (2026-10-01):** the owner rejected parts of batches 11–19 after using them installed. The motion
+ladder's faster springs, the Goal/Step/Files/Next block, the brightened quiet inks and the press outline are reversed;
+the rotating working words and the welcome/history motion are restored; a model-window close that folded into its own
+Done button and a Files tree that jumped on every refresh are fixed. Quiet text is again AA only under Increase
+Contrast. The paragraph below describes batches 11–20 as built; read it with batch 21 in the applied record.
+
 The current monolith's UI fix-list continuation is **Implemented and locally verified** through batches 11–20 in
 [the applied record](../../../front%20inspo/15-ui-fix-list-applied.md): a bounded motion ladder with impossible-edge
 rest corrected, named attention marks, readable quiet type in both themes, 26 wired palette outcomes, and persistent

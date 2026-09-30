@@ -1,5 +1,4 @@
 import React from 'react';
-import { TaskProgress } from '../src/renderer/src/components/TaskProgress';
 import { Transcript } from '../src/renderer/src/components/Transcript';
 import { EngineStore } from '../src/renderer/src/engine.store';
 import type { TranscriptItem } from '../src/renderer/src/engine.state';
@@ -89,7 +88,6 @@ export function TranscriptPreview(): React.ReactElement {
   const store = React.useMemo(() => new EngineStore(), []);
   return (
     <div className="app-surface flex h-[620px] w-[720px] flex-col overflow-hidden rounded-[14px] border border-line">
-      <TaskProgress value={{ goal: 'Fix the fetch client', step: 'Checking changes · npm test', files: ['src/retry.ts'], next: 'Waiting for the result', state: 'checking' }} onReview={() => {}} />
       <Transcript items={ITEMS} store={store} onMenuSelect={() => {}} />
     </div>
   );

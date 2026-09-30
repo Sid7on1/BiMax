@@ -431,12 +431,12 @@ describe('menus are quick (UI fix list item 16)', () => {
   const STEP = 1 / 240;
   const CHANNELS = ['x', 'y', 'width', 'height'] as const;
 
-  function menu(kind: 'popover' | 'inspector' = 'popover', destination: MorphGeometry = PICKER) {
+  function menu(kind: 'popover' | 'inspector' = 'popover') {
     const frames: MorphFrame[] = [];
     const controller = new MorphController({
       kind: () => kind,
       reducedMotion: () => false,
-      resolve: () => ({ seed: CHIP, destination }),
+      resolve: () => ({ seed: CHIP, destination: PICKER }),
     });
     controller.subscribe((frame) => frames.push({ ...frame, geometry: { ...frame.geometry } }));
     return { controller, frames };
@@ -461,24 +461,20 @@ describe('menus are quick (UI fix list item 16)', () => {
     const { controller, frames } = menu();
     controller.open();
     stepUntil(controller, () => controller.state === 'open');
-    // The owner's ladder (UI fix list item 32): popovers 180–220ms. Measured 208ms at k 1700; 240ms at k 1300 (item 16),
-    // 380ms at k 520. The bound leaves one 240Hz step of rounding.
-    expect(arrival(frames)).toBeLessThanOrEqual(225);
+    // Measured 240ms at k 1300; it was 380ms at k 520. The bound leaves one frame of rounding.
+    expect(arrival(frames)).toBeLessThanOrEqual(250);
     const overshoot = Math.max(...frames.map((f) => (f.geometry.height - PICKER.height) / (PICKER.height - CHIP.height)));
     expect(overshoot).toBeLessThan(0.02);
     controller.dispose();
   });
 
-  test('it closes no slower than it opened — an exit that outlasts its entrance reads as reluctance', () => {
-    // "No slower", since the ladder (item 32) sped the opening up: on a flight this long the 120px-per-frame rule now
-    // bounds both directions, and this picker opens and closes in the same 208ms. It was strictly faster (208 vs 240)
-    // while the opening was slower. A real menu, measured by check:morph, closes in 183ms after opening in 217ms.
+  test('it closes faster than it opened — an exit that outlasts its entrance reads as reluctance', () => {
     const open = menu();
     open.controller.open();
     stepUntil(open.controller, () => open.controller.state === 'open');
     const opened = arrival(open.frames);
     const closed = stepUntil(open.controller, () => (open.controller.close(), open.controller.state === 'closed'));
-    expect(closed).toBeLessThanOrEqual(opened);
+    expect(closed).toBeLessThan(opened);
     open.controller.dispose();
   });
 
@@ -498,19 +494,15 @@ describe('menus are quick (UI fix list item 16)', () => {
     }
   });
 
-  test('menus, structural edges and seeded panels take their named exit token', () => {
+  test('only menus take the fast fold; panes and panels keep the shared dismiss', () => {
     expect(dismissForKind('popover')).toBe(MOTION.dismissPopover);
     expect(dismissForKind('toolbarExpansion')).toBe(MOTION.dismissPopover);
-    for (const kind of ['sidebar', 'inspector'] as const) {
+    for (const kind of ['sidebar', 'inspector', 'palette', 'floatingPanel', 'workspaceSurface'] as const) {
       expect(dismissForKind(kind)).toBe(MOTION.dismiss);
     }
-    for (const kind of ['palette', 'floatingPanel', 'workspaceSurface'] as const) expect(dismissForKind(kind)).toBe(MOTION.dismissPanel);
-    // And the controller really uses it: the same menu, closed as an inspector, takes longer. Measured on a short
-    // flight, where the token decides — on the picker's long one the 120px-per-frame limit binds both closes since the
-    // ladder (item 32) sped them up, and they finish 4ms apart.
-    const SMALL: MorphGeometry = { x: 300, y: 530, width: 220, height: 160, radius: 12 };
+    // And the controller really uses it: the same menu, closed as an inspector, takes longer.
     const time = (kind: 'popover' | 'inspector'): number => {
-      const { controller } = menu(kind, SMALL);
+      const { controller } = menu(kind);
       controller.open();
       stepUntil(controller, () => controller.state === 'open');
       controller.close();

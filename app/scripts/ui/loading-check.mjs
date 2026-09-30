@@ -23,6 +23,14 @@ try {
     if(open!=='true') problems.push('folder waits for the host before acknowledging expansion');
     await page.evaluate(()=>window.__loads.at(-1).resolve([{name:'child.ts',dir:false}])); await settle(page,80);
     const child=await snapshot(); if(!child.text.includes('child.ts')) problems.push('expanded folder did not resolve into its file');
+    // A refresh of a tree already on screen (every file the agent writes triggers one) says nothing and moves nothing.
+    // It once inserted a "Loading files…" row under each open folder, pushing the tree down and back (2026-10-01).
+    const rowTop=()=>page.$eval('[role="button"][title^="src/child.ts"]',el=>el.getBoundingClientRect().top);
+    const before=await rowTop(); const pendingFrom=await page.evaluate(()=>window.__loads.length);
+    await clickByText(page,'Refresh the file tree',{exact:true}); await settle(page,40);
+    const during=await snapshot(); const moved=Math.abs((await rowTop())-before);
+    if(during.text.includes('Loading files')||moved>0.5) problems.push(`refreshing a tree already on screen shows a loading line (a row moved ${moved}px)`);
+    await page.evaluate(n=>{for(const r of window.__loads.slice(n)) r.resolve(r.rel===''?[{name:'fresh.ts',dir:false},{name:'src',dir:true}]:[{name:'child.ts',dir:false}]);},pendingFrom); await settle(page,80);
    }
    await page.type('input[aria-label="Filter files"]','alpha'); await settle(page,220);
    await page.$eval('input[aria-label="Filter files"]',el=>el.select()); await page.keyboard.press('Backspace'); await page.keyboard.type('beta'); await settle(page,220);

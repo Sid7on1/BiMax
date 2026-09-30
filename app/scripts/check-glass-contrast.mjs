@@ -9,9 +9,14 @@
  * Two assertions, matching what styles.css actually commits to:
  *
  *   1. PRIMARY ink clears AA everywhere. That is the documented table.
- *   2. EVERY readable label clears 4.5:1 at baseline and under Increase Contrast (UI fix list item
- *      43 and the owner's handoff). Quiet type is still type; accessibility cannot require an
- *      opt-in setting. Inactive controls remain excluded, as WCAG 1.4.3 excludes them.
+ *   2. Under `prefers-contrast: more`, EVERYTHING clears AA — including the quiet text. styles.css
+ *      says of `--color-dim`: "That is a *foreground* problem … and the Increase Contrast block
+ *      near the end of this file is what answers it." This checks that the answer works.
+ *
+ * Quiet text below AA at baseline is reported, not failed: it is the owner's deliberate three-step ink
+ * ladder, and (1)+(2) are the properties that would actually be regressions. 2026-10-01: item 43 once
+ * made [4] fail, which forced quiet ink to within 1.1:1 of primary ink — labels and values read the
+ * same, and the owner rejected it. Inactive controls remain excluded, as WCAG 1.4.3 excludes them.
  *
  *   node scripts/check-glass-contrast.mjs            # assert
  *   node scripts/check-glass-contrast.mjs --report   # print only, always exit 0
@@ -25,7 +30,7 @@ import { writeFileSync } from 'node:fs';
 const require = createRequire(import.meta.url);
 const puppeteer = require('puppeteer-core');
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const AA = 4.5;
+const AA = 4.5, AA_LARGE = 3.0;
 const REPORT_ONLY = process.argv.includes('--report');
 const JSON_PATH = process.argv.find((arg) => arg.startsWith('--json='))?.slice(7);
 /* Every preview page that stages real surfaces. `#workbench` was added with the right panel's tab
@@ -243,7 +248,9 @@ async function measurePage(features, url) {
     // assumption.
     const [r, g, b, alpha] = s.fg;
     const fg = [r, g, b].map((channel, i) => Math.round(channel * alpha + bg[i] * (1 - alpha)));
-    return { ...s, page: new URL(url).hash, bg, ratio: contrast(fg, bg), floor: AA };
+    // WCAG 1.4.3: large text (18.66px, or 14px bold) needs 3:1.
+    const large = s.size >= 18.66 || (s.size >= 14 && Number(s.weight) >= 700);
+    return { ...s, page: new URL(url).hash, bg, ratio: contrast(fg, bg), floor: large ? AA_LARGE : AA };
   }).filter((r) => r.fg[3] > 0.05);
 }
 
@@ -296,11 +303,11 @@ if (gutter) console.log(`    line numbers: worst ${gutter.ratio.toFixed(2)}:1  $
 console.log(`\n  [2] EVERYTHING under prefers-contrast: more — ${moreFails.length ? `${moreFails.length} BELOW FLOOR` : 'all clear'}`);
 if (moreFails.length) show(moreFails);
 
-console.log(`\n  [4] QUIET text at baseline — ${quietFails.length ? `${quietFails.length} BELOW FLOOR` : 'all clear'}`);
+console.log(`\n  [4] QUIET text at baseline (reported, not failed) — ${quietFails.length ? `${quietFails.length} below floor` : 'all clear'}`);
 show(quietFails, 20);
 
 // No code at all is a failure too: the preview stages open files, so zero means the editor stopped rendering (or the
 // selector drifted) and the code went unmeasured while the check said nothing.
-const failed = primaryFails.length > 0 || quietFails.length > 0 || moreFails.length > 0 || codeFails.length > 0 || missing.length > 0;
+const failed = primaryFails.length > 0 || moreFails.length > 0 || codeFails.length > 0 || missing.length > 0;
 if (failed && !REPORT_ONLY) { console.error('\n✗ contrast regression\n'); process.exit(1); }
-console.log(failed ? '\nContrast findings above (report only).\n' : '\n✓ every readable label and code token clears 4.5:1 in both themes and contrast modes\n');
+console.log(failed ? '\nContrast findings above (report only).\n' : '\n✓ primary ink and code clear AA in both themes; every label clears it under Increase Contrast\n');

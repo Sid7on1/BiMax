@@ -52,10 +52,6 @@ export interface EngineUiState {
   thinking: string;             // reasoning-channel text for the current turn
   spinner: { state: string; message: string };
   status: string;
-  /** Local acknowledgement until the engine reports activity; never a claim it is already working. */
-  pendingInput: boolean;
-  /** A Stop request is visible until the engine actually idles or fails. */
-  stopRequested: boolean;
   snapshot: UiSnapshot | null;
   todos: { content?: string; status?: string }[];
   subagents: SubAgentClaim[];
@@ -93,8 +89,6 @@ export const initialEngineState: EngineUiState = {
   thinking: '',
   spinner: { state: 'idle', message: '' },
   status: '',
-  pendingInput: false,
-  stopRequested: false,
   snapshot: null,
   todos: [],
   subagents: [],
@@ -119,7 +113,6 @@ type Action =
   | { type: 'restoreThread'; state: EngineUiState }
   | { type: 'localUser'; text: string }
   | { type: 'turnStarted' }
-  | { type: 'interruptRequested' }
   | { type: 'closeRequest' }
   | { type: 'statusClear' }
   | { type: 'menuChosen'; id: string; value: string }
@@ -206,19 +199,19 @@ function onEvent(state: EngineUiState, name: string, args: any[]): EngineUiState
       // reasoning text so the "Thought for Ns" line can expand to the actual thoughts.
       const streaming = msg.role === 'assistant' ? '' : state.streaming;
       const thought = msg.role === 'assistant' && state.thinking ? state.thinking : undefined;
-      return { ...state, items: [...state.items, { kind: 'msg', msg, thought }], streaming, thinking: '', pendingInput: msg.role === 'assistant' || msg.level === 'error' ? false : state.pendingInput };
+      return { ...state, items: [...state.items, { kind: 'msg', msg, thought }], streaming, thinking: '' };
     }
     case 'stream_token':
-      return { ...state, pendingInput: false, streaming: state.streaming + String(args[0] ?? '') };
+      return { ...state, streaming: state.streaming + String(args[0] ?? '') };
     case 'tool_call':
     case 'tool_call_result':
-      return args[0] ? { ...state, pendingInput: false, items: upsertTool(state.items, args[0] as ToolCallEntry) } : state;
+      return args[0] ? { ...state, items: upsertTool(state.items, args[0] as ToolCallEntry) } : state;
     case 'thinking':
       return { ...state, thinking: state.thinking + String(args[0] ?? '') };
     case 'thinking_clear':
       return { ...state, thinking: '' };
     case 'spinner_state':
-      return { ...state, pendingInput: false, stopRequested: args[0] === 'idle' || !args[0] ? false : state.stopRequested, spinner: { state: String(args[0] ?? 'idle'), message: String(args[1] ?? '') } };
+      return { ...state, spinner: { state: String(args[0] ?? 'idle'), message: String(args[1] ?? '') } };
     case 'status':
       return { ...state, status: String(args[0] ?? '') };
     case 'clear':
@@ -232,7 +225,7 @@ function onEvent(state: EngineUiState, name: string, args: any[]): EngineUiState
       return {
         ...state,
         items: [], streaming: '', thinking: '', streamedChars: 0,
-        todos: [], subagents: [], review: null, request: null, pendingInput: false, stopRequested: false,
+        todos: [], subagents: [], review: null, request: null,
         spinner: { state: 'idle', message: '' }, status: '',
         completions: { id: 0, items: [] },
         // Arm the fence: the turn that was running when this arrived is now discarded, and its
@@ -271,7 +264,7 @@ function onEvent(state: EngineUiState, name: string, args: any[]): EngineUiState
           items.push({ kind: 'msg', msg: shown, menuChosen: e.uiComponent === 'menu' ? '__replayed__' : undefined });
         }
       }
-      return { ...state, items, streaming: '', thinking: '', awaitingNewTurn: false, pendingInput: false, stopRequested: false };
+      return { ...state, items, streaming: '', thinking: '', awaitingNewTurn: false };
     }
     // Every structured payload is normalized at the boundary rather than trusted downstream — see
     // protocol.normalize.ts. A `ui_snapshot` missing `models` used to reach the composer as a
@@ -328,8 +321,6 @@ export function engineReducer(state: EngineUiState, action: Action): EngineUiSta
       return {
         ...state,
         engine: { state: action.state, detail: action.detail },
-        pendingInput: ['exited', 'failed'].includes(action.state) ? false : state.pendingInput,
-        stopRequested: ['exited', 'failed'].includes(action.state) ? false : state.stopRequested,
         request: action.state === 'exited' ? null : state.request,
       };
     case 'restoreThread': return action.state;
@@ -337,7 +328,7 @@ export function engineReducer(state: EngineUiState, action: Action): EngineUiSta
       return {
         ...state,
         project: action.dir,
-        pendingInput: false, stopRequested: false, status: '',
+        status: '',
         items: [],
         streaming: '',
         thinking: '',
@@ -357,12 +348,12 @@ export function engineReducer(state: EngineUiState, action: Action): EngineUiSta
         timestamp: new Date().toISOString(),
       };
       const capabilities = Object.fromEntries(Object.entries(state.capabilities).filter(([id]) => !isTurnScopedCapability(id)));
-      return { ...state, items: [...state.items, { kind: 'msg', msg }], awaitingNewTurn: false, capabilities, pendingInput: state.spinner.state === 'idle' || state.spinner.state === '', stopRequested: false, todos: [], status: '' };
+      return { ...state, items: [...state.items, { kind: 'msg', msg }], awaitingNewTurn: false, capabilities,
+        // A new instruction starts from nothing: the last run's plan and its stale retry/status line are not this one's.
+        todos: [], status: '' };
     }
     case 'turnStarted':
       return state.awaitingNewTurn ? { ...state, awaitingNewTurn: false } : state;
-    case 'interruptRequested':
-      return { ...state, stopRequested: true, pendingInput: false };
     case 'closeRequest':
       return { ...state, request: null };
     case 'statusClear':

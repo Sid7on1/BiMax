@@ -198,7 +198,8 @@ const MorphDialogContent = React.forwardRef<HTMLDivElement, Omit<BaseProps, 'mot
       setBox(node);
     }, []);
 
-    const seed = useIntentSeed();
+    // Presses inside the dialog (its Done button) are never where it came from, so it folds home, not into its footer.
+    const seed = useIntentSeed(() => shell);
     /**
      * The width the caller's box wants, measured once from its own CSS.
      *

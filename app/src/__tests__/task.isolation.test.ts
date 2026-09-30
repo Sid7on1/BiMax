@@ -125,3 +125,13 @@ describe('a cleared task leaves nothing behind', () => {
     // Mutant: leaving the fence armed through session_restore makes every resumed session mute.
   });
 });
+
+test('a new instruction drops the previous run\'s plan and its stale status line', () => {
+  // Kept from the retired Goal/Step/Files/Next block (UI fix list item 33, taken off screen 2026-10-01 at the owner's
+  // request): the thinking row shows `status`, and a "Provider retry in 2s" from the last run must not greet the next.
+  const before = { ...initialEngineState, todos: [{ content: 'Old plan', status: 'in_progress' }], status: 'Provider retry in 2s' };
+  const sent = engineReducer(before, { type: 'localUser', text: 'New goal' });
+  expect(sent.todos).toEqual([]);
+  expect(sent.status).toBe('');
+  // Mutation: drop `todos: [], status: ''` from the localUser case — both assertions fail.
+});

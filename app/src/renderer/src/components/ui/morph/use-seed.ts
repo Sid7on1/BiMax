@@ -68,8 +68,13 @@ export function useSeedRef(): SeedHandle {
  * from a different control fly from the right place. This is Prompt 1 §15's `MorphOrigin` with the
  * rect left out: the rect is derived when it is wanted, never stored, so the trip home lands on the
  * control as it is now rather than as it was.
+ *
+ * A press *inside the surface itself* never replaces the latch. The model window's Done button is the
+ * freshest press when the window closes, and latching it folded the window into its own footer — the
+ * owner saw it "close on the Done button, the wrong place" (2026-10-01). `surface` names the element
+ * whose own controls are not origins.
  */
-export function intentSeed(): SeedHandle {
+export function intentSeed(surface: () => Element | null = () => null): SeedHandle {
   let latched: HTMLElement | null = null;
   let latchedAt = 0;
   let latchedRect: DOMRect | null = null;
@@ -79,8 +84,10 @@ export function intentSeed(): SeedHandle {
     current: () => (latched?.isConnected ? latched : null),
     measure: () => {
       const intent = recentIntent();
-      // Anything fresher than what we hold is the cause of whatever is happening now.
-      if (intent && intent.at > latchedAt) {
+      // Anything fresher than what we hold is the cause of whatever is happening now — unless it was
+      // pressed inside the surface, which cannot have come out of its own button.
+      const own = intent?.element ? surface()?.contains(intent.element) === true : false;
+      if (intent && intent.at > latchedAt && !own) {
         latched = intent.element;
         latchedAt = intent.at;
         latchedRect = intent.rect;
@@ -106,6 +113,9 @@ export function intentSeed(): SeedHandle {
  * on every unrelated keystroke in the app — and `MorphSurface` takes the handle as an effect
  * dependency, so it would also re-run the resize wiring each time.
  */
-export function useIntentSeed(): SeedHandle {
-  return useMemo(() => intentSeed(), []);
+export function useIntentSeed(surface?: () => Element | null): SeedHandle {
+  // Through a ref, so the handle (and its latch) keeps one identity while the caller's arrow changes every render.
+  const latest = useRef(surface);
+  latest.current = surface;
+  return useMemo(() => intentSeed(() => latest.current?.() ?? null), []);
 }

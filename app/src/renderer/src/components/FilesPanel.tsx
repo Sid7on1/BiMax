@@ -126,6 +126,9 @@ export function FilesPanel({
   }, [filter, project]);
 
   const root = dirs[''];
+  const status = filter
+    ? (searching ? 'Searching…' : searchError)
+    : root?.error ?? (!root || (root.loading && root.entries.length === 0) ? 'Loading files…' : '');
   const generatedCount = root?.entries.filter((e) => isHiddenRoot(e.name, e.dir)).length ?? 0;
   const visibleDirs = useMemo(() => {
     if (!root) return dirs;
@@ -184,11 +187,11 @@ export function FilesPanel({
         </button>
       </div>
 
-      <div role="status" aria-live="polite" className="flex h-6 shrink-0 items-center px-1.5 text-[11.5px] text-dim">
-        {filter ? (searching ? 'Searching…' : searchError) : root?.error ?? (root?.loading ? 'Loading files…' : '')}
-      </div>
       {/* --- Tree, or filter results -------------------------------------------------------- */}
       <div ref={listRef} aria-busy={filter ? searching : !root || root.loading} className="quiet-scrollbar min-h-0 flex-1 overflow-y-auto">
+        {/* Said inside the list, only when there is something to say. A tree that is merely refreshing (every file the
+            agent writes triggers one) keeps its rows and says nothing — a reserved strip sat empty above the tree. */}
+        {status ? <div role="status" aria-live="polite" className="px-1.5 py-2 text-[11.5px] text-dim">{status}</div> : null}
         {filter ? (
           !hits ? (
             null
@@ -303,7 +306,9 @@ function Tree({
   if (!state) return null;
   return (
     <>
-      {rel && (state.loading || state.error) && <div role="status" style={{ paddingLeft: `${6 + depth * 13}px` }} className="flex min-h-6 items-center text-[11.5px] text-dim">{state.error ?? 'Loading files…'}</div>}
+      {/* Only a folder with nothing to show yet says it is loading; a refresh of one already shown would insert this row
+          and push the tree down, then pull it back, on every file change. */}
+      {rel && ((state.loading && state.entries.length === 0) || state.error) && <div role="status" style={{ paddingLeft: `${6 + depth * 13}px` }} className="flex min-h-6 items-center text-[11.5px] text-dim">{state.error ?? 'Loading files…'}</div>}
       {ordered(state.entries).map((e) => {
         const childRel = rel ? `${rel}/${e.name}` : e.name;
         const open = dirs[childRel]?.open ?? false;
