@@ -1,0 +1,20 @@
+[
+  {
+    "name": "older directory reply is current",
+    "caught": true,
+    "exit": 1,
+    "output": "FAIL app/src/__tests__/request.fence.test.ts\n  \u25cf a late response cannot replace a newer response for the same directory\n\n    expect(received).toEqual(expected) // deep equality\n\n    - Expected  - 1\n    + Received  + 1\n\n      Array [\n    -   \"new\",\n    +   \"old\",\n      ]\n\n       5 |  await Promise.resolve().then(()=>{if(second()) files=['new'];});\n       6 |  await Promise.resolve().then(()=>{if(first()) files=['old'];});\n    >  7 |  expect(files).toEqual(['new']);\n         |                ^\n       8 | });\n       9 | test('independent directories can load together', () => {\n      10 |  const fence=new RequestFence(); const a=fence.begin('src'); const b=fence.begin('docs');\n\n      at Object.<anonymous> (app/src/__tests__/request.fence.test.ts:7:16)\n\nTest Suites: 1 failed, 1 total\nTests:       1 failed, 2 passed, 3 total\nSnapshots:   0 total\nTime:        1.612 s\nRan all test suites matching app/src/__tests__/request.fence.test.ts.\n"
+  },
+  {
+    "name": "project invalidation keeps old replies",
+    "caught": true,
+    "exit": 1,
+    "output": "FAIL app/src/__tests__/request.fence.test.ts\n  \u25cf project change or unmount invalidates every reply, even when the next project uses the same paths\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: false\n    Received: true\n\n      14 |  const fence=new RequestFence(); const oldRoot=fence.begin(''); const oldChild=fence.begin('src');\n      15 |  fence.invalidate(); const newRoot=fence.begin('');\n    > 16 |  expect(oldRoot()).toBe(false); expect(oldChild()).toBe(false); expect(newRoot()).toBe(true);\n         |                    ^\n      17 |  fence.invalidate(); expect(newRoot()).toBe(false);\n      18 | });\n      19 |\n\n      at Object.<anonymous> (app/src/__tests__/request.fence.test.ts:16:20)\n\nTest Suites: 1 failed, 1 total\nTests:       1 failed, 2 passed, 3 total\nSnapshots:   0 total\nTime:        1.445 s, estimated 2 s\nRan all test suites matching app/src/__tests__/request.fence.test.ts.\n"
+  },
+  {
+    "name": "directories cancel one another",
+    "caught": true,
+    "exit": 1,
+    "output": "FAIL app/src/__tests__/request.fence.test.ts\n  \u25cf independent directories can load together\n\n    expect(received).toBe(expected) // Object.is equality\n\n    Expected: true\n    Received: false\n\n       9 | test('independent directories can load together', () => {\n      10 |  const fence=new RequestFence(); const a=fence.begin('src'); const b=fence.begin('docs');\n    > 11 |  expect(a()).toBe(true); expect(b()).toBe(true);\n         |              ^\n      12 | });\n      13 | test('project change or unmount invalidates every reply, even when the next project uses the same paths', () => {\n      14 |  const fence=new RequestFence(); const oldRoot=fence.begin(''); const oldChild=fence.begin('src');\n\n      at Object.<anonymous> (app/src/__tests__/request.fence.test.ts:11:14)\n\nTest Suites: 1 failed, 1 total\nTests:       1 failed, 2 passed, 3 total\nSnapshots:   0 total\nTime:        1.516 s, estimated 2 s\nRan all test suites matching app/src/__tests__/request.fence.test.ts.\n"
+  }
+]

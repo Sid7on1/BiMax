@@ -3,6 +3,7 @@ import { AtSign, ChevronDown, ChevronRight, Database, RefreshCw, Search, X } fro
 import { cn } from '../lib/cn';
 import { DirIcon, FileIcon } from './FileIcon';
 import { ancestorsOf } from '../workbench.tabs';
+import { RequestFence } from '../request.fence';
 
 /**
  * The project explorer.
@@ -25,7 +26,7 @@ export function insertIntoComposer(text: string): void {
   window.dispatchEvent(new CustomEvent('bimax:compose-insert', { detail: text }));
 }
 
-interface DirState { entries: { name: string; dir: boolean }[]; open: boolean }
+interface DirState { entries: { name: string; dir: boolean }[]; open: boolean; loading: boolean; error?: string }
 interface Hit { rel: string; name: string; dir: boolean }
 
 /**
@@ -64,24 +65,28 @@ export function FilesPanel({
   const [searching, setSearching] = useState(false);
   const filterRef = useRef<HTMLInputElement>(null);
 
+  const fence = useRef(new RequestFence());
+  const dirsRef = useRef(dirs);
+  dirsRef.current = dirs;
+  const [searchError, setSearchError] = useState('');
   const loadDir = useCallback((rel: string, open = true) => {
+    const current = fence.current.begin(rel);
+    setDirs(d => ({ ...d, [rel]: { entries: d[rel]?.entries ?? [], open, loading: true } }));
     void window.bimax.files.list(rel)
-      .then((entries) => setDirs((d) => ({ ...d, [rel]: { entries, open } })))
-      .catch(() => setDirs((d) => ({ ...d, [rel]: { entries: [], open } })));
+      .then(entries => { if (current()) setDirs(d => current() ? { ...d, [rel]: { ...d[rel], entries, loading: false } } : d); })
+      .catch(() => { if (current()) setDirs(d => current() ? { ...d, [rel]: { ...d[rel], loading: false, error: 'Could not load files. Try Refresh.' } } : d); });
   }, []);
 
   useEffect(() => {
-    setDirs({});
-    setFilter('');
+    fence.current.invalidate();
+    setDirs({}); setFilter(''); setHits(null); setSearchError('');
+    scrolledFor.current = null;
     if (!project) return;
     loadDir('');
     const off = window.bimax.files.onChanged(() => {
-      setDirs((d) => {
-        for (const rel of Object.keys(d)) if (d[rel].open) loadDir(rel, true);
-        return d;
-      });
+      for (const [rel, state] of Object.entries(dirsRef.current)) if (state.open) loadDir(rel, true);
     });
-    return off;
+    return () => { fence.current.invalidate(); off(); };
   }, [project, loadDir]);
 
   /*
@@ -104,19 +109,21 @@ export function FilesPanel({
     scrolledFor.current = activeFile;
   }, [dirs, activeFile]);
 
-  // Debounced: the search walks the tree, so it must not run on every keystroke.
+  // Search walks the project: debounce it, and never display an earlier query's reply.
   useEffect(() => {
+    let live = true;
     const q = filter.trim();
-    if (!q) { setHits(null); setSearching(false); return; }
+    setHits(null); setSearchError('');
+    if (!q) { setSearching(false); return; }
     setSearching(true);
     const t = setTimeout(() => {
       void window.bimax.files.search(q)
-        .then((r) => setHits({ list: r.hits, truncated: r.truncated }))
-        .catch(() => setHits({ list: [], truncated: false }))
-        .finally(() => setSearching(false));
+        .then(r => { if (live) setHits({ list: r.hits, truncated: r.truncated }); })
+        .catch(() => { if (live) setSearchError('Could not search files. Change the filter to retry.'); })
+        .finally(() => { if (live) setSearching(false); });
     }, 180);
-    return () => clearTimeout(t);
-  }, [filter]);
+    return () => { live = false; clearTimeout(t); };
+  }, [filter, project]);
 
   const root = dirs[''];
   const generatedCount = root?.entries.filter((e) => isHiddenRoot(e.name, e.dir)).length ?? 0;
@@ -168,7 +175,7 @@ export function FilesPanel({
           </button>
         )}
         <button
-          onClick={() => loadDir('')}
+          onClick={() => { for (const [rel, state] of Object.entries(dirsRef.current)) if (state.open) loadDir(rel); }}
           title="Refresh"
           aria-label="Refresh the file tree"
           className="flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md text-dim hover:bg-hover hover:text-ink"
@@ -177,11 +184,14 @@ export function FilesPanel({
         </button>
       </div>
 
+      <div role="status" aria-live="polite" className="flex h-6 shrink-0 items-center px-1.5 text-[11.5px] text-dim">
+        {filter ? (searching ? 'Searching…' : searchError) : root?.error ?? (root?.loading ? 'Loading files…' : '')}
+      </div>
       {/* --- Tree, or filter results -------------------------------------------------------- */}
-      <div ref={listRef} className="quiet-scrollbar min-h-0 flex-1 overflow-y-auto">
+      <div ref={listRef} aria-busy={filter ? searching : !root || root.loading} className="quiet-scrollbar min-h-0 flex-1 overflow-y-auto">
         {filter ? (
           !hits ? (
-            <div className="px-1.5 py-2 text-[11.5px] text-faint">{searching ? 'Searching…' : ''}</div>
+            null
           ) : hits.list.length === 0 ? (
             <div className="px-1.5 py-2 text-[11.5px] text-faint">No file matches “{filter}”.</div>
           ) : (
@@ -205,9 +215,7 @@ export function FilesPanel({
               )}
             </>
           )
-        ) : !root ? (
-          <div className="px-1.5 py-2 text-[11.5px] text-faint">Loading…</div>
-        ) : root.entries.length === 0 ? (
+        ) : !root || ((root.loading || root.error) && root.entries.length === 0) ? null : root.entries.length === 0 ? (
           <div className="px-1.5 py-2 text-[11.5px] text-faint">Empty project.</div>
         ) : (
           <Tree
@@ -216,7 +224,7 @@ export function FilesPanel({
             depth={0}
             activeFile={activeFile ?? null}
             onToggle={(r, open) => {
-              if (open && !dirs[r]) loadDir(r);
+              if (open && (!dirs[r] || dirs[r].error)) loadDir(r);
               else setDirs((d) => (d[r] ? { ...d, [r]: { ...d[r], open } } : d));
             }}
             onSelect={onOpenFile}
@@ -246,10 +254,11 @@ function Row({
       onClick={onClick}
       onKeyDown={(e) => { if (e.key === 'Enter') onClick(); }}
       data-active={active || undefined}
+      aria-expanded={dir ? !!open : undefined}
       title={dir ? rel : `${rel} — open in editor`}
       style={{ paddingLeft: `${6 + depth * 13}px` }}
       className={cn(
-        'group flex min-h-6 w-full cursor-pointer items-center gap-1.5 rounded-md py-[3px] pr-1.5 text-left text-[11.5px] text-dim',
+        'group flex min-h-6 w-full cursor-pointer h-[26px] items-center gap-1.5 rounded-md py-[3px] pr-1.5 text-left text-[11.5px] text-dim',
         'hover:bg-hover hover:text-ink data-[active]:bg-selected data-[active]:text-ink',
       )}
     >
@@ -294,6 +303,7 @@ function Tree({
   if (!state) return null;
   return (
     <>
+      {rel && (state.loading || state.error) && <div role="status" style={{ paddingLeft: `${6 + depth * 13}px` }} className="flex min-h-6 items-center text-[11.5px] text-dim">{state.error ?? 'Loading files…'}</div>}
       {ordered(state.entries).map((e) => {
         const childRel = rel ? `${rel}/${e.name}` : e.name;
         const open = dirs[childRel]?.open ?? false;

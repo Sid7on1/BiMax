@@ -536,6 +536,28 @@ Implemented and locally verified. Native display latency and human trust/fluency
 the shared press contract is not a claim that every installed native destination completes within 100ms.
 Not yet installed.
 
+## Batch 17 — item 29, loading keeps its place and tells the truth (2026-10-01)
+
+**Measured first:** the Files viewport already stayed fixed through load and results at both zooms; no speculative
+skeleton was needed. However an older directory reply replaced a newer one, an older search replaced the current
+query, a failed list said “Empty project”, and expansion waited for the host before showing its open state.
+
+The panel now has one reserved 24px text-status line above its existing list viewport. Pending, results and failure
+all use the same viewport: **678 / 545px high at 100% / 120%**. Refresh preserves the last successful entries, says
+when it fails and retries open folders. A per-directory response fence invalidates old requests on newer loads,
+project changes and unmount. Search cancels old queries, clears their results immediately and names errors.
+Directories open immediately while their actual child list loads; collapse during loading remains collapsed.
+Smaller modules use honest text, without guessing a skeleton's row count.
+
+**Verification that ran:** three new race tests, 3/3 unit and 4/4 rebuilt-renderer mutants caught in valid runs;
+actual out-of-order directory/search replies, failure and resolved child-file end states at both zooms. The first
+hit-target run caught a 23px clickable row at 120% after the status line moved its fractional position; rows now
+have 26px height, and the full target gate passes. Existing tests were retained. Full **120 suites / 1072 tests**,
+typecheck, 32 morph flights, hit targets, motion tokens and preview build pass; composited text/code contrast
+passes 4.5:1. Evidence: `batch17-*`. Product-reset 03/04, vision, 08 and competitive/06 guided the work.
+Implemented and locally measured; native slow-filesystem timing and perceived-speed/user studies remain
+unmeasured. The change does not claim faster host filesystem work. Not yet installed.
+
 ## Still open
 
 | # | Item |
