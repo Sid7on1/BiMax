@@ -26,6 +26,7 @@ import { countUse, envExample } from './transmute';
 import { ActivityLog, type Verdict } from './recall';
 import { describeSchedule, newSchedule, type Cadence } from './schedules';
 import { loadSchedules, removeSchedule, runSchedules, saveSchedules, scheduleMenu, setScheduleRunnerHost } from './schedule.runner';
+import { appMenuTemplate } from './app.menu';
 import {
   ARRIVAL_KINDS, FolderTriggers, MAX_TRIGGERS, arrivalLabel, changeListNote, changesDuring, describeTrigger, newTrigger, runMessage,
   triggerFolderProblem, validTriggers, type FolderEntry, type FolderTrigger, type StartResult,
@@ -294,6 +295,8 @@ async function showQuickBar(context?: QuickContext): Promise<void> {
   quickWindow.webContents.send('threads:context', quickContext);
   sendQuickThread();
   quickWindow.show(); quickWindow.focus();
+  // The welcome screen's ⌘2 lesson waits for this: the bar opening IS the lesson (fix list item 21).
+  broadcast('threads:quick-shown');
 }
 /** The Work model in Bimax's own settings, for the "Same as Bimax" menu entry. */
 function bimaxModel(): string {
@@ -907,6 +910,21 @@ function showMoreMenu(): void {
   if (snapshot) template.push({ type: 'separator' }, ...exportMenuItems(() => threadConversation(snapshot.id)));
   Menu.buildFromTemplate(template).popup({ window: quickWindow });
 }
+/** The app's menu bar (app.menu.ts, fix list item 19). Rebuilt when the ⌘2 shortcut changes, since File names it. */
+function installAppMenu(): void {
+  Menu.setApplicationMenu(Menu.buildFromTemplate(appMenuTemplate({
+    appName: app.getName(),
+    isMac: process.platform === 'darwin',
+    dev: !app.isPackaged,
+    send: (command) => {
+      if (!win || win.isDestroyed()) return;
+      win.show();
+      win.webContents.send('menu:command', command);
+    },
+    openQuickBar: () => { void showQuickBar(); },
+    quickShortcut: shortcutLabel(wantedShortcut),
+  })));
+}
 /** The menu bar's Keyboard shortcut menu (quick.shortcut.ts, backlog N14). A refused choice keeps the shortcut the bar had. */
 function chooseShortcut(accelerator: string): void {
   const result = switchShortcut(shortcutRegistry, shortcutAvailable ? wantedShortcut : null, accelerator, () => { void showQuickBar(); });
@@ -923,6 +941,7 @@ function chooseShortcut(accelerator: string): void {
   }
   threadChanged();
   updateTray();
+  installAppMenu();
 }
 let tray: Tray | null = null;
 /** The menu bar item: running and waiting tasks at a glance, and a menu of recent ones (thread.tray.ts). */
@@ -1931,6 +1950,7 @@ app.whenReady().then(async () => {
   syncNotch();
   wantedShortcut = chosenShortcut(loadSettings().quickShortcut);
   shortcutAvailable = switchShortcut(shortcutRegistry, null, wantedShortcut, () => { void showQuickBar(); }).ok;
+  installAppMenu();
   // Talk anywhere (N8), when the person turned it on; a shortcut another app now holds leaves it off, with the menu saying so.
   const savedPushTalk = pushTalkChoice(loadSettings().pushTalkShortcut);
   if (savedPushTalk && savedPushTalk.accelerator !== wantedShortcut && globalShortcut.register(savedPushTalk.accelerator, () => { void pressPushTalk(); })) pushTalkShortcut = savedPushTalk;

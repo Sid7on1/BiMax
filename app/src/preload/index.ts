@@ -101,6 +101,8 @@ const api = {
     quickOpen: () => ipcRenderer.send('threads:quick-open'),
     // How many messages the bar's task has queued and why it waits, and cancelling them (backlog N12).
     onQuickActivity: (cb: (value: any) => void) => subscribe('threads:quick-activity', cb),
+    /** The ⌘2 bar just opened (the welcome screen's lesson listens for it). */
+    onQuickShown: (cb: () => void) => subscribe('threads:quick-shown', cb),
     cancelQueued: (id: string) => ipcRenderer.invoke('threads:cancel-queued', id),
     setPriority: (id: string, priority: 'high' | 'normal' | 'low') => ipcRenderer.invoke('threads:priority', id, priority),
     cancelWakes: (id: string) => ipcRenderer.invoke('threads:cancel-wakes', id),
@@ -180,6 +182,8 @@ const api = {
   clipboard: {
     writeText: (text: string): Promise<boolean> => ipcRenderer.invoke('clipboard:write-text', text),
   },
+  /** A menu-bar command for the page (main/app.menu.ts): the same actions the keyboard map runs. */
+  onMenuCommand: (cb: (command: string) => void): (() => void) => subscribe('menu:command', cb),
   /** A system sound: "Sound when a task finishes" (quick settings), played by main with shell.beep(). */
   beep: (): void => ipcRenderer.send('app:beep'),
   /** Tells main which appearance is showing, so the native vibrancy material matches it. */

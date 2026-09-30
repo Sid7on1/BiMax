@@ -13,6 +13,8 @@ Front-end research for the Bimax desktop redesign. Measured 2026-09-12 on macOS 
 | `06-gaps.md` | first-pass gap list — **partly superseded**, G1/G3 wrong, G4 overstated |
 | `07-evaluation.md` | evaluation against the docs; required vs beneficial changes |
 | `08-changes-applied.md` | **START HERE** — round 1 fixes, then round 2 (B1/B2/B4/B5 all taken) |
+| `15-ui-fix-list-applied.md` | **what the owner's 2026-09-30 fix list changed so far** — batches 1 and 2, and what is still open |
+| `14-ui-fix-list-2026-09-30.md` | the owner's 45-item UI fix list: their own notes, the static review, the feel-engineering research |
 | `13-right-panel-applied.md` | **what the merge changed** — three rows, what was deliberately not built, and the three defects it uncovered |
 | `12-right-panel-plan.md` | the plan it came from — merge the editor and inspector into one tabbed workbench, the way Cursor's right panel works |
 | `11-round3-applied.md` | **what round 3 changed** — the black-glass shell, the three rules, and what each reported "border" turned out to be |

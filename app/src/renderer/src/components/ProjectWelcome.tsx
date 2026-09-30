@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowRight, FolderOpen, History, MessageSquare } from 'lucide-react';
+import { ArrowRight, Check, FolderOpen, History, MessageSquare } from 'lucide-react';
 import type { ThreadList } from '../../../shared/threads';
 import { BrandMark } from './BrandMark';
 
@@ -90,11 +90,14 @@ export function ProjectWelcome(): React.ReactElement {
           <BrandMark className="text-[13px]" />
           <span className="text-xs font-medium tracking-[0.12em] text-faint uppercase">Welcome to BiMAX</span>
         </div>
+        {/* Fix list item 20: "Great work starts here" could have headed any tool. What Bimax does that is
+            its own is the evidence — the diff, the commands it ran, whether its check passed — so the
+            welcome says that, and says only what the product does today. */}
         <h1 className="anim-fade-up font-display mt-4 max-w-[650px] text-[40px] leading-[1.06] font-semibold tracking-[-0.04em] text-ink" style={{ animationDelay: '50ms' }}>
-          Great work starts here.
+          Work you can verify.
         </h1>
         <p className="anim-fade-up mt-4 max-w-[620px] text-[14px] leading-relaxed text-dim" style={{ animationDelay: '90ms' }}>
-          Bring a project. Make it yours. A focused workspace for your ideas, code, and everything that comes next.
+          Bimax changes your project, runs its checks, and shows you exactly what changed and whether it passed. Open a project to begin.
         </p>
 
         <div className="anim-fade-up mt-8 flex flex-wrap gap-2.5" style={{ animationDelay: '130ms' }}>
@@ -118,12 +121,13 @@ export function ProjectWelcome(): React.ReactElement {
             <MessageSquare size={16} />
             {opening === 'task' ? 'Choosing a folder…' : 'Start a task in a folder'}
           </button>
-          <span className="flex items-center px-1 text-xs text-faint">
-            {shortcut.available
-              ? `or press ${shortcut.label} anywhere`
-              : `${shortcut.label} is used by another app. Choose another shortcut from Bimax in the menu bar.`}
-          </span>
+          {!shortcut.available && (
+            <span className="flex items-center px-1 text-xs text-faint">
+              {shortcut.label} is used by another app. Choose another shortcut from Bimax in the menu bar.
+            </span>
+          )}
         </div>
+        {shortcut.available && <QuickBarLesson shortcut={shortcut.label} />}
         <p className="anim-fade-up mt-2 max-w-[620px] text-xs leading-relaxed text-faint" style={{ animationDelay: '170ms' }}>
           For everyday work in any folder, like sorting Downloads or renaming photos. A task asks before it changes anything.
         </p>
@@ -167,5 +171,57 @@ export function ProjectWelcome(): React.ReactElement {
         </section>
       </div>
     </main>
+  );
+}
+
+const LESSON_KEY = 'bimax:lesson:quick-bar';
+
+function lessonLearned(): boolean {
+  try { return localStorage.getItem(LESSON_KEY) === 'done'; } catch { return false; }
+}
+
+/**
+ * Teaching ⌘2 by doing it (fix list item 21).
+ *
+ * The ⌘2 bar is the app's core loop and a learned behaviour, and the welcome screen taught it with a
+ * grey hint line nobody acts on. This asks for the key press and watches for the bar to open (main
+ * broadcasts `threads:quick-shown`); the moment it does, the lesson is done — it says so once and does
+ * not come back. "Not now" dismisses it for good as well.
+ */
+export function QuickBarLesson({ shortcut, initial }: { shortcut: string; initial?: 'waiting' | 'learned' }): React.ReactElement | null {
+  const [state, setState] = useState<'waiting' | 'learned' | 'dismissed'>(() => initial ?? (lessonLearned() ? 'dismissed' : 'waiting'));
+  useEffect(() => {
+    if (state !== 'waiting') return undefined;
+    return window.bimax.threads.onQuickShown?.(() => {
+      try { localStorage.setItem(LESSON_KEY, 'done'); } catch { /* shown again next time: harmless */ }
+      setState('learned');
+    });
+  }, [state]);
+  if (state === 'dismissed') return null;
+  return (
+    <div className="quick-lesson anim-fade-up mt-4 flex max-w-[620px] items-center gap-3 rounded-xl px-4 py-3" role="status" aria-live="polite" style={{ animationDelay: '160ms' }}>
+      {state === 'learned' ? (
+        <>
+          <Check size={16} className="shrink-0 text-moss" aria-hidden />
+          <span className="min-w-0 flex-1 text-[12.5px] text-ink">
+            That’s the {shortcut} bar. It opens over any app, in the folder you are looking at. Esc puts it away.
+          </span>
+        </>
+      ) : (
+        <>
+          <kbd className="glass-key shrink-0 rounded-md px-2 py-1 font-mono text-[13px] text-ink">{shortcut}</kbd>
+          <span className="min-w-0 flex-1 text-[12.5px] text-dim">
+            <span className="text-ink">Try it now: press {shortcut}.</span> It opens a task bar from any app — no need to come back here.
+          </span>
+          <button
+            type="button"
+            onClick={() => { try { localStorage.setItem(LESSON_KEY, 'done'); } catch { /* ignore */ } setState('dismissed'); }}
+            className="shrink-0 cursor-pointer rounded-md px-2 py-1 text-[11px] text-faint hover:bg-hover hover:text-ink"
+          >
+            Not now
+          </button>
+        </>
+      )}
+    </div>
   );
 }

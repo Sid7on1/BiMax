@@ -7,6 +7,9 @@ import { createHoverIntent, HOVER_CLOSE_DELAY_MS } from '../renderer/src/hover.i
 import { AttachmentWell } from '../renderer/src/components/AttachmentWell';
 import { QUICK_TOGGLES, toggleValue } from '../renderer/src/quick.settings';
 import { visibleThreads, THREADS_PAGE } from '../renderer/src/threads.list.model';
+import { QuickBarLesson } from '../renderer/src/components/ProjectWelcome';
+// The renderer's `window.bimax` declaration, which ProjectWelcome compiles against.
+import type {} from '../renderer/src/global';
 import { CONFIG_WIRE_KEYS } from '../../../src/protocol/config.wire';
 import { GATE_KEYS } from '../../../src/engine/gate.flags';
 
@@ -214,5 +217,45 @@ describe('item 15 — the peek survives the trip from the toggle to the panel', 
     expect(app).toContain('onMouseLeave={() => peekIntent.leave()}');
     expect(app).toContain('onPeekLeave={() => peekIntent.leave()}');
     expect(read('app/src/renderer/src/components/TaskSidebar.tsx')).toContain("!peek && 'drag-region'");
+  });
+});
+
+describe('item 18 — no card that looks like a button and goes nowhere', () => {
+  test('the Environment and ML Alchemist pages list their inventories instead of dead links', () => {
+    const settings = read('app/src/renderer/src/components/SettingsDialog.tsx');
+    expect(settings).not.toContain('action="Open Environment"');
+    expect(settings).not.toContain('action="Open Alchemist"');
+    expect(settings).toContain('<CapabilityList title="Tools on this Mac"');
+    expect(settings).toContain('<CapabilityList title="Backends"');
+  });
+  test('a card with no action does not answer the pointer', () => {
+    expect(css).toContain('.settings-action-card--static, .settings-action-card--static:hover { cursor: default;');
+    expect(read('app/src/renderer/src/components/SettingsDialog.tsx')).toContain('<div className="settings-action-card settings-action-card--static">');
+  });
+});
+
+describe('item 20 — the welcome says what Bimax does that others do not', () => {
+  test('no generic headline', () => {
+    const welcome = read('app/src/renderer/src/components/ProjectWelcome.tsx');
+    const heading = welcome.match(/<h1[^>]*>\s*([^<]+?)\s*<\/h1>/)?.[1];
+    expect(heading).toBe('Work you can verify.');
+  });
+});
+
+describe('item 21 — ⌘2 is taught by pressing it', () => {
+  test('it asks for the key, then confirms once the bar has opened', () => {
+    const waiting = renderToStaticMarkup(<QuickBarLesson shortcut="⌘2" initial="waiting" />);
+    expect(waiting).toContain('Try it now: press ⌘2.');
+    expect(waiting).toContain('Not now');
+    const learned = renderToStaticMarkup(<QuickBarLesson shortcut="⌘2" initial="learned" />);
+    expect(learned).toContain('That’s the ⌘2 bar.');
+    expect(learned).not.toContain('Try it now');
+  });
+  test('main tells the window when the bar opens, and the lesson listens', () => {
+    const main = read('app/src/main/index.ts');
+    const show = main.slice(main.indexOf('async function showQuickBar('), main.indexOf('function bimaxModel('));
+    expect(show).toContain("broadcast('threads:quick-shown');");
+    expect(read('app/src/preload/index.ts')).toContain("onQuickShown: (cb: () => void) => subscribe('threads:quick-shown', cb)");
+    expect(read('app/src/renderer/src/components/ProjectWelcome.tsx')).toContain('window.bimax.threads.onQuickShown?.(');
   });
 });

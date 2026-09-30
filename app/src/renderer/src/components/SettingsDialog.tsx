@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Activity, AudioLines, Bot, BrainCircuit, ChevronDown, Cpu, ExternalLink, FlaskConical, Globe2,
+  Activity, AudioLines, Bot, ChevronDown, Cpu, ExternalLink, FlaskConical, Globe2,
   KeyRound, Search, Settings2, Shield, TerminalSquare, X,
 } from 'lucide-react';
 import { VoiceSettings } from './VoiceSettings';
@@ -199,16 +199,54 @@ function CapabilitySettings({ page, phase9, onOpenModels, onOpenInspector, onOpe
    * the app's main process (embedded.browser.manager.ts) and never involved the engine at all.
    * Every claim below is checked against that implementation.
    */
+  /*
+   * Fix list item 18: "Environment map · Open Environment" and "Measured experiment pipeline · Open
+   * Alchemist" were cards drawn as buttons with nowhere to go — the lanes they named no longer exist,
+   * so they read as broken. The pages now show what those lanes would have shown: the inventory itself,
+   * read-only, from the same snapshot the hero counts.
+   */
   if (page === 'environment') {
-    const ready = phase9.environment?.tools.filter((tool) => tool.state === 'ready').length ?? 0;
-    return <div className="settings-capability-grid"><CapabilityHero icon={<TerminalSquare size={18} />} title={`${ready} developer tools resolved`} description="A bounded, read-only inventory of runtimes, package managers, SDKs and local services. No profile sourcing or project scripts." status={phase9.environment ? 'Live' : 'Loading'} /><ActionCard icon={<ExternalLink size={15} />} title="Environment map" description="Inspect exact tool paths, versions and project declarations in Evidence Studio." action="Open Environment" /></div>;
+    const tools = phase9.environment?.tools ?? [];
+    const ready = tools.filter((tool) => tool.state === 'ready').length;
+    return <div className="settings-capability-grid"><CapabilityHero icon={<TerminalSquare size={18} />} title={`${ready} developer tools resolved`} description="A bounded, read-only inventory of runtimes, package managers, SDKs and local services. No profile sourcing or project scripts." status={phase9.environment ? 'Live' : 'Loading'} />
+      <CapabilityList title="Tools on this Mac" empty={phase9.environment ? 'No tools were found.' : 'Reading the inventory…'}
+        rows={tools.map((tool) => ({ key: tool.id, name: tool.label, value: tool.state === 'ready' ? tool.version ?? 'found' : tool.state === 'missing' ? 'not found' : 'not checked', ok: tool.state === 'ready', title: tool.executable ?? tool.note }))} />
+      {phase9.environment?.declarations.length ? <CapabilityList title={`Declared by ${phase9.environment.projectName}`} empty=""
+        rows={phase9.environment.declarations.map((declaration) => ({ key: declaration.file, name: declaration.file, value: declaration.ecosystem, ok: true }))} /> : null}
+    </div>;
   }
-  const ready = phase9.alchemist?.backends.filter((backend) => backend.state === 'ready').length ?? 0;
-  return <div className="settings-capability-grid"><CapabilityHero icon={<FlaskConical size={18} />} title={`${ready} local model backends ready`} description="MLX, Core ML Tools, llama.cpp and Ollama are detected without installing or running a model." status={phase9.alchemist?.state ?? 'Loading'} /><ActionCard icon={<BrainCircuit size={15} />} title="Measured experiment pipeline" description="Inspect → quantize or fine-tune → compare quality, memory and latency → verify → export. Unavailable steps remain disabled." action="Open Alchemist" /><ActionCard icon={<Cpu size={15} />} title="Model roles" description="Select provider models for coding, quick replies, and specialist agents." action="Manage models" onClick={onOpenModels} /><ActionCard icon={<Shield size={15} />} title="Isolation boundary" description="Model transforms require isolated workers and immutable artifact handles; unsafe pickle input is refused." action="Open support" onClick={() => { onClose(); onOpenHealth(); }} /></div>;
+  const alchemist = phase9.alchemist;
+  const ready = alchemist?.backends.filter((backend) => backend.state === 'ready').length ?? 0;
+  return <div className="settings-capability-grid"><CapabilityHero icon={<FlaskConical size={18} />} title={`${ready} local model backends ready`} description="MLX, Core ML Tools, llama.cpp and Ollama are detected without installing or running a model." status={alchemist?.state ?? 'Loading'} />
+    <CapabilityList title="Backends" empty={alchemist ? 'No backend was found.' : 'Reading the inventory…'}
+      rows={(alchemist?.backends ?? []).map((backend) => ({ key: backend.id, name: backend.label, value: backend.state === 'ready' ? backend.version ?? 'found' : backend.state === 'missing' ? 'not found' : 'not checked', ok: backend.state === 'ready', title: backend.role }))} />
+    {alchemist?.workflows.length ? <CapabilityList title="Steps" empty=""
+      rows={alchemist.workflows.map((workflow) => ({ key: workflow.id, name: workflow.label, value: workflow.available ? 'available' : 'unavailable', ok: workflow.available, title: workflow.detail }))} /> : null}
+    <ActionCard icon={<Cpu size={15} />} title="Model roles" description="Select provider models for coding, quick replies, and specialist agents." action="Manage models" onClick={onOpenModels} /><ActionCard icon={<Shield size={15} />} title="Isolation boundary" description="Model transforms require isolated workers and immutable artifact handles; unsafe pickle input is refused." action="Open support" onClick={() => { onClose(); onOpenHealth(); }} /></div>;
 }
 
 function CapabilityHero({ icon, title, description, status }: { icon: React.ReactNode; title: string; description: string; status: string }): React.ReactElement {
   return <section className="settings-capability-hero"><span className="settings-capability-icon">{icon}</span><div className="min-w-0 flex-1"><div className="flex items-center gap-2"><h3>{title}</h3><span className="status-chip status-chip--ok">{status}</span></div><p>{description}</p></div></section>;
+}
+
+/**
+ * A read-only inventory: one row per thing found, its version or why it has none. State is in the words
+ * as well as the dot (fix list item 42: never status by colour alone).
+ */
+function CapabilityList({ title, rows, empty }: {
+  title: string; empty: string;
+  rows: { key: string; name: string; value: string; ok: boolean; title?: string }[];
+}): React.ReactElement {
+  return <section className="settings-inventory" aria-label={title}>
+    <h3>{title}</h3>
+    {rows.length === 0 ? <p>{empty}</p> : <ul>
+      {rows.map((row) => <li key={row.key} title={row.title}>
+        <span className={cn('status-dot', row.ok && 'status-dot--ready')} aria-hidden />
+        <span className="min-w-0 flex-1 truncate text-ink">{row.name}</span>
+        <span className="shrink-0 font-mono text-[10.5px] text-dim">{row.value}</span>
+      </li>)}
+    </ul>}
+  </section>;
 }
 
 function CapabilityNote({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }): React.ReactElement {
@@ -228,7 +266,8 @@ function ActionCard({ icon, title, description, action, onClick }: { icon: React
       {onClick ? <span className="settings-action-label">{action}<ExternalLink size={11} /></span> : null}
     </>
   );
-  if (!onClick) return <div className="settings-action-card">{body}</div>;
+  // Static: no pointer, no hover lift — a card that responds to the pointer promises a click (item 18).
+  if (!onClick) return <div className="settings-action-card settings-action-card--static">{body}</div>;
   return <button onClick={onClick} className="settings-action-card pressable">{body}</button>;
 }
 

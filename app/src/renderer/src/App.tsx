@@ -326,16 +326,34 @@ export function App(): React.ReactElement {
    * quality bar in `04_FRONTEND_PLAN.md` and Apple's Split views guidance that a hidden pane needs
    * more than one way back.
    */
+  /*
+    One action per command, run by the keyboard map below AND by the menu bar (main/app.menu.ts, fix
+    list item 19). The menu shows these keys without taking them, so each key has one handler, and a
+    menu click runs exactly what the key runs.
+  */
+  const runCommand = useCallback((command: string): boolean => {
+    switch (command) {
+      case 'new-thread': newTask(); return true;
+      case 'toggle-sidebar': togglePinned(); return true;
+      case 'toggle-panel': setInspectorOpen((v) => !v); return true;
+      case 'command-palette': setPaletteOpen((v) => !v); return true;
+      case 'open-project': void window.bimax.pickFolder(); return true;
+      case 'terminal': openInspector('terminal'); return true;
+      case 'settings': setSettingsOpen(true); return true;
+      case 'app-health': setMachineHealthOpen(true); return true;
+      default: return false;
+    }
+  }, [newTask, togglePinned, openInspector]);
+  useEffect(() => window.bimax.onMenuCommand?.((command) => { runCommand(command); }), [runCommand]);
+
   useEffect(() => {
+    const KEYS: Record<string, string> = {
+      n: 'new-thread', b: 'toggle-sidebar', j: 'toggle-panel', k: 'command-palette', o: 'open-project', t: 'terminal',
+    };
     const handler = (event: KeyboardEvent): void => {
       const mod = event.metaKey || event.ctrlKey;
       const key = event.key.toLowerCase();
-      if (mod && key === 'n') { event.preventDefault(); newTask(); return; }
-      if (mod && key === 'b') { event.preventDefault(); togglePinned(); return; }
-      if (mod && key === 'j') { event.preventDefault(); setInspectorOpen((v) => !v); return; }
-      if (mod && key === 'k') { event.preventDefault(); setPaletteOpen((v) => !v); return; }
-      if (mod && key === 'o') { event.preventDefault(); void window.bimax.pickFolder(); return; }
-      if (mod && key === 't') { event.preventDefault(); openInspector('terminal'); return; }
+      if (mod && KEYS[key]) { event.preventDefault(); runCommand(KEYS[key]); return; }
       if (mod && key === 'e' && openFiles.length > 0) {
         event.preventDefault();
         // ⌘E is "back to what I was editing", so it has to REQUEST the file: with the lanes and
@@ -348,7 +366,7 @@ export function App(): React.ReactElement {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [openFiles, activeFile, newTask, togglePinned]);
+  }, [openFiles, activeFile, runCommand]);
 
   const showHome = view === 'chat' && state.items.length === 0 && !state.hasActiveStream;
   const latestProblem = [...state.diagnostics].reverse().find((entry) => entry.level !== 'info');
