@@ -564,3 +564,41 @@ describe('item 42 — never status by colour alone', () => {
     expect(read('app/src/renderer/src/components/SettingsDialog.tsx')).not.toContain("(entry.id === 'environment' || entry.id === 'alchemist') ? <span");
   });
 });
+
+describe('items 25, 26, 43 — a neutral interface with readable quiet type', () => {
+  const rgb = (hex: string): number[] => hex.replace('#', '').match(/../g)!.map((s) => parseInt(s, 16));
+  const luminance = (channels: number[]): number => channels.map((v) => {
+    const s = v / 255;
+    return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+  }).reduce((sum, v, i) => sum + v * [0.2126, 0.7152, 0.0722][i], 0);
+  const contrast = (a: number[], b: number[]): number => {
+    const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+    return (hi + 0.05) / (lo + 0.05);
+  };
+  const theme = (name: string): string => css.slice(css.indexOf(`.theme-${name} {\n  color-scheme:`), css.indexOf('\n}', css.indexOf(`.theme-${name} {\n  color-scheme:`)));
+  const token = (block: string, name: string): number[] => rgb(new RegExp(`${name}: (#[\\da-f]{6});`).exec(block)![1]);
+
+  test('interface semantic tokens remain silver, as the owner chose; syntax colours have their own system', () => {
+    for (const name of ['moonlight', 'starlight']) for (const colour of ['ember', 'moss', 'amber', 'rust']) {
+      const values = token(theme(name), `--color-${colour}`);
+      expect(Math.max(...values) - Math.min(...values)).toBeLessThanOrEqual(6);
+    }
+  });
+  test('Moonlight surfaces are near-black, with a raised step and a lower well', () => {
+    const dark = theme('moonlight');
+    for (const colour of ['bg', 'raise', 'well']) {
+      const values = token(dark, `--color-${colour}`);
+      expect(Math.min(...values)).toBeGreaterThanOrEqual(8);
+      expect(Math.max(...values)).toBeLessThanOrEqual(64);
+    }
+    expect(luminance(token(dark, '--color-raise'))).toBeGreaterThan(luminance(token(dark, '--color-bg')));
+    expect(luminance(token(dark, '--color-bg'))).toBeGreaterThan(luminance(token(dark, '--color-well')));
+  });
+  test('primary, secondary and quiet interface ink each clear 4.5:1 over the glass backdrops', () => {
+    // Moonlight's pane over white reaches ~95; Starlight's darkest sampled reading surface is
+    // #b8bbc1. Pixel verification additionally grades the real preview stages, both zooms.
+    for (const [name, bg] of [['moonlight', '#5f5f5f'], ['starlight', '#b8bbc1']]) {
+      for (const colour of ['ink', 'dim', 'faint']) expect(contrast(token(theme(name), `--color-${colour}`), rgb(bg))).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+});

@@ -2,42 +2,41 @@
 /**
  * Does text still clear WCAG AA on the glass?
  *
- * `styles.css` picks `--glass-veil: 0.62` from a contrast table measured by hand against macOS 26
- * Tahoe's vibrancy. macOS 27 Golden Gate changes that material AND gives the user a slider from
- * "ultra-clear" to "fully tinted" which apps inherit with no code change. The thinnest margin in
- * that table is 4.92:1 against a 4.5 floor — 9% of headroom — so "we measured it once" stops being
- * an answer the moment the material underneath us moves. Re-run this on 27, at both ends of the
- * slider.
+ * Measure the composited colours of the built design preview's real renderer components.
+ * Both themes, both window layouts and both zooms are required evidence. This browser fixture
+ * does not model native macOS vibrancy or every wallpaper; those need installed-app measurement.
  *
  * Two assertions, matching what styles.css actually commits to:
  *
  *   1. PRIMARY ink clears AA everywhere. That is the documented table.
- *   2. Under `prefers-contrast: more`, EVERYTHING clears AA — including the quiet text. styles.css
- *      says of `--color-dim`: "That is a *foreground* problem … and the Increase Contrast block
- *      near the end of this file is what answers it." This checks that the answer works.
- *
- * Quiet text below AA at baseline is reported, not failed: it is a deliberate choice, and (1)+(2)
- * are the properties that would actually be regressions.
+ *   2. EVERY readable label clears 4.5:1 at baseline and under Increase Contrast (UI fix list item
+ *      43 and the owner's handoff). Quiet type is still type; accessibility cannot require an
+ *      opt-in setting. Inactive controls remain excluded, as WCAG 1.4.3 excludes them.
  *
  *   node scripts/check-glass-contrast.mjs            # assert
  *   node scripts/check-glass-contrast.mjs --report   # print only, always exit 0
  */
-import { spawn } from 'node:child_process';
+import { spawn, execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { writeFileSync } from 'node:fs';
 
 const require = createRequire(import.meta.url);
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const AA = 4.5, AA_LARGE = 3.0;
+const AA = 4.5;
 const REPORT_ONLY = process.argv.includes('--report');
+const JSON_PATH = process.argv.find((arg) => arg.startsWith('--json='))?.slice(7);
 /* Every preview page that stages real surfaces. `#workbench` was added with the right panel's tab
    strip (2026-09-19): a new surface that this checker does not visit is a surface nobody measured,
    and the chips' quiet text sits on a raised veil over the pane's veil. `#transcript` (2026-09-30) is
    where a reply's code blocks are, with the editor's syntax colours. */
 const PAGES = ['http://localhost:5199/#shell', 'http://localhost:5199/#workbench', 'http://localhost:5199/#transcript'];
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+// Equivalent physical viewport at 100% and the owner's 120%: fewer CSS pixels, proportionally
+// more raster pixels. Sampling uses that exact DPR, so text and screenshot share coordinates.
+const ZOOMS = [1, 1.2];
 
 const srgb = (v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
 const lum = ([r, g, b]) => 0.2126 * srgb(r / 255) + 0.7152 * srgb(g / 255) + 0.0722 * srgb(b / 255);
@@ -57,11 +56,20 @@ const parse = (c) => {
   return c.startsWith('color(') ? n.map((v) => Math.round(v * 255)) : n;
 };
 
-const vite = spawn('npx', ['vite', '--config', 'design-preview/vite.config.ts', '--logLevel', 'silent'],
+const VITE = path.join(APP, 'node_modules/vite/bin/vite.js');
+try {
+  execFileSync(process.execPath, [VITE, 'build', '--config', 'design-preview/vite.config.ts', '--logLevel', 'silent'],
+    { cwd: APP, stdio: 'pipe' });
+} catch (error) {
+  console.error('INVALID: design-preview build failed', error.stderr?.toString() ?? error.message);
+  process.exit(2);
+}
+const vite = spawn(process.execPath, [VITE, 'preview', '--config', 'design-preview/vite.config.ts', '--port', '5199', '--strictPort'],
   { cwd: APP, stdio: 'ignore' });
 const stop = () => { try { vite.kill('SIGTERM'); } catch { /* already gone */ } };
 process.on('exit', stop);
 for (let i = 0; ; i++) {
+  if (vite.exitCode !== null) { console.error('INVALID: preview server exited'); process.exit(2); }
   try { if ((await fetch('http://localhost:5199')).ok) break; } catch { /* not up */ }
   if (i > 40) { console.error('design-preview did not start'); process.exit(2); }
   await new Promise((r) => setTimeout(r, 500));
@@ -74,7 +82,10 @@ const cdp = await page.createCDPSession();
 
 async function measure(features) {
   const rows = [];
-  for (const url of PAGES) rows.push(...await measurePage(features, url));
+  for (const zoom of ZOOMS) {
+    await page.setViewport({ width: Math.round(1400 / zoom), height: Math.round(900 / zoom), deviceScaleFactor: 2 * zoom });
+    for (const url of PAGES) rows.push(...(await measurePage(features, url)).map((r) => ({ ...r, zoom })));
+  }
   return rows;
 }
 
@@ -220,7 +231,7 @@ async function measurePage(features, url) {
       const d = ctx.getImageData(Math.round(x * dpr), Math.round(y * dpr), 1, 1).data;
       return [d[0], d[1], d[2]];
     });
-  }, shot, samples.flatMap((s) => s.grid), 2);
+  }, shot, samples.flatMap((s) => s.grid), page.viewport().deviceScaleFactor);
 
   let cursor = 0;
   return samples.map((s) => {
@@ -232,8 +243,7 @@ async function measurePage(features, url) {
     // assumption.
     const [r, g, b, alpha] = s.fg;
     const fg = [r, g, b].map((channel, i) => Math.round(channel * alpha + bg[i] * (1 - alpha)));
-    const large = s.size >= 18.66 || (s.size >= 14 && Number(s.weight) >= 700);
-    return { ...s, bg, ratio: contrast(fg, bg), floor: large ? AA_LARGE : AA };
+    return { ...s, page: new URL(url).hash, bg, ratio: contrast(fg, bg), floor: AA };
   }).filter((r) => r.fg[3] > 0.05);
 }
 
@@ -251,6 +261,17 @@ const primaryFails = base.filter((r) => r.primary && !r.code && r.ratio < r.floo
 const codeFails = base.filter((r) => r.code && r.ratio < r.floor).sort(byRatio);
 const quietFails = base.filter((r) => !r.primary && !r.code && r.ratio < r.floor).sort(byRatio);
 const moreFails = more.filter((r) => r.ratio < r.floor).sort(byRatio);
+// An absent theme/surface is missing evidence, never a pass. All three previews stage both
+// themes, windowed and expanded; code must be measured in each theme too.
+const missing = ZOOMS.flatMap((zoom) => PAGES.flatMap((url) => ['moonlight', 'starlight'].flatMap((theme) =>
+  ['windowed', 'expanded'].flatMap((chrome) =>
+    [base, more].some((rows) => !rows.some((r) => r.zoom === zoom && r.page === new URL(url).hash && r.theme === theme && r.chrome === chrome))
+      ? [`${zoom * 100}%/${new URL(url).hash}/${theme}/${chrome}`] : []))));
+for (const theme of ['moonlight', 'starlight']) if (!base.some((r) => r.code && r.theme === theme)) missing.push(`${theme}/code`);
+if (JSON_PATH) writeFileSync(JSON_PATH, JSON.stringify({
+  base: base.map(({ grid, ...row }) => row), more: more.map(({ grid, ...row }) => row), missing,
+}, null, 2) + '\n');
+if (missing.length) console.log(`MISSING EVIDENCE: ${missing.join(', ')}`);
 
 console.log(`\nglass contrast — ${base.length} text nodes over their composited surface\n`);
 console.log(`  [1] PRIMARY ink at baseline — ${primaryFails.length ? `${primaryFails.length} BELOW FLOOR` : 'all clear'}`);
@@ -275,11 +296,11 @@ if (gutter) console.log(`    line numbers: worst ${gutter.ratio.toFixed(2)}:1  $
 console.log(`\n  [2] EVERYTHING under prefers-contrast: more — ${moreFails.length ? `${moreFails.length} BELOW FLOOR` : 'all clear'}`);
 if (moreFails.length) show(moreFails);
 
-console.log(`\n  [i] quiet text below AA at baseline (deliberate; Increase Contrast is the remedy): ${quietFails.length}`);
-show(quietFails, 6);
+console.log(`\n  [4] QUIET text at baseline — ${quietFails.length ? `${quietFails.length} BELOW FLOOR` : 'all clear'}`);
+show(quietFails, 20);
 
 // No code at all is a failure too: the preview stages open files, so zero means the editor stopped rendering (or the
 // selector drifted) and the code went unmeasured while the check said nothing.
-const failed = primaryFails.length > 0 || moreFails.length > 0 || codeFails.length > 0 || code.length === 0;
+const failed = primaryFails.length > 0 || quietFails.length > 0 || moreFails.length > 0 || codeFails.length > 0 || missing.length > 0;
 if (failed && !REPORT_ONLY) { console.error('\n✗ contrast regression\n'); process.exit(1); }
-console.log(`\n✓ primary ink and every code token clear AA, and Increase Contrast rescues ${quietFails.length - moreFails.length} of ${quietFails.length} quiet nodes\n`);
+console.log(failed ? '\nContrast findings above (report only).\n' : '\n✓ every readable label and code token clears 4.5:1 in both themes and contrast modes\n');

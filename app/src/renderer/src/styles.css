@@ -53,10 +53,11 @@
      a real division is meant; no longer a white line around every box. */
   --color-line: #242424;
 
-  /* Ink */
+  /* Ink. Item 43: quiet labels also clear 4.5:1 over the composited glass at baseline.
+     Hierarchy comes from size and weight as well as luminance; Increase Contrast is an enhancement. */
   --color-ink: #f5f5f4;
-  --color-dim: #b8b8b5;
-  --color-faint: #7c7c78;
+  --color-dim: #e9e9e4;
+  --color-faint: #e0e0dc;
 
   /* Luminous evidence */
   --color-ember: #ededeb;
@@ -105,10 +106,9 @@
    absolute worst case, while 38% of the backdrop still comes through so it reads as glass and not
    as paint. Above ~0.68 the translucency stops being perceptible and this is just a tinted panel.
 
-   `--color-dim` still falls under AA over a white backdrop at any alpha short of ~0.78. That is a
-   *foreground* problem, not a veil one — secondary text on a translucent surface needs to be
-   darker, not the surface more opaque — and the Increase Contrast block near the end of this file
-   is what answers it for users who ask the system for it. */
+   That historical table measured primary ink only. Item 43 (2026-10-01) raises quiet ink in
+   Moonlight and darkens it in Starlight: baseline text must clear 4.5:1 too, without requiring
+   Increase Contrast. The veil density remains the owner's glass treatment. */
 .theme-moonlight {
   /* 0.40 -> 0.62. At 0.40 the panel transmitted 60% of whatever was behind the window, so its
      colour was not reproducible: measured against the owner's photographic wallpaper it composited
@@ -223,8 +223,8 @@
      a real division is meant; no longer a white line around every box. */
   --color-line: #242424;
   --color-ink: #f5f5f4;
-  --color-dim: #b8b8b5;
-  --color-faint: #7c7c78;
+  --color-dim: #e9e9e4;
+  --color-faint: #e0e0dc;
   --color-ember: #ededeb;
   --color-ember-bright: #ffffff;
   --color-ember-deep: #c8c8c4;
@@ -242,8 +242,8 @@
   --color-well: #f5f5f3;
   --color-line: #deded9;
   --color-ink: #111111;
-  --color-dim: #555552;
-  --color-faint: #8a8a85;
+  --color-dim: #3d3d3a;
+  --color-faint: #474743;
   --color-ember: #171717;
   --color-ember-bright: #000000;
   --color-ember-deep: #3d3d3a;
@@ -362,7 +362,7 @@
   --code-meta: #722952;
   --code-invalid: #80241a;
   --code-block: rgba(0, 0, 0, 0.035);
-  --code-gutter: #585854;
+  --code-gutter: #454541;
   --code-gutter-active: #262624;
   --code-gutter-rule: rgba(0, 0, 0, 0.07);
   --code-selection: rgba(0, 0, 0, 0.10);

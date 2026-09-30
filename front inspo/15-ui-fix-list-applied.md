@@ -430,6 +430,31 @@ was made between that full pass and this commit; each mutation was restored. No 
 user study is claimed. Product-reset 03/04, vision, 08 and the end-state/mutation rules in competitive/06 guided the
 check. Implemented, locally verified; not yet installed.
 
+## Batch 13 — items 25, 26, 43, quiet type that remains readable (2026-10-01)
+
+**Measured first:** the two themes already implement the owner's restrained silver accent and a near-black
+Moonlight canvas with lighter raised surfaces. Item 31's coral recipe remains deliberately not planned. The old
+contrast checker printed quiet-label failures without failing: **88 readable labels below 4.5:1**, worst 1.87:1;
+Starlight's editor gutter was 4.01:1. The nominal primary-ink pass did not establish readable supporting text.
+
+Quiet Moonlight inks are lighter, Starlight inks and its gutter darker. Glass densities, separate tonal ladders and
+syntax colours remain intact. The checker now builds the preview, measures every readable label against the
+composited screenshot at **100% and 120%**, and requires all three real-component surfaces (shell, workbench,
+transcript), both themes, windowed/expanded chrome and baseline/Increase Contrast. Missing evidence is a failure.
+The development dependency is puppeteer-core; it uses the existing Chrome, without downloading another browser.
+
+**Result:** 1,030 baseline text samples, including 598 code tokens, all clear 4.5:1. The weakest gutter is 4.66:1;
+code minima are 5.12:1 Moonlight and 5.32:1 Starlight. Increase Contrast passes too. Files, terminal, review, source
+and real chat content are staged, rather than a palette-only swatch comparison.
+
+**Verification that ran:** 4/4 unit breakages (both faint inks, colourful semantic accent, pure-black canvas) and
+3/3 compiled-preview breakages (old quiet inks, old gutter, missing Starlight stage) caught in valid runs. Evidence
+is under `evidence/2026-10-01/batch13-*`. App typecheck, full **116 suites / 1053 tests**, morph's 32 flights,
+hit targets at both zooms, motion tokens and design-preview build pass; editor glass stays green. Product-reset
+03/04, vision, 08, competitive/06 and the provided Frontend Feel Engineering field guide guided this change.
+Implemented and locally measured; native vibrancy over the full wallpaper range and fresh-Mac release gates remain
+unmeasured. No broad competitive or visual-comfort claim. Not yet installed.
+
 ## Still open
 
 | # | Item |
