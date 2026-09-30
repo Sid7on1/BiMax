@@ -197,6 +197,25 @@ export class LoopDetector {
     return null;
   }
 
+  /**
+   * Two strikes for arguments rejected before anything ran — invalid JSON, a schema violation, a tool's own
+   * `invalid_args`. Those depend on the arguments alone, so identical arguments are rejected identically again: a
+   * third attempt is refused without running. Measured 2026-10-01: gpt-oss-20b sent one broken DocumentTool call six
+   * times, three of them byte-identical, while the soft warnings above fired and changed nothing. A call that RAN and
+   * failed (a test run between edits) is never refused here — the world may have changed between identical calls.
+   */
+  private rejections = new Map<string, number>();
+
+  noteRejected(toolName: string, argsJson: string): void {
+    const key = sha256Short(toolName + ':' + argsJson);
+    this.rejections.set(key, (this.rejections.get(key) ?? 0) + 1);
+  }
+
+  /** How many times these exact arguments were already rejected before running. */
+  rejectedCount(toolName: string, argsJson: string): number {
+    return this.rejections.get(sha256Short(toolName + ':' + argsJson)) ?? 0;
+  }
+
   getSoftThreshold(): number { return SOFT_THRESHOLD; }
   getHardThreshold(): number { return HARD_THRESHOLD; }
 
@@ -207,5 +226,6 @@ export class LoopDetector {
     this.lastPingPongAt = -Infinity;
     this.lastErrorThrashAt = -Infinity;
     this.lastErrorThrashSeverity = null;
+    this.rejections.clear();
   }
 }

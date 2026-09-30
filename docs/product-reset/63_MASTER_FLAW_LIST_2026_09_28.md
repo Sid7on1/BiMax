@@ -97,6 +97,23 @@ the three has been exercised by hand in the installed app yet.
 | An open file was "the black again" in the glass window; code in the chat was "just white text"; the composer's Brief was not wanted | The editor painted its own `#0d0d0d` with colours hardcoded for it in both themes (a black block in Starlight); chat syntax classes were mapped to greys by design | The editor is transparent on the pane's glass with per-theme `--code-*` colours, which chat code blocks share; the Brief panel and its draft fields are removed. `check:glass-contrast` now measures code (it skipped the editor) and holds every token to AA: 299 clear, worst 5.24:1 / 5.32:1. Installed the same day, window in 4 s | `b77292a` |
 | The right panel's enlarge "just moves the panel a little wider" | It resized within the panel limits (conversation ≥ 34%, panel ≤ 65%) | Enlarged, the conversation leaves the flow in CSS (still mounted) and the panel fills everything up to the sidebar; restoring gives back the exact widths. Measured with the real panel library: 407 → 983 px beside a 216 px sidebar, restored to 216/575/407. Installed the same day | `a5fbba3` |
 
+**Owner report, 2026-10-01 — "make a ppt" failed six times.** A ⌘2 task on `gpt-oss-20b` (Work and Quick) sent one
+deck to DocumentTool six times; every call was refused as invalid JSON and the turn was interrupted.
+
+| Cause (measured on the saved conversation) | Fix |
+|---|---|
+| Each call was valid JSON up to its final run of closing brackets, which was wrong every time (`]]}]}]}`, `]]]}}}` where the structure needed `]]}}]}}`) | `tool.args.ts` rebuilds that run from the containers actually open — only after a complete value, never for a call cut off at the token limit. All six saved calls now parse; with a deck title added (the model had left `spec.title` out, which the tool now says in one line) each builds a 6-slide `.pptx` |
+| The error echoed ~2 KB of arguments back and said nothing about where | `describeJsonError`: the character, what is wrong, which containers are open (`{…} › "spec" {…} › "slides" […]`), and the text around it |
+| Three attempts were byte-identical; the loop guard only warned | Two strikes: arguments rejected before running (bad JSON, schema, a tool's `invalid_args`) twice are refused the third time without running. A call that ran and failed — a test after an edit — is never refused |
+| `spec` was declared only as `object` | A nested schema mirroring `DocumentSpec`, so a wrong field is named by path (`spec.slides[1].table.rows`); `spec.title` stays unrequired because append/replace send blocks alone |
+| A deck request had no rule sending it to the Work model | `heuristicTier`: a making verb plus deck/PDF/Word/Excel routes heavy. **No effect on this Mac's config** — Work and Quick are both `gpt-oss-20b`; a stronger model for documents needs a model choice from the owner |
+
+Found on the way: the older "draft followed by its correction" repair took an inner object for the whole call — a deck
+cut off after its table would have run as `{"columns":…,"rows":…}`. It now requires a complete draft. Tests:
+`document.args.repair.test.ts` (21, incl. four through the real `AgentLoop`); six mutants, all killed. Engine typecheck
+clean; engine suite 410 suites, 3,787 tests pass (one PDF-extraction suite timed out under load and passes alone).
+Not yet exercised in the installed app with a live model.
+
 ## Open
 
 - **C13, C17, C18 god files** — `main/index.ts` continues (the Bimax Threads channels, voice/talk, tray, notch remain);

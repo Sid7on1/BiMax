@@ -28,6 +28,87 @@ const NEEDS: Record<Format, 'blocks' | 'slides' | 'sheets'> = {
   docx: 'blocks', pdf: 'blocks', pptx: 'slides', xlsx: 'sheets',
 };
 
+/*
+ * The shape of `spec`, nested. It was `{ type: 'object' }`, so the model saw no structure except in prose and a
+ * provider with constrained decoding had nothing to constrain; the validator could only say "not an object". Nested,
+ * a wrong field is named by path (`spec.slides[3].table.rows`). It mirrors `DocumentSpec` in src/documents/design.ts;
+ * `validateSpec` still owns the rules a schema cannot say (one body per slide, row length = column count).
+ * `spec.title` is not required here: append and replace send blocks alone.
+ */
+const TEXT = { type: 'string' } as const;
+const TEXTS = { type: 'array', items: TEXT } as const;
+const CELL = { type: ['string', 'number'] } as const;
+const TABLE_ROWS = { type: 'array', items: { type: 'array', items: CELL }, description: 'Each row has one cell per column' } as const;
+const CHART_FIELDS = {
+  chart: { type: 'string', enum: ['bar', 'line', 'pie'] },
+  labels: TEXTS,
+  series: {
+    type: 'array',
+    items: { type: 'object', properties: { name: TEXT, values: { type: 'array', items: { type: 'number' } } }, required: ['name', 'values'] },
+  },
+  caption: TEXT,
+} as const;
+const IMAGE = { type: 'object', properties: { path: TEXT, caption: TEXT }, required: ['path'] } as const;
+const SPEC_SCHEMA = {
+  type: 'object',
+  description: 'Document content (see the description). docx/pdf use blocks, pptx uses slides, xlsx uses sheets.',
+  properties: {
+    title: TEXT, subtitle: TEXT, author: TEXT, date: TEXT,
+    blocks: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          kind: { type: 'string', enum: ['heading', 'paragraph', 'bullets', 'numbered', 'keyvalue', 'table', 'image', 'chart', 'quote', 'code', 'divider', 'pagebreak'] },
+          level: { type: 'integer', enum: [1, 2, 3] },
+          text: TEXT,
+          items: TEXTS,
+          pairs: { type: 'array', items: { type: 'object', properties: { label: TEXT, value: TEXT }, required: ['label', 'value'] } },
+          columns: TEXTS,
+          rows: TABLE_ROWS,
+          path: TEXT,
+          width: { type: 'number', minimum: 0, maximum: 1 },
+          attribution: TEXT,
+          language: TEXT,
+          ...CHART_FIELDS,
+        },
+        required: ['kind'],
+      },
+    },
+    slides: {
+      type: 'array',
+      items: {
+        type: 'object',
+        description: 'One claim per slide, and exactly one body: bullets, statement, table, image or chart',
+        properties: {
+          title: TEXT,
+          bullets: TEXTS,
+          statement: TEXT,
+          table: { type: 'object', properties: { columns: TEXTS, rows: TABLE_ROWS }, required: ['columns', 'rows'] },
+          image: IMAGE,
+          chart: { type: 'object', properties: CHART_FIELDS, required: ['chart', 'labels', 'series'] },
+          notes: TEXT,
+        },
+        required: ['title'],
+      },
+    },
+    sheets: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          name: TEXT,
+          columns: TEXTS,
+          rows: { type: 'array', items: { type: 'array', items: { type: ['string', 'number', 'null'] } } },
+          formats: { type: 'object', description: 'Column index → number format, e.g. {"2":"#,##0.00"}' },
+          totals: { type: 'array', items: { type: 'integer', minimum: 0 } },
+        },
+        required: ['name', 'columns', 'rows'],
+      },
+    },
+  },
+} as const;
+
 export function createDocumentTool(governor: IGovernor) {
   const drafts = new Map<string, { spec: DocumentSpec; expectedWords?: number; hashes: Set<string> }>();
   return buildTool({
@@ -91,7 +172,7 @@ formulas, not typed-in values.
         blockIndex: { type: 'integer', minimum: 0 },
         format: { type: 'string', enum: [...FORMATS], description: 'docx | pdf | pptx | xlsx' },
         path: { type: 'string', description: 'Project-relative output path, extension matching format' },
-        spec: { type: 'object', description: 'Document content (see the description)' },
+        spec: SPEC_SCHEMA,
       },
       required: ['format', 'path'],
     },

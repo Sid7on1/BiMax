@@ -54,6 +54,10 @@ const CHATTY = /^(hi|hey+|hello|yo|sup|howdy|thanks|thank you|thx|ty|ok|okay|k|c
 // Obvious coding-work signals: an imperative "change/build code" verb, or unambiguous code context
 // (a fenced block, a stack trace). These route straight to HEAVY with no further analysis.
 const HEAVY_VERB = /\b(implement|refactor|debug|rewrite|redesign|optimi[sz]e|migrate|integrate|diagnose|troubleshoot|build (?:a|the|out|me)\b|write (?:a|the|some|me)? ?(?:code|tests?|script|function|class|module|component)\b|fix (?:the|this|that|a|my)? ?(?:bug|tests?|error|crash|issue|build|types?)\b|add (?:a|the)? ?(?:support|tests?|feature|endpoint|command|flag)\b|create (?:a|the)? ?(?:file|class|function|module|component|script|tests?)\b)/i;
+// A deliverable FILE — a deck, PDF, Word or Excel document — is one long nested DocumentTool call. The quick model
+// breaks exactly that: measured 2026-10-01, gpt-oss-20b misclosed a 1.9 KB slide spec six times. Route it to the Work
+// model. Needs a making verb, so "what is a pdf" stays where it was.
+const DOCUMENT_DELIVERABLE = /\b(?:make|create|build|generate|produce|write|prepare|draft|design|export|turn\b[^.?!\n]{0,60}\binto|convert\b[^.?!\n]{0,60}\b(?:to|into))\b[^.?!\n]{0,80}?\b(?:ppt|pptx|power ?point|slide ?deck|deck|slides|presentation|pdf|docx|word (?:doc|document|file)|excel|xlsx|spreadsheet)\b/i;
 const CODE_CONTEXT = /```|\bTraceback \(most recent call last\)|\n\s+at [\w$.<[\]]+ \([^)]*:\d+:\d+\)/;
 // Browser operation loops (observe → act → verify) need the capable work model;
 // on the quick model flails — observed live: it denied having the tools, then described tool JSON
@@ -71,7 +75,7 @@ export function heuristicTier(prompt: string): Tier | null {
   if (p.length <= 40 && CHATTY.test(p)) return 'lite';
   // Unmistakable coding work → heavy, no model call. Long prompts with code fences or stack
   // traces are equally unambiguous — and so is driving the browser.
-  if (HEAVY_VERB.test(p) || CODE_CONTEXT.test(p) || BROWSER_OPERATION_CONTEXT.test(p)) return 'heavy';
+  if (HEAVY_VERB.test(p) || CODE_CONTEXT.test(p) || BROWSER_OPERATION_CONTEXT.test(p) || DOCUMENT_DELIVERABLE.test(p)) return 'heavy';
   if (p.length > 600) return 'heavy'; // a request this detailed is never small talk
   return null;
 }

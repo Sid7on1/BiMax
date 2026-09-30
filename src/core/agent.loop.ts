@@ -797,14 +797,15 @@ export class AgentLoop {
       // tool-tuned models often emit the right rough call with one broken quote. Previously the
       // constraint compilers saw invalid JSON and had to leave it untouched; the generic repair
       // ran afterwards, producing a valid but unconstrained coordinate click.
-      const emitted = canonicalToolArgs(tc.args);
+      // A call cut off at the output-token limit is never bracket-closed: that would run half of it as if it were whole.
+      const emitted = canonicalToolArgs(tc.args, { closeBrackets: !tc.truncated });
       if (emitted?.repaired) {
         Logger.warn(`[AgentLoop] Repaired malformed ${tc.name} argument JSON before execution.`);
         tc.args = emitted.json;
       }
       if (tc.name === 'WriteFileTool') tc.args = applyImplicitWriteConstraints(tc.args, this.messages);
       if (tc.name === 'DocumentTool') tc.args = applyImplicitDocumentConstraints(tc.args, this.messages);
-      const canonical = canonicalToolArgs(tc.args);
+      const canonical = canonicalToolArgs(tc.args, { closeBrackets: !tc.truncated });
       if (canonical?.repaired) {
         Logger.warn(`[AgentLoop] Repaired malformed ${tc.name} argument JSON before execution.`);
         tc.args = canonical.json;

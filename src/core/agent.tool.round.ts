@@ -12,7 +12,7 @@ import { isReplayActive } from '../mind/episode.recorder';
 import { getTracer } from '../telemetry/trace';
 import { type ScreenshotObservationContext, screenshotFromToolResult, buildScreenshotObservation, appendScreenshotObservation, pruneScreenshotObservations } from './multimodal';
 import { checkToolArgs, argsViolationMessage } from '../tools/args.validate';
-import { canonicalToolArgs } from './tool.args';
+import { canonicalToolArgs, describeJsonError, type CanonicalToolArgsOptions } from './tool.args';
 import { planToolBatches, runWithConcurrencyLimit, maxParallelToolCalls } from './tool.schedule';
 import { LoopDetector, LoopSignal } from './loop-detector';
 import { observeToolOutcome } from './tool.outcome.observers';
@@ -79,8 +79,8 @@ export function terminalCapabilityBlocker(result: string): string | null {
  * would otherwise 400 every subsequent turn ("Unterminated string … char 10") until the user /clears.
  * Valid args are re-stringified canonically; anything unparseable becomes `{}`.
  */
-export function sanitizeToolArgs(raw: any): string {
-  return canonicalToolArgs(raw)?.json || '{}';
+export function sanitizeToolArgs(raw: any, options?: CanonicalToolArgsOptions): string {
+  return canonicalToolArgs(raw, options)?.json || '{}';
 }
 
 /**
@@ -91,7 +91,8 @@ export function sanitizeToolArgs(raw: any): string {
 async function executeToolCall(
   host: ToolRoundHost, st: RunState, tc: { id: string, name: string, args: string, truncated?: boolean }, options: AgentLoopOptions | undefined,
   context: any, signal: AbortSignal | undefined, rootSpan: ReturnType<ReturnType<typeof getTracer>['startSpan']>,
-): Promise<{ id: string; result: string; isError: boolean }> {
+  strike: string | null = null,
+): Promise<{ id: string; result: string; isError: boolean; rejected?: boolean }> {
   const tracer = getTracer();
   if (options?.requireTool && tc.name === options.requireTool) {
     st.requiredToolUsed = true;
@@ -154,6 +155,8 @@ async function executeToolCall(
   };
 
   let argsObj: any;
+  // Refused without running: these exact arguments were already rejected twice (LoopDetector.noteRejected).
+  if (strike) return { ...finish(strike, true), rejected: true };
   try {
     argsObj = JSON.parse(tc.args || '{}');
   } catch (e) {
@@ -161,15 +164,17 @@ async function executeToolCall(
     // of them. A call cut off at the output-token ceiling is OUR limit being reached — the
     // model did nothing wrong and re-emitting the same call verbatim would fail again;
     // splitting the work is what helps. Genuinely malformed JSON is a re-emit.
-    return finish(
+    return { ...finish(
       tc.truncated
         ? `Tool call was cut off at the output-token limit, so its arguments are incomplete JSON `
           + `(received ${(tc.args || '').length} characters). Nothing was executed. Re-issue it as a `
           + `smaller call — fewer arguments, or the work split across several calls.`
-        : `Failed to parse arguments as JSON, so nothing was executed. Re-issue the call with `
-          + `valid JSON. Received: ${tc.args}`,
+        // Where, not the whole string back: echoing 2 KB of arguments told a weak model nothing it could fix, and it
+        // resent the same call five times (2026-10-01).
+        : `Failed to parse arguments as JSON, so nothing was executed.\n${describeJsonError(tc.args || '')}\n`
+          + `Fix that spot and re-issue the whole call.`,
       true,
-    );
+    ), rejected: true };
   }
 
   const tool = host.tools.getTool(tc.name);
@@ -185,7 +190,7 @@ async function executeToolCall(
   const check = checkToolArgs(tool.schema, argsObj);
   if (check.violations.length > 0) {
     Logger.warn(`[AgentLoop] ${tc.name} rejected before execution: ${check.violations.join('; ')}`);
-    return finish(argsViolationMessage(tc.name, check.violations), true);
+    return { ...finish(argsViolationMessage(tc.name, check.violations), true), rejected: true };
   }
   if (check.coercions.length > 0) {
     Logger.warn(`[AgentLoop] Coerced ${tc.name} arguments: ${check.coercions.join('; ')}`);
@@ -213,11 +218,21 @@ async function executeToolCall(
     recordUsage('tool', tool.name);
     const result = await tool.execute(argsObj, toolContext);
     const resultStr = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
-    return finish(resultStr, !!typed && typed.status !== 'ok', typed);
+    // A tool's own `invalid_args` refuses the arguments before doing anything, so it is a rejection like the two above.
+    return { ...finish(resultStr, !!typed && typed.status !== 'ok', typed), rejected: typed?.errorClass === 'invalid_args' };
   } catch (e: any) {
     const text = `Tool Error: ${e.message}`;
     return finish(text, true, typedFromError(e, text));
   }
+}
+
+/** The two-strike refusal (`LoopDetector.noteRejected`), or null while these arguments have strikes left. */
+export function repeatRejection(toolName: string, rejections: number): string | null {
+  if (rejections < 2) return null;
+  return `${toolName} was NOT run: these exact arguments were already rejected ${rejections} times before running, `
+    + `for a reason that depends on the arguments alone, so they would be rejected again. Read the error on the earlier `
+    + `attempt and change the arguments at the place it names, or take a different approach. If you cannot, tell the `
+    + `user what is blocking you.`;
 }
 
 /**
@@ -310,7 +325,7 @@ export async function runToolRound(
       // EVERY later request — providers re-validate the arguments string as JSON and reject the
       // whole call ("Unterminated string … char 10"), so the session wedges until /clear. Coerce
       // to canonical JSON, falling back to `{}` so a bad emission can never corrupt the history.
-      function: { name: tc.name, arguments: sanitizeToolArgs(tc.args) },
+      function: { name: tc.name, arguments: sanitizeToolArgs(tc.args, { closeBrackets: !tc.truncated }) },
       // Echo provider data that belongs to the call (Gemini 3's thought signature): the
       // provider refuses the next tool round without it. See ToolCallSlot.extra.
       ...(tc.extra !== undefined ? { extra_content: tc.extra } : {}),
@@ -351,10 +366,15 @@ export async function runToolRound(
     // Calls already dispatched inside a batch are DRAINED rather than abandoned — an
     // interrupt stops replenishment, and every un-run call still gets an explicit stub below.
     const settled = await runWithConcurrencyLimit(
-      batch.calls, limit, tc => executeToolCall(host, st, tc, options, context, signal, rootSpan), () => signal?.aborted === true,
+      batch.calls, limit,
+      tc => executeToolCall(host, st, tc, options, context, signal, rootSpan, repeatRejection(tc.name, loopDetector.rejectedCount(tc.name, tc.args))),
+      () => signal?.aborted === true,
     );
     for (const res of settled) {
-      if (res) resultById.set(res.id, { result: res.result, isError: res.isError });
+      if (!res) continue;
+      resultById.set(res.id, { result: res.result, isError: res.isError });
+      const call = batch.calls.find((c) => c.id === res.id);
+      if (res.rejected && call) loopDetector.noteRejected(call.name, call.args);
     }
     if (signal?.aborted) { interrupted = true; break; }
   }
