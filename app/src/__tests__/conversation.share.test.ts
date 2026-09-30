@@ -48,16 +48,26 @@ beforeAll(() => {
 afterAll(() => fs.rmSync(tmp, { recursive: true, force: true }));
 beforeEach(() => { jest.clearAllMocks(); notes.length = 0; shareFiles.length = 0; });
 
-const click = async (label: string, load: Parameters<typeof exportMenuItems>[0]) => {
+/**
+ * Click a menu item and wait for the work it starts to reach `settled`. A menu click cannot hand back its promise, and a
+ * fixed 20ms wait lost the race under load (measured: 1 run in 3 alone) — the file was read before it was written, and
+ * the export's note landed in the NEXT test.
+ */
+const click = async (label: string, load: Parameters<typeof exportMenuItems>[0], settled: () => boolean) => {
   const item = exportMenuItems(load).find((i) => i.label === label)!;
   (item.click as () => void)();
-  await new Promise((resolve) => setTimeout(resolve, 20));
+  for (const start = Date.now(); !settled() && Date.now() - start < 3000;) await new Promise((resolve) => setTimeout(resolve, 5));
+};
+/** The save dialog has answered, and the turn that acts on its answer has run. */
+const dialogAnswered = async () => {
+  await showSaveDialog.mock.results[0]?.value;
+  await new Promise((resolve) => setTimeout(resolve, 5));
 };
 
 test('Export as Markdown writes the conversation where the person chose, notes it in the thread, and shows it', async () => {
   const chosen = path.join(tmp, 'documents', 'parser.md');
   showSaveDialog.mockResolvedValue({ canceled: false, filePath: chosen });
-  await click('Export as Markdown…', () => threadConversation('t1'));
+  await click('Export as Markdown…', () => threadConversation('t1'), () => showItemInFolder.mock.calls.length > 0);
 
   expect(showSaveDialog).toHaveBeenCalledWith(parent, expect.objectContaining({ title: 'Export conversation' }));
   const text = fs.readFileSync(chosen, 'utf8');
@@ -69,13 +79,14 @@ test('Export as Markdown writes the conversation where the person chose, notes i
 
 test('a cancelled save writes nothing and adds no note', async () => {
   showSaveDialog.mockResolvedValue({ canceled: true });
-  await click('Export as Markdown…', () => threadConversation('t1'));
+  await click('Export as Markdown…', () => threadConversation('t1'), () => showSaveDialog.mock.calls.length > 0);
+  await dialogAnswered();
   expect(notes).toEqual([]);
   expect(showItemInFolder).not.toHaveBeenCalled();
 });
 
 test('Share hands the share sheet a Markdown file of the conversation, over the right window', async () => {
-  await click('Share…', () => threadConversation('t1'));
+  await click('Share…', () => threadConversation('t1'), () => popup.mock.calls.length > 0);
   expect(shareFiles).toHaveLength(1);
   const [file] = shareFiles[0]!;
   expect(path.dirname(file!)).toBe(path.join(tmp, 'temp', 'bimax-share'));
@@ -85,7 +96,7 @@ test('Share hands the share sheet a Markdown file of the conversation, over the 
 
 test('an id that is not a saved session is refused with a message, not a crash', async () => {
   await expect(sessionConversation('../../etc/passwd')).rejects.toThrow('That is not a saved session.');
-  await click('Export as Markdown…', () => sessionConversation('../../etc/passwd'));
+  await click('Export as Markdown…', () => sessionConversation('../../etc/passwd'), () => showMessageBox.mock.calls.length > 0);
   expect(showMessageBox).toHaveBeenCalledWith(expect.objectContaining({ message: 'Bimax could not export this conversation' }));
   expect(showSaveDialog).not.toHaveBeenCalled();
 });
