@@ -145,7 +145,6 @@ export function SettingsDialog({
           {PAGES.map((entry) => (
             <button key={entry.id} onClick={() => { setPage(entry.id); setSearch(''); }} className={cn('settings-nav-item pressable', !q && page === entry.id && 'settings-nav-item--active')}>
               <span>{entry.icon}</span><span className="min-w-0 flex-1 truncate">{entry.label}</span>
-              {(entry.id === 'environment' || entry.id === 'alchemist') ? <span className="size-1.5 rounded-full bg-moss" /> : null}
             </button>
           ))}
           <div className="mt-auto pt-4">

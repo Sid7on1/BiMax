@@ -552,3 +552,15 @@ describe('items 27, 32, 36 — the motion ladder', () => {
     expect(read('app/src/renderer/src/components/ui/morph/paint.ts')).toContain("surface.toggleAttribute?.('data-reduced', frame.reduced);");
   });
 });
+
+describe('item 42 — never status by colour alone', () => {
+  test('every attention dot says so in words, to a screen reader and on hover', () => {
+    const inspector = read('app/src/renderer/src/components/Inspector.tsx');
+    expect(inspector.match(/rounded-full bg-amber" role="img" aria-label="Needs attention" title="Needs attention"/g)).toHaveLength(2);
+    const sidebar = read('app/src/renderer/src/components/TaskSidebar.tsx');
+    expect(sidebar).toMatch(/role="img"\s+aria-label="needs attention"\s+title="Needs attention"/);
+  });
+  test('no dot that is always on and means nothing', () => {
+    expect(read('app/src/renderer/src/components/SettingsDialog.tsx')).not.toContain("(entry.id === 'environment' || entry.id === 'alchemist') ? <span");
+  });
+});

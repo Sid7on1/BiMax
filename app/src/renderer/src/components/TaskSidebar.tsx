@@ -417,7 +417,9 @@ function NavRow({ item }: { item: NavItem }): React.ReactElement {
       <span className="min-w-0 flex-1 truncate">{item.label}</span>
       {item.marked && (
         <span
+          role="img"
           aria-label="needs attention"
+          title="Needs attention"
           className="size-1.5 shrink-0 rounded-full bg-ember shadow-[0_0_6px_var(--color-ember)]"
         />
       )}

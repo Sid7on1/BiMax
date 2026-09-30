@@ -96,7 +96,7 @@ function PickerTrigger({
       <span className={cn('shrink-0', open ? 'text-ember' : 'text-faint')}>{icon}</span>
       <span className={cn('truncate text-[12.5px] font-medium', mono && 'font-mono text-[11.5px]')}>{label}</span>
       {count !== null && count !== undefined ? <span className="evidence-count shrink-0">{count}</span> : null}
-      {attention ? <span className="size-1.5 shrink-0 rounded-full bg-amber" aria-label="Needs attention" /> : null}
+      {attention ? <span className="size-1.5 shrink-0 rounded-full bg-amber" role="img" aria-label="Needs attention" title="Needs attention" /> : null}
       {dirty ? <Circle size={7} fill="currentColor" className="shrink-0 text-ember" aria-label="Unsaved changes" /> : null}
       <ChevronDown size={11} className={cn('shrink-0 transition-transform', open ? 'rotate-180 text-ember' : 'text-faint')} />
     </span>
@@ -350,7 +350,7 @@ export function Inspector({
                   desc={tab.available ? LANE_DESC[tab.id] : tab.emptyReason}
                   trailing={
                     tab.count !== null ? <span className="evidence-count">{tab.count}</span>
-                      : tab.attention ? <span className="block size-1.5 rounded-full bg-amber" /> : null
+                      : tab.attention ? <span className="block size-1.5 rounded-full bg-amber" role="img" aria-label="Needs attention" title="Needs attention" /> : null
                   }
                   onClick={() => { chooseLane(tab.id); close(); }}
                 />

@@ -409,6 +409,27 @@ BIMAX_MAC_BUDDY_PRODUCT_VISION, 08_ACCEPTANCE_GATES, competitive/06_HEAD_TO_HEAD
 This is Implemented and locally measured renderer motion. Native installed-GPU feel and fresh-Mac/public release
 qualification remain unmeasured; no competitor win or reactivation of Computer Use is claimed. Not yet installed.
 
+
+## Batch 12 — item 42, attention has a name (2026-10-01)
+
+**Measured first:** Review, GitHub, tool rows and the run ending already pair their status with words or distinct
+icons; file changes have +/− and change letters. The two right-panel attention dots had no consistent hover name,
+and the sidebar's dot lacked one too. Settings' Environment and ML Alchemist dots were always on and represented no
+state at all. The interrupted working tree already contained the fixes; they were verified rather than rewritten.
+
+Attention now has an accessible image role, a name and a hover explanation in both navigation surfaces. The
+meaningless Settings dots are gone. These changes touch attributes and remove decorative marks, without adding
+animation or changing control geometry. Semantic interface colours remain the owner's silver hierarchy; code syntax
+still carries its own colours (item 31 remains deliberately not planned).
+
+**Verification that ran:** 3/3 deliberate breakages caught (right-panel names, sidebar hover explanation, Settings'
+meaningless dots restored), saved as `evidence/2026-10-01/batch12-attention-mutants.json`. The full gates immediately
+preceding this commit exercised this exact production code and tests: app typecheck; 116 suites / 1050 tests;
+32 morph flights and hit targets at 100% and 120%; motion-token check and design-preview build. No production change
+was made between that full pass and this commit; each mutation was restored. No visual-comprehension or screen-reader
+user study is claimed. Product-reset 03/04, vision, 08 and the end-state/mutation rules in competitive/06 guided the
+check. Implemented, locally verified; not yet installed.
+
 ## Still open
 
 | # | Item |
