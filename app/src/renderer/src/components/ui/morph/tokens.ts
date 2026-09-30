@@ -31,7 +31,20 @@ export interface MotionToken {
   spring: SpringSpec;
   /** Where in the flight content starts and finishes appearing, as geometric progress 0..1. */
   reveal: { start: number; end: number };
+  /** The fastest any part of the surface may move, px/s (`limitSpeed`). Only the menus carry one. */
+  speedLimit?: number;
 }
+
+/**
+ * The menus' speed limit: 7000 px/s, 117px per 60Hz frame.
+ *
+ * A surface that jumps too far between two frames stops reading as one object moving and reads as
+ * two, which is why the controller's tests forbid a 120px step. Stiffness alone cannot keep that: a
+ * spring's peak speed is span × ω × `peakSpeedFactor(ζ)`, so the spring that opens a menu beside its
+ * button in 240ms (UI fix list item 16) would strobe on a flight across the window — measured 145px
+ * in one frame. The limit slows only a flight long enough to break it, by exactly as much as it must.
+ */
+const MENU_SPEED_LIMIT = 7000;
 
 /**
  * The one place a spring is chosen.
@@ -48,8 +61,21 @@ export const MOTION = {
   /** A selection indicator moving between rows. */
   selectionMove: { spring: { stiffness: 620, ratio: 0.85 }, reveal: { start: 0, end: 1 } },
 
-  /** Model picker, branch chooser, quick tools. The most frequent morph, so the briefest. */
-  seedPopover: { spring: { stiffness: 520, ratio: 0.82 }, reveal: { start: 0.42, end: 0.80 } },
+  /**
+   * Model picker, branch chooser, quick tools. The most frequent morph, so the briefest.
+   *
+   * 2026-09-30 (UI fix list item 16, "menus are slow"): the overshoot was never the problem — ζ 0.82
+   * peaks under 1% — the time was. Measured to within 1px of the destination, a 110×30 chip opening:
+   *
+   *   stiffness   340×420 picker   220×160 menu
+   *     520          380ms            291ms      (was)
+   *    1100          261ms            200ms
+   *    1300          240ms            184ms      ← the list's ~200–240ms
+   *    1500          223ms            171ms
+   *
+   * ζ is unchanged, so the character — momentum resolved in a pixel or two — is the same one.
+   */
+  seedPopover: { spring: { stiffness: 1300, ratio: 0.82 }, reveal: { start: 0.42, end: 0.80 }, speedLimit: MENU_SPEED_LIMIT },
   /** A sheet or floating panel. */
   seedPanel: { spring: { stiffness: 420, ratio: 0.84 }, reveal: { start: 0.45, end: 0.85 } },
   /**
@@ -69,8 +95,21 @@ export const MOTION = {
 
   /** A surface with no honest seed (⌘K). It does not fly; it arrives. */
   materialize: { spring: { stiffness: 460, ratio: 0.95 }, reveal: { start: 0.25, end: 0.65 } },
-  /** Every close. */
+  /** Every close but a menu's. */
   dismiss: { spring: { stiffness: 700, ratio: 1.0 }, reveal: { start: 0, end: 0.30 } },
+  /**
+   * A menu closing. Once `seedPopover` opens in ~240ms, the shared `dismiss` (~300ms on a picker)
+   * would fold a menu away SLOWER than it arrived — the UI reluctant to let go. The list's item 36
+   * asks for an exit at about three quarters of the entrance; on a picker the speed limit is what
+   * stops short of that. Measured, picker open at k 1300 (242ms):
+   *
+   *   close k 1300 → 225ms    k 1800 → 208ms    k 2200 → 208ms (the speed limit binds at ~k 1840)
+   *
+   * A small menu is not limited and folds faster still. Still critically damped, for the reason
+   * `dismiss` gives. A menu closed early (10–30% open) keeps growing for a frame before it turns;
+   * closed at 70% it turns at once — as it did at the old k 520 / 700, because by then it is slowing.
+   */
+  dismissPopover: { spring: { stiffness: 1800, ratio: 1.0 }, reveal: { start: 0, end: 0.30 }, speedLimit: MENU_SPEED_LIMIT },
 
   /**
    * Reduce Motion. Not "no motion" — Prompt 2 §32 asks for the continuity to survive.
@@ -102,6 +141,11 @@ export function tokenForKind(kind: DestinationKind): MotionToken {
     case 'workspaceSurface':
       return MOTION.seedPanel;
   }
+}
+
+/** Which token a destination kind closes with: a menu's own, faster fold, or the shared one. */
+export function dismissForKind(kind: DestinationKind): MotionToken {
+  return kind === 'popover' || kind === 'toolbarExpansion' ? MOTION.dismissPopover : MOTION.dismiss;
 }
 
 /* ------------------------------------------------------------ size grading */
@@ -152,6 +196,33 @@ export function gradeSpring(spec: SpringSpec, diagonal: number, distance = 0): S
     ratio: Math.min(1, spec.ratio + (1 - spec.ratio) * size * SIZE_DAMPING),
     mass: spec.mass,
   };
+}
+
+/**
+ * A graded spring, slowed if this flight would break `maxSpeed` (see `MENU_SPEED_LIMIT`).
+ *
+ * `span` is the whole flight — seed ↔ destination — and the bound is on ω, worked out at the lowest
+ * ζ a menu flies with (`seedPopover`'s, whose peak speed is the highest). Both on purpose: the open
+ * and the close of one menu then share one limit. A close from 70% measured on its own shorter trip,
+ * or at its own ζ of 1, would be allowed a stiffer spring than the open it interrupts, and would
+ * reverse it within a frame.
+ */
+export function limitSpeed(spring: SpringSpec, span: number, maxSpeed: number): SpringSpec {
+  if (span <= 0) return spring;
+  const omega = maxSpeed / (span * peakSpeedFactor(MOTION.seedPopover.spring.ratio));
+  return { ...spring, stiffness: Math.min(spring.stiffness, omega * omega * (spring.mass ?? 1)) };
+}
+
+/**
+ * Peak speed of a spring released from rest, as a fraction of span × ω.
+ *
+ * Under-damped: the speed peaks where tan(ω_d·t) = √(1-ζ²)/ζ, which gives this closed form. It tends
+ * to 1/e as ζ → 1, the critically damped value; an over-damped spring is slower still, so 1/e bounds it.
+ */
+export function peakSpeedFactor(ratio: number): number {
+  if (ratio >= 1) return Math.exp(-1);
+  const root = Math.sqrt(1 - ratio * ratio);
+  return Math.exp(-(ratio / root) * Math.atan2(root, ratio));
 }
 
 /* --------------------------------------------------------------- material */

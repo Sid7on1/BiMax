@@ -50,7 +50,7 @@ export interface SpringCharacter {
 export type SpringPreset =
   /** Controls: press, toggle, row selection. Fast, barely overshoots. */
   | 'snappy'
-  /** The house bounce: menus, pills, seeded panels. Visibly springy. */
+  /** Pills and rows on release, and the Settings flyout. A small rebound, never a toy's. */
   | 'bouncy'
   /** Large surfaces settling. A soft rebound that reads as weight rather than as bounce. */
   | 'glass'
@@ -78,8 +78,18 @@ export const SPRINGS: Record<SpringPreset, SpringCharacter> = {
   // The target is the platform's, not ours: light interactions are conventionally ≤200ms, and the
   // two reference apps we measured animate at 0ms and 367ms respectively. `snappy` carries by far
   // the most events, so it is the one that had to clear 200.
+  //
+  // 2026-09-30 (UI fix list item 16): `bouncy` was 338ms and 12.6% — slow and toy-like for what it
+  // runs on, which is all high-frequency: the press release on every sidebar pill and row, and the
+  // Settings flyout. The list's bound is ~200–240ms and ≤8%. Measured at control size:
+  //
+  //   k 760  ζ 0.55   338ms  12.6%   (was)
+  //   k 760  ζ 0.65   316ms   6.7%   ζ alone takes the bounce out, not the time
+  //   k 1300 ζ 0.65   241ms   6.7%
+  //   k 1100 ζ 0.66   220ms   6.3%   ← chosen: inside both bounds, and still above `glass`
+  //   k 1300 ζ 0.68   204ms   5.4%
   snappy: { stiffness: 1240, ratio: 0.78 },
-  bouncy: { stiffness: 760, ratio: 0.55 },
+  bouncy: { stiffness: 1100, ratio: 0.66 },
   glass: { stiffness: 680, ratio: 0.70 },
   calm: { stiffness: 760, ratio: 1.0 },
 };

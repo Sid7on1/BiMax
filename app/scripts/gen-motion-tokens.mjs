@@ -25,7 +25,7 @@ const SOURCE = path.join(APP, 'src/renderer/src/components/ui/motion.ts');
 const CONTROL_DIAGONAL = 120;
 const PRESETS = [
   ['snappy', 'Presses, toggles, row selection.'],
-  ['bouncy', 'The house bounce: menus, pills, chips.'],
+  ['bouncy', 'Pills and rows on release, the Settings flyout.'],
   ['glass', 'Panels and sheets: a rebound that reads as weight.'],
 ];
 

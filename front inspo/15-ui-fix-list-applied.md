@@ -18,7 +18,7 @@ What landed from `14-ui-fix-list-2026-09-30.md`, item by item. Numbers are the l
 | 15 | The peek survives the trip from the toggle to the panel (hover intent, no drag region while peeking). |
 | 17 | Settings → Reduce motion quiets the app the way the system setting does. |
 
-## Batch 2 (2026-09-30)
+## Batch 2 — 7fa7278 (2026-09-30)
 
 | # | What changed |
 |---|---|
@@ -40,6 +40,44 @@ states, the static card's pointer, a dead link returned, the old headline) — e
 dependencies at 725b28c. The new lesson line uses `--raise-veil`, the same token as the starter cards beside it. Not yet
 built, installed or clicked in the real app.
 
+## Batch 3 — item 16, the menus' motion (2026-09-30)
+
+**The review's premise was half right.** It read "bouncy: menus, 338 ms, 12.6%" off the source and said itself that it
+needed live verification. Measured: `bouncy` never ran on a menu. It ran on the press-release of every sidebar pill and
+row and on the Settings flyout (its `anim-pop-in` utility has no user). The real menus — model picker, approval pill,
+Threads, sidebar and toolbar menus — are seeded morphs (`morph/tokens.ts`, `seedPopover`), and those barely overshoot
+(under 1%). But they WERE slow, which is the part of the complaint that holds.
+
+| | before | after |
+|---|---|---|
+| `bouncy` (pills and rows on release, Settings flyout) | 338 ms, 12.6% | 220 ms, 6.3% |
+| model picker (340×420 from a composer chip), open | 379 ms | 242 ms |
+| model picker, close | 304 ms | 208 ms |
+| small menu (220×160), open / close | 308 / 263 ms | 196 / 163 ms |
+| a menu flying across the window (680 px), open / close | 396 / 325 ms | 333 / 333 ms |
+| panels and dialogs | 417 / 321 ms | unchanged |
+
+Morph times are to within 1 px of the destination; overshoot is unchanged (ζ kept). What changed:
+
+- `seedPopover` stiffness 520 → 1300, and menus close on their own `dismissPopover` (k 1800) instead of the shared
+  `dismiss`, which would have folded a menu away slower than it opened. Panels keep `dismiss`.
+- **A speed limit for menus**, 7000 px/s (117 px per 60 Hz frame). The faster spring moved a long menu flight 145 px in
+  one frame, which the controller's no-teleport test forbids (a surface that jumps that far reads as two surfaces).
+  The limit slows only a flight long enough to break it, and the open and the close of one menu share it, so an
+  interrupted open still turns round smoothly.
+- The one test that demanded `bouncy` overshoot MORE than 8% pinned the old number; it now holds the list's bound
+  (≤8%, ≤240 ms). Said plainly because a test was changed.
+
+**Not reached:** the list's "exit at ~75% of the entrance" (item 36). On a picker the speed limit stops the close at
+208 ms, 86% of the open. A menu closed at 70% open turns round at once, as it did before this change (measured at the
+old values too); closed at 10–30% it keeps its momentum for a frame.
+
+**Verification that ran:** app typecheck clean; app suite 114 suites / 996 tests pass; motion-token drift check passes;
+design-preview build passes; 11 deliberate breakages (old stiffness, old close, close ignoring the kind, every kind on
+the fast close, no speed limit, limit per-spring or per-remaining-trip, a wrong peak-speed formula, a doubled limit, old
+`bouncy`) — every one failed a test. **Not verified by feel on the real build**, which the list asks for: it is not
+built or installed yet.
+
 ## Still open
 
 | # | Item |
@@ -48,6 +86,5 @@ built, installed or clicked in the real app.
 | 9 | Find/replace: rebuild as a Cursor-style floating card, or remove. |
 | 10 | Left and middle panel parity (one blur, radius, border and spacing set). |
 | 11 | Jitter in the seeded open/close animations — profile, then fix. |
-| 16 | Retune the menu motion (338 ms / ~12.6% overshoot → ~200–240 ms, ≤8%). |
 | 22 | Visual-regression coverage for the morph paths in the design-preview harness. |
 | 23–45 | Research principles. Several already hold or were served by the items above (42 in item 18); the rest need picking one by one with the owner. |

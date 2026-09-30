@@ -1,5 +1,6 @@
 import { MorphController, liveMorphCount, type MorphFrame } from '../morph/controller';
 import type { MorphGeometry } from '../morph/geometry';
+import { MOTION, dismissForKind } from '../morph/tokens';
 
 /**
  * The interruption matrix, run as arithmetic.
@@ -423,5 +424,95 @@ describe('lifecycle', () => {
       .not.toBeCloseTo(b.frames[b.frames.length - 1].geometry.x, 0);
     a.controller.dispose();
     b.controller.dispose();
+  });
+});
+
+describe('menus are quick (UI fix list item 16)', () => {
+  // A composer chip opening a model-picker-sized menu above it — the menu the owner opens most.
+  const CHIP: MorphGeometry = { x: 300, y: 700, width: 110, height: 30, radius: 15 };
+  const PICKER: MorphGeometry = { x: 300, y: 260, width: 340, height: 420, radius: 14 };
+  const STEP = 1 / 240;
+  const CHANNELS = ['x', 'y', 'width', 'height'] as const;
+
+  function menu(kind: 'popover' | 'inspector' = 'popover') {
+    const frames: MorphFrame[] = [];
+    const controller = new MorphController({
+      kind: () => kind,
+      reducedMotion: () => false,
+      resolve: () => ({ seed: CHIP, destination: PICKER }),
+    });
+    controller.subscribe((frame) => frames.push({ ...frame, geometry: { ...frame.geometry } }));
+    return { controller, frames };
+  }
+
+  /** ms until every edge is within 1px of the destination for good — when a person sees it arrive. */
+  function arrival(frames: MorphFrame[]): number {
+    let last = 0;
+    frames.forEach((frame, i) => {
+      if (CHANNELS.some((key) => Math.abs(frame.geometry[key] - PICKER[key]) > 1)) last = i + 1;
+    });
+    return last * STEP * 1000;
+  }
+
+  function stepUntil(controller: MorphController, done: () => boolean): number {
+    let n = 0;
+    while (n < 2400 && !done()) { controller.advance(STEP); n += 1; }
+    return n * STEP * 1000;
+  }
+
+  test('a menu opens in ~200–240ms and barely overshoots', () => {
+    const { controller, frames } = menu();
+    controller.open();
+    stepUntil(controller, () => controller.state === 'open');
+    // Measured 240ms at k 1300; it was 380ms at k 520. The bound leaves one frame of rounding.
+    expect(arrival(frames)).toBeLessThanOrEqual(250);
+    const overshoot = Math.max(...frames.map((f) => (f.geometry.height - PICKER.height) / (PICKER.height - CHIP.height)));
+    expect(overshoot).toBeLessThan(0.02);
+    controller.dispose();
+  });
+
+  test('it closes faster than it opened — an exit that outlasts its entrance reads as reluctance', () => {
+    const open = menu();
+    open.controller.open();
+    stepUntil(open.controller, () => open.controller.state === 'open');
+    const opened = arrival(open.frames);
+    const closed = stepUntil(open.controller, () => (open.controller.close(), open.controller.state === 'closed'));
+    expect(closed).toBeLessThan(opened);
+    open.controller.dispose();
+  });
+
+  test('a menu closed early keeps its momentum for a frame before it turns', () => {
+    // The interruption contract above, on a menu's own short flight. Early only: at 70% a menu is
+    // already slowing, and it turns at once — it did at the old k 520 / 700 as well (measured).
+    for (const at of [0.1, 0.3]) {
+      const { controller, frames } = menu();
+      controller.open();
+      while (frames[frames.length - 1].progress < at) controller.advance(1 / 60);
+      const before = frames[frames.length - 1].geometry.height;
+      controller.close();
+      controller.advance(1 / 60);
+      expect([at, frames[frames.length - 1].geometry.height > before]).toEqual([at, true]);
+      stepUntil(controller, () => controller.state === 'closed');
+      controller.dispose();
+    }
+  });
+
+  test('only menus take the fast fold; panes and panels keep the shared dismiss', () => {
+    expect(dismissForKind('popover')).toBe(MOTION.dismissPopover);
+    expect(dismissForKind('toolbarExpansion')).toBe(MOTION.dismissPopover);
+    for (const kind of ['sidebar', 'inspector', 'palette', 'floatingPanel', 'workspaceSurface'] as const) {
+      expect(dismissForKind(kind)).toBe(MOTION.dismiss);
+    }
+    // And the controller really uses it: the same menu, closed as an inspector, takes longer.
+    const time = (kind: 'popover' | 'inspector'): number => {
+      const { controller } = menu(kind);
+      controller.open();
+      stepUntil(controller, () => controller.state === 'open');
+      controller.close();
+      const ms = stepUntil(controller, () => controller.state === 'closed');
+      controller.dispose();
+      return ms;
+    };
+    expect(time('popover')).toBeLessThan(time('inspector'));
   });
 });

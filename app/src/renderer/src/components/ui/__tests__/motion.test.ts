@@ -49,8 +49,13 @@ describe('spring solver', () => {
     expect(overshootPercent('calm', control)).toBeCloseTo(0, 1);
   });
 
-  test('`bouncy` is visibly springy on a control — the whole point of the preset', () => {
-    expect(overshootPercent('bouncy', 40)).toBeGreaterThan(8);
+  // This test used to demand MORE than 8% — it pinned the 12.6% the owner's UI fix list (item 16)
+  // asked to cut. The contract is now the list's: a visible rebound, within ≤8% and ~200–240ms,
+  // because everything `bouncy` runs on is clicked a hundred times a day.
+  test('`bouncy` rebounds visibly on a control, and no more than a frequent control can bear', () => {
+    expect(overshootPercent('bouncy', 40)).toBeGreaterThan(overshootPercent('glass', 40));
+    expect(overshootPercent('bouncy', 40)).toBeLessThanOrEqual(8);
+    expect(springFor('bouncy', 40).duration).toBeLessThanOrEqual(240);
   });
 });
 

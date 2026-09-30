@@ -41,7 +41,9 @@ import {
   MATERIAL,
   MOTION,
   deformationFor,
+  dismissForKind,
   gradeSpring,
+  limitSpeed,
   mixMaterial,
   tokenForKind,
   type MaterialState,
@@ -191,6 +193,8 @@ export class MorphController {
   /** Whether the current flight has an honest origin. Published on every frame — see `MorphFrame`. */
   private seeded = false;
   private target: MorphGeometry | null = null;
+  /** The whole flight's length, seed ↔ destination: the span of a menu's speed limit (`limitSpeed`). */
+  private flightSpan = 0;
   private token: MotionToken = MOTION.seedPanel;
   // Unqualified `setTimeout`, not `window.setTimeout`: the physics and the state machine are graded
   // in the node test lane, where there is no `window`, and a driver that cannot be stepped without a
@@ -244,6 +248,7 @@ export class MorphController {
       ? MOTION.reducedMotion
       : seed ? tokenForKind(this.options.kind()) : MOTION.materialize;
     this.target = destination;
+    this.flightSpan = largestTravel(this.launchGeometry(seed, destination), destination);
     this.state = 'opening';
     this.start();
   }
@@ -261,7 +266,8 @@ export class MorphController {
     this.origin = this.currentGeometry();
     this.seeded = seed !== null && !this.reduced();
     this.target = this.launchGeometry(seed, destination);
-    this.token = this.reduced() ? MOTION.reducedMotion : MOTION.dismiss;
+    this.flightSpan = largestTravel(this.target, destination);
+    this.token = this.reduced() ? MOTION.reducedMotion : dismissForKind(this.options.kind());
     this.state = 'closing';
     this.start();
   }
@@ -279,6 +285,7 @@ export class MorphController {
     this.target = this.state === 'closing'
       ? this.launchGeometry(seed, destination)
       : destination;
+    this.flightSpan = largestTravel(this.launchGeometry(seed, destination), destination);
     this.start();
   }
 
@@ -437,7 +444,8 @@ export class MorphController {
   private gradedSpring(target: MorphGeometry): { stiffness: number; ratio: number } {
     const diagonal = Math.hypot(target.width, target.height);
     const distance = this.origin ? travelBetween(this.origin, target).distance : 0;
-    return gradeSpring(this.token.spring, diagonal, distance);
+    const graded = gradeSpring(this.token.spring, diagonal, distance);
+    return this.token.speedLimit ? limitSpeed(graded, this.flightSpan, this.token.speedLimit) : graded;
   }
 
   private frame(): MorphFrame {
@@ -494,4 +502,17 @@ function clamp01(value: number): number {
 /** Live morph count. Exists so the test lane can assert nothing is left running. */
 export function liveMorphCount(): number {
   return live.size;
+}
+
+/**
+ * The farthest any one of the springs travels in this flight — the position, the width or the
+ * height, each of which is its own spring. This is the `span` of a menu's speed limit, measured the
+ * way the controller's no-teleport test measures a frame's step.
+ */
+export function largestTravel(from: MorphGeometry, to: MorphGeometry): number {
+  return Math.max(
+    Math.hypot(to.x - from.x, to.y - from.y),
+    Math.abs(to.width - from.width),
+    Math.abs(to.height - from.height),
+  );
 }
