@@ -254,6 +254,9 @@ declare global {
         reveal: (rel: string) => Promise<void>;
         search: (query: string) => Promise<{ hits: { rel: string; name: string; dir: boolean }[]; truncated: boolean }>;
         write: (rel: string, content: string) => Promise<void>;
+        /** Optional: an older preload lacks it, and the page then closes without asking. */
+        confirmClose?: (rel: string) => Promise<'save' | 'discard' | 'cancel'>;
+        tabMenu?: (hasOthers: boolean, hasRight: boolean) => Promise<'close' | 'others' | 'right' | 'all' | 'mention' | 'reveal' | null>;
         onChanged: (cb: (generation: number) => void) => () => void;
       };
       sessionsMeta: () => Promise<SessionMetaRecord[]>;

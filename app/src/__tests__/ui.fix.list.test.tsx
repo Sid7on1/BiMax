@@ -8,6 +8,14 @@ import { AttachmentWell } from '../renderer/src/components/AttachmentWell';
 import { QUICK_TOGGLES, toggleValue } from '../renderer/src/quick.settings';
 import { visibleThreads, THREADS_PAGE } from '../renderer/src/threads.list.model';
 import { QuickBarLesson } from '../renderer/src/components/ProjectWelcome';
+import { ancestorsOf, closeTabs, cycleTab, filesToClose, neighbourAfterClose, tabLabel } from '../renderer/src/workbench.tabs';
+// The workbench imports the terminal, whose stylesheet jest cannot load; the terminal is not under test here.
+jest.mock('../renderer/src/components/TerminalPanel', () => ({ TerminalPanel: () => null }));
+import { Inspector } from '../renderer/src/components/Inspector';
+import { MATCH_COUNT_CAP, matchStatus, nearestMatch, statusText } from '../renderer/src/components/FindWidget';
+import { EditorSelection, EditorState } from '@codemirror/state';
+import { SearchQuery } from '@codemirror/search';
+import { inspectorTabs, type WorkbenchTab } from '../renderer/src/inspector.model';
 // The renderer's `window.bimax` declaration, which ProjectWelcome compiles against.
 import type {} from '../renderer/src/global';
 import { CONFIG_WIRE_KEYS } from '../../../src/protocol/config.wire';
@@ -257,5 +265,168 @@ describe('item 21 — ⌘2 is taught by pressing it', () => {
     expect(show).toContain("broadcast('threads:quick-shown');");
     expect(read('app/src/preload/index.ts')).toContain("onQuickShown: (cb: () => void) => subscribe('threads:quick-shown', cb)");
     expect(read('app/src/renderer/src/components/ProjectWelcome.tsx')).toContain('window.bimax.threads.onQuickShown?.(');
+  });
+});
+
+describe('item 8 — open files are tabs, and the tree is one click away', () => {
+  const FILES = ['src/api/index.ts', 'docs/README.md', 'src/web/index.ts'];
+
+  test('a tab is its name; a folder hint appears only when two open files share a name', () => {
+    expect(tabLabel(FILES, 'docs/README.md')).toEqual({ name: 'README.md', hint: '' });
+    expect(tabLabel(FILES, 'src/api/index.ts')).toEqual({ name: 'index.ts', hint: 'api' });
+    expect(tabLabel(FILES, 'src/web/index.ts')).toEqual({ name: 'index.ts', hint: 'web' });
+    // The shortest trailing part that differs, not the whole path.
+    expect(tabLabel(['a/x/y.ts', 'b/x/y.ts'], 'a/x/y.ts')).toEqual({ name: 'y.ts', hint: 'a/x' });
+  });
+
+  test('closing the tab in front lands on the one that slides under the pointer', () => {
+    expect(neighbourAfterClose(FILES, 'src/api/index.ts')).toBe('docs/README.md'); // right
+    expect(neighbourAfterClose(FILES, 'src/web/index.ts')).toBe('docs/README.md'); // left, at the end
+    expect(neighbourAfterClose(['only.ts'], 'only.ts')).toBeNull();
+  });
+
+  test('Close Others, Close to the Right, Close All', () => {
+    expect(filesToClose(FILES, 'docs/README.md', 'others')).toEqual(['src/api/index.ts', 'src/web/index.ts']);
+    expect(filesToClose(FILES, 'docs/README.md', 'right')).toEqual(['src/web/index.ts']);
+    expect(filesToClose(FILES, 'docs/README.md', 'all')).toEqual(FILES);
+    expect(filesToClose(FILES, 'gone.ts', 'close')).toEqual([]);
+  });
+
+  test('⌃Tab wraps round, and the tree opens on the current file’s folders', () => {
+    expect(cycleTab(FILES, 'src/web/index.ts', 1)).toBe('src/api/index.ts');
+    expect(cycleTab(FILES, 'src/api/index.ts', -1)).toBe('src/web/index.ts');
+    expect(cycleTab(FILES, null, 1)).toBe('src/api/index.ts');
+    expect(ancestorsOf('src/api/index.ts')).toEqual(['src', 'src/api']);
+    expect(ancestorsOf('README.md')).toEqual([]);
+  });
+
+  test('an unsaved tab is shown and asked about; Cancel, or a failed save, keeps it and everything after it', async () => {
+    const run = async (answers: ('save' | 'discard' | 'cancel')[], saves = true) => {
+      const log: string[] = [];
+      const closed = await closeTabs(FILES, {
+        isDirty: (p) => p !== 'docs/README.md',
+        show: (p) => log.push(`show ${p}`),
+        ask: async (p) => { log.push(`ask ${p}`); return answers.shift() ?? 'cancel'; },
+        save: async (p) => { log.push(`save ${p}`); return saves; },
+        close: (p) => log.push(`close ${p}`),
+      });
+      return { closed, log };
+    };
+    const saved = await run(['save', 'discard']);
+    expect(saved.closed).toEqual(FILES);
+    expect(saved.log).toEqual([
+      'show src/api/index.ts', 'ask src/api/index.ts', 'save src/api/index.ts', 'close src/api/index.ts',
+      'close docs/README.md',
+      'show src/web/index.ts', 'ask src/web/index.ts', 'close src/web/index.ts',
+    ]);
+    expect((await run(['cancel'])).closed).toEqual([]);
+    expect((await run(['save'], false)).closed).toEqual([]);
+  });
+
+  function render(active: WorkbenchTab, openFiles = FILES, dirty: string[] = []) {
+    return renderToStaticMarkup(
+      <Inspector
+        tabs={inspectorTabs({ review: null, gitStatus: null, hasProject: true, isRepo: true })}
+        active={active} onTab={() => {}} onClose={() => {}}
+        review={null} gitStatus={null} checkpoints={undefined} onRefreshGit={() => {}} onCommand={() => {}}
+        project="/p" onOpenFile={() => {}} lastFile={null}
+        openFiles={openFiles} dirtyFiles={new Set(dirty)} onCloseFile={() => {}} onCloseFiles={() => {}} onDirty={() => {}}
+        wide={false} onToggleWide={() => {}}
+      />,
+    );
+  }
+
+  test('with a file in front: a tab per open file, that one selected, and the tree one click away', () => {
+    const html = render({ kind: 'file', path: 'docs/README.md' }, FILES, ['src/web/index.ts']);
+    expect(html).toContain('role="tablist"');
+    expect(html.match(/role="tab"/g)).toHaveLength(3);
+    expect(html).toMatch(/aria-selected="true"[^>]*title="docs\/README.md"/);
+    expect(html).toMatch(/aria-pressed="false"[^>]*title="Show the project’s files"/);
+    expect(html).toContain('data-dirty="true"');
+    // The arrows the tabs replace are gone; the folder is a way back to the tree.
+    expect(html).not.toContain('Previous open file');
+    expect(html).toContain('show in the file tree');
+  });
+
+  test('in the tree the tabs stay, none selected; in Terminal or Review they give the lane its height back', () => {
+    const tree = render({ kind: 'lane', id: 'files' });
+    expect(tree.match(/role="tab"/g)).toHaveLength(3);
+    expect(tree).not.toContain('aria-selected="true"');
+    expect(tree).toMatch(/aria-pressed="true"[^>]*title="Show the project’s files"/);
+    expect(render({ kind: 'lane', id: 'review' })).not.toContain('role="tablist"');
+    expect(render({ kind: 'lane', id: 'files' }, [])).not.toContain('role="tablist"');
+  });
+
+  test('App asks before closing, ⌘W closes the tab in front, ⌃Tab steps', () => {
+    const app = read('app/src/renderer/src/App.tsx');
+    expect(app).toContain("ask: (path) => window.bimax.files.confirmClose?.(path) ?? Promise.resolve('cancel' as const),");
+    expect(app).toContain('onCloseFiles={(paths) => { void closeFiles(paths); }}');
+    expect(app).toContain("w: 'close-tab',");
+    expect(app).toContain("if (inspectorOpen && activeTab?.kind === 'file') void closeFiles([activeTab.path]);");
+    expect(app).toContain("event.key === 'Tab' && tabKeys.current.cycle(event.shiftKey ? -1 : 1)");
+    // The no-questions close is only for a file the editor cannot show.
+    expect(app).toContain('onCloseFile={closeFile}');
+    // The tree, remounted each time it comes back, opens on the file you were in.
+    const files = read('app/src/renderer/src/components/FilesPanel.tsx');
+    expect(files).toContain('for (const dir of ancestorsOf(activeFile)) loadDir(dir, true);');
+    expect(files).toContain("row.scrollIntoView?.({ block: 'center' });");
+  });
+});
+
+describe('item 9 — find and replace is Cursor’s widget', () => {
+  const DOC = 'const response = await fetch(url);\nif (!response.ok) throw new Error(RESPONSE);\nreturn response;';
+  const at = (from: number, to: number) => EditorState.create({ doc: DOC, selection: EditorSelection.single(from, to) });
+  const first = DOC.indexOf('response');
+  const second = DOC.indexOf('response', first + 1);
+
+  test('it counts the matches and says which one you are on', () => {
+    const query = new SearchQuery({ search: 'response' });
+    expect(matchStatus(at(0, 0), query)).toEqual({ count: 4, current: 0, capped: false });
+    expect(statusText(query, matchStatus(at(0, 0), query))).toBe('4 found');
+    const onSecond = at(second, second + 'response'.length);
+    expect(statusText(query, matchStatus(onSecond, query))).toBe('2 of 4');
+    // The toggles change what counts: case, and whole word.
+    expect(matchStatus(at(0, 0), new SearchQuery({ search: 'response', caseSensitive: true })).count).toBe(3);
+    expect(matchStatus(at(0, 0), new SearchQuery({ search: 'respon', wholeWord: true })).count).toBe(0);
+  });
+
+  test('empty, invalid and missing each say so, in words', () => {
+    expect(statusText(new SearchQuery({ search: '' }), { count: 0, current: 0, capped: false })).toBe('');
+    const broken = new SearchQuery({ search: '(', regexp: true });
+    expect(statusText(broken, matchStatus(at(0, 0), broken))).toBe('Invalid pattern');
+    const none = new SearchQuery({ search: 'nowhere' });
+    expect(statusText(none, matchStatus(at(0, 0), none))).toBe('No results');
+  });
+
+  test('a huge count stops at the cap instead of walking the whole file on every keystroke', () => {
+    const state = EditorState.create({ doc: 'x '.repeat(MATCH_COUNT_CAP * 3) });
+    const query = new SearchQuery({ search: 'x' });
+    const status = matchStatus(state, query);
+    expect(status).toEqual({ count: MATCH_COUNT_CAP, current: 0, capped: true });
+    expect(statusText(query, status)).toBe(`${MATCH_COUNT_CAP}+ found`);
+  });
+
+  test('find-as-you-type lands on the next match from the caret, wrapping to the top', () => {
+    const query = new SearchQuery({ search: 'response' });
+    expect(nearestMatch(at(0, 0), query, first + 1)?.from).toBe(second);
+    expect(nearestMatch(at(0, 0), query, DOC.length)?.from).toBe(first);
+    expect(nearestMatch(at(0, 0), new SearchQuery({ search: 'nowhere' }), 0)).toBeNull();
+  });
+
+  test('find in selection counts only inside the range it was turned on for', () => {
+    const scope = { from: 0, to: DOC.indexOf('\n') };
+    const query = new SearchQuery({ search: 'response', test: (_m, _s, from, to) => from >= scope.from && to <= scope.to });
+    expect(matchStatus(at(0, 0), query).count).toBe(1);
+  });
+
+  test('the editor uses it, floating over the code instead of docking across it', () => {
+    const editor = read('app/src/renderer/src/components/EditorPane.tsx');
+    expect(editor).toContain('findWidget(),');
+    expect(editor).toMatch(/'\.cm-panels': \{\s*position: 'absolute', top: '6px', right: '14px', left: 'auto'/);
+    // The stock panel's input styling must not reach the widget's fields.
+    expect(editor).toContain("'.cm-panel:not(.find-widget-host) input, .cm-textfield'");
+    const widget = read('app/src/renderer/src/components/FindWidget.tsx');
+    expect(widget).toContain('return search({ top: true, createPanel: (view) => new FindPanel(view) });');
+    expect(widget).toContain("runScopeHandlers(view, event.nativeEvent, 'search-panel')");
   });
 });

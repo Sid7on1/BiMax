@@ -1124,6 +1124,165 @@
   background: color-mix(in srgb, var(--color-ink) 3%, transparent);
 }
 
+/* Row 2: the file tabs (UI fix list item 8; Inspector.tsx `FileTabs`). Files only — the lanes are in
+   the picker above. No fill on the row: the active tab is the one raised thing in it, in the same
+   `--raise-veil` the Source|Preview segment uses, so it reads as joined to the editor under it. */
+.workbench-tabs {
+  display: flex;
+  min-height: 32px;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+}
+.workbench-tree {
+  display: flex;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  color: var(--color-faint);
+  transition: background-color 140ms ease, color 140ms ease;
+}
+.workbench-tree:hover { color: var(--color-ink); background: var(--color-hover); }
+.workbench-tree[data-active] { color: var(--color-ink); background: var(--raise-veil); }
+/* Tabs keep their names and the list scrolls sideways, as Cursor's do; the active one is scrolled
+   into view. They used to shrink to fit, and five of them at 430pt read "AR…", "i… w" — a tab you
+   cannot read is a tab you have to click to identify. A fade marks the edge that has more. */
+.workbench-tab-list {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  gap: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.workbench-tab-list::-webkit-scrollbar { display: none; }
+.workbench-tab-list[data-more-right] { mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
+.workbench-tab-list[data-more-left] { mask-image: linear-gradient(to left, #000 calc(100% - 28px), transparent); }
+.workbench-tab-list[data-more-left][data-more-right] {
+  mask-image: linear-gradient(to right, transparent, #000 28px, #000 calc(100% - 28px), transparent);
+}
+.workbench-tab {
+  display: flex;
+  height: 26px;
+  max-width: 200px;
+  flex: 0 0 auto;
+  cursor: pointer;
+  align-items: center;
+  gap: 5px;
+  border-radius: 7px;
+  padding: 0 3px 0 8px;
+  color: var(--color-faint);
+  font-size: 11.5px;
+  white-space: nowrap;
+  transition: background-color 140ms ease, color 140ms ease;
+}
+.workbench-tab:hover { color: var(--color-dim); background: var(--color-hover); }
+.workbench-tab[data-active] { color: var(--color-ink); background: var(--raise-veil); }
+.workbench-tab:focus-visible { outline: 2px solid color-mix(in srgb, var(--color-ember) 60%, transparent); outline-offset: -2px; }
+.workbench-tab-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.workbench-tab-hint { min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--color-faint); font-size: 10px; }
+/* The close control always keeps its 18px, so a tab never changes width as the ✕ comes and goes. */
+.workbench-tab-close {
+  display: flex;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  margin-left: auto;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  color: var(--color-faint);
+}
+.workbench-tab-close:hover { color: var(--color-ink); background: var(--color-hover); }
+/* ✕ on the active tab and under the pointer. An unsaved tab shows its dot instead, which becomes the
+   ✕ only under the pointer on the control itself — the dot is the one thing about that tab you need. */
+.workbench-tab-close > svg { display: none; }
+.workbench-tab:not([data-dirty]):is([data-active], :hover) .workbench-tab-x { display: block; }
+.workbench-tab[data-dirty] .workbench-tab-dot { display: block; color: var(--color-ember); }
+.workbench-tab[data-dirty] .workbench-tab-close:hover .workbench-tab-dot { display: none; }
+.workbench-tab[data-dirty] .workbench-tab-close:hover .workbench-tab-x { display: block; }
+@container (max-width: 360px) {
+  .workbench-tab-hint { display: none; }
+}
+
+/* Find and replace (FindWidget.tsx, UI fix list item 9): Cursor's widget — one compact card floating
+   over the code at the top right, in the app's floating surface (`--float-solid`, the tint every menu
+   and popover uses since item 2), so it reads as part of the app rather than a browser form. */
+.find-widget {
+  display: flex;
+  width: 400px;
+  max-width: 100%;
+  align-items: flex-start;
+  gap: 2px;
+  border: 1px solid var(--glass-edge-strong);
+  border-radius: 10px;
+  padding: 4px 5px 4px 3px;
+  color: var(--color-ink);
+  background: var(--float-solid);
+  box-shadow: var(--shadow-pop);
+  font: 12px var(--font-sans);
+  animation: pop-in var(--dur-snappy) var(--ease-snappy) both;
+  transform-origin: top right;
+}
+.find-rows { display: flex; min-width: 0; flex: 1 1 auto; flex-direction: column; gap: 4px; }
+.find-row { display: flex; min-width: 0; align-items: center; gap: 2px; }
+.find-expand, .find-action, .find-toggle {
+  display: flex;
+  flex: 0 0 auto;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-faint);
+  transition: background-color 120ms ease, color 120ms ease;
+}
+.find-expand { width: 16px; height: 26px; border-radius: 5px; }
+.find-action { width: 24px; height: 24px; border-radius: 6px; }
+.find-toggle { width: 22px; height: 20px; border-radius: 5px; }
+:is(.find-expand, .find-action, .find-toggle):hover:not(:disabled) { color: var(--color-ink); background: var(--color-hover); }
+:is(.find-action, .find-toggle):disabled { cursor: default; opacity: 0.35; }
+.find-toggle[data-on] { color: var(--color-ember); background: color-mix(in srgb, var(--color-ember) 16%, transparent); }
+.find-field {
+  display: flex;
+  min-width: 0;
+  height: 26px;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 1px;
+  border: 1px solid var(--glass-edge-strong);
+  border-radius: 7px;
+  padding: 0 2px 0 7px;
+  background: var(--glass-well);
+}
+.find-field:focus-within { border-color: color-mix(in srgb, var(--color-ember) 55%, transparent); }
+.find-field input {
+  min-width: 0;
+  flex: 1 1 auto;
+  border: 0;
+  outline: 0;
+  color: var(--color-ink);
+  background: transparent;
+  font: inherit;
+}
+.find-field input::placeholder { color: var(--color-faint); }
+/* Tabular, and wide enough for "999 of 1000+" so the buttons after it never shift as the count changes. */
+.find-status {
+  min-width: 64px;
+  flex: 0 0 auto;
+  padding: 0 4px;
+  color: var(--color-dim);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  white-space: nowrap;
+}
+@media (prefers-reduced-motion: reduce) { .find-widget { animation: none; } }
+:root[data-reduce-motion] .find-widget { animation: none; }
+
 /* The picker is the panel's title as well as its control, so the strip is one row of it plus the
    two controls that belong to the panel itself. It replaced a chip per lane AND a chip per open
    file — eight controls competing for 430pt, which is what "not organised" meant. */

@@ -51,6 +51,10 @@ invisible whenever the sidebar was hidden. It is now the last control in `Canvas
 right, 12pt from the window's right edge (measured), and it is the only one: three tests pin it
 there, pin App to a single handler, and fail if the sidebar ever grows one back.
 
+> **2026-09-30:** the owner asked for tabs again — "tabs, but they are files". A strip of FILE tabs now sits under
+> the picker in the Files lane; the lanes stay in the picker, so the mix rejected below is still not built. See
+> `15-ui-fix-list-applied.md`, batch 4.
+
 ## Deliberately not built, and why
 
 - **Row 2 for the four lanes.** The plan tabulated one per lane. Each of those controls already

@@ -78,12 +78,49 @@ the fast close, no speed limit, limit per-spring or per-remaining-trip, a wrong 
 `bouncy`) — every one failed a test. **Not verified by feel on the real build**, which the list asks for: it is not
 built or installed yet.
 
+## Batch 4 — items 8 and 9, file tabs and find (2026-09-30)
+
+The owner's answers: item 8 "tabs, but they are files"; item 9 "Cursor-styled".
+
+**Item 8, file tabs.** The rejected strip of 2026-09-19 mixed four lane chips with file chips
+(`13-right-panel-applied.md`). This one holds files only, and the lanes stay in the picker.
+
+- In the Files lane, a row of tabs sits under the picker: a tree button first, then one tab per open file (icon,
+  name, a folder hint only when two open files share a name, e.g. `index.ts api` / `index.ts web`). The active tab
+  takes the raised fill; ✕ on the active tab and on hover; an unsaved tab shows a dot. Tabs keep their names and the
+  row scrolls (a fade marks the edge with more). A first build let them shrink, and at 430pt five tabs read "AR…",
+  "i… w"; that was seen in the preview and changed.
+- Middle-click closes; right-click is a native Close / Close Others / Close to the Right / Close All / Insert @path /
+  Reveal in Finder menu; ←/→ move between tabs; ⌃Tab / ⌃⇧Tab cycle; **⌘W closes the tab in front** (the window only
+  when no tab is in front) and ⇧⌘W always closes the window. Closing lands on the tab to the right, as browsers do.
+- **Closing an unsaved tab asks** on the native Save / Don't Save / Cancel sheet; before this, the ✕ of the old menu
+  discarded edits with only a warning line. Cancel, or a save that fails, stops the rest of a Close All.
+- The tree is one click away (the tree button, or the folder path above the file), and it **opens on the file you
+  were in**: it used to come back folded to the root. The picker says "Files" while a file is open (the tab names the
+  file); choosing Files from another lane returns to that file. The back/forward arrows are gone — the tabs are that.
+
+**Item 9, find and replace.** CodeMirror's stock bar (full width, docked, browser-styled word buttons) is replaced by
+a card floating at the top right of the editor, over the code, in the app's floating surface: the find field with
+match case / whole word / regex toggles inside it (⌥⌘C / ⌥⌘W / ⌥⌘R), a live "3 of 12", previous / next, find in
+selection, close; a chevron opens replace / replace all (↩ / ⌘↩). It jumps to the nearest match as you type, opens
+pre-filled from the selection, and Esc hands the keyboard back to the code. The matching, highlighting and replace
+commands are CodeMirror's own (`search({ createPanel })`); only the panel is ours.
+
+**Verification that ran:** app typecheck clean; app suite 114 suites / 1013 tests pass; design-preview build passes;
+19 deliberate breakages (hint, neighbour, close sets, cancel and failed-save handling, tabs outside Files, a discard
+fallback, ⌘W wiring, the sheet's answers, tree reveal, match count, wrap, cap, the stock panel, a docked panel, the
+invalid-pattern text) — every one failed a test. Driven with real key and mouse events in the preview (Electron,
+offscreen): find 9/9 (⌘F focuses the field, typing selects "1 of 5", ↩ / ⇧↩, ⌥⌘C, ⌘↩ replace all, "No results", Esc
+closes and returns focus to the code) and tabs 8/8 (click, →, tree button, tabs kept, tree opens on the file,
+middle-click). An earlier test caught a missing Settings → Reduce motion twin for the widget's animation.
+
+**Not verified:** the native sheet and the right-click menu are main-process pieces the preview cannot show; they are
+unit-tested, not yet clicked in the real app. ⌘W and ⌃Tab live in App.tsx, which the preview does not render.
+
 ## Still open
 
 | # | Item |
 |---|---|
-| 8 | Several open files as tabs in the right panel, and the file tree one click away. |
-| 9 | Find/replace: rebuild as a Cursor-style floating card, or remove. |
 | 10 | Left and middle panel parity (one blur, radius, border and spacing set). |
 | 11 | Jitter in the seeded open/close animations — profile, then fix. |
 | 22 | Visual-regression coverage for the morph paths in the design-preview harness. |

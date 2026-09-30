@@ -17,7 +17,7 @@ import type { MenuItemConstructorOptions } from 'electron';
  */
 export type MenuCommand =
   | 'new-thread' | 'open-project' | 'toggle-sidebar' | 'toggle-panel' | 'command-palette'
-  | 'terminal' | 'settings' | 'app-health';
+  | 'terminal' | 'settings' | 'app-health' | 'close-tab';
 
 export interface AppMenuOptions {
   appName: string;
@@ -63,7 +63,12 @@ export function appMenuTemplate(options: AppMenuOptions): MenuItemConstructorOpt
       { type: 'separator' },
       shown('Open Project…', 'CommandOrControl+O', 'open-project'),
       { type: 'separator' },
-      ...(isMac ? [{ role: 'close' } as MenuItemConstructorOptions] : [{ role: 'quit' } as MenuItemConstructorOptions]),
+      // ⌘W closes the file tab in front of you once there are tabs (fix list item 8), and the window
+      // when there is none — the page decides, since only it knows. ⇧⌘W always closes the window,
+      // as in Safari and Chrome.
+      shown('Close Tab', 'CommandOrControl+W', 'close-tab'),
+      { role: 'close', label: 'Close Window', accelerator: 'CommandOrControl+Shift+W' },
+      ...(isMac ? [] : [{ role: 'quit' } as MenuItemConstructorOptions]),
     ],
   };
 

@@ -88,3 +88,17 @@ test('main installs it at start-up and again when the ⌘2 shortcut changes', ()
   expect(main.match(/installAppMenu\(\);/g)?.length).toBeGreaterThanOrEqual(2);
   expect(main).toContain('Menu.setApplicationMenu(Menu.buildFromTemplate(appMenuTemplate({');
 });
+
+test('⌘W is Close Tab, which the page decides; ⇧⌘W always closes the window (fix list item 8)', () => {
+  const { template, sent } = build();
+  const all = items(template);
+  const closeTab = all.find((item) => item.label === 'Close Tab')!;
+  expect(closeTab.accelerator).toBe('CommandOrControl+W');
+  expect(closeTab.registerAccelerator).toBe(false);
+  click(closeTab);
+  expect(sent[sent.length - 1]).toBe('close-tab');
+  const closeWindow = all.find((item) => item.label === 'Close Window')!;
+  expect([closeWindow.role, closeWindow.accelerator]).toEqual(['close', 'CommandOrControl+Shift+W']);
+  // Nothing else may hold ⌘W, or it would take the key from the page.
+  expect(all.filter((item) => item.accelerator === 'CommandOrControl+W')).toHaveLength(1);
+});

@@ -274,6 +274,11 @@ const api = {
     search: (query: string): Promise<{ hits: { rel: string; name: string; dir: boolean }[]; truncated: boolean }> =>
       ipcRenderer.invoke('files:search', query),
     write: (rel: string, content: string): Promise<void> => ipcRenderer.invoke('files:write', rel, content),
+    /** Closing a tab with unsaved edits: the native Save / Don't Save / Cancel sheet. */
+    confirmClose: (rel: string): Promise<'save' | 'discard' | 'cancel'> => ipcRenderer.invoke('files:confirm-close', rel),
+    /** A file tab's native right-click menu; resolves with the command chosen, or null. */
+    tabMenu: (hasOthers: boolean, hasRight: boolean): Promise<'close' | 'others' | 'right' | 'all' | 'mention' | 'reveal' | null> =>
+      ipcRenderer.invoke('files:tab-menu', hasOthers, hasRight),
     onChanged: (cb: (generation: number) => void): (() => void) => {
       const h = (_e: unknown, generation: number): void => cb(generation);
       ipcRenderer.on('files:changed', h);

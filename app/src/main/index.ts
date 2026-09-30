@@ -2702,6 +2702,7 @@ app.whenReady().then(async () => {
     projectDir: () => projectDir(),
     projectGeneration: () => projectGeneration,
     broadcast,
+    window: () => (win && !win.isDestroyed() ? win : null),
   });
 
   // Renderer signals it has mounted its listeners; only then spawn (so no early events are lost).

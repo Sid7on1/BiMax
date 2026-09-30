@@ -21,7 +21,8 @@ import { clearDraft } from './composer.model';
 import { RequestModal } from './components/RequestModal';
 import { SettingsDialog } from './components/SettingsDialog';
 import { WorkspaceSheet, type WorkspaceSheetTab } from './components/WorkspaceSheet';
-import { dropEditorBuffer } from './components/EditorPane';
+import { dropEditorBuffer, saveEditorBuffer } from './components/EditorPane';
+import { closeTabs, cycleTab, neighbourAfterClose } from './workbench.tabs';
 import { HomeView } from './components/HomeView';
 import { ProjectWelcome } from './components/ProjectWelcome';
 import { GalleryView } from './components/GalleryView';
@@ -232,7 +233,8 @@ export function App(): React.ReactElement {
     });
     setOpenFiles((files) => {
       const next = files.filter((path) => path !== rel);
-      const neighbour = next[next.length - 1] ?? null;
+      // The tab that slides under the pointer — right, or left at the end (`workbench.tabs.ts`).
+      const neighbour = neighbourAfterClose(files, rel);
       setActiveFile((current) => (current === rel ? neighbour : current));
       // Closing the tab you are looking at lands on its neighbour, and closing the last one lands
       // on the file tree rather than on whatever lane happens to want attention.
@@ -252,6 +254,46 @@ export function App(): React.ReactElement {
       return next;
     });
   }, []);
+
+  /** The latest unsaved set, for `closeFiles`, whose questions outlive the render that asked them. */
+  const dirtyRef = useRef(dirtyFiles);
+  dirtyRef.current = dirtyFiles;
+
+  /**
+   * Close tabs the way the user asked to — a tab's ✕, its menu, ⌘W (UI fix list item 8). An unsaved
+   * file is shown and asked about first, on the Mac's own Save / Don't Save / Cancel sheet, and Cancel
+   * stops the whole command, as in any Mac app's Close All. `closeFile` stays the no-questions close
+   * for a file the editor cannot show at all.
+   */
+  const closeFiles = useCallback((paths: string[]) => closeTabs(paths, {
+    isDirty: (path) => dirtyRef.current.has(path),
+    show: (path) => selectTab({ kind: 'file', path }),
+    // No sheet to ask with (an older preload) is no answer, and no answer is Cancel: never discard work silently.
+    ask: (path) => window.bimax.files.confirmClose?.(path) ?? Promise.resolve('cancel' as const),
+    save: saveEditorBuffer,
+    close: closeFile,
+  }), [closeFile, selectTab]);
+
+  /**
+   * ⌘W and ⌃Tab read the workbench as it is NOW, through a ref, so `runCommand` — which the menu bar
+   * subscribes to — does not change identity on every render.
+   */
+  const tabKeys = useRef({ closeTab: (): void => {}, cycle: (_delta: 1 | -1): boolean => false });
+  tabKeys.current = {
+    // ⌘W closes the file tab in front of you, as in any tabbed app; with none in front, the window.
+    closeTab: () => {
+      if (inspectorOpen && activeTab?.kind === 'file') void closeFiles([activeTab.path]);
+      else window.close();
+    },
+    cycle: (delta) => {
+      const inFiles = activeTab?.kind === 'file' || (activeTab?.kind === 'lane' && activeTab.id === 'files');
+      if (!inspectorOpen || !inFiles) return false;
+      const next = cycleTab(openFiles, activeTab?.kind === 'file' ? activeTab.path : null, delta);
+      if (next === null) return false;
+      selectTab({ kind: 'file', path: next });
+      return true;
+    },
+  };
 
   /**
    * Enlarge the workbench over the conversation, and give it back.
@@ -341,6 +383,7 @@ export function App(): React.ReactElement {
       case 'terminal': openInspector('terminal'); return true;
       case 'settings': setSettingsOpen(true); return true;
       case 'app-health': setMachineHealthOpen(true); return true;
+      case 'close-tab': tabKeys.current.closeTab(); return true;
       default: return false;
     }
   }, [newTask, togglePinned, openInspector]);
@@ -349,11 +392,17 @@ export function App(): React.ReactElement {
   useEffect(() => {
     const KEYS: Record<string, string> = {
       n: 'new-thread', b: 'toggle-sidebar', j: 'toggle-panel', k: 'command-palette', o: 'open-project', t: 'terminal',
+      w: 'close-tab',
     };
     const handler = (event: KeyboardEvent): void => {
       const mod = event.metaKey || event.ctrlKey;
       const key = event.key.toLowerCase();
       if (mod && KEYS[key]) { event.preventDefault(); runCommand(KEYS[key]); return; }
+      // ⌃Tab / ⌃⇧Tab step through the file tabs, as in a browser — only while they are on screen.
+      if (event.ctrlKey && !event.metaKey && event.key === 'Tab' && tabKeys.current.cycle(event.shiftKey ? -1 : 1)) {
+        event.preventDefault();
+        return;
+      }
       if (mod && key === 'e' && openFiles.length > 0) {
         event.preventDefault();
         // ⌘E is "back to what I was editing", so it has to REQUEST the file: with the lanes and
@@ -581,6 +630,7 @@ export function App(): React.ReactElement {
                     openFiles={openFiles}
                     dirtyFiles={dirtyFiles}
                     onCloseFile={closeFile}
+                    onCloseFiles={(paths) => { void closeFiles(paths); }}
                     onDirty={markDirty}
                     wide={wide}
                     onToggleWide={toggleWide}

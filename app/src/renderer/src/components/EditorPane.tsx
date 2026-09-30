@@ -4,6 +4,7 @@ import { EditorState } from '@codemirror/state';
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands';
 import { syntaxHighlighting, HighlightStyle, indentOnInput, bracketMatching, foldGutter, foldKeymap } from '@codemirror/language';
 import { searchKeymap, highlightSelectionMatches, openSearchPanel } from '@codemirror/search';
+import { findWidget } from './FindWidget';
 import { closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete';
 import { tags as t } from '@lezer/highlight';
 import { javascript } from '@codemirror/lang-javascript';
@@ -22,9 +23,8 @@ import { Markdown } from '../markdown';
  * cached in module scope), ⌘S writes to disk via the main process. The user's own edits write
  * directly like any IDE — agent edits still flow through the engine's tools and Edit Shield.
  *
- * It no longer draws its own tab strip or toolbar. Open files are chips in the workbench's one tab
- * strip, beside the lanes (`Inspector.tsx`), and everything that used to sit in this component's
- * header — the `@` insert, Reveal in Finder, the save state — is row 2 of that chrome.
+ * It draws no tabs or toolbar of its own: the workbench's file tabs and its file toolbar sit above
+ * it (`Inspector.tsx`) — the `@` insert, Reveal in Finder, the save state and find are there.
  */
 
 // --- The editor's theme -----------------------------------------------------------------------
@@ -59,9 +59,20 @@ const workbenchTheme = EditorView.theme({
   '.cm-searchMatch.cm-searchMatch-selected': { backgroundColor: 'var(--code-match-selected)' },
   '.cm-selectionMatch': { backgroundColor: 'var(--code-selection-match)' },
   '.cm-scroller': { overflow: 'auto' },
-  '.cm-panels': { backgroundColor: 'var(--float-veil)', color: 'var(--color-ink)', border: 'none' },
-  '.cm-panels input, .cm-textfield': { backgroundColor: 'var(--glass-well)', color: 'var(--color-ink)', border: '1px solid var(--glass-edge-strong)' },
-  '.cm-button': { backgroundImage: 'none', backgroundColor: 'var(--glass-raise)', color: 'var(--color-ink)', border: '1px solid var(--glass-edge-strong)' },
+  // Find floats over the code at the top right, Cursor-style (FindWidget.tsx, UI fix list item 9), instead of
+  // docking a full-width bar across the file and pushing it down. The go-to-line dialog shares this slot, so it gets
+  // the same floating card; the find widget draws its own.
+  '.cm-panels': {
+    position: 'absolute', top: '6px', right: '14px', left: 'auto', maxWidth: 'calc(100% - 28px)',
+    backgroundColor: 'transparent', color: 'var(--color-ink)', border: 'none', zIndex: '20',
+  },
+  '.cm-panels.cm-panels-top': { borderBottom: 'none' },
+  '.cm-panel:not(.find-widget-host)': {
+    backgroundColor: 'var(--float-solid)', border: '1px solid var(--glass-edge-strong)', borderRadius: '10px',
+    padding: '6px 8px', boxShadow: 'var(--shadow-pop)',
+  },
+  '.cm-panel:not(.find-widget-host) input, .cm-textfield': { backgroundColor: 'var(--glass-well)', color: 'var(--color-ink)', border: '1px solid var(--glass-edge-strong)' },
+  '.cm-panel:not(.find-widget-host) .cm-button': { backgroundImage: 'none', backgroundColor: 'var(--glass-raise)', color: 'var(--color-ink)', border: '1px solid var(--glass-edge-strong)' },
   '.cm-foldPlaceholder': { backgroundColor: 'var(--glass-raise)', color: 'var(--color-dim)', border: '1px solid var(--glass-edge-strong)' },
 });
 
@@ -140,10 +151,30 @@ export function resetEditorBuffers(project: string): void {
  * passed through three components can: there is exactly one EditorView at a time.
  */
 let currentView: EditorView | null = null;
+/** The file `currentView` is showing; the others are parked in `buffers`. */
+let currentPath: string | null = null;
 
 /** Drop a file's parked undo history. The tab strip owns closing now, so it owns this too. */
 export function dropEditorBuffer(path: string): void {
   buffers.delete(path);
+}
+
+/**
+ * Save a file from outside the pane: closing a tab with unsaved edits chose Save (App.tsx
+ * `closeFiles`). The file on screen lives in the view; any other is its parked buffer — which is why
+ * a background tab can be saved without being shown first.
+ */
+export async function saveEditorBuffer(path: string): Promise<boolean> {
+  const buffer = buffers.get(path);
+  const doc = currentView && currentPath === path ? currentView.state.doc.toString() : buffer?.state.doc.toString();
+  if (doc === undefined) return false;
+  try {
+    await window.bimax.files.write(path, doc);
+    if (buffer) buffer.savedDoc = doc;
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /** Row 2's search control. Returns false when there is no editor to search. */
@@ -211,6 +242,7 @@ export function EditorPane({
         highlightActiveLine(),
         highlightActiveLineGutter(),
         highlightSelectionMatches(),
+        findWidget(),
         syntaxHighlighting(workbenchHighlight),
         workbenchTheme,
         langFor(path),
@@ -236,7 +268,7 @@ export function EditorPane({
     const view = new EditorView({ parent: host });
     viewRef.current = view;
     currentView = view;
-    return () => { view.destroy(); viewRef.current = null; currentView = null; };
+    return () => { view.destroy(); viewRef.current = null; currentView = null; currentPath = null; };
   }, []);
 
   useEffect(() => {
@@ -247,6 +279,7 @@ export function EditorPane({
       buffers.get(activeRef.current)!.state = view.state;
     }
     activeRef.current = active;
+    currentPath = active;
     if (!active) return;
 
     const buf = buffers.get(active);

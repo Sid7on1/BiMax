@@ -178,6 +178,7 @@ function Workbench({ openFiles: initial, tab }: { openFiles: string[]; tab: Work
       openFiles={openFiles}
       dirtyFiles={dirtyFiles}
       onCloseFile={(rel) => setOpenFiles((files) => files.filter((path) => path !== rel))}
+      onCloseFiles={(paths) => setOpenFiles((files) => files.filter((path) => !paths.includes(path)))}
       onDirty={onDirty}
       wide={wide}
       onToggleWide={() => setWide((value) => !value)}
@@ -222,7 +223,8 @@ function Stage({
 
 export function WorkbenchPreview(): React.ReactElement {
   installStubs();
-  const files = ['docs/ARCHITECTURE.md', 'src/api/client.ts'];
+  // Five files, two of them both `index.ts`, so the strip shows the folder hint and has to scroll at 430pt.
+  const files = ['docs/ARCHITECTURE.md', 'src/api/client.ts', 'src/api/index.ts', 'src/web/index.ts', 'README.md'];
   return (
     <div style={{ display: 'flex', gap: 28, flexWrap: 'wrap', alignItems: 'flex-start' }}>
       <Stage theme="moonlight" chrome="windowed" label="file tab · glass" openFiles={files} tab={{ kind: 'file', path: 'src/api/client.ts' }} />

@@ -1,4 +1,4 @@
-import { shell } from 'electron';
+import { dialog, Menu, shell, type BrowserWindow, type MessageBoxOptions } from 'electron';
 import type { IpcGate } from './ipc.gate';
 import { gitDiff, gitBranches, gitLog, gitRemoteInfo, gitFetch, gitPull, gitPush, stampedGitStatus } from './git';
 import { discoverLocalModels } from './local.models';
@@ -14,7 +14,15 @@ export interface WorkspaceIpcHost {
   projectGeneration(): number;
   /** Send to the main window. */
   broadcast(channel: string, ...args: unknown[]): void;
+  /** The main window, which the editor tabs' sheet and menu attach to. */
+  window(): BrowserWindow | null;
 }
+
+/** What closing an unsaved tab asked, answered. */
+export type CloseAnswer = 'save' | 'discard' | 'cancel';
+
+/** A command from a file tab's right-click menu (renderer `workbench.tabs.ts`, plus two file verbs). */
+export type TabMenuAction = 'close' | 'others' | 'right' | 'all' | 'mention' | 'reveal';
 
 /** The main window's workspace panels: Review (git), Files, the editor's save, Sessions, and the Terminal. */
 export function registerWorkspaceIpc(ipc: IpcGate, host: WorkspaceIpcHost): void {
@@ -54,6 +62,44 @@ export function registerWorkspaceIpc(ipc: IpcGate, host: WorkspaceIpcHost): void
   // flow through the engine's tools + Edit Shield).
   ipc.handle<void>('files:write', undefined, (_e, rel: unknown, content: unknown) =>
     writeFileContent(host.projectDir(), rel, asFileContent(content)));
+
+  // The file tabs (fix list item 8). Closing a tab with unsaved edits asks, as a native sheet on the
+  // window: a ✕ on every tab made discarding work one stray click away, and the menu's "Unsaved
+  // changes will be lost" was a warning after the fact. Esc is Cancel. The name is only shown.
+  ipc.handle<CloseAnswer>('files:confirm-close', 'cancel', async (_e, rel: unknown) => {
+    const name = typeof rel === 'string' && rel.length <= 1024 ? rel.split('/').pop() || rel : 'this file';
+    const options: MessageBoxOptions = {
+      type: 'warning',
+      buttons: ['Save', 'Don’t Save', 'Cancel'],
+      defaultId: 0,
+      cancelId: 2,
+      message: `Do you want to save the changes you made to ${name}?`,
+      detail: 'Your changes will be lost if you don’t save them.',
+    };
+    const win = host.window();
+    const { response } = win ? await dialog.showMessageBox(win, options) : await dialog.showMessageBox(options);
+    return response === 0 ? 'save' : response === 1 ? 'discard' : 'cancel';
+  });
+  // A tab's right-click menu: native, like the rest of the app's context menus. It answers with the
+  // command and the page runs it, so closing still goes through the page's unsaved-changes check.
+  ipc.handle<TabMenuAction | null>('files:tab-menu', null, (_e, hasOthers: unknown, hasRight: unknown) =>
+    new Promise((resolve) => {
+      const pick = (action: TabMenuAction) => () => resolve(action);
+      Menu.buildFromTemplate([
+        { label: 'Close', click: pick('close') },
+        { label: 'Close Others', enabled: hasOthers === true, click: pick('others') },
+        { label: 'Close to the Right', enabled: hasRight === true, click: pick('right') },
+        { label: 'Close All', click: pick('all') },
+        { type: 'separator' },
+        { label: 'Insert @path in the Composer', click: pick('mention') },
+        { label: 'Reveal in Finder', click: pick('reveal') },
+      ]).popup({
+        window: host.window() ?? undefined,
+        // On macOS the menu can report closing before its item's click runs; a late null is ignored,
+        // because a promise settles once.
+        callback: () => { setTimeout(() => resolve(null), 150); },
+      });
+    }));
 
   // Home dashboard + Sessions gallery: full session history from the engine's meta JSONL.
   ipc.handle<unknown>('sessions:meta', [], () => readSessionMeta(host.projectDir()));

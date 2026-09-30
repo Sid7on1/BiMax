@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AtSign, ChevronDown, ChevronRight, Database, RefreshCw, Search, X } from 'lucide-react';
 import { cn } from '../lib/cn';
 import { DirIcon, FileIcon } from './FileIcon';
+import { ancestorsOf } from '../workbench.tabs';
 
 /**
  * The project explorer.
@@ -83,6 +84,26 @@ export function FilesPanel({
     return off;
   }, [project, loadDir]);
 
+  /*
+   * The tree opens on the file you were in (UI fix list item 8: "opening the tree never costs you your
+   * place"). This panel is remounted every time the tree comes back, and it used to come back folded
+   * to the root, with the file you had just left nowhere on screen. Its folders are listed open —
+   * re-listing an already-open one is cheap and bounded — and its row is scrolled into view once.
+   */
+  const listRef = useRef<HTMLDivElement>(null);
+  const scrolledFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (!project || !activeFile) return;
+    for (const dir of ancestorsOf(activeFile)) loadDir(dir, true);
+  }, [project, activeFile, loadDir]);
+  useEffect(() => {
+    if (!activeFile || scrolledFor.current === activeFile) return;
+    const row = listRef.current?.querySelector<HTMLElement>('[data-active]');
+    if (!row) return;
+    row.scrollIntoView?.({ block: 'center' });
+    scrolledFor.current = activeFile;
+  }, [dirs, activeFile]);
+
   // Debounced: the search walks the tree, so it must not run on every keystroke.
   useEffect(() => {
     const q = filter.trim();
@@ -157,7 +178,7 @@ export function FilesPanel({
       </div>
 
       {/* --- Tree, or filter results -------------------------------------------------------- */}
-      <div className="quiet-scrollbar min-h-0 flex-1 overflow-y-auto">
+      <div ref={listRef} className="quiet-scrollbar min-h-0 flex-1 overflow-y-auto">
         {filter ? (
           !hits ? (
             <div className="px-1.5 py-2 text-[11.5px] text-faint">{searching ? 'Searching…' : ''}</div>

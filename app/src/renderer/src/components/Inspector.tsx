@@ -1,11 +1,13 @@
 import React from 'react';
 import {
-  AtSign, ChevronDown, ChevronLeft, ChevronRight, Circle, Code2, Compass, Eye, FileCode2, FolderTree,
+  AtSign, ChevronDown, Circle, Code2, Compass, Eye, FolderTree,
   GitBranch, Maximize2, Minimize2, MoreHorizontal, PanelRightClose, Search, TerminalSquare, X,
 } from 'lucide-react';
 import { cn } from '../lib/cn';
 import type { InspectorTab, InspectorTabId, WorkbenchTab } from '../inspector.model';
 import { sameTab } from '../inspector.model';
+import { filesToClose, tabLabel } from '../workbench.tabs';
+import { FileIcon } from './FileIcon';
 import type { ReviewSnapshot, UiSnapshotCheckpoint } from '../protocol';
 import type { GitStatusResult } from '../global';
 import { ReviewPanel } from './ReviewPanel';
@@ -28,9 +30,12 @@ import { SeedMenu, SeedMenuItem, SeedMenuLabel, SeedMenuSeparator } from './ui/m
  *
  *   1. the picker — what the panel is showing, and the menu that changes it: the four lanes under
  *      Evidence, every open file under Open files. Plus the two panel controls, enlarge (fill the window) and hide.
- *   2. a contextual toolbar, for a file tab only: step, breadcrumb, save state, Source|Preview for
- *      markdown, find, and the secondary verbs behind one overflow.
- *   3. the content, flush to the panel's edges.
+ *   2. the file tabs (UI fix list item 8, 2026-09-30), in the Files lane only: a tree button, then one
+ *      tab per open file. Files only — the owner's words were "tabs, but they are files"; the lanes stay
+ *      in the picker, because mixing the two is what was rejected. See `FileTabs`.
+ *   3. a contextual toolbar, for a file tab only: the folder (one click back to the tree), save state,
+ *      Source|Preview for markdown, find, and the secondary verbs behind one overflow.
+ *   4. the content, flush to the panel's edges.
  *
  * The picker states the current view, so it is the panel's title as well as its control — which is
  * why there is no title block above it. See `front inspo/13-right-panel-applied.md`.
@@ -98,11 +103,139 @@ function PickerTrigger({
   );
 }
 
+/**
+ * The file tabs (UI fix list item 8): Cursor's editor strip, for a panel 430pt wide.
+ *
+ * - The tree is the first thing in the strip, always one click away — it used to take two, the picker and then
+ *   Files — and going there costs nothing: the tabs stay, and the tree opens on the file you were in.
+ * - One tab per open file, in the order opened: its icon, its name, a folder hint only when two open files share a
+ *   name. The ✕ shows on the active tab and on hover; an unsaved tab shows a dot that turns into the ✕ under the
+ *   pointer. Middle-click closes; right-click is the native Close / Close Others / Close to the Right / Close All.
+ * - Tabs shrink to a floor, then the strip scrolls sideways, and the active tab is kept in view.
+ *
+ * Closing asks first when there are unsaved edits (App.tsx `closeFiles`), so a stray click on a ✕ cannot lose work.
+ */
+function FileTabs({
+  openFiles, activeFile, treeActive, dirtyFiles, onTree, onSelect, onClose, onMenu,
+}: {
+  openFiles: string[];
+  activeFile: string | null;
+  treeActive: boolean;
+  dirtyFiles: ReadonlySet<string>;
+  onTree: () => void;
+  onSelect: (path: string) => void;
+  onClose: (path: string) => void;
+  onMenu: (path: string) => void;
+}): React.ReactElement {
+  const listRef = React.useRef<HTMLDivElement>(null);
+  // Which edges have more tabs past them, for the fades (styles.css `.workbench-tab-list`).
+  const [more, setMore] = React.useState({ left: false, right: false });
+  React.useEffect(() => {
+    const list = listRef.current;
+    if (!list) return undefined;
+    const update = (): void => setMore((was) => {
+      const left = list.scrollLeft > 1;
+      const right = list.scrollLeft + list.clientWidth < list.scrollWidth - 1;
+      return was.left === left && was.right === right ? was : { left, right };
+    });
+    update();
+    list.addEventListener('scroll', update, { passive: true });
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(update);
+    observer?.observe(list);
+    return () => { list.removeEventListener('scroll', update); observer?.disconnect(); };
+  }, [openFiles.length]);
+  // A file opened from the tree lands at the END of the strip, which may be scrolled off: bring the
+  // active tab into view whenever it changes, by the least movement.
+  React.useEffect(() => {
+    listRef.current?.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]')
+      ?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+  }, [activeFile, openFiles.length]);
+
+  const move = (from: string, delta: 1 | -1): void => {
+    const next = openFiles[openFiles.indexOf(from) + delta];
+    if (next === undefined) return;
+    onSelect(next);
+    // Arrow keys move the selection AND the focus, as a tablist should (WAI-ARIA tabs pattern).
+    requestAnimationFrame(() => listRef.current?.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]')?.focus());
+  };
+
+  return (
+    <div className="workbench-tabs">
+      <button
+        type="button"
+        onClick={onTree}
+        data-active={treeActive || undefined}
+        aria-pressed={treeActive}
+        title="Show the project’s files"
+        aria-label="Show the project’s files"
+        className="workbench-tree"
+      >
+        <FolderTree size={13} />
+      </button>
+      <div
+        ref={listRef}
+        role="tablist"
+        aria-label="Open files"
+        className="workbench-tab-list"
+        data-more-left={more.left || undefined}
+        data-more-right={more.right || undefined}
+        // A mouse wheel scrolls the strip sideways, as it does in a browser's tab bar: most wheels only turn one way.
+        onWheel={(event) => {
+          if (Math.abs(event.deltaY) > Math.abs(event.deltaX)) event.currentTarget.scrollLeft += event.deltaY;
+        }}
+      >
+        {openFiles.map((path) => {
+          const { name, hint } = tabLabel(openFiles, path);
+          const selected = path === activeFile;
+          const dirty = dirtyFiles.has(path);
+          return (
+            <div
+              key={path}
+              role="tab"
+              aria-selected={selected}
+              tabIndex={selected ? 0 : -1}
+              title={path}
+              data-active={selected || undefined}
+              data-dirty={dirty || undefined}
+              className="workbench-tab"
+              onClick={() => onSelect(path)}
+              // Middle button: close. The mousedown is swallowed too, or Chromium starts its autoscroll.
+              onMouseDown={(event) => { if (event.button === 1) event.preventDefault(); }}
+              onAuxClick={(event) => { if (event.button === 1) { event.preventDefault(); onClose(path); } }}
+              onContextMenu={(event) => { event.preventDefault(); onMenu(path); }}
+              onKeyDown={(event) => {
+                if (event.key === 'ArrowRight') { event.preventDefault(); move(path, 1); }
+                else if (event.key === 'ArrowLeft') { event.preventDefault(); move(path, -1); }
+                else if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onSelect(path); }
+              }}
+            >
+              <FileIcon name={name} size={12} />
+              <span className="workbench-tab-name">{name}</span>
+              {hint ? <span className="workbench-tab-hint">{hint}</span> : null}
+              <button
+                type="button"
+                tabIndex={-1}
+                onClick={(event) => { event.stopPropagation(); onClose(path); }}
+                title={dirty ? 'Unsaved changes — close' : 'Close (⌘W)'}
+                aria-label={dirty ? `Close ${name}, which has unsaved changes` : `Close ${name}`}
+                className="workbench-tab-close"
+              >
+                <Circle size={7} fill="currentColor" className="workbench-tab-dot" aria-hidden />
+                <X size={11} className="workbench-tab-x" aria-hidden />
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function Inspector({
   tabs, active, onTab, onClose,
   review, gitStatus, checkpoints, onRefreshGit, onCommand,
   project, onOpenFile, lastFile,
-  openFiles, dirtyFiles, onCloseFile, onDirty,
+  openFiles, dirtyFiles, onCloseFile, onCloseFiles, onDirty,
   wide, onToggleWide,
 }: {
   tabs: InspectorTab[];
@@ -123,7 +256,10 @@ export function Inspector({
   openFiles: string[];
   /** Which of them have unsaved edits. Drawn on the picker and in the menu. */
   dirtyFiles: ReadonlySet<string>;
+  /** Close at once, no questions: a file the editor cannot show (binary, unreadable). */
   onCloseFile: (rel: string) => void;
+  /** Close as the user asked to — a tab's ✕, its menu, ⌘W — which asks first about unsaved edits. */
+  onCloseFiles: (paths: string[]) => void;
   onDirty: (rel: string, dirty: boolean) => void;
   wide: boolean;
   onToggleWide: () => void;
@@ -141,10 +277,28 @@ export function Inspector({
     return next;
   });
 
-  const index = activeFile ? openFiles.indexOf(activeFile) : -1;
-  const step = (delta: number): void => {
-    const next = openFiles[index + delta];
-    if (next !== undefined) onTab({ kind: 'file', path: next });
+  const inFiles = activeFile !== null || (active?.kind === 'lane' && active.id === 'files');
+
+  /**
+   * A lane from the picker. Files is where the tabs live, so coming back to it from another lane
+   * returns to the file you were in rather than to the tree — "opening the tree never costs you your
+   * place" (item 8) works in both directions. Chosen while already in Files, it is the tree.
+   */
+  const chooseLane = (id: InspectorTabId): void => {
+    if (id === 'files' && !inFiles && lastFile !== null && openFiles.includes(lastFile)) {
+      onTab({ kind: 'file', path: lastFile });
+      return;
+    }
+    onTab({ kind: 'lane', id });
+  };
+
+  const tabMenu = (path: string): void => {
+    const index = openFiles.indexOf(path);
+    void window.bimax.files.tabMenu?.(openFiles.length > 1, index >= 0 && index < openFiles.length - 1).then((action) => {
+      if (action === 'mention') insertIntoComposer(`@${path} `);
+      else if (action === 'reveal') void window.bimax.files.reveal(path);
+      else if (action) onCloseFiles(filesToClose(openFiles, path, action));
+    });
   };
 
   // No entrance animation of its own: App.tsx wraps this in a SeedRegion, which owns the transform.
@@ -160,13 +314,14 @@ export function Inspector({
           width={300}
           triggerClassName="min-w-0"
           trigger={(open) => (
+            // A file belongs to Files, and its tab below already names it — so the picker states the
+            // lane, as it does everywhere else, instead of repeating the file's name a row above it.
             activeFile !== null ? (
               <PickerTrigger
                 open={open}
-                mono
-                icon={<FileCode2 size={13} />}
-                label={fileName(activeFile)}
-                dirty={dirtyFiles.has(activeFile)}
+                icon={LANE_ICON.files}
+                label="Files"
+                dirty={dirtyFiles.size > 0}
               />
             ) : (
               <PickerTrigger
@@ -186,7 +341,7 @@ export function Inspector({
                 <SeedMenuItem
                   key={tab.id}
                   icon={LANE_ICON[tab.id]}
-                  selected={active?.kind === 'lane' && active.id === tab.id}
+                  selected={tab.id === 'files' ? inFiles : active?.kind === 'lane' && active.id === tab.id}
                   disabled={!tab.available}
                   label={tab.label}
                   /* An unavailable lane stays on the list and says WHY it is empty, rather than
@@ -197,7 +352,7 @@ export function Inspector({
                     tab.count !== null ? <span className="evidence-count">{tab.count}</span>
                       : tab.attention ? <span className="block size-1.5 rounded-full bg-amber" /> : null
                   }
-                  onClick={() => { onTab({ kind: 'lane', id: tab.id }); close(); }}
+                  onClick={() => { chooseLane(tab.id); close(); }}
                 />
               ))}
 
@@ -208,7 +363,7 @@ export function Inspector({
                   {openFiles.map((path) => (
                     <SeedMenuItem
                       key={path}
-                      icon={<FileCode2 size={13} />}
+                      icon={<FileIcon name={fileName(path)} />}
                       selected={sameTab(active, { kind: 'file', path })}
                       label={fileName(path)}
                       desc={fileDir(path) || 'project root'}
@@ -245,31 +400,40 @@ export function Inspector({
         </button>
       </div>
 
-      {/* --- Row 2: the selected tab's own controls ------------------------------------------
+      {/* --- Row 2: the file tabs, in Files only ---------------------------------------------
+          Terminal, Review and GitHub keep their full height: from there the picker's Open files
+          group is the way to a file, and choosing Files returns to the one you were in. */}
+      {inFiles && openFiles.length > 0 && (
+        <FileTabs
+          openFiles={openFiles}
+          activeFile={activeFile}
+          treeActive={activeFile === null}
+          dirtyFiles={dirtyFiles}
+          onTree={() => onTab({ kind: 'lane', id: 'files' })}
+          onSelect={(path) => onTab({ kind: 'file', path })}
+          onClose={(path) => onCloseFiles([path])}
+          onMenu={tabMenu}
+        />
+      )}
+
+      {/* --- Row 3: the selected file's own controls ------------------------------------------
           A file tab only. The four lanes already carry their controls inside their panels —
           Files its filter, Review its refresh and branch row, Terminal its restart, GitHub its
           fetch/pull/push — and lifting them into a second bar would DUPLICATE them, which is the
-          opposite of what deleting the title block was for. See `13-right-panel-applied.md`. */}
+          opposite of what deleting the title block was for. See `13-right-panel-applied.md`.
+          No previous/next arrows any more: the tabs are that, and ⌃Tab steps through them. */}
       {activeFile !== null && (
         <div className="workbench-toolbar">
+          {/* Where the file lives, NOT what it is called: the tab above already states the name. A
+              click shows it in the tree — the second one-click way back to the project's files. */}
           <button
-            type="button" onClick={() => step(-1)} disabled={index <= 0}
-            title="Previous open file" aria-label="Previous open file" className="workbench-tool"
+            type="button"
+            onClick={() => onTab({ kind: 'lane', id: 'files' })}
+            className="workbench-crumb min-w-0 flex-1 cursor-pointer truncate rounded-md px-1.5 py-0.5 text-left text-[11px] text-faint hover:bg-hover hover:text-ink"
+            title={`${activeFile} — show in the file tree`}
           >
-            <ChevronLeft size={14} />
-          </button>
-          <button
-            type="button" onClick={() => step(1)} disabled={index < 0 || index >= openFiles.length - 1}
-            title="Next open file" aria-label="Next open file" className="workbench-tool"
-          >
-            <ChevronRight size={14} />
-          </button>
-
-          {/* Where the file lives, NOT what it is called: the picker beside it already states the
-              name, and row 2 repeating it is how a two-row header starts to read as clutter. */}
-          <span className="workbench-crumb min-w-0 flex-1 truncate pl-1 text-[11px] text-faint" title={activeFile}>
             {fileDir(activeFile) || 'project root'}
-          </span>
+          </button>
 
           {/* Only while it is true. A permanent "saved" is a label that never means anything. */}
           {dirtyFiles.has(activeFile) && (
@@ -330,8 +494,8 @@ export function Inspector({
                 <SeedMenuItem
                   icon={<X size={13} />}
                   label="Close this file"
-                  desc={dirtyFiles.has(activeFile) ? 'Unsaved changes will be lost' : undefined}
-                  onClick={() => { onCloseFile(activeFile); close(); }}
+                  desc={dirtyFiles.has(activeFile) ? 'You will be asked about the unsaved changes' : undefined}
+                  onClick={() => { onCloseFiles([activeFile]); close(); }}
                 />
               </>
             )}
@@ -339,7 +503,7 @@ export function Inspector({
         </div>
       )}
 
-      {/* --- Row 3: the content, flush ------------------------------------------------------- */}
+      {/* --- Row 4: the content, flush ------------------------------------------------------- */}
       <div
         role="tabpanel"
         aria-label={activeFile ?? activeLane?.label ?? 'Workbench'}
