@@ -2,8 +2,8 @@ import { ThinkingIndicator } from './ThinkingIndicator';
 import React, { createContext, useContext, useMemo, useRef, useState } from 'react';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import {
-  Loader, CircleCheck, CircleX, ChevronRight, ChevronDown, Pencil, SearchCode, ArrowDown,
-  Copy, Check, Volume2, ThumbsUp, ThumbsDown,
+  Loader, CircleCheck, CircleX, CircleAlert, CircleStop, ChevronRight, ChevronDown, Pencil, SearchCode, ArrowDown,
+  Copy, Check, X, Volume2, ThumbsUp, ThumbsDown,
 } from 'lucide-react';
 import { TranscriptItem } from '../engine.state';
 import { EngineStore } from '../engine.store';
@@ -13,6 +13,7 @@ import { Markdown } from '../markdown';
 import { copyText } from '../copy.text';
 import { Dashboard } from './Dashboards';
 import { cn } from '../lib/cn';
+import type { RunSummary } from '../run.summary.model';
 
 /**
  * Transcript v2 — virtualized scrollback (day-long sessions stay smooth), consecutive tool
@@ -23,7 +24,8 @@ import { cn } from '../lib/cn';
 type Row =
   | { kind: 'msg'; key: string; item: Extract<TranscriptItem, { kind: 'msg' }> }
   | { kind: 'tool'; key: string; call: ToolCallEntry }
-  | { kind: 'group'; key: string; kindOf: 'edit' | 'explore'; calls: ToolCallEntry[] };
+  | { kind: 'group'; key: string; kindOf: 'edit' | 'explore'; calls: ToolCallEntry[] }
+  | { kind: 'summary'; key: string; summary: RunSummary };
 
 const MUTATING = /edit|write|patch/i;
 const READONLY = /read|grep|glob|search|graph|list|^ls$|find|related|map|impact/i;
@@ -168,13 +170,20 @@ const transcriptComponents = {
 };
 
 export function Transcript({
-  items, store, onMenuSelect,
+  items, store, onMenuSelect, summary, onReview,
 }: {
   items: TranscriptItem[];
   store: EngineStore;
   onMenuSelect: (id: string, value: string) => void;
+  /** What the latest run did, once it has finished (run.summary.model.ts); the conversation ends on it. */
+  summary?: RunSummary | null;
+  /** Open the right panel on Review. */
+  onReview?: () => void;
 }): React.ReactElement {
-  const rows = useMemo(() => buildRows(items), [items]);
+  const rows = useMemo<Row[]>(
+    () => (summary ? [...buildRows(items), { kind: 'summary', key: summary.key, summary }] : buildRows(items)),
+    [items, summary],
+  );
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const [atBottom, setAtBottom] = useState(true);
 
@@ -190,7 +199,7 @@ export function Transcript({
           atBottomThreshold={48}
           initialTopMostItemIndex={Math.max(rows.length - 1, 0)}
           className="h-full overscroll-contain"
-          itemContent={(_, row) => <RowView row={row} onMenuSelect={onMenuSelect} />}
+          itemContent={(_, row) => <RowView row={row} onMenuSelect={onMenuSelect} onReview={onReview} />}
           components={transcriptComponents}
         />
         {!atBottom && (
@@ -207,7 +216,11 @@ export function Transcript({
   );
 }
 
-function RowView({ row, onMenuSelect }: { row: Row; onMenuSelect: (id: string, value: string) => void }): React.ReactElement {
+function RowView({ row, onMenuSelect, onReview }: {
+  row: Row;
+  onMenuSelect: (id: string, value: string) => void;
+  onReview?: () => void;
+}): React.ReactElement {
   // The gap lives here, once, so every row type is spaced identically — a message, a tool card and
   // a folded activity group used to each carry their own margin and none of them agreed.
   return (
@@ -215,6 +228,7 @@ function RowView({ row, onMenuSelect }: { row: Row; onMenuSelect: (id: string, v
       {row.kind === 'msg' && <Message item={row.item} onMenuSelect={onMenuSelect} />}
       {row.kind === 'tool' && <ToolCard call={row.call} />}
       {row.kind === 'group' && <ActivityGroup kindOf={row.kindOf} calls={row.calls} />}
+      {row.kind === 'summary' && <RunSummaryRow summary={row.summary} onReview={onReview} />}
     </div>
   );
 }
@@ -392,6 +406,88 @@ function ThoughtLine({ ms, text }: { ms: number; text?: string }): React.ReactEl
 }
 
 /** "Edited 3 files · 5 edits" / "Explored 7 files" chip folding a run of tool calls. */
+/**
+ * True once `active` has gone from true to false while this row was on screen: a finish the person watched (UI fix
+ * list item 24). A row that mounts already finished — history, or scrolled back into view — never animates.
+ * Worked out during render, not in an effect, so the settle starts on the same frame the icon changes.
+ */
+export function useJustFinished(active: boolean): boolean {
+  const tracker = useRef<((active: boolean) => boolean) | null>(null);
+  tracker.current ??= finishTracker(active);
+  return tracker.current(active);
+}
+
+/** The rule behind `useJustFinished`, pure: once it has seen `active` go from true to false, it answers true. */
+export function finishTracker(initiallyActive: boolean): (active: boolean) => boolean {
+  let previous = initiallyActive;
+  let finished = false;
+  return (active) => {
+    if (previous && !active) finished = true;
+    previous = active;
+    return finished;
+  };
+}
+
+const VERDICT_ICON: Record<RunSummary['verdict'], React.ReactElement> = {
+  verified: <CircleCheck size={13} className="text-moss" />,
+  failed: <CircleX size={13} className="text-rust" />,
+  unchecked: <CircleAlert size={13} className="text-amber" />,
+  'no-check-needed': <Check size={13} className="text-dim" />,
+  stopped: <CircleStop size={13} className="text-dim" />,
+};
+
+/**
+ * The line a run ends on (UI fix list item 41): what changed and whether it was checked, in words as well as an icon,
+ * with what is left to do and the way to Review. The files and checks are behind the disclosure, like a tool row's
+ * output — one quiet inline language, not a second card system (docs/product-reset/04_FRONTEND_PLAN.md).
+ */
+export function RunSummaryRow({ summary, onReview }: { summary: RunSummary; onReview?: () => void }): React.ReactElement {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="run-summary reading-column mx-auto" data-verdict={summary.verdict}>
+      <div className="flex items-center gap-1">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          className="-ml-1 flex min-h-7 min-w-0 flex-1 cursor-pointer items-center gap-2 rounded-md px-1.5 py-1 text-left text-[12px] text-dim transition-colors hover:bg-hover/55 hover:text-ink"
+        >
+          <span className="inline-flex shrink-0">{VERDICT_ICON[summary.verdict]}</span>
+          <span className="min-w-0 truncate text-ink/90">{summary.headline}</span>
+          <ChevronRight size={12} className={cn('shrink-0 text-faint transition-transform', open && 'rotate-90')} />
+        </button>
+        {onReview ? (
+          <button
+            type="button"
+            onClick={onReview}
+            className="min-h-7 shrink-0 cursor-pointer rounded-md px-2 text-[11.5px] text-dim transition-colors hover:bg-hover/55 hover:text-ink"
+          >
+            Review
+          </button>
+        ) : null}
+      </div>
+      {summary.next ? <p className="mt-0.5 pl-[22px] text-[11.5px] text-faint">{summary.next}</p> : null}
+      {open ? (
+        <div className="mt-1.5 ml-[7px] space-y-0.5 border-l border-line/70 pl-3 text-[11.5px] text-dim">
+          {summary.files.map((f) => (
+            <div key={f.file} className="flex min-w-0 items-baseline gap-2">
+              <span className="min-w-0 truncate font-mono text-[11px] text-ink/85">{f.file}</span>
+              <span className="shrink-0 text-faint tabular-nums">{f.edits} edit{f.edits === 1 ? '' : 's'}</span>
+            </div>
+          ))}
+          {summary.checks.length ? summary.checks.map((c, i) => (
+            <div key={`${i}-${c.command}`} className="flex min-w-0 items-center gap-1.5">
+              {c.ok ? <Check size={11} className="shrink-0 text-moss" /> : <X size={11} className="shrink-0 text-rust" />}
+              <span className="min-w-0 truncate font-mono text-[11px]">{c.command}</span>
+              <span className={cn('shrink-0', c.ok ? 'text-faint' : 'text-rust')}>{c.ok ? 'passed' : 'failed'}</span>
+            </div>
+          )) : <div className="text-faint">No build or test ran during this run.</div>}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function ActivityGroup({ kindOf, calls }: { kindOf: 'edit' | 'explore'; calls: ToolCallEntry[] }): React.ReactElement {
   const [open, setOpen] = useState(false);
   const files = new Set<string>();
@@ -399,6 +495,7 @@ function ActivityGroup({ kindOf, calls }: { kindOf: 'edit' | 'explore'; calls: T
   const running = calls.some((c) => c.status === 'running');
   const failed = calls.some((c) => c.status === 'error');
   const nested = !!calls[0].parentId;
+  const settled = useJustFinished(running);
 
   const label = failed
     ? `${calls.filter(c => c.status === 'error').length} failed attempt${calls.filter(c => c.status === 'error').length === 1 ? '' : 's'} · ${calls.filter(c => c.status === 'success').length} succeeded`
@@ -413,11 +510,13 @@ function ActivityGroup({ kindOf, calls }: { kindOf: 'edit' | 'explore'; calls: T
         onClick={() => setOpen((v) => !v)}
         className="-ml-1 flex cursor-pointer items-center gap-2 rounded-md px-1.5 py-1 text-[12px] text-dim transition-colors hover:bg-hover/55 hover:text-ink"
       >
-        {running
-          ? <Loader size={12} className="animate-spin text-amber" />
-          : failed
-            ? <CircleX size={12} className="text-rust" />
-            : kindOf === 'edit' ? <Pencil size={12} className="text-moss" /> : <SearchCode size={12} className="text-dim" />}
+        <span className={cn('inline-flex shrink-0', settled && 'status-settle')}>
+          {running
+            ? <Loader size={12} className="animate-spin text-amber" />
+            : failed
+              ? <CircleX size={12} className="text-rust" />
+              : kindOf === 'edit' ? <Pencil size={12} className="text-moss" /> : <SearchCode size={12} className="text-dim" />}
+        </span>
         <span>{label}</span>
         {open ? <ChevronDown size={12} className="text-faint" /> : <ChevronRight size={12} className="text-faint" />}
       </button>
@@ -488,6 +587,7 @@ function MenuCard({
 function ToolCard({ call, inGroup }: { call: ToolCallEntry; inGroup?: boolean }): React.ReactElement {
   const [open, setOpen] = useState(false);
   const visualStatus = call.status;
+  const settled = useJustFinished(visualStatus === 'running');
   const icon =
     visualStatus === 'running' ? <Loader size={13} className="animate-spin text-amber" />
     : visualStatus === 'success' ? <CircleCheck size={13} className="text-moss" />
@@ -506,7 +606,7 @@ function ToolCard({ call, inGroup }: { call: ToolCallEntry; inGroup?: boolean })
           visualStatus === 'error' ? 'text-rust hover:bg-rust/5' : 'text-dim hover:bg-hover/55',
         )}
       >
-        <span className="shrink-0">{icon}</span>
+        <span className={cn('inline-flex shrink-0', settled && 'status-settle')}>{icon}</span>
         <span className="flex min-w-0 flex-1 items-baseline gap-1.5">
           <span className="shrink-0 text-dim">{call.status === 'error' ? `${call.toolName.replace(/Tool$/, '')} failed` : call.status === 'running' ? call.toolName.replace(/Tool$/, '') : toolVerb(call.toolName)}</span>
           {subject ? <span className="min-w-0 truncate font-mono text-[11px] text-ink/85">{subject}</span> : null}

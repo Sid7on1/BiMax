@@ -31,6 +31,7 @@ import { ModelDialog } from './components/ModelDialog';
 import { Appearance, applyAppearance, savedAppearance } from './appearance';
 import { inspectorTabs, resolveWorkbenchTab, type InspectorTabId, type WorkbenchTab } from './inspector.model';
 import { buildFinalReceipt } from './final.receipt.model';
+import { runSummary } from './run.summary.model';
 import { usePhase9 } from './usePhase9';
 
 /**
@@ -169,6 +170,8 @@ export function App(): React.ReactElement {
     [state.items],
   );
   const receipt = useMemo(() => buildFinalReceipt({ review: state.review }), [state.review]);
+  // What the latest run did, once it has finished — the line the conversation ends on (UI fix list item 41).
+  const runEnd = useMemo(() => runSummary(state.items, state.review, busy), [state.items, state.review, busy]);
 
   const hasProject = state.project.length > 0;
 
@@ -555,6 +558,8 @@ export function App(): React.ReactElement {
                       items={state.items}
                       store={store}
                       onMenuSelect={menuSelect}
+                      summary={runEnd}
+                      onReview={() => openInspector('review')}
                     />
                   )}
                   <Composer

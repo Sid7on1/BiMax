@@ -2074,6 +2074,28 @@ html.aux-surface, html.aux-surface body, html.aux-surface #root { background: tr
   color: var(--color-ink);
 }
 
+/* A step that finishes while you watch moves the eye once, then settles (UI fix list item 24: "animate every agent
+   state change — change blindness is real"). Only a change seen live: `useJustFinished` in Transcript.tsx gives a
+   row this class on the render where it stops running, so history loads still. A 6% overshoot, the house bounce. */
+@keyframes status-settle {
+  0% { transform: scale(0.6); opacity: 0.35; }
+  60% { transform: scale(1.06); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.status-settle { display: inline-flex; animation: status-settle 220ms ease-out both; }
+
+/* The line a run ends on (UI fix list item 41): it arrives once, when the run does, and then holds still. */
+@keyframes run-summary-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+.run-summary { animation: run-summary-in 240ms ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .status-settle { animation: none; }
+  .run-summary { animation: fade-in 120ms ease-out both; }
+}
+
 /* ── Reduce motion, from Settings (fix list item 17) ──────────────────────────────────────────────
    Settings → General → "Reduce motion" wrote `reducedMotion` to the config and nothing read it: the only
    thing that quietened this app was the macOS setting, through the media queries above. The toggle now
@@ -2104,3 +2126,5 @@ html.aux-surface, html.aux-surface body, html.aux-surface #root { background: tr
 :root[data-reduce-motion] .thinking-verb { animation: none; background: none; color: var(--color-dim); }
 :root[data-reduce-motion] .mic-button[data-listening] { transition: none; animation: none; }
 :root[data-reduce-motion] .talk-orb { transition: none; animation: none !important; }
+:root[data-reduce-motion] .status-settle { animation: none; }
+:root[data-reduce-motion] .run-summary { animation: fade-in 120ms ease-out both; }

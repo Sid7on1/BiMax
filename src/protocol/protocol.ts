@@ -485,3 +485,9 @@ export function sanitizeArgs(args: any[]): JsonValue[] {
     }
   });
 }
+
+// Whether changes are verified — the same verdict the engine's review lifecycle uses, for the window's end-of-run
+// summary (UI fix list item 41). The module imports nothing, as everything behind this door must
+// (app/src/__tests__/module.boundaries.test.ts).
+export { requiresBuildVerification, verificationState, verificationCovers } from '../review/review.verdict';
+export type { VerificationState, VerdictChange, VerdictRun } from '../review/review.verdict';

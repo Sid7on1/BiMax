@@ -15,7 +15,7 @@
  * thread), and old threads with no facts degrade to 'idle' instead of erroring.
  */
 
-import { requiresBuildVerification } from './verification.scope';
+import { requiresBuildVerification, verificationState } from './review.verdict';
 
 export type ReviewApprovalKind = 'permission' | 'diff' | 'question';
 
@@ -119,16 +119,6 @@ function lastVerification(facts: ReviewFacts): ReviewVerification | null {
   return facts.verifications.length ? facts.verifications[facts.verifications.length - 1] : null;
 }
 
-function norm(file: string): string { return String(file || '').replace(/\\/g, '/').replace(/^\.\//, ''); }
-
-function verificationCoversChanges(facts: ReviewFacts, changedAt: number): boolean {
-  const required = facts.changes.filter(change => requiresBuildVerification(change.file)).map(change => norm(change.file));
-  if (required.length === 0) return true;
-  const greens = facts.verifications.filter(v => v.ok && v.at >= changedAt);
-  if (greens.some(v => v.repoWide)) return true;
-  const covered = new Set(greens.flatMap(v => v.coveredFiles || []).map(norm));
-  return required.every(file => [...covered].some(candidate => candidate === file || candidate.endsWith(`/${file}`) || file.endsWith(`/${candidate}`)));
-}
 
 function lastGoodCheckpoint(facts: ReviewFacts): ReviewCheckpointFact | null {
   for (let i = facts.checkpoints.length - 1; i >= 0; i--) {
@@ -154,10 +144,9 @@ export function deriveReviewState(facts: ReviewFacts, live?: { applying?: boolea
   if (facts.changes.length === 0) {
     return facts.todos.some(t => t.status !== 'completed') ? 'planning' : 'idle';
   }
-  const v = lastVerification(facts);
-  if (!v || v.at < changedAt) return 'unverified';
-  if (!v.ok) return 'verification_failed';
-  if (!verificationCoversChanges(facts, changedAt)) return 'unverified';
+  // The verdict itself is shared with the window's end-of-run summary (./review.verdict).
+  const verdict = verificationState(facts.changes, facts.verifications);
+  if (verdict !== 'verified') return verdict;
   const cp = lastGoodCheckpoint(facts);
   return cp && cp.ts >= changedAt ? 'checkpointed' : 'verified';
 }

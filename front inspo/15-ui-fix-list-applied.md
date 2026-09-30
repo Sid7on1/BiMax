@@ -324,8 +324,51 @@ the two batches (the measure widened to 60em, code blocks capped, the bubble bac
 undone, and four of item 34's fixes) — every one failed a test. App typecheck clean; app suite 115 suites / 1029 tests
 pass; `check:morph`, `check:hit-targets` and the design-preview build pass. Not yet installed.
 
+## Batch 10 — items 24 and 41, a finish you can see and a run that ends on what it did (2026-10-01)
+
+**Item 41, the ending.** Measured first: the app already built an end-of-run "receipt" (`final.receipt.model.ts`,
+`const receipt` in App.tsx) and never showed it — computed on every render and dropped. The run ended on the reply,
+and what changed and whether it was checked lived only in the right panel's Review.
+
+Now a run that changed files ends on one quiet line in the conversation — the tool rows' own inline language, not a
+new card (`04_FRONTEND_PLAN.md`) — with the verdict in words beside a distinct icon, the next move when there is one,
+and **Review** to open the right panel on it. Expanding it lists the files (with edit counts) and the checks that ran.
+
+| verdict | the line |
+|---|---|
+| checked and green | ✓ Changed retry.ts · npm test passed |
+| the newest check after the edits failed | ✕ Changed 2 files · npm test failed — "Needs a fix before it can be trusted" |
+| no check after the edits, or one that covered only part of the code | ⚠ Changed a.ts · not checked yet — "Not proven yet" |
+| only text or media changed | ✓ Changed README.md · no test needed for text or media |
+| the run was stopped | ■ Stopped · changed a.ts so far |
+
+No line while the run is going, while a question waits on the person, or when the run changed nothing — a receipt on
+every answer is noise. A run is everything after the person's latest message; the engine's review covers the session,
+so the line counts the files edited since that message.
+
+**One definition of "checked".** The line and the engine's review lifecycle use the same verdict: the rule moved
+out of `src/review/verification.scope.ts` and `review.model.ts` into `src/review/review.verdict.ts`, which imports
+nothing (its `path.extname` became a string function with a parity test against the old one), and
+`src/protocol/protocol.ts` re-exports it — the only way the window may take engine code
+(`module.boundaries.test.ts`). The unshown receipt was not reused: its rule counts a failed check followed by a
+green retry as unproven, which the engine calls verified.
+
+**Item 24, the finish.** A step's icon swapped from spinner to ✓/✕ with no transition. Now a step (or a folded group)
+that finishes while you watch gives its icon one small settle (220 ms, 6% overshoot); a row that mounts already
+finished — history, or scrolled back into view — never animates (`finishTracker`, worked out during render so the
+settle starts on the frame the icon changes). The ending line arrives once, 240 ms. Reduce Motion, from macOS or from
+Settings, stills both.
+
+**Verification that ran:** 16 new tests (engine: the verdict and the rule's parity with `path.extname`; window: every
+verdict, the run boundary, the waiting question, the stopped run, the row's words and Review, the app wiring, the
+finish rule, the Reduce Motion twins). 14 deliberate breakages, every one failing a test — two survived the first
+round (a red check from before the edit read as a failure; a file named `.md`) and got their cases. Played in the
+built renderer: the line appears when the run ends, green and red, expanded. Engine typecheck clean and it bundles;
+engine outcome/review suites pass; app typecheck clean; app suite 116 suites / 1042 tests; `check:morph`,
+`check:hit-targets`, design-preview build pass. Not yet installed.
+
 ## Still open
 
 | # | Item |
 |---|---|
-| 23–45 | Research principles. Done: 34 (batch 8), 38 (batch 9). Next, by the owner's "your call": 24 + 41. 31 is not planned (its colours conflict with the owner's item 10 choice). |
+| 23–45 | Research principles. Done: 34 (batch 8), 38 (batch 9), 24 and 41 (batch 10). 31 is not planned (its colours conflict with the owner's item 10 choice). |
