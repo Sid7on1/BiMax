@@ -50,7 +50,13 @@ const ITEMS: TranscriptItem[] = [
       content: 'Found it. The window asks for `vibrancy: \'sidebar\'` and then covers it with an '
         + 'opaque `backgroundColor`, so macOS never gets to show the material.\n\n'
         + '```ts\n// before\nbackgroundColor: \'#161412\',\n// after\nbackgroundColor: \'#00000000\',\n```\n\n'
-        + 'Clearing it and letting each non-glass pane paint its own surface fixes it.',
+        + 'Clearing it and letting each non-glass pane paint its own surface fixes it.\n\n'
+        // Every token class a reply's code usually carries — keywords, built-in types, literals, strings, a docstring,
+        // numbers, a comment — so check:glass-contrast measures each syntax colour on the transcript's glass.
+        + '```python\nimport pandas as pd\n\ndef calculate_probability(data: pd.DataFrame, variable: str) -> dict:\n'
+        + '    """Return marginal probability of each value."""\n'
+        + '    counts = data[variable].value_counts(normalize=True)  # share of rows\n'
+        + '    if counts.empty:\n        return None\n    return {k: round(v, 3) for k, v in counts.items()}\n```',
     },
   },
   {

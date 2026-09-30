@@ -27,27 +27,43 @@ import { Markdown } from '../markdown';
  * header — the `@` insert, Reveal in Finder, the save state — is row 2 of that chrome.
  */
 
-// --- Moonlight CodeMirror theme ---------------------------------------------------------------
+// --- The editor's theme -----------------------------------------------------------------------
 
-const moonlightTheme = EditorView.theme({
-  '&': { backgroundColor: '#0d0d0d', color: '#eeeeec', fontSize: '12.5px', height: '100%' },
-  '.cm-content': { fontFamily: "ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace", caretColor: '#ffffff', padding: '8px 0' },
-  '.cm-cursor, .cm-dropCursor': { borderLeftColor: '#ffffff' },
+/**
+ * Glass, like every other pane, and readable in both themes.
+ *
+ * The editor used to paint its own `#0d0d0d` — the only opaque slab in a glass window (owner report, 2026-09-30:
+ * "when I open a md file the background is black again") — and its colours were hardcoded for that black in BOTH
+ * themes, so in Starlight it was a black block on a light panel. Now nothing here paints a ground: the pane under it
+ * (`.evidence-studio`, `--pane-veil`) is the surface, and every colour is a `--code-*` token that styles.css defines per
+ * theme. Those tokens are held to WCAG AA on the glass by `npm run check:glass-contrast`, which measures the code
+ * itself — the syntax colours included, comments too — not just the chrome around it, because this is text people
+ * read line by line. Under Increase Contrast and Reduce Transparency the pane goes dense or solid and the code with it.
+ *
+ * No `dark: true`: which theme applies is decided by the tokens, so the base theme's light/dark defaults are
+ * overridden here for everything the editor shows (panels, buttons, text fields, fold markers).
+ */
+const workbenchTheme = EditorView.theme({
+  '&': { backgroundColor: 'transparent', color: 'var(--code-ink)', fontSize: '12.5px', height: '100%' },
+  '.cm-content': { fontFamily: "ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace", caretColor: 'var(--code-caret)', padding: '8px 0' },
+  '.cm-cursor, .cm-dropCursor': { borderLeftColor: 'var(--code-caret)' },
   '&.cm-focused': { outline: 'none' },
-  '&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, ::selection': { backgroundColor: 'rgba(255,255,255,0.22)' },
-  '.cm-selectionBackground': { backgroundColor: 'rgba(255,255,255,0.15)' },
-  '.cm-activeLine': { backgroundColor: 'rgba(255,255,255,0.035)' },
-  '.cm-gutters': { backgroundColor: '#0d0d0d', color: '#747470', border: 'none', borderRight: '1px solid #292929' },
-  '.cm-activeLineGutter': { backgroundColor: 'rgba(255,255,255,0.05)', color: '#a0a09b' },
-  '.cm-foldGutter .cm-gutterElement': { color: '#747470' },
-  '.cm-matchingBracket': { backgroundColor: 'rgba(255,255,255,0.18)', outline: 'none' },
-  '.cm-searchMatch': { backgroundColor: 'rgba(255,255,255,0.16)' },
-  '.cm-searchMatch.cm-searchMatch-selected': { backgroundColor: 'rgba(255,255,255,0.28)' },
-  '.cm-selectionMatch': { backgroundColor: 'rgba(255,255,255,0.10)' },
+  '&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, ::selection': { backgroundColor: 'var(--code-selection-focused)' },
+  '.cm-selectionBackground': { backgroundColor: 'var(--code-selection)' },
+  '.cm-activeLine': { backgroundColor: 'var(--code-active-line)' },
+  '.cm-gutters': { backgroundColor: 'transparent', color: 'var(--code-gutter)', border: 'none', borderRight: '1px solid var(--code-gutter-rule)' },
+  '.cm-activeLineGutter': { backgroundColor: 'var(--code-active-line)', color: 'var(--code-gutter-active)' },
+  '.cm-foldGutter .cm-gutterElement': { color: 'var(--code-gutter)' },
+  '.cm-matchingBracket': { backgroundColor: 'var(--code-bracket)', outline: 'none' },
+  '.cm-searchMatch': { backgroundColor: 'var(--code-match)' },
+  '.cm-searchMatch.cm-searchMatch-selected': { backgroundColor: 'var(--code-match-selected)' },
+  '.cm-selectionMatch': { backgroundColor: 'var(--code-selection-match)' },
   '.cm-scroller': { overflow: 'auto' },
-  '.cm-panels': { backgroundColor: '#171717', color: '#eeeeec', border: 'none' },
-  '.cm-panels input': { backgroundColor: '#0d0d0d', color: '#eeeeec', border: '1px solid #303030' },
-}, { dark: true });
+  '.cm-panels': { backgroundColor: 'var(--float-veil)', color: 'var(--color-ink)', border: 'none' },
+  '.cm-panels input, .cm-textfield': { backgroundColor: 'var(--glass-well)', color: 'var(--color-ink)', border: '1px solid var(--glass-edge-strong)' },
+  '.cm-button': { backgroundImage: 'none', backgroundColor: 'var(--glass-raise)', color: 'var(--color-ink)', border: '1px solid var(--glass-edge-strong)' },
+  '.cm-foldPlaceholder': { backgroundColor: 'var(--glass-raise)', color: 'var(--color-dim)', border: '1px solid var(--glass-edge-strong)' },
+});
 
 /**
  * Syntax colour.
@@ -57,33 +73,33 @@ const moonlightTheme = EditorView.theme({
  * cannot carry the distinctions an editor needs: a string, a number and an identifier all look the
  * same, which is precisely the information highlighting exists to give.
  *
- * The hues are deliberately desaturated to sit on the app's near-black ground rather than the
- * saturated primaries most themes use — the surrounding UI is monochrome, and a code pane glowing
- * in full-strength red and blue would be the loudest thing in the window. Related tokens share a
- * hue family so the eye groups them: declarations warm, data green/gold, callables blue, types
- * violet, and everything structural stays grey so it recedes.
+ * The hues are deliberately desaturated rather than the saturated primaries most themes use — the
+ * surrounding UI is monochrome, and a code pane glowing in full-strength red and blue would be the
+ * loudest thing in the window. Related tokens share a hue family so the eye groups them:
+ * declarations warm, data green/gold, callables blue, types violet, and everything structural stays
+ * grey so it recedes. The values are `--code-*` tokens (styles.css), one set per theme.
  */
-const moonlightHighlight = HighlightStyle.define([
-  { tag: [t.comment, t.blockComment, t.lineComment, t.docComment], color: '#6f6f69', fontStyle: 'italic' },
-  { tag: [t.keyword, t.controlKeyword, t.moduleKeyword, t.operatorKeyword, t.modifier], color: '#e08a52', fontWeight: '600' },
-  { tag: [t.definitionKeyword, t.self], color: '#e08a52' },
-  { tag: [t.string, t.special(t.string)], color: '#8fb573' },
-  { tag: [t.regexp, t.escape], color: '#6fae9e' },
-  { tag: [t.number, t.bool, t.null, t.atom], color: '#d9b25c' },
-  { tag: [t.function(t.variableName), t.function(t.propertyName), t.labelName], color: '#75a7cc' },
-  { tag: [t.typeName, t.className, t.namespace, t.standard(t.typeName)], color: '#b491cf' },
-  { tag: [t.propertyName, t.attributeName], color: '#9dc0d4' },
-  { tag: [t.variableName, t.definition(t.variableName)], color: '#e3e3e0' },
-  { tag: [t.operator, t.derefOperator], color: '#c2c2bd' },
-  { tag: [t.punctuation, t.bracket, t.separator, t.paren, t.brace, t.squareBracket], color: '#7d7d78' },
-  { tag: [t.meta, t.processingInstruction, t.annotation, t.tagName], color: '#c98fb0' },
-  { tag: t.heading, color: '#e08a52', fontWeight: '600' },
-  { tag: t.link, color: '#75a7cc', textDecoration: 'underline' },
+const workbenchHighlight = HighlightStyle.define([
+  { tag: [t.comment, t.blockComment, t.lineComment, t.docComment], color: 'var(--code-comment)', fontStyle: 'italic' },
+  { tag: [t.keyword, t.controlKeyword, t.moduleKeyword, t.operatorKeyword, t.modifier], color: 'var(--code-keyword)', fontWeight: '600' },
+  { tag: [t.definitionKeyword, t.self], color: 'var(--code-keyword)' },
+  { tag: [t.string, t.special(t.string)], color: 'var(--code-string)' },
+  { tag: [t.regexp, t.escape], color: 'var(--code-regexp)' },
+  { tag: [t.number, t.bool, t.null, t.atom], color: 'var(--code-number)' },
+  { tag: [t.function(t.variableName), t.function(t.propertyName), t.labelName], color: 'var(--code-function)' },
+  { tag: [t.typeName, t.className, t.namespace, t.standard(t.typeName)], color: 'var(--code-type)' },
+  { tag: [t.propertyName, t.attributeName], color: 'var(--code-property)' },
+  { tag: [t.variableName, t.definition(t.variableName)], color: 'var(--code-variable)' },
+  { tag: [t.operator, t.derefOperator], color: 'var(--code-operator)' },
+  { tag: [t.punctuation, t.bracket, t.separator, t.paren, t.brace, t.squareBracket], color: 'var(--code-punctuation)' },
+  { tag: [t.meta, t.processingInstruction, t.annotation, t.tagName], color: 'var(--code-meta)' },
+  { tag: t.heading, color: 'var(--code-keyword)', fontWeight: '600' },
+  { tag: t.link, color: 'var(--code-function)', textDecoration: 'underline' },
   { tag: t.emphasis, fontStyle: 'italic' },
   { tag: t.strong, fontWeight: '600' },
-  { tag: t.invalid, color: '#cc7a6f' },
-  { tag: [t.inserted], color: '#8fb573' },
-  { tag: [t.deleted], color: '#cc7a6f' },
+  { tag: t.invalid, color: 'var(--code-invalid)' },
+  { tag: [t.inserted], color: 'var(--code-string)' },
+  { tag: [t.deleted], color: 'var(--code-invalid)' },
 ]);
 
 function langFor(path: string) {
@@ -195,8 +211,8 @@ export function EditorPane({
         highlightActiveLine(),
         highlightActiveLineGutter(),
         highlightSelectionMatches(),
-        syntaxHighlighting(moonlightHighlight),
-        moonlightTheme,
+        syntaxHighlighting(workbenchHighlight),
+        workbenchTheme,
         langFor(path),
         EditorView.lineWrapping,
         keymap.of([

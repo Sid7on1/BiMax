@@ -293,6 +293,77 @@
   max-width: clamp(640px, 88vw, 1180px);
 }
 
+/* The code editor's colours (EditorPane.tsx). The editor paints no ground of its own — it is glass, on the pane's
+   veil — so its ink is the only thing between the code and whatever is behind the window, and it is measured like
+   primary text: `check:glass-contrast` holds every code token to AA over the glass, comments included, in both themes.
+
+   Moonlight keeps the hues the editor had on its old `#0d0d0d` slab, lifted just enough to clear AA on the lighter
+   glass: comments and punctuation were the quietest and moved most. Starlight never had a palette — the editor was a
+   black block there — so it gets the same hue families, dark enough to read on light glass.
+
+   Line numbers are quieter than code but read without effort: on `--color-faint` they measured 1.9:1 on Starlight's
+   glass, so they have their own inks. Flat values only — never `var()` of a primitive, which would resolve where it is
+   declared (see `--raise-veil`). */
+:root,
+.theme-moonlight {
+  --code-ink: #eeeeec;
+  --code-caret: #ffffff;
+  --code-comment: #a3a39c;
+  --code-keyword: #eb9a63;
+  --code-string: #9bc27f;
+  --code-regexp: #7fc1b0;
+  --code-number: #dfbb6a;
+  --code-function: #88b7da;
+  --code-type: #c4a4dc;
+  --code-property: #a6c8da;
+  --code-variable: #e6e6e3;
+  --code-operator: #c8c8c3;
+  --code-punctuation: #a7a7a1;
+  --code-meta: #d8a0c0;
+  --code-invalid: #e39488;
+  /* A chat code block's ground: a slightly darker film on the glass, so the block reads as a recess without going
+     back to an opaque slab. */
+  --code-block: rgba(0, 0, 0, 0.22);
+  --code-gutter: #94948e;
+  --code-gutter-active: #cfcfca;
+  --code-gutter-rule: rgba(255, 255, 255, 0.06);
+  --code-selection: rgba(255, 255, 255, 0.15);
+  --code-selection-focused: rgba(255, 255, 255, 0.22);
+  --code-selection-match: rgba(255, 255, 255, 0.10);
+  --code-active-line: rgba(255, 255, 255, 0.04);
+  --code-bracket: rgba(255, 255, 255, 0.18);
+  --code-match: rgba(255, 255, 255, 0.16);
+  --code-match-selected: rgba(255, 255, 255, 0.28);
+}
+.theme-starlight {
+  --code-ink: #151514;
+  --code-caret: #000000;
+  --code-comment: #4a4a45;
+  --code-keyword: #6c2c04;
+  --code-string: #1e5010;
+  --code-regexp: #164d43;
+  --code-number: #5a4100;
+  --code-function: #174a73;
+  --code-type: #5a3286;
+  --code-property: #214b5e;
+  --code-variable: #1c1c1a;
+  --code-operator: #3b3b38;
+  --code-punctuation: #474743;
+  --code-meta: #722952;
+  --code-invalid: #80241a;
+  --code-block: rgba(0, 0, 0, 0.035);
+  --code-gutter: #585854;
+  --code-gutter-active: #262624;
+  --code-gutter-rule: rgba(0, 0, 0, 0.07);
+  --code-selection: rgba(0, 0, 0, 0.10);
+  --code-selection-focused: rgba(0, 0, 0, 0.15);
+  --code-selection-match: rgba(0, 0, 0, 0.07);
+  --code-active-line: rgba(0, 0, 0, 0.035);
+  --code-bracket: rgba(0, 0, 0, 0.12);
+  --code-match: rgba(0, 0, 0, 0.10);
+  --code-match-selected: rgba(0, 0, 0, 0.18);
+}
+
 /* Every pane that is not the glass sidebar: the transcript, the inspector, the editor. Opaque —
    and that is a decision, not a default.
 
@@ -704,17 +775,24 @@
   .md .md-h3 { @apply text-[14px]; }
   .md .md-h4, .md .md-h5, .md .md-h6 { @apply text-[13.5px] text-dim; }
 
-  /* Code is monochrome-first; weight and value carry hierarchy instead of rainbow syntax. */
-  .hljs-comment, .hljs-quote { color: var(--color-faint); font-style: italic; }
-  .hljs-keyword, .hljs-selector-tag, .hljs-tag, .hljs-operator { color: var(--color-ember); }
-  .hljs-string, .hljs-regexp, .hljs-addition { color: var(--color-moss); }
-  .hljs-number, .hljs-literal, .hljs-symbol, .hljs-bullet, .hljs-link { color: var(--color-amber); }
-  .hljs-title, .hljs-title.function_, .hljs-name, .hljs-section { color: var(--color-ember-bright); }
-  .hljs-type, .hljs-class, .hljs-title.class_, .hljs-built_in { color: var(--color-dim); }
-  .hljs-attr, .hljs-attribute, .hljs-property, .hljs-variable, .hljs-template-variable { color: var(--color-faint); }
-  .hljs-params, .hljs-punctuation, .hljs-subst { color: var(--color-ink); }
-  .hljs-meta, .hljs-selector-id, .hljs-selector-class { color: var(--color-dim); }
-  .hljs-deletion { color: var(--color-rust); }
+  /* Code in the chat takes the editor's syntax colours (the `--code-*` tokens), so a snippet reads the same in a reply
+     as in the file it came from. It was monochrome — every class mapped to a grey — which the owner read as plain white
+     text (2026-09-30). The same AA bar holds: check:glass-contrast measures these spans on the transcript's glass. */
+  .hljs-comment, .hljs-quote { color: var(--code-comment); font-style: italic; }
+  .hljs-keyword, .hljs-selector-tag { color: var(--code-keyword); font-weight: 600; }
+  .hljs-operator { color: var(--code-operator); }
+  .hljs-string, .hljs-addition { color: var(--code-string); }
+  .hljs-regexp { color: var(--code-regexp); }
+  .hljs-number, .hljs-literal, .hljs-symbol, .hljs-bullet { color: var(--code-number); }
+  .hljs-link { color: var(--code-function); text-decoration: underline; }
+  .hljs-title, .hljs-title.function_ { color: var(--code-function); }
+  .hljs-section { color: var(--code-keyword); font-weight: 600; }
+  .hljs-type, .hljs-class, .hljs-title.class_, .hljs-built_in { color: var(--code-type); }
+  .hljs-attr, .hljs-attribute, .hljs-property { color: var(--code-property); }
+  .hljs-variable, .hljs-template-variable, .hljs-params, .hljs-subst { color: var(--code-variable); }
+  .hljs-punctuation { color: var(--code-punctuation); }
+  .hljs-tag, .hljs-name, .hljs-meta, .hljs-selector-id, .hljs-selector-class { color: var(--code-meta); }
+  .hljs-deletion { color: var(--code-invalid); }
   .hljs-emphasis { font-style: italic; }
   .hljs-strong { font-weight: 600; }
 }
@@ -1486,7 +1564,6 @@
   .workspace-starter { padding: 12px; }
   .workspace-starter-description { display: none; }
   .workspace-recents { margin-top: 22px; }
-  .composer-brief-label { display: none; }
 }
 @container (max-width: 390px) {
   .workspace-starters { grid-template-columns: 1fr; }

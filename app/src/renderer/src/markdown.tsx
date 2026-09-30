@@ -174,7 +174,7 @@ export function CodeBlock({ code, lang }: { code: string; lang: string }): React
   };
   return (
     <div className="group relative my-2">
-      <pre className="overflow-x-auto rounded-lg border border-line bg-well px-3.5 py-3 font-mono text-xs leading-normal whitespace-pre">
+      <pre className="overflow-x-auto rounded-lg border border-line bg-[var(--code-block)] px-3.5 py-3 font-mono text-xs leading-normal whitespace-pre">
         {html ? (
           // hljs output is generated from escaped text by our own local library — not remote HTML.
           <code dangerouslySetInnerHTML={{ __html: html }} />

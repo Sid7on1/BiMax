@@ -34,8 +34,9 @@ const AA = 4.5, AA_LARGE = 3.0;
 const REPORT_ONLY = process.argv.includes('--report');
 /* Every preview page that stages real surfaces. `#workbench` was added with the right panel's tab
    strip (2026-09-19): a new surface that this checker does not visit is a surface nobody measured,
-   and the chips' quiet text sits on a raised veil over the pane's veil. */
-const PAGES = ['http://localhost:5199/#shell', 'http://localhost:5199/#workbench'];
+   and the chips' quiet text sits on a raised veil over the pane's veil. `#transcript` (2026-09-30) is
+   where a reply's code blocks are, with the editor's syntax colours. */
+const PAGES = ['http://localhost:5199/#shell', 'http://localhost:5199/#workbench', 'http://localhost:5199/#transcript'];
 const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 
 const srgb = (v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
@@ -110,7 +111,12 @@ async function measurePage(features, url) {
       return [d[0], d[1], d[2], d[3] / 255];
     };
     const out = [];
-    for (const stage of document.querySelectorAll('[class*="theme-"][data-chrome]')) {
+    // Innermost stages only. The transcript renders the real `Transcript`, which publishes the window's chrome on
+    // <html> just as the app does — and <html> also carries the page's theme class, so it matched as a stage wrapping
+    // the two real ones. Every node was then measured a second time under the wrong theme and chrome, and text the
+    // preview scrolls out of view was reported at 1.08:1 "on #1a1a1a".
+    const STAGE = '[class*="theme-"][data-chrome]';
+    for (const stage of [...document.querySelectorAll(STAGE)].filter((s) => !s.querySelector(STAGE))) {
       const theme = stage.className.includes('starlight') ? 'starlight' : 'moonlight';
       const chrome = stage.getAttribute('data-chrome');
       // Resolve this stage's own ink, so "is this primary text?" is a fact rather than a guess.
@@ -120,12 +126,14 @@ async function measurePage(features, url) {
       const ink = getComputedStyle(probe).color;
       probe.remove();
       for (const el of stage.querySelectorAll('*')) {
-        // Not the code editor. CodeMirror paints its own opaque theme and its own syntax colours,
-        // which are deliberately outside the veil system — and a syntax token's "backdrop" sampled
-        // 12px below is usually another token, so measuring it here produces noise, not evidence.
-        // The editor's light-theme problem is real and is tracked separately; it is not a glass
-        // contrast question.
-        if (el.closest('.cm-editor')) continue;
+        // The code editor IS measured now. It used to be skipped because it painted its own opaque
+        // slab; since 2026-09-30 it is glass on the pane's veil, so its code is text over the glass
+        // like any other — and text people read line by line, so it is held to AA as its own class
+        // (`code`, assertion [3] below), syntax colours and comments included. The backdrop is the
+        // dominant colour inside the token's own box (see below), not a point under it, so a token's
+        // neighbours do not stand in for its ground. Inside the editor only the code and the line
+        // numbers are text; its hidden measuring and accessibility nodes are not.
+        if (el.closest('.cm-editor') && !el.closest('.cm-content, .cm-gutters')) continue;
         // Not a disabled control. WCAG 1.4.3 exempts inactive components, and ours are drawn at
         // `opacity-40`/`opacity-45` — which is exactly what the two last "failures" were: a Push
         // button with no remote and a commit button with no message, both painted at 45% and both
@@ -164,6 +172,8 @@ async function measurePage(features, url) {
         out.push({
           theme, chrome, text: text.slice(0, 24), color: cs.color, fg: rgba(cs.color),
           primary: cs.color === ink,
+          // The editor's code, and a reply's fenced code block (highlight.js spans inside `<pre>`).
+          code: !!el.closest('.cm-content, .md pre'),
           size: parseFloat(cs.fontSize), weight: cs.fontWeight, grid,
         });
       }
@@ -237,8 +247,9 @@ const show = (rows, n = 10) => rows.slice(0, n).forEach((r) => console.log(
   `${r.primary ? 'ink ' : 'quiet'} ${String(r.size).padStart(4)}px  ${r.text.padEnd(24)} on ${hex(r.bg)}`));
 
 const byRatio = (a, b) => a.ratio - b.ratio;
-const primaryFails = base.filter((r) => r.primary && r.ratio < r.floor).sort(byRatio);
-const quietFails = base.filter((r) => !r.primary && r.ratio < r.floor).sort(byRatio);
+const primaryFails = base.filter((r) => r.primary && !r.code && r.ratio < r.floor).sort(byRatio);
+const codeFails = base.filter((r) => r.code && r.ratio < r.floor).sort(byRatio);
+const quietFails = base.filter((r) => !r.primary && !r.code && r.ratio < r.floor).sort(byRatio);
 const moreFails = more.filter((r) => r.ratio < r.floor).sort(byRatio);
 
 console.log(`\nglass contrast — ${base.length} text nodes over their composited surface\n`);
@@ -249,12 +260,26 @@ else {
   if (worst) console.log(`    worst ${worst.ratio.toFixed(2)}:1  ${worst.theme}/${worst.chrome}  "${worst.text}"`);
 }
 
+const code = base.filter((r) => r.code);
+console.log(`\n  [3] CODE (editor and chat code blocks) at baseline, every token — ${code.length ? (codeFails.length ? `${codeFails.length} of ${code.length} BELOW FLOOR` : `all ${code.length} clear`) : 'NONE MEASURED'}`);
+if (codeFails.length) show(codeFails);
+else {
+  for (const theme of ['moonlight', 'starlight']) {
+    const worst = code.filter((r) => r.theme === theme).sort(byRatio)[0];
+    if (worst) console.log(`    ${theme.padEnd(10)} worst ${worst.ratio.toFixed(2)}:1  ${worst.chrome}  "${worst.text}" (${worst.color})`);
+  }
+}
+const gutter = base.filter((r) => !r.code && r.text && /^\d+$/.test(r.text) && r.size === 12.5).sort(byRatio)[0];
+if (gutter) console.log(`    line numbers: worst ${gutter.ratio.toFixed(2)}:1  ${gutter.theme}/${gutter.chrome}`);
+
 console.log(`\n  [2] EVERYTHING under prefers-contrast: more — ${moreFails.length ? `${moreFails.length} BELOW FLOOR` : 'all clear'}`);
 if (moreFails.length) show(moreFails);
 
 console.log(`\n  [i] quiet text below AA at baseline (deliberate; Increase Contrast is the remedy): ${quietFails.length}`);
 show(quietFails, 6);
 
-const failed = primaryFails.length > 0 || moreFails.length > 0;
+// No code at all is a failure too: the preview stages open files, so zero means the editor stopped rendering (or the
+// selector drifted) and the code went unmeasured while the check said nothing.
+const failed = primaryFails.length > 0 || moreFails.length > 0 || codeFails.length > 0 || code.length === 0;
 if (failed && !REPORT_ONLY) { console.error('\n✗ contrast regression\n'); process.exit(1); }
-console.log(`\n✓ primary ink clears AA, and Increase Contrast rescues ${quietFails.length - moreFails.length} of ${quietFails.length} quiet nodes\n`);
+console.log(`\n✓ primary ink and every code token clear AA, and Increase Contrast rescues ${quietFails.length - moreFails.length} of ${quietFails.length} quiet nodes\n`);

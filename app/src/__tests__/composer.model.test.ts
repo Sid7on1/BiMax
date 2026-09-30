@@ -38,13 +38,20 @@ describe('composer submission and recovery', () => {
   });
   afterAll(() => { delete (globalThis as any).localStorage; });
 
-  test('a brief reaches the engine with explicit output, constraints and success criteria', () => {
-    const message = composeMessage({ text: 'Summarize the findings', output: 'Document', constraints: 'Use only attached sources', checks: 'Cite every claim' }, ['notes/Team report.md']);
+  test('a message carries its text, a requested output and its file references', () => {
+    const message = composeMessage({ text: 'Summarize the findings', output: 'Document' }, ['notes/Team report.md']);
     expect(message).toContain('Requested output: Document');
-    expect(message).toContain('Constraints:\nUse only attached sources');
-    expect(message).toContain('Completion checks:\nCite every claim');
     expect(message).toContain('@"./notes/Team report.md"');
     expect(composeMessage({ ...emptyDraft(), text: 'Fix the login bug' })).toBe('Fix the login bug');
+  });
+
+  test('a draft saved with the removed Brief keeps its text and sends none of the Brief', () => {
+    values.set('bimax:composer:v1:/brief', JSON.stringify({ at: Date.now(), draft: {
+      text: 'Summarize the findings', output: 'Auto', constraints: 'Use only attached sources', checks: 'Cite every claim',
+    } }));
+    const draft = readDraft('/brief');
+    expect(draft).toEqual({ text: 'Summarize the findings', output: 'Auto' });
+    expect(composeMessage(draft)).toBe('Summarize the findings');
   });
 
   test('completes the token at the cursor without deleting the rest of the instruction', () => {
@@ -60,7 +67,7 @@ describe('composer submission and recovery', () => {
   });
 
   test('drafts survive remounts, are isolated by project, and clear on task navigation', () => {
-    const draft = { ...emptyDraft(), text: 'Preserve this unfinished thought', checks: 'Show sources' };
+    const draft = { ...emptyDraft(), text: 'Preserve this unfinished thought' };
     expect(saveDraft('/project-a', draft)).toBe(true);
     expect(readDraft('/project-a')).toEqual(draft);
     expect(readDraft('/project-b')).toEqual(emptyDraft());

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   ArrowUp, AudioLines, Square, FunctionSquare, FileText, Shield, Cpu,
-  ChevronUp, Sparkles, Pencil, Search, Hammer, Flame, Plus, ListChecks, X, CornerDownRight, Folder, GitBranch, AtSign, SquareSlash as SlashSquare,
+  ChevronUp, Sparkles, Pencil, Search, Hammer, Flame, Plus, X, CornerDownRight, Folder, GitBranch, AtSign, SquareSlash as SlashSquare,
 } from 'lucide-react';
 import { CompletionItem, ControlsMsg, UiSnapshot } from '../protocol';
 import { cn } from '../lib/cn';
@@ -94,7 +94,6 @@ export function Composer({
     setDraft(current => ({ ...current, text: typeof value === 'function' ? value(current.text) : value }));
   };
   const [queued, setQueued] = useState<{ draft: ComposerDraft; attachments: Attachment[] } | null>(null);
-  const [detailsOpen, setDetailsOpen] = useState(false);
   const [saved, setSaved] = useState(true);
   const [error, setError] = useState('');
   const [sel, setSel] = useState(0);
@@ -209,7 +208,7 @@ export function Composer({
       onCommand(pendingCommand);
       historyRef.current = pushHistory(draftKey, pendingCommand);
       histIdxRef.current = -1;
-      setDraft(emptyDraft()); setDetailsOpen(false);
+      setDraft(emptyDraft());
       onClearCompletions();
       submissionLock.current = false;
       return;
@@ -220,14 +219,14 @@ export function Composer({
       return;
     }
     if (!send(draft, attachments)) { submissionLock.current = false; return; }
-    setDraft(emptyDraft()); setAttachments([]); setDetailsOpen(false);
+    setDraft(emptyDraft()); setAttachments([]);
     ingestJobs.current.clear(); histIdxRef.current = -1;
   };
   const sendQueued = (): void => {
     if (!queued || busy || !available || submissionLock.current) return;
     submissionLock.current = true;
     if (send(queued.draft, queued.attachments)) {
-      setQueued(null); setDraft(emptyDraft()); setAttachments([]); setDetailsOpen(false);
+      setQueued(null); setDraft(emptyDraft()); setAttachments([]);
     } else submissionLock.current = false;
   };
   const focusCaret = (position: number): void => {
@@ -582,19 +581,6 @@ export function Composer({
 
         {dictation.error ? <p role="status" className="px-4 pb-1 text-[11px] text-amber">{dictation.error}</p> : null}
         {talk.error ? <p role="status" className="px-4 pb-1 text-[11px] text-amber">{talk.error}</p> : null}
-        {detailsOpen && (
-          <div id="composer-brief" className="mx-4 mb-3 grid gap-3 rounded-xl bg-[var(--float-veil)] p-3 sm:grid-cols-2">
-            <label className="text-[11px] text-dim">Constraints
-              <textarea rows={2} value={draft.constraints} readOnly={!!queued} onChange={e => setDraft(current => ({ ...current, constraints: e.target.value }))}
-                placeholder="Audience, scope, sources, things to preserve…" className="mt-1.5 block w-full resize-y rounded-lg border border-line bg-transparent p-2 text-[12px] text-ink outline-none focus:border-ember/50" />
-            </label>
-            <label className="text-[11px] text-dim">What does done look like?
-              <textarea rows={2} value={draft.checks} readOnly={!!queued} onChange={e => setDraft(current => ({ ...current, checks: e.target.value }))}
-                placeholder="Tests pass, claims cite sources, totals reconcile…" className="mt-1.5 block w-full resize-y rounded-lg border border-line bg-transparent p-2 text-[12px] text-ink outline-none focus:border-ember/50" />
-            </label>
-            <p className="text-[10px] text-faint sm:col-span-2">Included in your message. Output preferences keep your current permissions.</p>
-          </div>
-        )}
         <div className="composer-toolbar flex min-w-0 items-center gap-1 px-3 pb-2.5">
           <button
             type="button"
@@ -607,12 +593,6 @@ export function Composer({
             <Plus size={16} />
           </button>
 
-          <button type="button" aria-expanded={detailsOpen} aria-controls="composer-brief" onClick={() => setDetailsOpen(value => !value)}
-            title="Constraints, and what done looks like"
-            className={cn('flex shrink-0 items-center gap-1.5 rounded-xl px-2 py-1.5 text-[11px] transition-colors', detailsOpen || draft.constraints || draft.checks ? 'text-ink' : 'text-faint hover:text-ink')}>
-            <ListChecks size={13} />
-            <span className="composer-brief-label">Brief{(draft.constraints || draft.checks) ? ` · ${Number(!!draft.constraints) + Number(!!draft.checks)}` : ''}</span>
-          </button>
           {/* Widest of the strip's menus: in `custom` it grows three sections deep, and `fitHeight`
               means the surface is exactly as tall as whichever shape it is in rather than sized for
               its largest one. */}

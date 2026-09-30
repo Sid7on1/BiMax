@@ -1,13 +1,11 @@
-/** Plain task briefs: preferences are visible instructions, never permission overrides. */
+/** A message being written. Preferences are visible instructions, never permission overrides. */
 export const OUTPUTS = ['Auto', 'Code', 'Document', 'Analysis', 'Plan'] as const;
 export type OutputKind = typeof OUTPUTS[number];
 export interface ComposerDraft {
   text: string;
   output: OutputKind;
-  constraints: string;
-  checks: string;
 }
-export const emptyDraft = (): ComposerDraft => ({ text: '', output: 'Auto', constraints: '', checks: '' });
+export const emptyDraft = (): ComposerDraft => ({ text: '', output: 'Auto' });
 
 export function draftKey(project: string): string {
   return `bimax:composer:v1:${project}`;
@@ -18,17 +16,18 @@ export function readDraft(project: string): ComposerDraft {
     const saved = JSON.parse(localStorage.getItem(draftKey(project)) || 'null');
     if (!saved || Date.now() - saved.at > 7 * 86400_000) return emptyDraft();
     const draft = saved.draft;
-    if (!draft || !['text', 'constraints', 'checks'].every(k => typeof draft[k] === 'string')
-      || !OUTPUTS.includes(draft.output)) return emptyDraft();
+    if (!draft || typeof draft.text !== 'string' || !OUTPUTS.includes(draft.output)) return emptyDraft();
     // The composer no longer offers output categories to pick, so a draft saved while it did must
-    // not keep appending an invisible "Requested output:" line the user cannot see or clear.
-    return { ...draft, output: 'Auto' };
+    // not keep appending an invisible "Requested output:" line the user cannot see or clear. The same
+    // for the Brief (constraints and "what does done look like?"), removed on 2026-09-30: only the
+    // text is kept, so an old draft cannot send sections nobody can see any more.
+    return { text: draft.text, output: 'Auto' };
   } catch { return emptyDraft(); }
 }
 
 export function saveDraft(project: string, draft: ComposerDraft): boolean {
   try {
-    if (!draft.text && !draft.constraints && !draft.checks && draft.output === 'Auto') {
+    if (!draft.text && draft.output === 'Auto') {
       localStorage.removeItem(draftKey(project));
     } else {
       localStorage.setItem(draftKey(project), JSON.stringify({ at: Date.now(), draft }));
@@ -102,8 +101,6 @@ export function isReferenceable(path: string): boolean {
 export function composeMessage(draft: ComposerDraft, paths: string[] = []): string {
   const sections = [draft.text.trim()];
   if (draft.output !== 'Auto') sections.push(`Requested output: ${draft.output}`);
-  if (draft.constraints.trim()) sections.push(`Constraints:\n${draft.constraints.trim()}`);
-  if (draft.checks.trim()) sections.push(`Completion checks:\n${draft.checks.trim()}`);
   const usable = [...new Set(paths)].filter(isReferenceable);
   if (usable.length) sections.push(usable.map(mentionRef).join(' '));
   return sections.filter(Boolean).join('\n\n');

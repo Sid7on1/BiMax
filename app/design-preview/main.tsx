@@ -197,8 +197,18 @@ function Preview(): React.ReactElement {
               carries, and descendants inherit the COMPUTED colour — so a themed subtree that does
               not re-assert it renders the other theme's ink. Markdown has no colour class of its
               own, so it is the surface that exposes this. */}
-          <div className="theme-moonlight text-ink" data-chrome="expanded"><TranscriptPreview /></div>
-          <div className="theme-starlight text-ink" data-chrome="expanded"><TranscriptPreview /></div>
+          {/* Each theme windowed — glass over a desktop picture, which is the only way to see (or have
+              check:glass-contrast measure) a reply's code on the glass it is read on — and expanded (solid). */}
+          {(['moonlight', 'starlight'] as const).flatMap((theme) => (['windowed', 'expanded'] as const).map((chrome) => (
+            <div
+              key={`${theme}-${chrome}`}
+              className={`theme-${theme} text-ink`}
+              data-chrome={chrome}
+              style={{ borderRadius: 14, background: chrome === 'windowed' ? 'linear-gradient(140deg, #2f4858 0%, #6d597a 38%, #b56576 66%, #e8a598 100%)' : undefined }}
+            >
+              <TranscriptPreview />
+            </div>
+          )))}
         </div>
       ) : page === 'models' ? (
         <div className={dark ? 'theme-moonlight' : 'theme-starlight'} data-chrome="expanded">
