@@ -239,9 +239,31 @@ running minutes later. Previous app kept at `~/Developer/bimax-archive/apps/Bima
 build first stopped on the notch helper's OCR self-test: macOS refused accurate text recognition on this Mac
 (e5rtError 13) — Copy Text now falls back to the fast recognizer (1aa166c). Not yet felt by hand.
 
+## Item 11, the rest — the first-open pause, measured on a real screen (2026-09-30)
+
+Batch 5 left one question: in the software-rendered harness the FIRST open of each menu stalled 150–390 ms. Measured
+now in a visible, GPU-composited window with the app's own window options (transparent, `vibrancy: 'sidebar'`,
+hidden-inset title bar), the built renderer at the owner's 120%, real clicks (`sendInputEvent`), Long Animation Frames
+and Event Timing:
+
+| run | first open of the first menu | later opens | side panes (open/close) | model window, first open |
+|---|---|---|---|---|
+| first run on this machine | one 417 ms frame; click → paint 505 ms; close 202 ms; Model #2 100 ms, Permission #1 81 ms | ≤19 ms frames, click → paint 40–56 ms | — | — |
+| every later run, even with a brand-new app profile | ≤19 ms frames, click → paint 56–72 ms | same | 0 of ~65 frames over 20 ms, both panes, both ways | 433 ms the first time it was ever opened, then 19 ms — also with a new profile |
+
+Every long frame had **0 ms of script** and 1–2 ms of rendering work: the time is the graphics stack preparing the glass
+(background blur plus the masked edge blur) the first time it is drawn. It is kept by macOS per app, outside the app's
+profile (`$DARWIN_USER_CACHE_DIR/<bundle id>.helper.GPU/com.apple.metal`; Bimax's has existed since July), so it survives
+restarts and reinstalls and returns only when that cache is reset — a macOS update, an Electron upgrade, or macOS
+clearing caches under disk pressure.
+
+**Decision (owner: "your call"): no code change.** In steady state nothing stalls. A launch-time warm-up (drawing each
+glass variant once, invisibly) could hide the rare one-time pause, but it cannot be verified here without clearing
+macOS's own caches, and it would add GPU work to every launch. Item 11 is closed. The scratch measuring script is
+described here, not committed: a visible window, the journeys' bridge stand-in, real clicks, Long Animation Frames.
+
 ## Still open
 
 | # | Item |
 |---|---|
-| 11 (rest) | The first open of each menu stalls 150–390 ms in the harness (compositor, not script); check in the real window. Batch 7 removed two pane artefacts (a scrollbar flash, a stretched glass) that may have been part of what was seen. |
 | 23–45 | Research principles. Several already hold or were served by the items above (42 in item 18); the rest need picking one by one with the owner. |
