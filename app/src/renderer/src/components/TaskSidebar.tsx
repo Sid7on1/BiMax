@@ -145,7 +145,7 @@ export function TaskSidebar({
           at y=0 and the window's own traffic lights sit ON it, which is where macOS 26/27 put them
           for an edge-to-edge sidebar. `pl-[76px]` is their room: 12pt lights on a 23pt pitch from
           x=16 run through x≈62pt. `drag-region` because no bar spans the top to drag by now. */}
-      <div className={cn('flex h-11 shrink-0 items-center gap-1 pr-2 pl-[76px]', !peek && 'drag-region')}>
+      <div className={cn('sidebar-header flex h-11 shrink-0 items-center gap-1 pr-2 pl-[76px]', !peek && 'drag-region')}>
         {onToggleSidebar && (
           <button
             onClick={onToggleSidebar}
@@ -157,7 +157,7 @@ export function TaskSidebar({
             <PanelLeft size={15} />
           </button>
         )}
-        <span className="truncate px-1 text-[13.5px] font-semibold tracking-[-0.01em] text-ink">Bimax</span>
+        <span className="sidebar-title shrink-0 px-1 text-[13.5px] font-semibold tracking-[-0.01em] text-ink">Bimax</span>
         <span className="flex-1" />
         <button
           onClick={onOpenPalette}

@@ -423,10 +423,11 @@
   position: relative;
   isolation: isolate;
   background: var(--glass-veil);
-  /* macOS supplies the blur through the window's vibrancy material. This is the fallback for
-     everywhere that does not (and it costs nothing when the backdrop is already frosted). */
-  backdrop-filter: blur(20px) saturate(1.2);
-  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  /* No backdrop-filter while pinned (UI fix list item 10, "the middle and left panels feel like two windows"). It was
+     the one pane with its own blur — the canvas and the right pane have none, by the rule recorded at `.app-surface` —
+     and pinned it sits over the transparent window, where macOS vibrancy already frosts the desktop, so the pass painted
+     nothing (measured: the sidebar/canvas step on screen is exactly their tints' 0.74 difference) and cost a compositor
+     pass on a full-height layer every frame a pane flies. The peek, which sits over live text, keeps it — below. */
   /* No `border-right`, and no top sheen either. With every surface on the same alpha the panes are
      separated by about ten levels of value, which is how Cursor and both reference apps do it; a
      hairline on top of that reads as a seam rather than an edge.
@@ -460,8 +461,18 @@
    glass sits over the desktop; peeking, it sits over the transcript, and at α 0.74 the transcript's
    text read straight through the panel's own rows (fix list item 14). A surface over live content is
    a floating surface, so it takes the floating rule: the sidebar's own solid tint at 94%. */
+/* The sidebar's name gives way before it truncates (item 10): at 120% zoom — the owner's — the row is ~38px short of
+   the traffic lights, the toggle, "Bimax" and search, and it read "Bi…". A cut-off name is worse than none; the row is
+   the query container, so the name comes back as soon as the pane is wide enough. A query measures the CONTENT box,
+   so the 84px of traffic-light padding is not in it: toggle 28 + three 4px gaps + the name ~46 + search 28 ≈ 114. */
+.sidebar-header { container-type: inline-size; }
+@container (max-width: 117px) { .sidebar-title { display: none; } }
+
 .sidebar-peek .sidebar-shell {
   background: color-mix(in srgb, var(--glass-solid) 94%, transparent);
+  /* Over the transcript there is something to frost: the 6% that shows through is blurred, not crisp text. */
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
 }
 
 [data-chrome='expanded'] .sidebar-shell::after {

@@ -148,11 +148,36 @@ to the target, never releasing at rest, following under Reduce Motion, an uncaug
 as space, the observer after paint, the sidebar unwired) — every one failed a test. The timing and feel of the
 flight itself are unchanged.
 
+## Batch 6 — item 10, left and middle panel parity (2026-09-30, owner: "ur call")
+
+**Measured on the installed window** (`screencapture -l`, the owner's own session): sidebar (33,34,36), conversation
+(29,29,30), right pane (36,37,39), right pane's top band (42,43,45). The sidebar/conversation step is 4 levels —
+exactly their tints' difference at α 0.74 — with no line between them. The owner's window runs at **120% zoom**
+(Chromium `per_host_zoom_levels` = 1.0), and at that zoom the sidebar's top row is ~38px short: its name read **"Bi…"**
+next to a conversation column with no top row at all, i.e. one column with a window title and one without.
+
+Changed:
+- The sidebar's name is shown whole or hidden, never cut: its row is a query container and the name gives way under
+  117px of content box (measured in the built renderer: shown in full at 100%, 47px; hidden at 120%).
+- The pinned sidebar lost its own `backdrop-filter`. It was the only pane with one; pinned it sits over the
+  transparent window, where macOS already frosts the desktop, so on screen it painted nothing (the measured step is
+  the tint difference alone) and cost a compositor pass on a full-height layer every frame a pane flies. The peek,
+  over live text, keeps its blur.
+
+**Deliberately not changed:** the conversation being the darkest surface. It is the recorded, Cursor-matched ladder
+(`styles.css`, "THE SAME ALPHA EVERYWHERE; THE TINT IS WHAT DIFFERS") and it is 4 levels here. Whether the owner wants
+the sidebar and the conversation as one surface is a taste call to show them, not to make for them.
+
+**Verification that ran:** app typecheck clean; app suite 115 suites / 1021 tests pass; 5 deliberate breakages (the
+pinned blur back, the peek's blur gone, the name truncating, no container, the threshold on the border box) — every
+one failed a test, the second only after the check was anchored to the unprefixed property. **Not yet installed:**
+the installed build (from 9a8f56d) predates this.
+
 ## Still open
 
 | # | Item |
 |---|---|
-| 10 | Left and middle panel parity (one blur, radius, border and spacing set). |
+| 10 (rest) | Owner to judge: one surface for sidebar + conversation, or the current 4-level step? |
 | 11 (rest) | The first open of each menu stalls 150–390 ms in the harness (compositor, not script); check in the real window. |
 | 22 | Visual-regression coverage for the morph paths in the design-preview harness. |
 | 23–45 | Research principles. Several already hold or were served by the items above (42 in item 18); the rest need picking one by one with the owner. |

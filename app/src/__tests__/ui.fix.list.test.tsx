@@ -178,7 +178,9 @@ describe('item 13 — no decorative thinking budget', () => {
 
 describe('item 14 — the peek is readable over the conversation', () => {
   test('peeking, the sidebar takes the floating density', () => {
-    expect(css).toContain('.sidebar-peek .sidebar-shell {\n  background: color-mix(in srgb, var(--glass-solid) 94%, transparent);\n}');
+    // The rule, not its exact text: item 10 added the peek's own blur to the same rule.
+    const peek = css.slice(css.indexOf('.sidebar-peek .sidebar-shell {'), css.indexOf('}', css.indexOf('.sidebar-peek .sidebar-shell {')));
+    expect(peek).toContain('background: color-mix(in srgb, var(--glass-solid) 94%, transparent);');
     expect(read('app/src/renderer/src/App.tsx')).toContain('className="sidebar-peek ');
   });
 });
@@ -428,5 +430,31 @@ describe('item 9 — find and replace is Cursor’s widget', () => {
     const widget = read('app/src/renderer/src/components/FindWidget.tsx');
     expect(widget).toContain('return search({ top: true, createPanel: (view) => new FindPanel(view) });');
     expect(widget).toContain("runScopeHandlers(view, event.nativeEvent, 'search-panel')");
+  });
+});
+
+describe('item 10 — the sidebar and the conversation are one window', () => {
+  const block = (selector: string): string => {
+    const at = css.indexOf(`${selector} {`);
+    // Declarations only: the comments inside a rule explain what it no longer does.
+    return at < 0 ? '' : css.slice(at, css.indexOf('}', at)).replace(/\/\*[\s\S]*?\*\//g, '');
+  };
+
+  test('the pinned sidebar carries no blur of its own, like the canvas and the right pane; the peek keeps it', () => {
+    // Measured on the installed window: the sidebar/canvas step is exactly their tints' difference, so the pinned
+    // blur painted nothing — it only cost a compositor pass on a full-height layer while panes fly.
+    expect(block('.sidebar-shell')).not.toContain('backdrop-filter');
+    expect(block('.app-surface')).not.toContain('backdrop-filter');
+    // The unprefixed property itself — `-webkit-backdrop-filter` contains the same text.
+    expect(block('.sidebar-peek .sidebar-shell')).toMatch(/^\s*backdrop-filter: blur\(20px\) saturate\(1\.2\);/m);
+  });
+
+  test('the sidebar’s name is shown whole or not at all — never "Bi…"', () => {
+    const sidebar = read('app/src/renderer/src/components/TaskSidebar.tsx');
+    expect(sidebar).toContain('<span className="sidebar-title shrink-0 ');
+    expect(sidebar).not.toMatch(/<span className="truncate[^"]*">Bimax<\/span>/);
+    expect(sidebar).toContain("cn('sidebar-header flex h-11");
+    expect(css).toContain('.sidebar-header { container-type: inline-size; }');
+    expect(css).toContain('@container (max-width: 117px) { .sidebar-title { display: none; } }');
   });
 });
