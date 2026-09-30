@@ -73,20 +73,29 @@ Live: a window in ~1 s, no start-up error, the welcome screen's recent projects 
 started its engine, which indexed the folder, and the Files panel listed it through the moved `workspace.ipc.ts`.
 Not exercised live: a model turn, export/share, Organize, a night shift or a schedule run (each is unit-tested).
 
+**God files split, 2026-09-30.** Each split moves code as is, and each got tests for the parts it made; mutants were
+run against every split and the survivors got a test. Not rebuilt or installed since.
+
+| Item | Result | Commit |
+|---|---|---|
+| C15, E41, E42 (part) | `llm.adapter.ts` 1,442 → 1,016: `chat.stream.reader.ts`, `llm.errors.ts` (the adapter's own errors are types; the key pool asks the error instead of matching its wording), `provider.quirks.ts`. The three copies of the key/budget/error bookkeeping had drifted (one leaked a budget reservation); one `completeOnce()` now. Three unused completions archived | `9d5f9e9` |
+| C14 | `agent.loop.ts` 1,565 → 1,113: the 1,230-line `execute()` is a sequence of named phases; `agent.run.state.ts`, `agent.tool.round.ts`, `tool.outcome.observers.ts` | `0ac64c1` |
+| C19 | `headless.entry.ts` 799 → 204: six parts (recovery, continuation, handlers, heartbeat, boot, onboarding), each returning its stop. Split, not deleted: record 64 found it is the session wiring the monolith still needs. The onboarding's `graph_changed` listener was never removed; it is now | `68f0505`, `1f91775` |
+| C16, E43 (the `send()` example) | `thread.manager.ts` 1,154 → 1,020: `thread.budget.ts` (the live-engine memory budget, the idle TTL, and the one rule for which idle engine may be stopped, now a plain function) and `thread.environment.ts` (what a Thread's engine starts with). `receive()` and `send()` are named steps (`holdApproval`, `takeReply`, `cancelTurn`, …). Nothing had tested that an approval reply with a wrong token or an unoffered choice is refused; `thread.parts.test.ts` does (10 tests, 20 mutants killed; app suite 107 suites / 932 tests) | `7e1328d` |
+| C24, C26, C28, C29 | No load-time import cycles left, with a test; the dead Docker plugin pipeline and `Dockerfile` archived and `dockerode` dropped; `tdm.ts` moved to `src/mind/`; `src/compliance/` verified live and kept | `db70a49` |
+
 ## Open
 
-- **C13–C18 god files** — `main/index.ts` continues (the Bimax Threads channels, voice/talk, tray, notch remain);
-  `agent.loop.ts`, `llm.adapter.ts`, `thread.manager.ts`, `ModelDialog.tsx`, `ThreadSurfaces.tsx` not started.
-- **B6–B12, C19 — the monolith, decided and built (record 64).** The owner chose it on 2026-09-29; M1–M5 are done and
+- **C13, C17, C18 god files** — `main/index.ts` continues (the Bimax Threads channels, voice/talk, tray, notch remain);
+  `ModelDialog.tsx` and `ThreadSurfaces.tsx` not started.
+- **B6–B12 — the monolith, decided and built (record 64).** The owner chose it on 2026-09-29; M1–M5 are done and
   M4 (2026-09-30) removed the separate engine process and the stdin/stdout protocol. Closed: B6, B10, B11; mostly
   B8; smaller: B9 (a worker can still crash or hang, so the supervisor stays) and B12 (the process is gone, the
   bundle file stays because Rollup cannot bundle the engine). **Still open: B7** (the window still mirrors the
-  engine's state) and **C19** (`headless.entry.ts` is the engine's session wiring, 799 lines; it cannot be deleted,
-  only split like the other god files). M6, direct window ↔ engine ports, was declined by the owner as a security
-  compromise.
-- C24 (module singletons behind the inline `require()`s), C26, C28 (Docker: `dockerode` is still imported by
-  `plugin.sandbox.ts` and `egress.perimeter.ts`), C29 (`src/compliance/` has one importer, `/compliance`), E41–E44,
-  G52, H53–H54, H56 — not started. H57 is used by two files and was left. I59–I61 are storage outside the repo.
+  engine's state). M6, direct window ↔ engine ports, was declined by the owner as a security compromise.
+- E42's other examples (`vector.store.ts`, `outcome.manager.ts`, the paste pipeline), E43's other callbacks (`talk:start`,
+  the JSX keyboard chains), E44, G52, H53–H54, H56 — not started. H57 is used by two files and was left. I59–I61
+  are storage outside the repo.
 - Acceptance gate 08 ("provider secrets … never appear in … logs"): advanced for key shapes the rules know; a full
   proof would need every writer and the app's diagnostics under one test, which does not exist yet.
 
