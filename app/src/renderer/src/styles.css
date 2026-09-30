@@ -1019,8 +1019,7 @@
   z-index: 1;
 }
 
-/* A shared Mac-like button response: the control compresses under the pointer and its highlight
-   tracks across the surface. It is deliberately short and transform-only, so it provides tactile
+/* A shared Mac-like button response: the control compresses under the pointer and releases without a travelling highlight. It is deliberately short and transform-only, so it provides tactile
    feedback without delaying the action or animating large content. */
 .pressable {
   position: relative;
@@ -1030,17 +1029,8 @@
     background-color 170ms ease, color 170ms ease, box-shadow 170ms ease;
 }
 
-.pressable::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(110deg, transparent 18%, color-mix(in srgb, white 14%, transparent) 48%, transparent 78%);
-  transform: translateX(-125%);
-  transition: transform 360ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.pressable:hover::after { transform: translateX(125%); }
+/* Feedback belongs to the press, not a travelling sheen on every hover. */
+.pressable::after { display: none; }
 
 /* The press itself is instant and linear — a spring on the way DOWN puts the compression behind the
    finger, which is the one place latency is felt. The release above eases back in 120ms. */
@@ -1737,12 +1727,10 @@
 .workspace-project-label { font-size: 10px; color: var(--color-faint); letter-spacing: .02em; }
 .workspace-project-label > span { margin: 0 7px; opacity: .5; }
 .workspace-starters { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; margin-top: 12px; }
-.workspace-starter { position: relative; display: flex; flex-direction: column; min-width: 0; padding: 16px; text-align: left; cursor: pointer; background: var(--raise-veil); border: 1px solid transparent; border-radius: 16px; box-shadow: 0 4px 12px #00000008; transition: transform 220ms cubic-bezier(.2,.8,.2,1),border-color 220ms,box-shadow 220ms; animation: workspace-arrive 600ms both; }
-.workspace-starter:hover { transform: translateY(-4px); border-color: color-mix(in srgb,var(--color-ink) 16%,transparent); box-shadow: 0 12px 24px #0002; }
-.workspace-starter:active { transform: translateY(-1px) scale(.985); transition-duration: 70ms; }
+.workspace-starter { position: relative; display: flex; flex-direction: column; min-width: 0; padding: 16px; text-align: left; cursor: pointer; background: var(--raise-veil); border: 1px solid transparent; border-radius: 16px; transition: background-color 120ms ease-out,border-color 120ms ease-out; }
+.workspace-starter:hover { border-color: color-mix(in srgb,var(--color-ink) 16%,transparent); }
+.workspace-starter:active { border-color: var(--color-ink); }
 .workspace-starter:focus-visible { outline: 2px solid var(--color-ink); outline-offset: 3px; }
-.workspace-starter-icon { transition: transform 220ms; }
-.workspace-starter:hover .workspace-starter-icon { transform: rotate(-7deg); }
 .workspace-starter-description { margin-top: 7px; font-size: 10px; line-height: 1.5; color: var(--color-faint); }
 .workspace-recents { margin-top: 28px; }
 .workspace-recents > div:last-child { border-radius: 12px; background: transparent; }
@@ -1887,9 +1875,8 @@
 .capability-dismiss:hover { background: var(--color-hover); color: var(--color-ink); }
 @keyframes capability-in { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
 
-/* Live thinking: a rotating status word with a travelling highlight, and the tail of the reasoning
-   stream fading out at its top edge. See ThinkingIndicator. */
-.thinking-verb { background: linear-gradient(90deg, var(--color-faint) 0%, var(--color-ink) 45%, var(--color-faint) 90%); background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: thinking-shimmer 2.2s linear infinite; }
+/* Live progress stays readable and still; elapsed time and actual reasoning are information. */
+.thinking-verb { color: var(--color-dim); }
 @keyframes thinking-shimmer { from { background-position: 120% 0; } to { background-position: -100% 0; } }
 .thinking-tail { max-height: 4.6em; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 1.6em); mask-image: linear-gradient(to bottom, transparent 0, #000 1.6em); }
 @media (prefers-reduced-motion: reduce) {
@@ -2135,3 +2122,12 @@ html.aux-surface, html.aux-surface body, html.aux-surface #root { background: tr
 :root[data-reduce-motion] .talk-orb { transition: none; animation: none !important; }
 :root[data-reduce-motion] .status-settle { animation: none; }
 :root[data-reduce-motion] .run-summary { animation: fade-in 120ms ease-out both; }
+
+/* UI fix list 23: every enabled glyph/row acknowledges pointer or Space-down immediately, even
+   before async work answers. A current-colour inset outline preserves fills and text contrast. */
+button:enabled:active,
+[role='button']:not([aria-disabled='true']):active,
+[role='menuitem']:not([aria-disabled='true']):active {
+  outline: 1px solid currentColor;
+  outline-offset: -2px;
+}

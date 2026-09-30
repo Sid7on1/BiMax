@@ -510,6 +510,32 @@ Guided by product-reset 03/04, vision, 08, competitive/06 and X01; the gap regis
 verified; native installed latency, provider-backed outcome quality, fresh-Mac and user studies remain unmeasured.
 Not yet installed.
 
+## Batch 16 — items 23, 28, 30, 37 and 39, feedback without ambient spectacle (2026-10-01)
+
+**Measured first:** with normal motion enabled, the Home choices staged a 600ms entrance. Working text scrambled
+and rotated 30 / 32 times in 2.8 seconds at 100% / 120%, with indefinite blink/shimmer loops. Ordinary controls
+had no shared immediate press acknowledgement. History cards put a generic badge and age before the task title.
+
+Enabled controls now show a static outline while pressed, without reducing ink or changing fill. The existing
+120ms release remains. Send and Stop retain batch 15's actual local acknowledgement and engine progress. Working
+is a plain label with elapsed time, actual retries and the actual reasoning tail. Home and history arrive together;
+hover colours remain, while travelling sheen, rotation, staged entrances and hover travel are removed. The seeded
+surface morph remains the signature gesture. History leads with the task title before age and folder metadata.
+
+**System audit (37):** the main surfaces share the current renderer's material/type/spacing system. Radius families
+still distinguish glyphs, rows, raised surfaces and pills; Lucide and the established file/brand marks retain their
+roles. The old Terminal design document contradicted the current Mac app, so its new current-contract section
+names the renderer as authority and marks Terminal guidance historical. No wholesale token rewrite was needed.
+
+**Verification that ran:** four new tests; 5/5 unit and 3/3 rebuilt-renderer breakages caught in valid runs.
+Normal-motion after checks at both zooms: no starter animation or hover travel, solid 1px press outline, Working,
+zero word mutations and no indefinite status animations. Full **119 suites / 1069 tests**, typecheck, 32 morph
+flights, hit targets, motion tokens and preview build pass. Contrast passes all readable labels and code at 4.5:1.
+Evidence: `batch16-*`. Guided by product-reset 03/04, vision, 08, competitive/06 and the supplied field guide.
+Implemented and locally verified. Native display latency and human trust/fluency/task studies remain unmeasured;
+the shared press contract is not a claim that every installed native destination completes within 100ms.
+Not yet installed.
+
 ## Still open
 
 | # | Item |

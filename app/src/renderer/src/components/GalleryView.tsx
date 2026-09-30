@@ -43,7 +43,7 @@ export function GalleryView({
   return (
     <div className="min-h-0 flex-1 overflow-y-auto">
       <div className="mx-auto max-w-[980px] px-6 pt-8 pb-10">
-        <div className="anim-fade-up flex items-center gap-3">
+        <div className="flex items-center gap-3">
           <button
             onClick={onBack}
             title="Back to chat"
@@ -55,7 +55,7 @@ export function GalleryView({
           <span className="mt-1 text-xs text-faint tabular-nums">{meta.length}</span>
         </div>
 
-        <div className="anim-fade-up mt-5 flex items-center gap-2.5 rounded-xl border border-line bg-raise px-3.5 py-2.5 transition-colors focus-within:border-ember/55" style={{ animationDelay: '60ms' }}>
+        <div className="mt-5 flex items-center gap-2.5 rounded-xl border border-line bg-raise px-3.5 py-2.5 transition-colors focus-within:border-ember/55">
           <Search size={15} className="shrink-0 text-faint" />
           <input
             autoFocus
@@ -67,31 +67,27 @@ export function GalleryView({
         </div>
 
         {visible.length === 0 ? (
-          <div className="anim-fade-up mt-16 flex flex-col items-center gap-2 text-center" style={{ animationDelay: '120ms' }}>
+          <div className="mt-16 flex flex-col items-center gap-2 text-center">
             <MessageSquare size={22} className="text-faint" />
             <div className="text-sm text-dim">{q ? `Nothing matches “${search}”.` : 'No sessions yet — they accrue as you work.'}</div>
           </div>
         ) : (
           <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {visible.map((m, i) => (
+            {visible.map((m) => (
               <button
                 key={m.id}
                 onClick={() => onResume(m.id)}
                 onContextMenu={(e) => { e.preventDefault(); window.bimax.sessionExportMenu(m.id); }}
                 title={`Resume — injects this session's messages into the current context. Right-click to export or share it.`}
                 className={cn(
-                  'anim-fade-up group flex cursor-pointer flex-col rounded-xl border border-line bg-raise/70 p-4 text-left',
-                  'transition-all duration-200 hover:-translate-y-0.5 hover:border-ember/40 hover:shadow-[0_8px_28px_rgba(0,0,0,0.35)]',
+                  'group flex cursor-pointer flex-col rounded-xl border border-line bg-raise/70 p-4 text-left',
+                  'transition-colors duration-120 hover:bg-hover hover:border-ember/40',
                 )}
-                style={{ animationDelay: `${Math.min(i, 12) * 40 + 100}ms` }}
               >
-                <span className="mb-2 flex items-center gap-1.5">
-                  <span className="rounded-md bg-hover px-1.5 py-0.5 text-[10px] font-medium text-dim">Chat</span>
-                  <span className="ml-auto text-[10.5px] text-faint tabular-nums">{relTime(m.startedAt)}</span>
-                </span>
                 <span className="line-clamp-2 min-h-[2.6em] text-[14px] leading-snug font-medium text-ink group-hover:text-ember-bright">
                   {m.title && m.title !== '(no messages yet)' ? m.title : 'Untitled session'}
                 </span>
+                <span className="mt-2 text-[10.5px] text-faint tabular-nums">{relTime(m.startedAt)}</span>
                 <span className="mt-3 flex items-center gap-1.5 text-[10.5px] text-faint">
                   <FolderGit2 size={11} />
                   <span className="truncate">{m.cwd.split('/').slice(-2).join('/')}</span>

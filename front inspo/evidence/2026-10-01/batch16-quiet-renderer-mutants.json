@@ -1,0 +1,20 @@
+[
+  {
+    "name": "rotating scrambled progress returns",
+    "caught": true,
+    "exit": 1,
+    "output": "{\n  \"report\": [\n    {\n      \"zoom\": 1,\n      \"home\": {\n        \"animation\": \"none\",\n        \"duration\": \"0s\"\n      },\n      \"hover\": {\n        \"matrix\": \"none\",\n        \"travels\": false\n      },\n      \"press\": {\n        \"active\": true,\n        \"outline\": \"solid\",\n        \"width\": 1\n      },\n      \"words\": [\n        \"Synthexddykk\u2026\"\n      ],\n      \"loops\": [\n        \"soft-blink\"\n      ],\n      \"textChanges\": 30,\n      \"problems\": [\n        \"status still runs a decorative loop\"\n      ]\n    },\n    {\n      \"zoom\": 1.2,\n      \"home\": {\n        \"animation\": \"none\",\n        \"duration\": \"0s\"\n      },\n      \"hover\": {\n        \"matrix\": \"none\",\n        \"travels\": false\n      },\n      \"press\": {\n        \"active\": true,\n        \"outline\": \"solid\",\n        \"width\": 1\n      },\n      \"words\": [\n        \"Wrancsfqe\u2026\"\n      ],\n      \"loops\": [\n        \"soft-blink\"\n      ],\n      \"textChanges\": 31,\n      \"problems\": [\n        \"status still runs a decorative loop\"\n      ]\n    }\n  ],\n  \"invalid\": null\n}\n"
+  },
+  {
+    "name": "ordinary control loses press acknowledgement",
+    "caught": true,
+    "exit": 1,
+    "output": "{\n  \"report\": [\n    {\n      \"zoom\": 1,\n      \"home\": {\n        \"animation\": \"none\",\n        \"duration\": \"0s\"\n      },\n      \"hover\": {\n        \"matrix\": \"none\",\n        \"travels\": false\n      },\n      \"press\": {\n        \"active\": true,\n        \"outline\": \"none\",\n        \"width\": 3\n      },\n      \"words\": [\n        \"Working\"\n      ],\n      \"loops\": [],\n      \"textChanges\": 0,\n      \"problems\": [\n        \"press has no immediate visible acknowledgement\"\n      ]\n    },\n    {\n      \"zoom\": 1.2,\n      \"home\": {\n        \"animation\": \"none\",\n        \"duration\": \"0s\"\n      },\n      \"hover\": {\n        \"matrix\": \"none\",\n        \"travels\": false\n      },\n      \"press\": {\n        \"active\": true,\n        \"outline\": \"none\",\n        \"width\": 3\n      },\n      \"words\": [\n        \"Working\"\n      ],\n      \"loops\": [],\n      \"textChanges\": 0,\n      \"problems\": [\n        \"press has no immediate visible acknowledgement\"\n      ]\n    }\n  ],\n  \"invalid\": null\n}\n"
+  },
+  {
+    "name": "home stages its decorative entrance",
+    "caught": true,
+    "exit": 1,
+    "output": "{\n  \"report\": [\n    {\n      \"zoom\": 1,\n      \"home\": {\n        \"animation\": \"workspace-arrive\",\n        \"duration\": \"0.6s\"\n      },\n      \"hover\": {\n        \"matrix\": \"matrix(1, 0, 0, 1, 0, 0)\",\n        \"travels\": false\n      },\n      \"press\": {\n        \"active\": true,\n        \"outline\": \"solid\",\n        \"width\": 1\n      },\n      \"words\": [\n        \"Working\"\n      ],\n      \"loops\": [],\n      \"textChanges\": 0,\n      \"problems\": [\n        \"home starter still stages a decorative entrance\"\n      ]\n    },\n    {\n      \"zoom\": 1.2,\n      \"home\": {\n        \"animation\": \"workspace-arrive\",\n        \"duration\": \"0.6s\"\n      },\n      \"hover\": {\n        \"matrix\": \"matrix(1, 0, 0, 1, 0, 0)\",\n        \"travels\": false\n      },\n      \"press\": {\n        \"active\": true,\n        \"outline\": \"solid\",\n        \"width\": 1\n      },\n      \"words\": [\n        \"Working\"\n      ],\n      \"loops\": [],\n      \"textChanges\": 0,\n      \"problems\": [\n        \"home starter still stages a decorative entrance\"\n      ]\n    }\n  ],\n  \"invalid\": null\n}\n"
+  }
+]
