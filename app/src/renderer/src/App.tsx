@@ -100,7 +100,13 @@ export function App(): React.ReactElement {
   const [activeFile, setActiveFile] = useState<string | null>(null);
   /** Unsaved files. It lives here because the tab strip draws the dot and the editor causes it. */
   const [dirtyFiles, setDirtyFiles] = useState<ReadonlySet<string>>(() => new Set());
-  const [wide, setWide] = useState(false);
+  /**
+   * The workbench filling the window between the sidebar and the right edge (owner, 2026-09-30: "it must touch the left
+   * panel, occupy the complete middle panel"). The value is the flex share the panel takes while it does — everything
+   * the sidebar is not — and null when it is not enlarged. See `toggleWide`.
+   */
+  const [wideGrow, setWideGrow] = useState<number | null>(null);
+  const wide = wideGrow !== null;
   const [machineHealthOpen, setMachineHealthOpen] = useState(false);
   const [modelsOpen, setModelsOpen] = useState(false);
   const [composerRevision, setComposerRevision] = useState(0);
@@ -203,30 +209,25 @@ export function App(): React.ReactElement {
   }, []);
 
   /**
-   * Widen the panel, and give the width back.
+   * Enlarge the workbench over the conversation, and give it back.
    *
-   * Not "full width": the task column's `minSize` is 34%, so a panel that covered the window would
-   * have to evict the conversation from the layout. The honest version is the widest the layout
-   * actually allows — 65% alone, less with the sidebar pinned — and a restore to the width the
-   * user had before, which is why the previous share is remembered rather than recomputed.
+   * It used to widen only as far as the layout allowed — the task column's `minSize` is 34% and the
+   * panel's `maxSize` 65% — which the owner read as "it just moves the panel a little wider". Now the
+   * conversation column is taken OUT of the flow in CSS (`[data-inspector-wide]` in styles.css) rather
+   * than through the panel library: its layout validation would clamp the column back to 34%, and
+   * changing `minSize` re-registers the panel (see pane.flight.ts). The column stays mounted — a draft,
+   * the scroll position and a running task are untouched — and the library's own layout is never
+   * changed, so giving the width back is exact: the attribute goes and the inline sizes resume.
+   *
+   * The panel's share is 100 minus the sidebar's, so the sidebar keeps its width to the pixel.
    */
-  const widthBeforeWide = useRef<number | null>(null);
   const toggleWide = useCallback(() => {
-    const handle = groupRef.current;
-    if (!handle) return;
-    const layout = handle.getLayout();
-    const current = layout.inspector;
-    if (current === undefined) return;
-    const sidebar = layout.sidebar ?? 0;
-    setWide((isWide) => {
-      const target = isWide
-        ? (widthBeforeWide.current ?? 34)
-        : Math.min(65, Math.max(current, 100 - sidebar - 34));
-      if (!isWide) widthBeforeWide.current = current;
-      handle.setLayout({ ...layout, inspector: target, task: Math.max(1, 100 - sidebar - target) });
-      return !isWide;
-    });
+    const sidebar = groupRef.current?.getLayout().sidebar ?? 0;
+    setWideGrow((grow) => (grow === null ? Math.max(1, 100 - sidebar) : null));
   }, []);
+  // Hiding the panel ends it. Before paint, so the collapse flight never starts with the conversation
+  // still held at zero width (the two overrides would leave a hole where the panel was).
+  useLayoutEffect(() => { if (!inspectorOpen) setWideGrow(null); }, [inspectorOpen]);
 
   /** Start a fresh task. One definition, because the sidebar, the palette and ⌘N must agree. */
   const newTask = useCallback(() => {
@@ -251,7 +252,7 @@ export function App(): React.ReactElement {
     setDirtyFiles(new Set());
     setRequestedTab(null);
     setInspectorOpen(false);
-    setWide(false);
+    setWideGrow(null);
     setView('chat');
   }, [state.project, state.threadId]);
 
@@ -344,7 +345,14 @@ export function App(): React.ReactElement {
         </div>
       )}
 
-      <div className="relative min-h-0 flex-1">
+      <div
+        className="relative min-h-0 flex-1"
+        data-inspector-wide={wide ? '' : undefined}
+        /* With no sidebar holding the window's corner, the enlarged panel's top row takes the traffic lights'
+           gutter and becomes the drag area — the conversation's chrome, which did both, is out of the flow. */
+        data-edge-free={wide && !(hasProject && sidebarMounted && sidebarPinned) ? '' : undefined}
+        style={wide ? ({ '--inspector-wide-grow': String(wideGrow) } as React.CSSProperties) : undefined}
+      >
         {/*
           Peek: an overlay, not a layout panel. Pointing at the toggle must not reflow the
           transcript, and leaving the panel must put it away again — the two halves of the hover

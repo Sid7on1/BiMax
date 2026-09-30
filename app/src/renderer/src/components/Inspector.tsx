@@ -27,7 +27,7 @@ import { SeedMenu, SeedMenuItem, SeedMenuLabel, SeedMenuSeparator } from './ui/m
  * So: ONE picker, and everything is in it, grouped.
  *
  *   1. the picker — what the panel is showing, and the menu that changes it: the four lanes under
- *      Evidence, every open file under Open files. Plus the two panel controls, widen and hide.
+ *      Evidence, every open file under Open files. Plus the two panel controls, enlarge (fill the window) and hide.
  *   2. a contextual toolbar, for a file tab only: step, breadcrumb, save state, Source|Preview for
  *      markdown, find, and the secondary verbs behind one overflow.
  *   3. the content, flush to the panel's edges.
@@ -228,8 +228,8 @@ export function Inspector({
         <button
           type="button"
           onClick={onToggleWide}
-          title={wide ? 'Give the width back to the conversation' : 'Widen this panel'}
-          aria-label={wide ? 'Restore the panel width' : 'Widen the panel'}
+          title={wide ? 'Bring the conversation back' : 'Fill the window with this panel'}
+          aria-label={wide ? 'Bring the conversation back' : 'Fill the window with this panel'}
           aria-pressed={wide}
           className="evidence-close pressable"
         >

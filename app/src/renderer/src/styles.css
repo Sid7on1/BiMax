@@ -1550,6 +1550,16 @@
 [data-flight-inspector] :is([data-panel][id="inspector"], [data-panel="inspector"], [data-panel-id="inspector"]) { flex: 0 0 var(--flight-inspector) !important; overflow: hidden !important; }
 [data-flight-inspector] :is([data-panel][id="inspector"], [data-panel="inspector"], [data-panel-id="inspector"]) .morph-region { width: var(--flight-start-inspector); min-width: var(--flight-start-inspector); margin-left: calc(var(--flight-inspector) - var(--flight-start-inspector)); }
 [data-flight-inspector] :is([data-panel][id="sidebar"], [data-panel="sidebar"], [data-panel-id="sidebar"]) { flex: 0 0 var(--hold-sidebar) !important; }
+/* The enlarged workbench (App.tsx `toggleWide`): it fills everything between the sidebar and the right edge. The
+   conversation column is taken out of the flow — zero width, hidden, still mounted — and the panel takes the share the
+   sidebar leaves, so the sidebar keeps its width. The library's layout is never touched, so removing the attribute
+   restores the exact widths from before. `visibility: hidden` also takes the column's controls out of the tab order. */
+[data-inspector-wide] :is([data-panel][id="task"], [data-panel="task"], [data-panel-id="task"]) { flex: 0 0 0px !important; min-width: 0 !important; overflow: hidden !important; visibility: hidden; }
+[data-inspector-wide] :is([data-panel][id="task"], [data-panel="task"], [data-panel-id="task"]) + [data-separator] { display: none; }
+[data-inspector-wide] :is([data-panel][id="inspector"], [data-panel="inspector"], [data-panel-id="inspector"]) { flex-grow: var(--inspector-wide-grow) !important; }
+/* No sidebar holding the corner: the strip clears the traffic lights and is where the window is dragged from. */
+[data-edge-free] .workbench-strip { padding-left: 80px; -webkit-app-region: drag; }
+[data-edge-free] .workbench-strip :is(button, [role="button"], input) { -webkit-app-region: no-drag; }
 #composer-help { font-size: 9px; line-height: 1.6; }
 .sidebar-shell .glass-row { transition: background 180ms,color 180ms,box-shadow 180ms; }
 .sidebar-shell .glass-row[data-active] { background: var(--glass-raise); box-shadow: inset 2px 0 0 var(--color-dim); }
