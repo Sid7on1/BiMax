@@ -164,6 +164,8 @@ Changed:
   the tint difference alone) and cost a compositor pass on a full-height layer every frame a pane flies. The peek,
   over live text, keeps its blur.
 
+**Decided 2026-09-30 by the owner, shown both side by side:** keep the step ("A is a lot better"). Item 10 is closed.
+
 **Deliberately not changed:** the conversation being the darkest surface. It is the recorded, Cursor-matched ladder
 (`styles.css`, "THE SAME ALPHA EVERYWHERE; THE TINT IS WHAT DIFFERS") and it is 4 levels here. Whether the owner wants
 the sidebar and the conversation as one surface is a taste call to show them, not to make for them.
@@ -241,6 +243,5 @@ build first stopped on the notch helper's OCR self-test: macOS refused accurate 
 
 | # | Item |
 |---|---|
-| 10 (rest) | Owner to judge: one surface for sidebar + conversation, or the current 4-level step? |
 | 11 (rest) | The first open of each menu stalls 150–390 ms in the harness (compositor, not script); check in the real window. Batch 7 removed two pane artefacts (a scrollbar flash, a stretched glass) that may have been part of what was seen. |
 | 23–45 | Research principles. Several already hold or were served by the items above (42 in item 18); the rest need picking one by one with the owner. |
