@@ -1,0 +1,11 @@
+Local build exit: 0
+Source commit: f307d9851ef90c7c68363b5ca49b8b3fa6f6266b
+Signature verification: codesign --verify --deep --strict /Applications/Bimax.app, exit 0
+voice helper: Xcode toolchain refused (You have not agreed to the Xcode license agreements. Please run 'sudo xcodebuild -license' from within a Terminal window to review and agree to the Xcode and Apple SDKs license.); using Command Line Tools
+notch helper: Xcode toolchain refused (You have not agreed to the Xcode license agreements. Please run 'sudo xcodebuild -license' from within a Terminal window to review and agree to the Xcode and Apple SDKs license.); using Command Line Tools
+app intents: Xcode toolchain refused (license not accepted); using Command Line Tools
+  • app icon catalog SKIPPED (Command failed: xcrun actool --output-format human-readable-text --notices --warnings --errors --app-icon AppIcon --output-partial-info-plist /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-icon-FrUgDo/partial.plist --platform macosx --target-device mac --minimum-deployment-target 13.0 --compile /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-icon-FrUgDo/out /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-icon-FrUgDo/Bimax.xcassets) — shipping the legacy .icns only
+  • signing         file=/tmp/bimax-release/mac-arm64/Bimax.app platform=darwin type=distribution identityName=Bimax Local Code Signing identityHash=7694BF0900DA872DCA7BB8976F2A102AE424B42D provisioningProfile=none
+  • skipped macOS notarization  reason=`notarize` options were unable to be generated
+  • building        target=DMG arch=arm64 file=/tmp/bimax-release/Bimax-1.1.0-arm64.dmg
+✓ 3 action(s) present in the built bundle.

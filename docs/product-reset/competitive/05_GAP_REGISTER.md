@@ -2,7 +2,7 @@
 
 ## UI behavior update — 2026-10-01
 
-The current monolith's UI fix-list continuation is **Implemented and locally verified** through batches 11–19 in
+The current monolith's UI fix-list continuation is **Implemented and locally verified** through batches 11–20 in
 [the applied record](../../../front%20inspo/15-ui-fix-list-applied.md): a bounded motion ladder with impossible-edge
 rest corrected, named attention marks, readable quiet type in both themes, 26 wired palette outcomes, and persistent
 goal/step/current-run files/next action. A review beat describes only a live check after edits; scoped engine evidence
@@ -12,7 +12,12 @@ ambient status/starter spectacle is removed, history leads with the title, and t
 inside a fixed viewport. Conversation Bin now has bounded five-minute/five-copy private recovery and actual Undo;
 one native system-Bin fallback restored exact bytes. Unsaved-buffer/rewind/authority confirmations remain.
 Settled primary exits now meet 75% plus one 60Hz frame while retaining interruption momentum and movement bounds;
-the tiny in-place exit is deliberately faster. Native display latency, full wallpaper/native-vibrancy range, provider-backed
+the tiny in-place exit is deliberately faster. The local build from `f307d98` is installed; its ASAR and engine bytes
+match the build, deep signature verification passes, installed bundle actions pass 3/3 and the packaged worker
+answers 7/7 exchanges. A native fixture confirms real file tabs/tree navigation and a palette appearance outcome.
+The build is locally signed and unnotarized; the inherited usage descriptions are unchanged. The historical 08
+no-Microphone clause conflicts with current dictation/voice packaging and remains explicitly unresolved in batch 20.
+Native display latency, full wallpaper/native-vibrancy range, provider-backed
 quality, human mis-click/task-completion studies and clean-Mac release qualification remain **Target/unmeasured**.
 No Product-ready or Win status is assigned, and no historical Computer Use route is activated.
 

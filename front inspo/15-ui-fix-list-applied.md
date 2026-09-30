@@ -626,8 +626,67 @@ browser frame. Evidence: `batch19-*` and `final-*`. Theme inks/materials are unc
 Product-reset 03/04, vision, 08 and competitive/06 guided the bounds and mutation proof. Implemented and locally
 measured; native GPU/display latency and human feel remain unmeasured. Not yet installed.
 
-## Still open
+## Batch 20 — item 45, behavior qualification and installed app (2026-10-01)
 
-| # | Item |
+**Validated by behavior:** the final production code is `f307d98`, not a mutation or preview-only branch.
+The five rebuilt journeys pass at **100% and 120%**: palette filtering/selection/real dispatched destinations;
+persistent task context and immediate Send/Stop acknowledgement; quiet working/pressed states; directory/search
+races and failure recovery inside a fixed viewport; and Bin pending/removal/Undo/restoration. The hit-target gate
+checks clickable geometry and caught the actual 23px row before batch 17 corrected it. These are observed end states,
+not a “looks good” verdict. Each behavior batch records its deliberate breakages and valid catches above; watchdog
+aborts and invalid fixtures are explicitly excluded. Human task-completion and mis-click rates remain unmeasured.
+
+**Final gates:** app typecheck; **124 suites / 1091 tests** (including editor glass); 32 morph flights; hit targets;
+motion tokens; design-preview build. Both themes' composited readable text/code meet **4.5:1** in batch 18's contrast
+run, and the final motion change does not alter theme inks or materials. Settled primary exits meet 75% plus one
+60Hz frame, with interruption momentum retained; the tiny in-place menu deliberately exits faster. Send/Stop times
+are browser-frame acknowledgements, not native GPU/display latency. Evidence is under
+`front inspo/evidence/2026-10-01/`, including `batch19-*` and the five `final-*.json` journeys.
+
+**Installed:** `npm --prefix app run dist:mac:local` completed successfully. `/Applications/Bimax.app` now contains
+the build from `f307d9851ef90c7c68363b5ca49b8b3fa6f6266b`. The previous app is preserved at
+`/Users/vishsiddharth/Bimax-app-backups/Bimax-1aa166c-20261001-033906.app`; the local DMG is
+`/tmp/bimax-release/Bimax-1.1.0-arm64.dmg`. Built and installed ASAR SHA-256 agree, and every compiled main/preload/
+renderer JS/CSS file plus the worker engine agrees with the built output. The actual installed executable launched.
+`codesign --verify --deep --strict /Applications/Bimax.app` passed; installed bundle actions passed **3/3**.
+The packaged engine answered **7/7** actual worker-protocol exchanges, including finding a scratch-project file.
+This is a locally signed build, **not notarized**. Existing helper scripts used Command Line Tools because the Xcode
+license was not accepted; the asset catalog was skipped and the existing legacy `.icns` shipped. No license was
+accepted or toolchain installed. Evidence: `final-install.json`, `final-installed-identity.json`,
+`final-installed-actions.txt`, `final-packaged-engine.txt`, `final-local-build-notes.txt`.
+
+**Installed native subset:** through the real folder dialog, opened the public temporary fixture
+`/tmp/bimax-ui-smoke-final`. Its README and source opened with actual content as two file tabs; the file-tree control
+returned in one click while preserving tabs. Goal/Step/Files/Next stayed available. The palette listed 26 commands
+and disabled Stop while idle; searching Starlight and pressing Return changed the actual theme. Moonlight was the
+final observed appearance. No provider task was submitted, no existing user conversation was binned, and no TCC
+prompt was granted. Native automation repeatedly reported a user-changed app; fresh observations were required.
+Attempts without an observed destination are excluded. Native numerical zoom, all 26 native destinations and
+WindowServer timing are not claimed. Both zooms are covered by the compiled-renderer gates. The separate batch 18
+native system-Bin probe restored exact temporary conversation bytes. Sanitized observations are in
+`final-installed-observations.json`; private recent-project screens were not committed.
+
+**Product-reset check:** README, 03/04, 05/07/08, Mac Buddy vision, competitive/06 and the build/run/prove example
+guided the work. Current 55/64 ownership overrides historical split/pinned-engine plans. The gap register records
+the changed UI reality. The original 45-item list is unchanged; item 31 remains deliberately not planned under the
+owner's item-10 monochrome decision. The Trust Center omission documented in batch 2 also remains deliberate.
+
+**Unresolved research/packaging conflict:** 08's historical code-only clause forbids a Microphone usage description,
+while the current app already ships dictation/voice and Electron usage descriptions. Comparing the previous and
+new installed bundles found **no changed usage descriptions** and no app-owned XPC service; this change adds no
+permission or legacy Computer Use path. The historical clause has not been silently rewritten or declared passed.
+Fresh-Mac permission behavior and release qualification remain **Target**. Human feel, full native wallpaper/
+vibrancy coverage and provider-backed quality are also unmeasured; no Product-ready or competitive Win is claimed.
+
+**Commit hygiene:** the repository's 24-rule secret scanner found zero findings across pending commit diffs and
+changed text files before the final documentation commit; it is rerun after that commit. This is the repository
+scanner, not a claim that the gitleaks CLI ran. The branch has not been pushed.
+
+## Remaining qualifications
+
+| # | Status |
 |---|---|
-| 23–45 | Research principles. Done: 34 (batch 8), 38 (batch 9), 24 and 41 (batch 10). 31 is not planned (its colours conflict with the owner's item 10 choice). |
+| 1–30, 32–45 | Addressed within the behavior evidence and explicit exceptions in batches 1–20. Installed code is `f307d98`; the final audit commit changes only documentation/evidence. |
+| 31 | Deliberately not planned: its coral/four-elevation palette conflicts with the owner's item-10 decision. |
+| 23, 30, 44, 45 | Immediate feedback and honest progress are implemented; universal native latency, perceived trust, human task-completion and mis-click improvements are unmeasured. No artificial review delay was added. |
+| Release qualification | Local signing/install verified. Notarization, clean-Mac permission/update behavior, the historical no-Microphone gate conflict, and public-release qualification remain open. |
