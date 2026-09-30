@@ -31,8 +31,10 @@ export interface MotionToken {
   spring: SpringSpec;
   /** Where in the flight content starts and finishes appearing, as geometric progress 0..1. */
   reveal: { start: number; end: number };
-  /** The fastest any part of the surface may move, px/s (`limitSpeed`). Only the menus carry one. */
+  /** The fastest any part of the surface may move, px/s (`limitSpeed`). Menus and closes carry one. */
   speedLimit?: number;
+  /** The ζ the limit is worked out at; by default the menus' opening one (see `limitSpeed`). */
+  limitRatio?: number;
 }
 
 /**
@@ -74,10 +76,15 @@ export const MOTION = {
    *    1500          223ms            171ms
    *
    * ζ is unchanged, so the character — momentum resolved in a pixel or two — is the same one.
+   *
+   * 2026-10-01 (item 32, the owner's ladder: popovers 180–220ms, panels 240–300ms, exits no slower than entrances):
+   * k 1700 — the Model menu settles in 217ms in the built app (check:morph, which now holds every flight to the
+   * ladder); `dismissPopover` 2400 folds it in 183ms. `seedPanel` 740 (the model window, 383 → 283ms),
+   * `structuralPane` 1450 (the panes, 517/467 → 300/267ms), `dismiss` 1450 (their closes, 367/333 → 250/233ms).
    */
-  seedPopover: { spring: { stiffness: 1300, ratio: 0.82 }, reveal: { start: 0.42, end: 0.80 }, speedLimit: MENU_SPEED_LIMIT },
+  seedPopover: { spring: { stiffness: 1700, ratio: 0.82 }, reveal: { start: 0.42, end: 0.80 }, speedLimit: MENU_SPEED_LIMIT },
   /** A sheet or floating panel. */
-  seedPanel: { spring: { stiffness: 420, ratio: 0.84 }, reveal: { start: 0.45, end: 0.85 } },
+  seedPanel: { spring: { stiffness: 740, ratio: 0.84 }, reveal: { start: 0.45, end: 0.85 } },
   /**
    * The sidebar and the inspector. Pane resize and collapse.
    *
@@ -91,12 +98,16 @@ export const MOTION = {
    * content back until it is nearly there, or the text appears to travel; a bar's content is being
    * *uncovered* by an edge moving off it, so it should be there to be uncovered.
    */
-  structuralPane: { spring: { stiffness: 400, ratio: 1.0 }, reveal: { start: 0, end: 0.5 } },
+  structuralPane: { spring: { stiffness: 1450, ratio: 1.0 }, reveal: { start: 0, end: 0.5 } },
 
   /** A surface with no honest seed (⌘K). It does not fly; it arrives. */
   materialize: { spring: { stiffness: 460, ratio: 0.95 }, reveal: { start: 0.25, end: 0.65 } },
-  /** Every close but a menu's. */
-  dismiss: { spring: { stiffness: 700, ratio: 1.0 }, reveal: { start: 0, end: 0.30 } },
+  /**
+   * Every close but a menu's. The speed limit is the menus' own, for the same reason: at the ladder's pace
+   * (UI fix list item 32, panels 240–300ms) the model window folding home across the window moved 149px in one frame.
+   */
+  // Worked out at its own ζ of 1: no opening shares this limit, and the menus' ζ would slow it a further 13%.
+  dismiss: { spring: { stiffness: 1450, ratio: 1.0 }, reveal: { start: 0, end: 0.30 }, speedLimit: MENU_SPEED_LIMIT, limitRatio: 1 },
   /**
    * A menu closing. Once `seedPopover` opens in ~240ms, the shared `dismiss` (~300ms on a picker)
    * would fold a menu away SLOWER than it arrived — the UI reluctant to let go. The list's item 36
@@ -109,7 +120,7 @@ export const MOTION = {
    * `dismiss` gives. A menu closed early (10–30% open) keeps growing for a frame before it turns;
    * closed at 70% it turns at once — as it did at the old k 520 / 700, because by then it is slowing.
    */
-  dismissPopover: { spring: { stiffness: 1800, ratio: 1.0 }, reveal: { start: 0, end: 0.30 }, speedLimit: MENU_SPEED_LIMIT },
+  dismissPopover: { spring: { stiffness: 2400, ratio: 1.0 }, reveal: { start: 0, end: 0.30 }, speedLimit: MENU_SPEED_LIMIT },
 
   /**
    * Reduce Motion. Not "no motion" — Prompt 2 §32 asks for the continuity to survive.
@@ -207,9 +218,9 @@ export function gradeSpring(spec: SpringSpec, diagonal: number, distance = 0): S
  * or at its own ζ of 1, would be allowed a stiffer spring than the open it interrupts, and would
  * reverse it within a frame.
  */
-export function limitSpeed(spring: SpringSpec, span: number, maxSpeed: number): SpringSpec {
+export function limitSpeed(spring: SpringSpec, span: number, maxSpeed: number, ratio = MOTION.seedPopover.spring.ratio): SpringSpec {
   if (span <= 0) return spring;
-  const omega = maxSpeed / (span * peakSpeedFactor(MOTION.seedPopover.spring.ratio));
+  const omega = maxSpeed / (span * peakSpeedFactor(ratio));
   return { ...spring, stiffness: Math.min(spring.stiffness, omega * omega * (spring.mass ?? 1)) };
 }
 

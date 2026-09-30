@@ -29,7 +29,6 @@
  */
 
 import {
-  centreOf,
   progressOf,
   sameGeometry,
   travelBetween,
@@ -74,6 +73,8 @@ export interface MorphFrame {
   deform: { x: number; y: number };
   material: MaterialState;
   velocity: { x: number; y: number; width: number; height: number };
+  /** Reduce Motion is on for this flight: nothing moves, the painter fades the surface in instead. */
+  reduced: boolean;
 }
 
 export interface MorphOptions {
@@ -329,12 +330,18 @@ export class MorphController {
     this.w = step(this.w, target.width, spring, dt);
     this.h = step(this.h, target.height, spring, dt);
     this.r = step(this.r, target.radius, spring, dt);
+    const pinned = this.pinBar(target);
 
     const near = (spring: SpringState, goal: number): boolean => Math.abs(spring.value - goal) < CLOSE_REST_PX;
     const rested = this.state === 'closing'
       ? near(this.x, target.x) && near(this.y, target.y) && near(this.w, target.width)
         && near(this.h, target.height) && near(this.r, target.radius)
-      : isAtRest(this.x, target.x)
+      // An edge-pinned bar's x is derived from width, not an independent spring. Panel layout may
+      // round its measured x differently from the pinned edge by a fraction of a pixel; waiting
+      // for that impossible x target leaves an invisible flight alive until the watchdog fires.
+      // A newly mounted pane may still measure zero width. Keep waiting for its first real
+      // layout (and the observer's retarget) rather than handing off an empty destination.
+      : ((pinned && target.width >= 1) || isAtRest(this.x, target.x))
         && isAtRest(this.y, target.y)
         && isAtRest(this.w, target.width)
         && isAtRest(this.h, target.height)
@@ -364,6 +371,29 @@ export class MorphController {
     this.publish();
   }
 
+  /**
+   * A bar is its own window edge moving (`structuralPane`), so only its width is a spring. The edge it grows from and
+   * its height are the target's on every frame. As two springs, x and width drifted apart whenever the target was
+   * re-measured early in a flight: at the ladder's pace (UI fix list item 32) the inspector's pinned edge tipped 4.7px
+   * off the window edge, measured by `check:morph`.
+   */
+  private pinBar(target: MorphGeometry): boolean {
+    const kind = this.options.kind();
+    if (!isBar(kind) || !this.seeded) return false;
+    // The edge: an opening grows from the edge it launched at, a closing folds into the edge it is heading for. Not
+    // the opening's target — on its first frame that is the pane before its layout exists (measured 25px short).
+    const anchor = this.state === 'closing' ? target : this.origin;
+    // Only a flight that really grows from an edge — a zero-width strip. A bar flown from a control (MorphRegion's
+    // `seed`), reopened mid-close, or launched on its destination under Reduce Motion flies like any surface.
+    if (!anchor || anchor.width >= 1) return false;
+    this.y = settle(target.y);
+    this.h = settle(target.height);
+    this.x = kind === 'inspector'
+      ? { value: anchor.x + anchor.width - this.w.value, velocity: -this.w.velocity }
+      : settle(anchor.x);
+    return true;
+  }
+
   private settleNow(): void {
     live.delete(this);
     this.clearWatchdog();
@@ -388,38 +418,25 @@ export class MorphController {
    *
    * Normally: the seed, exactly.
    *
-   * Under Reduce Motion, the brief (Prompt 1 §27, Prompt 2 §32) asks for something more careful than
-   * "turn it off" — keep the source identification and the geometry transition, remove the journey.
-   * So the launch box is the destination itself, shrunk slightly and nudged a few pixels toward
-   * wherever the seed is, wearing the seed's corner. The surface still visibly changes shape and
-   * still leans in from the right direction; it just does not cross the window to do it.
+   * Under Reduce Motion: the destination itself — no geometry moves at all, and the surface fades in
+   * (`.morph-surface[data-reduced]`). The owner's UI fix list (item 32, 2026-09-30) asks for exactly that: "under
+   * reduced motion: cross-fade or jump instantly — no geometry animation at all". It replaced a gentler reading of
+   * Prompt 2 §32 that kept a small shrink and a lean toward the seed.
    *
    * With no seed at all (Prompt 2 §45 — ⌘K has no spatial origin, and inventing one would be a false
-   * claim about causality) the same shrink is applied with no lean.
+   * claim about causality) the destination, shrunk slightly: it may grow a little; it may not fly.
    */
   private launchGeometry(seed: MorphGeometry | null, destination: MorphGeometry): MorphGeometry {
-    if (seed && !this.reduced()) return seed;
+    if (this.reduced()) return destination;
+    if (seed) return seed;
 
     const inset = Math.min(destination.width, destination.height) * 0.04;
-    let leanX = 0;
-    let leanY = 0;
-    if (seed) {
-      const from = centreOf(seed);
-      const to = centreOf(destination);
-      const dx = from.x - to.x;
-      const dy = from.y - to.y;
-      const length = Math.hypot(dx, dy) || 1;
-      const LEAN = 14;
-      leanX = (dx / length) * LEAN;
-      leanY = (dy / length) * LEAN;
-    }
-
     return {
-      x: destination.x + inset + leanX,
-      y: destination.y + inset + leanY,
+      x: destination.x + inset,
+      y: destination.y + inset,
       width: Math.max(1, destination.width - inset * 2),
       height: Math.max(1, destination.height - inset * 2),
-      radius: seed ? seed.radius : destination.radius,
+      radius: destination.radius,
     };
   }
 
@@ -445,7 +462,7 @@ export class MorphController {
     const diagonal = Math.hypot(target.width, target.height);
     const distance = this.origin ? travelBetween(this.origin, target).distance : 0;
     const graded = gradeSpring(this.token.spring, diagonal, distance);
-    return this.token.speedLimit ? limitSpeed(graded, this.flightSpan, this.token.speedLimit) : graded;
+    return this.token.speedLimit ? limitSpeed(graded, this.flightSpan, this.token.speedLimit, this.token.limitRatio) : graded;
   }
 
   private frame(): MorphFrame {
@@ -489,6 +506,7 @@ export class MorphController {
         width: this.w.velocity,
         height: this.h.velocity,
       },
+      reduced: this.reduced(),
     };
   }
 

@@ -486,7 +486,9 @@
    from value alone, the way every surface in the shell now separates. */
 .glass-pill {
   background: var(--glass-raise);
-  transition: background 180ms var(--ease-snappy), transform var(--dur-bouncy) var(--ease-bouncy);
+  /* The release: 120ms ease-out, no bounce — the most-pressed controls in the app (UI fix list items 27 and 32: "press
+     120 ms ease-out"; "for anything triggered 100× a day, motion should be felt as speed"). */
+  transition: background 180ms var(--ease-snappy), transform 120ms ease-out;
 }
 
 .glass-pill:hover {
@@ -518,7 +520,7 @@
 /* A flat navigation row. No fill until it is pointed at — the resting panel is text on glass. */
 .glass-row {
   transition: background 150ms var(--ease-snappy), color 150ms ease,
-    transform var(--dur-bouncy) var(--ease-bouncy);
+    transform 120ms ease-out; /* the release, as `.glass-pill`'s */
 }
 
 .glass-row:hover {
@@ -533,7 +535,7 @@
   background: var(--glass-raise);
 }
 
-/* Instant down, springy up — same reasoning as `.pressable:active`. */
+/* Instant down, a quick ease back up — same reasoning as `.pressable:active`. */
 .glass-pill:active, .glass-row:active {
   transform: scale(0.97);
   transition-duration: 40ms;
@@ -549,7 +551,8 @@
   background: var(--float-solid);
   border: 1px solid var(--glass-edge-strong);
   box-shadow: var(--shadow-pop);
-  animation: pop-in var(--dur-bouncy) var(--ease-bouncy) both;
+  /* Snappy, not the bounce: it is a popover (UI fix list item 27, "no bounce anywhere near menus"). */
+  animation: pop-in var(--dur-snappy) var(--ease-snappy) both;
   transform-origin: right bottom;
 }
 
@@ -763,6 +766,10 @@
    `color-mix(… calc(var() * 100%), transparent)` scales an already-translucent colour's alpha,
    which is the only way to make a box-shadow's strength a variable — box-shadow takes no opacity of
    its own, and animating a wrapper's `opacity` instead would fade the surface's contents with it. */
+/* Reduce Motion (UI fix list item 32): a driven surface does not move at all — it appears where it belongs and fades
+   in. The controller launches it on its destination (controller.ts, `launchGeometry`) and flags the frame. */
+.morph-surface[data-reduced] { animation: fade-in 120ms ease-out both; }
+
 .morph-surface {
   --morph-elevation: 1;
   --morph-sheen: 0.6;
@@ -1018,8 +1025,8 @@
 .pressable {
   position: relative;
   overflow: hidden;
-  /* The release springs; the press does not (see `:active` below). */
-  transition: transform var(--dur-snappy) var(--ease-snappy), border-color 170ms ease,
+  /* The release eases back in 120ms; the press is instant (see `:active` below). Items 27/32: no spring here. */
+  transition: transform 120ms ease-out, border-color 170ms ease,
     background-color 170ms ease, color 170ms ease, box-shadow 170ms ease;
 }
 
@@ -1036,7 +1043,7 @@
 .pressable:hover::after { transform: translateX(125%); }
 
 /* The press itself is instant and linear — a spring on the way DOWN puts the compression behind the
-   finger, which is the one place latency is felt. The release above is where the spring belongs. */
+   finger, which is the one place latency is felt. The release above eases back in 120ms. */
 .pressable:active {
   transform: scale(0.97);
   transition-duration: 40ms;

@@ -1,0 +1,55 @@
+== model window back to k 420: CAUGHT
+     - dialog.open: settles in 383ms — the ladder allows 300ms (UI fix list item 32)
+     - at120%.dialog.open: settles in 367ms — the ladder allows 300ms (UI fix list item 32)
+     - dialog.open: 41 frames to rest, baseline 32
+     - dialog.open: its progress is 0.161 off the baseline at frame 6 (0.694 → 0.533)
+     - dialog.open: its content reveal is 0.4 off at frame 6 (0.61 → 0.21)
+     - at120%.dialog.open: 40 frames to rest, baseline 31
+     - at120%.dialog.open: its progress is 0.162 off the baseline at frame 6 (0.706 → 0.544)
+     - at120%.dialog.open: its content reveal is 0.4 off at frame 6 (0.64 → 0.24)
+== panes back to k 400: CAUGHT
+     - inspector.open: settles in 517ms — the ladder allows 300ms (UI fix list item 32)
+     - sidebar.open: settles in 467ms — the ladder allows 300ms (UI fix list item 32)
+     - at120%.inspector.open: settles in 483ms — the ladder allows 300ms (UI fix list item 32)
+     - at120%.sidebar.open: settles in 450ms — the ladder allows 300ms (UI fix list item 32)
+     - inspector.open: 44 frames to rest, baseline 26
+     - inspector.open: its progress is 0.336 off the baseline at frame 7 (0.76 → 0.424)
+     - inspector.open: its content reveal is 0.56 off at frame 5 (0.99 → 0.43)
+     - sidebar.close: 26 frames to rest, baseline 23
+     - sidebar.open: 44 frames to rest, baseline 28
+     - sidebar.open: its progress is 0.336 off the baseline at frame 7 (0.771 → 0.435)
+     - sidebar.open: its content reveal is 0.55 off at frame 5 (1 → 0.45)
+     - reduced.inspector.close: 16 frames to rest, baseline 12
+     - at120%.inspector.ope
+== menus back to k 1300: CAUGHT
+     - menu.open: its progress is 0.08 off the baseline at frame 3 (0.627 → 0.547)
+     - menu.open: its content reveal is 0.22 off at frame 3 (0.55 → 0.33)
+     - menu.close-mid-open: its content reveal is 0.22 off at frame 3 (0.55 → 0.33)
+     - menu.reopen-mid-close: its progress is 0.097 off the baseline at frame 7 (0.288 → 0.385)
+     - at120%.menu.open: its progress is 0.08 off the baseline at frame 3 (0.627 → 0.547)
+     - at120%.menu.open: its content reveal is 0.22 off at frame 3 (0.55 → 0.33)
+     - at120%.menu.close-mid-open: its content reveal is 0.22 off at frame 3 (0.55 → 0.33)
+     - at120%.menu.reopen-mid-close: its progress is 0.098 off the baseline at frame 7 (0.286 → 0.384)
+== Reduce Motion moves again: CAUGHT
+     - reduced.menu.open: under Reduce Motion it moved 2.9px in a frame — nothing may move (UI fix list item 32)
+     - reduced.menu.close: under Reduce Motion it moved 3px in a frame — nothing may move (UI fix list item 32)
+     - at120%.reduced.menu.open: under Reduce Motion it moved 2.9px in a frame — nothing may move (UI fix list item 32)
+     - at120%.reduced.menu.close: under Reduce Motion it moved 3px in a frame — nothing may move (UI fix list item 32)
+     - reduced.menu.open: 17 frames to rest, baseline 3
+     - reduced.menu.open: its progress is 1 off the baseline at frame 16 (0 → 1)
+     - reduced.menu.open: its content reveal is 1 off at frame 0 (1 → 0)
+     - reduced.menu.close: 8 frames to rest, baseline 1
+     - reduced.menu.close: its progress is 1 off the baseline at frame 7 (0 → 1)
+     - reduced.menu.close: its content reveal is 1 off at frame 0 (0 → 1)
+     - reduced.inspector.close: 20 frames to res
+== bars not pinned: CAUGHT
+     - inspector.open: the shell's window edge moved 5.1px — it should grow from that edge
+     - at120%.inspector.open: the shell's window edge moved 5.8px — it should grow from that edge
+== closes without a speed limit: CAUGHT
+     - dialog.close: an edge moved 149px in one frame (bound 120px)
+     - at120%.dialog.close: an edge moved 128.9px in one frame (bound 120px)
+     - dialog.close: 14 frames to rest, baseline 18
+     - dialog.close: its progress is 0.143 off the baseline at frame 4 (0.555 → 0.698)
+     - dialog.close: its content reveal is 0.2 off at frame 2 (0.2 → 0)
+     - at120%.dialog.close: its progress is 0.057 off the baseline at frame 3 (0.489 → 0.546)
+6/6 caught

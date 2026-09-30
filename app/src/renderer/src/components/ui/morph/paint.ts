@@ -53,6 +53,8 @@ export function paintFrame(elements: MorphElements, frame: MorphFrame): void {
   // adding a second curve: the content is already fading on it, so the glass leaves with its
   // contents instead of outliving them by a hundred milliseconds.
   surface.style.opacity = !frame.seeded && frame.state === 'closing' ? frame.reveal.toFixed(3) : '';
+  // Reduce Motion: the geometry does not move, so the arrival is a fade (`.morph-surface[data-reduced]`, styles.css).
+  surface.toggleAttribute?.('data-reduced', frame.reduced);
 
   // Material (Prompt 1 §11). `--glass-thickness` is the existing lens-band dial, so the morphing
   // surface uses the same knob the static glass classes already use rather than a parallel one.

@@ -535,3 +535,20 @@ describe('item 38 — text a comfortable width, numbers that hold still, the cod
     expect(ruleOf('.quick-footer')).toContain('font-variant-numeric: tabular-nums;');
   });
 });
+
+describe('items 27, 32, 36 — the motion ladder', () => {
+  // `npm run check:morph` holds every flight to the ladder in the built app; these pin the CSS side of it.
+  test('the most-pressed controls ease back in 120ms, with no bounce', () => {
+    expect(ruleOf('.glass-pill')).toContain('transform 120ms ease-out;');
+    expect(ruleOf('.glass-row')).toContain('transform 120ms ease-out;');
+    expect(ruleOf('.pressable')).toContain('transition: transform 120ms ease-out,');
+    for (const rule of ['.glass-pill', '.glass-row', '.pressable']) expect(ruleOf(rule)).not.toContain('bouncy');
+  });
+  test('the quick-settings flyout is a popover, so it takes the snappy curve, not the bounce', () => {
+    expect(ruleOf('.glass-flyout')).toContain('animation: pop-in var(--dur-snappy) var(--ease-snappy) both;');
+  });
+  test('under Reduce Motion a driven surface does not move; it fades in', () => {
+    expect(css).toContain('.morph-surface[data-reduced] { animation: fade-in 120ms ease-out both; }');
+    expect(read('app/src/renderer/src/components/ui/morph/paint.ts')).toContain("surface.toggleAttribute?.('data-reduced', frame.reduced);");
+  });
+});

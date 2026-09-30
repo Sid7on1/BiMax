@@ -1,0 +1,57 @@
+[
+  {
+    "name": "model window back to k 420",
+    "file": "src/renderer/src/components/ui/morph/tokens.ts",
+    "find": "seedPanel: { spring: { stiffness: 740,",
+    "replace": "seedPanel: { spring: { stiffness: 420,",
+    "expect": [
+      "the ladder allows 300ms"
+    ]
+  },
+  {
+    "name": "panes back to k 400",
+    "file": "src/renderer/src/components/ui/morph/tokens.ts",
+    "find": "structuralPane: { spring: { stiffness: 1450,",
+    "replace": "structuralPane: { spring: { stiffness: 400,",
+    "expect": [
+      "the ladder allows 300ms"
+    ]
+  },
+  {
+    "name": "menus back to k 1300",
+    "file": "src/renderer/src/components/ui/morph/tokens.ts",
+    "find": "seedPopover: { spring: { stiffness: 1700,",
+    "replace": "seedPopover: { spring: { stiffness: 1300,",
+    "expect": [
+      "menu.open: its progress",
+      "FEEL DRIFTED"
+    ]
+  },
+  {
+    "name": "Reduce Motion moves again",
+    "file": "src/renderer/src/components/ui/morph/controller.ts",
+    "find": "    if (this.reduced()) return destination;\n",
+    "replace": "    if (this.reduced()) return { ...destination, x: destination.x + 8, y: destination.y + 8, width: destination.width - 16, height: destination.height - 16 };\n",
+    "expect": [
+      "under Reduce Motion it moved"
+    ]
+  },
+  {
+    "name": "bars not pinned",
+    "file": "src/renderer/src/components/ui/morph/controller.ts",
+    "find": "    const pinned = this.pinBar(target);\n",
+    "replace": "    const pinned = false;\n",
+    "expect": [
+      "window edge moved"
+    ]
+  },
+  {
+    "name": "closes without a speed limit",
+    "file": "src/renderer/src/components/ui/morph/tokens.ts",
+    "find": "reveal: { start: 0, end: 0.30 }, speedLimit: MENU_SPEED_LIMIT, limitRatio: 1 },",
+    "replace": "reveal: { start: 0, end: 0.30 } },",
+    "expect": [
+      "in one frame (bound 120px)"
+    ]
+  }
+]

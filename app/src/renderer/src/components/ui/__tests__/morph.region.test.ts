@@ -216,6 +216,28 @@ describe('revealing a region through the flight', () => {
  * looks like a plausible animation.
  */
 describe('a bar growing from its own edge', () => {
+  test.each(['inspector', 'sidebar'] as const)('a %s hands off without its watchdog when layout rounds its pinned x differently', (kind) => {
+    const seed = edgeOf(REGION, kind === 'inspector' ? 'right' : 'left');
+    let destination = REGION;
+    let handedOff = 0;
+    const controller = new MorphController({
+      kind: () => kind,
+      reducedMotion: () => false,
+      resolve: () => ({ seed, destination }),
+      onSettled: () => { handedOff++; },
+    });
+    controller.open();
+    controller.advance(1 / 60);
+    destination = { ...REGION, x: REGION.x + 0.25 };
+    controller.remeasure();
+    // Step only the physics: no timers can force a false handoff. Width has arrived well before
+    // this limit; an x spring chasing a pinned, differently rounded edge never reaches rest.
+    expect(runToRest(controller, 70)).toBeLessThan(70);
+    expect(controller.state).toBe('open');
+    expect(handedOff).toBe(1);
+    controller.dispose();
+  });
+
   test('the inspector opens with its right edge pinned to the window, on every frame', () => {
     const { controller, element } = makeRegionController({ seed: edgeOf(REGION, 'right') });
     const rightEdges: number[] = [];
@@ -266,6 +288,30 @@ describe('a bar growing from its own edge', () => {
       expect(v.y).toBeCloseTo(REGION.y, 1);
       expect(v.height).toBeCloseTo(REGION.height, 1);
     }
+    controller.dispose();
+  });
+
+  test('the pinned edge holds when the destination is re-measured mid-flight', () => {
+    // Measured in the built app (check:morph): a pane's destination is first measured before its layout exists —
+    // 25px short — and corrected a frame or two later. As two springs, x and width tipped the inspector's window edge
+    // 4.7px off the window as they chased the correction. Only the width is a spring now; the edge is the launch edge.
+    const edge = edgeOf(REGION, 'right');
+    const early: MorphGeometry = { ...REGION, x: REGION.x + REGION.width - 25, width: 0 };
+    let calls = 0;
+    const controller = new MorphController({
+      kind: () => 'inspector',
+      reducedMotion: () => false,
+      resolve: () => ({ seed: edge, destination: calls++ < 1 ? early : REGION }),
+    });
+    const edges: number[] = [];
+    controller.subscribe((frame) => edges.push(frame.geometry.x + frame.geometry.width));
+    controller.open();
+    controller.advance(1 / 60);
+    controller.advance(1 / 60);
+    controller.remeasure(); // the correction, two frames in
+    runToRest(controller);
+    expect(edges.length).toBeGreaterThan(10);
+    for (const at of edges) expect(Math.abs(at - (REGION.x + REGION.width))).toBeLessThan(0.01);
     controller.dispose();
   });
 

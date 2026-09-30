@@ -51,6 +51,20 @@ const MAX_COLUMN_STEP = 80;
 /** A flight that takes this long in real time is at the mercy of the controller's 1.4 s watchdog: not gradeable. */
 const REAL_TIME_LIMIT_MS = 1200;
 
+/**
+ * The owner's motion ladder (UI fix list item 32): popovers 180–220ms, panels 240–300ms, exits no slower than their
+ * entrance (item 36). Measured as `settleMs` — the frame after which nothing moves more than 1px — with one frame of
+ * slack for the 60Hz grid. A closing menu's and the model window's exits sit at 84% and 100% of their entrances: the
+ * 120px-per-frame rule, which a spring fast enough for 75% would break on a long flight home, wins.
+ */
+const LADDER = {
+  'menu.open': 220, 'inplace-menu.open': 220, 'menu.close': 220, 'inplace-menu.close': 220,
+  'dialog.open': 300, 'dialog.close': 300,
+  'inspector.open': 300, 'inspector.close': 300, 'sidebar.open': 300, 'sidebar.close': 300,
+};
+const EXITS = [['menu.close', 'menu.open'], ['dialog.close', 'dialog.open'], ['inspector.close', 'inspector.open'], ['sidebar.close', 'sidebar.open']];
+const FRAME_MS = 1000 / 60;
+
 /** How far a flight's feel may drift from the baseline before it is a regression. */
 const TOLERANCE = { frames: 2, curve: 0.05, reveal: 0.1, overshootPct: 1 };
 
@@ -122,7 +136,8 @@ function installMorphProbe() {
       for (let el = region.parentElement; el && !el.hasAttribute('data-panel'); el = el.parentElement) {
         if (el.offsetHeight - el.clientHeight > 1 || el.offsetWidth - el.clientWidth > 1) scrollbar = true;
       }
-      regions[id] = { clip: region.style.clipPath || null, opacity: region.style.opacity === '' ? null : Number(region.style.opacity), scrollbar, height: r2(region.getBoundingClientRect().height) };
+      const box = region.getBoundingClientRect();
+      regions[id] = { clip: region.style.clipPath || null, opacity: region.style.opacity === '' ? null : Number(region.style.opacity), scrollbar, height: r2(box.height), rect: [r2(box.x), r2(box.width)] };
     }
     return { surfaces, panels, flight, regions, viewport: [window.innerWidth, window.innerHeight] };
   }
@@ -316,6 +331,13 @@ function expectedRect(surface) {
 
 const maxDelta = (a, b) => Math.max(...a.map((v, i) => Math.abs(v - b[i])));
 
+/** When a flight visibly stops: the first frame from which every later box is within 1px of `target`, in ms. */
+function settleMs(boxes, target) {
+  let i = boxes.length;
+  while (i > 0 && maxDelta(boxes[i - 1], target) <= 1) i -= 1;
+  return Math.round((Math.min(i, boxes.length - 1) * 1000) / 60);
+}
+
 /** Frames up to and including the last one the clock ticked on, plus the one that shows its result. */
 function activeFrames(frames) {
   let last = -1;
@@ -421,6 +443,7 @@ function analyseSurface(step, run, seedRect) {
       overshootPx,
       maxStepPx: round(maxStep, 1),
       box: to.map((v) => round(v, 0)),
+      settleMs: settleMs(boxes, to),
     },
   };
 }
@@ -477,6 +500,7 @@ function analysePane(step, run) {
       overshootPx: round(Math.max(0, peak - 1) * Math.abs(span), 1),
       maxStepPx: round(maxStep, 1),
       box: [round(from, 0), round(to, 0)],
+      settleMs: settleMs(column.map((w) => [w]), [to]),
     },
   };
 }
@@ -486,7 +510,8 @@ function dump(step, run, seedRect) {
   console.log(`--- ${step.flight}: seed ${JSON.stringify(seedRect)}, ${run.frames.length} frames, ${Math.round(run.ms)}ms`);
   for (const [i, f] of [run.before, ...run.frames].entries()) {
     const s = step.surface ? f.surfaces[step.surface] : f.surfaces.shell;
-    console.log(`${String(i - 1).padStart(3)} ${f.ticked ? 't' : ' '} panels ${JSON.stringify(f.panels)} ${f.flight.join(',')} `
+    const reg = step.pane ? f.regions[step.pane] : null;
+    console.log(`${String(i - 1).padStart(3)} ${f.ticked ? 't' : ' '} panels ${JSON.stringify(f.panels)} ${f.flight.join(',')} ${reg ? `region ${JSON.stringify(reg.rect)} ` : ''}`
       + (s ? `driven ${JSON.stringify(s.driven)} rect ${JSON.stringify(s.rect)} op ${s.opacity} content ${JSON.stringify(s.content)} armed ${s.armed}` : '—'));
   }
 }
@@ -611,6 +636,25 @@ async function main() {
 
   /* ----------------------------------------------------------------------------------------- verdict */
 
+  // The ladder, per zoom.
+  for (const zoom of ZOOMS) {
+    const at = (name) => results.find((r) => r.name === zoom.prefix + name)?.fingerprint;
+    for (const [name, limit] of Object.entries(LADDER)) {
+      const f = at(name);
+      if (f && f.settleMs > limit + FRAME_MS) results.find((r) => r.name === zoom.prefix + name).faults.push(`settles in ${f.settleMs}ms — the ladder allows ${limit}ms (UI fix list item 32)`);
+    }
+    for (const [exit, entrance] of EXITS) {
+      const out = at(exit);
+      const into = at(entrance);
+      if (out && into && out.settleMs > into.settleMs + FRAME_MS) results.find((r) => r.name === zoom.prefix + exit).faults.push(`the exit (${out.settleMs}ms) outlasts its entrance (${into.settleMs}ms) (UI fix list item 36)`);
+    }
+    // Reduce Motion: no geometry animation at all — a surface does not move a pixel (item 32).
+    for (const name of ['reduced.menu.open', 'reduced.menu.close']) {
+      const f = at(name);
+      if (f && f.maxStepPx > 0.5) results.find((r) => r.name === zoom.prefix + name).faults.push(`under Reduce Motion it moved ${f.maxStepPx}px in a frame — nothing may move (UI fix list item 32)`);
+    }
+  }
+
   const faults = results.flatMap((r) => r.faults.map((f) => `${r.name}: ${f}`));
   const fingerprints = Object.fromEntries(results.filter((r) => r.fingerprint).map((r) => [r.name, r.fingerprint]));
   const golden = existsSync(GOLDEN) ? JSON.parse(readFileSync(GOLDEN, 'utf8')) : null;
@@ -627,7 +671,7 @@ async function main() {
   for (const r of results) {
     const f = r.fingerprint;
     const mark = r.faults.length ? '✗' : '✓';
-    console.log(`  ${mark} ${r.name.padEnd(34)} ${f ? `${String(f.frames).padStart(3)} frames  overshoot ${f.overshootPct}%  max step ${f.maxStepPx}px` : ''}`);
+    console.log(`  ${mark} ${r.name.padEnd(34)} ${f ? `${String(f.frames).padStart(3)} frames  settles ${String(f.settleMs).padStart(3)}ms  overshoot ${f.overshootPct}%  max step ${f.maxStepPx}px` : ''}`);
   }
   for (const line of pageErrors) invalid.push(`renderer error: ${line}`);
 

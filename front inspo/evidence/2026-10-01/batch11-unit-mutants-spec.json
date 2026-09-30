@@ -1,0 +1,41 @@
+[
+  {
+    "name": "pill press release bounces again",
+    "file": "app/src/renderer/src/styles.css",
+    "find": "transform 120ms ease-out;",
+    "replace": "transform var(--dur-bouncy) var(--ease-bouncy);",
+    "occurrence": 0
+  },
+  {
+    "name": "row press release bounces again",
+    "file": "app/src/renderer/src/styles.css",
+    "find": "transform 120ms ease-out;",
+    "replace": "transform var(--dur-bouncy) var(--ease-bouncy);",
+    "occurrence": 1
+  },
+  {
+    "name": "pressable release springs again",
+    "file": "app/src/renderer/src/styles.css",
+    "find": "transition: transform 120ms ease-out,",
+    "replace": "transition: transform var(--dur-snappy) var(--ease-snappy),"
+  },
+  {
+    "name": "quick settings bounce again",
+    "file": "app/src/renderer/src/styles.css",
+    "find": "animation: pop-in var(--dur-snappy) var(--ease-snappy) both;",
+    "replace": "animation: pop-in var(--dur-bouncy) var(--ease-bouncy) both;",
+    "occurrence": 0
+  },
+  {
+    "name": "reduced surface no longer fades",
+    "file": "app/src/renderer/src/styles.css",
+    "find": ".morph-surface[data-reduced] { animation: fade-in 120ms ease-out both; }",
+    "replace": ".morph-surface[data-reduced] { animation: none; }"
+  },
+  {
+    "name": "pinned bar waits for impossible x again",
+    "file": "app/src/renderer/src/components/ui/morph/controller.ts",
+    "find": "((pinned && target.width >= 1) || isAtRest(this.x, target.x))",
+    "replace": "isAtRest(this.x, target.x)"
+  }
+]

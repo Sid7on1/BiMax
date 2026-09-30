@@ -367,6 +367,48 @@ built renderer: the line appears when the run ends, green and red, expanded. Eng
 engine outcome/review suites pass; app typecheck clean; app suite 116 suites / 1042 tests; `check:morph`,
 `check:hit-targets`, design-preview build pass. Not yet installed.
 
+
+## Batch 11 — items 27, 32, 36, the motion ladder (2026-10-01)
+
+**Resumed from the interrupted batch, measured in the built renderer** at 1180×800, 100% and the owner's 120%.
+The intended springs were already restored. The baseline was checked against the ladder rather than regenerated
+again. Press releases ease out in 120ms; the quick-settings flyout takes the snappy curve; Reduce Motion launches
+on the destination and fades, with no moving geometry. Pane edges stay pinned while their width travels.
+
+| surface | entrance before → now, 100% | entrance now, 120% | exit now, 100% / 120% |
+|---|---|---|---|
+| Model menu | 233 → 217ms | 217ms | 183 / 183ms |
+| model window | 383 → 283ms | 267ms | 283 / 233ms |
+| right pane | 517 → 300ms | 283ms | 250 / 250ms |
+| left pane | 467 → 267ms | 250ms | 233 / 233ms |
+| menu appearing in place | 183 → 183ms | 183ms | 67 / 67ms |
+
+Times are the virtual 60Hz frame after which geometry stays within 1px of its destination, not real-GPU latency.
+The seeded menu overshoots 0.6%; panes do not overshoot. The original 338ms / ~13% preset is not used for these menus.
+Exits are 84–100% of their entrances (the in-place menu is 37%); **the requested ~75% is not uniformly reached**.
+The 120px-per-frame speed limit takes precedence on long flights home; the model window's unconstrained close jumped
+149px in one frame. No claim that every exit is 75%.
+
+**Two alleged mutation escapes resolved.** The old menu spring was already rejected by baseline drift (exit 1): the
+runner wrongly required a ladder-error sentence, even though 1 frame of grid tolerance let its settle time pass.
+The old pane spring was genuinely ungradeable (exit 2): after the pane visually settled, its edge-pinned x chased
+an independently rounded layout x it could never reach. A pinned bar now rests on its independent width spring;
+a zero-width initial measurement still waits for real layout. New inspector/sidebar tests step the physics without
+any watchdog and prove the handoff despite a 0.25px layout disagreement. Invalid runs remain invalid, never catches.
+
+**Verification that ran:** 6/6 original built-renderer breakages caught in valid runs, plus 6/6 unit breakages
+(each press release, flyout bounce, reduced fade, and the impossible-x rest). Evidence and definitions are under
+`front inspo/evidence/2026-10-01/batch11-*`. App typecheck clean; full app suite **116 suites / 1050 tests**;
+`check:morph` (32 flights, both zooms), `check:hit-targets`, `check:motion`, `check:design-preview` pass;
+`editor.glass.test.ts` remains green. The full suite was run from the repository root (`npx jest app/
+--coverage=false --maxWorkers=2`): app/ has no Jest configuration, so the handoff's bare app-directory invocation
+cannot transform TypeScript. No tests were loosened or skipped.
+
+**Documents and claim boundary:** guided by product-reset README, 03_PRODUCT_EXAMPLES, 04_FRONTEND_PLAN,
+BIMAX_MAC_BUDDY_PRODUCT_VISION, 08_ACCEPTANCE_GATES, competitive/06_HEAD_TO_HEAD_EVALS and X01_BUILD_RUN_PROVE.
+This is Implemented and locally measured renderer motion. Native installed-GPU feel and fresh-Mac/public release
+qualification remain unmeasured; no competitor win or reactivation of Computer Use is claimed. Not yet installed.
+
 ## Still open
 
 | # | Item |
