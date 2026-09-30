@@ -218,7 +218,7 @@ function FileTabs({
                 onClick={(event) => { event.stopPropagation(); onClose(path); }}
                 title={dirty ? 'Unsaved changes — close' : 'Close (⌘W)'}
                 aria-label={dirty ? `Close ${name}, which has unsaved changes` : `Close ${name}`}
-                className="workbench-tab-close"
+                className="workbench-tab-close hit-24"
               >
                 <Circle size={7} fill="currentColor" className="workbench-tab-dot" aria-hidden />
                 <X size={11} className="workbench-tab-x" aria-hidden />
@@ -429,7 +429,7 @@ export function Inspector({
           <button
             type="button"
             onClick={() => onTab({ kind: 'lane', id: 'files' })}
-            className="workbench-crumb min-w-0 flex-1 cursor-pointer truncate rounded-md px-1.5 py-0.5 text-left text-[11px] text-faint hover:bg-hover hover:text-ink"
+            className="workbench-crumb min-h-6 min-w-0 flex-1 cursor-pointer truncate rounded-md px-1.5 py-0.5 text-left text-[11px] text-faint hover:bg-hover hover:text-ink"
             title={`${activeFile} — show in the file tree`}
           >
             {fileDir(activeFile) || 'project root'}

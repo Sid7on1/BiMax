@@ -446,7 +446,7 @@ function Section({
         onClick={toggle}
         aria-expanded={open}
         aria-controls={bodyId}
-        className="glass-row flex w-full cursor-pointer items-center gap-1 rounded-md px-2.5 py-1 text-left text-[10.5px] font-semibold tracking-[0.09em] text-faint uppercase hover:text-dim focus-visible:outline-2 focus-visible:outline-ember"
+        className="glass-row flex min-h-6 w-full cursor-pointer items-center gap-1 rounded-md px-2.5 py-1 text-left text-[10.5px] font-semibold tracking-[0.09em] text-faint uppercase hover:text-dim focus-visible:outline-2 focus-visible:outline-ember"
       >
         <ChevronRight
           size={11}

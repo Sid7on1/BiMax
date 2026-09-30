@@ -376,7 +376,7 @@ function ThoughtLine({ ms, text }: { ms: number; text?: string }): React.ReactEl
     <div className="mb-1">
       <button
         onClick={() => text && setOpen((v) => !v)}
-        className={cn('flex items-center gap-1 text-xs text-faint italic', text && 'cursor-pointer hover:text-dim')}
+        className={cn('hit-24 flex items-center gap-1 text-xs text-faint italic', text && 'cursor-pointer hover:text-dim')}
       >
         {text ? (open ? <ChevronDown size={11} /> : <ChevronRight size={11} />) : null}
         Thought for {(ms / 1000).toFixed(1)}s

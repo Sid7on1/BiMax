@@ -262,8 +262,40 @@ glass variant once, invisibly) could hide the rare one-time pause, but it cannot
 macOS's own caches, and it would add GPU work to every launch. Item 11 is closed. The scratch measuring script is
 described here, not committed: a visible window, the journeys' bridge stand-in, real clicks, Long Animation Frames.
 
+## Batch 8 — item 34, clickable areas of at least 24×24 (2026-09-30)
+
+**Measured first, by clicking, not by box size.** A new check, `npm run check:hit-targets`
+(`app/scripts/ui/hit-targets.mjs`), opens the built renderer in the views that carry small controls — the
+conversation with a thought line, tool rows and a code block; the sidebar with Bimax Threads; the right panel with a
+file open; find in a file; Settings; the Model menu — at 100% and 120%, and for every visible control asks the page
+where a click would land around it (`elementFromPoint`, in 0.5px steps). A control passes if some spot on it takes
+clicks over 24 × 24 CSS px. Links inside running text are exempt, as WCAG 2.5.8 exempts them.
+
+Most of the app already passed (Copy buttons 24×24, tool rows 28 tall, thread-row actions 24×24, Settings, menus).
+What did not:
+
+| control | clickable before | now |
+|---|---|---|
+| "Thought for 2.4s" | 16 tall | 24 (an invisible ring, `.hit-24`) |
+| a file tab's × | 18 × 18 | 24 × 24 (ring; the × is drawn at the same size) |
+| find: match case / whole word / regex / in selection | 22 × 20 | 24 × 24 (ring; the toggles 2px apart, not 1, so neighbouring rings do not overlap) |
+| find: show replace | 16 × 26 | 24 × 26 (ring) |
+| the file's folder path above the editor | 20.5 tall | 24 (real height: it truncates, and its clipping box would cut a ring) |
+| file tree rows, sidebar section headers | 23.3, 23.8 | 24 (real height: stacked rows cannot take rings without overlapping) |
+
+`.hit-24` (styles.css) is a transparent `::after` that belongs to the control for hit testing and paints nothing, so
+nothing is drawn differently; checked in a render of the right panel with find open. The first run of the check also
+found find's Previous / Next / Close at 20.6px — they are 24px and were caught mid-entrance, scaled 0.86; the check now
+waits for finite animations to end before it measures.
+
+**Verification that ran:** the check fails on the code before this change (26 findings) and passes after it at both
+zooms; 7 deliberate breakages (the ring removed, and each control losing its fix, the toggles back to 1px apart) each
+fail it with the control named. The morph regression check still holds every flight; app typecheck clean; app suite
+115 suites / 1022 tests pass. The stand-in bridge now takes `fixture.threads`, so a world can show Bimax Threads. Not
+yet installed.
+
 ## Still open
 
 | # | Item |
 |---|---|
-| 23–45 | Research principles. Several already hold or were served by the items above (42 in item 18); the rest need picking one by one with the owner. |
+| 23–45 | Research principles. Done: 34 (batch 8). Next, by the owner's "your call": 38, then 24 + 41. 31 is not planned (its colours conflict with the owner's item 10 choice). |

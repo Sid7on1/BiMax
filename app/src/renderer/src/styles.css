@@ -499,6 +499,22 @@
   box-shadow: inset 0 1px 0 var(--glass-sheen);
 }
 
+/* A control drawn smaller than 24×24 keeps its drawn size and takes clicks over 24×24 (UI fix list item 34, "minimum
+   24×24 pt hit regions on small glyphs"). The pseudo-element belongs to the button for hit testing, so a click in the
+   ring around the glyph lands on it; it paints nothing. Only for controls with room around them and no clipping box:
+   rows stacked edge to edge get real height instead, because overlapping hit regions would make a click between two
+   rows land on whichever came later. `npm run check:hit-targets` measures the result by clicking, not by box size. */
+.hit-24 { position: relative; }
+.hit-24::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100%, 24px);
+  height: max(100%, 24px);
+  translate: -50% -50%;
+}
+
 /* A flat navigation row. No fill until it is pointed at — the resting panel is text on glass. */
 .glass-row {
   transition: background 150ms var(--ease-snappy), color 150ms ease,
@@ -1263,7 +1279,9 @@
   height: 26px;
   flex: 1 1 auto;
   align-items: center;
-  gap: 1px;
+  /* 2px, not 1: the toggles are 22px wide and click over 24 (`.hit-24`), so at a 23px pitch each took the pixel its
+     neighbour's ring overlapped — measured 22.5px of clickable width (UI fix list item 34). */
+  gap: 2px;
   border: 1px solid var(--glass-edge-strong);
   border-radius: 7px;
   padding: 0 2px 0 7px;

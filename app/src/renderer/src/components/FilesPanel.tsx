@@ -249,7 +249,7 @@ function Row({
       title={dir ? rel : `${rel} — open in editor`}
       style={{ paddingLeft: `${6 + depth * 13}px` }}
       className={cn(
-        'group flex w-full cursor-pointer items-center gap-1.5 rounded-md py-[3px] pr-1.5 text-left text-[11.5px] text-dim',
+        'group flex min-h-6 w-full cursor-pointer items-center gap-1.5 rounded-md py-[3px] pr-1.5 text-left text-[11.5px] text-dim',
         'hover:bg-hover hover:text-ink data-[active]:bg-selected data-[active]:text-ink',
       )}
     >

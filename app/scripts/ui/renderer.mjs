@@ -142,7 +142,8 @@ export function installBridge(fixture) {
     // Bimax Threads. The harness drives one renderer with no main process, so there is never a thread list,
     // a Finder context or a pending approval; calls are recorded so a journey can assert what was asked.
     threads: {
-      list: async () => ({ activeId: null, threads: [], shortcutAvailable: true }),
+      // A world may bring its own Bimax Threads (`fixture.threads`); by default there are none.
+      list: async () => ({ activeId: H.fixture.threadsActive ?? null, threads: H.fixture.threads ?? [], shortcutAvailable: true }),
       onList: () => () => {},
       onSelected: () => () => {},
       create: async () => { record('threads.create'); return null; },

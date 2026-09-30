@@ -98,7 +98,7 @@ function Toggle({ on, label, keys, onClick, disabled, children }: {
   return (
     <button
       type="button"
-      className="find-toggle"
+      className="find-toggle hit-24"
       data-on={on || undefined}
       aria-pressed={on}
       aria-label={label}
@@ -170,7 +170,7 @@ export function FindWidget({ view, state }: { view: EditorView; state: EditorSta
     <div className="find-widget" role="dialog" aria-label="Find and replace in this file">
       <button
         type="button"
-        className="find-expand"
+        className="find-expand hit-24"
         aria-expanded={replaceOpen}
         aria-label={replaceOpen ? 'Hide replace' : 'Show replace'}
         title={replaceOpen ? 'Hide replace' : 'Show replace'}
