@@ -5,6 +5,8 @@ import * as path from 'path';
 export interface SessionMeta {
   id: string;           // same as the JSONL filename stem
   title: string;        // first user message, truncated
+  /** What the session is for, in a few words, named after its first reply (engine/session.summary.ts). */
+  summary?: string;
   cwd: string;          // working directory when session started
   startedAt: string;    // ISO
   endedAt?: string;     // ISO — set on shutdown
@@ -163,6 +165,25 @@ export function endSessionMeta(): void {
 
 export function getCurrentSessionId(): string | null {
   return _current?.id ?? null;
+}
+
+/** The session being recorded, as a copy, or null before the first message. */
+export function currentSessionMeta(): SessionMeta | null {
+  return _current ? { ..._current } : null;
+}
+
+/**
+ * Name a session by what it is for (engine/session.summary.ts). Written to the record even when the
+ * tracker has moved on to another session — the title arrives a model call later. Returns whether a
+ * record took it.
+ */
+export function recordSessionSummary(id: string, summary: string): boolean {
+  const text = summary.replace(/\s+/g, ' ').trim().slice(0, 64);
+  if (!id || !text) return false;
+  if (_current?.id === id) _current.summary = text;
+  if (!readAllMeta().some(m => m.id === id)) return false;
+  updateMeta(id, { summary: text });
+  return true;
 }
 
 /** Returns the most recent N session metadata records, newest first. */

@@ -248,6 +248,11 @@ export interface UiSnapshot {
       skipped: { name: string; reason: string }[];
     };
   };
+  /**
+   * The engine's live approval gates (src/protocol/ui.snapshot.ts): the permission pill states these
+   * rather than what it last sent. Absent from an engine older than this field.
+   */
+  approvals?: { askBeforeEdits: boolean; readOnly: boolean; unattended: boolean };
 }
 
 // Phase 4 moved every Computer Use owner out of the engine, so `ui_snapshot` no longer carries a

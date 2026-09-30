@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ArrowUp, AudioLines, Square, FunctionSquare, FileText, Shield, Cpu,
   ChevronUp, Sparkles, Pencil, Search, Hammer, Flame, Plus, X, CornerDownRight, Folder, GitBranch, AtSign, SquareSlash as SlashSquare,
@@ -15,7 +15,8 @@ import type { SupervisorStatus } from '../global';
 import {
   emptyDraft, readDraft, saveDraft, composeMessage, mentionAt, replaceMention,
   completionInsert, slashCommand, commandPrefix, readHistory, pushHistory,
-  shouldAttachPaste, pastedFileName, CLIPBOARD_IMAGE_TYPES, CONTEXT_VERBS, type ComposerDraft,
+  shouldAttachPaste, pastedFileName, CLIPBOARD_IMAGE_TYPES, CONTEXT_VERBS, COMPOSER_MAX_HEIGHT, composerOverflow,
+  approvalLevel, type ComposerDraft,
 } from '../composer.model';
 
 /**
@@ -52,9 +53,9 @@ const ADVANCED_MODES = [
 ];
 
 const ADVANCED_AUTONOMY = [
-  { id: 'plan', label: 'Read-only', desc: 'Research and propose; never write' },
-  { id: 'full', label: 'Unattended', desc: 'No approval gates. Only for work you are supervising.' },
-];
+  { id: 'plan', level: 'readOnly', label: 'Read-only', desc: 'Research and propose; never write' },
+  { id: 'full', level: 'unattended', label: 'Unattended', desc: 'No approval gates. Only for work you are supervising.' },
+] as const;
 
 const TIERS = [
   { id: 'auto', short: 'Auto', label: 'Auto tier', desc: 'Router picks lite/heavy per turn' },
@@ -98,7 +99,13 @@ export function Composer({
   const [error, setError] = useState('');
   const [sel, setSel] = useState(0);
   const [caret, setCaret] = useState(0);
-  const [permission, setPermission] = useState('auto');
+  // What the pill last sent. Only an engine too old to report its gates is described by this; a current
+  // one is read from the snapshot (`approvalLevel`), so a remount can no longer make the pill lie.
+  const [permission, setPermission] = useState<'ask' | 'auto'>('auto');
+  // Whether the Custom rules section is unfolded in the menu. Choosing "Custom rules…" used to close the
+  // menu and send nothing, while the pill said "Custom rules" — a control that changed its own label
+  // and not the engine. It now unfolds the choices in place.
+  const [customOpen, setCustomOpen] = useState(false);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [wellOpen, setWellOpen] = useState(false);
   const [dropDepth, setDropDepth] = useState(0);
@@ -121,7 +128,14 @@ export function Composer({
   const modeId = (mode || '').toLowerCase() === 'plan' ? 'general' : (mode || '').toLowerCase() || 'general';
   const activeMode = ADVANCED_MODES.find(m => m.id === modeId) ?? ADVANCED_MODES[0];
   const readOnlyMode = ['PLAN', 'EXPLORE', 'SKETCH'].includes((mode || '').toUpperCase());
-  const activeLevel = CONTROL_LEVELS.find(level => level.id === permission) ?? CONTROL_LEVELS[1];
+  const engineLevel = approvalLevel(snapshot?.approvals);
+  const level = engineLevel ?? (readOnlyMode ? 'readOnly' : permission);
+  const custom = level === 'readOnly' || level === 'unattended';
+  const activeLevel = CONTROL_LEVELS.find(entry => entry.id === (custom ? 'custom' : level)) ?? CONTROL_LEVELS[1];
+  // A custom level names itself: "Custom rules" says nothing about whether Bimax will write.
+  const levelShort = level === 'readOnly' ? 'Read-only' : level === 'unattended' ? 'Unattended' : activeLevel.short;
+  const levelTitle = level === 'readOnly' ? 'Read-only: research and propose, never write'
+    : level === 'unattended' ? 'Unattended: nothing asks before acting' : activeLevel.label;
   const activeTier = TIERS.find(t => t.id === (tier || 'auto')) ?? TIERS[0];
   // Quality is no longer its own pill. The default is silent; a pinned tier is named here, so a
   // non-default can never hide inside a menu nobody opens.
@@ -164,12 +178,31 @@ export function Composer({
     window.addEventListener('bimax:compose-insert', insert);
     return () => window.removeEventListener('bimax:compose-insert', insert);
   }, []);
-  useEffect(() => {
+  // The field is as tall as its text, up to a cap, and scrolls only past the cap — never for the
+  // placeholder (composer.model.ts, `composerOverflow`). Refitted when the text changes AND when the
+  // column's width does: narrowing the chat panel rewraps the same text onto more lines.
+  const fitField = useCallback(() => {
     const ta = taRef.current;
     if (!ta) return;
     ta.style.height = 'auto';
-    ta.style.height = Math.min(ta.scrollHeight, 260) + 'px';
-  }, [text]);
+    const full = ta.scrollHeight;
+    ta.style.height = Math.min(full, COMPOSER_MAX_HEIGHT) + 'px';
+    ta.style.overflowY = composerOverflow(ta.value, full);
+  }, []);
+  useEffect(fitField, [text, fitField]);
+  useEffect(() => {
+    const ta = taRef.current;
+    if (!ta || typeof ResizeObserver === 'undefined') return undefined;
+    let width = ta.clientWidth;
+    // Width only: fitting writes the HEIGHT, so reacting to every resize would observe its own write.
+    const observer = new ResizeObserver(() => {
+      if (ta.clientWidth === width) return;
+      width = ta.clientWidth;
+      fitField();
+    });
+    observer.observe(ta);
+    return () => observer.disconnect();
+  }, [fitField]);
 
   const queryAt = (value: string, position: number): void => {
     setCaret(position);
@@ -561,7 +594,7 @@ export function Composer({
             onSelect={e => { const position = e.currentTarget.selectionStart; if (position !== caret) queryAt(text, position); }}
             onKeyDown={keyDown}
             onPaste={onPaste}
-            className="min-w-0 flex-1 resize-none border-none bg-transparent font-display text-[14.5px] leading-relaxed outline-none placeholder:text-faint"
+            className="composer-input min-w-0 flex-1 resize-none overflow-y-hidden border-none bg-transparent font-display text-[14.5px] leading-relaxed outline-none placeholder:text-faint"
           />
           <MicButton dictation={dictation} disabled={!!queued || talk.active} className="composer-mic flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-faint transition-colors hover:bg-hover hover:text-ink disabled:opacity-40" />
           {dictation.available ? (
@@ -582,15 +615,22 @@ export function Composer({
         {dictation.error ? <p role="status" className="px-4 pb-1 text-[11px] text-amber">{dictation.error}</p> : null}
         {talk.error ? <p role="status" className="px-4 pb-1 text-[11px] text-amber">{talk.error}</p> : null}
         <div className="composer-toolbar flex min-w-0 items-center gap-1 px-3 pb-2.5">
+          {/* The button that opens the attach tray also closes it — same button, same place (fix list
+              item 4). There is no separate Done in the opposite corner any more; Esc closes it too.
+              The + turns into a × while the tray is open, so the button says what it will do. */}
           <button
             type="button"
-            title="Attach files"
-            aria-label="Attach files"
-            disabled={!available || !!queued}
-            onClick={openWell}
-            className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-faint transition-colors hover:bg-hover hover:text-ink disabled:opacity-40"
+            title={wellOpen ? 'Close (Esc)' : 'Attach files'}
+            aria-label={wellOpen ? 'Close the attach tray' : 'Attach files'}
+            aria-expanded={wellOpen}
+            disabled={!wellOpen && (!available || !!queued)}
+            onClick={wellOpen ? closeWell : openWell}
+            className={cn(
+              'flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-faint transition-colors hover:bg-hover hover:text-ink disabled:opacity-40',
+              wellOpen && 'text-ink',
+            )}
           >
-            <Plus size={16} />
+            <Plus size={16} className={cn('transition-transform duration-150', wellOpen && 'rotate-45')} />
           </button>
 
           {/* Widest of the strip's menus: in `custom` it grows three sections deep, and `fitHeight`
@@ -599,24 +639,26 @@ export function Composer({
           <SeedMenu
             label="Permission level"
             width={300}
-            trigger={(open) => <ComposerPill open={open} icon={<Shield size={13} />} label={activeLevel.short} title={activeLevel.label} />}
+            trigger={(open) => <ComposerPill open={open} icon={<Shield size={13} />} label={levelShort} title={levelTitle} />}
           >
             {(close) => (
               <>
-                {CONTROL_LEVELS.map((level) => (
+                {CONTROL_LEVELS.map((entry) => (
                   <SeedMenuItem
-                    key={level.id}
-                    selected={level.id === activeLevel.id}
-                    label={level.label}
-                    desc={level.desc}
+                    key={entry.id}
+                    selected={entry.id === activeLevel.id}
+                    label={entry.label}
+                    desc={entry.desc}
                     onClick={() => {
-                      if (level.autonomy) onControls({ autonomy: level.autonomy as ControlsMsg['autonomy'] });
-                      setPermission(level.id);
+                      if (!entry.autonomy) { setCustomOpen((value) => !value); return; }
+                      onControls({ autonomy: entry.autonomy as ControlsMsg['autonomy'] });
+                      setPermission(entry.autonomy);
+                      setCustomOpen(false);
                       close();
                     }}
                   />
                 ))}
-                {permission === 'custom' && (
+                {(customOpen || custom) && (
                   <>
                     <SeedMenuSeparator />
                     <SeedMenuLabel>How Bimax works</SeedMenuLabel>
@@ -635,7 +677,7 @@ export function Composer({
                     {ADVANCED_AUTONOMY.map((option) => (
                       <SeedMenuItem
                         key={option.id}
-                        selected={readOnlyMode && option.id === 'plan'}
+                        selected={level === option.level}
                         label={option.label}
                         desc={option.desc}
                         onClick={() => { onControls({ autonomy: option.id as ControlsMsg['autonomy'] }); close(); }}

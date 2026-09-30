@@ -290,7 +290,6 @@ function SlotsPane({
   onApply: (key: string, value: string) => Promise<void>;
 }): React.ReactElement {
   const effort = String(config.reasoningEffort ?? '');
-  const thinking = Number((config as Record<string, unknown>).maxThinkingTokens ?? 0);
   const byId = useMemo(() => new Map((catalog?.models ?? []).map((m) => [m.id, m])), [catalog]);
   const workModel = byId.get(String(config.model ?? ''));
 
@@ -342,15 +341,10 @@ function SlotsPane({
         )}
       </Section>
 
-      <Section label="Thinking budget">
-        <ThinkingTokens
-          value={thinking}
-          supported={workModel?.capabilities?.thinking !== false}
-          modelLabel={workModel?.label}
-          outcome={outcomes.maxThinkingTokens}
-          onApply={(next) => void onApply('maxThinkingTokens', String(next))}
-        />
-      </Section>
+      {/* No "Thinking budget" section. It saved `maxThinkingTokens`, which no request builder ever read:
+          the control looked live and changed nothing (fix list item 13, 2026-09-30). Reasoning effort
+          above is the one knob that reaches the model — as `reasoning_effort`, only to models that
+          declare it. The old section is in bimax-archive, ModelDialog.before-ui-fix-list.tsx. */}
     </div>
   );
 }
@@ -972,50 +966,6 @@ function ProviderRow({
         </div>
       )}
     </div>
-  );
-}
-
-/* -------------------------------------------------------------------- thinking tokens --------- */
-
-const THINKING_PRESETS = [0, 1024, 4096, 16384];
-
-function ThinkingTokens({
-  value,
-  supported,
-  modelLabel,
-  outcome,
-  onApply,
-}: {
-  value: number;
-  supported: boolean;
-  modelLabel?: string;
-  outcome?: Outcome;
-  onApply: (value: number) => void;
-}): React.ReactElement {
-  return (
-    <>
-      <div className="flex gap-1.5">
-        {THINKING_PRESETS.map((preset) => (
-          <button
-            key={preset}
-            onClick={() => onApply(preset)}
-            className={cn(
-              'flex-1 cursor-pointer rounded-lg border px-3 py-2 text-[12.5px] transition-all duration-150 active:scale-[0.97]',
-              value === preset
-                ? 'border-ember bg-ember/12 text-ink'
-                : 'border-line text-dim hover:border-ember/50 hover:text-ink',
-            )}
-          >
-            {preset === 0 ? 'Default' : `${preset / 1024}k`}
-          </button>
-        ))}
-      </div>
-      <p className="mt-1.5 text-[11px] text-faint">
-        How many tokens the model may spend reasoning before it must answer. Default leaves it to the provider.
-      </p>
-      {!supported && modelLabel && <Note tone="amber">{modelLabel} does not expose a thinking budget.</Note>}
-      {outcome?.state === 'rejected' && <Note tone="amber">The engine kept “{outcome.actual || '0'}”.</Note>}
-    </>
   );
 }
 

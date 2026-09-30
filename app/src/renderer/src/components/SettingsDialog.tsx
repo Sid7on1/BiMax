@@ -9,6 +9,7 @@ import { cn } from '../lib/cn';
 import type { EngineConfig } from '../protocol';
 import type { InspectorTabId } from '../inspector.model';
 import type { Phase9View } from '../usePhase9';
+import { applyMotionPreference } from '../motion.preference';
 
 type Control =
   | { kind: 'toggle' }
@@ -37,7 +38,7 @@ const PAGES: Page[] = [
       { key: 'liteModel', label: 'Fast model', desc: 'A quicker model for summaries and small supporting tasks.', control: { kind: 'text', placeholder: 'provider/model-id' } },
       { key: 'subagentModel', label: 'Specialist model', desc: 'Used by agent-team specialists. Empty inherits the main model.', control: { kind: 'text', placeholder: 'use main model' } },
       { key: 'fallbackModel', label: 'Backup model', desc: 'Used only when the main model is temporarily unavailable.', control: { kind: 'text', placeholder: 'off' } },
-      { key: 'reasoningEffort', label: 'Reasoning effort', desc: 'Thinking budget for compatible models.', control: { kind: 'select', options: [{ value: '', label: 'Off' }, { value: 'low', label: 'Low' }, { value: 'medium', label: 'Medium' }, { value: 'high', label: 'High' }] } },
+      { key: 'reasoningEffort', label: 'Reasoning effort', desc: 'How long a reasoning model thinks before it answers. Sent only to models that accept it.', control: { kind: 'select', options: [{ value: '', label: 'Off' }, { value: 'low', label: 'Low' }, { value: 'medium', label: 'Medium' }, { value: 'high', label: 'High' }] } },
       { key: 'contextMode', label: 'Tool context', desc: 'Smart loads tools on demand; Full sends the complete tool set.', control: { kind: 'select', options: [{ value: 'smart', label: 'Smart · deferred' }, { value: 'full', label: 'Full · all tools' }] } },
       { key: 'contextWindowTokens', label: 'Context window', desc: 'Actual model context in tokens. Zero uses the conservative default.', control: { kind: 'number', min: 0, step: 1000, placeholder: '0 · auto' } },
       { key: 'temperature', label: 'Temperature', desc: 'Sampling temperature for the main loop.', control: { kind: 'number', min: 0, max: 2, step: 0.1 } },
@@ -95,7 +96,11 @@ export function SettingsDialog({
   useEffect(() => {
     if (!open) return;
     setCfg(null); setUnsupported(false);
-    void configGet().then((value) => { setUnsupported(Object.keys(value).length === 0); setCfg(value); });
+    void configGet().then((value) => {
+      setUnsupported(Object.keys(value).length === 0);
+      setCfg(value);
+      if (typeof value.reducedMotion === 'boolean') applyMotionPreference(value.reducedMotion);
+    });
   }, [open, configGet]);
 
   useEffect(() => () => {
@@ -105,6 +110,8 @@ export function SettingsDialog({
 
   const apply = (key: keyof EngineConfig, value: unknown, debounceMs = 0): void => {
     setCfg((current) => ({ ...(current ?? {}), [key]: value }) as EngineConfig);
+    // Reduce motion is the one setting the PAGE has to act on; it takes effect before the save lands.
+    if (key === 'reducedMotion') applyMotionPreference(Boolean(value));
     const timers = debounceRef.current;
     const previous = timers.get(key as string);
     if (previous) clearTimeout(previous);

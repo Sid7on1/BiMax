@@ -36,8 +36,13 @@
      and the lightest of the three — so a menu or a sheet opened as a pale grey panel in a
      black-tinted app. Settings was fixed by hand first; this is the same fix for all of them.
      One step denser than the canvas, because a floating surface sits over live content and has to
-     win against it rather than blend into it. */
-  --float-veil: color-mix(in srgb, var(--app-veil) 88%, #000);
+     win against it rather than blend into it.
+     2026-09-30 (fix list items 2, 3, 13): it was still the canvas veil, α 0.74 mixed a step toward
+     black — about 77% opaque — and a menu opened over the transcript let the text underneath show
+     through its own rows; the owner could not read the model menu, the "Approve for me" menu or the
+     model catalogue. It is now the solid floating tint at 94%: a floating surface is read first and
+     admired second, and 6% plus the blur is still enough to say it is glass. */
+  --float-veil: color-mix(in srgb, var(--float-solid) 94%, transparent);
   --float-solid: color-mix(in srgb, var(--color-bg) 88%, #000);
   --color-hover: #292929;
   --color-selected: #313131;
@@ -201,8 +206,13 @@
      and the lightest of the three — so a menu or a sheet opened as a pale grey panel in a
      black-tinted app. Settings was fixed by hand first; this is the same fix for all of them.
      One step denser than the canvas, because a floating surface sits over live content and has to
-     win against it rather than blend into it. */
-  --float-veil: color-mix(in srgb, var(--app-veil) 88%, #000);
+     win against it rather than blend into it.
+     2026-09-30 (fix list items 2, 3, 13): it was still the canvas veil, α 0.74 mixed a step toward
+     black — about 77% opaque — and a menu opened over the transcript let the text underneath show
+     through its own rows; the owner could not read the model menu, the "Approve for me" menu or the
+     model catalogue. It is now the solid floating tint at 94%: a floating surface is read first and
+     admired second, and 6% plus the blur is still enough to say it is glass. */
+  --float-veil: color-mix(in srgb, var(--float-solid) 94%, transparent);
   --float-solid: color-mix(in srgb, var(--color-bg) 88%, #000);
   --color-hover: #292929;
   --color-selected: #313131;
@@ -255,7 +265,7 @@
    * a subtree they now resolve against this block's own values.
    */
   --raise-veil: color-mix(in srgb, var(--color-raise) 72%, transparent);
-  --float-veil: color-mix(in srgb, var(--app-veil) 88%, #000);
+  --float-veil: color-mix(in srgb, var(--float-solid) 94%, transparent);
   --float-solid: color-mix(in srgb, var(--color-bg) 88%, #000);
 }
 
@@ -446,6 +456,14 @@
   -webkit-backdrop-filter: none;
 }
 
+/* The peek: the same panel, shown OVER the conversation while the sidebar is unpinned. Pinned, its
+   glass sits over the desktop; peeking, it sits over the transcript, and at α 0.74 the transcript's
+   text read straight through the panel's own rows (fix list item 14). A surface over live content is
+   a floating surface, so it takes the floating rule: the sidebar's own solid tint at 94%. */
+.sidebar-peek .sidebar-shell {
+  background: color-mix(in srgb, var(--glass-solid) 94%, transparent);
+}
+
 [data-chrome='expanded'] .sidebar-shell::after {
   opacity: 0;
 }
@@ -480,9 +498,12 @@
   background: var(--glass-well);
 }
 
+/* The selected row: the same raised glass as the New thread pill, and nothing drawn on it. It carried a
+   1px sheen along its top here and a 2px light bar down its left edge (below) — the "weird white strip"
+   the owner saw beside the current recent (fix list item 7). Value alone marks it, as it marks every
+   surface in the shell. */
 .glass-row[data-active='true'] {
   background: var(--glass-raise);
-  box-shadow: inset 0 1px 0 var(--glass-sheen);
 }
 
 /* Instant down, springy up — same reasoning as `.pressable:active`. */
@@ -1522,6 +1543,10 @@
    state below is the one time it is allowed to draw an edge, because that edge is information. */
 .launch-console { border-radius: 18px; background: var(--raise-veil); border-color: transparent; box-shadow: 0 6px 22px #00000012; }
 .launch-console:focus-within { border-color: color-mix(in srgb,var(--color-ink) 22%,transparent); box-shadow: 0 8px 26px #0000001a; }
+/* The placeholder is a hint, not content: one line, ellipsised. Wrapped onto two or three lines in a
+   narrow column it overflowed a one-line field, which then drew a scrollbar for text nobody had typed
+   (fix list item 1; the height rule is `composerOverflow` in composer.model.ts). */
+.composer-input::placeholder { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .composer-toolbar { min-height: 40px; gap: 2px; }
 /* Every control may shrink and truncate before the row is allowed to wrap: a second line moved
    Send away from the corner people aim at. */
@@ -1561,8 +1586,11 @@
 [data-edge-free] .workbench-strip { padding-left: 80px; -webkit-app-region: drag; }
 [data-edge-free] .workbench-strip :is(button, [role="button"], input) { -webkit-app-region: no-drag; }
 #composer-help { font-size: 9px; line-height: 1.6; }
+/* A Bimax Thread row's hover actions (ThreadsList.tsx) sit over the row's right edge, so the row never
+   grows when the pointer crosses it. Solid under the icons, or the title would read through them. */
+.thread-row-actions { background: var(--glass-solid); box-shadow: 0 0 0 1px var(--glass-edge); }
 .sidebar-shell .glass-row { transition: background 180ms,color 180ms,box-shadow 180ms; }
-.sidebar-shell .glass-row[data-active] { background: var(--glass-raise); box-shadow: inset 2px 0 0 var(--color-dim); }
+.sidebar-shell .glass-row[data-active] { background: var(--glass-raise); }
 /* The hairline that used to run under the title bar is gone with the bar (2026-09-19). Nothing is
    drawn across the top of either surface now: the sidebar's glass and the content pane both begin
    at y=0 and the window's controls float on them. Measured on Cursor, that continuity is most of
@@ -1828,3 +1856,34 @@ html.aux-surface, html.aux-surface body, html.aux-surface #root { background: tr
   background-clip: border-box;
   color: var(--color-ink);
 }
+
+/* ── Reduce motion, from Settings (fix list item 17) ──────────────────────────────────────────────
+   Settings → General → "Reduce motion" wrote `reducedMotion` to the config and nothing read it: the only
+   thing that quietened this app was the macOS setting, through the media queries above. The toggle now
+   stamps `data-reduce-motion` on <html> (motion.preference.ts) and every rule below is the twin of a
+   `@media (prefers-reduced-motion: reduce)` rule in this file — the same quieting, switched from inside
+   Bimax. `prefersReducedMotion()` in motion.ts reads the same attribute, so the morphs follow too.
+   `app/src/__tests__/reduce.motion.setting.test.ts` fails if a media rule gains no twin here. */
+:root[data-reduce-motion] .anim-fade-up,
+:root[data-reduce-motion] .anim-scale-in,
+:root[data-reduce-motion] .anim-slide-in-right,
+:root[data-reduce-motion] .anim-dialog-in { animation: fade-in 120ms ease-out both; }
+:root[data-reduce-motion] .anim-dialog-out,
+:root[data-reduce-motion] .anim-fade-out { animation: fade-out 80ms ease-in both; }
+:root[data-reduce-motion] .signal-beacon,
+:root[data-reduce-motion] .graph-link,
+:root[data-reduce-motion] .graph-core-ring,
+:root[data-reduce-motion] .graph-node-ring,
+:root[data-reduce-motion] .animate-spin-slow { animation: none; }
+:root[data-reduce-motion] .timeline-row--lifted { transform: none; }
+:root[data-reduce-motion] { --ease-snappy: ease-out; --ease-bouncy: ease-out; --ease-glass: ease-out; --ease-exit: ease-in; --dur-snappy: 60ms; --dur-bouncy: 60ms; --dur-glass: 60ms; --dur-exit: 60ms; }
+:root[data-reduce-motion] * { transition-duration: 60ms !important; transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, opacity, box-shadow !important; }
+:root[data-reduce-motion] .pressable::after { display: none; }
+:root[data-reduce-motion] .workspace-starter { animation: none; }
+:root[data-reduce-motion] .workspace-starter:hover,
+:root[data-reduce-motion] .workspace-starter:active,
+:root[data-reduce-motion] .workspace-starter:hover .workspace-starter-icon { transform: none; }
+:root[data-reduce-motion] .capability-notice { animation: none; }
+:root[data-reduce-motion] .thinking-verb { animation: none; background: none; color: var(--color-dim); }
+:root[data-reduce-motion] .mic-button[data-listening] { transition: none; animation: none; }
+:root[data-reduce-motion] .talk-orb { transition: none; animation: none !important; }

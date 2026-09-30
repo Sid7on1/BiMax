@@ -105,10 +105,11 @@ export interface EngineConfig {
   allowSelfEvolution: boolean;
   reasoningEffort?: string; // off by default; 'low'|'medium'|'high' to speed up thinking models
   /**
-   * Upper bound on tokens a thinking model may spend reasoning before it must answer. 0 = leave it
-   * to the provider's default. Only sent to models whose capability row advertises the knob —
-   * backends that don't understand it reject the whole request, so this is gated exactly like
-   * `reasoningEffort` is.
+   * NOT SENT ANYWHERE. It was documented as an upper bound on a thinking model's reasoning tokens,
+   * "gated exactly like reasoningEffort", and no request builder ever read it: the app's "Thinking
+   * budget" control saved it and changed nothing (fix list item 13, 2026-09-30). The control is gone;
+   * the key stays so existing config files still parse. Wire it through llm.adapter.ts (per provider —
+   * Anthropic `thinking.budget_tokens`, OpenRouter `reasoning.max_tokens`) before offering it again.
    */
   maxThinkingTokens: number;
   /**

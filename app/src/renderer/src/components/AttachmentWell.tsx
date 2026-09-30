@@ -42,8 +42,8 @@ export function AttachmentWell({
   onRemove: (path: string) => void;
   onClose: () => void;
 }): React.ReactElement {
-  // Enter closes the well and returns focus to the prompt. Escape does the same — a surface that
-  // covers the composer must always be dismissible by the key people reach for first.
+  // Escape closes the well and returns focus to the prompt — a surface that covers the composer must
+  // always be dismissible by the key people reach for first. The composer's + is the other way out.
   useEffect(() => {
     const onKey = (event: KeyboardEvent): void => {
       if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); onClose(); }
@@ -84,11 +84,10 @@ export function AttachmentWell({
         </span>
       </button>
 
-      <div className="flex shrink-0 items-center justify-between px-4 pb-3 text-[11px] text-faint">
+      {/* No Done button. The composer's + closes this tray (it turns into a × while the tray is open),
+          and Esc closes it too (fix list item 4). */}
+      <div className="flex shrink-0 items-center justify-end px-4 pb-3.5 text-[11px] text-faint">
         <span>{attachments.length ? `${attachments.length} attached` : 'Files are checked before sending'}</span>
-        <button type="button" onClick={onClose} className="rounded px-2 py-1 hover:text-ink">
-          Done
-        </button>
       </div>
     </div>
   );

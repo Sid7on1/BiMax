@@ -253,6 +253,26 @@ export function MorphSurface({
     };
   }, [mounted, seed]);
 
+  // A surface sized FROM its content (`fitHeight`) follows that content when it changes while open —
+  // the permission menu unfolding its Custom rules in place is the case (fix list item 12). Same
+  // retarget as a window resize, so the surface curves to its new height carrying its velocity. The
+  // observer's first callback is the size it already has, so it is not a change.
+  useEffect(() => {
+    if (!mounted || !fitHeight || height !== undefined || !content || typeof ResizeObserver !== 'function') return undefined;
+    let last = content.scrollHeight;
+    const observer = new ResizeObserver(() => {
+      const next = content.scrollHeight;
+      if (next === last) return;
+      last = next;
+      const controller = controllerRef.current;
+      if (!controller || controller.state === 'closing' || controller.state === 'closed') return;
+      setDestination(resolveRef.current().destination);
+      controller.remeasure();
+    });
+    observer.observe(content);
+    return () => observer.disconnect();
+  }, [mounted, fitHeight, height, content]);
+
   if (!mounted || typeof document === 'undefined') return null;
 
   return createPortal(

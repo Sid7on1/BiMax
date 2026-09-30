@@ -2698,6 +2698,10 @@ app.whenReady().then(async () => {
       : 'system';
   });
 
+  // "Sound when a task finishes" (quick settings). The renderer decides when — a turn ended while the
+  // window was not focused — and main plays the system alert sound; the renderer cannot.
+  secureOn('app:beep', () => { shell.beep(); });
+
   secureOn('app:renderer-ready', () => {
     // A renderer that reloads while zoomed or in full screen would otherwise start out translucent
     // and only correct itself at the next window event, which may never come.

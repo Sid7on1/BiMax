@@ -147,6 +147,18 @@ export interface UiSnapshotComposer {
   };
 }
 
+/**
+ * What the engine will do before it changes something, read from the live gates:
+ *   askBeforeEdits — every file edit shows its diff and waits (diffApproval.ts);
+ *   readOnly       — plan mode: nothing is written at all;
+ *   unattended     — the governor is bypassed or unattended: nothing asks.
+ */
+export interface UiSnapshotApprovals {
+  askBeforeEdits: boolean;
+  readOnly: boolean;
+  unattended: boolean;
+}
+
 export interface UiSnapshot {
   models: { coding: string; lite: string; vision?: string };
   goalCount: number;
@@ -180,6 +192,9 @@ export interface UiSnapshot {
   tasks?: UiSnapshotTask[];
   // v3 additive: the Composer's document corpus and extracted facts.
   composer?: UiSnapshotComposer;
+  // v3 additive: the approval gates as they stand in THIS engine, so the composer's permission pill
+  // states what will actually happen rather than what it last sent (fix list item 12).
+  approvals?: UiSnapshotApprovals;
   // NOTE: the Grok-port power/update footer chips were removed — no front-end ever consumed them
   // (silent TS→Go drift). Power posture is read via /power and update posture via /update.
 }
@@ -188,6 +203,10 @@ export interface UiSnapshot {
  *  personas + tool registry; ui.snapshot only sees the graph store. */
 let baselineFn: (() => number) | undefined;
 export function setTokensBaseline(fn: () => number): void { baselineFn = fn; }
+
+/** The live approval gates. Set by headless.entry, which holds the governor; ui.snapshot does not. */
+let approvalsFn: (() => UiSnapshotApprovals) | undefined;
+export function setApprovalsReader(fn: () => UiSnapshotApprovals): void { approvalsFn = fn; }
 
 export function buildUiSnapshot(graphStore?: IGraphStore, toolRegistry?: ToolRegistry): UiSnapshot {
   let models: { coding: string; lite: string; vision?: string } = { coding: '', lite: '' };
@@ -290,9 +309,13 @@ export function buildUiSnapshot(graphStore?: IGraphStore, toolRegistry?: ToolReg
   try {
     const { listSessionMeta, getCurrentSessionId } = require('../db/session.meta');
     const current = getCurrentSessionId();
+    const { headlineFromPrompt } = require('../engine/session.summary');
     sessions = (listSessionMeta(20) as any[]).map((m) => ({
       id: m.id,
-      title: m.title || '(no messages yet)',
+      // What the session is for (fix list item 7): the Quick model's title once the first reply has
+      // named it, and until then — or for sessions recorded before titles existed — the first request
+      // with its greeting and filler removed. Never the raw first prompt.
+      title: m.summary || (m.title && m.title !== '(no messages yet)' ? headlineFromPrompt(m.title) : '(no messages yet)'),
       startedAt: m.startedAt || '',
       messageCount: m.messageCount || 0,
       cwd: m.cwd || '',
@@ -374,7 +397,10 @@ export function buildUiSnapshot(graphStore?: IGraphStore, toolRegistry?: ToolReg
     }
   } catch { /* task registry best-effort */ }
 
-  return { models, goalCount, mind, graph, contextWindow, tokensBaseline, compressionSaved, workspace, sessions, checkpoints, git, tools, tasks, composer };
+  let approvals: UiSnapshotApprovals | undefined;
+  try { approvals = approvalsFn?.(); } catch { approvals = undefined; }
+
+  return { models, goalCount, mind, graph, contextWindow, tokensBaseline, compressionSaved, workspace, sessions, checkpoints, git, tools, tasks, composer, approvals };
 }
 
 /** Begin emitting `ui_snapshot` (immediately + on config/goal/graph changes). Call after the host attaches. */

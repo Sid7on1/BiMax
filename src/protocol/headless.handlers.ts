@@ -26,6 +26,8 @@ export function buildHostHandlers(deps: { session: HeadlessSession; graphStore: 
     getConfig: () => getConfig() as any,
     saveConfig: (updates) => saveConfig(updates as any),
     llmAdapter,
+    // The agent gates Settings switches take effect now, not never (engine/gate.flags.ts).
+    applyLive: (patch) => { require('../engine/gate.flags').applyGateFlags(patch); },
     onChanged: () => engineEvents.emit('config_changed'), // re-snapshot + notify every front-end
   });
   const configSubset = (): Record<string, any> => configWire.read();
@@ -126,6 +128,9 @@ export function buildHostHandlers(deps: { session: HeadlessSession; graphStore: 
       // governor gate remains the final authority for combinations such as Explore + Full auto.
       if (mode || autonomy) await session.dispatch(`/mode ${mode ?? preservedMode}`);
       if (tier) await session.dispatch(`/tier ${tier}`);
+      // The composer's approval pill reads the engine's real gates from the snapshot, so a change here
+      // has to produce one — /governor on|off saves nothing and would otherwise refresh no front-end.
+      if (autonomy) engineEvents.emit('config_changed');
     },
     onConfigGet: configSubset,
     onConfigSet: (patch) => configWire.write(patch),

@@ -7,7 +7,7 @@ import { goalEvents } from '../memory/goal.manager';
 import { buildPersonas } from '../engine/personas/factory';
 import { HeadlessSession } from './headless.session';
 import { startPortHost, type EnginePortLike } from './port.host';
-import { startUiSnapshot, setTokensBaseline } from './ui.snapshot';
+import { startUiSnapshot, setTokensBaseline, setApprovalsReader } from './ui.snapshot';
 import { getConfig, saveConfig } from '../engine/config';
 import { estimateTokens } from '../graph/context.planner';
 import { startAssignmentRecovery } from './headless.recovery';
@@ -41,6 +41,23 @@ export interface HeadlessTransport {
 
 export async function startHeadless(container: any, config: any, transport: HeadlessTransport): Promise<void> {
   const { toolRegistry, llmAdapter, governor, graphStore, codebaseIndexer } = container;
+
+  // The agent gates the user saved — diff approval, the blast-radius gate, self-critic and the rest —
+  // are in force from the first message. Only their slash commands used to set them, so a choice made
+  // in Settings was saved and never ran (engine/gate.flags.ts, fix list item 12).
+  require('../engine/gate.flags').applyGateFlags(config);
+  // Auto-verify and git auto-commit are PostToolUse hooks, and the Ink terminal's boot was the only
+  // thing that registered them: when Ink was retired both went with it, so their switches — slash
+  // command or Settings — did nothing at all (fix list item 12). Each hook returns at once until its
+  // gate is on.
+  {
+    const { registerPostHook } = require('../tools/hooks') as typeof import('../tools/hooks');
+    const verify = require('../sandbox/verify.loop') as typeof import('../sandbox/verify.loop');
+    const autoCommit = require('../tools/git.autocommit') as typeof import('../tools/git.autocommit');
+    verify.registerVerifyGraphStore(graphStore ?? null);
+    registerPostHook(verify.VERIFY_TOOLS, verify.verifyHook);
+    registerPostHook(autoCommit.GIT_AUTOCOMMIT_TOOLS, autoCommit.gitAutoCommitHook);
+  }
 
   // User-defined slash commands: `.bimax/commands/<name>.md` in the project (winning) then
   // ~/.bimax/commands. The loader has existed and been unit-tested since A1, and nothing ever
@@ -78,6 +95,9 @@ export async function startHeadless(container: any, config: any, transport: Head
   reportBootPhase('restoring_session');
   const { startSessionRecorder } = require('../engine/session.recorder');
   const sessionRecorder = startSessionRecorder();
+  // Recents names a session by what it is for, from its first reply (engine/session.summary.ts). After
+  // the recorder, so the session it names already exists when the first message arrives.
+  require('../engine/session.summary').startSessionSummaries(llmAdapter);
 
   // Review domain: fold approvals / attributed changes / verification evidence / checkpoints into
   // the per-thread review file and publish `review_update` snapshots. Rides the same thread
@@ -154,6 +174,13 @@ export async function startHeadless(container: any, config: any, transport: Head
   const onGoals = () => engineEvents.emit('goals_changed');
   goalEvents.on('goals_changed', onGoals);
 
+  // The approval gates as the engine will apply them — the composer's permission pill shows this, not
+  // what it last sent (fix list item 12).
+  setApprovalsReader(() => ({
+    askBeforeEdits: require('../engine/diffApproval').isDiffApprovalEnabled(),
+    readOnly: governor?.mode === 'plan',
+    unattended: governor?.mode === 'bypass' || governor?.mode === 'unattended',
+  }));
   // Push footer + map-panel + token-meter state the Go front-end can't read from engine singletons.
   startUiSnapshot(graphStore, toolRegistry);
 

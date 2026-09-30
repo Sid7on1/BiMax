@@ -180,6 +180,8 @@ const api = {
   clipboard: {
     writeText: (text: string): Promise<boolean> => ipcRenderer.invoke('clipboard:write-text', text),
   },
+  /** A system sound: "Sound when a task finishes" (quick settings), played by main with shell.beep(). */
+  beep: (): void => ipcRenderer.send('app:beep'),
   /** Tells main which appearance is showing, so the native vibrancy material matches it. */
   setAppearance: (appearance: 'auto' | 'moonlight' | 'starlight'): void =>
     ipcRenderer.send('app:appearance', appearance),

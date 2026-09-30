@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  ChevronRight, PenLine, PanelLeft, Palette, Sun, Moon, Monitor,
-  Search, Users, Cpu, Settings2, HardDrive, FlaskConical,
+  ChevronRight, PenLine, PanelLeft, Palette, Sun, Moon, Monitor, Search, Settings2,
 } from 'lucide-react';
 import { ThreadsList } from './ThreadsList';
 import { cn } from '../lib/cn';
@@ -9,6 +8,10 @@ import { UiSnapshot } from '../protocol';
 import type { InspectorTabId } from '../inspector.model';
 import { SeedMenu, SeedMenuItem, SeedMenuLabel } from './ui/morph/SeedMenu';
 import { APPEARANCES, Appearance } from '../appearance';
+import { createHoverIntent } from '../hover.intent';
+import { QUICK_TOGGLES, toggleValue, type QuickToggle } from '../quick.settings';
+import { applyMotionPreference } from '../motion.preference';
+import type { EngineConfig } from '../protocol';
 
 /**
  * The left panel: navigation, and only navigation.
@@ -79,9 +82,10 @@ export function TaskSidebar({
   onResume,
   onOpenInspector,
   onOpenSettings,
-  onOpenMachineHealth,
+  quickSettings,
   sidebarOpen = true,
   onToggleSidebar,
+  peek = false,
   appearance,
   onAppearance,
 }: {
@@ -91,11 +95,21 @@ export function TaskSidebar({
   onResume: (id: string) => void;
   onOpenInspector: (tab: InspectorTabId) => void;
   onOpenSettings: () => void;
-  onOpenMachineHealth: () => void;
+  /**
+   * Read and write the engine's config for the quick switches behind Settings. Omitted where there is
+   * no engine (the design preview): the switches are then shown, disabled.
+   */
+  quickSettings?: { get: () => Promise<EngineConfig>; set: (patch: EngineConfig) => Promise<EngineConfig> };
   /** Whether the panel is pinned. Drives only the toggle's own label and pressed state. */
   sidebarOpen?: boolean;
   /** Omitted where the panel is not dismissible (the design preview), which hides the toggle. */
   onToggleSidebar?: () => void;
+  /**
+   * Shown as a peek over the conversation rather than pinned in the layout. The header then stops
+   * being a window drag region: Chromium delivers no pointer events over one, so the pointer crossing
+   * it on the way from the toggle to the rows looked like it had LEFT the panel (fix list item 15).
+   */
+  peek?: boolean;
   /* Evidence and appearance live down in the footer now, not in a bar across the top: the top of
      the window is the one place the shell deliberately keeps empty. See TitleBar.tsx. */
   appearance?: Appearance;
@@ -115,15 +129,6 @@ export function TaskSidebar({
   const groups: NavGroup[] = [
   ];
 
-  /**
-   * Machine lives behind Settings rather than in the list. Computer, Runtime and Permissions are
-   * things you configure once and then forget, so they are the wrong shape for a standing row — but
-   * they are also the things you need immediately when something is wrong, which is the wrong shape
-   * for burying them in a dialog. A flyout off the last row is both: out of the way, one hover deep.
-   */
-  const machine: NavItem[] = [
-    { id: 'health', label: 'App health', icon: <HardDrive size={15} />, onSelect: onOpenMachineHealth },
-  ];
 
   return (
     <nav
@@ -140,7 +145,7 @@ export function TaskSidebar({
           at y=0 and the window's own traffic lights sit ON it, which is where macOS 26/27 put them
           for an edge-to-edge sidebar. `pl-[76px]` is their room: 12pt lights on a 23pt pitch from
           x=16 run through x≈62pt. `drag-region` because no bar spans the top to drag by now. */}
-      <div className="drag-region flex h-11 shrink-0 items-center gap-1 pr-2 pl-[76px]">
+      <div className={cn('flex h-11 shrink-0 items-center gap-1 pr-2 pl-[76px]', !peek && 'drag-region')}>
         {onToggleSidebar && (
           <button
             onClick={onToggleSidebar}
@@ -226,9 +231,9 @@ export function TaskSidebar({
         ))}
       </div>
 
-      {/* --- Settings, and Machine behind it ------------------------------------------------- */}
-      <MachineFooter
-        items={machine}
+      {/* --- Settings, and its quick switches behind it ----------------------------------------- */}
+      <SettingsFooter
+        quickSettings={quickSettings}
         onOpenSettings={onOpenSettings}
         appearance={appearance}
         onAppearance={onAppearance}
@@ -238,59 +243,91 @@ export function TaskSidebar({
 }
 
 /**
- * The last row, plus the Machine flyout it reveals on hover.
+ * The last row, plus the quick switches it reveals on hover (fix list item 5).
+ *
+ * It used to reveal a "Machine" flyout whose one row was App health, which the owner asked to be
+ * removed — nobody hovers Settings to read diagnostics (App health is still in Settings → Support).
+ * What people DO open Settings for is a handful of switches, so those are here, one hover deep, and
+ * "All settings" is the row below them.
  *
  * Two things make the hover survivable. The flyout sits flush against the footer and extends its own
- * hit area *down* across the visual gap (`.glass-flyout::after`), so the pointer never crosses dead
- * space on its way up — that gap is what made the panel vanish the moment you reached for it. And
- * closing is deferred a beat, so a diagonal path that clips a corner does not dismiss it either.
+ * hit area down across the visual gap (`.glass-flyout::after`), so the pointer never crosses dead
+ * space on its way up; and closing is a decision taken a beat later (hover.intent.ts, the same one the
+ * sidebar peek uses), so a diagonal path that clips a corner does not dismiss it either.
  *
  * Hover alone would strand keyboard users, so the panel also opens on focus inside the footer and
  * closes on Escape or when focus leaves.
  */
-function MachineFooter({
-  items, onOpenSettings, appearance, onAppearance,
+function SettingsFooter({
+  quickSettings, onOpenSettings, appearance, onAppearance,
 }: {
-  items: NavItem[];
+  quickSettings?: { get: () => Promise<EngineConfig>; set: (patch: EngineConfig) => Promise<EngineConfig> };
   onOpenSettings: () => void;
   appearance?: Appearance;
   onAppearance?: (appearance: Appearance) => void;
 }): React.ReactElement {
   const [open, setOpen] = useState(false);
-  const closing = useRef<number | undefined>(undefined);
+  const intent = useMemo(() => createHoverIntent(setOpen), []);
+  useEffect(() => () => intent.dispose(), [intent]);
+  // Read fresh on every open: the same switches are in the Settings window, and a stale copy here
+  // would show one state beside a window showing the other.
+  const [config, setConfig] = useState<EngineConfig | null>(null);
+  useEffect(() => {
+    if (!open || !quickSettings) return undefined;
+    let live = true;
+    void quickSettings.get().then((value) => { if (live) setConfig(value); }).catch(() => undefined);
+    return () => { live = false; };
+  }, [open, quickSettings]);
 
-  const show = useCallback(() => {
-    window.clearTimeout(closing.current);
-    setOpen(true);
-  }, []);
-  const hide = useCallback((delay = 140) => {
-    window.clearTimeout(closing.current);
-    closing.current = window.setTimeout(() => setOpen(false), delay);
-  }, []);
-
-  useEffect(() => () => window.clearTimeout(closing.current), []);
+  const flip = (toggle: QuickToggle): void => {
+    if (!quickSettings) return;
+    const next = !toggleValue(config, toggle.key);
+    setConfig((current) => ({ ...(current ?? {}), [toggle.key]: next }));
+    // Reduce motion is the one switch the page itself acts on; it takes effect before the save lands.
+    if (toggle.key === 'reducedMotion') applyMotionPreference(next);
+    void quickSettings.set({ [toggle.key]: next } as EngineConfig)
+      .then((canonical) => { if (Object.keys(canonical).length > 0) setConfig(canonical); })
+      .catch(() => undefined);
+  };
 
   return (
     <div
       className="relative px-3 py-2"
-      onMouseEnter={show}
-      onMouseLeave={() => hide()}
-      onFocus={show}
+      onMouseEnter={intent.enter}
+      onMouseLeave={() => intent.leave()}
+      onFocus={intent.enter}
       onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) hide(0);
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) intent.close();
       }}
-      onKeyDown={(event) => { if (event.key === 'Escape') hide(0); }}
+      onKeyDown={(event) => { if (event.key === 'Escape') intent.close(); }}
     >
       {open && (
         <div
           className="glass-flyout absolute right-3 bottom-full left-3 space-y-px rounded-xl p-1.5"
           role="group"
-          aria-label="Machine"
+          aria-label="Quick settings"
         >
           <p className="px-2 pt-0.5 pb-1 text-[10px] font-semibold tracking-[0.09em] text-faint uppercase">
-            Machine
+            Quick settings
           </p>
-          {items.map((item) => <NavRow key={item.id} item={item} />)}
+          {QUICK_TOGGLES.map((toggle) => {
+            const on = toggleValue(config, toggle.key);
+            return (
+              <button
+                key={toggle.key}
+                type="button"
+                role="switch"
+                aria-checked={on}
+                disabled={!quickSettings || config === null}
+                title={toggle.hint}
+                onClick={() => flip(toggle)}
+                className="glass-row flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-[12px] text-dim hover:text-ink focus-visible:outline-2 focus-visible:outline-ember disabled:cursor-default disabled:opacity-60"
+              >
+                <span className="min-w-0 flex-1 truncate">{toggle.label}</span>
+                <QuickSwitch on={on} />
+              </button>
+            );
+          })}
         </div>
       )}
 
@@ -299,7 +336,7 @@ function MachineFooter({
           sidebar was away. It is at the top right of the canvas now (`CanvasChrome`). */}
       <div className="flex items-center gap-1">
         <button
-          onClick={onOpenSettings}
+          onClick={() => { intent.close(); onOpenSettings(); }}
           aria-expanded={open}
           className="glass-row flex min-w-0 flex-1 cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-[12.5px] text-dim hover:text-ink focus-visible:outline-2 focus-visible:outline-ember"
         >
@@ -348,7 +385,19 @@ function MachineFooter({
   );
 }
 
-/** One navigation row. Shared by the groups and the Machine flyout so they cannot drift apart. */
+/** A small on/off pill for a quick-settings row. The row is the control; this only shows its state. */
+function QuickSwitch({ on }: { on: boolean }): React.ReactElement {
+  return (
+    <span
+      aria-hidden
+      className={cn('relative h-4 w-7 shrink-0 rounded-full transition-colors duration-150', on ? 'bg-ember' : 'bg-line')}
+    >
+      <span className={cn('absolute top-0.5 left-0.5 size-3 rounded-full bg-ink shadow-[0_1px_2px_rgba(0,0,0,0.3)] transition-transform duration-150', on && 'translate-x-3 bg-bg')} />
+    </span>
+  );
+}
+
+/** One navigation row, as the groups draw it. */
 function NavRow({ item }: { item: NavItem }): React.ReactElement {
   return (
     <button

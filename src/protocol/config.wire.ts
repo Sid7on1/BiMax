@@ -30,7 +30,9 @@ export const CONFIG_WIRE_KEYS = [
   'model', 'liteModel', 'visionModel', 'fallbackModel', 'subagentModel',
   'provider', 'providerBaseURL',
   'temperature', 'topP', 'maxTokens', 'timeout',
-  'reasoningEffort', 'maxThinkingTokens',
+  // `maxThinkingTokens` is off the wire: nothing sends it (engine/config.ts), so a front-end that can
+  // write it can only offer a control that does nothing.
+  'reasoningEffort',
   'contextMode', 'contextWindowTokens', 'parallelToolCalls',
   'maxToolIterations', 'maxSubAgents', 'taskCheckRetries', 'taskMaxMinutes', 'spendDailyCapUsd', 'spendTaskShareUsd',
   'autoResumeAgents',
@@ -60,6 +62,11 @@ export interface ConfigWireDeps {
   getConfig: () => Record<string, any>;
   saveConfig: (updates: Record<string, any>) => Promise<unknown>;
   llmAdapter?: ConfigWireAdapter | null;
+  /**
+   * Applies a saved patch to the engine's live switches beyond the adapter — the agent gates
+   * (engine/gate.flags.ts). Without it a Settings toggle saved the file and changed nothing.
+   */
+  applyLive?: (patch: Record<string, any>) => void;
   /** Notifies attached front-ends + re-snapshots. Called only when something actually changed. */
   onChanged?: () => void;
 }
@@ -101,6 +108,8 @@ export function createConfigWire(deps: ConfigWireDeps): ConfigWire {
       try { deps.llmAdapter?.applyConfig?.(adapterPatch); }
       catch { /* the saved config still applies on next boot; never fail the write over this */ }
     }
+    try { deps.applyLive?.(safe); }
+    catch { /* the saved config still applies on next boot; never fail the write over this */ }
 
     deps.onChanged?.();
     return read();

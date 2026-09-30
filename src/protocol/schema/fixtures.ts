@@ -248,6 +248,8 @@ export const UI_SNAPSHOT_FIXTURE: Required<UiSnapshot> = {
       skipped: [{ name: 'scan-blurred.tiff', reason: 'no readable text' }],
     },
   },
+  // Diff approval on, neither plan mode nor bypass: the composer's pill reads "Ask me first".
+  approvals: { askBeforeEdits: true, readOnly: false, unattended: false },
 };
 
 /** The committed artifact both sides test against. Regenerate with `npm run gen:protocol`. */

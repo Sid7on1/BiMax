@@ -3,6 +3,8 @@ import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useSta
 import { Group, Panel, Separator, type GroupImperativeHandle } from 'react-resizable-panels';
 import { followCollapse, releaseCollapse, settleCollapse } from './pane.flight';
 import { prefersReducedMotion } from './components/ui/motion';
+import { createHoverIntent } from './hover.intent';
+import { applyMotionPreference } from './motion.preference';
 import { useEngine } from './useEngine';
 import { useSupervisor } from './useSupervisor';
 import { useGit } from './useGit';
@@ -66,6 +68,15 @@ export function App(): React.ReactElement {
   const [sidebarPinned, setSidebarPinned] = useState(true);
   const [sidebarPeek, setSidebarPeek] = useState(false);
   const sidebarOpen = sidebarPinned || sidebarPeek;
+  /*
+    The peek closes a beat AFTER the pointer leaves, and any enter in between cancels it: the toggle,
+    the gap and the panel are one hover region (hover.intent.ts, fix list item 15). Every change to the
+    peek goes through this — setting the state around it would leave the intent believing a closed
+    panel is still open, and the next hover would then do nothing.
+  */
+  const peekIntent = useMemo(() => createHoverIntent(setSidebarPeek), []);
+  useEffect(() => () => peekIntent.dispose(), [peekIntent]);
+  const togglePinned = useCallback(() => { setSidebarPinned((v) => !v); peekIntent.close(); }, [peekIntent]);
   const [inspectorOpen, setInspectorOpen] = useState(false);
   /**
    * Both bars collapse back into their own edge, and a panel torn out of the layout on the click
@@ -115,6 +126,40 @@ export function App(): React.ReactElement {
     window.bimax.setAppearance(appearance);
     return applyAppearance(appearance);
   }, [appearance]);
+
+  /**
+   * The two settings the PAGE acts on, read whenever an engine is ready: Reduce motion (styles.css
+   * answers `data-reduce-motion`) and the sound when a turn finishes. Both were saved and never read
+   * (fix list items 5 and 17). Refreshed when the Settings window closes, where either may change.
+   */
+  const [turnSound, setTurnSound] = useState(false);
+  /** The sidebar's quick switches read and write the same config the Settings window does. */
+  const quickSettings = useMemo(() => ({
+    get: configGet,
+    set: async (patch: Parameters<typeof configSet>[0]) => {
+      const next = await configSet(patch);
+      if (typeof next.notificationBell === 'boolean') setTurnSound(next.notificationBell);
+      return next;
+    },
+  }), [configGet, configSet]);
+  const engineReady = supervisorStatus?.phase === 'ready' || supervisorStatus?.phase === 'degraded';
+  useEffect(() => {
+    if (!engineReady || settingsOpen) return undefined;
+    let live = true;
+    void configGet().then((config) => {
+      if (!live) return;
+      if (typeof config.reducedMotion === 'boolean') applyMotionPreference(config.reducedMotion);
+      setTurnSound(config.notificationBell === true);
+    }).catch(() => undefined);
+    return () => { live = false; };
+  }, [engineReady, settingsOpen, configGet]);
+  // "Sound when a task finishes": only while Bimax is in the background — a sound for a reply you are
+  // watching arrive is noise.
+  const wasBusy = useRef(false);
+  useEffect(() => {
+    if (wasBusy.current && !busy && turnSound && !document.hasFocus()) window.bimax.beep?.();
+    wasBusy.current = busy;
+  }, [busy, turnSound]);
 
   // --- Evidence lanes, derived from the protocol the task already produced --------------------
 
@@ -286,7 +331,7 @@ export function App(): React.ReactElement {
       const mod = event.metaKey || event.ctrlKey;
       const key = event.key.toLowerCase();
       if (mod && key === 'n') { event.preventDefault(); newTask(); return; }
-      if (mod && key === 'b') { event.preventDefault(); setSidebarPinned((v) => !v); setSidebarPeek(false); return; }
+      if (mod && key === 'b') { event.preventDefault(); togglePinned(); return; }
       if (mod && key === 'j') { event.preventDefault(); setInspectorOpen((v) => !v); return; }
       if (mod && key === 'k') { event.preventDefault(); setPaletteOpen((v) => !v); return; }
       if (mod && key === 'o') { event.preventDefault(); void window.bimax.pickFolder(); return; }
@@ -303,7 +348,7 @@ export function App(): React.ReactElement {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [openFiles, activeFile, newTask]);
+  }, [openFiles, activeFile, newTask, togglePinned]);
 
   const showHome = view === 'chat' && state.items.length === 0 && !state.hasActiveStream;
   const latestProblem = [...state.diagnostics].reverse().find((entry) => entry.level !== 'info');
@@ -320,9 +365,10 @@ export function App(): React.ReactElement {
       onResume={resumeSession}
       onOpenInspector={openInspector}
       onOpenSettings={() => setSettingsOpen(true)}
-      onOpenMachineHealth={() => setMachineHealthOpen(true)}
+      quickSettings={quickSettings}
       sidebarOpen={sidebarOpen}
-      onToggleSidebar={() => { setSidebarPinned((v) => !v); setSidebarPeek(false); }}
+      onToggleSidebar={togglePinned}
+      peek={!sidebarPinned && sidebarPeek}
       appearance={appearance}
       onAppearance={setAppearance}
     />
@@ -360,10 +406,13 @@ export function App(): React.ReactElement {
         */}
         {hasProject && !sidebarPinned && sidebarPeek && (
           <div
-            onMouseLeave={() => setSidebarPeek(false)}
+            onMouseEnter={peekIntent.enter}
+            onMouseLeave={() => peekIntent.leave()}
             /* `calm`, not the house bounce: a peek fires on a passing cursor, and anything springy
-               reads as twitchy at that frequency. See the peek-in keyframe's note. */
-            className="animate-[peek-in_var(--dur-snappy)_var(--ease-snappy)] absolute inset-y-0 left-0 z-30 w-[248px] shadow-2xl"
+               reads as twitchy at that frequency. See the peek-in keyframe's note.
+               `sidebar-peek`: over the conversation the panel is a floating surface, and its glass
+               takes the floating density (styles.css, fix list item 14). */
+            className="sidebar-peek animate-[peek-in_var(--dur-snappy)_var(--ease-snappy)] absolute inset-y-0 left-0 z-30 w-[248px] shadow-2xl"
           >
             {sidebarNode}
           </div>
@@ -384,7 +433,7 @@ export function App(): React.ReactElement {
                   }}
                   onCollapsed={() => setSidebarMounted(false)}
                 >
-                  <div className="h-full" onMouseLeave={() => setSidebarPeek(false)}>
+                  <div className="h-full" onMouseLeave={peekIntent.close}>
                     {sidebarNode}
                   </div>
                 </MorphRegion>
@@ -408,8 +457,9 @@ export function App(): React.ReactElement {
                 /* Layout, not intent: with no project there is no sidebar to hold the corner,
                    however "open" it nominally is, and the traffic lights then belong to this row. */
                 sidebarHoldsEdge={hasProject && sidebarMounted && sidebarPinned}
-                onToggleSidebar={() => { setSidebarPinned((v) => !v); setSidebarPeek(false); }}
-                onPeekSidebar={() => setSidebarPeek(true)}
+                onToggleSidebar={togglePinned}
+                onPeekSidebar={peekIntent.enter}
+                onPeekLeave={() => peekIntent.leave()}
                 /* The one control that opens the right panel, at the top right — where the panel
                    is. It used to be in the sidebar's footer, bottom left. */
                 inspectorOpen={inspectorOpen}

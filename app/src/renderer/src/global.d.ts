@@ -183,6 +183,8 @@ declare global {
       };
       /** Copy buttons write through the app; see copy.text.ts. */
       clipboard: { writeText: (text: string) => Promise<boolean> };
+      /** A system sound (quick settings → Sound when a task finishes). Optional: an older preload lacks it. */
+      beep?: () => void;
       setAppearance: (appearance: 'auto' | 'moonlight' | 'starlight') => void;
       windowChrome: {
         get: () => Promise<WindowChromeState>;

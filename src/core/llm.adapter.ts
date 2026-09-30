@@ -626,6 +626,20 @@ export class LlmAdapter implements LLMProvider {
     }
   }
 
+  /**
+   * A few words from the Quick model — a title, a label. Bounded to `maxTokens` of output, where
+   * `chatCompletion` asks for the Work budget: naming a conversation must not be able to spend like a turn.
+   * Same key rotation, spend reservation and error reporting as every other call (`completeOnce`).
+   */
+  async quickText(system: string, user: string, maxTokens = 48): Promise<string> {
+    const messages = [{ role: 'system', content: system }, { role: 'user', content: user }];
+    const response = await this.completeOnce(maxTokens + 400, (kr) => {
+      const model = this.pickModel(kr, true, false);
+      return { model, messages, ...this.samplingFieldsFor(model, 0.2), max_tokens: maxTokens };
+    }, { lite: true });
+    return stripThink(response.choices?.[0]?.message?.content || '');
+  }
+
   async chatCompletion(messages: any[], systemContext?: string, opts?: { lite?: boolean }): Promise<string> {
     const finalMessages = systemContext
       ? [{ role: 'system', content: systemContext }, ...messages]

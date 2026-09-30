@@ -216,3 +216,38 @@ export const CLIPBOARD_IMAGE_TYPES: Record<string, string> = {
   'image/gif': '.gif',
   'image/webp': '.webp',
 };
+
+/* ------------------------------------------------------------------
+ * The prompt field's height and scrollbar.
+ *
+ * The field grows with what is typed up to a cap, and only past that cap does it scroll. The
+ * placeholder is NOT content: in a narrow chat column ("Ask a question, build something, or bring
+ * your work here…" wraps to two or three lines in a one-line field) Chromium let the wrapped
+ * placeholder overflow, and the field drew a scrollbar over text nobody had typed (owner, fix list
+ * item 1). So an empty field never scrolls, and a field with text scrolls only when that text is
+ * taller than the cap.
+ * ------------------------------------------------------------------ */
+export const COMPOSER_MAX_HEIGHT = 260;
+
+export function composerOverflow(text: string, contentHeight: number, maxHeight = COMPOSER_MAX_HEIGHT): 'auto' | 'hidden' {
+  return text.length > 0 && contentHeight > maxHeight ? 'auto' : 'hidden';
+}
+
+/* ------------------------------------------------------------------
+ * The approval level the permission pill shows.
+ *
+ * The pill used to show what it had last SENT — a `useState('auto')` that reset to "Approve for me"
+ * every time the composer remounted (a new thread, a resume), whatever the engine was actually doing.
+ * It now reads the engine's live gates from the snapshot (fix list item 12). `null` means the engine
+ * is too old to say, and the pill falls back to its own last choice.
+ * ------------------------------------------------------------------ */
+export type ApprovalLevel = 'ask' | 'auto' | 'readOnly' | 'unattended';
+
+export function approvalLevel(
+  approvals: { askBeforeEdits: boolean; readOnly: boolean; unattended: boolean } | undefined | null,
+): ApprovalLevel | null {
+  if (!approvals) return null;
+  if (approvals.readOnly) return 'readOnly';
+  if (approvals.unattended) return 'unattended';
+  return approvals.askBeforeEdits ? 'ask' : 'auto';
+}

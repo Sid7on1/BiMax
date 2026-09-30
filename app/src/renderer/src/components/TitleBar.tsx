@@ -24,7 +24,7 @@ import { BrandMark } from './BrandMark';
  * of a verification badge living up here, far from the evidence it referred to.
  */
 export function CanvasChrome({
-  project, protocolMismatch, sidebarHoldsEdge, onToggleSidebar, onPeekSidebar,
+  project, protocolMismatch, sidebarHoldsEdge, onToggleSidebar, onPeekSidebar, onPeekLeave,
   inspectorOpen, onToggleInspector,
 }: {
   project: string;
@@ -43,6 +43,8 @@ export function CanvasChrome({
   sidebarHoldsEdge: boolean;
   onToggleSidebar: () => void;
   onPeekSidebar?: () => void;
+  /** The pointer left the toggle. The peek closes a beat later unless it reaches the panel first. */
+  onPeekLeave?: () => void;
   /** The right panel's state, and the one control that opens it. */
   inspectorOpen?: boolean;
   onToggleInspector?: () => void;
@@ -84,6 +86,7 @@ export function CanvasChrome({
           */
           onClick={onToggleSidebar}
           onHover={onPeekSidebar}
+          onLeave={onPeekLeave}
         >
           <PanelLeft size={16} />
         </IconBtn>
@@ -128,12 +131,13 @@ export function SidebarChrome({
 }
 
 function IconBtn({
-  title, active, onClick, onHover, children,
+  title, active, onClick, onHover, onLeave, children,
 }: {
   title: string;
   active?: boolean;
   onClick: () => void;
   onHover?: () => void;
+  onLeave?: () => void;
   children: React.ReactNode;
 }): React.ReactElement {
   return (
@@ -143,6 +147,7 @@ function IconBtn({
       aria-pressed={active}
       onClick={onClick}
       onMouseEnter={onHover}
+      onMouseLeave={onLeave}
       className={cn(
         'no-drag flex size-7 cursor-pointer items-center justify-center rounded-md hover:bg-hover focus-visible:outline-2 focus-visible:outline-ember',
         active ? 'text-ink' : 'text-faint',

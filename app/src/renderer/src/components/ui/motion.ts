@@ -385,8 +385,10 @@ export function easingFunction(spec: string): (t: number) => number {
 }
 
 export function prefersReducedMotion(): boolean {
-  return typeof window !== 'undefined'
-    && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  if (typeof window === 'undefined') return false;
+  // Bimax's own "Reduce motion" setting counts the same as the system's (motion.preference.ts).
+  if (typeof document !== 'undefined' && document.documentElement?.hasAttribute?.('data-reduce-motion')) return true;
+  return !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 }
 
 /**
