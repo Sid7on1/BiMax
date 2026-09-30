@@ -84,6 +84,17 @@ run against every split and the survivors got a test. Not rebuilt or installed s
 | C16, E43 (the `send()` example) | `thread.manager.ts` 1,154 → 1,020: `thread.budget.ts` (the live-engine memory budget, the idle TTL, and the one rule for which idle engine may be stopped, now a plain function) and `thread.environment.ts` (what a Thread's engine starts with). `receive()` and `send()` are named steps (`holdApproval`, `takeReply`, `cancelTurn`, …). Nothing had tested that an approval reply with a wrong token or an unoffered choice is refused; `thread.parts.test.ts` does (10 tests, 20 mutants killed; app suite 107 suites / 932 tests) | `7e1328d` |
 | C24, C26, C28, C29 | No load-time import cycles left, with a test; the dead Docker plugin pipeline and `Dockerfile` archived and `dockerode` dropped; `tdm.ts` moved to `src/mind/`; `src/compliance/` verified live and kept | `db70a49` |
 
+**Owner reports, 2026-09-30 — three defects found in use, not on the list.** Built and installed the same day
+(`build-local-mac.sh`: engine bundle answered 7/7, four package gates PASS, `codesign --verify --deep --strict` ok,
+the three fixes' strings confirmed inside the shipped `app.asar` and engine bundle; the window opened in 5 s). None of
+the three has been exercised by hand in the installed app yet.
+
+| Report | Cause | Fix | Commit |
+|---|---|---|---|
+| A tool's permission was asked twice, and one card stayed on screen whatever was clicked | A project's question showed as the main window's card and in the approval popup. Each window keeps its own copy of the thread's state and closed only a card it answered itself; the other card's Allow/Deny were refused as expired | The thread manager tells every view when a question closes (`request_closed`), however it closed; the popup leaves out questions the main window or the ⌘2 bar is already asking; a refused reply re-checks and closes a dead card | `04ba29f` |
+| The Copy buttons (code block, whole reply) did nothing | `navigator.clipboard` needs a permission the app refuses to every page (`isAllowedPermission` is false by design), and the rejection was never caught | The permission lockdown stays; copying goes through a guarded main-process channel (`clipboard:write-text`) | `9e2990b` |
+| In a folder with one lab brief, "check what to do?" got "what would you like me to check?" | The prompt gave the folder's path, never its contents | The folder's top level (brief-like files first) rides in the per-turn context, with the rule that a vague message is about those files | `05c7cd9` |
+
 ## Open
 
 - **C13, C17, C18 god files** — `main/index.ts` continues (the Bimax Threads channels, voice/talk, tray, notch remain);
