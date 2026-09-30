@@ -47,7 +47,7 @@ caps that were never reconciled *because* the word hid the difference (see
 
 | Term | What it is | Cap |
 |---|---|---|
-| **Bimax Thread** | The product feature: a folder-bound conversation that runs instantly in the ⌘2 floating bar, with its own engine worker, history, approval namespace and undo journal. A project window runs as one too (`origin: 'project'`). | `MAX_LIVE_ENGINES` (`app/src/main/thread.manager.ts`) — a **memory** budget |
+| **Bimax Thread** | The product feature: a folder-bound conversation that runs instantly in the ⌘2 floating bar, with its own engine worker, history, approval namespace and undo journal. A project window runs as one too (`origin: 'project'`). | `MAX_LIVE_ENGINES` (`app/src/main/thread.budget.ts`) — a **memory** budget |
 | **sub-agent worker** | A real Node `worker_threads` `Worker`, i.e. an actual OS thread (`src/core/subagent.manager.ts`). | `MAX_CONCURRENT_SUBAGENTS` (`src/core/subagent.capacity.ts`) — a **CPU** budget |
 | **core** | Hardware. `os.cpus().length` → `RuntimeSignals.cpuCount`. Apple Silicon has no SMT, so a logical core is a physical core (an M3 has 8: 4 performance + 4 efficiency). | — |
 

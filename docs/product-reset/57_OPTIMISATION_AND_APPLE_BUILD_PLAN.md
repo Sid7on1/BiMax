@@ -21,7 +21,7 @@ because of this.
 
 | Term | What it is | Where | Cap |
 |---|---|---|---|
-| **Bimax Thread** | **The product feature.** A folder-bound conversation that runs instantly in the ⌘2 floating bar, with its own engine process, history, approval namespace and undo journal. Also how a project window runs (`origin: 'project'`). | `app/src/main/thread.manager.ts`, `app/src/shared/threads.ts` | `MAX_LIVE_ENGINES = 4`, derived from measured free memory by `maxLiveEngines(freeBytes)` — a **memory** budget |
+| **Bimax Thread** | **The product feature.** A folder-bound conversation that runs instantly in the ⌘2 floating bar, with its own engine process, history, approval namespace and undo journal. Also how a project window runs (`origin: 'project'`). | `app/src/main/thread.manager.ts`, `app/src/shared/threads.ts` | `MAX_LIVE_ENGINES = 4` (`thread.budget.ts`), derived from measured free memory by `maxLiveEngines(freeBytes)` — a **memory** budget |
 | **sub-agent worker** | A real Node `worker_threads` `Worker`, i.e. an actual OS thread. | `src/core/subagent.manager.ts:132` | `MAX_CONCURRENT_SUBAGENTS = 4` (`src/core/subagent.capacity.ts:6`) — a **CPU** budget |
 | **core** | Hardware. `os.cpus().length` → `RuntimeSignals.cpuCount`. This Mac: 8 (4 performance + 4 efficiency). Apple Silicon has no SMT, so a logical core is a physical core. | `app/src/phase9/adaptive.policy.ts` | — |
 

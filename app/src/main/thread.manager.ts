@@ -3,6 +3,10 @@ import path from 'node:path';
 import { engineReducer, initialEngineState, type EngineUiState } from '../renderer/src/engine.state';
 import type { ThreadSummary, ThreadSelection, ThreadApproval, ThreadWake } from '../shared/threads';
 import type { Inbound, Outbound } from '../renderer/src/protocol';
+import { MAX_LIVE_ENGINES, maxLiveEngines, IDLE_ENGINE_TTL_MS, IDLE_ENGINE_SWEEP_MS, priorityRank, reclaimableEngines } from './thread.budget';
+// Re-exported: tests import these from the manager.
+export { MAX_LIVE_ENGINES, maxLiveEngines, IDLE_ENGINE_TTL_MS, IDLE_ENGINE_SWEEP_MS };
+export { threadIndexEnvironment, threadCapabilityEnvironment, workerCapacityEnvironment, spendLedgerEnvironment, threadVoiceEnvironment } from './thread.environment';
 
 export interface ThreadEngine {
   openProject(root: string): void;
@@ -61,7 +65,6 @@ interface LiveThread extends SavedThread {
   /** The engine stopped this turn at the task's time limit (F5). */
   turnLimited?: boolean;
 }
-const priorityRank = (summary: ThreadSummary): number => (summary.priority === 'high' ? 2 : summary.priority === 'low' ? 0 : 1);
 
 /** At most this many wakes wait on one thread (F4); a request past it is refused in the thread. */
 export const MAX_THREAD_WAKES = 5;
@@ -126,74 +129,6 @@ interface Dependencies {
 /** How many threads the list holds. Past this, the least recently used one that can be put away is archived (backlog N11). */
 export const MAX_THREADS = 200;
 
-/**
- * How many threads may hold a live engine at once.
- *
- * The ceiling stays 4 — that is the product's behaviour and raising it is a separate decision — but
- * on a machine without the memory for 4 it now comes DOWN instead of letting the user start engines
- * until the OS starts killing them. The supervisor has computed a memory-aware profile per launch
- * for a long while (supervisor/resources.ts, "adaptive, not hardcoded"); this cap sat beside it as a
- * bare `4` and consulted none of it.
- *
- * BOTH constants are measured, 2026-09-18 on this source, because a guessed one here silently costs
- * the user concurrent tasks:
- *
- *   engine RSS at idle    295 MB shipped bundle · 272 MB the bun binary it replaced · 214 MB tsc dev
- *   Electron's own tree   242 MB across 6 processes in development, 85 MB packaged and idle
- *
- * So 320 MB per engine — a little above the worst engine reading, since an engine mid-turn is not an
- * engine at idle — and a 512 MB reserve, which is the measured Electron shell plus roughly as much
- * again for the OS. The first reserve written here was 1 GB, picked by feel; that is four times what
- * Electron actually uses and it cut this machine from four concurrent tasks to one. Measure the
- * thing, including the part that looks too obvious to measure.
- *
- * Deliberately NOT a ratio of total RAM: what matters is what is free right now, which on macOS
- * means counting reclaimable pages (see availableBytes in supervisor/resources.ts — reading
- * os.freemem() here would put every 8 GB Mac at the floor permanently, which is the bug that
- * policy had).
- */
-/**
- * How long an engine may sit idle before it is handed back.
- *
- * MEASURED 2026-09-19: an engine costs **227 MB** whatever it is doing — a finished ⌘2 task's engine
- * weighs exactly as much as a project engine mid-turn, because that figure is the bundle, the V8
- * heap and the tool registry, not the optional subsystems (the ⌘2 capability profile saves nothing
- * at all on this number). Until now nothing reclaimed one: `start()` evicted an idle engine only
- * when a NEW task hit the limit, so four finished tasks sat on 868 MB of an 8 GB machine
- * indefinitely, doing nothing.
- *
- * Ten minutes, because restarting is cheap and non-destructive: the thread's state is already
- * persisted, `start()` resumes its session, and the manager marks its own restarts quiet so the
- * transcript does not grow a "Resumed …" line the user did not ask for. The user-visible cost of
- * being wrong is ~350 ms on the next message; the cost of not reaping is a quarter of a gigabyte
- * per abandoned task.
- */
-export const IDLE_ENGINE_TTL_MS = 10 * 60_000;
-
-/** How often the sweep runs. Cheap: it walks the record map and compares two numbers. */
-export const IDLE_ENGINE_SWEEP_MS = 60_000;
-
-/**
- * The ceiling on live **Bimax Threads** — the product feature: folder-bound conversations, each
- * with its own engine worker, run instantly from the ⌘2 bar or from a project window.
- *
- * This is a MEMORY budget (see ENGINE_BUDGET_BYTES / RESERVE_BYTES below and `maxLiveEngines`).
- * It is NOT the CPU budget, and the two must never be conflated just because both happen to be 4:
- * `MAX_CONCURRENT_SUBAGENTS` (src/core/subagent.capacity.ts) caps sub-agent *workers*, which are
- * real `worker_threads` OS threads inside one engine. A machine can therefore be at this cap and
- * still have idle cores, or under it and still be CPU-saturated. See the glossary in AGENTS.md.
- */
-export const MAX_LIVE_ENGINES = 4;
-const ENGINE_BUDGET_BYTES = 320 * 1024 * 1024;
-const RESERVE_BYTES = 512 * 1024 * 1024;
-
-export function maxLiveEngines(availableBytes: number): number {
-  const affordable = Math.floor((availableBytes - RESERVE_BYTES) / ENGINE_BUDGET_BYTES);
-  // Never below 1: refusing to start any thread at all is worse than starting one and letting the
-  // supervisor shed capabilities or restart it. The floor is what keeps this a budget, not a gate.
-  return Math.max(1, Math.min(MAX_LIVE_ENGINES, affordable));
-}
-
 /** The id of the manager's own "resume failed" choice. The engine's request ids are positive. */
 const RESUME_CHOICE_ID = -1;
 /** How long a starting engine has to confirm or refuse a resume. */
@@ -204,113 +139,6 @@ export const RESUME_CHOICES = {
   keep: 'Keep my message for now',
 } as const;
 
-/**
- * What a thread engine starts with on top of the broker's environment. A ⌘2 thread works in whatever folder
- * Finder showed — often ~/Desktop or ~/Downloads, with tens of thousands of files — so it runs no code index:
- * on the Desktop the index skipped 96,155 files and flagged every reply "degraded". A project opened in the
- * main window keeps code search. A thread saved before origins existed is treated as a ⌘2 thread.
- */
-export function threadIndexEnvironment(origin: ThreadSummary['origin']): Record<string, string> {
-  return origin === 'project' ? {} : { BIMAX_CODE_INDEX: '0' };
-}
-
-/**
- * The optional engine subsystems a thread may run: codebase memory (the semantic layer), background
- * indexing, and the drives boot the learning loop rides on.
- *
- * These were switched off for EVERY thread at the spawn site, which was right when a thread meant a
- * ⌘2 task: a folder-bound job dropped on Downloads must not index Downloads or boot drives to do it.
- * But `createSupervisor` is only ever called with a thread id, so once every conversation became a
- * thread the override quietly became product-wide — codebase memory and drives were off everywhere,
- * which is why the learning substrate measured 0 claims and semantic retrieval was hard to observe.
- *
- * A project thread is the opposite case: the user opened a repo to work in it, and indexing it is
- * the point. So the distinction follows `origin`, exactly as threadIndexEnvironment above already
- * does for the code index — this extends an accepted split rather than inventing one.
- *
- * Returning `{}` for a project thread does not force anything ON. It declines to override, and lets
- * supervisor/resources.ts decide from measured free memory — a ladder that only started reading the
- * right number once availableBytes() replaced os.freemem(). If that judgement is wrong on a given
- * machine, policy.ts shedProfile steps the next launch down after a single resource death and to
- * `minimal` after two, so the failure mode is a quieter engine rather than a crash loop.
- */
-/**
- * One machine-wide budget for sub-agent **workers** (real `worker_threads` OS threads), shared by
- * every engine this app spawns.
- *
- * WHY this exists. `MAX_CONCURRENT_SUBAGENTS` is enforced per engine, against the lease
- * ledger `resolveCapacityContext` resolves. That ledger defaults to
- * `<cwd>/.bimax/subagent-capacity.json` — per FOLDER. Bimax Threads are folder-exclusive, so every
- * live Thread used to get its own private ledger and its own private ceiling of four. The ceiling
- * therefore MULTIPLIED: four live Threads meant up to sixteen concurrent workers on a machine whose
- * adaptive policy had carefully computed a per-machine number (floor(cores / 2) = 3 on an 8-core
- * M3) and then handed that same number to each of them.
- *
- * The ledger was always the right mechanism — it is a cross-process, fail-closed, O_EXCL-locked
- * counting semaphore with expiring leases. It was simply never pointed at a shared path. Pointing
- * it at one file under userData makes the budget mean what the policy already thinks it means.
- *
- * Deliberately NOT derived from the Bimax Thread cap (`MAX_LIVE_ENGINES`): that is a memory budget
- * over engines, this is a CPU budget over sub-agent workers, and a machine can be at one and nowhere
- * near the other. See the glossary in AGENTS.md.
- *
- * The env NAME is a literal rather than an import from `src/core/subagent.capacity.ts`, because the
- * desktop build must not compile the engine — the engine is an input, not a dependency. It is
- * pinned by a test that reads the engine's own constant, so the two cannot drift silently.
- */
-export function workerCapacityEnvironment(userData: string): Record<string, string> {
-  return { BIMAX_AGENT_CAPACITY_PATH: path.join(userData, 'subagent-capacity.json') };
-}
-
-/**
- * One money ledger for the Mac, and this Bimax Thread's own share of it (backlog F5).
- *
- * The same defect as `workerCapacityEnvironment` above, in the expensive direction. The engine's
- * `BudgetVeto` keeps its daily total under `stateDir('.breakglass')`, and `stateDir` follows
- * `BIMAX_STATE_DIR` — which `threadStateEnvironment` sets to a per-folder directory for every ⌘2
- * Thread. So each Thread got a private `spend.json` and a private full daily cap. MEASURED
- * 2026-09-19: four independent spend files already existed on this machine, two of them under
- * `thread-state/`. The effective ceiling was $5 × (folders ever opened as a Thread).
- *
- * `perScopeCap` is the second half, and it is what F5 actually asked for: one unattended Thread
- * must not be able to spend the whole day's budget before the others start. Omitted when the caller
- * has no opinion, in which case only the machine ceiling applies.
- *
- * Scoped by THREAD ID rather than by folder, so re-running a folder tomorrow does not inherit
- * yesterday's share, and two Threads on one folder are billed apart.
- */
-export function spendLedgerEnvironment(
-  userData: string,
-  threadId: string | undefined,
-  perScopeCap?: number,
-): Record<string, string> {
-  const env: Record<string, string> = {
-    BIMAX_SPEND_LEDGER_PATH: path.join(userData, 'spend-ledger.json'),
-  };
-  if (threadId) env.BIMAX_SPEND_SCOPE = threadId;
-  if (perScopeCap && perScopeCap > 0) env.BIMAX_SPEND_SCOPE_CAP = String(perScopeCap);
-  return env;
-}
-
-export function threadCapabilityEnvironment(origin: ThreadSummary['origin']): Record<string, string> {
-  // Carried so engine.log can say WHY a plan looks the way it does. A ⌘2 task's "all off" and a
-  // starved project thread's "all off" are the same four values meaning entirely different things,
-  // and reading one as the other is exactly the confusion that hid this override in the first place.
-  if (origin === 'project') return { BIMAX_THREAD_ORIGIN: 'project' };
-  return {
-    BIMAX_THREAD_ORIGIN: 'quick',
-    BIMAX_AUTO_INDEX: '0',
-    BIMAX_DISABLE_CODEMEM: '1',
-    BIMAX_DISABLE_CODEBASE_MEMORY: '1',
-    BIMAX_DRIVES_BOOT: '0',
-  };
-}
-
-/** A talk-mode task's engine writes every reply to be heard (src/tools/thread.voice.ts). */
-export function threadVoiceEnvironment(voice: ThreadSummary['voice']): Record<string, string> {
-  return voice ? { BIMAX_THREAD_VOICE: '1' } : {};
-}
-
 const validInput = (input: any): input is SavedInput =>
   !!input && typeof input.id === 'string' && input.id.length <= 80 && typeof input.text === 'string' && input.text.length <= 200_000
   && typeof input.display === 'string' && (input.state === 'queued' || input.state === 'sent') && typeof input.at === 'number';
@@ -319,6 +147,14 @@ const quoted = (text: string): string => {
   const flat = text.replace(/\s+/g, ' ').trim();
   return `“${flat.length > 160 ? `${flat.slice(0, 159)}…` : flat}”`;
 };
+
+/** Free text answers an ask or an input request; a choice must be one the request offered (every one, for a multi-choice). */
+function validApprovalChoice(request: ThreadApproval['request'], value: string): boolean {
+  if (request.isAsk || request.kind === 'input') return true;
+  return request.isMulti
+    ? value.split(', ').every((v: string) => request.options.includes(v))
+    : request.options.includes(value);
+}
 
 /** One process, state, queue and approval namespace per folder-bound conversation. */
 export class ThreadManager {
@@ -505,7 +341,6 @@ export class ThreadManager {
     r.engine.openProject(r.summary.root);
     this.persist(r);
   }
-  /** `echo: false` when the window that sent the turn has already painted it (see useEngine's submit). */
   /**
    * Words for a task (backlog F7). While it works they go to the running turn, which takes them at its next step,
    * instead of waiting in the queue for the turn to end; otherwise — idle, starting, stopped, waiting for its folder —
@@ -527,6 +362,7 @@ export class ThreadManager {
     r.engine!.sendFromRenderer({ t: 'steer', text } as Inbound);
   }
 
+  /** `echo: false` when the window that sent the turn has already painted it (see useEngine's submit). */
   submit(id: string, text: string, display = text, echo = true): void {
     const r = this.records.get(id);
     if (!r) throw new Error('Thread not found');
@@ -586,30 +422,65 @@ export class ThreadManager {
   receive(id: string, msg: Outbound): void {
     const r = this.records.get(id);
     if (!r?.engine) return;
+    if (this.swallowQuietResume(r, msg)) return;
+    if (msg.t === 'ready') this.engineReady(r);
+    if (msg.t === 'request') msg = this.holdApproval(id, r, msg);
+    if (msg.t === 'event') {
+      this.noteTurnSignals(r, msg);
+      this.noteWakes(id, r, msg);
+      this.noteFolderEvents(r, msg);
+    }
+    r.state = engineReducer(r.state, { type: 'outbound', msg });
+    if (msg.t === 'event') this.trackSession(r, msg);
+    const finishedTurn = this.settleIfIdle(r, msg);
+    this.deps.message(id, msg);
+    if (finishedTurn) {
+      const tookMs = r.turnStartedAt ? Date.now() - r.turnStartedAt : undefined;
+      r.turnStartedAt = undefined;
+      this.deps.finished?.(id, tookMs);
+    }
+    this.restartIfWanted(r);
+    // Only dispatch queued inputs after the current protocol event has been delivered.
+    if (r.ready && r.summary.status === 'idle') for (const next of this.byPriority()) this.pump(next);
+    this.persist(r);
+  }
+
+  /** A "Resumed …" notice from a restart the manager made itself is not shown (see below). True: drop this message. */
+  private swallowQuietResume(r: LiveThread, msg: Outbound): boolean {
     // Talk mode restarts the engine when talking starts and again when it stops. Each resume made the engine add
     // "Resumed … continuing this thread." to the transcript, so a few conversations stacked them up; a restart the manager
     // made itself resumes silently. One the user asked for still says so.
     if (r.quietResume && msg.t === 'event') {
       const note = msg.name === 'message' ? (msg.args[0] as { role?: string; content?: unknown } | undefined) : undefined;
-      if (note?.role === 'system' && typeof note.content === 'string' && note.content.startsWith('Resumed "')) { r.quietResume = false; return; }
+      if (note?.role === 'system' && typeof note.content === 'string' && note.content.startsWith('Resumed "')) { r.quietResume = false; return true; }
       if (msg.name === 'spinner_state' && msg.args[0] !== 'idle') r.quietResume = false;
     }
-    if (msg.t === 'ready') {
-      r.ready = true;
-      r.summary.status = 'idle';
-      if (r.resumeWanted) {
-        r.ready = false; r.summary.status = 'starting';
-        r.engine.sendFromRenderer({ t: 'resume', id: r.resumeWanted });
-        this.armResumeDeadline(r);
-      }
+    return false;
+  }
+
+  /** The engine is ready: idle, or — when a saved conversation is wanted — asked to resume it first. */
+  private engineReady(r: LiveThread): void {
+    r.ready = true;
+    r.summary.status = 'idle';
+    if (r.resumeWanted) {
+      r.ready = false; r.summary.status = 'starting';
+      r.engine?.sendFromRenderer({ t: 'resume', id: r.resumeWanted });
+      this.armResumeDeadline(r);
     }
-    if (msg.t === 'request') {
-      const approval: ThreadApproval = { threadId: id, title: r.summary.title, root: r.summary.root, request: msg, token: randomUUID() };
-      msg = { ...msg, approvalToken: approval.token } as Outbound;
-      r.pending.set(approval.request.id, approval);
-      r.summary.status = 'needs-you';
-      this.deps.approval(approval);
-    }
+  }
+
+  /** An approval request: held under a token the reply must carry, and handed to the app to show. */
+  private holdApproval(id: string, r: LiveThread, request: Extract<Outbound, { t: 'request' }>): Outbound {
+    const approval: ThreadApproval = { threadId: id, title: r.summary.title, root: r.summary.root, request, token: randomUUID() };
+    const msg = { ...request, approvalToken: approval.token } as Outbound;
+    r.pending.set(approval.request.id, approval);
+    r.summary.status = 'needs-you';
+    this.deps.approval(approval);
+    return msg;
+  }
+
+  /** What decides how the current turn ends, and steering the turn never took. */
+  private noteTurnSignals(r: LiveThread, msg: Extract<Outbound, { t: 'event' }>): void {
     // An error the engine reports during a turn makes that turn end "failed" rather than "done" (backlog N12).
     // Only a turn's end reads it, and every turn starts with it cleared, so an error between turns changes nothing.
     if (msg.t === 'event' && msg.name === 'message' && (msg.args[0] as { level?: unknown } | undefined)?.level === 'error') r.turnError = true;
@@ -622,6 +493,10 @@ export class ThreadManager {
         .map((t) => ({ id: randomUUID(), text: t, display: t, state: 'queued' as const, at: Date.now() }));
       if (back.length) r.inputs = [...back, ...r.inputs];
     }
+  }
+
+  /** Wakes (F4) the engine asks for or cancels. */
+  private noteWakes(id: string, r: LiveThread, msg: Extract<Outbound, { t: 'event' }>): void {
     // Wakes (F4): kept with the thread, so the app can wait for them and they survive a restart.
     if (msg.t === 'event' && msg.name === 'wake_request') {
       const wake = threadWakeFrom(msg.args[0]);
@@ -644,6 +519,10 @@ export class ThreadManager {
       if (!r.summary.wakes.length) delete r.summary.wakes;
       if ((r.summary.wakes?.length ?? 0) !== before) this.deps.wakesChanged?.();
     }
+  }
+
+  /** The folder's outcome status, an organize plan, and the turn's completion check — for the sidebar and the app. */
+  private noteFolderEvents(r: LiveThread, msg: Extract<Outbound, { t: 'event' }>): void {
     if (msg.t === 'event' && msg.name === 'organize_plan') this.deps.organizePlan?.(r.summary.id, msg.args[0]);
     if (msg.t === 'event' && msg.name === 'folder_status') {
       const items = (msg.args[0] as { items?: unknown } | undefined)?.items;
@@ -656,7 +535,10 @@ export class ThreadManager {
       r.summary.check = check?.state === 'passed' ? (edited ? 'tests-edited' : 'passed')
         : check?.state === 'failed' || check?.state === 'unchecked' ? check.state : undefined;
     }
-    r.state = engineReducer(r.state, { type: 'outbound', msg });
+  }
+
+  /** Which saved conversation this engine is in, and whether a wanted resume took. */
+  private trackSession(r: LiveThread, msg: Extract<Outbound, { t: 'event' }>): void {
     if (msg.t === 'event' && msg.name === 'ui_snapshot') {
       const current = (msg.args[0] as any)?.sessions?.find((s: any) => s.current);
       if (current?.id && !r.resumeWanted) r.summary.sessionId = current.id;
@@ -675,6 +557,10 @@ export class ThreadManager {
     if (msg.t === 'event' && msg.name === 'session_restore_failed' && r.resumeWanted && (msg.args[0] as any)?.id === r.resumeWanted) {
       this.resumeFailed(r, String((msg.args[0] as any)?.reason || 'the saved conversation could not be read'));
     }
+  }
+
+  /** The engine went idle: the turn is over, its message settled, and its outcome recorded. True when a turn finished. */
+  private settleIfIdle(r: LiveThread, msg: Outbound): boolean {
     let finishedTurn = false;
     if (msg.t === 'event' && msg.name === 'spinner_state' && msg.args[0] === 'idle') {
       // The manager's own resume choice is not the engine's to clear: an idle engine leaves it waiting for the user.
@@ -693,17 +579,9 @@ export class ThreadManager {
         r.summary.status = 'idle';
       }
     }
-    this.deps.message(id, msg);
-    if (finishedTurn) {
-      const tookMs = r.turnStartedAt ? Date.now() - r.turnStartedAt : undefined;
-      r.turnStartedAt = undefined;
-      this.deps.finished?.(id, tookMs);
-    }
-    this.restartIfWanted(r);
-    // Only dispatch queued inputs after the current protocol event has been delivered.
-    if (r.ready && r.summary.status === 'idle') for (const next of this.byPriority()) this.pump(next);
-    this.persist(r);
+    return finishedTurn;
   }
+
   lifecycle(id: string, phase: string, detail: string): void {
     const r = this.records.get(id); if (!r?.engine) return;
     if (['failed','exited','restarting','stopping'].includes(phase)) {
@@ -732,29 +610,40 @@ export class ThreadManager {
     if (msg.t === 'input' && !msg.text.trim().startsWith('/')) return this.submit(id, msg.text, msg.text, false);
     // The window paints its own words, so they are not echoed back to it (F7).
     if (msg.t === 'steer') return this.steer(id, String(msg.text ?? ''), String(msg.text ?? ''), false);
-    if (msg.t === 'reply') {
-      const pending = r.pending.get(msg.id);
-      if (!pending || msg.approvalToken !== pending.token) throw new Error('That approval has expired');
-      if (!pending.request.isAsk && pending.request.kind !== 'input' && !(pending.request.isMulti ? msg.value.split(', ').every((v:string) => pending.request.options.includes(v)) : pending.request.options.includes(msg.value))) throw new Error('Invalid approval choice');
-      r.pending.delete(msg.id);
-      r.state = { ...r.state, request: null };
-      if (msg.id === RESUME_CHOICE_ID) {
-        this.resumeChoice(r, String(msg.value));
-        this.persist(r);
-        return;
-      }
-      r.summary.status = 'working';
-    }
-    if (msg.t === 'interrupt') {
-      // An explicit interrupt cancels this turn and everything queued behind it.
-      r.interruptAsked = true;
-      r.inputs = [];
-      r.pending.clear();
-      r.state = { ...r.state, request: null };
-    }
+    if (msg.t === 'reply' && this.takeReply(r, msg) === 'handled') return;
+    if (msg.t === 'interrupt') this.cancelTurn(r);
     r.engine?.sendFromRenderer(msg);
     this.persist(r);
   }
+
+  /**
+   * A reply to an approval. It must answer a request this thread holds, carry that request's token, and pick one of its
+   * choices; otherwise it throws and nothing changes. The manager's own resume choice is handled here ('handled'); any
+   * other reply goes on to the engine ('forward').
+   */
+  private takeReply(r: LiveThread, msg: { id: number; value: string; approvalToken?: string }): 'handled' | 'forward' {
+    const pending = r.pending.get(msg.id);
+    if (!pending || msg.approvalToken !== pending.token) throw new Error('That approval has expired');
+    if (!validApprovalChoice(pending.request, msg.value)) throw new Error('Invalid approval choice');
+    r.pending.delete(msg.id);
+    r.state = { ...r.state, request: null };
+    if (msg.id === RESUME_CHOICE_ID) {
+      this.resumeChoice(r, String(msg.value));
+      this.persist(r);
+      return 'handled';
+    }
+    r.summary.status = 'working';
+    return 'forward';
+  }
+
+  /** An explicit interrupt cancels this turn and everything queued behind it. */
+  private cancelTurn(r: LiveThread): void {
+    r.interruptAsked = true;
+    r.inputs = [];
+    r.pending.clear();
+    r.state = { ...r.state, request: null };
+  }
+
   /** Restart an idle task's engine so it starts with fresh settings (folder rules); a busy one is never cut off. */
   restartIfIdle(id: string): boolean {
     const r = this.records.get(id);
@@ -942,33 +831,10 @@ export class ThreadManager {
     return reaped;
   }
 
-  /**
-   * The engines that can be handed back right now without costing the user work, least recently
-   * used first.
-   *
-   * One predicate, two callers, because they were drifting apart and the divergence was the bug:
-   * the idle sweep (`ttlMs = IDLE_ENGINE_TTL_MS`) was careful, and `start()`'s make-room eviction
-   * (`ttlMs = 0`, since it needs the memory now, not eventually) was not — it ordered by creation
-   * instead of use and threw away queued messages. A thread is reclaimable only when every one of
-   * these holds, because a wrong reclaim costs a restart mid-thought.
-   *
-   * `updatedAt` is the recency signal `list()` and `ensureRoom()` already sort by, so all three
-   * agree on what "least recently used" means.
-   */
+  /** The engines that can be handed back right now without costing the user work (see thread.budget.ts). */
   private reclaimableEngines(now: number, ttlMs: number): LiveThread[] {
-    const onScreen = this.deps.onScreen?.() ?? [];
-    return [...this.records.values()]
-      .filter((r) =>
-        !!r.engine
-        && r.summary.id !== this.activeId          // not the main window's selection
-        && !onScreen.includes(r.summary.id)        // not visible in a window or the ⌘2 bar
-        && r.summary.status === 'idle'             // never working, needs-you or starting
-        && !r.inputs.length                        // nothing queued
-        && !r.pending.size                         // no approval waiting on the user
-        && !r.draining                             // its previous engine is not still draining
-        && now - r.summary.updatedAt >= ttlMs)
-      // A low-priority task is stopped first and a high-priority one last (F7); least recently used within each.
-      .sort((a, b) => (priorityRank(a.summary) - priorityRank(b.summary)) || (a.summary.updatedAt - b.summary.updatedAt));
+    const onScreen = [this.activeId, ...(this.deps.onScreen?.() ?? [])];
+    return reclaimableEngines(this.records.values(), { now, ttlMs, onScreen });
   }
 
   /** Threads in the order they may start work: high priority first, then normal, then low, each in creation order (F7). */
@@ -976,10 +842,6 @@ export class ThreadManager {
     return [...this.records.values()].sort((a, b) => priorityRank(b.summary) - priorityRank(a.summary));
   }
 
-  /**
-   * A task's priority (backlog F7): which task goes first when several wait for an engine or a folder, and which
-   * engine is stopped last to make room. It never stops or pauses work that is already running.
-   */
   /** Leave or clear the person's bookmark on a task (backlog FL7). */
   setBookmark(id: string, bookmark: { note: string; at: number } | null): void {
     const r = this.records.get(id);
@@ -989,6 +851,10 @@ export class ThreadManager {
     this.deps.changed();
   }
 
+  /**
+   * A task's priority (backlog F7): which task goes first when several wait for an engine or a folder, and which
+   * engine is stopped last to make room. It never stops or pauses work that is already running.
+   */
   setPriority(id: string, priority: 'high' | 'normal' | 'low'): void {
     const r = this.records.get(id);
     if (!r) throw new Error('Thread not found');

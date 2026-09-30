@@ -8,7 +8,7 @@ import * as path from 'path';
  * OS threads (see subagent.manager.ts). This is a CPU budget.
  *
  * It is NOT the cap on Bimax Threads, the product feature, even though both are currently 4:
- * `MAX_LIVE_ENGINES` (app/src/main/thread.manager.ts) is a MEMORY budget over engines.
+ * `MAX_LIVE_ENGINES` (app/src/main/thread.budget.ts) is a MEMORY budget over engines.
  * The two govern different resources and are enforced in different places — this one per engine,
  * against the lease ledger `resolveCapacityContext` picks. When the desktop runs several Bimax
  * Threads at once it must point them all at ONE ledger (BIMAX_AGENT_CAPACITY_PATH), or this
