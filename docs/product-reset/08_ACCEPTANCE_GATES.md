@@ -14,8 +14,8 @@ Enforced by `src/__tests__/computer.admission.boundary.test.ts` and `scripts/ver
   else; project windows do not. Only the app's own decision for that engine sets `BIMAX_COMPUTER_LOOK`; an inherited
   value is dropped.
 - The first look at each app in a task raises a card the **app** raises and answers ("Let this task look at …?",
-  Allow / Not now); "Not now" is remembered for the task; stopping it ends every grant. Bimax itself, the password and
-  keychain apps and System Settings are never looked at.
+  Allow / Not now); "Not now" is remembered for the task; stopping it — closing it or any Stop of its turn — ends
+  every grant. Bimax itself, the password and keychain apps and System Settings are never looked at.
 - Turning the preview off closes granted sessions. A stop or off/on cycle invalidates in-flight discovery, grant
   answers and observations: no late approval may recreate a grant and no revoked observation reaches the model.
 - The driver runs in-process, `bounded`: a runtime manifest that may list apps only, and per grant a version-2

@@ -104,7 +104,10 @@ interface Dependencies {
    * answer goes back to that engine, never to a window. Optional: without it every host call is told "not available".
    */
   hostCall?(id: string, msg: HostCall): Promise<HostResult>;
-  /** The thread was stopped or released: whatever the app granted it (looking at an app) ends. */
+  /**
+   * The thread was stopped or released, or its turn was (any Stop button, a night shift ending it, talking over it):
+   * whatever the app granted it (looking at an app) ends. The card promises "stopping the task ends it".
+   */
   ended?(id: string): void;
   save(value: SavedThread): void;
   /** Write now, before returning: used when a message is accepted or handed to the engine. Falls back to `save`. */
@@ -708,13 +711,16 @@ export class ThreadManager {
     return 'forward';
   }
 
-  /** An explicit interrupt cancels this turn and everything queued behind it. */
+  /** An explicit interrupt cancels this turn and everything queued behind it, and every look the thread was granted. */
   private cancelTurn(r: LiveThread): void {
     r.interruptAsked = true;
     r.inputs = [];
     this.dropHostCards(r);
     r.pending.clear();
     this.dropRequest(r);
+    // The ⌘2 bar's Stop is titled "Stop this task" and the grant card says stopping the task ends it; until record 65
+    // §6d a grant outlived it, and the Thread's next turn could look again without asking.
+    this.deps.ended?.(r.summary.id);
   }
 
   /**

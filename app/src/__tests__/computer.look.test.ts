@@ -364,7 +364,7 @@ describe('revocation while a look is waiting', () => {
 describe('the Thread manager carries host calls and its own cards', () => {
   type View = { state: EngineUiState };
 
-  function fixture(hostCall?: (id: string, msg: any) => Promise<any>) {
+  function fixture(hostCall?: (id: string, msg: any) => Promise<any>, onEnded?: (id: string) => void) {
     const approvals: any[] = [];
     const shown: any[] = [];
     const ended: string[] = [];
@@ -374,7 +374,7 @@ describe('the Thread manager carries host calls and its own cards', () => {
       engine: () => engine, changed: jest.fn(), selected: jest.fn(), save: jest.fn(),
       approval: (value) => approvals.push(value),
       timer: () => () => {},
-      hostCall, ended: (id) => ended.push(id),
+      hostCall, ended: (id) => { ended.push(id); onEnded?.(id); },
       message: (id, msg) => {
         shown.push(msg);
         const view = views.get(id) ?? { state: { ...initialEngineState, threadId: id } };
@@ -426,11 +426,36 @@ describe('the Thread manager carries host calls and its own cards', () => {
     expect(f.ended).toEqual([f.id]);
   });
 
-  it('an interrupt answers it "no" too', async () => {
+  it('an interrupt answers it "no" too, and ends what the Thread was granted', async () => {
     const f = fixture();
     const answer = f.threads.askOnBehalf(f.id, 'Let this task look at Notes?', ['Allow looking at Notes', 'Not now']);
     f.threads.send(f.id, { t: 'interrupt' });
     await expect(answer).resolves.toBe('');
+    expect(f.ended).toEqual([f.id]);
+  });
+
+  it('a Stop after an Allow ends the grant: the next look asks again (record 65 §6d)', async () => {
+    const notes: RunningApp = { name: 'Notes', bundleId: 'com.apple.Notes', pid: 11 };
+    const driver: LookDriver = {
+      runningApps: async () => [notes],
+      look: async () => ({ title: 'Groceries', markdown: '- [0] AXWindow "Groceries"' }),
+      end: async () => {},
+    };
+    let service: ReturnType<typeof createLookService>;
+    const f = fixture((id, msg) => service.handle(id, msg), (id) => { void service.end(id); });
+    service = createLookService({ enabled: () => true, driver: async () => driver, ask: (id, q, o, b) => f.threads.askOnBehalf(id, q, o, b) });
+    const look = (id: number) => f.threads.receive(f.id, { t: 'host_call', id, capability: 'look', op: 'look', args: { app: 'Notes' } } as any);
+
+    look(51); await settle();
+    f.threads.send(f.id, { t: 'reply', id: f.approvals[0].request.id, value: 'Allow looking at Notes', approvalToken: f.approvals[0].token });
+    await settle(); await settle();
+    expect(f.engine.sendFromRenderer).toHaveBeenCalledWith(expect.objectContaining({ t: 'host_result', id: 51, ok: true }));
+    look(52); await settle(); await settle();
+    expect(f.approvals).toHaveLength(1); // allowed for this Thread: no second card
+
+    f.threads.send(f.id, { t: 'interrupt' }); await settle();
+    look(53); await settle();
+    expect(f.approvals).toHaveLength(2); // the Stop ended the grant, so the person is asked again
   });
 });
 
