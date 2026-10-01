@@ -8,15 +8,16 @@ const root = path.resolve(__dirname, '..', '..');
 const read = (file: string): string => fs.readFileSync(path.join(root, file), 'utf8');
 
 /**
- * Computer Use admission boundary — record 65, stage 2. It replaces the code-only gate of 2026-09-02 in the same commit
- * that let Computer Use back in, look only, as the plan required.
+ * Computer Use admission boundary — record 65, stages 2 and 3. It replaced the code-only gate of 2026-09-02 in the
+ * commit that let Computer Use back in, look only, and was widened in stage 3's commit by exactly one press.
  *
  * What may exist now, and nothing more: one component (Cua Driver's in-process SDK, pinned, unpacked), off until the
- * person ticks one menu bar item, reachable by a ⌘2 task only through LookAtAppTool, which the engine registers only
- * when the app sets BIMAX_COMPUTER_LOOK for that engine. The old provider, its sidecars, its UI and its environment stay
- * gone, and the coding surfaces stay free of it. Widening any of this must make a test here fail.
+ * person ticks a menu bar item, reachable by a ⌘2 task only through LookAtAppTool (BIMAX_COMPUTER_LOOK) and, with a
+ * second item ticked too, PressInAppTool (BIMAX_COMPUTER_PRESS): one AX press of one named control, in Bimax's own test
+ * app only, asked on two cards every time. The old provider, its sidecars, its UI and its environment stay gone, and the
+ * coding surfaces stay free of it. Widening any of this must make a test here fail.
  */
-describe('Computer Use admission boundary (record 65 stage 2; was the code-only gate)', () => {
+describe('Computer Use admission boundary (record 65 stages 2–3; was the code-only gate)', () => {
   test('the coding engine keeps the agentic IDE mutation tools', () => {
     const container = read('src/core/container.ts');
     for (const registration of [
@@ -113,19 +114,48 @@ describe('Computer Use admission boundary (record 65 stage 2; was the code-only 
     expect(preload).not.toMatch(/permissionCoach|manualAlpha|takeover:|trust:report/);
   });
 
-  test('look only is the whole capability: one engine tool, one host operation set, a manifest that denies input', () => {
+  test('looking and one press in the test app are the whole capability: two engine tools, two host capabilities, manifests that deny the rest', () => {
     const container = read('src/core/container.ts');
     expect(container).toContain("if (process.env.BIMAX_COMPUTER_LOOK === '1') toolRegistry.register(createLookTool(governor));");
+    expect(container).toContain("if (process.env.BIMAX_COMPUTER_LOOK === '1' && process.env.BIMAX_COMPUTER_PRESS === '1') toolRegistry.register(createPressTool(governor));");
+    // Exactly these two computer tools are registered anywhere in the engine.
+    expect(container.match(/toolRegistry\.register\(create(Look|Press)Tool\(/g)).toHaveLength(2);
     const tool = read('src/tools/implementations/look.tool.ts');
     expect(tool).toContain("enum: ['list_apps', 'look']");
+    const press = read('src/tools/implementations/press.tool.ts');
+    expect(press).toContain("required: ['app', 'control']");
+    expect(press).not.toMatch(/\b(x|y|text|keys?|coordinates?)\s*:\s*\{\s*type/);
+    const protocol = read('src/protocol/protocol.ts');
+    expect(protocol).toContain("export type HostCapability = 'look' | 'press';");
     const service = read('app/src/main/computer/look.service.ts');
     expect(service).toContain("if (msg.op === 'list_apps')");
     expect(service).toContain("if (msg.op !== 'look')");
+    expect(service).toContain("if (msg.op !== 'press')");
     const manifest = read('app/src/main/computer/look.manifest.ts');
     for (const tool of ['click', 'type_text', 'set_value', 'press_key', 'hotkey', 'drag', 'scroll', 'invoke_menu', 'bring_to_front']) {
       expect(manifest).toContain(`'${tool}'`);
     }
     expect(manifest).toContain("export const LOOK_TOOLS = ['list_apps', 'list_windows', 'get_window_state', 'get_screen_size'] as const;");
+    // Stage 3: one input tool, one app, three roles.
+    expect(manifest).toContain("export const PRESS_TOOLS = ['click'] as const;");
+    expect(manifest).toContain("export const PRESS_APPS: ReadonlySet<string> = new Set(['ai.bimax.cu.fixture']);");
+    expect(manifest).toContain("export const PRESS_ROLES: ReadonlySet<string> = new Set(['AXButton', 'AXCheckBox', 'AXRadioButton']);");
+    // The driver clicks only by element token, as an AX press, in the background — never coordinates.
+    const driver = read('app/src/main/computer/look.driver.ts');
+    expect(driver.match(/'click'/g)).toHaveLength(1);
+    expect(driver).toContain("await call(session, 'click', { pid: app.pid, window_id: target.windowId, element_token: matches[0].token, action: 'press', delivery_mode: 'background' });");
+  });
+
+  test('every press meets the governor floors and a card from the engine as well as the app', () => {
+    const factory = read('src/tools/tool.factory.ts');
+    expect(factory).toContain("PressInAppTool: 'COMPUTER_CONTROL',");
+    const press = read('src/tools/implementations/press.tool.ts');
+    expect(press).toContain('isDestructive: true,');
+    expect(press).not.toContain('approvalHandledInternally');
+    const governor = read('src/governor/governor.ts');
+    // The computer-control floors come before the Bimax Thread branch that returns early (record 46's trap).
+    expect(governor.indexOf("if (this.mode === 'unattended') throw new GovernorVetoError('Computer control is not allowed while unattended.');"))
+      .toBeLessThan(governor.indexOf('if (process.env.BIMAX_THREAD_ROOT && taskType !== \'API_CALL\')'));
   });
 
   test('it is off until the person turns it on, from one menu bar item, and only for ⌘2 tasks', () => {
@@ -140,6 +170,12 @@ describe('Computer Use admission boundary (record 65 stage 2; was the code-only 
     expect(main).toContain("...(loadSettings().computerLook === true && threads.get(threadId).summary.origin !== 'project' ? { BIMAX_COMPUTER_LOOK: '1' } : {})");
     // Exactly one place sets the flag for an engine.
     expect(main.match(/BIMAX_COMPUTER_LOOK: '1'/g)).toHaveLength(1);
+    // Stage 3: pressing has its own item, usable only while looking is on; unticking it revokes; one place sets its flag.
+    expect(main).toContain("label: 'Let Tasks Press Buttons in the Test App (Preview)', type: 'checkbox', checked: loadSettings().computerPress === true, enabled: loadSettings().computerLook === true");
+    expect(main).toContain("pressEnabled: () => loadSettings().computerLook === true && loadSettings().computerPress === true");
+    expect(main).toContain("...(loadSettings().computerLook === true && loadSettings().computerPress === true && threads.get(threadId).summary.origin !== 'project' ? { BIMAX_COMPUTER_PRESS: '1' } : {})");
+    expect(main.match(/BIMAX_COMPUTER_PRESS: '1'/g)).toHaveLength(1);
+    expect(main.match(/if \(!item\.checked\) void lookService\.revokeAll\(\);/g)).toHaveLength(2);
   });
 
   test('one component ships for it: the pinned Cua Driver SDK, outside the archive, and nothing else of the driver', () => {

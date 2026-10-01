@@ -50,6 +50,39 @@ export function lookManifest(bundleId: string, minutes = 30, idleMinutes = 10): 
 }
 
 /**
+ * Record 65 stage 3, pressing. The one input tool a press session may use: `click`, which Bimax only ever calls with an
+ * element token from a snapshot it took in the same session (an AX press: no pointer, no focus change, no coordinates).
+ * Every other input tool stays denied by name.
+ */
+export const PRESS_TOOLS = ['click'] as const;
+
+/** The apps a task may press in, this stage: Bimax's own test app, and nothing else. Widening it must fail a test. */
+export const PRESS_APPS: ReadonlySet<string> = new Set(['ai.bimax.cu.fixture']);
+
+/** The controls a press may target: plain ones whose own AX action is a press. */
+export const PRESS_ROLES: ReadonlySet<string> = new Set(['AXButton', 'AXCheckBox', 'AXRadioButton']);
+
+/** One press session: the look tools plus `click`, for one app on {@link PRESS_APPS}, short-lived. */
+export function pressManifest(bundleId: string, minutes = 5, idleMinutes = 2): string {
+  if (!validBundleId(bundleId) || !PRESS_APPS.has(bundleId)) throw new Error(`not an app a task may press in: ${JSON.stringify(bundleId)}`);
+  return [
+    'version: 2',
+    'mode: bounded',
+    `expires_after: ${Math.max(1, Math.round(minutes))}m`,
+    `idle_timeout: ${Math.max(1, Math.round(idleMinutes))}m`,
+    'resources:',
+    '  apps:',
+    `    - bundle_id: ${bundleId}`,
+    '      windows: all',
+    'allow:',
+    `  tools: [${[...LOOK_TOOLS, ...PRESS_TOOLS].join(', ')}]`,
+    'deny:',
+    `  tools: [${INPUT_TOOLS.filter((tool) => !(PRESS_TOOLS as readonly string[]).includes(tool)).join(', ')}]`,
+    '',
+  ].join('\n');
+}
+
+/**
  * The runtime's own manifest, for calls made outside any grant: it may list the running apps (so the user can be
  * asked about the right one) and nothing else. The driver refuses a runtime manifest without both limits (measured:
  * "legacy capability manifests require expires_after and idle_timeout"); look.driver.ts starts a fresh runtime when

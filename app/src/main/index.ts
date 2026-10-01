@@ -139,6 +139,7 @@ const lookDriver = createLookDriver({
 });
 const lookService = createLookService({
   enabled: () => loadSettings().computerLook === true,
+  pressEnabled: () => loadSettings().computerLook === true && loadSettings().computerPress === true,
   driver: async () => lookDriver,
   ask: (threadId, question, options, body) => threads.askOnBehalf(threadId, question, options, body),
   // Content-free: which task asked what of which app, the answer, and both counts — the app's and the driver's own.
@@ -1029,6 +1030,13 @@ function updateTray(): void {
       if (item.checked && process.platform === 'darwin' && !systemPreferences.isTrustedAccessibilityClient(false)) systemPreferences.isTrustedAccessibilityClient(true);
       updateTray();
     } },
+    // One press at a time (record 65 stage 3), in Bimax's own test app only: its own switch, off until ticked, usable only
+    // while looking is on. Every press still asks twice. Unticking it cancels any press that has not been sent.
+    { label: 'Let Tasks Press Buttons in the Test App (Preview)', type: 'checkbox', checked: loadSettings().computerPress === true, enabled: loadSettings().computerLook === true, click: (item) => {
+      saveSettings({ computerPress: item.checked });
+      if (!item.checked) void lookService.revokeAll();
+      updateTray();
+    } },
     ...(existsSync(notchHelperPath({ packaged: app.isPackaged, resourcesPath: process.resourcesPath, appPath: app.getAppPath() })) ? [{
       label: 'Show Bimax in the Notch', type: 'checkbox' as const, checked: loadSettings().notchDeck !== false,
       click: (item: Electron.MenuItem) => { saveSettings({ notchDeck: item.checked }); syncNotch(); updateTray(); },
@@ -1547,7 +1555,9 @@ function createSupervisor(threadId?: string): EngineSupervisor {
           ...threadVoiceEnvironment(threads.talkState(threadId).voice),
           ...(threads.talkState(threadId).model ? { BIMAX_THREAD_MODEL: threads.talkState(threadId).model } : {}),
           // Looking at other apps (record 65 stage 2): a ⌘2 task, only once the person turned it on.
-          ...(loadSettings().computerLook === true && threads.get(threadId).summary.origin !== 'project' ? { BIMAX_COMPUTER_LOOK: '1' } : {}) } : {}),
+          ...(loadSettings().computerLook === true && threads.get(threadId).summary.origin !== 'project' ? { BIMAX_COMPUTER_LOOK: '1' } : {}),
+          // Pressing (stage 3): the same ⌘2 task, only once the person turned BOTH switches on.
+          ...(loadSettings().computerLook === true && loadSettings().computerPress === true && threads.get(threadId).summary.origin !== 'project' ? { BIMAX_COMPUTER_PRESS: '1' } : {}) } : {}),
       }, callbacks);
     },
     now: () => Date.now(),

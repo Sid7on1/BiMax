@@ -1,21 +1,32 @@
 # Acceptance gates
 
-## Computer Use admission gate (current, 2026-10-01 — record 65 stage 2)
+## Computer Use admission gate (current, 2026-10-01 — record 65 stages 2–3)
 
-It replaces the code-only gate of 2026-09-02 below, in the same change that let Computer Use back in, look only.
+It replaces the code-only gate of 2026-09-02 below, in the same change that let Computer Use back in, look only; stage
+3 widened it by exactly one press, in the same change that added the press.
 Enforced by `src/__tests__/computer.admission.boundary.test.ts` and `scripts/verify-desktop-package.mjs`.
 
 - The coding surfaces are unchanged: create/read/edit/multi-edit/delete/mkdir, shell, tests, git, search, LSP, review,
   plans, checkpoints, subagents, browser research and ordinary MCP integrations; `files`, `git` and `security` in the
   app reach for no Accessibility, Screen Recording or Computer Use code.
-- No window exposes Control Mac, Live Target, takeover, Computer Use model readiness or a Trust Center journey. The one
-  entry point is the menu bar item "Let Tasks Look at Other Apps (Preview)", **off until the person ticks it**.
+- No window exposes Control Mac, Live Target, takeover, Computer Use model readiness or a Trust Center journey. The
+  entry points are the menu bar items "Let Tasks Look at Other Apps (Preview)" and, usable only while that is ticked,
+  "Let Tasks Press Buttons in the Test App (Preview)" — **each off until the person ticks it**.
 - With it on, a new ⌘2 task's engine gets `LookAtAppTool` (list apps, look at one app's front window) and nothing
   else; project windows do not. Only the app's own decision for that engine sets `BIMAX_COMPUTER_LOOK`; an inherited
   value is dropped.
 - The first look at each app in a task raises a card the **app** raises and answers ("Let this task look at …?",
   Allow / Not now); "Not now" is remembered for the task; stopping it — closing it or any Stop of its turn — ends
   every grant. Bimax itself, the password and keychain apps and System Settings are never looked at.
+- **Pressing (stage 3).** With both items ticked, a new ⌘2 task also gets `PressInAppTool`: one AX press of one named,
+  enabled button, checkbox or radio button, in **Bimax's own test app only** (`PRESS_APPS`). A press is bound to a look
+  of that window under two minutes old, and each look allows at most one press. Every press meets the governor's
+  computer-control floors first — sensitive targets and "not while unattended" now run **before** the Bimax Thread
+  branch (record 46's trap) — then the engine's one-time card, then the app's own card; neither can be granted for the
+  task. A Stop, either item unticked, or the window changing (the driver re-reads it and must find the control exactly
+  once) cancels a press that has not been sent. The press is sent once, by element token, in the background, and never
+  retried; the window is read again and "nothing changed" is reported as a failure, never a success. A press session's
+  manifest allows `click` and still denies every other input tool by name.
 - Turning the preview off closes granted sessions. A stop or off/on cycle invalidates in-flight discovery, grant
   answers and observations: no late approval may recreate a grant and no revoked observation reaches the model.
 - The driver runs in-process, `bounded`: a runtime manifest that may list apps only, and per grant a version-2

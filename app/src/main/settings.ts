@@ -65,6 +65,11 @@ export interface AppSettings {
    * asks per task on a card. Off when absent — it is only ever turned on by the person, from the menu bar item.
    */
   computerLook?: boolean;
+  /**
+   * Computer Use, one press at a time (record 65 stage 3): new ⌘2 tasks that may look may also ask to press one control
+   * in Bimax's own test app; every press is asked on two cards. Off when absent; only meaningful with computerLook on.
+   */
+  computerPress?: boolean;
   /** Folders with an outcome, keyed by real path (folder.outcomes.ts, backlog FL1 part 2). */
   folderOutcomes?: Record<string, import('./folder.outcomes').FolderOutcome>;
 }
