@@ -1,8 +1,8 @@
 import { capabilitySnapshot, capabilityMessage } from '../core/capability.status';
 import { EventEmitter } from 'events';
 import {
-  Outbound, Inbound, ReplyMsg, MenuSelectMsg, CompletionItem, CatalogResultMsg,
-  FORWARDED_EVENTS, PROMPT_EVENT, DIFF_PROMPT_EVENT, INPUT_PROMPT_EVENT,
+  Outbound, Inbound, ReplyMsg, MenuSelectMsg, CompletionItem, CatalogResultMsg, HostResultMsg, JsonValue,
+  FORWARDED_EVENTS, PROMPT_EVENT, DIFF_PROMPT_EVENT, INPUT_PROMPT_EVENT, HOST_CALL_EVENT,
   PROTOCOL_FEATURES, PROTOCOL_MAX_COMPATIBLE_MAJOR, PROTOCOL_MIN_COMPATIBLE_MAJOR,
   PROTOCOL_SEMVER, PROTOCOL_VERSION, sanitizeArgs,
 } from './protocol';
@@ -49,6 +49,9 @@ export interface HostHandlers {
  * Nothing here touches Ink: attaching the host adds listeners; the in-process appStore bridge in
  * events.ts keeps working untouched, so the two front-ends are interchangeable, not exclusive.
  */
+/** What a host call resolves with: the app's value, or why it did not (or could not) answer. */
+export interface HostCallResult { ok: boolean; value?: JsonValue; error?: string }
+
 export class ProtocolHost {
   private emitter: EventEmitter | null = null;
   private listeners: Array<{ event: string; fn: (...a: any[]) => void }> = [];
@@ -56,6 +59,8 @@ export class ProtocolHost {
   // Request kind per pending id — resolution announcements skip kind 'input' (may carry secrets).
   private pendingKind = new Map<number, string>();
   private nextRequestId = 1;
+  /** Host calls awaiting the app's {@link HostResultMsg}. Kept apart from approvals: they are not the user's answers. */
+  private hostCalls = new Map<number, (result: HostCallResult) => void>();
 
   /** Announce a request's resolution to in-process observers (ReviewManager). Never for inputs. */
   private announceResolved(id: number, value: string, interrupted?: boolean): void {
@@ -128,6 +133,15 @@ export class ProtocolHost {
     emitter.on(INPUT_PROMPT_EVENT, inputFn);
     this.listeners.push({ event: INPUT_PROMPT_EVENT, fn: inputFn });
 
+    // host_call(capability, op, args, resolve) — ask the app to do what only the app may (record 65, stage 2).
+    const hostCallFn = (capability: 'look', op: string, args: JsonValue, resolve: (r: HostCallResult) => void) => {
+      const id = this.nextRequestId++;
+      this.hostCalls.set(id, resolve);
+      this.write({ t: 'host_call', id, capability, op, args });
+    };
+    emitter.on(HOST_CALL_EVENT, hostCallFn);
+    this.listeners.push({ event: HOST_CALL_EVENT, fn: hostCallFn });
+
     markReady(); // engine wired + handshake sent — the cold-start clock stops here (/perf)
     loadPersistedTimelines(); // seed /perf so it can explain prior turns after a restart/crash
     this.write({
@@ -156,6 +170,12 @@ export class ProtocolHost {
         const resolve = this.pending.get(id);
         if (resolve) { this.pending.delete(id); this.announceResolved(id, value); resolve(value); }
         return; // a reply with no pending id is a late/duplicate answer — drop it
+      }
+      case 'host_result': {
+        const { id, ok, value, error } = msg as HostResultMsg;
+        const resolve = this.hostCalls.get(id);
+        if (resolve) { this.hostCalls.delete(id); resolve({ ok: ok === true, value, error }); }
+        return; // a result with no pending call is late or forged — drop it
       }
       case 'input':
         // A forced clear ends the task that is running, like Stop, before the clear itself is dispatched.
@@ -267,12 +287,20 @@ export class ProtocolHost {
    * "Approve" must not reach it (record 49); a reply that arrives afterwards finds nothing pending and is ignored.
    */
   private cancelPending(): void {
+    this.cancelHostCalls('The task was stopped.');
     const pending = [...this.pending.entries()];
     this.pending.clear();
     for (const [id, resolve] of pending) {
       this.announceResolved(id, '', true);
       try { resolve(''); } catch { /* ignore */ }
     }
+  }
+
+  /** End every host call still waiting: an interrupted or detached engine must not hang on the app. */
+  private cancelHostCalls(error: string): void {
+    const calls = [...this.hostCalls.values()];
+    this.hostCalls.clear();
+    for (const resolve of calls) { try { resolve({ ok: false, error }); } catch { /* ignore */ } }
   }
 
   /** Number of approval requests still awaiting an answer (for diagnostics / tests). */
@@ -288,6 +316,7 @@ export class ProtocolHost {
     for (const id of this.pending.keys()) this.announceResolved(id, '', true);
     this.listeners = [];
     this.emitter = null;
+    this.cancelHostCalls('Bimax closed this task.');
     for (const resolve of this.pending.values()) {
       try { resolve(''); } catch { /* ignore */ }
     }

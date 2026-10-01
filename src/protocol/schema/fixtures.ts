@@ -128,10 +128,13 @@ export const OUTBOUND_FIXTURES: Outbound[] = [
       },
     ],
   },
+  { t: 'host_call', id: 12, capability: 'look', op: 'look', args: { app: 'Notes', query: 'groceries' } },
 ];
 
 export const INBOUND_FIXTURES: Inbound[] = [
   { t: 'reply', id: 7, value: 'Yes' },
+  { t: 'host_result', id: 12, ok: true, value: { text: 'AXWindow "Notes"\n  AXTextArea "groceries: eggs, milk"' } },
+  { t: 'host_result', id: 13, ok: false, error: 'The user did not let this task look at Notes.', value: { code: 'denied' } },
   { t: 'input', text: 'refactor the auth module' },
   { t: 'interrupt' },
   { t: 'steer', text: 'also update the README' },
@@ -167,6 +170,7 @@ export const OUTBOUND_KINDS: Record<Outbound['t'], true> = {
   catalogResult: true,
   boot: true,
   health: true,
+  host_call: true,
 };
 export const INBOUND_KINDS: Record<Inbound['t'], true> = {
   reply: true,
@@ -182,6 +186,7 @@ export const INBOUND_KINDS: Record<Inbound['t'], true> = {
   providerSet: true,
   resume: true,
   controls: true,
+  host_result: true,
 };
 
 /**

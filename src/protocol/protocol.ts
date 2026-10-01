@@ -21,7 +21,7 @@
 // Additive, so the major stays 3 and the `catalog` feature flag gates it.
 export const PROTOCOL_VERSION = 3;
 /** Semantic wire release. Major compatibility remains available to v2 clients. */
-export const PROTOCOL_SEMVER = '3.2.0';
+export const PROTOCOL_SEMVER = '3.3.0';
 export const PROTOCOL_MIN_COMPATIBLE_MAJOR = 2;
 export const PROTOCOL_MAX_COMPATIBLE_MAJOR = 3;
 
@@ -37,6 +37,7 @@ export const PROTOCOL_FEATURES = [
   'resume',
   'review-snapshot',
   'outcome-snapshot',
+  'host-call',
 ] as const;
 
 // A JSON-safe value. The codec guarantees only these cross the wire (sanitizeArgs strips the rest).
@@ -66,6 +67,21 @@ export interface RequestMsg {
   isMulti?: boolean; // true for multi-select checklists
   body?: string; // for kind:'diff', the unified diff to render before the choices
   masked?: boolean; // for kind:'input': the answer is a secret — render it as bullets, never echo
+}
+
+/**
+ * The engine asks the app that hosts it to do something only the app may do (record 65, stage 2): today, look at an
+ * app's window for a Bimax Thread that the user let look. The app answers with a {@link HostResultMsg} of the same
+ * `id`. It travels on the engine's own channel, never a socket or an environment token, so nothing the engine runs
+ * (a shell command) can make the call. The app decides — grant, scope, what the result may contain; the engine only
+ * asks.
+ */
+export interface HostCallMsg {
+  t: 'host_call';
+  id: number;
+  capability: 'look';
+  op: string;
+  args: JsonValue;
 }
 
 /** Handshake — sent once when the host attaches, so the front-end can version-check. */
@@ -237,9 +253,19 @@ export type Outbound =
   | ConfigResultMsg
   | CatalogResultMsg
   | BootMsg
-  | HealthMsg;
+  | HealthMsg
+  | HostCallMsg;
 
 // --- Inbound: front-end → engine -----------------------------------------------------------
+
+/** The app's answer to a {@link HostCallMsg}, correlated by `id`. `error` is shown to the model as the tool's result. */
+export interface HostResultMsg {
+  t: 'host_result';
+  id: number;
+  ok: boolean;
+  value?: JsonValue;
+  error?: string;
+}
 
 /** The answer to a {@link RequestMsg}, correlated by `id`. */
 export interface ReplyMsg {
@@ -380,7 +406,8 @@ export type Inbound =
   | CatalogGetMsg
   | ProviderSetMsg
   | ResumeMsg
-  | ControlsMsg;
+  | ControlsMsg
+  | HostResultMsg;
 
 // --- Event vocabulary ----------------------------------------------------------------------
 
@@ -449,6 +476,8 @@ export const FORWARDED_EVENTS: readonly string[] = [
 export const PROMPT_EVENT = 'veto_prompt';
 export const DIFF_PROMPT_EVENT = 'diff_prompt';
 export const INPUT_PROMPT_EVENT = 'input_prompt';
+/** `host_call(capability, op, args, resolve)` — the host turns it into a {@link HostCallMsg}; `resolve` gets the result. */
+export const HOST_CALL_EVENT = 'host_call';
 
 // React element brand — so a `message` event carrying a JSX `content`/`payload` doesn't blow up
 // JSON.stringify; we replace it with a placeholder the front-end can render generically.

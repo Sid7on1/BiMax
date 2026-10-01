@@ -23,7 +23,7 @@ import { getEventLedger } from './event.ledger';
  *     permission prompt, labelled with the taint source, so the human decides knowingly.
  */
 
-export type TaintSource = 'web' | 'mcp';
+export type TaintSource = 'web' | 'mcp' | 'screen';
 
 export interface TaintMark {
   source: TaintSource;
@@ -71,6 +71,7 @@ export function markToolTaint(toolName: string, rawArgs: string, resultText: str
   const channel = untrustedChannel(toolName);
   if (channel === 'web') getTaintTracker().mark('web', taintDetail(toolName, rawArgs));
   else if (channel === 'mcp') getTaintTracker().mark('mcp', toolName);
+  else if (channel === 'screen') getTaintTracker().mark('screen', screenDetail(rawArgs));
 }
 
 /** The untrusted channel a tool's output arrives through, or null for Bimax's own tools. The one list both the taint
@@ -78,7 +79,13 @@ export function markToolTaint(toolName: string, rawArgs: string, resultText: str
 export function untrustedChannel(toolName: string): TaintSource | null {
   if (toolName === 'WebFetchTool' || toolName === 'WebSearchTool') return 'web';
   if (toolName.startsWith('mcp__')) return 'mcp';
+  // Another app's window (record 65): whatever it shows was written by someone else, like a web page.
+  if (toolName === 'LookAtAppTool') return 'screen';
   return null;
+}
+
+function screenDetail(rawArgs: string): string {
+  try { return `window of ${String(JSON.parse(rawArgs || '{}').app || 'an app')}`; } catch { return 'an app window'; }
 }
 
 function taintDetail(toolName: string, rawArgs: string): string {
@@ -98,7 +105,7 @@ function taintDetail(toolName: string, rawArgs: string): string {
 export function fenceUntrusted(toolName: string, rawArgs: string, text: string): string {
   const channel = untrustedChannel(toolName);
   if (!channel || !text || !text.trim()) return text;
-  const detail = channel === 'mcp' ? toolName : taintDetail(toolName, rawArgs);
+  const detail = channel === 'mcp' ? toolName : channel === 'screen' ? screenDetail(rawArgs) : taintDetail(toolName, rawArgs);
   const source = `${channel}: ${detail}`.slice(0, 200).replace(/["<>\n\r]/g, ' ');
   const body = text.replace(/<(\/?)untrusted/gi, '<$1untrusted-quoted');
   return `<untrusted source="${source}">\n${body}\n</untrusted>`;

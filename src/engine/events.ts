@@ -119,6 +119,7 @@ export interface MessageEntry {
 // - tool_call: (call: ToolCallEntry) => A tool started running
 // - tool_call_result: (call: ToolCallEntry) => A tool finished (status success/error)
 // - veto_prompt: (question, options, resolve, isAskPrompt?) => Triggers permission overlay
+// - host_call: (capability, op, args, resolve) => Asks the hosting app (record 65; ProtocolHost → host_call)
 // - spinner_state: (state: AgentState, message?: string) => Updates the footer status indicator
 // - status: (text: string) => Status bar update
 // - mode_change: (mode: string) => Governor mode change (footer)

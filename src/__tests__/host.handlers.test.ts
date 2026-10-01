@@ -16,8 +16,11 @@ const HANDLED: Record<string, string> = {
   configGet: 'onConfigGet', configSet: 'onConfigSet', catalogGet: 'onCatalogGet', providerSet: 'onProviderSet',
   resume: 'onResume', controls: 'onControls',
 };
-/** Answered by the host itself: a reply resolves a pending request, a ping is answered with a pong. */
-const HOST_OWN = new Set(['reply', 'ping']);
+/**
+ * Answered by the host itself: a reply resolves a pending request, a ping is answered with a pong, and a host_result
+ * resolves a pending host call (record 65) — proven end to end through the port host below.
+ */
+const HOST_OWN = new Set(['reply', 'ping', 'host_result']);
 
 test('the table above covers every inbound kind, so a new kind cannot skip this test', () => {
   expect(Object.keys(INBOUND_KINDS).filter((kind) => !HOST_OWN.has(kind)).sort()).toEqual(Object.keys(HANDLED).sort());
@@ -38,3 +41,22 @@ test('each inbound kind reaches its handler through the port host', async () => 
 });
 
 // The heartbeat's own test is in port.host.test.ts ('the heartbeat goes out on the port, through the queue …').
+
+test('a host_result reaches the waiting host call through the real port host (record 65)', async () => {
+  const { port1, port2 } = new MessageChannel();
+  const emitter = new EventEmitter();
+  const outbound: any[] = [];
+  // The port host posts each outbound message serialized once, as JSON text (port.host.ts).
+  port2.on('message', (frame) => { for (const line of String(frame).split('\n').filter(Boolean)) { try { outbound.push(JSON.parse(line)); } catch { /* not a frame */ } } });
+  const dispose = startPortHost({ emitter, port: port1 } as any);
+  const results: unknown[] = [];
+  emitter.emit('host_call', 'look', 'list_apps', {}, (r: unknown) => results.push(r));
+  await new Promise((resolve) => setTimeout(resolve, 30));
+  const call = outbound.find((m) => m && m.t === 'host_call');
+  expect(call).toMatchObject({ t: 'host_call', capability: 'look', op: 'list_apps' });
+  port2.postMessage({ t: 'host_result', id: call.id, ok: true, value: { text: 'Notes' } });
+  await new Promise((resolve) => setTimeout(resolve, 30));
+  dispose();
+  port1.close(); port2.close();
+  expect(results).toEqual([{ ok: true, value: { text: 'Notes' }, error: undefined }]);
+});

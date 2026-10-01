@@ -70,6 +70,7 @@ import { createSpawnSubagentTool } from '../tools/implementations/spawn.tool';
 import { createTasksTool } from '../tools/implementations/tasks.tool';
 import { createNotebookEditTool } from '../tools/implementations/notebook.tool';
 import { createThreadMessageTool } from '../tools/implementations/thread.message.tool';
+import { createLookTool } from '../tools/implementations/look.tool';
 import { createDocumentTool } from '../tools/implementations/document.tool';
 import { createRegisterAgentTool } from '../tools/implementations/register.tool';
 import { createAskUserTool } from '../tools/implementations/ask_user.tool';
@@ -404,6 +405,8 @@ export async function createContainer(config?: Partial<EngineConfig>): Promise<{
   toolRegistry.register(createNotebookEditTool(governor));
   toolRegistry.register(createDocumentTool(governor));
   if (process.env.BIMAX_THREAD_ID) toolRegistry.register(createThreadMessageTool(governor));
+  // Computer Use, look only (record 65 stage 2): the app sets this for a Bimax Thread only when the user turned it on.
+  if (process.env.BIMAX_COMPUTER_LOOK === '1') toolRegistry.register(createLookTool(governor));
   toolRegistry.register(createRegisterAgentTool(governor, toolRegistry));
   toolRegistry.register(createAskUserTool(governor, llmAdapter));
   toolRegistry.register(createGitTool(governor));
