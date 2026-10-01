@@ -1,6 +1,6 @@
 # 65 — Computer Use returns: Bimax's own layer on the latest Cua Driver, with small local decision models
 
-**Date: 2026-10-01. Status: Target — nothing in the product is built. Stage 1 is Measured (§6), outside the product.** It is the plan the owner asked for:
+**Date: 2026-10-01. Status: stage 1 Measured (§6); stage 2 Implemented and Measured outside the installed app (§6b); stages 3–6 Target.** It is the plan the owner asked for:
 
 > "plan the roll out of the bimax computer use from the archive and slowly integrate this into repo … use laya mlx
 > model and … the latest CUA … the new CUA came out is much more efficent and there are mini models to operate it, we
@@ -172,6 +172,46 @@ every Thread and the driver enforces each grant's scope itself.
 A probe mistake on the way, kept for the next person: a fixture launched hidden (`open -g`) has no AX window at all, and
 the driver then returns an empty tree on purpose (`ax_window_unresolved`) — launch it visibly and put the user's app back
 in front.
+
+## 6b. Stage 2 — look only, in one Bimax Thread (2026-10-01)
+
+**Status: Implemented and Measured outside the installed app; not installed.** Commits `c640ca9` (engine: protocol
+3.3.0 `host_call`/`host_result` on the engine's own port, `LookAtAppTool` registered only with `BIMAX_COMPUTER_LOOK=1`,
+screen text fenced and tainting), `49893f2` (app: look service, embedded driver, app-raised grant card, menu bar opt-in,
+privacy filter, content-free audit log, and the admission gate replacing the code-only gate — `08_ACCEPTANCE_GATES.md`
+and `computer.admission.boundary.test.ts`), and the proof commit with this section.
+
+**Exit evidence** (`evidence/2026-10-01-cu-stage2/`, `app/scripts/computer/prove-look.js`): the shipped engine bundle
+as a worker over its port, a live model turn (gpt-oss-20b), the app's look service and Cua Driver 0.31 in the same
+process, and BimaxCuFixture.app behind the user's terminal. Only the person was played. One run per mode.
+
+| | allow | "Not now" | looking off (a normal task) |
+|---|---|---|---|
+| Grant card the app raised | yes → Allow | yes → Not now | none |
+| Engine tool calls | `LookAtAppTool` ×1 | `LookAtAppTool` ×1 | `ToolSearchTool` ×4 (no such tool exists for it) |
+| Host calls | 1 (`look`, app BimaxCuFixture, query `presses=`) | 1 | **0** |
+| Driver, authorized for the task (its own observer) | `list_windows` 1, `get_window_state` 1 | none | driver never started |
+| **Authorized input tools** | **none** | **none** | **none** |
+| Fixture status before → after | `presses=0 events=0 last=none` → same | same → same | — |
+| The model's answer | `presses=0 events=0 last=none` (correct) | "I couldn't access BimaxCuFixture." | — |
+
+**Defects the live runs found, fixed before this commit** (each now has a test that fails without its fix):
+
+1. The runtime manifest lacked `expires_after`/`idle_timeout`; the driver refused it and every look failed with
+   `DriverError.Configuration` — whose class name was all the error said. Both limits added; the driver's own reason is
+   now passed on; a runtime past its lease is replaced once.
+2. Listing apps is a "desktop display observation" to the driver: the runtime manifest needs `resources.desktop.display`.
+   With `list_apps` the only tool it allows, that grant reaches no screenshot.
+3. `LookAtAppTool` was deferred behind ToolSearch: the model answered "I don't have a tool called LookAtAppTool" and never
+   searched. It is now in the always-sent set (inert unless registered).
+
+**Also measured:** the app resolves the asked-for app before raising the card (it names the app on the card), so in the
+"Not now" run the driver runtime did start — for `list_apps` only. Unit and gate tests: app suite 124 suites / 1,109
+tests at commit B; engine registry, host-call, protocol and gate suites green; 16 mutants caught across commits A–C.
+
+**Not yet shown — the next step, and it needs the owner:** the installed app. There the driver attributes Accessibility
+to **Bimax.app itself** (the proof ran under the terminal's grant), and the SDK loads from `app.asar.unpacked`. That needs
+a build, an install, the menu bar item ticked, and Accessibility granted to Bimax once.
 
 ## 7. Risks named now
 

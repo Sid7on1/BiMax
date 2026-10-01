@@ -139,6 +139,17 @@ describe('LookAtAppTool', () => {
   });
 });
 
+describe('the model can see the tool once the app turned it on', () => {
+  it('LookAtAppTool is in the working set, not deferred behind ToolSearch', () => {
+    const { ToolRegistry } = require('../tools/tool.registry');
+    const registry = new ToolRegistry();
+    registry.register(createLookTool({ approveTaskExecution: async () => {} } as any));
+    expect(registry.isDeferred('LookAtAppTool')).toBe(false);
+    expect(registry.isSent('LookAtAppTool', 'smart')).toBe(true);
+    expect(registry.getSchemas({ mode: 'smart' }).map((t: any) => t.name)).toContain('LookAtAppTool');
+  });
+});
+
 describe('screen text is untrusted', () => {
   it('is fenced like a web page, naming the app', () => {
     expect(untrustedChannel('LookAtAppTool')).toBe('screen');

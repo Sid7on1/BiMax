@@ -93,6 +93,19 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
     return runtime;
   }
 
+  /** The driver's own reason, not the error's class name ("DriverError.Configuration" says nothing to a person). */
+  const reason = (error: any): Error => new Error(String(error?.inner?.reason ?? error?.message ?? error));
+
+  /** A runtime past its lease (RUNTIME_HOURS, RUNTIME_IDLE_MINUTES) is replaced once, with every session it held. */
+  async function withRuntime<T>(work: () => Promise<T>): Promise<T> {
+    try { return await work(); } catch (first: any) {
+      if (!/expire|idle|lease|ttl/i.test(String(first?.inner?.reason ?? first?.message ?? first))) throw reason(first);
+      runtime = null;
+      sessions.clear();
+      try { return await work(); } catch (second) { throw reason(second); }
+    }
+  }
+
   const parse = (result: any): any => {
     if (result?.isError) throw new Error(result.text || result.errorCode || 'the driver refused');
     try { return JSON.parse(result?.structuredJson ?? 'null') ?? {}; } catch { return {}; }
@@ -121,34 +134,14 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
 
   return {
     async runningApps(): Promise<RunningApp[]> {
-      const { driver } = await start();
-      const data = parse(await driver.callTool('list_apps', '{}'));
+      const data = await withRuntime(async () => { const { driver } = await start(); return parse(await driver.callTool('list_apps', '{}')); });
       return (Array.isArray(data.apps) ? data.apps : [])
         .filter((a: any) => a && a.running === true && Number(a.pid) > 0 && typeof a.bundle_id === 'string' && a.kind !== 'background')
         .map((a: any) => ({ name: String(a.name ?? a.bundle_id), bundleId: String(a.bundle_id), pid: Number(a.pid) }));
     },
 
     async look(threadId: string, app: RunningApp, query?: string) {
-      let session = await sessionFor(threadId, app);
-      let windows: any;
-      try { windows = await call(session, 'list_windows', { pid: app.pid }); }
-      catch (error) {
-        // A session past its time is renewed once: the person's grant still stands; only the driver's lease ended.
-        sessions.delete(`${threadId}|${app.bundleId}`);
-        session = await sessionFor(threadId, app);
-        windows = await call(session, 'list_windows', { pid: app.pid });
-        void error;
-      }
-      const all: any[] = Array.isArray(windows.windows) ? windows.windows : [];
-      const visible = all.filter((w) => w.is_on_screen && (w.bounds?.width ?? 0) > 60 && (w.bounds?.height ?? 0) > 60);
-      const pick = (visible.length ? visible : all.filter((w) => w.title))
-        .sort((a, b) => (b.z_index ?? 0) - (a.z_index ?? 0) || (b.bounds?.width ?? 0) * (b.bounds?.height ?? 0) - (a.bounds?.width ?? 0) * (a.bounds?.height ?? 0))[0];
-      if (!pick) throw new Error(`${app.name} has no window open`);
-      const state = await call(session, 'get_window_state', {
-        pid: app.pid, window_id: pick.window_id, include_screenshot: false, ...(query ? { query } : {}),
-      });
-      if (state.degraded && !state.tree_markdown) throw new Error(String(state.degraded_reason ?? 'the window could not be read'));
-      return { title: String(pick.title ?? ''), markdown: String(state.tree_markdown ?? '') };
+      return withRuntime(() => lookOnce(threadId, app, query));
     },
 
     async end(threadId: string): Promise<void> {
@@ -164,4 +157,27 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
       return activity.get(threadId) ?? { authorized: {}, refused: {} };
     },
   };
+
+  async function lookOnce(threadId: string, app: RunningApp, query?: string) {
+    let session = await sessionFor(threadId, app);
+    let windows: any;
+    try { windows = await call(session, 'list_windows', { pid: app.pid }); }
+    catch (error) {
+      // A session past its time is renewed once: the person's grant still stands; only the driver's lease ended.
+      sessions.delete(`${threadId}|${app.bundleId}`);
+      session = await sessionFor(threadId, app);
+      windows = await call(session, 'list_windows', { pid: app.pid });
+      void error;
+    }
+    const all: any[] = Array.isArray(windows.windows) ? windows.windows : [];
+    const visible = all.filter((w) => w.is_on_screen && (w.bounds?.width ?? 0) > 60 && (w.bounds?.height ?? 0) > 60);
+    const pick = (visible.length ? visible : all.filter((w) => w.title))
+      .sort((a, b) => (b.z_index ?? 0) - (a.z_index ?? 0) || (b.bounds?.width ?? 0) * (b.bounds?.height ?? 0) - (a.bounds?.width ?? 0) * (a.bounds?.height ?? 0))[0];
+    if (!pick) throw new Error(`${app.name} has no window open`);
+    const state = await call(session, 'get_window_state', {
+      pid: app.pid, window_id: pick.window_id, include_screenshot: false, ...(query ? { query } : {}),
+    });
+    if (state.degraded && !state.tree_markdown) throw new Error(String(state.degraded_reason ?? 'the window could not be read'));
+    return { title: String(pick.title ?? ''), markdown: String(state.tree_markdown ?? '') };
+  }
 }

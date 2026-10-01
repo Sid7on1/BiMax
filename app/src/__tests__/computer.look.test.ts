@@ -55,9 +55,15 @@ describe('the look-only manifest', () => {
     expect([...INPUT_TOOLS].filter((tool) => (LOOK_TOOLS as readonly string[]).includes(tool))).toEqual([]);
   });
 
-  it('the runtime outside any grant may only list apps', () => {
+  it('the runtime outside any grant may only list apps, and carries the limits the driver demands of it', () => {
     expect(list('allow', runtimeManifest())).toEqual(['list_apps']);
-    expect(runtimeManifest()).toContain('resources: {}');
+    // Listing apps needs the display resource; with list_apps the only tool allowed, it reaches no screenshot.
+    expect(runtimeManifest()).toContain('resources:\n  desktop:\n    display: true\n');
+    expect(runtimeManifest()).not.toMatch(/apps:|windows:|files:/);
+    // Measured: without both the driver refuses the runtime ("legacy capability manifests require expires_after and
+    // idle_timeout"), and every look fails with DriverError.Configuration.
+    expect(runtimeManifest()).toMatch(/^expires_after: \d+h$/m);
+    expect(runtimeManifest()).toMatch(/^idle_timeout: \d+m$/m);
   });
 
   it('a bundle id cannot smuggle YAML in', () => {

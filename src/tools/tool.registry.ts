@@ -53,6 +53,9 @@ const CORE_TOOLS = new Set<string>([
   'OrganizePlanTool',
   // FL8: registered only in a desktop thread, whose app can show a contact sheet, a matching table or a name editor.
   'TaskViewTool',
+  // Record 65 stage 2: registered only when the person turned looking on for this task's app. Deferred, the model said
+  // "I don't have a tool called LookAtAppTool" and never searched for it (measured live, gpt-oss-20b, 2026-10-01).
+  'LookAtAppTool',
 ]);
 
 /**

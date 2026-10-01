@@ -51,13 +51,24 @@ export function lookManifest(bundleId: string, minutes = 30, idleMinutes = 10): 
 
 /**
  * The runtime's own manifest, for calls made outside any grant: it may list the running apps (so the user can be
- * asked about the right one) and nothing else.
+ * asked about the right one) and nothing else. The driver refuses a runtime manifest without both limits (measured:
+ * "legacy capability manifests require expires_after and idle_timeout"); look.driver.ts starts a fresh runtime when
+ * they run out.
  */
+export const RUNTIME_HOURS = 12;
+export const RUNTIME_IDLE_MINUTES = 30;
+
 export function runtimeManifest(): string {
   return [
     'version: 2',
     'mode: bounded',
-    'resources: {}',
+    `expires_after: ${RUNTIME_HOURS}h`,
+    `idle_timeout: ${RUNTIME_IDLE_MINUTES}m`,
+    // Listing apps is a "desktop display observation" to the driver (measured: refused as outside the manifest without
+    // this). The only tool allowed here is list_apps, so the grant reaches no screenshot and no window.
+    'resources:',
+    '  desktop:',
+    '    display: true',
     'allow:',
     '  tools: [list_apps]',
     'deny:',
