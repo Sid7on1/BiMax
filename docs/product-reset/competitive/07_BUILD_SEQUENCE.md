@@ -5,7 +5,7 @@
 Stage 1 is Measured; stage 2 is Measured in the installed app (exit met; one Mac, one model). Installed, under Bimax's own
 Accessibility grant, allow, Not now, Stop and preview-off are Measured with zero input (record 65 §6d); the Stop-ends-grant
 fix is installed and re-checked. Stage 3's one press is Measured outside and inside the installed app (exit met, record 65
-§6e). Next is stage 4, small local models as advice only, on the owner's word. Stages 4–6 (advisory small models, X01, real workflows/release) remain Target.
+§6e). Stage 4's small models were researched and declined (§6f); next is stage 5, build → run → prove. Stages 4–6 (advisory small models, X01, real workflows/release) remain Target.
 The look-only admission gate in `08_ACCEPTANCE_GATES.md` supersedes the code-only gate only to that extent.
 Historical CU workstreams below are not reactivated by this sequence.
 

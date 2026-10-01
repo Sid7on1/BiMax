@@ -1,0 +1,49 @@
+{
+ "repository": "trycua/cua",
+ "commit": "9545a3d17b44b587b593d59090dc140740876a6e",
+ "files": {
+  "python/src/cua_s1/nano.py": "ddd121ff003ac895741857827ad5ad3409837b4684c161a49191a0159b67d0b7",
+  "python/src/cua_s1/schema.py": "89091773b050f538cb914a4da4cda59da0afa772b245b8e1264aa55e7e4b0e57",
+  "MODEL_CARD.md": "1c7cb81855c701755e377aa6e90a4d5af74ff0fe9cab822b484031160722de6a"
+ },
+ "nano_py_lines_61_73": [
+  "class NanoElement:",
+  "    \"\"\"One GUI element: its rendered context and its candidate options.",
+  "",
+  "    `context` is either a rendered accessibility-tree excerpt (text",
+  "    modality) or ignored placeholder text (multimodal modality, where the",
+  "    context tokens instead come from a screenshot crop supplied out of",
+  "    band via `crop_features`). `options` are always rendered as text.",
+  "    \"\"\"",
+  "",
+  "    element_id: str",
+  "    context: str",
+  "    options: tuple[str, ...]",
+  ""
+ ],
+ "nano_py_lines_245_251": [
+  "        \"\"\"Score a batch of text-modality elements against their own options.",
+  "",
+  "        Returns, per `element_id`, a dict mapping the index of each of that",
+  "        element's candidate options (in `elements[i].options` order) to a",
+  "        softmax probability. Each element's own distribution sums to ~1 and",
+  "        covers exactly its offered options.",
+  "        \"\"\""
+ ],
+ "schema_py_lines_51_62": [
+  "",
+  "",
+  "def render_context(form_title: str, element: Element, placeholder: str = \"\") -> str:",
+  "    \"\"\"Render the compact byte-level context used to score one element.\"\"\"",
+  "    if element.role == \"CheckBox\":",
+  "        state = \"checked\" if element.checked else \"unchecked\"",
+  "    else:",
+  "        state = f'value=\"{element.value[:48]}\"'",
+  "    hint = f' hint=\"{placeholder[:72]}\"' if placeholder else \"\"",
+  "    return (",
+  "        \"TASK fill the form from the document, then submit\\n\"",
+  "        f\"FORM {form_title[:64]}\\n\""
+ ],
+ "finding": "Neither checkpoint takes the person's request as input. nano scores each element against its own options (a per-element softmax over actions); forms renders a fixed TASK line ('fill the form from the document, then submit'). Neither can rank which control matches a free-text request, the role record 65 gave them.",
+ "not_done": "No torch install, no weight download, no inference run: the inputs rule the role out before any accuracy question."
+}

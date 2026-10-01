@@ -4,7 +4,7 @@
 
 Stage 1 is **Measured** outside the product; stage 2 is **Measured in the installed app** (exit met; one Mac, one model);
 stage 3, one press in the test app on two cards, is **Measured outside and inside the installed app** (exit met;
-record 65 §6e).
+record 65 §6e). Stage 4's small models (laya-mlx, CUA-S1 nano/forms) were researched and **declined** (§6f).
 The local look-only app is installed; under Bimax's own Accessibility grant allow, Not now, Stop and
 preview-off are Measured (zero authorized input, fixture unchanged, SDK mapped from the installed app); a Stop that did
 not end an earlier grant was fixed, installed and re-checked (record 65 §6d). It has one menu bar opt-in, app-owned per-app grants for a Bimax Thread in the ⌘2 bar, a bounded pinned
