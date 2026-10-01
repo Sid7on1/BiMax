@@ -215,8 +215,8 @@ a build, an install, the menu bar item ticked, and Accessibility granted to Bima
 
 ## 6c. Stage 2 continuation — installed, revocation repaired; observation still pending (2026-10-01)
 
-**Status: Implemented and locally verified; installed observation and Bimax-owned Accessibility attribution remain
-pending. Stage 2's exit is not yet met; stages 3–6 remain Target.** Continued on
+**Status: Implemented and locally verified; installed observation and Bimax-owned Accessibility attribution were then
+shown for the Allow path in §6d. Stage 2's exit is not yet met; stages 3–6 remain Target.** Continued on
 `feat/sovereign-retrieval-and-layout-extraction` from clean HEAD `37b3380`. Evidence:
 `evidence/2026-10-01-cu-stage2-installed/`.
 
@@ -285,6 +285,62 @@ Guided by README, 01, 03, 04, 05, 06, 07, 08, 12, this record, the Mac Buddy vis
 and M02's independent end-state contract. README/architecture/roadmap/frontend/gap/build-sequence notices now describe
 the actual admission gate while preserving the old CU architecture as history. M02 mutation/persistence, X01,
 small-model advice, real workflows, clean-Mac TCC and release qualification remain Target/unmeasured.
+
+## 6d. Stage 2 installed — the Allow path Measured under Bimax's own grant; denial and revocation still owed (2026-10-01)
+
+**Status: the installed Allow path, the SDK's load from the installed app and Bimax-owned Accessibility are Measured
+(four runs, one Mac, one model). Installed "Not now", stop and preview-off runs are not yet shown, so stage 2's exit is
+still not met; stages 3–6 remain Target.** Continued by Claude from `a05cf9c` after re-checking Codex's work: the
+focused suites (108 tests in 9 suites), the controlled-SDK revocation proof (4 passed), its generation mutant (exit 1),
+the deep strict signature and all four installed hashes in `install.json` reproduced. The code change was reviewed;
+no defect found. Evidence: `evidence/2026-10-01-cu-stage2-installed-look/`.
+
+**Procedure.** The owner ticked “Let Tasks Look at Other Apps (Preview)” and switched Bimax on in Privacy & Security ›
+Accessibility. The first tick did not save (the settings file was unchanged; the owner had not found the menu bar
+item); the second did (`computerLook: true` at 15:00Z). macOS showed its Accessibility box when asked — Bimax's own
+process reported itself untrusted before the grant. Bimax was quit and reopened through Launch Services (parent pid 1),
+because a running process does not see a later grant. Each run opened a `bimax://task` link (a ⌘2 Thread, origin
+`quick`) in its own folder under `~/Library/Caches/bimax-cu-stage2-look/`, with §6b's prompt; the owner pressed Start and
+answered the card. `scripts/look_run.py` reads the fixture before and after through a **separate** reader — the
+standalone `cua-driver` under CuaDriver.app's own grant, stopped after every reading so no standalone daemon runs while
+Bimax looks — and collects the app's audit lines, the Thread record and the dylibs mapped into Bimax's process.
+
+| Run | Card answer (from the app's audit) | Host call | Driver authorized (its own observer) | Input tools authorized | Fixture before → after | Model's answer |
+|---|---|---|---|---|---|---|
+| 1 | Allow | `look` ok, asked 1, looks 1 | `list_windows` 1, `get_window_state` 1 | none | `presses=0 events=0 last=none` → same | `presses=0 events=0 last=none` |
+| 2a | Allow | same | same | none | same → same | same |
+| 2b | Allow | same | same | none | same → same | same |
+| 2c | Allow | same | same | none | same → same | same |
+
+In every run Bimax's own process (pid 62055, parent 1) mapped `libcua_driver_sdk.dylib` and
+`cua_driver_node_runtime.node` from `/Applications/Bimax.app/Contents/Resources/app.asar.unpacked/`, and no standalone
+driver was running before the link or at collection. **Attribution, and its limit:** the read succeeded in a
+Launch-Services-launched Bimax with the SDK in its own process after Bimax alone was granted; that is the basis for
+"Bimax-owned". The unified log showed no `tccd` Accessibility lines to name the client, `TCC.db` is unreadable without
+Full Disk Access, and no revoke-the-grant negative control was run. `scripts/grade.py` grades from evidence only
+(`grade.json`: 4 runs, 0 failures); `scripts/grade_mutants.py` feeds it six bad-evidence variants (an authorized input
+tool, an app-counted input call, a changed fixture, an unread fixture, a standalone daemon, an SDK mapped from outside
+the app) and all six are rejected — the last only after the grader was fixed to fail on it.
+
+**Runs 2a–2c were meant to be "Not now" and are not.** Each card waited 4.8–9.9 s (a person answered) and the audit
+records the Allow option. The Not now button sends "Not now"; Esc and ⌘↩ are inert on this card (the deny pattern in
+`approval.keys.ts` does not match "Not now"); no notification buttons are offered (the allow pattern in
+`approval.notification.ts` does not match the Allow text). Asked, the owner said: “there was a tool call which i
+allowed thats it”. Recorded as an observation, not a measured defect: three times running, with an instruction to
+press Not now, the person read the app's grant card as a routine tool approval and allowed it.
+
+**Invalid attempts, kept:** run 1's first fixture reading failed (the fixture had closed its window; it was relaunched
+and re-read before the run); run 2's first link was refused before starting (“2 tasks are running, which is what this
+Mac has memory for right now”) because run 1's finished Thread was still on screen in the ⌘2 bar; one link's
+confirmation opened on another Space behind a full-screen terminal. Pressing Bimax's own buttons by automation (to play
+the person for Not now, stop and preview-off) was refused by this session's safety classifier, as was ticking the
+opt-in on the owner's behalf; neither was worked around.
+
+**Still owed for stage 2's exit, installed:** a "Not now" run (no `get_window_state`, card answer refused), a stop while
+the card waits (card dropped, no read), and preview off while the card waits followed by a late Allow (`not_permitted`,
+no read). Each needs the owner's own clicks, or the owner's leave for the session to press Bimax's buttons. The unit
+tests, the controlled-SDK proof and §6b's outside-app runs cover the same code; they do not replace the installed runs.
+The opt-in is left **on** as the owner set it.
 
 ## 7. Risks named now
 

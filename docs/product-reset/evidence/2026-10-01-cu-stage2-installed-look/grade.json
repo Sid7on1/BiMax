@@ -1,0 +1,202 @@
+{
+ "inputTools": [
+  "click",
+  "double_click",
+  "right_click",
+  "drag",
+  "scroll",
+  "move_cursor",
+  "type_text",
+  "set_value",
+  "press_key",
+  "hotkey",
+  "invoke_menu",
+  "bring_to_front",
+  "launch_app",
+  "kill_app",
+  "set_window_frame",
+  "clipboard_read",
+  "clipboard_write",
+  "browser_click",
+  "browser_type",
+  "browser_navigate",
+  "browser_pointer",
+  "browser_dialog",
+  "browser_download",
+  "browser_set_input_files",
+  "browser_prepare",
+  "page",
+  "replay_trajectory",
+  "start_recording",
+  "set_config",
+  "install_extension",
+  "install_ffmpeg"
+ ],
+ "runs": [
+  {
+   "run": "run-1.json",
+   "threads": [
+    "df727706-385a-48ea-b57a-7bc52de598ba"
+   ],
+   "hostCalls": [
+    [
+     "look",
+     true,
+     null
+    ]
+   ],
+   "appCounts": [
+    {
+     "lists": 0,
+     "looks": 1,
+     "refused": 0,
+     "asked": 1,
+     "inputCalls": 0
+    }
+   ],
+   "driverAuthorized": {
+    "list_windows": 1,
+    "get_window_state": 1
+   },
+   "authorizedInputTools": [],
+   "appInputCalls": 0,
+   "fixture": [
+    "presses=0 events=0 last=none",
+    "presses=0 events=0 last=none"
+   ],
+   "sdkMappedFromUnpacked": true,
+   "standaloneDaemon": [
+    "",
+    ""
+   ],
+   "modelAnswer": [
+    "presses=0 events=0 last=none"
+   ],
+   "outcome": "Allow run"
+  },
+  {
+   "run": "run-2a-allow-chosen.json",
+   "threads": [
+    "3d09c1a7-4e29-49c9-b5f3-f8fb5f9adbcc"
+   ],
+   "hostCalls": [
+    [
+     "look",
+     true,
+     null
+    ]
+   ],
+   "appCounts": [
+    {
+     "lists": 0,
+     "looks": 1,
+     "refused": 0,
+     "asked": 1,
+     "inputCalls": 0
+    }
+   ],
+   "driverAuthorized": {
+    "list_windows": 1,
+    "get_window_state": 1
+   },
+   "authorizedInputTools": [],
+   "appInputCalls": 0,
+   "fixture": [
+    "presses=0 events=0 last=none",
+    "presses=0 events=0 last=none"
+   ],
+   "sdkMappedFromUnpacked": true,
+   "standaloneDaemon": [
+    "",
+    ""
+   ],
+   "modelAnswer": [
+    "presses=0 events=0 last=none"
+   ],
+   "outcome": "NOT A \"Not now\" RUN: the app's audit records the card answered with the Allow option (asked 1, looks 1, ok). Both card surfaces send the clicked option's own text (ThreadSurfaces.tsx PlainRequest; approval.keys.ts maps Escape to the deny option and Cmd+Enter to the first), and the service grants only on the exact Allow string, so Allow was chosen, most likely the highlighted first button. Kept as a second installed Allow observation; run 2 was repeated as run-2b."
+  },
+  {
+   "run": "run-2b-allow-chosen.json",
+   "threads": [
+    "110dee0d-6c11-4971-a597-e39b04fd5e57"
+   ],
+   "hostCalls": [
+    [
+     "look",
+     true,
+     null
+    ]
+   ],
+   "appCounts": [
+    {
+     "lists": 0,
+     "looks": 1,
+     "refused": 0,
+     "asked": 1,
+     "inputCalls": 0
+    }
+   ],
+   "driverAuthorized": {
+    "list_windows": 1,
+    "get_window_state": 1
+   },
+   "authorizedInputTools": [],
+   "appInputCalls": 0,
+   "fixture": [
+    "presses=0 events=0 last=none",
+    "presses=0 events=0 last=none"
+   ],
+   "sdkMappedFromUnpacked": true,
+   "standaloneDaemon": [
+    "",
+    ""
+   ],
+   "modelAnswer": [
+    "presses=0 events=0 last=none"
+   ],
+   "outcome": "NOT A \"Not now\" RUN: the audit again records the Allow option (asked 1, looks 1, ok; the card waited 9.9 s, so a person answered). Asked where they clicked Not now, the owner replied: \"there was a tool call which i allowed thats it\". Kept as a third installed Allow observation. Observation (not a measured defect): twice in a row, with an instruction to press Not now, the person read the app-raised grant card as a routine tool approval and allowed it."
+  },
+  {
+   "run": "run-2c-allow-chosen.json",
+   "threads": [
+    "c35f2f61-909f-4b3d-ae32-db0cdce12f4f"
+   ],
+   "hostCalls": [
+    [
+     "look",
+     true,
+     null
+    ]
+   ],
+   "appCounts": [
+    {
+     "lists": 0,
+     "looks": 1,
+     "refused": 0,
+     "asked": 1,
+     "inputCalls": 0
+    }
+   ],
+   "driverAuthorized": {
+    "list_windows": 1,
+    "get_window_state": 1
+   },
+   "authorizedInputTools": [],
+   "appInputCalls": 0,
+   "fixture": [
+    "presses=0 events=0 last=none",
+    "presses=0 events=0 last=none"
+   ],
+   "sdkMappedFromUnpacked": true,
+   "standaloneDaemon": [
+    "",
+    ""
+   ],
+   "modelAnswer": [
+    "presses=0 events=0 last=none"
+   ],
+   "outcome": "NOT A \"Not now\" RUN: the audit records the Allow option a third time (asked 1, looks 1, ok; card waited 7.3 s, so a person answered). The Not now button sends \"Not now\" (ThreadSurfaces.tsx PlainRequest), Esc and Cmd+Enter are inert on this card (approval.keys.ts DENY does not match \"Not now\"), and no notification buttons are offered (approval.notification.ts ONE_TIME_ALLOW does not match the Allow text), so the Allow button was clicked. Kept as a fourth installed Allow observation."
+  }
+ ],
+ "failures": []
+}

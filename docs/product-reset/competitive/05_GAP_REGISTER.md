@@ -3,8 +3,9 @@
 ## Computer Use return — 2026-10-01, record 65
 
 Stage 1 is **Measured** outside the product; stage 2 is **Implemented and Measured outside the installed app**.
-The local look-only app is installed; the owner's Accessibility grant and the installed observation proof remain
-pending. It has one menu bar opt-in, app-owned per-app grants for a Bimax Thread in the ⌘2 bar, a bounded pinned
+The local look-only app is installed; under Bimax's own Accessibility grant its Allow path is Measured (four runs,
+zero authorized input, fixture unchanged, SDK mapped from the installed app); installed denial and revocation runs remain
+pending (record 65 §6d). It has one menu bar opt-in, app-owned per-app grants for a Bimax Thread in the ⌘2 bar, a bounded pinned
 Cua Driver 0.31.0 SDK, no input tools, filtered/untrusted observations and content-free host/driver counters.
 Four reproduced in-flight revocation defects are repaired, with six service regressions and four controlled-SDK
 driver checks, including a rejected generation-check mutant. These are deterministic checks, not live TCC evidence.
