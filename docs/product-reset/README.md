@@ -4,7 +4,7 @@
 
 [65_COMPUTER_USE_RETURN_WITH_CUA_PLAN.md](65_COMPUTER_USE_RETURN_WITH_CUA_PLAN.md): **stage 1 Measured; stage 2 Measured in the
 installed app (exit met, one Mac, one model); stage 3 (one press in the test app, two cards every time) Measured outside
-and inside the installed app (exit met); stage 4's small models researched and declined; stages 5–6 Target.** The owner
+and inside the installed app (exit met); stage 4's small models researched and declined; stage 5 (build → run → prove) set aside by the owner after its parts were built; stage 6 Target.** The owner
 asked to bring Bimax's archived Computer Use back gradually, on the latest Cua (`trycua/cua` `9545a3d`, driver 0.31.0,
 MIT) and with small local models (CUA-S1, laya-mlx). Bimax keeps what makes an action trustworthy — Thread-scoped
 grants, one input authority, approval cards, receipts bound to fresh observations, end-state checks, untrusted screen

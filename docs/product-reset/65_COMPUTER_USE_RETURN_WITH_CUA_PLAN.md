@@ -500,7 +500,32 @@ and is not admitted. **Not done:** no torch install, no weight download, no infe
 What stage 4 leaves standing: every press is decided by the person on two cards and checked by exact evidence (the
 control found once in a fresh read, the window re-read afterwards). A deterministic flag for screen text that names
 Bimax could be built without a model later; it is not part of this decision. **Next is stage 5** — build → run →
-prove, the coding tie-in — on the owner's word.
+prove, the coding tie-in — on the owner's word (§6g: its parts built, then set aside by the owner).
+
+## 6g. Stage 5 — build → run → prove: the parts built, the live run set aside by the owner (2026-10-02)
+
+**Status: set aside by the owner** ("very honestly the computer use does not have to do that") **after its parts were
+built and before X01 passed. X01 is not Measured; nothing here is claimed for it. Stage 6 remains Target.** Evidence:
+`evidence/2026-10-02-cu-stage5/`.
+
+**Built and kept (`d972d56`):**
+- **Which build is running** (`look.identity.ts`): a look's header names the running executable (from `ps`, or `lsof`
+  for a program started by name) and that file's SHA-256; a press is refused if the executable changed since the look
+  — a rebuild or relaunch, even while the card waited — and its receipt records the hash and process it pressed. The
+  wrong-build mutant is caught (11/11 service mutants); 32 press tests, including one against a real process.
+- **The X01 fixture** (`app/benchmarks/x01-todo`): an AppKit to-do app (two completed, two active, a settings block in
+  `data/todos.json`), a test runner and a build script that need only the Command Line Tools; `PRESS_APPS` admits it
+  beside the stage 3 fixture — Bimax's own test apps only (gate test and `08` widened by exactly that).
+- **The live harness and grader** (`app/scripts/computer/prove-x01.js`; `grade_x01.py`, `grade_x01_mutants.py`): a fresh
+  git copy per run; the played person allows only Swift edits and an allowlist of commands; grading re-runs the tests,
+  hashes the build, reads the saved to-dos and the window independently. **Never run against a passing run**, so the
+  grader's mutants were never exercised.
+
+**Live attempts (gpt-oss-20b, the configured model):** run 1 (the open X01 prompt) made 19 model calls in 23 minutes —
+replies slowed from seconds to 3–6 minutes each — reading and searching only, with no edit; stopped by hand before its
+30-minute limit (`x01-run1-FAILED-no-edit.json`). Run 2 (a guided prompt naming each edit) made 15 calls in about 10
+minutes, again without an edit, and was stopped when the owner set the stage aside (`x01-run2-STOPPED-by-owner.json`).
+Recorded as observed, not as a measurement of the model in general: the provider was slow both times.
 
 ## 7. Risks named now
 

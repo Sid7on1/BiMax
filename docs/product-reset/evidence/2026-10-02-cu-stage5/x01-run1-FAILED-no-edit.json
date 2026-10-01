@@ -1,0 +1,30 @@
+{
+ "run": 1,
+ "outcome": "FAILED \u2014 stopped at 23 min with no source change; the 30-min harness limit was minutes away",
+ "runFolder": "/Users/vishsiddharth/Library/Caches/bimax-x01-run-fRLjiG",
+ "model": "openai/gpt-oss-20b (from ~/.breakglass/config.json)",
+ "prompt": "the open-ended X01 prompt (prove-x01.js PROMPT at d972d56+)",
+ "modelCalls": 19,
+ "firstCall": "2026-10-01T19:01:47.919Z",
+ "lastCall": "2026-10-01T19:24:44.576Z",
+ "toolsCalled": [
+  "ReadFileTool",
+  "ReadFileTool",
+  "GrepTool",
+  "ReadFileTool",
+  "ReadFileTool",
+  "GlobTool",
+  "GlobTool",
+  "ReadFileTool",
+  "ReadFileTool",
+  "GrepTool",
+  "ReadFileTool",
+  "GrepTool",
+  "GrepTool",
+  "ReadFileTool",
+  "GrepTool",
+  "GrepTool"
+ ],
+ "sourceChanged": false,
+ "note": "Model replies slowed from seconds to 3-6 minutes each (19:03 \u2192 19:06 \u2192 19:12 \u2192 19:21); the model only read, globbed and grepped. Stopped by hand; no evidence JSON was written by the harness."
+}
