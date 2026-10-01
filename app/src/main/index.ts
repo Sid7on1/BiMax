@@ -1021,7 +1021,13 @@ function updateTray(): void {
     ] },
     { label: 'Speak When a Task Finishes', type: 'checkbox', checked: loadSettings().speakUpdates === true, click: (item) => { saveSettings({ speakUpdates: item.checked }); updateTray(); } },
     // Computer Use, look only (record 65 stage 2): off until ticked; each app still asks per task. New ⌘2 tasks get it.
-    { label: 'Let Tasks Look at Other Apps (Preview)', type: 'checkbox', checked: loadSettings().computerLook === true, click: (item) => { saveSettings({ computerLook: item.checked }); updateTray(); } },
+    { label: 'Let Tasks Look at Other Apps (Preview)', type: 'checkbox', checked: loadSettings().computerLook === true, click: (item) => {
+      saveSettings({ computerLook: item.checked });
+      // Ticking it is the moment to ask macOS — for Accessibility only (a look reads the accessibility tree; it takes no
+      // screenshot, so Screen Recording is never asked for). Never at launch, never for a coding task.
+      if (item.checked && process.platform === 'darwin' && !systemPreferences.isTrustedAccessibilityClient(false)) systemPreferences.isTrustedAccessibilityClient(true);
+      updateTray();
+    } },
     ...(existsSync(notchHelperPath({ packaged: app.isPackaged, resourcesPath: process.resourcesPath, appPath: app.getAppPath() })) ? [{
       label: 'Show Bimax in the Notch', type: 'checkbox' as const, checked: loadSettings().notchDeck !== false,
       click: (item: Electron.MenuItem) => { saveSettings({ notchDeck: item.checked }); syncNotch(); updateTray(); },

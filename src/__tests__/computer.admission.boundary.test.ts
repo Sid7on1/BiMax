@@ -131,6 +131,10 @@ describe('Computer Use admission boundary (record 65 stage 2; was the code-only 
   test('it is off until the person turns it on, from one menu bar item, and only for ⌘2 tasks', () => {
     const main = read('app/src/main/index.ts');
     expect(main).toContain("label: 'Let Tasks Look at Other Apps (Preview)', type: 'checkbox', checked: loadSettings().computerLook === true");
+    // macOS is asked for Accessibility when the person ticks it — only then, and only for Accessibility.
+    expect(main.match(/isTrustedAccessibilityClient\(true\)/g)).toHaveLength(1);
+    expect(main).toContain("if (item.checked && process.platform === 'darwin' && !systemPreferences.isTrustedAccessibilityClient(false)) systemPreferences.isTrustedAccessibilityClient(true);");
+    expect(main).not.toMatch(/askForMediaAccess\(['"]screen|getMediaAccessStatus\(['"]screen|requestMacOSPermissions/);
     expect(main).toContain("enabled: () => loadSettings().computerLook === true");
     expect(main).toContain("...(loadSettings().computerLook === true && threads.get(threadId).summary.origin !== 'project' ? { BIMAX_COMPUTER_LOOK: '1' } : {})");
     // Exactly one place sets the flag for an engine.
