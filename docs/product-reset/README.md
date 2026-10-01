@@ -1,5 +1,16 @@
 # Bimax product reset
 
+## Computer Use returns, on the latest Cua Driver — plan, 2026-10-01
+
+[65_COMPUTER_USE_RETURN_WITH_CUA_PLAN.md](65_COMPUTER_USE_RETURN_WITH_CUA_PLAN.md): **Target, nothing built.** The owner
+asked to bring Bimax's archived Computer Use back gradually, on the latest Cua (`trycua/cua` `9545a3d`, driver 0.31.0,
+MIT) and with small local models (CUA-S1, laya-mlx). Bimax keeps what makes an action trustworthy — Thread-scoped
+grants, one input authority, approval cards, receipts bound to fresh observations, end-state checks, untrusted screen
+text — and takes the driver as its hands and eyes, embedded so the macOS permissions stay Bimax.app's. Seven stages,
+each ending on evidence; the code-only gate stays until stage 2 replaces it. Measured first: CUA-S1's 4B models need
+9.32 GB and cannot load on this 8 GB Mac; its sub-million-parameter models fit but were never run by Cua on a fixture;
+its vision add-on is AGPL and is not taken. Replaces record 61's stage table.
+
 ## The monolith: research and plan — 2026-09-29
 
 [64_MONOLITH_RESEARCH_AND_PLAN.md](64_MONOLITH_RESEARCH_AND_PLAN.md): the owner chose a monolith. Research (Electron,

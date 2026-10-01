@@ -63,6 +63,9 @@ Talking continues with the ⌘2 bar hidden, shown and stopped from the menu bar.
 
 ## 6. The Computer Use return plan — parked by the owner on 2026-09-25
 
+> **Superseded 2026-10-01 by [record 65](65_COMPUTER_USE_RETURN_WITH_CUA_PLAN.md)**, which keeps these stages' rules and
+> rebuilds them on Cua Driver 0.31 and CUA-S1. The facts below are kept as measured on 2026-09-25.
+
 **Status: Target. Nothing in this section is built.** The code-only boundary (record 30, gate "Code-only product
 gate") stays enforced, and its tests stay green, until stage 2 below replaces it in one reviewed change that edits the
 boundary test in the same commit. Record 46 is the strategy this plan executes; it is not repeated here.
