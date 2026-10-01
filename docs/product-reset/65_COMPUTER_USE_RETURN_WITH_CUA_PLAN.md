@@ -96,7 +96,7 @@ Runtime: one sidecar, started with the first Computer Use Thread, stopped with t
 ## 6. Stage 1 results — measured 2026-10-01
 
 **Status: Measured, outside the product.** Nothing in the app or the engine changed. Evidence:
-`evidence/2026-10-01-cu-stage1/` (bench outputs, the scripts that produced them). Work folder:
+`evidence/2026-10-01-cu-stage1/` (bench outputs — the kit logs are `.txt`, the scripts that produced them). Work folder:
 `~/Developer/bimax-research/cu`.
 
 **Set-up.** The installed standalone CuaDriver.app was 0.22.0 (Cua's Developer ID, team `YCK386LBJ7`) with

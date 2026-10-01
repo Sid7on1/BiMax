@@ -1,0 +1,302 @@
+{
+  "bundleId" : "ai.bimax.cu.fixture",
+  "declaredVerified" : [
+    "invoke",
+    "show_menu",
+    "set_value",
+    "increment",
+    "decrement",
+    "toggle",
+    "expand",
+    "collapse",
+    "select",
+    "select_text_range",
+    "select_text",
+    "set_caret",
+    "set_selected",
+    "scroll_to_fraction",
+    "type_text"
+  ],
+  "observedNodes" : 53,
+  "overclaimed" : [
+
+  ],
+  "results" : [
+    {
+      "action" : "invoke",
+      "attemptedPaths" : [
+        "ax_action:performed"
+      ],
+      "deliveryPath" : "ax_action",
+      "outcome" : "performed",
+      "primitive" : "AXPress",
+      "status" : "performed",
+      "targetIdentifier" : "fixture-button",
+      "targetRole" : "AXButton"
+    },
+    {
+      "action" : "show_menu",
+      "attemptedPaths" : [
+        "ax_action:performed"
+      ],
+      "deliveryPath" : "ax_action",
+      "outcome" : "performed",
+      "primitive" : "AXShowMenu",
+      "status" : "performed",
+      "targetIdentifier" : "fixture-popup",
+      "targetRole" : "AXPopUpButton"
+    },
+    {
+      "action" : "toggle",
+      "attemptedPaths" : [
+        "ax_action:performed"
+      ],
+      "deliveryPath" : "ax_action",
+      "effectObserved" : true,
+      "outcome" : "performed",
+      "primitive" : "AXPress",
+      "status" : "performed",
+      "targetIdentifier" : "fixture-checkbox",
+      "targetRole" : "AXCheckBox"
+    },
+    {
+      "action" : "set_value",
+      "attemptedPaths" : [
+        "ax_attribute:performed"
+      ],
+      "deliveryPath" : "ax_attribute",
+      "effectObserved" : true,
+      "outcome" : "performed",
+      "primitive" : "AXSetAttribute:AXValue",
+      "status" : "performed",
+      "targetIdentifier" : "fixture-textfield",
+      "targetRole" : "AXTextField"
+    },
+    {
+      "action" : "set_value",
+      "attemptedPaths" : [
+        "ax_attribute:performed"
+      ],
+      "deliveryPath" : "ax_attribute",
+      "effectObserved" : true,
+      "outcome" : "performed",
+      "primitive" : "AXSetAttribute:AXValue",
+      "status" : "performed",
+      "targetIdentifier" : "fixture-slider",
+      "targetRole" : "AXSlider"
+    },
+    {
+      "action" : "increment",
+      "attemptedPaths" : [
+        "ax_action:performed"
+      ],
+      "deliveryPath" : "ax_action",
+      "effectObserved" : true,
+      "outcome" : "performed",
+      "primitive" : "AXIncrement",
+      "status" : "performed",
+      "targetIdentifier" : "fixture-stepper",
+      "targetRole" : "AXIncrementor"
+    },
+    {
+      "action" : "decrement",
+      "attemptedPaths" : [
+        "ax_action:performed"
+      ],
+      "deliveryPath" : "ax_action",
+      "effectObserved" : true,
+      "outcome" : "performed",
+      "primitive" : "AXDecrement",
+      "status" : "performed",
+      "targetIdentifier" : "fixture-stepper",
+      "targetRole" : "AXIncrementor"
+    },
+    {
+      "action" : "set_caret",
+      "attemptedPaths" : [
+        "ax_attribute:performed"
+      ],
+      "deliveryPath" : "ax_attribute",
+      "honored" : true,
+      "outcome" : "performed",
+      "primitive" : "AXSetAttribute:AXSelectedTextRange",
+      "status" : "performed",
+      "targetIdentifier" : "fixture-textview",
+      "targetRole" : "AXTextArea"
+    },
+    {
+      "action" : "select_text_range",
+      "attemptedPaths" : [
+        "ax_attribute:performed"
+      ],
+      "deliveryPath" : "ax_attribute",
+      "honored" : true,
+      "outcome" : "performed",
+      "primitive" : "AXSetAttribute:AXSelectedTextRange",
+      "status" : "performed",
+      "targetIdentifier" : "fixture-textview",
+      "targetRole" : "AXTextArea"
+    },
+    {
+      "action" : "select_text",
+      "attemptedPaths" : [
+        "ax_attribute:performed"
+      ],
+      "deliveryPath" : "ax_attribute",
+      "honored" : true,
+      "outcome" : "performed",
+      "primitive" : "AXSetAttribute:AXSelectedTextRange",
+      "status" : "performed",
+      "targetIdentifier" : "fixture-textview",
+      "targetRole" : "AXTextArea"
+    },
+    {
+      "action" : "set_selected",
+      "attemptedPaths" : [
+        "ax_attribute:performed"
+      ],
+      "deliveryPath" : "ax_attribute",
+      "effectObserved" : true,
+      "outcome" : "performed",
+      "primitive" : "AXSetAttribute:AXSelected",
+      "status" : "performed",
+      "targetRole" : "AXRow"
+    },
+    {
+      "action" : "scroll_to_visible",
+      "errorCode" : "semantic_action_unsupported",
+      "errorMessage" : "actionUnsupported",
+      "status" : "refused",
+      "targetRole" : "AXRow"
+    },
+    {
+      "action" : "scroll_to_fraction",
+      "attemptedPaths" : [
+        "ax_attribute:performed"
+      ],
+      "deliveryPath" : "ax_attribute",
+      "honored" : true,
+      "outcome" : "performed",
+      "primitive" : "AXSetAttribute:AXValue(AXVerticalScrollBar)",
+      "status" : "performed",
+      "targetIdentifier" : "fixture-scroll",
+      "targetRole" : "AXScrollArea"
+    },
+    {
+      "action" : "scroll_page",
+      "errorCode" : "semantic_action_failed",
+      "errorMessage" : "the native AX call was refused by the application (AXError -25205)",
+      "status" : "refused",
+      "targetIdentifier" : "fixture-scroll",
+      "targetRole" : "AXScrollArea"
+    },
+    {
+      "action" : "expand",
+      "attemptedPaths" : [
+        "ax_attribute:performed"
+      ],
+      "deliveryPath" : "ax_attribute",
+      "outcome" : "performed",
+      "primitive" : "AXSetAttribute:AXExpanded",
+      "status" : "performed",
+      "targetIdentifier" : "fixture-combo",
+      "targetRole" : "AXComboBox"
+    },
+    {
+      "action" : "collapse",
+      "attemptedPaths" : [
+        "ax_attribute:performed"
+      ],
+      "deliveryPath" : "ax_attribute",
+      "outcome" : "performed",
+      "primitive" : "AXSetAttribute:AXExpanded",
+      "status" : "performed",
+      "targetIdentifier" : "fixture-combo",
+      "targetRole" : "AXComboBox"
+    },
+    {
+      "action" : "select",
+      "attemptedPaths" : [
+        "ax_attribute:performed"
+      ],
+      "deliveryPath" : "ax_attribute",
+      "outcome" : "performed",
+      "primitive" : "AXSetAttribute:AXSelected",
+      "status" : "performed",
+      "targetRole" : "AXRow"
+    },
+    {
+      "action" : "select",
+      "attemptedPaths" : [
+        "ax_attribute:unavailable",
+        "ax_action:performed"
+      ],
+      "deliveryPath" : "ax_action",
+      "effectObserved" : true,
+      "outcome" : "performed",
+      "primitive" : "AXPress",
+      "status" : "performed",
+      "targetIdentifier" : "fixture-radio-two",
+      "targetRole" : "AXRadioButton"
+    },
+    {
+      "action" : "type_text",
+      "attemptedPaths" : [
+        "physical_cgevent:performed"
+      ],
+      "deliveryPath" : "physical_cgevent",
+      "effectObserved" : true,
+      "honored" : true,
+      "outcome" : "performed",
+      "primitive" : "CGEventPost:cghidEventTap:unicode",
+      "status" : "performed",
+      "targetIdentifier" : "fixture-textview",
+      "targetRole" : "AXTextArea"
+    }
+  ],
+  "status" : "ran",
+  "titleUIElementLabel" : "Linked Fixture Control",
+  "titleUIElementLabelsVerified" : true,
+  "transactionResults" : [
+    {
+      "completedSteps" : [
+        "edit-field",
+        "edit-area"
+      ],
+      "effectsObserved" : true,
+      "kind" : "multi_edit",
+      "status" : "performed"
+    },
+    {
+      "completedSteps" : [
+        "select-one",
+        "select-two"
+      ],
+      "effectsObserved" : true,
+      "kind" : "multi_select",
+      "status" : "performed"
+    }
+  ],
+  "transactionsOverclaimed" : false,
+  "unverified" : [
+    "scroll_page",
+    "scroll_to_visible"
+  ],
+  "verified" : [
+    "invoke",
+    "show_menu",
+    "set_value",
+    "increment",
+    "decrement",
+    "toggle",
+    "expand",
+    "collapse",
+    "select",
+    "select_text_range",
+    "select_text",
+    "set_caret",
+    "set_selected",
+    "scroll_to_fraction",
+    "type_text"
+  ]
+}
