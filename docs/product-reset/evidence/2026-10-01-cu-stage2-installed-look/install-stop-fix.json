@@ -1,0 +1,26 @@
+{
+ "at": "2026-10-01T16:15:58.573227+00:00",
+ "baseCommit": "6e5e6c2",
+ "built": "BIMAX_LOCAL_BUILD_DIR=/private/tmp/bimax-cu-stage2-stop/release bash app/scripts/build-local-mac.sh arm64 (build-stop-fix.txt)",
+ "installed": "/Applications/Bimax.app",
+ "installedBy": "mv (same device) after quitting Bimax",
+ "rollback": "/Users/vishsiddharth/Developer/bimax-archive/apps/Bimax.app.before-cu-stop-20261001",
+ "hashes": {
+  "Contents/Resources/app.asar": "9e4e02ecada0953a9fbc17eaeb9b6f527b6cae9cd2b699e8086bc2204d631bcd",
+  "Contents/Resources/engine/index.js": "e21f6f6a6d0933a35a3e5e2454ac939d3197d3914e7eb1cdafb532fd6893e0ff",
+  "Contents/Resources/app.asar.unpacked/node_modules/@trycua/cua-driver-darwin-arm64/libcua_driver_sdk.dylib": "5b87a70984f8391bf41a521d284f66a946654cd34a05d488a05ee5da29f049c5",
+  "Contents/Resources/app.asar.unpacked/node_modules/@trycua/cua-driver-darwin-arm64/cua_driver_node_runtime.node": "d9da1716ab01e7fe32ab049cc16893c33cee9f40ceea676fef60e813883dbae2"
+ },
+ "notes": [
+  "engine/index.js is byte-identical to the a05cf9c install (only app/main changed)",
+  "the SDK dylib and Node add-on hashes differ from install.json of a05cf9c because the build re-signs nested code",
+  "signed Bimax Local Code Signing; designated requirement = identifier ai.bimax.app + certificate root, same as the previous install",
+  "package gate 4/4 PASS on the installed app; App Actions 3/3 in the built bundle; deep strict codesign verify passed",
+  "icon catalog skipped (Xcode license not agreed), legacy .icns shipped, as in the a05cf9c build",
+  "the installed main bundle contains cancelTurn \u2192 this.deps.ended?.(r.summary.id); the previous install did not"
+ ],
+ "sourceHashes": {
+  "app/src/main/thread.manager.ts": "f63cf4972497b7bd7edadd4a1075bbec5d609704c19c6ff270075c1df96ad342",
+  "app/src/__tests__/computer.look.test.ts": "e7aaa4bb9f8cfa2902d7d40165eb81c8f8e0ae2a2aa8ae6971499a484cec85b8"
+ }
+}

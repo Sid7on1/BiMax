@@ -359,6 +359,75 @@
     "code": "not_permitted",
     "why": "preview switched off while the card waited, then Allow pressed (owner's account); a revoked request is refused whatever the answer"
    }
+  },
+  {
+   "run": "run-6.json",
+   "threads": [
+    "e6cb0325-a36d-4a4f-a176-c8361f63cdd0",
+    "e6cb0325-a36d-4a4f-a176-c8361f63cdd0"
+   ],
+   "hostCalls": [
+    [
+     "look",
+     true,
+     null
+    ],
+    [
+     "look",
+     false,
+     "denied"
+    ]
+   ],
+   "appCounts": [
+    {
+     "lists": 0,
+     "looks": 1,
+     "refused": 0,
+     "asked": 1,
+     "inputCalls": 0
+    },
+    {
+     "lists": 0,
+     "looks": 1,
+     "refused": 1,
+     "asked": 2,
+     "inputCalls": 0
+    }
+   ],
+   "driverAuthorized": {
+    "list_windows": 1,
+    "get_window_state": 1
+   },
+   "authorizedInputTools": [],
+   "appInputCalls": 0,
+   "fixture": [
+    "presses=0 events=0 last=none",
+    "presses=0 events=0 last=none"
+   ],
+   "sdkMappedFromUnpacked": true,
+   "standaloneDaemon": [
+    "",
+    ""
+   ],
+   "modelAnswer": [
+    "I couldn\u2019t access the BimaxCuFixture app again. Please make sure it\u2019s running and that I have permission to inspect its UI, or let me know how you\u2019d like me to proceed."
+   ],
+   "outcome": "Allow run",
+   "expect": {
+    "calls": [
+     {
+      "ok": true,
+      "asked": 1
+     },
+     {
+      "ok": false,
+      "code": "denied",
+      "asked": 2,
+      "newReads": 0
+     }
+    ],
+    "why": "Allow, then the bar's Stop after the look, then a forced fresh look in the same Thread: the grant must be gone, so a new card is raised (asked 2), Not now refuses, and the driver reads nothing new"
+   }
   }
  ],
  "failures": []

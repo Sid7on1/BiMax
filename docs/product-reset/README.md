@@ -2,8 +2,8 @@
 
 ## Computer Use returns, on the latest Cua Driver — plan, 2026-10-01
 
-[65_COMPUTER_USE_RETURN_WITH_CUA_PLAN.md](65_COMPUTER_USE_RETURN_WITH_CUA_PLAN.md): **stage 1 Measured; stage 2 Implemented
-and Measured outside the installed app; stages 3–6 Target.** The owner
+[65_COMPUTER_USE_RETURN_WITH_CUA_PLAN.md](65_COMPUTER_USE_RETURN_WITH_CUA_PLAN.md): **stage 1 Measured; stage 2 Measured in the
+installed app (exit met, one Mac, one model); stages 3–6 Target.** The owner
 asked to bring Bimax's archived Computer Use back gradually, on the latest Cua (`trycua/cua` `9545a3d`, driver 0.31.0,
 MIT) and with small local models (CUA-S1, laya-mlx). Bimax keeps what makes an action trustworthy — Thread-scoped
 grants, one input authority, approval cards, receipts bound to fresh observations, end-state checks, untrusted screen
@@ -12,7 +12,7 @@ each ending on evidence. Stage 2 has replaced the code-only gate with the look-o
 `08_ACCEPTANCE_GATES.md`: off by default, one menu bar opt-in, per-app grants for a Bimax Thread in the ⌘2 bar,
 no input tools, and the pinned in-process SDK. The local build is installed and, under Bimax's own
 Accessibility grant, allow, "Not now", Stop and preview-off are Measured there (zero input, fixture unchanged); a Stop that did not end
-an earlier grant is fixed in code and awaits a rebuild (record 65 §6d). Measured first: CUA-S1's 4B models need
+an earlier grant was fixed, installed and re-checked (record 65 §6d). Measured first: CUA-S1's 4B models need
 9.32 GB and cannot load on this 8 GB Mac; its sub-million-parameter models fit but were never run by Cua on a fixture;
 its vision add-on is AGPL and is not taken. Replaces record 61's stage table.
 

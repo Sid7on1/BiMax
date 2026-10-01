@@ -216,7 +216,7 @@ a build, an install, the menu bar item ticked, and Accessibility granted to Bima
 ## 6c. Stage 2 continuation — installed, revocation repaired; observation still pending (2026-10-01)
 
 **Status: Implemented and locally verified; installed observation and Bimax-owned Accessibility attribution were then
-shown for the Allow path in §6d. Stage 2's exit is not yet met; stages 3–6 remain Target.** Continued on
+shown in §6d, where stage 2's exit is met; stages 3–6 remain Target.** Continued on
 `feat/sovereign-retrieval-and-layout-extraction` from clean HEAD `37b3380`. Evidence:
 `evidence/2026-10-01-cu-stage2-installed/`.
 
@@ -286,13 +286,13 @@ and M02's independent end-state contract. README/architecture/roadmap/frontend/g
 the actual admission gate while preserving the old CU architecture as history. M02 mutation/persistence, X01,
 small-model advice, real workflows, clean-Mac TCC and release qualification remain Target/unmeasured.
 
-## 6d. Stage 2 installed — allow, deny, stop and preview-off Measured under Bimax's own grant; one Stop gap fixed in code (2026-10-01)
+## 6d. Stage 2 installed — allow, deny, stop and preview-off Measured under Bimax's own grant; stage 2's exit met (2026-10-01)
 
-**Status: in the installed app, Allow (four runs), Not now, Stop while the card waits and preview off with a late
-Allow are Measured — one Mac, one model, zero authorized input, fixture unchanged — with the SDK loaded from the
-installed app under Bimax-owned Accessibility. Reading the gate for this found one gap: the ⌘2 bar's Stop did not end a
-grant already given (below). It is fixed in code, not yet in the installed app, so stage 2's exit waits on that
-rebuild and one installed check; stages 3–6 remain Target.** Continued by Claude from `a05cf9c` after re-checking Codex's work: the
+**Status: stage 2's exit is met — Measured on one Mac with one model, not Product-ready. In the installed app, Allow
+(five runs), Not now, Stop while the card waits, preview off with a late Allow, and Stop after an Allow (the next look
+asks again) all hold, with zero authorized input and the fixture unchanged, the SDK loaded from the installed app, under
+Bimax-owned Accessibility. One gap found on the way (Stop did not end a grant) was fixed, rebuilt, installed and
+re-checked (run 6). Stages 3–6 remain Target.** Continued by Claude from `a05cf9c` after re-checking Codex's work: the
 focused suites (108 tests in 9 suites), the controlled-SDK revocation proof (4 passed), its generation mutant (exit 1),
 the deep strict signature and all four installed hashes in `install.json` reproduced. The code change was reviewed;
 no defect found. Evidence: `evidence/2026-10-01-cu-stage2-installed-look/`.
@@ -316,6 +316,7 @@ Bimax looks — and collects the app's audit lines, the Thread record and the dy
 | 2d | Not now | `look` refused `denied`, asked 1, looks 0 | **nothing** | none | same → same | “I’m unable to view the BimaxCuFixture app.” |
 | 3b | none — ■ Stop pressed while the card waited | `look` refused `denied` (card dropped, answered empty), looks 0 | **nothing** | none | same → same | none; tool result “The task was stopped.”, turn interrupted |
 | 4 | Allow, after the preview was switched off while the card waited | `look` refused `not_permitted`, looks 0 | **nothing** | none | same → same | “I couldn’t retrieve the status line…” |
+| 6 | Allow; ■ Stop; then a fresh look in the same Thread → **a new card**, Not now | `look` ok (asked 1), then `look` refused `denied` (**asked 2**) | `list_windows` 1, `get_window_state` 1 — nothing after the Stop | none | same → same | “I couldn’t access the BimaxCuFixture app again…” |
 
 Run 4 exercises `a05cf9c` live: its tool result was “This look was cancelled because the task stopped or looking was
 turned off.” The card waited 27.8 s; `settings.json` ended with `computerLook: false`. Its last write (15:47:50Z) came
@@ -329,11 +330,11 @@ driver was running before the link or at collection. **Attribution, and its limi
 Launch-Services-launched Bimax with the SDK in its own process after Bimax alone was granted; that is the basis for
 "Bimax-owned". The unified log showed no `tccd` Accessibility lines to name the client, `TCC.db` is unreadable without
 Full Disk Access, and no revoke-the-grant negative control was run. `scripts/grade.py` grades from evidence only
-and per-run expectations (`grade.json`: 7 graded runs and 1 invalid skipped, 0 failures); `scripts/grade_mutants.py`
-feeds it nine bad-evidence variants (an authorized input tool, an app-counted input call, a changed fixture, an unread
-fixture, a standalone daemon, an SDK mapped from outside the app; and on run 4 a revoked look that read the window,
-answered ok, or was reported as a plain denial) and all nine are rejected — the SDK one only after the grader was
-fixed to fail on it.
+and per-run expectations (`grade.json`: 8 graded runs and 1 invalid skipped, 0 failures); `scripts/grade_mutants.py`
+feeds it twelve bad-evidence variants (an authorized input tool, an app-counted input call, a changed fixture, an
+unread fixture, a standalone daemon, an SDK mapped from outside the app; on run 4 a revoked look that read the window,
+answered ok, or was reported as a plain denial; on run 6 a grant that survived the Stop, no new card, or a read after
+the Stop) and all twelve are rejected — the SDK one only after the grader was fixed to fail on it.
 
 **Runs 2a–2c were meant to be "Not now" and are not** (2d is). Each card waited 4.8–9.9 s (a person answered) and the audit
 records the Allow option. The Not now button sends "Not now"; Esc and ⌘↩ are inert on this card (the deny pattern in
@@ -359,10 +360,23 @@ driver sessions and bumps its generation. Cost, stated: after any Stop, includin
 asks again. Regressions in `computer.look.test.ts`: an interrupt ends what the Thread was granted, and — with the real
 look service wired into the manager — Allow, a second look without a card, Stop, then a third look raises a new card.
 Removing the call fails both (2 failed); with it, 109 focused tests in 9 suites, 67 in 12 Thread/night/talk suites and
-the app typecheck pass. **Not yet in the installed app**: it needs a rebuild, install and one installed check (Allow,
-Stop, ask again → a new card).
+the app typecheck pass. **Installed and re-checked:** rebuilt from `6e5e6c2` with `build-local-mac.sh arm64` (4/4 package
+gates; same Bimax Local Code Signing designated requirement, so the Accessibility grant carried over — ticking the
+opt-in raised no macOS box), the old app moved to `bimax-archive/apps/Bimax.app.before-cu-stop-20261001`, hashes in
+`install-stop-fix.json`; the installed main bundle has the `ended` call and the previous one did not. Run 6: after Allow
+and a read, ■ Stop (16:26:19Z); then a fresh look in the same Thread raised a **new** card (asked 2), Not now was
+refused, and the driver read nothing more. Without the fix that look would have been allowed without a card.
 
-The opt-in was left **off**, as the owner set it in run 4.
+**Observed in run 6, not a defect of the grant:** the first follow-up ("look at BimaxCuFixture again") made no tool
+call — the model re-described the window from the earlier result still in its conversation, and the owner reported
+"No card, it just read". The audit shows no read. Ending a grant stops new reads; it does not take back what the task
+already saw. Only a prompt asking for a fresh call exercised the grant. Run 6's first turn was also interrupted
+before any tool call and re-sent.
+
+**What stage 2 does not show:** another Mac, a clean-Mac TCC first run, Developer ID/notarized distribution, other
+models or providers, a revoke-the-grant negative control, any input, M02's mutation journey, X01, or any Win. The opt-in
+is left **on**, as the owner set it for run 6. **Next is stage 3** — one safe fixture mutation with receipts and
+takeover — which starts only on the owner's word.
 
 ## 7. Risks named now
 

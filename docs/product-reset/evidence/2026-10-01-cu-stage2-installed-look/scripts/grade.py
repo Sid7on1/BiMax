@@ -27,6 +27,16 @@ for p in sorted(glob.glob(os.path.join(OUT, 'run-*.json'))):
     }
     e = r.get('expect', {}); row['expect'] = e
     if e.get('invalid'): row['graded'] = 'skipped (invalid attempt)'; rows.append(row); continue
+    if 'calls' in e:  # several host calls in one Thread, in order; newReads = window reads the driver added since the last call
+        audit = r.get('audit', [])
+        if len(audit) != len(e['calls']): fails.append(f"{name}: expected {len(e['calls'])} host calls, saw {len(audit)}")
+        prev = {}
+        for i, (a, want) in enumerate(zip(audit, e['calls'])):
+            if a['ok'] != want['ok'] or (not want['ok'] and a.get('code') != want.get('code')): fails.append(f"{name}: call {i + 1} was {a['ok']}/{a.get('code')}")
+            if 'asked' in want and a['counts']['asked'] != want['asked']: fails.append(f"{name}: call {i + 1} asked {a['counts']['asked']} times, not {want['asked']}")
+            reads = a['driver']['authorized'].get('get_window_state', 0) - prev.get('get_window_state', 0)
+            if 'newReads' in want and reads != want['newReads']: fails.append(f"{name}: call {i + 1} added {reads} window reads")
+            prev = a['driver']['authorized']
     if 'ok' in e:
         if len(r.get('audit', [])) != 1: fails.append(f"{name}: expected exactly one host call")
         elif r['audit'][0]['ok'] != e['ok'] or (not e['ok'] and r['audit'][0].get('code') != e.get('code')): fails.append(f"{name}: host call {r['audit'][0]['ok']}/{r['audit'][0].get('code')} not {e}")

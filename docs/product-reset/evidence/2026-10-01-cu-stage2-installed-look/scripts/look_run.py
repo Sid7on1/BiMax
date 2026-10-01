@@ -17,6 +17,10 @@ AUDIT = os.path.join(SUPPORT, 'computer', 'audit.jsonl')
 PROMPT = ("Use LookAtAppTool to look at the app named BimaxCuFixture, then tell me the exact text of its status line, "
           "which starts with 'presses='. Do nothing else: no files, no shell, no other tools.")
 
+# Run 6 needs time to press Stop after Allow: the same look, then a long answer.
+PROMPTS = {'6': ("Use LookAtAppTool to look at the app named BimaxCuFixture, then describe every control in its window in long, "
+                 "careful detail, one paragraph per control. Do nothing else: no files, no shell, no other tools.")}
+
 def folder(n):
     num = ''.join(ch for ch in n if ch.isdigit())  # a repeated run (2b) reuses its number's folder
     return next(p for p in glob.glob(os.path.join(RUNS, '*')) if os.path.basename(p).startswith(f'{num} '))
@@ -42,11 +46,12 @@ def state_path(n): return os.path.join(OUT, f'run-{n}.json')
 def start(n):
     pid = bimax_pid()
     ps = subprocess.run(['ps', '-o', 'pid=,ppid=,lstart=', '-p', str(pid)], capture_output=True, text=True).stdout.strip()
-    rec = {'run': n, 'folder': folder(n), 'prompt': PROMPT, 'startedAt': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+    prompt = PROMPTS.get(n, PROMPT)
+    rec = {'run': n, 'folder': folder(n), 'prompt': prompt, 'startedAt': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
            'bimax': {'pid': pid, 'ps': ps}, 'auditLinesBefore': len(audit_lines()), 'fixtureBefore': fixture(),
            'driverDaemonsBefore': subprocess.run(['pgrep', '-fl', 'cua-driver|CuaDriver'], capture_output=True, text=True).stdout.strip()}
     json.dump(rec, open(state_path(n), 'w'), indent=1)
-    link = 'bimax://task?' + urllib.parse.urlencode({'folder': rec['folder'], 'prompt': PROMPT}, quote_via=urllib.parse.quote)
+    link = 'bimax://task?' + urllib.parse.urlencode({'folder': rec['folder'], 'prompt': prompt}, quote_via=urllib.parse.quote)
     subprocess.run(['open', link])
     print(json.dumps({k: rec[k] for k in ('run', 'folder', 'fixtureBefore', 'auditLinesBefore')}))
 
