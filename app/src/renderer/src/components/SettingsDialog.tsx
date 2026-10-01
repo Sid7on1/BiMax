@@ -21,6 +21,13 @@ interface Item { key: keyof EngineConfig; label: string; desc: string; control: 
 type PageId = 'general' | 'providers' | 'voice' | 'environment' | 'alchemist' | 'autonomy' | 'safety';
 interface Page { id: PageId; label: string; icon: React.ReactNode; subtitle: string; items: Item[] }
 
+/**
+ * The sidebar's Settings button. Settings names it as its home (`data-seed-trigger`), so the model window opened from a
+ * Settings card folds back into it once Settings has closed — not into the empty spot where the card was (owner,
+ * 2026-10-01).
+ */
+export const SETTINGS_BUTTON_ID = 'sidebar-settings';
+
 const PAGES: Page[] = [
   {
     id: 'general', label: 'General', icon: <Settings2 size={15} />, subtitle: 'Interface, notifications and project behavior',
@@ -134,7 +141,7 @@ export function SettingsDialog({
 
   return (
     <Dialog open={open} onOpenChange={(value) => { if (!value) onClose(); }}>
-      <DialogContent className="settings-shell flex h-[min(720px,88vh)] w-[min(1020px,calc(100vw-min(48px,40vw)))] max-w-none flex-row gap-0 overflow-hidden p-0">
+      <DialogContent data-seed-trigger={SETTINGS_BUTTON_ID} className="settings-shell flex h-[min(720px,88vh)] w-[min(1020px,calc(100vw-min(48px,40vw)))] max-w-none flex-row gap-0 overflow-hidden p-0">
         <nav className="settings-nav" aria-label="Settings sections">
           <div className="settings-search">
             <Search size={13} />

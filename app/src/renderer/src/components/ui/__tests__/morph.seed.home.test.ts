@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, test } from '@jest/globals';
+import { afterAll, afterEach, beforeAll, describe, expect, jest, test } from '@jest/globals';
 import { clearIntent, installIntentTracking } from '../intent';
 import { homeOf, intentSeed } from '../morph/use-seed';
 
@@ -85,7 +85,29 @@ describe('a surface opened from a menu row', () => {
     expect(seed.measure()).toMatchObject({ x: 490, y: 610, width: 91, height: 28 });
   });
 
-  test('a control in no menu has no home, and keeps folding into where it was', () => {
+  test('from a Settings card, it folds home into the sidebar\'s Settings button', () => {
+    const settings = new FakeElement({ left: 12, top: 760, width: 150, height: 30 });
+    settings.id = 'sidebar-settings';
+    byId[settings.id] = settings;
+    const dialog = new FakeElement({ left: 80, top: 40, width: 1020, height: 720 }, false);
+    dialog.attrs['data-seed-trigger'] = settings.id;
+    const card = new FakeElement({ left: 400, top: 200, width: 560, height: 64 });
+    card.parent = dialog;
+
+    press({ target: card });
+    const seed = intentSeed();
+    expect(seed.measure()).toMatchObject({ x: 400, y: 200, width: 560 });
+    card.isConnected = false; // Settings closed
+    expect(seed.measure()).toMatchObject({ x: 12, y: 760, width: 150, height: 30 });
+
+    // The sidebar hidden too, and the press long past: nothing to fold into, so no seed — the window shrinks and fades
+    // where it is. Never the card's old rect: a glass box in empty space that then vanishes.
+    settings.isConnected = false;
+    later(5000);
+    expect(seed.measure()).toBeNull();
+  });
+
+  test('a control in no menu has no home: an opening may use where it was, a close never does', () => {
     const lone = new FakeElement({ left: 40, top: 60, width: 120, height: 30 });
     expect(homeOf(lone as unknown as Element)).toBeNull();
 
@@ -93,5 +115,15 @@ describe('a surface opened from a menu row', () => {
     const seed = intentSeed();
     lone.isConnected = false;
     expect(seed.measure()).toMatchObject({ x: 40, y: 60, width: 120, height: 30 });
+    later(5000);
+    expect(seed.measure()).toBeNull();
   });
 });
+
+/** Move the clock on, so the last press is no longer fresh (`INTENT_FRESHNESS_MS`). */
+function later(ms: number): void {
+  const now = Date.now() + ms;
+  jest.spyOn(Date, 'now').mockReturnValue(now);
+}
+
+afterEach(() => { jest.restoreAllMocks(); });

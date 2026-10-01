@@ -104,18 +104,26 @@ export function intentSeed(surface: () => Element | null = () => null): SeedHand
       // closing seed").
       const back = measureElement(home);
       if (back) return back;
-      // The control has gone (its pane collapsed, its menu closed) — fall back to where it was.
+      // The control has gone and has no home on screen. Only an *opening* may still use where it was — the press that
+      // explains it is fresh, and the eye is still on that spot. A close folding into the old rect lands a glass box in
+      // empty space that then vanishes (the model window, opened from Settings, did: owner, 2026-10-01). With no seed
+      // the surface instead shrinks a little where it is and fades (`paintSurface`), which is the honest close.
       // The corner cannot be read off an element that is no longer there, and a pill is the safe
       // assumption: every control in this app that opens a surface is a pill or a rounded rect, and
       // starting slightly too round reads as a control while starting too square reads as a box.
-      return latchedRect
+      const fresh = intent !== null && intent.at === latchedAt;
+      return latchedRect && fresh
         ? fromRect(latchedRect, Math.min(latchedRect.width, latchedRect.height) / 2)
         : null;
     },
   };
 }
 
-/** The button of the `SeedMenu` an element sits in (its panel names it in `data-seed-trigger`), or null. */
+/**
+ * The button of the surface an element sits in, or null: a `SeedMenu`'s panel and the Settings dialog name theirs in
+ * `data-seed-trigger`. Settings names the sidebar's Settings button, wherever Settings was opened from (⌘, included):
+ * that button is where Settings lives.
+ */
 export function homeOf(element: Element | null): HTMLElement | null {
   const id = element?.closest('[data-seed-trigger]')?.getAttribute('data-seed-trigger');
   return id ? document.getElementById(id) : null;

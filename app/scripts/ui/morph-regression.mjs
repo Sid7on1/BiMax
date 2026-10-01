@@ -238,6 +238,9 @@ const CHANGE_MODEL = { selector: '[data-menuitem]', text: 'Change model', within
 const TREE_FILE = { selector: '[role="button"]', text: 'package.json', within: '[data-panel][id="inspector"]' };
 const FILE_MENU = { selector: 'button[aria-haspopup="menu"][aria-label="More actions for this file"]' };
 const DONE = { selector: 'button', text: 'Done', within: '.liquid-glass-panel' };
+const SETTINGS = { selector: '#sidebar-settings' };
+const PROVIDERS_PAGE = { selector: 'button.settings-nav-item', text: 'Providers & models' };
+const MANAGE_PROVIDERS = { selector: 'button.settings-action-card', text: 'Provider catalogue' };
 const ESC = { key: 'Escape' };
 
 /**
@@ -282,6 +285,18 @@ const SCENARIOS = [
       { action: { press: MODEL } },
       { action: { press: CHANGE_MODEL }, seed: CHANGE_MODEL },
       { flight: 'dialog.close-by-done', action: { press: DONE }, surface: 'dialog', seed: MODEL, seeded: true, closing: true },
+    ],
+  },
+  {
+    // Opened from a Settings card: Settings closes as the window opens, so the card is gone by the close. It folds home
+    // into the sidebar's Settings button; it once folded into the card's old spot — a glass box in empty space that
+    // then vanished (owner, 2026-10-01).
+    name: 'model window from Settings',
+    steps: [
+      { action: { press: SETTINGS } },
+      { action: { press: PROVIDERS_PAGE } },
+      { action: { press: MANAGE_PROVIDERS }, seed: MANAGE_PROVIDERS },
+      { flight: 'dialog.close-from-settings', action: ESC, surface: 'dialog', seed: SETTINGS, seeded: true, closing: true },
     ],
   },
   {

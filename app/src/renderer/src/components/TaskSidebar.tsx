@@ -7,6 +7,7 @@ import { cn } from '../lib/cn';
 import { UiSnapshot } from '../protocol';
 import type { InspectorTabId } from '../inspector.model';
 import { SeedMenu, SeedMenuItem, SeedMenuLabel } from './ui/morph/SeedMenu';
+import { SETTINGS_BUTTON_ID } from './SettingsDialog';
 import { APPEARANCES, Appearance } from '../appearance';
 import { createHoverIntent } from '../hover.intent';
 import { QUICK_TOGGLES, toggleValue, type QuickToggle } from '../quick.settings';
@@ -336,6 +337,7 @@ function SettingsFooter({
           sidebar was away. It is at the top right of the canvas now (`CanvasChrome`). */}
       <div className="flex items-center gap-1">
         <button
+          id={SETTINGS_BUTTON_ID}
           onClick={() => { intent.close(); onOpenSettings(); }}
           aria-expanded={open}
           className="glass-row flex min-w-0 flex-1 cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-[12.5px] text-dim hover:text-ink focus-visible:outline-2 focus-visible:outline-ember"

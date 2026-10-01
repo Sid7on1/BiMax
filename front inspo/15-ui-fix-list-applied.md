@@ -750,8 +750,8 @@ feels is older than Codex — **batch 3 (`a81d2b5`, my own, 2026-09-30)** — an
 | Right panel flickers closing | Not from Codex: `1aa166c`'s controller gives identical frames. The pane's content faded 1 → 0.80 → 0.37 → 0 over the first three frames while the empty glass shell faded in over it, then the empty glass slid shut — two translucent layers crossing in 50 ms. | `dismissPane`: same spring, reveal held at 1 — the shell never shows, the content stays and is covered by the moving edge, and takes no press on the way out. Both side panes. |
 | Model window flickers, no closing seed | It opens from the Model menu's "Change model…" row; the menu closes at once, so the close folded into the row's old rect — a 268×48 glass box in empty space that then vanished. | A menu's panel names its button (`data-seed-trigger`); the seed reads it while the row exists and folds home into the Model button (91×28) once the row is gone. `check:morph` now demands the Model button for both closes. |
 
-Kept: everything else of batches 11–20 and batch 21. Not changed: a model window opened from Settings or ⌘K still
-folds into the vanished control's last rect (those have no menu button to go home to).
+Kept: everything else of batches 11–20 and batch 21. Not changed in this batch: a model window opened from Settings
+still folded into the vanished card's last rect — fixed in batch 24.
 
 **Verification:** app typecheck; app suite **123 suites / 1082 tests**; `check:motion` PASS; `check:morph` all
 invariants hold, baseline rewritten on purpose for the slower menus and the held pane content. Mutants, each restored
@@ -761,6 +761,24 @@ away from the Model button). The flicker fix is measured as opacity and geometry
 it has not been watched on a real screen. **Installed 2026-10-01 from `49ade6c`:** build gates PASS; the installed
 renderer carries `seedPopover` k 520, `dismissPane` and `data-seed-trigger`, `--dur-bouncy: .338s` and the pill's
 `var(--dur-bouncy)` release; window up in 3 s, running at 20 s, no crash report. Old app deleted.
+
+## Batch 24 — the model window opened from Settings folds home (2026-10-01)
+
+**The owner:** "fix settings one" — the model window opened from a Settings card ("Manage providers", "Manage
+models") closed into the card's old spot: Settings closes as the window opens, so the close landed a glass box in
+empty space that then vanished, as the composer's case did before batch 23.
+
+- The Settings dialog names the sidebar's Settings button as its home (`data-seed-trigger`, `SETTINGS_BUTTON_ID`),
+  wherever Settings was opened from: the window folds into that button. `check:morph` has a new flight,
+  `dialog.close-from-settings`, that demands it (lands on the 134×31 button at 120%).
+- No ghost boxes anywhere: once the press that opened a surface is no longer fresh, a vanished control's old rect is
+  never a seed. With nothing on screen to fold into (the sidebar hidden), the window shrinks a little where it is and
+  fades — the controller's existing unseeded close.
+
+**Verification:** app typecheck; app suite **123 suites / 1083 tests**; `check:morph` all invariants hold, baseline
+gains only the new flight (no other flight moved). Mutants, each restored after, both caught: the Settings link removed
+(`check:morph`: folds 600 px away, into the card's old spot) and the old rect allowed on a stale close (unit test).
+Not yet installed.
 
 ## Remaining qualifications
 
