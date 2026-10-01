@@ -378,10 +378,10 @@ models or providers, a revoke-the-grant negative control, any input, M02's mutat
 is left **on**, as the owner set it for run 6. **Next is stage 3** — one safe fixture mutation with receipts and
 takeover — which starts only on the owner's word (it did: §6e).
 
-## 6e. Stage 3 — one safe press, outside the installed app (2026-10-01)
+## 6e. Stage 3 — one safe press in the test app; exit met (2026-10-01)
 
-**Status: Implemented and Measured outside the installed app (one Mac, one model, one run per mode); not yet
-installed.** The owner said "go", then chose to keep **both** approvals for every press (the engine's card and the
+**Status: stage 3's exit is met — Measured outside the installed app (seven modes) and in the installed app (one press
+on two cards), on one Mac with one model; not Product-ready. Stages 4–6 remain Target.** The owner said "go", then chose to keep **both** approvals for every press (the engine's card and the
 app's card) after this session's safety classifier refused a design in which the app's card replaced the engine's.
 The classifier also refused read-only work on these files while auto mode was on; the owner turned auto mode off and
 the work continued with each command approved. Commits: `7d8e305` (engine), `0a1804c` (app), and the proof commit
@@ -441,9 +441,31 @@ menu bar never pressable; a Stop during that read cancels; a click error is neve
 survived because two identical checks sat back to back; the duplicate was removed. Gate test and `08` widened by
 exactly this. Totals at commit B: 172 focused tests, app typecheck.
 
-**Not shown yet — the next step, and it needs the owner:** the installed app (a build, an install, the new menu item
-ticked, and one press on two cards with the fixture's end state read independently). Then stage 3's exit is met.
-Undo: a fixture press has no undo, and the plan's "an undo journal entry where the app allows one" stays Target.
+**Installed (2026-10-01, late).** Built from `dc6e711` with `build-local-mac.sh arm64` (4/4 package gates; the packaged
+engine is the bundle rebuilt from `7d8e305`; same Bimax Local Code Signing requirement, so the Accessibility grant
+carried over), the previous app moved to `bimax-archive/apps/Bimax.app.before-cu-stage3-20261001`, hashes in
+`install.json`. The owner ticked "Let Tasks Press Buttons in the Test App (Preview)" by hand. One ⌘2 Thread from a
+`bimax://task` link; the owner pressed Start, Allow on the look card, Allow on the engine's card and Press on the app's
+card. `scripts/press_run.py` and `grade_installed.py`:
+
+- the fixture, read by the standalone reader: `presses=2 → 3` (one press);
+- the driver's own observer for the Thread: `click` 1, no other input tool; the app's counts: asked 2, presses 1,
+  inputCalls 1; the receipt `outcome: pressed`, the look it was bound to 16.5 s old, the control's name only hashed;
+- the SDK mapped from `/Applications/Bimax.app/Contents/Resources/app.asar.unpacked/` in Bimax's own process, no
+  standalone driver running; the engine's own card ("Let this task press “Fixture Button” in BimaxCuFixture?") is in
+  the saved Thread record;
+- the model's first press call named no control; argument validation refused it before any card ("NOT executed"),
+  and the next call pressed. The model's one-line report matched the fixture.
+
+`grade_installed_mutants.py` feeds the grader eight falsified copies (pressed twice, nothing changed, two clicks,
+typing authorized, the name in clear in the audit, the SDK from elsewhere, no engine card, a standalone daemon); all
+eight are rejected. The package gate's wording was updated from "look-only" to "look, and one press in the test app".
+
+**Not shown by stage 3:** any app other than the test app, typing or setting a value, a real no-op against the real
+driver, another Mac or model, a clean-Mac TCC first run, Developer ID distribution, M02's persistence journey, or any
+Win. Undo: a fixture press has no undo, and the plan's "an undo journal entry where the app allows one" stays Target.
+Both switches are left **on**, as the owner set them. **Next is stage 4** (small local models as advice only), on
+the owner's word.
 
 ## 7. Risks named now
 
