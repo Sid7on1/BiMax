@@ -758,7 +758,9 @@ invariants hold, baseline rewritten on purpose for the slower menus and the held
 after, all caught: home fallback removed, panes back on `dismiss`, menu k 1300, menu close k 1800, fast bounce, 120 ms
 pill release, closing pane clickable, and the menu's `data-seed-trigger` removed (`check:morph`: the window folds 182 px
 away from the Model button). The flicker fix is measured as opacity and geometry per frame in the software harness;
-it has not been watched on a real screen. Not yet installed.
+it has not been watched on a real screen. **Installed 2026-10-01 from `49ade6c`:** build gates PASS; the installed
+renderer carries `seedPopover` k 520, `dismissPane` and `data-seed-trigger`, `--dur-bouncy: .338s` and the pill's
+`var(--dur-bouncy)` release; window up in 3 s, running at 20 s, no crash report. Old app deleted.
 
 ## Remaining qualifications
 
