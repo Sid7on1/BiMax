@@ -72,7 +72,10 @@
    "modelAnswer": [
     "presses=0 events=0 last=none"
    ],
-   "outcome": "Allow run"
+   "outcome": "Allow run",
+   "expect": {
+    "ok": true
+   }
   },
   {
    "run": "run-2a-allow-chosen.json",
@@ -113,7 +116,10 @@
    "modelAnswer": [
     "presses=0 events=0 last=none"
    ],
-   "outcome": "NOT A \"Not now\" RUN: the app's audit records the card answered with the Allow option (asked 1, looks 1, ok). Both card surfaces send the clicked option's own text (ThreadSurfaces.tsx PlainRequest; approval.keys.ts maps Escape to the deny option and Cmd+Enter to the first), and the service grants only on the exact Allow string, so Allow was chosen, most likely the highlighted first button. Kept as a second installed Allow observation; run 2 was repeated as run-2b."
+   "outcome": "NOT A \"Not now\" RUN: the app's audit records the card answered with the Allow option (asked 1, looks 1, ok). Both card surfaces send the clicked option's own text (ThreadSurfaces.tsx PlainRequest; approval.keys.ts maps Escape to the deny option and Cmd+Enter to the first), and the service grants only on the exact Allow string, so Allow was chosen, most likely the highlighted first button. Kept as a second installed Allow observation; run 2 was repeated as run-2b.",
+   "expect": {
+    "ok": true
+   }
   },
   {
    "run": "run-2b-allow-chosen.json",
@@ -154,7 +160,10 @@
    "modelAnswer": [
     "presses=0 events=0 last=none"
    ],
-   "outcome": "NOT A \"Not now\" RUN: the audit again records the Allow option (asked 1, looks 1, ok; the card waited 9.9 s, so a person answered). Asked where they clicked Not now, the owner replied: \"there was a tool call which i allowed thats it\". Kept as a third installed Allow observation. Observation (not a measured defect): twice in a row, with an instruction to press Not now, the person read the app-raised grant card as a routine tool approval and allowed it."
+   "outcome": "NOT A \"Not now\" RUN: the audit again records the Allow option (asked 1, looks 1, ok; the card waited 9.9 s, so a person answered). Asked where they clicked Not now, the owner replied: \"there was a tool call which i allowed thats it\". Kept as a third installed Allow observation. Observation (not a measured defect): twice in a row, with an instruction to press Not now, the person read the app-raised grant card as a routine tool approval and allowed it.",
+   "expect": {
+    "ok": true
+   }
   },
   {
    "run": "run-2c-allow-chosen.json",
@@ -195,7 +204,161 @@
    "modelAnswer": [
     "presses=0 events=0 last=none"
    ],
-   "outcome": "NOT A \"Not now\" RUN: the audit records the Allow option a third time (asked 1, looks 1, ok; card waited 7.3 s, so a person answered). The Not now button sends \"Not now\" (ThreadSurfaces.tsx PlainRequest), Esc and Cmd+Enter are inert on this card (approval.keys.ts DENY does not match \"Not now\"), and no notification buttons are offered (approval.notification.ts ONE_TIME_ALLOW does not match the Allow text), so the Allow button was clicked. Kept as a fourth installed Allow observation."
+   "outcome": "NOT A \"Not now\" RUN: the audit records the Allow option a third time (asked 1, looks 1, ok; card waited 7.3 s, so a person answered). The Not now button sends \"Not now\" (ThreadSurfaces.tsx PlainRequest), Esc and Cmd+Enter are inert on this card (approval.keys.ts DENY does not match \"Not now\"), and no notification buttons are offered (approval.notification.ts ONE_TIME_ALLOW does not match the Allow text), so the Allow button was clicked. Kept as a fourth installed Allow observation.",
+   "expect": {
+    "ok": true
+   }
+  },
+  {
+   "run": "run-2d.json",
+   "threads": [
+    "ddc586f8-3203-45e0-a4d5-9b2f9d5b3485"
+   ],
+   "hostCalls": [
+    [
+     "look",
+     false,
+     "denied"
+    ]
+   ],
+   "appCounts": [
+    {
+     "lists": 0,
+     "looks": 0,
+     "refused": 1,
+     "asked": 1,
+     "inputCalls": 0
+    }
+   ],
+   "driverAuthorized": {},
+   "authorizedInputTools": [],
+   "appInputCalls": 0,
+   "fixture": [
+    "presses=0 events=0 last=none",
+    "presses=0 events=0 last=none"
+   ],
+   "sdkMappedFromUnpacked": true,
+   "standaloneDaemon": [
+    "",
+    ""
+   ],
+   "modelAnswer": [
+    "I\u2019m unable to view the BimaxCuFixture app."
+   ],
+   "outcome": "Allow run",
+   "expect": {
+    "ok": false,
+    "code": "denied",
+    "why": "Not now pressed on the card"
+   }
+  },
+  {
+   "run": "run-3a-invalid-stop-before-card.json",
+   "threads": [],
+   "hostCalls": [],
+   "appCounts": [],
+   "driverAuthorized": {},
+   "authorizedInputTools": [],
+   "appInputCalls": 0,
+   "fixture": [
+    "presses=0 events=0 last=none",
+    "presses=0 events=0 last=none"
+   ],
+   "sdkMappedFromUnpacked": true,
+   "standaloneDaemon": [
+    "",
+    ""
+   ],
+   "modelAnswer": [],
+   "outcome": "INVALID \u2014 Stop came before the card: the turn was interrupted 3.0 s after the prompt (15:42:47.235Z \u2192 15:42:50.206Z, \"\u23f9 Turn interrupted.\"), before the model called LookAtAppTool; no host call, no audit line, no card. Repeated as run-3b.",
+   "expect": {
+    "invalid": true
+   },
+   "graded": "skipped (invalid attempt)"
+  },
+  {
+   "run": "run-3b.json",
+   "threads": [
+    "93d76b1e-0a80-4946-9923-8e6e8c29ff82"
+   ],
+   "hostCalls": [
+    [
+     "look",
+     false,
+     "denied"
+    ]
+   ],
+   "appCounts": [
+    {
+     "lists": 0,
+     "looks": 0,
+     "refused": 1,
+     "asked": 1,
+     "inputCalls": 0
+    }
+   ],
+   "driverAuthorized": {},
+   "authorizedInputTools": [],
+   "appInputCalls": 0,
+   "fixture": [
+    "presses=0 events=0 last=none",
+    "presses=0 events=0 last=none"
+   ],
+   "sdkMappedFromUnpacked": true,
+   "standaloneDaemon": [
+    "",
+    ""
+   ],
+   "modelAnswer": [],
+   "outcome": "Allow run",
+   "expect": {
+    "ok": false,
+    "code": "denied",
+    "why": "Stop (the bar's interrupt) pressed while the card waited; the card is dropped and answered empty"
+   }
+  },
+  {
+   "run": "run-4.json",
+   "threads": [
+    "ef882090-c0e3-4741-abee-586ec86504f4"
+   ],
+   "hostCalls": [
+    [
+     "look",
+     false,
+     "not_permitted"
+    ]
+   ],
+   "appCounts": [
+    {
+     "lists": 0,
+     "looks": 0,
+     "refused": 1,
+     "asked": 1,
+     "inputCalls": 0
+    }
+   ],
+   "driverAuthorized": {},
+   "authorizedInputTools": [],
+   "appInputCalls": 0,
+   "fixture": [
+    "presses=0 events=0 last=none",
+    "presses=0 events=0 last=none"
+   ],
+   "sdkMappedFromUnpacked": true,
+   "standaloneDaemon": [
+    "",
+    ""
+   ],
+   "modelAnswer": [
+    "I couldn\u2019t retrieve the status line\u2014the screen capture was cancelled, likely because the app isn\u2019t running or access is disabled."
+   ],
+   "outcome": "Allow run",
+   "expect": {
+    "ok": false,
+    "code": "not_permitted",
+    "why": "preview switched off while the card waited, then Allow pressed (owner's account); a revoked request is refused whatever the answer"
+   }
   }
  ],
  "failures": []

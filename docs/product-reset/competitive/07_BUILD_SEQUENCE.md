@@ -3,8 +3,8 @@
 ## Computer Use evidence sequence — 2026-10-01, record 65
 
 Stage 1 is Measured; stage 2 is Implemented and Measured outside the installed app. Installed, under Bimax's own
-Accessibility grant, the Allow path is Measured with zero input (record 65 §6d); installed denial and revocation runs come
-next, before stage 3's one safe fixture mutation. Stages 4–6 (advisory small models, X01, real workflows/release) remain Target.
+Accessibility grant, allow, Not now, Stop and preview-off are Measured with zero input (record 65 §6d); the Stop-ends-grant
+fix needs a rebuild and one installed check, before stage 3's one safe fixture mutation. Stages 4–6 (advisory small models, X01, real workflows/release) remain Target.
 The look-only admission gate in `08_ACCEPTANCE_GATES.md` supersedes the code-only gate only to that extent.
 Historical CU workstreams below are not reactivated by this sequence.
 

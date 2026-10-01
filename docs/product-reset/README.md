@@ -11,8 +11,8 @@ text — and takes the driver as its hands and eyes, embedded so the macOS permi
 each ending on evidence. Stage 2 has replaced the code-only gate with the look-only admission gate in
 `08_ACCEPTANCE_GATES.md`: off by default, one menu bar opt-in, per-app grants for a Bimax Thread in the ⌘2 bar,
 no input tools, and the pinned in-process SDK. The local build is installed and, under Bimax's own
-Accessibility grant, its Allow path is Measured (four runs, zero input, fixture unchanged); installed "Not now", stop and
-preview-off runs are still owed (record 65 §6d). Measured first: CUA-S1's 4B models need
+Accessibility grant, allow, "Not now", Stop and preview-off are Measured there (zero input, fixture unchanged); a Stop that did not end
+an earlier grant is fixed in code and awaits a rebuild (record 65 §6d). Measured first: CUA-S1's 4B models need
 9.32 GB and cannot load on this 8 GB Mac; its sub-million-parameter models fit but were never run by Cua on a fixture;
 its vision add-on is AGPL and is not taken. Replaces record 61's stage table.
 

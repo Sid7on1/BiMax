@@ -159,5 +159,8 @@
   "window_id": 1228,
   "status": "presses=0 events=0 last=none"
  },
- "outcome": "NOT A \"Not now\" RUN: the audit records the Allow option a third time (asked 1, looks 1, ok; card waited 7.3 s, so a person answered). The Not now button sends \"Not now\" (ThreadSurfaces.tsx PlainRequest), Esc and Cmd+Enter are inert on this card (approval.keys.ts DENY does not match \"Not now\"), and no notification buttons are offered (approval.notification.ts ONE_TIME_ALLOW does not match the Allow text), so the Allow button was clicked. Kept as a fourth installed Allow observation."
+ "outcome": "NOT A \"Not now\" RUN: the audit records the Allow option a third time (asked 1, looks 1, ok; card waited 7.3 s, so a person answered). The Not now button sends \"Not now\" (ThreadSurfaces.tsx PlainRequest), Esc and Cmd+Enter are inert on this card (approval.keys.ts DENY does not match \"Not now\"), and no notification buttons are offered (approval.notification.ts ONE_TIME_ALLOW does not match the Allow text), so the Allow button was clicked. Kept as a fourth installed Allow observation.",
+ "expect": {
+  "ok": true
+ }
 }

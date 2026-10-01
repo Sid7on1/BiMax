@@ -100,5 +100,8 @@
   "window_id": 1228,
   "status": "presses=0 events=0 last=none"
  },
- "outcome": "NOT A \"Not now\" RUN: the app's audit records the card answered with the Allow option (asked 1, looks 1, ok). Both card surfaces send the clicked option's own text (ThreadSurfaces.tsx PlainRequest; approval.keys.ts maps Escape to the deny option and Cmd+Enter to the first), and the service grants only on the exact Allow string, so Allow was chosen, most likely the highlighted first button. Kept as a second installed Allow observation; run 2 was repeated as run-2b."
+ "outcome": "NOT A \"Not now\" RUN: the app's audit records the card answered with the Allow option (asked 1, looks 1, ok). Both card surfaces send the clicked option's own text (ThreadSurfaces.tsx PlainRequest; approval.keys.ts maps Escape to the deny option and Cmd+Enter to the first), and the service grants only on the exact Allow string, so Allow was chosen, most likely the highlighted first button. Kept as a second installed Allow observation; run 2 was repeated as run-2b.",
+ "expect": {
+  "ok": true
+ }
 }

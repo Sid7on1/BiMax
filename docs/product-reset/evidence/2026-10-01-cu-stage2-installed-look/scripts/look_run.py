@@ -61,6 +61,9 @@ def collect(n):
         try: t = json.load(open(p))
         except Exception: continue
         if os.path.realpath(t.get('summary', {}).get('root', '')) == os.path.realpath(rec['folder']): threads.append(t)
+    # Only this run's Thread: a folder is reused by a repeated run, so match the ids this run's audit names.
+    ids = {a['threadId'] for a in rec['audit']}
+    threads = [t for t in threads if t.get('summary', {}).get('id') in ids] or [t for t in threads if t.get('summary', {}).get('updatedAt', 0) / 1000 >= time.mktime(time.strptime(rec['startedAt'], '%Y-%m-%dT%H:%M:%SZ')) - time.timezone]
     for t in threads: t['items'] = t.get('items') or t.get('state', {}).get('items', [])  # saved Threads keep them in state
     rec['threads'] = [{'summary': t['summary'],
                        'tools': [{'tool': i['call']['toolName'], 'input': i['call'].get('input'), 'status': i['call'].get('status'),

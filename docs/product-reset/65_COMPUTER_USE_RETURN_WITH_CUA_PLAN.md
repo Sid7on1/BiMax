@@ -286,11 +286,13 @@ and M02's independent end-state contract. README/architecture/roadmap/frontend/g
 the actual admission gate while preserving the old CU architecture as history. M02 mutation/persistence, X01,
 small-model advice, real workflows, clean-Mac TCC and release qualification remain Target/unmeasured.
 
-## 6d. Stage 2 installed — the Allow path Measured under Bimax's own grant; denial and revocation still owed (2026-10-01)
+## 6d. Stage 2 installed — allow, deny, stop and preview-off Measured under Bimax's own grant; one Stop gap fixed in code (2026-10-01)
 
-**Status: the installed Allow path, the SDK's load from the installed app and Bimax-owned Accessibility are Measured
-(four runs, one Mac, one model). Installed "Not now", stop and preview-off runs are not yet shown, so stage 2's exit is
-still not met; stages 3–6 remain Target.** Continued by Claude from `a05cf9c` after re-checking Codex's work: the
+**Status: in the installed app, Allow (four runs), Not now, Stop while the card waits and preview off with a late
+Allow are Measured — one Mac, one model, zero authorized input, fixture unchanged — with the SDK loaded from the
+installed app under Bimax-owned Accessibility. Reading the gate for this found one gap: the ⌘2 bar's Stop did not end a
+grant already given (below). It is fixed in code, not yet in the installed app, so stage 2's exit waits on that
+rebuild and one installed check; stages 3–6 remain Target.** Continued by Claude from `a05cf9c` after re-checking Codex's work: the
 focused suites (108 tests in 9 suites), the controlled-SDK revocation proof (4 passed), its generation mutant (exit 1),
 the deep strict signature and all four installed hashes in `install.json` reproduced. The code change was reviewed;
 no defect found. Evidence: `evidence/2026-10-01-cu-stage2-installed-look/`.
@@ -311,6 +313,15 @@ Bimax looks — and collects the app's audit lines, the Thread record and the dy
 | 2a | Allow | same | same | none | same → same | same |
 | 2b | Allow | same | same | none | same → same | same |
 | 2c | Allow | same | same | none | same → same | same |
+| 2d | Not now | `look` refused `denied`, asked 1, looks 0 | **nothing** | none | same → same | “I’m unable to view the BimaxCuFixture app.” |
+| 3b | none — ■ Stop pressed while the card waited | `look` refused `denied` (card dropped, answered empty), looks 0 | **nothing** | none | same → same | none; tool result “The task was stopped.”, turn interrupted |
+| 4 | Allow, after the preview was switched off while the card waited | `look` refused `not_permitted`, looks 0 | **nothing** | none | same → same | “I couldn’t retrieve the status line…” |
+
+Run 4 exercises `a05cf9c` live: its tool result was “This look was cancelled because the task stopped or looking was
+turned off.” The card waited 27.8 s; `settings.json` ended with `computerLook: false`. Its last write (15:47:50Z) came
+after the answer because the file is rewritten for any setting, so the ordering evidence is the code `not_permitted`,
+which the service returns only once looking is off or the request was revoked; the audit does not record which button
+answered a revoked card.
 
 In every run Bimax's own process (pid 62055, parent 1) mapped `libcua_driver_sdk.dylib` and
 `cua_driver_node_runtime.node` from `/Applications/Bimax.app/Contents/Resources/app.asar.unpacked/`, and no standalone
@@ -318,11 +329,13 @@ driver was running before the link or at collection. **Attribution, and its limi
 Launch-Services-launched Bimax with the SDK in its own process after Bimax alone was granted; that is the basis for
 "Bimax-owned". The unified log showed no `tccd` Accessibility lines to name the client, `TCC.db` is unreadable without
 Full Disk Access, and no revoke-the-grant negative control was run. `scripts/grade.py` grades from evidence only
-(`grade.json`: 4 runs, 0 failures); `scripts/grade_mutants.py` feeds it six bad-evidence variants (an authorized input
-tool, an app-counted input call, a changed fixture, an unread fixture, a standalone daemon, an SDK mapped from outside
-the app) and all six are rejected — the last only after the grader was fixed to fail on it.
+and per-run expectations (`grade.json`: 7 graded runs and 1 invalid skipped, 0 failures); `scripts/grade_mutants.py`
+feeds it nine bad-evidence variants (an authorized input tool, an app-counted input call, a changed fixture, an unread
+fixture, a standalone daemon, an SDK mapped from outside the app; and on run 4 a revoked look that read the window,
+answered ok, or was reported as a plain denial) and all nine are rejected — the SDK one only after the grader was
+fixed to fail on it.
 
-**Runs 2a–2c were meant to be "Not now" and are not.** Each card waited 4.8–9.9 s (a person answered) and the audit
+**Runs 2a–2c were meant to be "Not now" and are not** (2d is). Each card waited 4.8–9.9 s (a person answered) and the audit
 records the Allow option. The Not now button sends "Not now"; Esc and ⌘↩ are inert on this card (the deny pattern in
 `approval.keys.ts` does not match "Not now"); no notification buttons are offered (the allow pattern in
 `approval.notification.ts` does not match the Allow text). Asked, the owner said: “there was a tool call which i
@@ -332,15 +345,24 @@ press Not now, the person read the app's grant card as a routine tool approval a
 **Invalid attempts, kept:** run 1's first fixture reading failed (the fixture had closed its window; it was relaunched
 and re-read before the run); run 2's first link was refused before starting (“2 tasks are running, which is what this
 Mac has memory for right now”) because run 1's finished Thread was still on screen in the ⌘2 bar; one link's
-confirmation opened on another Space behind a full-screen terminal. Pressing Bimax's own buttons by automation (to play
-the person for Not now, stop and preview-off) was refused by this session's safety classifier, as was ticking the
-opt-in on the owner's behalf; neither was worked around.
+confirmation opened on another Space behind a full-screen terminal; run 3a's Stop came 3.0 s after the prompt, before
+the model had called the tool (no card, no host call) and was repeated as 3b. Pressing Bimax's own buttons by
+automation (to play the person) was refused by this session's safety classifier, as was ticking the opt-in on the
+owner's behalf; neither was worked around — the owner pressed every button.
 
-**Still owed for stage 2's exit, installed:** a "Not now" run (no `get_window_state`, card answer refused), a stop while
-the card waits (card dropped, no read), and preview off while the card waits followed by a late Allow (`not_permitted`,
-no read). Each needs the owner's own clicks, or the owner's leave for the session to press Bimax's buttons. The unit
-tests, the controlled-SDK proof and §6b's outside-app runs cover the same code; they do not replace the installed runs.
-The opt-in is left **on** as the owner set it.
+**Found while grading run 3b: Stop did not end a grant.** The card tells the person "stopping the task ends it" and the
+bar's ■ is titled "Stop this task", but ■ (like the main window's Stop, a night shift ending a task, and talking over
+Bimax) sends an interrupt, and `ThreadManager.cancelTurn` never called `ended`; only stopping or releasing the whole
+Thread did. So after an Allow, a Stop, and a follow-up message, the same Thread could look again without a new card.
+Run 3b did not show it (no grant existed yet). Fixed: `cancelTurn` now calls `ended`, which ends the Thread's grants and
+driver sessions and bumps its generation. Cost, stated: after any Stop, including talking over Bimax, the next look
+asks again. Regressions in `computer.look.test.ts`: an interrupt ends what the Thread was granted, and — with the real
+look service wired into the manager — Allow, a second look without a card, Stop, then a third look raises a new card.
+Removing the call fails both (2 failed); with it, 109 focused tests in 9 suites, 67 in 12 Thread/night/talk suites and
+the app typecheck pass. **Not yet in the installed app**: it needs a rebuild, install and one installed check (Allow,
+Stop, ask again → a new card).
+
+The opt-in was left **off**, as the owner set it in run 4.
 
 ## 7. Risks named now
 
