@@ -1,6 +1,6 @@
 # 65 — Computer Use returns: Bimax's own layer on the latest Cua Driver, with small local decision models
 
-**Date: 2026-10-01. Status: Target — nothing in this record is built.** It is the plan the owner asked for:
+**Date: 2026-10-01. Status: Target — nothing in the product is built. Stage 1 is Measured (§6), outside the product.** It is the plan the owner asked for:
 
 > "plan the roll out of the bimax computer use from the archive and slowly integrate this into repo … use laya mlx
 > model and … the latest CUA … the new CUA came out is much more efficent and there are mini models to operate it, we
@@ -88,11 +88,69 @@ Runtime: one sidecar, started with the first Computer Use Thread, stopped with t
 ## 5. What the owner is asked for
 
 1. Approve stage 0 (this record).
-2. Stage 1 runs entirely outside the app and the repository; it needs nothing else.
+2. Stage 1 ran entirely outside the app and the repository and needed nothing else (§6): CuaDriver.app already held its
+   grants, and this terminal already had Accessibility.
 3. From stage 2: Accessibility and Screen Recording grants for the locally signed Bimax.app, given once by hand.
 4. Later, a Developer ID certificate for anyone else to run it (record 59; gate 08).
 
-## 6. Risks named now
+## 6. Stage 1 results — measured 2026-10-01
+
+**Status: Measured, outside the product.** Nothing in the app or the engine changed. Evidence:
+`evidence/2026-10-01-cu-stage1/` (bench outputs, the scripts that produced them). Work folder:
+`~/Developer/bimax-research/cu`.
+
+**Set-up.** The installed standalone CuaDriver.app was 0.22.0 (Cua's Developer ID, team `YCK386LBJ7`) with
+Accessibility and Screen Recording already granted. It was copied to `~/Developer/bimax-archive/apps/CuaDriver.app.0.22.0`
+(verified signature) and updated to **0.31.0** with the installer from the pinned checkout
+(`CUA_DRIVER_RS_VERSION=0.31.0`, `--no-modify-path`); the installer verified the new bundle met the old signing
+requirement, so both grants were kept. Its telemetry was **on by default** and has been turned off
+(`cua-driver telemetry disable`). The archived `BimaxComputerUseKit` was copied (the archive untouched) and built with the
+Command Line Tools (Swift 6.4, macOS 27 SDK) in 53 s; its offline suite passes **60/60**. Target for both: the archived
+`BimaxCuFixture.app`, whose controls mutate only their own state. Each driver action is graded by re-reading the window
+(the control's value, the fixture's `presses=… last=…` line), separately from the driver's own answer.
+
+| Primitive | Old Bimax kit, fixture in front | Old kit, fixture behind the user's app | Driver 0.31, fixture behind the user's app (3 runs) |
+|---|---|---|---|
+| Read the window | p50 **76 ms**, p95 93 ms (80 nodes) | refused: `no_successful_observations` | 220–590 ms (83 elements) |
+| Press, toggle, radio select | performed and verified | **refused: `window_not_found`** | performed and verified, 3/3 runs |
+| Set a text field, type into a text area | performed and verified | refused | performed and verified, 3/3 |
+| Set a slider | performed and verified | refused | performed and verified, 3/3 |
+| Increment / decrement a stepper | performed and verified | refused | **no AX increment** (click actions: press, show_menu, pick, confirm, cancel, open); `set_value` on the stepper answered OK and **changed nothing**, 3/3 — a false success caught only by our re-read |
+| Whole catalogue | **15 verified, 0 overclaimed** (2 scroll actions unverified, as on 2026-08-17) | **0 verified; 15 declared but unperformed** | 7 of 8 graded actions; 1 false success |
+| User's front app and pointer | the fixture is activated | — | **unchanged in every action** |
+| With a floating panel like the ⌘2 bar on screen | — | — | background actions unchanged; `bring_to_front` → `bring_to_front_exact_window_verified`, `frontmost_ordinary: true` — **the 0.18 blocker is gone** |
+| Time per action | — | — | 1.2–2.9 s; the animated agent cursor adds ~1.45 s; the first action of a session is the slowest |
+| Memory | — | — | daemon 160–208 MB RSS, rising across runs |
+
+**Also found:**
+
+- The driver reports a press as `"effect": "unverifiable"` — honest, and the reason Bimax's verification layer is
+  not optional. Its `verify_state` predicate was `satisfied` where it could see the value (text field, radio) and
+  `unknown` for static text (`observation_unavailable`); it never reported unknown as success.
+- Static text is missing from the structured `elements` (it is in `tree_markdown`), and elements carry no AX
+  identifier. Bimax's receipts bind to role, label, frame and the snapshot's element token instead.
+- The window snapshot includes the menu bar, and with it the user's **recent applications** list. The observation that
+  reaches a model must drop that subtree unless the task is about menus.
+- Background delivery and exact-window activation go through private Apple interfaces: SkyLight
+  (`SLPSSetFrontProcessWithOptions`, `SLPSPostEventRecordTo`, `SLSEventAuthenticationMessage`, `SLSGetWindowOwner`, …)
+  and `_AXUIElementGetWindow`, ~60 call sites in `platform-macos`. Usable in a Developer ID app; rules out the Mac App
+  Store; can break on any macOS update, so every macOS update re-runs this table.
+- The embedding package exists: `@trycua/cua-driver` 0.31.0, MIT, on npm.
+- The trust layer to restore is small: `action.contract`, `action.receipt`, `action.evidence`, `verification`,
+  `takeover.authority`, `native.input.interlock`, `adhoc.approval.store` — **7 files, ~1,350 lines**. A naive import
+  closure pulls 30 files and 13,733 lines only because `action.contract.ts` imports four type names from the
+  7,493-line `desktop.runtime.ts`; those types move to their own module in stage 2.
+
+**Decision.** The driver becomes the primitive layer: acting without taking over the user's Mac is the feature, and
+the old kit cannot do it at all. The old Swift kit stays archived; its fixture and semantic catalogue become Bimax's
+grading harness. The stepper gap is handled by Bimax, not trusted to the driver: no `set_value` on an incrementor
+counts unless a re-read confirms it.
+
+**Carried into stage 2:** telemetry off in the embedded host and inside the sovereign perimeter; the menu-bar privacy
+filter; the agent cursor off (Bimax draws its own feedback); the `@trycua/cua-driver` package measured inside Electron
+(memory, start-up, whether the embedded path is faster than 1.2–2.9 s); the daemon's memory growth watched.
+
+## 7. Risks named now
 
 - **Driver drift.** 0.12 → 0.31 rewrote the codebase; a later release can change behaviour again (0.18 did). The
   driver is pinned by version and checksum, and every upgrade re-runs stage 1's table before it ships.
