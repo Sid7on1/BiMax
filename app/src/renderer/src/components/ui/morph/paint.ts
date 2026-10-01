@@ -125,7 +125,8 @@ export function paintRegionClip(
   region.style.opacity = frame.reveal.toFixed(3);
   // Same rule as a surface's content: a region at 20% reveal has live controls under something the
   // user cannot see yet, and a click that lands on one of them is indistinguishable from a bug.
-  region.style.pointerEvents = frame.reveal > 0.6 ? '' : 'none';
+  // A closing pane keeps its content visible to the end (`dismissPane`), but it is leaving: nothing in it takes a press.
+  region.style.pointerEvents = frame.reveal > 0.6 && frame.state !== 'closing' ? '' : 'none';
   region.style.willChange = 'clip-path, opacity';
 }
 

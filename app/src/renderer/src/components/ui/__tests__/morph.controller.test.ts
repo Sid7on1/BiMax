@@ -424,7 +424,7 @@ describe('lifecycle', () => {
   });
 });
 
-describe('menus are quick (UI fix list item 16)', () => {
+describe('menus at the owner\'s pace (k 520 open, k 700 close — as before UI fix list item 16)', () => {
   // A composer chip opening a model-picker-sized menu above it — the menu the owner opens most.
   const CHIP: MorphGeometry = { x: 300, y: 700, width: 110, height: 30, radius: 15 };
   const PICKER: MorphGeometry = { x: 300, y: 260, width: 340, height: 420, radius: 14 };
@@ -457,12 +457,13 @@ describe('menus are quick (UI fix list item 16)', () => {
     return n * STEP * 1000;
   }
 
-  test('a menu opens in ~200–240ms and barely overshoots', () => {
+  test('a menu opens in ~380ms and barely overshoots', () => {
     const { controller, frames } = menu();
     controller.open();
     stepUntil(controller, () => controller.state === 'open');
-    // Measured 240ms at k 1300; it was 380ms at k 520. The bound leaves one frame of rounding.
-    expect(arrival(frames)).toBeLessThanOrEqual(250);
+    // 380ms at k 520. Item 16 made it 240ms (k 1300); the owner: clicking "Approve for me" "is soo speedy" (2026-10-01).
+    expect(arrival(frames)).toBeGreaterThanOrEqual(350);
+    expect(arrival(frames)).toBeLessThanOrEqual(410);
     const overshoot = Math.max(...frames.map((f) => (f.geometry.height - PICKER.height) / (PICKER.height - CHIP.height)));
     expect(overshoot).toBeLessThan(0.02);
     controller.dispose();
@@ -494,22 +495,29 @@ describe('menus are quick (UI fix list item 16)', () => {
     }
   });
 
-  test('only menus take the fast fold; panes and panels keep the shared dismiss', () => {
+  test('menus fold on their own token at the shared pace; side panes keep their content to the end', () => {
     expect(dismissForKind('popover')).toBe(MOTION.dismissPopover);
     expect(dismissForKind('toolbarExpansion')).toBe(MOTION.dismissPopover);
-    for (const kind of ['sidebar', 'inspector', 'palette', 'floatingPanel', 'workspaceSurface'] as const) {
+    for (const kind of ['sidebar', 'inspector'] as const) expect(dismissForKind(kind)).toBe(MOTION.dismissPane);
+    for (const kind of ['palette', 'floatingPanel', 'workspaceSurface'] as const) {
       expect(dismissForKind(kind)).toBe(MOTION.dismiss);
     }
-    // And the controller really uses it: the same menu, closed as an inspector, takes longer.
-    const time = (kind: 'popover' | 'inspector'): number => {
-      const { controller } = menu(kind);
+    // The pace from before item 16: a menu folds as fast as everything else does.
+    expect(MOTION.dismissPopover.spring).toEqual(MOTION.dismiss.spring);
+    expect(MOTION.dismissPane.spring).toEqual(MOTION.dismiss.spring);
+    // And the controller really uses them: a menu empties on the way out, a pane never does.
+    const reveals = (kind: 'popover' | 'inspector'): number[] => {
+      const { controller, frames } = menu(kind);
       controller.open();
       stepUntil(controller, () => controller.state === 'open');
+      const from = frames.length;
       controller.close();
-      const ms = stepUntil(controller, () => controller.state === 'closed');
+      stepUntil(controller, () => controller.state === 'closed');
       controller.dispose();
-      return ms;
+      // While it is on screen: the frame that reports `closed` is the one after it has gone.
+      return frames.slice(from).filter((f) => f.state === 'closing').map((f) => f.reveal);
     };
-    expect(time('popover')).toBeLessThan(time('inspector'));
+    expect(Math.min(...reveals('popover'))).toBe(0);
+    expect(reveals('inspector').every((r) => r === 1)).toBe(true);
   });
 });

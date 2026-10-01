@@ -453,27 +453,31 @@ describe('the handoff', () => {
 });
 
 describe('closing', () => {
-  test('the region empties before it contracts', () => {
-    // Prompt 1 §14: content disappears, *then* the panel contracts. What flies home is a piece of
-    // glass — a column of shrinking text is the cheap version of this animation.
-    const { controller, element } = makeRegionController();
-    controller.open();
-    runToRest(controller);
+  test('a side pane keeps its content while its edge covers it, and takes no press on the way out', () => {
+    // It once emptied first (Prompt 1 §14): the content faded out over three frames while the empty glass shell faded
+    // in over it, then the empty glass slid shut. Two translucent layers crossing in 50ms read as a flicker — the
+    // owner: "right panel when closing flickers and is not good" (2026-10-01). Nothing is scaled here, only clipped,
+    // so there is no shrinking text to hide: the edge that uncovered the pane on the way in covers it on the way out.
+    for (const kind of ['inspector', 'sidebar'] as const) {
+      const { controller, element } = makeRegionController({ kind });
+      controller.open();
+      runToRest(controller);
 
-    controller.close();
-    const opacityAt: number[] = [];
-    const widths: number[] = [];
-    controller.subscribe((frame) => {
-      opacityAt.push(Number(element.style.opacity));
-      widths.push(frame.geometry.width);
-    });
-    runToRest(controller);
+      controller.close();
+      const seen: { opacity: number; pointer: string; width: number }[] = [];
+      controller.subscribe((frame) => {
+        if (frame.state === 'closing') {
+          seen.push({ opacity: Number(element.style.opacity), pointer: element.style.pointerEvents, width: frame.geometry.width });
+        }
+      });
+      runToRest(controller);
 
-    const emptiedAt = opacityAt.findIndex((value) => value < 0.05);
-    const halvedAt = widths.findIndex((value) => value < REGION.width / 2);
-    expect(emptiedAt).toBeGreaterThanOrEqual(0);
-    expect(emptiedAt).toBeLessThan(halvedAt);
-    controller.dispose();
+      expect(seen.length).toBeGreaterThan(5);
+      expect(seen.some((s) => s.width < REGION.width / 2)).toBe(true);
+      expect([kind, seen.every((s) => s.opacity === 1)]).toEqual([kind, true]);
+      expect([kind, seen.every((s) => s.pointer === 'none')]).toEqual([kind, true]);
+      controller.dispose();
+    }
   });
 
   test('a region closing folds into the control as it is NOW, not as it was', () => {

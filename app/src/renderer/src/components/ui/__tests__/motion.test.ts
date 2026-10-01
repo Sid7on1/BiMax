@@ -49,13 +49,13 @@ describe('spring solver', () => {
     expect(overshootPercent('calm', control)).toBeCloseTo(0, 1);
   });
 
-  // This test used to demand MORE than 8% — it pinned the 12.6% the owner's UI fix list (item 16)
-  // asked to cut. The contract is now the list's: a visible rebound, within ≤8% and ~200–240ms,
-  // because everything `bouncy` runs on is clicked a hundred times a day.
-  test('`bouncy` rebounds visibly on a control, and no more than a frequent control can bear', () => {
+  // The UI fix list (item 16) once cut this to ≤8% and ≤240ms. The owner felt the text bar's buttons go "soo
+  // speedy" and asked for the speeds from before (2026-10-01): the house bounce is visibly springy again, and it
+  // takes its time — ~12.6% and ~338ms on a control.
+  test('`bouncy` is visibly springy on a control and is not hurried — the owner\'s original bounce', () => {
     expect(overshootPercent('bouncy', 40)).toBeGreaterThan(overshootPercent('glass', 40));
-    expect(overshootPercent('bouncy', 40)).toBeLessThanOrEqual(8);
-    expect(springFor('bouncy', 40).duration).toBeLessThanOrEqual(240);
+    expect(overshootPercent('bouncy', 40)).toBeGreaterThan(10);
+    expect(springFor('bouncy', 40).duration).toBeGreaterThan(300);
   });
 });
 

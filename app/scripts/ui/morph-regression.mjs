@@ -268,18 +268,20 @@ const SCENARIOS = [
     steps: [
       { action: { press: MODEL } },
       { flight: 'dialog.open', action: { press: CHANGE_MODEL }, surface: 'dialog', seed: CHANGE_MODEL, seeded: true },
-      // The row it grew from is gone (its menu closed), so it folds into where that row was: the open's seed.
-      { flight: 'dialog.close', action: ESC, surface: 'dialog', seed: 'previous', seeded: true, closing: true },
+      // The row it grew from is gone (its menu closed), so it folds home into that menu's button. It once folded into
+      // where the row had been — a glass box left in empty space that then vanished (owner, 2026-10-01: "flickers when
+      // closing and has not actual closing seed").
+      { flight: 'dialog.close', action: ESC, surface: 'dialog', seed: MODEL, seeded: true, closing: true },
     ],
   },
   {
-    // Closed with its own Done button — the freshest press, and inside the window. It still folds into the control it
-    // came from; it once folded into Done itself (owner report, 2026-10-01).
+    // Closed with its own Done button — the freshest press, and inside the window. It still folds home into the Model
+    // button it came from; it once folded into Done itself (owner report, 2026-10-01).
     name: 'model window closed by Done',
     steps: [
       { action: { press: MODEL } },
       { action: { press: CHANGE_MODEL }, seed: CHANGE_MODEL },
-      { flight: 'dialog.close-by-done', action: { press: DONE }, surface: 'dialog', seed: 'previous', seeded: true, closing: true },
+      { flight: 'dialog.close-by-done', action: { press: DONE }, surface: 'dialog', seed: MODEL, seeded: true, closing: true },
     ],
   },
   {

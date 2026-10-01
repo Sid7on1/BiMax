@@ -88,8 +88,11 @@ export const SPRINGS: Record<SpringPreset, SpringCharacter> = {
   //   k 1300 ζ 0.65   241ms   6.7%
   //   k 1100 ζ 0.66   220ms   6.3%   ← chosen: inside both bounds, and still above `glass`
   //   k 1300 ζ 0.68   204ms   5.4%
+  //
+  // 2026-10-01: back to k 760 ζ 0.55. The owner felt the text bar's buttons go "soo speedy" and asked for the numbers
+  // from before the UI fix list's motion work; the 220ms / 6.3% retune above was part of it.
   snappy: { stiffness: 1240, ratio: 0.78 },
-  bouncy: { stiffness: 1100, ratio: 0.66 },
+  bouncy: { stiffness: 760, ratio: 0.55 },
   glass: { stiffness: 680, ratio: 0.70 },
   calm: { stiffness: 760, ratio: 1.0 },
 };

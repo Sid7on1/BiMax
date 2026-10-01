@@ -538,11 +538,13 @@ describe('item 38 — text a comfortable width, numbers that hold still, the cod
 
 describe('items 27, 32, 36 — the motion ladder', () => {
   // `npm run check:morph` holds every flight to the ladder in the built app; these pin the CSS side of it.
-  test('the most-pressed controls ease back in 120ms, with no bounce', () => {
-    expect(ruleOf('.glass-pill')).toContain('transform 120ms ease-out;');
-    expect(ruleOf('.glass-row')).toContain('transform 120ms ease-out;');
-    expect(ruleOf('.pressable')).toContain('transition: transform 120ms ease-out,');
-    for (const rule of ['.glass-pill', '.glass-row', '.pressable']) expect(ruleOf(rule)).not.toContain('bouncy');
+  // Items 27/32 once made this a flat 120ms ease-out. The owner felt the text bar's buttons go "soo speedy" and asked
+  // for the speeds from before (2026-10-01): pills and rows spring back on the house bounce, buttons on snappy.
+  test('the most-pressed controls spring back as they did before items 27/32', () => {
+    expect(ruleOf('.glass-pill')).toContain('transform var(--dur-bouncy) var(--ease-bouncy);');
+    expect(ruleOf('.glass-row')).toContain('transform var(--dur-bouncy) var(--ease-bouncy);');
+    expect(ruleOf('.pressable')).toContain('transition: transform var(--dur-snappy) var(--ease-snappy),');
+    for (const rule of ['.glass-pill', '.glass-row', '.pressable']) expect(ruleOf(rule)).not.toContain('120ms ease-out');
   });
   test('the quick-settings flyout opens with the bounce it had before batches 11-20 (owner, 2026-10-01)', () => {
     expect(ruleOf('.glass-flyout')).toContain('animation: pop-in var(--dur-bouncy) var(--ease-bouncy) both;');

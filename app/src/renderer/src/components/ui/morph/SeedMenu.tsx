@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { cn } from '../../../lib/cn';
 import { SeedPopover } from './MorphSurface';
 import { useSeedRef } from './use-seed';
@@ -62,6 +62,9 @@ export function SeedMenu({
   const [open, setOpen] = useState(false);
   const seed = useSeedRef();
   const panelRef = useRef<HTMLDivElement | null>(null);
+  // Names this menu's button on its panel, so a surface opened from one of its rows can fold home into the button once
+  // the row is gone (`homeOf` in use-seed.ts).
+  const triggerId = useId();
 
   const close = useCallback(() => setOpen(false), []);
 
@@ -97,6 +100,7 @@ export function SeedMenu({
       <button
         type="button"
         ref={seed.ref}
+        id={triggerId}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={label}
@@ -125,6 +129,7 @@ export function SeedMenu({
           ref={panelRef}
           role="menu"
           aria-label={label}
+          data-seed-trigger={triggerId}
           onKeyDown={onKeyDown}
           className="flex min-h-0 flex-1 flex-col gap-0.5 p-1.5"
         >

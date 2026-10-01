@@ -737,6 +737,29 @@ sidebar's close three frames sooner after it has already arrived, not faster on 
 gates, three app actions; icon catalog skipped, Xcode license); the installed CSS's `.glass-flyout` reads
 `pop-in var(--dur-bouncy) var(--ease-bouncy)`; window up in 4 s, running at 20 s, no crash report.
 
+## Batch 23 — the text bar's buttons, the right panel's close, the model window's way home (2026-10-01)
+
+**The owner, after batch 22 was installed:** "the speeds are same as before … when i click the 'approve for me' in the
+text bar it is soo speedy … right panel when closing flickers and is not good … model catelogue also kind flickers when
+closing and has not actual closing seed". Batch 22 had compared only against `1aa166c`; the menu speed-up the owner
+feels is older than Codex — **batch 3 (`a81d2b5`, my own, 2026-09-30)** — and was in every build since.
+
+| What the owner felt | Cause, measured | Now |
+|---|---|---|
+| Text-bar buttons "soo speedy" | The menus they open: `seedPopover` k 1300 (picker 240 ms) and `dismissPopover` k 1800 (208 ms), from batch 3; the house bounce cut to 220 ms / 6.3% in batch 3; and Codex's flat 120 ms press release (items 27/32). | Menus k 520 open / k 700 close — `check:morph` 233 → 367 ms open, 183 → 283 ms close. `bouncy` back to k 760 ζ 0.55 (338 ms, 12.6%). Pills and rows spring back on `bouncy` and buttons on `snappy` again. |
+| Right panel flickers closing | Not from Codex: `1aa166c`'s controller gives identical frames. The pane's content faded 1 → 0.80 → 0.37 → 0 over the first three frames while the empty glass shell faded in over it, then the empty glass slid shut — two translucent layers crossing in 50 ms. | `dismissPane`: same spring, reveal held at 1 — the shell never shows, the content stays and is covered by the moving edge, and takes no press on the way out. Both side panes. |
+| Model window flickers, no closing seed | It opens from the Model menu's "Change model…" row; the menu closes at once, so the close folded into the row's old rect — a 268×48 glass box in empty space that then vanished. | A menu's panel names its button (`data-seed-trigger`); the seed reads it while the row exists and folds home into the Model button (91×28) once the row is gone. `check:morph` now demands the Model button for both closes. |
+
+Kept: everything else of batches 11–20 and batch 21. Not changed: a model window opened from Settings or ⌘K still
+folds into the vanished control's last rect (those have no menu button to go home to).
+
+**Verification:** app typecheck; app suite **123 suites / 1082 tests**; `check:motion` PASS; `check:morph` all
+invariants hold, baseline rewritten on purpose for the slower menus and the held pane content. Mutants, each restored
+after, all caught: home fallback removed, panes back on `dismiss`, menu k 1300, menu close k 1800, fast bounce, 120 ms
+pill release, closing pane clickable, and the menu's `data-seed-trigger` removed (`check:morph`: the window folds 182 px
+away from the Model button). The flicker fix is measured as opacity and geometry per frame in the software harness;
+it has not been watched on a real screen. Not yet installed.
+
 ## Remaining qualifications
 
 | # | Status |

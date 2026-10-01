@@ -490,9 +490,9 @@
    from value alone, the way every surface in the shell now separates. */
 .glass-pill {
   background: var(--glass-raise);
-  /* The release: 120ms ease-out, no bounce — the most-pressed controls in the app (UI fix list items 27 and 32: "press
-     120 ms ease-out"; "for anything triggered 100× a day, motion should be felt as speed"). */
-  transition: background 180ms var(--ease-snappy), transform 120ms ease-out;
+  /* The release springs on the house bounce. Items 27/32 once made it 120ms ease-out with no bounce; the owner felt the
+     text bar's buttons go "soo speedy" (2026-10-01), so it is the release it had before the UI fix list again. */
+  transition: background 180ms var(--ease-snappy), transform var(--dur-bouncy) var(--ease-bouncy);
 }
 
 .glass-pill:hover {
@@ -524,7 +524,7 @@
 /* A flat navigation row. No fill until it is pointed at — the resting panel is text on glass. */
 .glass-row {
   transition: background 150ms var(--ease-snappy), color 150ms ease,
-    transform 120ms ease-out; /* the release, as `.glass-pill`'s */
+    transform var(--dur-bouncy) var(--ease-bouncy); /* the release, as `.glass-pill`'s */
 }
 
 .glass-row:hover {
@@ -607,15 +607,17 @@
 
    2026-09-30 — `bouncy` retuned for the UI fix list (item 16): 338ms / 12.6% → 220ms / 6.3%. It runs
    only on high-frequency things (pills and rows on release, the Settings flyout), where a toy's
-   bounce costs on every click. The menus proper are morphs, timed in morph/tokens.ts. */
+   bounce costs on every click. The menus proper are morphs, timed in morph/tokens.ts.
+
+   2026-10-01 — back to 338ms / 12.6%: the owner asked for the speeds from before the UI fix list. */
 :root {
   /* snappy: k=1240, ζ=0.78 — 1.9% overshoot. Presses, toggles, row selection. */
   --ease-snappy: linear(0, 0.0415, 0.139, 0.2639, 0.3962, 0.5202, 0.6347, 0.7327, 0.8132, 0.8769, 0.9254, 0.9609, 0.9858, 1.0019, 1.0119, 1.0172, 1.0194, 1.019, 1.0174, 1.0152, 1.0126, 1.0102, 1.0079, 1.0058, 1);
   --dur-snappy: 209ms;
 
   /* bouncy: k=1100, ζ=0.66 — 6.3% overshoot. Pills and rows on release, the Settings flyout. */
-  --ease-bouncy: linear(0, 0.0413, 0.1416, 0.2737, 0.4171, 0.5571, 0.6842, 0.7931, 0.8816, 0.9497, 0.999, 1.032, 1.052, 1.061, 1.0626, 1.0586, 1.0516, 1.043, 1.034, 1.0254, 1.0178, 1.0113, 1.0061, 1.0022, 1);
-  --dur-bouncy: 220ms;
+  --ease-bouncy: linear(0, 0.0436, 0.1521, 0.2978, 0.4613, 0.619, 0.7618, 0.8826, 0.9779, 1.0473, 1.0928, 1.1176, 1.1257, 1.121, 1.1079, 1.0899, 1.0698, 1.0498, 1.0316, 1.0159, 1.0036, 0.9946, 0.9887, 0.9854, 0.9842, 0.9847, 0.9862, 0.9885, 0.991, 0.9935, 1);
+  --dur-bouncy: 338ms;
 
   /* glass: k=680, ζ=0.7 — 4.6% overshoot. Panels and sheets: a rebound that reads as weight. */
   --ease-glass: linear(0, 0.0382, 0.1311, 0.2561, 0.3898, 0.5212, 0.6419, 0.747, 0.8358, 0.9049, 0.9574, 0.9952, 1.0209, 1.036, 1.0435, 1.0455, 1.0435, 1.0391, 1.0335, 1.0274, 1.0214, 1.016, 1.0112, 1.0073, 1);
@@ -1030,8 +1032,8 @@
 .pressable {
   position: relative;
   overflow: hidden;
-  /* The release eases back in 120ms; the press is instant (see `:active` below). Items 27/32: no spring here. */
-  transition: transform 120ms ease-out, border-color 170ms ease,
+  /* The release springs; the press does not (see `:active` below). As before items 27/32 (owner, 2026-10-01). */
+  transition: transform var(--dur-snappy) var(--ease-snappy), border-color 170ms ease,
     background-color 170ms ease, color 170ms ease, box-shadow 170ms ease;
 }
 

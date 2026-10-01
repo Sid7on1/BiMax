@@ -78,6 +78,7 @@ export function intentSeed(surface: () => Element | null = () => null): SeedHand
   let latched: HTMLElement | null = null;
   let latchedAt = 0;
   let latchedRect: DOMRect | null = null;
+  let home: HTMLElement | null = null;
 
   return {
     ref: () => {},
@@ -91,10 +92,18 @@ export function intentSeed(surface: () => Element | null = () => null): SeedHand
         latched = intent.element;
         latchedAt = intent.at;
         latchedRect = intent.rect;
+        // Read now, while the pressed row is still in its menu: by the time this surface closes, the menu is gone.
+        home = homeOf(intent.element);
       }
 
       const live = measureElement(latched);
       if (live) return live;
+      // A row of a menu that has closed: its menu's button is where the surface came from. Folding into the row's old
+      // rect instead left a glass box hanging in empty space and then vanishing — the model window, opened from the
+      // Model menu's "Change model…", did exactly that (owner, 2026-10-01: "flickers when closing and has not actual
+      // closing seed").
+      const back = measureElement(home);
+      if (back) return back;
       // The control has gone (its pane collapsed, its menu closed) — fall back to where it was.
       // The corner cannot be read off an element that is no longer there, and a pill is the safe
       // assumption: every control in this app that opens a surface is a pill or a rounded rect, and
@@ -104,6 +113,12 @@ export function intentSeed(surface: () => Element | null = () => null): SeedHand
         : null;
     },
   };
+}
+
+/** The button of the `SeedMenu` an element sits in (its panel names it in `data-seed-trigger`), or null. */
+export function homeOf(element: Element | null): HTMLElement | null {
+  const id = element?.closest('[data-seed-trigger]')?.getAttribute('data-seed-trigger');
+  return id ? document.getElementById(id) : null;
 }
 
 /**

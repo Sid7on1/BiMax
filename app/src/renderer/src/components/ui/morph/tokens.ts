@@ -74,8 +74,11 @@ export const MOTION = {
    *    1500          223ms            171ms
    *
    * ζ is unchanged, so the character — momentum resolved in a pixel or two — is the same one.
+   *
+   * 2026-10-01: back to k 520 (picker ~380ms). The owner: clicking "Approve for me" in the text bar "is soo speedy";
+   * they want the speeds from before the UI fix list's motion work, and k 1300 was part of it.
    */
-  seedPopover: { spring: { stiffness: 1300, ratio: 0.82 }, reveal: { start: 0.42, end: 0.80 }, speedLimit: MENU_SPEED_LIMIT },
+  seedPopover: { spring: { stiffness: 520, ratio: 0.82 }, reveal: { start: 0.42, end: 0.80 }, speedLimit: MENU_SPEED_LIMIT },
   /** A sheet or floating panel. */
   seedPanel: { spring: { stiffness: 420, ratio: 0.84 }, reveal: { start: 0.45, end: 0.85 } },
   /**
@@ -108,8 +111,21 @@ export const MOTION = {
    * A small menu is not limited and folds faster still. Still critically damped, for the reason
    * `dismiss` gives. A menu closed early (10–30% open) keeps growing for a frame before it turns;
    * closed at 70% it turns at once — as it did at the old k 520 / 700, because by then it is slowing.
+   *
+   * 2026-10-01: back to `dismiss`'s k 700 (picker ~300ms), with `seedPopover` back at k 520 — the pair the owner had
+   * before the UI fix list. Kept as its own token so the menu's speed limit still shares one span open and close.
    */
-  dismissPopover: { spring: { stiffness: 1800, ratio: 1.0 }, reveal: { start: 0, end: 0.30 }, speedLimit: MENU_SPEED_LIMIT },
+  dismissPopover: { spring: { stiffness: 700, ratio: 1.0 }, reveal: { start: 0, end: 0.30 }, speedLimit: MENU_SPEED_LIMIT },
+  /**
+   * A side pane closing: `dismiss`'s spring, but the content stays until the edge has covered it.
+   *
+   * With `dismiss`'s reveal the pane's content faded out over the first 30% of the close (three frames) while the empty
+   * glass shell faded in over it, and then the empty glass slid shut. Two translucent layers crossing in 50ms is a
+   * brightness dip — the owner: "right panel when closing flickers" (2026-10-01). A pane is uncovered by its edge on the
+   * way in (`structuralPane`), so on the way out it is covered by the same edge: reveal held at 1, so the shell never
+   * shows and the region, clipped to the moving edge, is what the user sees until it is gone.
+   */
+  dismissPane: { spring: { stiffness: 700, ratio: 1.0 }, reveal: { start: 1, end: 1 } },
 
   /**
    * Reduce Motion. Not "no motion" — Prompt 2 §32 asks for the continuity to survive.
@@ -145,7 +161,8 @@ export function tokenForKind(kind: DestinationKind): MotionToken {
 
 /** Which token a destination kind closes with: a menu's own, faster fold, or the shared one. */
 export function dismissForKind(kind: DestinationKind): MotionToken {
-  return kind === 'popover' || kind === 'toolbarExpansion' ? MOTION.dismissPopover : MOTION.dismiss;
+  if (kind === 'popover' || kind === 'toolbarExpansion') return MOTION.dismissPopover;
+  return kind === 'sidebar' || kind === 'inspector' ? MOTION.dismissPane : MOTION.dismiss;
 }
 
 /* ------------------------------------------------------------ size grading */
