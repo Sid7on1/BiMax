@@ -778,7 +778,8 @@ empty space that then vanished, as the composer's case did before batch 23.
 **Verification:** app typecheck; app suite **123 suites / 1083 tests**; `check:morph` all invariants hold, baseline
 gains only the new flight (no other flight moved). Mutants, each restored after, both caught: the Settings link removed
 (`check:morph`: folds 600 px away, into the card's old spot) and the old rect allowed on a stale close (unit test).
-Not yet installed.
+**Installed 2026-10-01 from `c26080c`:** build gates PASS; the installed renderer carries `sidebar-settings`, the
+fresh-only fallback and batch 23's `dismissPane`; window up in 4 s, running at 20 s, no crash report. Old app deleted.
 
 ## Remaining qualifications
 
