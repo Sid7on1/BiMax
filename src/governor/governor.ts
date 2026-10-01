@@ -124,6 +124,21 @@ export class Governor implements IGovernor {
   }
 
   public async approveTaskExecution(taskType: string, payload: any): Promise<void> {
+    // Hard floors for computer control: credential stores, OS security surfaces and wallets are denied outright, and
+    // so is any computer control while nobody is watching — before the Bimax Thread branch below, before bypass, rules
+    // and grants. They used to sit after that branch, which returns early, so inside a Thread neither held (record 46's
+    // restoration trap; fixed in record 65 stage 3, the first stage that lets a Thread press anything). A
+    // prompt-injected page or a blanket "always allow" must never steer clicks into a password manager.
+    if (taskType === 'COMPUTER_CONTROL') {
+      const target = `${payload?.app || ''} ${payload?.host || ''}`.trim();
+      if (isSensitiveComputerTarget(target)) {
+        throw new GovernorVetoError(
+          `Computer control is not allowed on sensitive targets (credential managers, system security settings, wallets): ${target}. Do it manually if it is genuinely needed.`
+        );
+      }
+      if (this.mode === 'unattended') throw new GovernorVetoError('Computer control is not allowed while unattended.');
+    }
+
     // Folder-bound Bimax threads (BIMAX_THREAD_ROOT) cannot inherit bypass or persistent blanket grants.
     // Creating a new file inside the thread's folder and proven read-only commands are routine; a
     // replacement, a delete, a shell mutation or any other destructive action needs one fresh answer for
@@ -183,17 +198,7 @@ export class Governor implements IGovernor {
       return;
     }
 
-    // Hard floor for computer control: credential stores, OS security surfaces, and wallets are
-    // denied outright — before bypass, before rules, before grants. A prompt-injected page or a
-    // blanket "always allow" must never be able to steer clicks into a password manager.
-    if (taskType === 'COMPUTER_CONTROL') {
-      const target = `${payload?.app || ''} ${payload?.host || ''}`.trim();
-      if (isSensitiveComputerTarget(target)) {
-        throw new GovernorVetoError(
-          `Computer control is not allowed on sensitive targets (credential managers, system security settings, wallets): ${target}. Do it manually if it is genuinely needed.`
-        );
-      }
-    }
+    // (The computer-control hard floors run at the top of this method, ahead of the Thread branch.)
 
     // Workspace containment is a hard floor, including persistent allow rules and bypass mode.
     if (taskType === 'FILE_WRITE' || taskType === 'FILE_DELETE') {

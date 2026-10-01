@@ -2,7 +2,7 @@ import { buildTool } from '../tool.factory';
 import { IGovernor } from '../../core/interfaces';
 import { outcomeError, outcomeOk, ErrorClass } from '../outcome';
 import { engineEvents } from '../../engine/events';
-import { HOST_CALL_EVENT } from '../../protocol/protocol';
+import { HOST_CALL_EVENT, type HostCapability } from '../../protocol/protocol';
 import type { HostCallResult } from '../../protocol/host';
 
 /**
@@ -20,15 +20,21 @@ import type { HostCallResult } from '../../protocol/host';
 /** The app may take this long: a grant card waits for the user. An interrupt ends the wait at once (ProtocolHost). */
 const HOST_CALL_LIMIT_MS = 10 * 60 * 1000;
 
-const CODE_CLASS: Record<string, ErrorClass> = {
+export const CODE_CLASS: Record<string, ErrorClass> = {
   denied: 'permission',
   not_permitted: 'permission',
   not_found: 'not_found',
   invalid_args: 'invalid_args',
   unavailable: 'external',
+  // Stage 3, pressing: two controls answer to that name; the window was read too long ago or has changed since;
+  // the press was sent and nothing changed; the press may or may not have happened.
+  ambiguous: 'ambiguous_match',
+  stale: 'invalid_args',
+  no_effect: 'external',
+  uncertain: 'unknown',
 };
 
-export function hostCall(op: string, args: Record<string, unknown>, limitMs = HOST_CALL_LIMIT_MS): Promise<HostCallResult> {
+export function hostCall(op: string, args: Record<string, unknown>, limitMs = HOST_CALL_LIMIT_MS, capability: HostCapability = 'look'): Promise<HostCallResult> {
   if (engineEvents.listenerCount(HOST_CALL_EVENT) === 0) {
     return Promise.resolve({ ok: false, error: 'Looking at other apps is not available in this task.', value: { code: 'unavailable' } });
   }
@@ -36,7 +42,7 @@ export function hostCall(op: string, args: Record<string, unknown>, limitMs = HO
     let done = false;
     const finish = (result: HostCallResult) => { if (!done) { done = true; clearTimeout(timer); resolve(result); } };
     const timer = setTimeout(() => finish({ ok: false, error: 'Bimax did not answer in time.', value: { code: 'unavailable' } }), limitMs);
-    engineEvents.emit(HOST_CALL_EVENT, 'look', op, args, finish);
+    engineEvents.emit(HOST_CALL_EVENT, capability, op, args, finish);
   });
 }
 

@@ -67,6 +67,9 @@ const TASK_TYPE_MAP: Record<string, string> = {
   DeleteTool: 'FILE_DELETE',
   CreateDirectoryTool: 'FILE_WRITE',
   DocumentTool: 'FILE_WRITE',
+  // Record 65 stage 3: a press in another app's window. The governor applies its computer-control floors (sensitive
+  // targets, plan mode) even in a Bimax Thread; the per-press card is the app's, which no engine mode can skip.
+  PressInAppTool: 'COMPUTER_CONTROL',
   // NOTE: MultiEditTool is intentionally ABSENT — it is multi-FILE, so buildTool's single
   // args.path can't gate it. It calls governor.approveTaskExecution('FILE_WRITE') per distinct
   // file itself (multiedit.tool.ts), before any write, keeping the batch atomic.

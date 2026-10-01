@@ -56,6 +56,8 @@ const CORE_TOOLS = new Set<string>([
   // Record 65 stage 2: registered only when the person turned looking on for this task's app. Deferred, the model said
   // "I don't have a tool called LookAtAppTool" and never searched for it (measured live, gpt-oss-20b, 2026-10-01).
   'LookAtAppTool',
+  // Stage 3: registered only when the person also turned pressing on.
+  'PressInAppTool',
 ]);
 
 /**

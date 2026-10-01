@@ -1,7 +1,7 @@
 import { capabilitySnapshot, capabilityMessage } from '../core/capability.status';
 import { EventEmitter } from 'events';
 import {
-  Outbound, Inbound, ReplyMsg, MenuSelectMsg, CompletionItem, CatalogResultMsg, HostResultMsg, JsonValue,
+  Outbound, Inbound, ReplyMsg, MenuSelectMsg, CompletionItem, CatalogResultMsg, HostResultMsg, HostCapability, JsonValue,
   FORWARDED_EVENTS, PROMPT_EVENT, DIFF_PROMPT_EVENT, INPUT_PROMPT_EVENT, HOST_CALL_EVENT,
   PROTOCOL_FEATURES, PROTOCOL_MAX_COMPATIBLE_MAJOR, PROTOCOL_MIN_COMPATIBLE_MAJOR,
   PROTOCOL_SEMVER, PROTOCOL_VERSION, sanitizeArgs,
@@ -133,8 +133,8 @@ export class ProtocolHost {
     emitter.on(INPUT_PROMPT_EVENT, inputFn);
     this.listeners.push({ event: INPUT_PROMPT_EVENT, fn: inputFn });
 
-    // host_call(capability, op, args, resolve) — ask the app to do what only the app may (record 65, stage 2).
-    const hostCallFn = (capability: 'look', op: string, args: JsonValue, resolve: (r: HostCallResult) => void) => {
+    // host_call(capability, op, args, resolve) — ask the app to do what only the app may (record 65, stages 2–3).
+    const hostCallFn = (capability: HostCapability, op: string, args: JsonValue, resolve: (r: HostCallResult) => void) => {
       const id = this.nextRequestId++;
       this.hostCalls.set(id, resolve);
       this.write({ t: 'host_call', id, capability, op, args });
