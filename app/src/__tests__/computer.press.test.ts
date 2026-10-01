@@ -2,6 +2,9 @@ import { INPUT_TOOLS, LOOK_TOOLS, PRESS_APPS, PRESS_ROLES, PRESS_TOOLS, pressMan
 import { createLookService, PRESS_FRESH_MS, type LookDriver, type LookElement, type PressOutcome, type PressTarget, type RunningApp } from '../main/computer/look.service';
 import { windowElements } from '../main/computer/look.driver';
 import { buildEngineChildEnv } from '../main/coding.runtime.paths';
+import { identifyProcess, type ProcessIdentity } from '../main/computer/look.identity';
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 
 /**
  * Record 65 stage 3 — one press at a time, in the test app only. Each failure mode the plan names has its own test, and
@@ -22,7 +25,7 @@ const ELEMENTS: LookElement[] = [
   { role: 'AXButton', label: 'OK', pressable: true },
 ];
 
-function setup(opts: { look?: boolean; press?: boolean; answers?: string[]; outcome?: PressOutcome | (() => PressOutcome); elements?: LookElement[] } = {}) {
+function setup(opts: { look?: boolean; press?: boolean; answers?: string[]; outcome?: PressOutcome | (() => PressOutcome); elements?: LookElement[]; identify?: (pid: number) => Promise<ProcessIdentity | null> } = {}) {
   let look = opts.look ?? true;
   let pressOn = opts.press ?? true;
   let clock = 1_000_000;
@@ -46,6 +49,7 @@ function setup(opts: { look?: boolean; press?: boolean; answers?: string[]; outc
     enabled: () => look,
     pressEnabled: () => look && pressOn,
     now: () => clock,
+    ...(opts.identify ? { identify: opts.identify } : {}),
     driver: async () => { const hook = beforeDriver; beforeDriver = null; hook?.(); return driver; },
     ask: async (_t, question, options) => {
       asked.push({ question, options });
@@ -279,8 +283,8 @@ describe('takeover: a Stop or a switch turned off cancels a press that was allow
 });
 
 describe('the driver may press in the test app only, with click alone', () => {
-  it('PRESS_APPS is exactly the test app; roles are plain controls', () => {
-    expect([...PRESS_APPS]).toEqual(['ai.bimax.cu.fixture']);
+  it('PRESS_APPS is exactly Bimax’s two test apps; roles are plain controls', () => {
+    expect([...PRESS_APPS]).toEqual(['ai.bimax.cu.fixture', 'ai.bimax.cu.x01-todo']);
     expect([...PRESS_ROLES].sort()).toEqual(['AXButton', 'AXCheckBox', 'AXRadioButton']);
     expect([...PRESS_TOOLS]).toEqual(['click']);
   });
@@ -321,5 +325,53 @@ describe('admission into the engine environment', () => {
     expect(env({}, { BIMAX_COMPUTER_PRESS: '1' })).toBeUndefined();
     expect(env({}, { BIMAX_COMPUTER_PRESS: '1', BIMAX_COMPUTER_LOOK: '1' })).toBe('1');
     expect(env({}, { BIMAX_COMPUTER_PRESS: 'yes', BIMAX_COMPUTER_LOOK: '1' })).toBeUndefined();
+  });
+});
+
+describe('stage 5: which build is running', () => {
+  const BUILD_A: ProcessIdentity = { path: '/run/build/BimaxTodo.app/Contents/MacOS/BimaxTodo', sha256: 'a'.repeat(64) };
+  const BUILD_B: ProcessIdentity = { path: BUILD_A.path, sha256: 'b'.repeat(64) };
+
+  it('identifies a real process by its executable and that file’s SHA-256', async () => {
+    const me = await identifyProcess(process.pid);
+    expect(me?.path).toBe(process.execPath);
+    expect(me?.sha256).toBe(createHash('sha256').update(readFileSync(process.execPath)).digest('hex'));
+    expect(await identifyProcess(-1)).toBeNull();
+    expect(await identifyProcess(999_999_999)).toBeNull();
+  });
+
+  it('a look names the running build', async () => {
+    const s = setup({ identify: async () => BUILD_A });
+    const result = await s.lookAt();
+    expect(String((result.value as any).text)).toContain(`Running build: ${BUILD_A.path} (process 21, executable SHA-256 ${BUILD_A.sha256})`);
+  });
+
+  it('a press is bound to the build the look saw, and its receipt names that build', async () => {
+    const s = setup({ identify: async () => BUILD_A });
+    await s.lookAt();
+    const result = await s.press();
+    expect(result.ok).toBe(true);
+    expect(String((result.value as any).text)).toContain(`the running build with executable SHA-256 ${BUILD_A.sha256}, process 21`);
+    expect(s.audit[1].receipt).toMatchObject({ exeSha256: BUILD_A.sha256, pid: 21, outcome: 'pressed' });
+  });
+
+  it('wrong build: rebuilt or relaunched after the look — nothing is pressed', async () => {
+    let current = BUILD_A;
+    const s = setup({ identify: async () => current });
+    await s.lookAt();
+    s.duringAsk(() => { current = BUILD_B; }); // rebuilt while the card was up
+    const result = await s.press();
+    expect(result).toMatchObject({ ok: false, value: { code: 'stale' } });
+    expect(result.error).toContain('rebuilt or relaunched');
+    expect(s.presses).toEqual([]);
+  });
+
+  it('the app gone since the look — nothing is pressed', async () => {
+    let current: ProcessIdentity | null = BUILD_A;
+    const s = setup({ identify: async () => current });
+    await s.lookAt();
+    current = null;
+    expect(await s.press()).toMatchObject({ ok: false, value: { code: 'stale' } });
+    expect(s.presses).toEqual([]);
   });
 });

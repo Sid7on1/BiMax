@@ -26,6 +26,7 @@ const MUTANTS = [
   ['takeover: nothing re-checked before the driver', "      const driver = await deps.driver();\n      if (!live()) return cancelled();", '      const driver = await deps.driver();'],
   ['no-op: an unchanged window counts as success', 'if (!changed) {', 'if (false) {'],
   ['pressing switched off still presses', 'if (!deps.enabled() || !pressOn()) {', 'if (!deps.enabled()) {'],
+  ['wrong build: a rebuild since the look is not checked', 'if (!exeNow || exeNow.sha256 !== look.exe.sha256 || exeNow.path !== look.exe.path) {', 'if (!exeNow) {'],
 ];
 
 let survived = 0;

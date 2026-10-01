@@ -3,6 +3,7 @@ import type { Outbound, Inbound } from '../../renderer/src/protocol';
 import { LookGrants } from './look.grants';
 import { NEVER_LOOK, PRESS_APPS, validBundleId } from './look.manifest';
 import { renderLook } from './look.observation';
+import type { ProcessIdentity } from './look.identity';
 
 /**
  * The app's answer to a Bimax Thread asking to look at another app's window (record 65, stage 2).
@@ -59,6 +60,8 @@ export interface LookServiceDeps {
   pressEnabled?(): boolean;
   /** The clock a look's freshness is measured by. Tests set it. */
   now?(): number;
+  /** Stage 5: which build a process runs — its executable and that file's SHA-256 (look.identity.ts). Optional. */
+  identify?(pid: number): Promise<ProcessIdentity | null>;
 }
 
 /** What the audit log keeps of one host call: who asked, for what, the outcome, and the running counts. */
@@ -90,6 +93,9 @@ export interface PressReceipt {
   labelHash: string;
   windowId: number;
   lookAgeMs: number;
+  /** Stage 5: the build that was pressed — the SHA-256 of the running executable, and its process. */
+  exeSha256?: string;
+  pid?: number;
   outcome: 'pressed' | 'no_effect' | 'not_pressed' | 'uncertain' | 'cancelled' | 'denied';
 }
 
@@ -126,7 +132,11 @@ export function createLookService(deps: LookServiceDeps) {
   };
   const now = () => (deps.now ? deps.now() : Date.now());
   // Stage 3: the last look of each app per Thread, which at most one press may use; and every press request seen.
-  const observations = new Map<string, { at: number; windowId: number; title: string; elements: LookElement[] }>();
+  const observations = new Map<string, { at: number; windowId: number; title: string; elements: LookElement[]; exe?: ProcessIdentity | null }>();
+  const identify = async (pid: number): Promise<ProcessIdentity | null> => {
+    if (!deps.identify) return null;
+    try { return await deps.identify(pid); } catch { return null; }
+  };
   const handledPresses = new Set<string>();
   const lastReceipt = new Map<string, PressReceipt>();
 
@@ -218,13 +228,17 @@ export function createLookService(deps: LookServiceDeps) {
       if (!current()) return revoked();
       const window = await driver.look(threadId, target, query);
       if (!current()) return revoked();
+      // Stage 5: which build is running, so a task that just built this app can tell it is looking at that build.
+      const exe = await identify(target.pid);
+      if (!current()) return revoked();
       const shown = renderLook(window.markdown);
       c.looks += 1;
       // Stage 3: what this look showed is what one later press may be bound to.
       if (typeof window.windowId === 'number' && Array.isArray(window.elements)) {
-        observations.set(`${threadId}|${target.bundleId}`, { at: now(), windowId: window.windowId, title: window.title, elements: window.elements });
+        observations.set(`${threadId}|${target.bundleId}`, { at: now(), windowId: window.windowId, title: window.title, elements: window.elements, exe });
       }
-      const header = `${target.name} — ${window.title ? `window “${window.title}”` : 'front window'} (read only${query ? `, lines matching “${query}”` : ''}):`;
+      const running = exe ? `\nRunning build: ${exe.path} (process ${target.pid}, executable SHA-256 ${exe.sha256})` : '';
+      const header = `${target.name} — ${window.title ? `window “${window.title}”` : 'front window'} (read only${query ? `, lines matching “${query}”` : ''}):${running}`;
       return { t: 'host_result', id: msg.id, ok: true, value: { text: `${header}\n${shown.text || '(nothing readable)'}` } };
     } catch (error) {
       if (!current()) return revoked();
@@ -306,6 +320,18 @@ export function createLookService(deps: LookServiceDeps) {
         receipt.outcome = 'denied';
         return refuse('denied', `The person did not let this task press “${el.label}”. Nothing was pressed. Do not press it again; ask them what to do.`);
       }
+      // Stage 5: the build the look saw must be the build that is running now. A rebuild or relaunch since the look
+      // (or while the card waited) means the press would land on a different binary than the one read.
+      if (look.exe) {
+        const exeNow = await identify(target.pid);
+        if (!live()) return cancelled();
+        if (!exeNow || exeNow.sha256 !== look.exe.sha256 || exeNow.path !== look.exe.path) {
+          receipt.outcome = 'not_pressed';
+          return refuse('stale', `${target.name} was rebuilt or relaunched since you looked, so this press would not reach the build you read. Nothing was pressed. Look again.`);
+        }
+        receipt.exeSha256 = exeNow.sha256;
+        receipt.pid = target.pid;
+      }
       const driver = await deps.driver();
       if (!live()) return cancelled();
       if (!driver.press) return refuse('unavailable', 'This Bimax cannot press. Nothing was pressed.');
@@ -340,7 +366,8 @@ export function createLookService(deps: LookServiceDeps) {
       if (!changed) {
         return refuse('no_effect', `Pressed “${el.label}”, but nothing in the window changed. It may not have worked. Look again before trying anything else; do not press it again to make sure.`);
       }
-      const header = `Pressed “${el.label}” in ${target.name}${outcome.title ? ` (window “${outcome.title}”)` : ''}. What changed in the window:`;
+      const build = receipt.exeSha256 ? ` — the running build with executable SHA-256 ${receipt.exeSha256}, process ${target.pid}` : '';
+      const header = `Pressed “${el.label}” in ${target.name}${outcome.title ? ` (window “${outcome.title}”)` : ''}${build}. What changed in the window:`;
       return { t: 'host_result', id: msg.id, ok: true, value: { text: `${header}\n${changes.length ? changes.join('\n') : '(it changed, but no readable line did)'}` } };
     } catch (error) {
       if (!live()) return cancelled();

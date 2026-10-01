@@ -19,7 +19,8 @@ Enforced by `src/__tests__/computer.admission.boundary.test.ts` and `scripts/ver
   Allow / Not now); "Not now" is remembered for the task; stopping it — closing it or any Stop of its turn — ends
   every grant. Bimax itself, the password and keychain apps and System Settings are never looked at.
 - **Pressing (stage 3).** With both items ticked, a new ⌘2 task also gets `PressInAppTool`: one AX press of one named,
-  enabled button, checkbox or radio button, in **Bimax's own test app only** (`PRESS_APPS`). A press is bound to a look
+  enabled button, checkbox or radio button, in **Bimax's own test apps only** (`PRESS_APPS`: the stage 3 fixture and
+  stage 5's X01 to-do app). A press is bound to a look
   of that window under two minutes old, and each look allows at most one press. Every press meets the governor's
   computer-control floors first — sensitive targets and "not while unattended" now run **before** the Bimax Thread
   branch (record 46's trap) — then the engine's one-time card, then the app's own card; neither can be granted for the
@@ -27,6 +28,9 @@ Enforced by `src/__tests__/computer.admission.boundary.test.ts` and `scripts/ver
   once) cancels a press that has not been sent. The press is sent once, by element token, in the background, and never
   retried; the window is read again and "nothing changed" is reported as a failure, never a success. A press session's
   manifest allows `click` and still denies every other input tool by name.
+- **Which build is running (stage 5).** A look names the running executable and its SHA-256, read by the app from the
+  process; a press is refused if that executable changed since the look (a rebuild or relaunch), and its receipt
+  records the hash of the build it pressed.
 - Turning the preview off closes granted sessions. A stop or off/on cycle invalidates in-flight discovery, grant
   answers and observations: no late approval may recreate a grant and no revoked observation reaches the model.
 - The driver runs in-process, `bounded`: a runtime manifest that may list apps only, and per grant a version-2

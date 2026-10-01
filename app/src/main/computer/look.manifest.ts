@@ -56,8 +56,11 @@ export function lookManifest(bundleId: string, minutes = 30, idleMinutes = 10): 
  */
 export const PRESS_TOOLS = ['click'] as const;
 
-/** The apps a task may press in, this stage: Bimax's own test app, and nothing else. Widening it must fail a test. */
-export const PRESS_APPS: ReadonlySet<string> = new Set(['ai.bimax.cu.fixture']);
+/**
+ * The apps a task may press in: Bimax's own test apps, and nothing else — the stage 3 fixture and stage 5's X01 to-do app
+ * (app/benchmarks/x01-todo). Widening it must fail a test.
+ */
+export const PRESS_APPS: ReadonlySet<string> = new Set(['ai.bimax.cu.fixture', 'ai.bimax.cu.x01-todo']);
 
 /** The controls a press may target: plain ones whose own AX action is a press. */
 export const PRESS_ROLES: ReadonlySet<string> = new Set(['AXButton', 'AXCheckBox', 'AXRadioButton']);

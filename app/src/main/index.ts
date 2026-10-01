@@ -5,6 +5,7 @@ import path from 'node:path';
 import { ThreadManager } from './thread.manager';
 import { createLookService } from './computer/look.service';
 import { createLookDriver } from './computer/look.driver';
+import { identifyProcess } from './computer/look.identity';
 import { threadCapabilityEnvironment, threadIndexEnvironment, threadVoiceEnvironment, workerCapacityEnvironment, spendLedgerEnvironment } from './thread.environment';
 import { ThreadStorage } from './thread.storage';
 import { ThreadBinRecovery, BIN_UNDO_MS } from './thread.bin.recovery';
@@ -140,6 +141,8 @@ const lookDriver = createLookDriver({
 const lookService = createLookService({
   enabled: () => loadSettings().computerLook === true,
   pressEnabled: () => loadSettings().computerLook === true && loadSettings().computerPress === true,
+  // Stage 5: which build is running, for a task that built the app it is looking at.
+  identify: identifyProcess,
   driver: async () => lookDriver,
   ask: (threadId, question, options, body) => threads.askOnBehalf(threadId, question, options, body),
   // Content-free: which task asked what of which app, the answer, and both counts — the app's and the driver's own.

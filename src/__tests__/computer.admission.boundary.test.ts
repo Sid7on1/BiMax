@@ -138,7 +138,9 @@ describe('Computer Use admission boundary (record 65 stages 2–3; was the code-
     expect(manifest).toContain("export const LOOK_TOOLS = ['list_apps', 'list_windows', 'get_window_state', 'get_screen_size'] as const;");
     // Stage 3: one input tool, one app, three roles.
     expect(manifest).toContain("export const PRESS_TOOLS = ['click'] as const;");
-    expect(manifest).toContain("export const PRESS_APPS: ReadonlySet<string> = new Set(['ai.bimax.cu.fixture']);");
+    // Bimax's own test apps only: the stage 3 fixture and stage 5's X01 to-do app (app/benchmarks/x01-todo).
+    expect(manifest).toContain("export const PRESS_APPS: ReadonlySet<string> = new Set(['ai.bimax.cu.fixture', 'ai.bimax.cu.x01-todo']);");
+    expect(read('app/benchmarks/x01-todo/build.sh')).toContain('<key>CFBundleIdentifier</key><string>ai.bimax.cu.x01-todo</string>');
     expect(manifest).toContain("export const PRESS_ROLES: ReadonlySet<string> = new Set(['AXButton', 'AXCheckBox', 'AXRadioButton']);");
     // The driver clicks only by element token, as an AX press, in the background — never coordinates.
     const driver = read('app/src/main/computer/look.driver.ts');
