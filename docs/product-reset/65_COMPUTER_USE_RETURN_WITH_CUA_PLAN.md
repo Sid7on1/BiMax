@@ -150,6 +150,29 @@ counts unless a re-read confirms it.
 filter; the agent cursor off (Bimax draws its own feedback); the `@trycua/cua-driver` package measured inside Electron
 (memory, start-up, whether the embedded path is faster than 1.2–2.9 s); the daemon's memory growth watched.
 
+## 6a. Stage 2a — the embedded driver, measured outside the app (2026-10-01)
+
+Evidence: `evidence/2026-10-01-cu-stage2a/` (the probe and its two runs). `@trycua/cua-driver` 0.31.0 (MIT, npm) runs the
+driver **in the host process, with no daemon** (`CuaDriver.createConfiguredWithActivityObserver`): a Node add-on plus
+`libcua_driver_sdk.dylib` (54 MB package; the CLI binary in it is not needed). The library itself carries no telemetry
+endpoint; the probe held **0 network sockets**. Each Bimax Thread grant can be its own **trusted session**
+(`createTrustedSession`) with its own capability manifest — version 2 is required to name an app — so one runtime serves
+every Thread and the driver enforces each grant's scope itself.
+
+| | Node 22 | Electron 43.3 (Bimax's) |
+|---|---|---|
+| Runtime start | 37–87 ms | 87 ms |
+| Memory | +~45 MB (Node) | +~8 MB RSS (67 → 75 MB) |
+| Window read (83 elements, background) | 700–750 ms | 670–700 ms |
+| `click`, `type_text`, `press_key` in a look-only session | refused: `permission_denied` (manifest) | same |
+| Looking at an app outside the grant (Finder) | refused: `bounded_resource_outside_manifest` | same |
+| The fixture after the refused input | `presses=0 events=0 last=none` | same |
+| Activity observer | authorized: `list_windows`, `get_window_state` only; refused: the three input tools | same |
+
+A probe mistake on the way, kept for the next person: a fixture launched hidden (`open -g`) has no AX window at all, and
+the driver then returns an empty tree on purpose (`ax_window_unresolved`) — launch it visibly and put the user's app back
+in front.
+
 ## 7. Risks named now
 
 - **Driver drift.** 0.12 → 0.31 rewrote the codebase; a later release can change behaviour again (0.18 did). The

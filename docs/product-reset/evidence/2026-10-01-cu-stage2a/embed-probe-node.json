@@ -1,0 +1,177 @@
+{
+ "node": "v22.13.1",
+ "electron": null,
+ "rssStartMb": 72,
+ "steps": [
+  {
+   "name": "create runtime (in-process, bounded)",
+   "ms": 37.4,
+   "rssMb": 80
+  },
+  {
+   "name": "open trusted session (fixture, look-only)",
+   "ms": 0.2
+  },
+  {
+   "name": "list_windows (fixture)",
+   "ok": true,
+   "ms": 640.6,
+   "windowId": 600,
+   "error": null
+  },
+  {
+   "name": "get_window_state (fixture), first",
+   "ok": true,
+   "ms": 749.7,
+   "elements": 83,
+   "error": null
+  },
+  {
+   "name": "get_window_state (fixture), 6 reads",
+   "ms": [
+    749.7,
+    728.1,
+    701.7,
+    698.6,
+    722.3,
+    728.8
+   ],
+   "rssMb": 74
+  },
+  {
+   "name": "MUST REFUSE: click",
+   "refused": true,
+   "errorCode": "permission_denied",
+   "threw": false,
+   "error": "Permission denied: capability manifest denies tool 'click'"
+  },
+  {
+   "name": "MUST REFUSE: type_text",
+   "refused": true,
+   "errorCode": "permission_denied",
+   "threw": false,
+   "error": "Permission denied: capability manifest denies tool 'type_text'"
+  },
+  {
+   "name": "MUST REFUSE: press_key",
+   "refused": true,
+   "errorCode": "permission_denied",
+   "threw": false,
+   "error": "Permission denied: capability manifest denies tool 'press_key'"
+  },
+  {
+   "name": "MUST REFUSE: look at Finder (not granted)",
+   "refused": true,
+   "errorCode": "bounded_resource_outside_manifest",
+   "error": "protected resource is outside the capability manifest: desktop application pid 627 is outside the capability manifest",
+   "listWindowsOk": false
+  },
+  {
+   "name": "fixture status after the refused input",
+   "status": "presses=0 events=0 last=none"
+  },
+  {
+   "name": "network sockets held by this process",
+   "count": 0,
+   "sample": []
+  },
+  {
+   "name": "activity observer tally",
+   "AuthorizedAction:list_windows": 1,
+   "AuthorizedAction:get_window_state": 8,
+   "AuthorizationRefused:click": 1,
+   "AuthorizationRefused:type_text": 1,
+   "AuthorizationRefused:press_key": 1,
+   "AuthorizationRefused:list_windows": 1,
+   "AuthorizationRefused:get_window_state": 1
+  }
+ ],
+ "network": [],
+ "rssEndMb": 76,
+ "events": [
+  {
+   "kind": "AuthorizedAction",
+   "tool": "list_windows",
+   "risk": "r2"
+  },
+  {
+   "kind": "AuthorizedAction",
+   "tool": "get_window_state",
+   "risk": "r2"
+  },
+  {
+   "kind": "AuthorizedAction",
+   "tool": "get_window_state",
+   "risk": "r2"
+  },
+  {
+   "kind": "AuthorizedAction",
+   "tool": "get_window_state",
+   "risk": "r2"
+  },
+  {
+   "kind": "AuthorizedAction",
+   "tool": "get_window_state",
+   "risk": "r2"
+  },
+  {
+   "kind": "AuthorizedAction",
+   "tool": "get_window_state",
+   "risk": "r2"
+  },
+  {
+   "kind": "AuthorizedAction",
+   "tool": "get_window_state",
+   "risk": "r2"
+  },
+  {
+   "kind": "AuthorizedAction",
+   "tool": "get_window_state",
+   "risk": "r2"
+  },
+  {
+   "kind": "AuthorizationRefused",
+   "tool": "click",
+   "risk": "r1",
+   "refusal": "permission_denied"
+  },
+  {
+   "kind": "AuthorizationRefused",
+   "tool": "type_text",
+   "risk": "r1",
+   "refusal": "permission_denied"
+  },
+  {
+   "kind": "AuthorizationRefused",
+   "tool": "press_key",
+   "risk": "r1",
+   "refusal": "permission_denied"
+  },
+  {
+   "kind": "AuthorizationRefused",
+   "tool": "list_windows",
+   "risk": "r2",
+   "refusal": "bounded_resource_outside_manifest"
+  },
+  {
+   "kind": "AuthorizationRefused",
+   "tool": "get_window_state",
+   "risk": "r2",
+   "refusal": "bounded_resource_outside_manifest"
+  },
+  {
+   "kind": "AuthorizedAction",
+   "tool": "get_window_state",
+   "risk": "r2"
+  }
+ ],
+ "tally": {
+  "AuthorizedAction:list_windows": 1,
+  "AuthorizedAction:get_window_state": 8,
+  "AuthorizationRefused:click": 1,
+  "AuthorizationRefused:type_text": 1,
+  "AuthorizationRefused:press_key": 1,
+  "AuthorizationRefused:list_windows": 1,
+  "AuthorizationRefused:get_window_state": 1
+ }
+}
