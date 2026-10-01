@@ -733,7 +733,9 @@ rows and buttons; the Reduce Motion fade (Reduce Motion is off on this Mac); the
 sidebar's close three frames sooner after it has already arrived, not faster on the way.
 
 **Verification:** `ui.fix.list`, `motion` and `morph.exit.grammar` suites, 78 tests; `check:motion` PASS; mutant
-(flyout back to snappy) caught. Not yet installed.
+(flyout back to snappy) caught. **Installed 2026-10-01 from `a0850d3`:** build gates PASS (engine 7/7, four package
+gates, three app actions; icon catalog skipped, Xcode license); the installed CSS's `.glass-flyout` reads
+`pop-in var(--dur-bouncy) var(--ease-bouncy)`; window up in 4 s, running at 20 s, no crash report.
 
 ## Remaining qualifications
 
