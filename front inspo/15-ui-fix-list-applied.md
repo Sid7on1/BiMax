@@ -709,13 +709,37 @@ build; `check:glass-contrast`; the palette, Bin and Files journeys at both zooms
 Codex's `ThinkingIndicator` (caught), Codex's inks (caught by the ladder test), the new-message reset removed
 (caught), the seed fix removed (caught by `check:morph`), the Files refresh fix removed (caught by the journey).
 `quiet-check.mjs` asserted the removals the owner rejected and is archived. Guided by product-reset README, 03/04,
-08 and the Mac Buddy vision. Implemented and locally verified; **not installed** — installing quits the running app.
+08 and the Mac Buddy vision. Implemented and locally verified.
+
+**Installed 2026-10-01 from `54869b8`** (batch 21 plus the engine's deck fix) at the owner's request; the `f307d98`
+app was deleted, not archived, as asked. `build-local-mac.sh`: engine answered 7/7, four package gates and three
+app actions PASS; the app icon catalog was skipped again (Xcode license not accepted). Checked in the bundles, not
+the source: the new renderer CSS carries `#b8b8b5` and no `#e9e9e4` (the old one the reverse), and the installed
+engine is byte-identical to `app/engine/index.js` and contains the new bracket-repair message. Window up 4 s after
+launch, still running at 20 s, no crash report. Not yet used by hand: the owner's judgement of the feel is pending.
+
+## Batch 22 — opening and closing at the pre-Codex speed (2026-10-01)
+
+**The owner:** "codex made it soo much speed that it does not feel good, i want the numbers which were before codex
+have edited it" — then: "just the speed of opening and closing, dont eliminate all the work of codex".
+
+Every timing in `app/src/renderer` and `app/src/main` was compared with `1aa166c`, the build installed before
+batches 11–20. The springs (`motion.ts`, `morph/tokens.ts`, `spring-value.ts`) and the CSS duration/curve tokens were
+already identical. One opening still ran at batch 11's pace: the quick-settings flyout above Settings (`.glass-flyout`)
+had been moved from the bounce (220 ms, with overshoot) to the snappy curve (209 ms, none). It is back on the bounce.
+
+Deliberately **kept** (not opening or closing, so outside the owner's request): the 120 ms release of pressed pills,
+rows and buttons; the Reduce Motion fade (Reduce Motion is off on this Mac); the edge-pinned pane rest, which ends the
+sidebar's close three frames sooner after it has already arrived, not faster on the way.
+
+**Verification:** `ui.fix.list`, `motion` and `morph.exit.grammar` suites, 78 tests; `check:motion` PASS; mutant
+(flyout back to snappy) caught. Not yet installed.
 
 ## Remaining qualifications
 
 | # | Status |
 |---|---|
-| 1–30, 32–45 | Addressed within batches 1–20, with batch 21's owner review reversing 27/32/36's speeds, 33's block, 43's inks and parts of 23/28/30. Installed code is still `f307d98` until the next install. |
+| 1–30, 32–45 | Addressed within batches 1–20, with batch 21's owner review reversing 27/32/36's speeds, 33's block, 43's inks and parts of 23/28/30. Installed from `54869b8` on 2026-10-01. |
 | 31 | Deliberately not planned: its coral/four-elevation palette conflicts with the owner's item-10 decision. |
 | 23, 30, 44, 45 | Immediate feedback and honest progress are implemented; universal native latency, perceived trust, human task-completion and mis-click improvements are unmeasured. No artificial review delay was added. |
 | Release qualification | Local signing/install verified. Notarization, clean-Mac permission/update behavior, the historical no-Microphone gate conflict, and public-release qualification remain open. |

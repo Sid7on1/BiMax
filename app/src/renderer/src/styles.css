@@ -555,8 +555,9 @@
   background: var(--float-solid);
   border: 1px solid var(--glass-edge-strong);
   box-shadow: var(--shadow-pop);
-  /* Snappy, not the bounce: it is a popover (UI fix list item 27, "no bounce anywhere near menus"). */
-  animation: pop-in var(--dur-snappy) var(--ease-snappy) both;
+  /* The bounce, as before item 27 made it snappy: the owner, 2026-10-01, wants every open and close at the speed it
+     had before batches 11-20 ("codex made it soo much speed that it does not feel good"). */
+  animation: pop-in var(--dur-bouncy) var(--ease-bouncy) both;
   transform-origin: right bottom;
 }
 

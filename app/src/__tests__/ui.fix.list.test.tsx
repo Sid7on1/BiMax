@@ -544,8 +544,9 @@ describe('items 27, 32, 36 — the motion ladder', () => {
     expect(ruleOf('.pressable')).toContain('transition: transform 120ms ease-out,');
     for (const rule of ['.glass-pill', '.glass-row', '.pressable']) expect(ruleOf(rule)).not.toContain('bouncy');
   });
-  test('the quick-settings flyout is a popover, so it takes the snappy curve, not the bounce', () => {
-    expect(ruleOf('.glass-flyout')).toContain('animation: pop-in var(--dur-snappy) var(--ease-snappy) both;');
+  test('the quick-settings flyout opens with the bounce it had before batches 11-20 (owner, 2026-10-01)', () => {
+    expect(ruleOf('.glass-flyout')).toContain('animation: pop-in var(--dur-bouncy) var(--ease-bouncy) both;');
+    expect(ruleOf('.glass-flyout')).not.toContain('snappy');
   });
   test('under Reduce Motion a driven surface does not move; it fades in', () => {
     expect(css).toContain('.morph-surface[data-reduced] { animation: fade-in 120ms ease-out both; }');
