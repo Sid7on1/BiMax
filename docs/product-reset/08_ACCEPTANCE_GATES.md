@@ -16,6 +16,8 @@ Enforced by `src/__tests__/computer.admission.boundary.test.ts` and `scripts/ver
 - The first look at each app in a task raises a card the **app** raises and answers ("Let this task look at …?",
   Allow / Not now); "Not now" is remembered for the task; stopping it ends every grant. Bimax itself, the password and
   keychain apps and System Settings are never looked at.
+- Turning the preview off closes granted sessions. A stop or off/on cycle invalidates in-flight discovery, grant
+  answers and observations: no late approval may recreate a grant and no revoked observation reaches the model.
 - The driver runs in-process, `bounded`: a runtime manifest that may list apps only, and per grant a version-2
   manifest naming one app, allowing `list_apps`, `list_windows`, `get_window_state`, `get_screen_size` and denying every
   input tool by name. The menu bar is cut out of every observation and password fields lose their value; the text
@@ -25,7 +27,8 @@ Enforced by `src/__tests__/computer.admission.boundary.test.ts` and `scripts/ver
 - The bundle contains no XPC service, CU bridge/helper/preview or Mac capability provider. The one Computer Use part is
   `@trycua/cua-driver` **0.31.0**, outside the archive, with no driver command-line binary and no perception extension.
   Declared usage descriptions stay exactly AppleEvents and Microphone (voice).
-- Launching and completing a code task requests no TCC permission: the driver loads only on a look the person allowed.
+- Launching and completing a code task requests no TCC permission. The driver loads only for an admitted look-capability
+  request; app discovery may start the list-only runtime before the per-app card, but window reads require its Allow.
   Widening any of this — another tool, another operation, an input permission, another entry point — must make a test
   fail.
 

@@ -48,6 +48,7 @@ const importEsm = new Function('specifier', 'return import(specifier)') as (s: s
 export function createLookDriver(options: LookDriverOptions): LookDriver & { activity(threadId: string): DriverActivity } {
   let runtime: Promise<{ cua: any; driver: any }> | null = null;
   const sessions = new Map<string, Session>();
+  const generations = new Map<string, number>();
   const sessionThread = new Map<string, string>();
   const activity = new Map<string, DriverActivity>();
 
@@ -111,11 +112,17 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
     try { return JSON.parse(result?.structuredJson ?? 'null') ?? {}; } catch { return {}; }
   };
 
-  async function sessionFor(threadId: string, app: RunningApp): Promise<any> {
+  function requireCurrent(threadId: string, generation: number): void {
+    if ((generations.get(threadId) ?? 0) !== generation) throw new Error('This look grant ended.');
+  }
+
+  async function sessionFor(threadId: string, app: RunningApp, generation: number): Promise<any> {
+    requireCurrent(threadId, generation);
     const key = `${threadId}|${app.bundleId}`;
     const existing = sessions.get(key);
     if (existing) return existing.session;
     const { cua, driver } = await start();
+    requireCurrent(threadId, generation);
     const name = `bimax-${createHash('sha256').update(key).digest('hex').slice(0, 16)}`;
     const manifest = path.join(dir(), `${name}.yaml`);
     writeFileSync(manifest, lookManifest(app.bundleId), { mode: 0o600 });
@@ -141,10 +148,12 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
     },
 
     async look(threadId: string, app: RunningApp, query?: string) {
-      return withRuntime(() => lookOnce(threadId, app, query));
+      const generation = generations.get(threadId) ?? 0;
+      return withRuntime(() => lookOnce(threadId, app, query, generation));
     },
 
     async end(threadId: string): Promise<void> {
+      generations.set(threadId, (generations.get(threadId) ?? 0) + 1);
       for (const [key, value] of [...sessions]) {
         if (!key.startsWith(`${threadId}|`)) continue;
         sessions.delete(key);
@@ -158,17 +167,21 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
     },
   };
 
-  async function lookOnce(threadId: string, app: RunningApp, query?: string) {
-    let session = await sessionFor(threadId, app);
+  async function lookOnce(threadId: string, app: RunningApp, query: string | undefined, generation: number) {
+    let session = await sessionFor(threadId, app, generation);
+    requireCurrent(threadId, generation);
     let windows: any;
     try { windows = await call(session, 'list_windows', { pid: app.pid }); }
     catch (error) {
+      requireCurrent(threadId, generation);
       // A session past its time is renewed once: the person's grant still stands; only the driver's lease ended.
       sessions.delete(`${threadId}|${app.bundleId}`);
-      session = await sessionFor(threadId, app);
+      session = await sessionFor(threadId, app, generation);
+      requireCurrent(threadId, generation);
       windows = await call(session, 'list_windows', { pid: app.pid });
       void error;
     }
+    requireCurrent(threadId, generation);
     const all: any[] = Array.isArray(windows.windows) ? windows.windows : [];
     const visible = all.filter((w) => w.is_on_screen && (w.bounds?.width ?? 0) > 60 && (w.bounds?.height ?? 0) > 60);
     const pick = (visible.length ? visible : all.filter((w) => w.title))
@@ -177,6 +190,7 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
     const state = await call(session, 'get_window_state', {
       pid: app.pid, window_id: pick.window_id, include_screenshot: false, ...(query ? { query } : {}),
     });
+    requireCurrent(threadId, generation);
     if (state.degraded && !state.tree_markdown) throw new Error(String(state.degraded_reason ?? 'the window could not be read'));
     return { title: String(pick.title ?? ''), markdown: String(state.tree_markdown ?? '') };
   }

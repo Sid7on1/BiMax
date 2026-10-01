@@ -1,5 +1,14 @@
 # Frontend plan
 
+## Current Computer Use entry — 2026-10-01, record 65 stage 2
+
+The only Computer Use entry is the menu bar checkbox “Let Tasks Look at Other Apps (Preview)”, off by default.
+Ticking it requests Accessibility only; stage 2 takes no screenshots and asks for no Screen Recording grant.
+New ⌘2 tasks may ask to read a named app's front window through an app-raised Allow / Not now card.
+The grant is scoped to that Bimax Thread and app; stopping the task or turning the preview off revokes it, including
+pending reads and approvals. Project windows have no look tool. The old Control Mac lane and Trust Center below
+remain historical. Installed observation and permission attribution are pending; mutation remains Target.
+
 ## Current composer and planned workspace expansion — 2026-09-07
 
 See `31_UNIFIED_WORKSPACE_AND_COMPOSER_PLAN.md` for the owner's general coding/work direction.

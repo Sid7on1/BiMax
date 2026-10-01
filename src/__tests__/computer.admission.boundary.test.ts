@@ -136,6 +136,7 @@ describe('Computer Use admission boundary (record 65 stage 2; was the code-only 
     expect(main).toContain("if (item.checked && process.platform === 'darwin' && !systemPreferences.isTrustedAccessibilityClient(false)) systemPreferences.isTrustedAccessibilityClient(true);");
     expect(main).not.toMatch(/askForMediaAccess\(['"]screen|getMediaAccessStatus\(['"]screen|requestMacOSPermissions/);
     expect(main).toContain("enabled: () => loadSettings().computerLook === true");
+    expect(main).toContain('if (!item.checked) void lookService.revokeAll();');
     expect(main).toContain("...(loadSettings().computerLook === true && threads.get(threadId).summary.origin !== 'project' ? { BIMAX_COMPUTER_LOOK: '1' } : {})");
     // Exactly one place sets the flag for an engine.
     expect(main.match(/BIMAX_COMPUTER_LOOK: '1'/g)).toHaveLength(1);
@@ -157,4 +158,3 @@ describe('Computer Use admission boundary (record 65 stage 2; was the code-only 
     expect(gate).toContain("if (name === 'cua-driver' || /perception/i.test(name))");
   });
 });
-

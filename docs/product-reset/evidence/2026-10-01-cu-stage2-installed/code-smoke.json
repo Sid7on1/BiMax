@@ -1,0 +1,78 @@
+{
+  "kind": "installed-code-read-smoke",
+  "at": "2026-10-01T14:24:26.549678+00:00",
+  "productVersion": "1.1.0",
+  "backend": "installed Electron engine worker",
+  "modelDisplayed": "gpt-oss-20b \u00b7 Low",
+  "provider": "not independently captured; configured route unchanged",
+  "os": "27.0",
+  "buildHashes": {
+    "Contents/Resources/app.asar": "cf82897a7e4eef88bb2596f2afb5e052176e0811bc82c38bcce57e8e404dae79",
+    "Contents/Resources/engine/index.js": "e21f6f6a6d0933a35a3e5e2454ac939d3197d3914e7eb1cdafb532fd6893e0ff",
+    "Contents/Resources/app.asar.unpacked/node_modules/@trycua/cua-driver-darwin-arm64/libcua_driver_sdk.dylib": "b8eaf96c5a1147a7646f0a962955d08455aac694c36aac13e1c6f74487d82022",
+    "Contents/Resources/app.asar.unpacked/node_modules/@trycua/cua-driver-darwin-arm64/cua_driver_node_runtime.node": "88001c8ffbe427ad3ca1b68cb99c2d5a9a98168fd4ca5fc9ca3be7b9d88328a5"
+  },
+  "sourceThreadRecord": "/Users/vishsiddharth/Library/Application Support/Bimax/threads/ddb91d9b-50c0-4def-a7b3-bed11cb88a91.json",
+  "raw": {
+    "summary": {
+      "id": "ddb91d9b-50c0-4def-a7b3-bed11cb88a91",
+      "root": "/Users/vishsiddharth/Library/Caches/bimax-cu-stage2-code-check",
+      "title": "Read stage2-fixture.txt in this project using ReadFileTool. Reply with its exact",
+      "updatedAt": 1790864486886,
+      "status": "idle",
+      "peers": [],
+      "origin": "project",
+      "outcome": "completed",
+      "sessionId": "2026-10-01_19-51-14"
+    },
+    "items": [
+      {
+        "kind": "msg",
+        "msg": {
+          "id": "msg-1790864474762-hoq1b",
+          "role": "user",
+          "content": "Read stage2-fixture.txt in this project using ReadFileTool. Reply with its exact single line. Do not edit files, run shell commands, or look at other apps.",
+          "timestamp": "2026-10-01T14:21:14.762Z"
+        }
+      },
+      {
+        "kind": "tool",
+        "call": {
+          "id": "chatcmpl-tool-88a147d0f583dac3",
+          "toolName": "ReadFileTool",
+          "input": "{\"path\":\"stage2-fixture.txt\"}",
+          "output": "BIMAX_STAGE2_CODE_ONLY_20261001\n",
+          "status": "success",
+          "startTime": "2026-10-01T14:21:19.645Z",
+          "endTime": "2026-10-01T14:21:19.650Z"
+        }
+      },
+      {
+        "kind": "msg",
+        "msg": {
+          "id": "msg-1790864486873-vgw2z",
+          "role": "assistant",
+          "content": "BIMAX_STAGE2_CODE_ONLY_20261001",
+          "timestamp": "2026-10-01T14:21:26.873Z"
+        }
+      }
+    ],
+    "fixtureText": "BIMAX_STAGE2_CODE_ONLY_20261001\n",
+    "fixtureSha256": "b50080c0e08387c7e5ff997b29d8a59803615653cc6bae90b060eba9b86720bc"
+  },
+  "gradedPass": true,
+  "rejectedGraderMutants": [
+    "missing-read",
+    "wrong-target",
+    "no-op-output",
+    "duplicate-read",
+    "stale-run",
+    "provider-error"
+  ],
+  "sampledProcessPid": "52762",
+  "sampledSdkMappings": [],
+  "previewEnabled": false,
+  "auditLogExists": false,
+  "observedTccPrompts": 0,
+  "limits": "One synthetic coding read. SDK mappings sampled after the task; prompts observed through UI, not a whole-session TCC event counter. No installed Computer Use observation or fresh-Mac qualification."
+}

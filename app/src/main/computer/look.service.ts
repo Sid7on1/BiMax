@@ -57,6 +57,9 @@ const fail = (id: number, code: string, error: string): HostResultMsg => ({ t: '
 export function createLookService(deps: LookServiceDeps) {
   const grants = new LookGrants();
   const counts = new Map<string, LookCounts>();
+  // A stopped Thread or an off/on cycle invalidates requests already waiting on discovery, a card or a read.
+  const generations = new Map<string, number>();
+  let previewGeneration = 0;
   const count = (threadId: string): LookCounts => {
     let c = counts.get(threadId);
     if (!c) { c = { lists: 0, looks: 0, refused: 0, asked: 0, inputCalls: 0 }; counts.set(threadId, c); }
@@ -90,6 +93,13 @@ export function createLookService(deps: LookServiceDeps) {
 
   async function answer(threadId: string, msg: HostCallMsg): Promise<HostResultMsg> {
     const c = count(threadId);
+    const generation = generations.get(threadId) ?? 0;
+    const preview = previewGeneration;
+    const current = () => deps.enabled() && preview === previewGeneration && generation === (generations.get(threadId) ?? 0);
+    const revoked = () => {
+      c.refused += 1;
+      return fail(msg.id, 'not_permitted', 'This look was cancelled because the task stopped or looking was turned off.');
+    };
     if (msg.capability !== 'look') { c.refused += 1; return fail(msg.id, 'invalid_args', 'Bimax has no such capability.'); }
     if (!deps.enabled()) {
       c.refused += 1;
@@ -99,6 +109,7 @@ export function createLookService(deps: LookServiceDeps) {
     try {
       if (msg.op === 'list_apps') {
         const apps = (await (await deps.driver()).runningApps()).filter((a) => !NEVER_LOOK.has(a.bundleId));
+        if (!current()) return revoked();
         c.lists += 1;
         const text = apps.length ? apps.map((a) => `${a.name} (${a.bundleId})`).join('\n') : '(no apps with windows are open)';
         return { t: 'host_result', id: msg.id, ok: true, value: { text } };
@@ -108,6 +119,7 @@ export function createLookService(deps: LookServiceDeps) {
       const want = String(args.app ?? '').slice(0, 200);
       if (!want.trim()) { c.refused += 1; return fail(msg.id, 'invalid_args', 'Say which app to look at.'); }
       const target = await find(want);
+      if (!current()) return revoked();
       if (!target) { c.refused += 1; return fail(msg.id, 'not_found', `No open app is called "${want}". Use list_apps to see what is open.`); }
       lastTarget.set(threadId, target.bundleId);
       if (NEVER_LOOK.has(target.bundleId) || !validBundleId(target.bundleId)) {
@@ -125,6 +137,7 @@ export function createLookService(deps: LookServiceDeps) {
           `Bimax will read what is in ${target.name}'s front window — its buttons, fields, lists and text — and nothing else. ` +
           `It cannot click, type or change anything there. This is for this task only; stopping the task ends it.`,
         );
+        if (!current()) return revoked();
         if (answer === ALLOW(target.name)) grants.allow(threadId, target.bundleId); else grants.refuse(threadId, target.bundleId);
         decision = grants.decision(threadId, target.bundleId);
       }
@@ -134,12 +147,16 @@ export function createLookService(deps: LookServiceDeps) {
       }
 
       const query = typeof args.query === 'string' && args.query.trim() ? args.query.slice(0, 200) : undefined;
-      const window = await (await deps.driver()).look(threadId, target, query);
+      const driver = await deps.driver();
+      if (!current()) return revoked();
+      const window = await driver.look(threadId, target, query);
+      if (!current()) return revoked();
       const shown = renderLook(window.markdown);
       c.looks += 1;
       const header = `${target.name} — ${window.title ? `window “${window.title}”` : 'front window'} (read only${query ? `, lines matching “${query}”` : ''}):`;
       return { t: 'host_result', id: msg.id, ok: true, value: { text: `${header}\n${shown.text || '(nothing readable)'}` } };
     } catch (error) {
+      if (!current()) return revoked();
       c.refused += 1;
       const text = error instanceof Error ? error.message : String(error);
       if (/accessibility|not trusted|permission/i.test(text)) {
@@ -151,11 +168,18 @@ export function createLookService(deps: LookServiceDeps) {
 
   /** The Thread stopped or closed: every grant and session it had ends. */
   async function end(threadId: string): Promise<void> {
+    generations.set(threadId, (generations.get(threadId) ?? 0) + 1);
     const had = grants.end(threadId);
     if (had.length) { try { await (await deps.driver()).end(threadId); } catch { /* the driver may never have started */ } }
   }
 
-  return { handle, end, counts: (threadId: string): LookCounts | undefined => counts.get(threadId), grants };
+  /** Turning the preview off revokes existing sessions as well as requests still waiting for an answer. */
+  async function revokeAll(): Promise<void> {
+    previewGeneration += 1;
+    await Promise.all([...counts.keys()].map(end));
+  }
+
+  return { handle, end, revokeAll, counts: (threadId: string): LookCounts | undefined => counts.get(threadId), grants };
 }
 
 export type LookService = ReturnType<typeof createLookService>;

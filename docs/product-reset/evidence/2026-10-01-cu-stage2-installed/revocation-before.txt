@@ -1,0 +1,94 @@
+FAIL app/src/__tests__/computer.look.test.ts
+  ● revocation while a look is waiting › turning looking off while the card is up prevents a late Allow from reading
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 1
+    + Received  + 1
+
+      Object {
+    -   "ok": false,
+    +   "ok": true,
+      }
+
+      303 |     f.off();
+      304 |     f.release();
+    > 305 |     expect(await f.pending).toMatchObject({ ok: false });
+          |                             ^
+      306 |     expect(f.driver.look).not.toHaveBeenCalled();
+      307 |     expect(f.service.grants.apps('t1')).toEqual([]);
+      308 |   });
+
+      at Object.<anonymous> (app/src/__tests__/computer.look.test.ts:305:29)
+
+  ● revocation while a look is waiting › ending a Thread while its card is up cannot recreate a grant from a late Allow
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 1
+    + Received  + 1
+
+      Object {
+    -   "ok": false,
+    +   "ok": true,
+      }
+
+      313 |     await f.service.end('t1');
+      314 |     f.release();
+    > 315 |     expect(await f.pending).toMatchObject({ ok: false });
+          |                             ^
+      316 |     expect(f.driver.look).not.toHaveBeenCalled();
+      317 |     expect(f.service.grants.apps('t1')).toEqual([]);
+      318 |   });
+
+      at Object.<anonymous> (app/src/__tests__/computer.look.test.ts:315:29)
+
+  ● revocation while a look is waiting › ending a Thread during app discovery never raises a later grant card
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 1
+    + Received  + 1
+
+      Object {
+    -   "ok": false,
+    +   "ok": true,
+      }
+
+      323 |     await f.service.end('t1');
+      324 |     f.release();
+    > 325 |     expect(await f.pending).toMatchObject({ ok: false });
+          |                             ^
+      326 |     expect(f.ask).not.toHaveBeenCalled();
+      327 |     expect(f.driver.look).not.toHaveBeenCalled();
+      328 |   });
+
+      at Object.<anonymous> (app/src/__tests__/computer.look.test.ts:325:29)
+
+  ● revocation while a look is waiting › a window read finishing after looking is turned off never returns its contents
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 1
+    + Received  + 1
+
+      Object {
+    -   "ok": false,
+    +   "ok": true,
+      }
+
+      334 |     f.release();
+      335 |     const result = await f.pending;
+    > 336 |     expect(result).toMatchObject({ ok: false });
+          |                    ^
+      337 |     expect(JSON.stringify(result)).not.toContain('private observation');
+      338 |   });
+      339 | });
+
+      at Object.<anonymous> (app/src/__tests__/computer.look.test.ts:336:20)
+
+Test Suites: 1 failed, 1 total
+Tests:       4 failed, 27 passed, 31 total
+Snapshots:   0 total
+Time:        1.803 s
+Ran all test suites within paths "app/src/__tests__/computer.look.test.ts".

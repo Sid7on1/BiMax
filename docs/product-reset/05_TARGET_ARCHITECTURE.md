@@ -1,9 +1,14 @@
 # Target architecture
 
-> **Current target, 2026-09-02:** Bimax is code-only. The Desktop Computer Use provider and
-> fallback ladder below are retired historical architecture. Desktop consumes the pinned coding
-> engine and owns IDE host capabilities only. It must not inject `bimax-mac` or ship native CU
-> payloads. See `30_CODE_ONLY_AGENTIC_IDE_RESET_RECORD.md`.
+> **Current implementation, 2026-10-01 — records 55, 64 and 65:** Bimax for Mac builds this repository's
+> engine and runs each Bimax Thread in a worker, communicating over its MessagePort. The app alone owns an optional
+> read-only Computer Use capability: pinned Cua Driver 0.31.0 in-process, bounded runtime and per-app manifests,
+> app-raised grant cards, no input tools. Only opted-in ⌘2 tasks receive `LookAtAppTool`; project windows do not.
+> Stage 2 is Implemented and Measured outside the installed app; installed observation/TCC attribution remain pending.
+> Revocation invalidates requests awaiting discovery, approval or observation, and closes granted sessions.
+> The admission gate is `08_ACCEPTANCE_GATES.md`. The old `bimax-mac` provider, XPC service and fallback ladder
+> remain retired. Stages 3–6 are Target. The split topology and pinned Terminal artifact below are historical;
+> records 55/64 supersede them. Terminal remains outside Computer Use and macOS-permission ownership.
 
 ## Repository and process ownership
 

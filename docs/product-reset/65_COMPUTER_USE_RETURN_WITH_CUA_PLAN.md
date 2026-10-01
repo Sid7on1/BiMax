@@ -213,6 +213,79 @@ tests at commit B; engine registry, host-call, protocol and gate suites green; 1
 to **Bimax.app itself** (the proof ran under the terminal's grant), and the SDK loads from `app.asar.unpacked`. That needs
 a build, an install, the menu bar item ticked, and Accessibility granted to Bimax once.
 
+## 6c. Stage 2 continuation — installed, revocation repaired; observation still pending (2026-10-01)
+
+**Status: Implemented and locally verified; installed observation and Bimax-owned Accessibility attribution remain
+pending. Stage 2's exit is not yet met; stages 3–6 remain Target.** Continued on
+`feat/sovereign-retrieval-and-layout-extraction` from clean HEAD `37b3380`. Evidence:
+`evidence/2026-10-01-cu-stage2-installed/`.
+
+The 18:58 build was checked and installed first, preserving the previous installed app in
+`~/Developer/bimax-archive/apps/Bimax.app.before-cu-stage2-20261001`. Its package gate, deep strict signature and
+ASAR/engine hashes passed. An installed launch showed the main window. No installed look session was run.
+
+Inspection then found a stage-2 revocation defect: the service checked admission only before asynchronous discovery,
+approval and observation. Four fresh regressions all failed against that implementation: a late Allow after preview
+off could read; a late Allow after Thread stop could recreate the grant; discovery completing after stop could raise
+a new card; and a read completing after preview off could return its contents. A stop now increments the Thread's
+grant generation; preview off revokes all grants/sessions and increments the preview generation. Each asynchronous
+boundary rechecks authority before reading or returning data. An off/on cycle does not revive an old request.
+
+The driver wrapper also binds session creation, renewal and reads to that generation. Ending a grant during SDK
+initialization cannot create a later trusted session; ending during window discovery prevents the tree read and
+session renewal; a native read already in flight may finish, but its revoked contents are discarded. Six service
+regressions cover these boundaries. `app/scripts/computer/prove-look-revocation.cjs` separately runs the actual wrapper
+against a **controlled SDK**, testing initialization, discovery, discovery failure and observation. All four checks
+pass; a temporary compiled mutant removing the generation validation fails. This is deterministic ordering evidence,
+not a native-driver, installed-session or TCC measurement.
+
+The fixed app was rebuilt with `app/scripts/build-local-mac.sh arm64` into
+`/private/tmp/bimax-cu-stage2-revoke/release/mac-arm64/Bimax.app`, locally signed with **Bimax Local Code Signing**,
+verified and installed at `/Applications/Bimax.app`. The intermediate `37b3380` install is preserved at
+`~/Developer/bimax-archive/apps/Bimax.app.before-cu-revocation-20261001`. Installed ASAR, engine, SDK dylib and Node
+add-on hashes match the build; `install.json` records their exact hashes and source hashes.
+
+| Verification | Actual result / limit |
+|---|---|
+| Look service, admission boundary, engine host call, protocol, MessagePort and runtime-env suites | **89 passed in 7 suites** |
+| Existing Thread and approval-card suites | **19 passed in 2 suites** |
+| Controlled-SDK revocation proof | **4 passed; generation-validation mutant rejected** |
+| Desktop TypeScript, production build | passed |
+| Rebuilt engine artifact, as a worker in Electron | **7/7 protocol exchanges**; not a new live-provider session |
+| Installed package gate / deep strict signature | passed |
+| Installed App Actions structural gate | **3/3**; no claim that self-signed App Intents register |
+| Installed native launch | main window observed; preview still off |
+| Installed coding smoke | **one synthetic read passed**, current route displayed `gpt-oss-20b · Low`; exact `ReadFileTool` target/output, marker bytes unchanged, six grader mutants rejected |
+| Installed allow / deny / revoke observation session | **not run; pending owner's Accessibility grant and menu opt-in** |
+
+Two test invocations initially named nonexistent test files; those invocations are not product failures or passes.
+The corrected runs above passed; the retained `invalid-test-path.txt` records the later invocation error.
+The initial folder-picker automation was not scored because it did not immediately confirm navigation. After restart,
+the synthetic folder appeared in recents and was explicitly opened. The installed app then read `stage2-fixture.txt`
+and returned its exact marker. `code-smoke.json` preserves the synthetic transcript/tool result and independent byte
+check; `grade-code-smoke.py` rejects missing read, wrong target, empty output, duplicate read, stale run and provider-error
+variants. Preview was off, no TCC prompt was observed, no host audit file existed, and no Cua SDK mapping appeared in
+the **post-task** `lsof` sample. This is one local coding smoke, not a whole-session TCC event count or clean-Mac gate;
+the exact provider was not independently captured and its configuration was not changed.
+The build used Command Line Tools after the existing Xcode-license refusal, emitted the existing voice Sendable
+warning and shipped the legacy icon after the asset-catalog step was unavailable. No new release qualification is
+claimed from the local build.
+
+**Next, still stage 2:** the owner ticks “Let Tasks Look at Other Apps (Preview)” and grants Bimax Accessibility
+by hand. Stage 2 reads accessibility text only: **no Screen Recording grant is needed**. Then run the installed
+fixture allow/deny/revocation sessions with host/driver counts and independent fixture end states. The installed coding
+smoke above covers one project task only. Stop there if the evidence fails. Do not begin stage 3 from the outside-app
+proof in §6b.
+
+Research mapping: **V20** (Computer-Use Architecture) and **V26** (Security & Trust Engine) in record 12: baseline
+four revoked requests wrongly succeeding; candidate generation-bound cancellation; hard constraints no input,
+Thread-scoped authority and no returned revoked text; metric reads/deliveries after revocation; baseline regressions
+and generation mutant; adoption only on rejection of every revoked result without changing the look-only manifest.
+Guided by README, 01, 03, 04, 05, 06, 07, 08, 12, this record, the Mac Buddy vision, competitive README/04/05/06/07
+and M02's independent end-state contract. README/architecture/roadmap/frontend/gap/build-sequence notices now describe
+the actual admission gate while preserving the old CU architecture as history. M02 mutation/persistence, X01,
+small-model advice, real workflows, clean-Mac TCC and release qualification remain Target/unmeasured.
+
 ## 7. Risks named now
 
 - **Driver drift.** 0.12 → 0.31 rewrote the codebase; a later release can change behaviour again (0.18 did). The

@@ -2,12 +2,16 @@
 
 ## Computer Use returns, on the latest Cua Driver — plan, 2026-10-01
 
-[65_COMPUTER_USE_RETURN_WITH_CUA_PLAN.md](65_COMPUTER_USE_RETURN_WITH_CUA_PLAN.md): **Target, nothing built.** The owner
+[65_COMPUTER_USE_RETURN_WITH_CUA_PLAN.md](65_COMPUTER_USE_RETURN_WITH_CUA_PLAN.md): **stage 1 Measured; stage 2 Implemented
+and Measured outside the installed app; stages 3–6 Target.** The owner
 asked to bring Bimax's archived Computer Use back gradually, on the latest Cua (`trycua/cua` `9545a3d`, driver 0.31.0,
 MIT) and with small local models (CUA-S1, laya-mlx). Bimax keeps what makes an action trustworthy — Thread-scoped
 grants, one input authority, approval cards, receipts bound to fresh observations, end-state checks, untrusted screen
 text — and takes the driver as its hands and eyes, embedded so the macOS permissions stay Bimax.app's. Seven stages,
-each ending on evidence; the code-only gate stays until stage 2 replaces it. Measured first: CUA-S1's 4B models need
+each ending on evidence. Stage 2 has replaced the code-only gate with the look-only admission gate in
+`08_ACCEPTANCE_GATES.md`: off by default, one menu bar opt-in, per-app grants for a Bimax Thread in the ⌘2 bar,
+no input tools, and the pinned in-process SDK. The local build is installed; installed observation and Bimax's own
+Accessibility attribution still await the owner's grant. Measured first: CUA-S1's 4B models need
 9.32 GB and cannot load on this 8 GB Mac; its sub-million-parameter models fit but were never run by Cua on a fixture;
 its vision add-on is AGPL and is not taken. Replaces record 61's stage table.
 
@@ -335,13 +339,14 @@ first composer slice are in `31_UNIFIED_WORKSPACE_AND_COMPOSER_PLAN.md`. Organiz
 broader workflows remain Target. The runtime boundary below remains enforced: this decision does
 not reactivate Computer Use or native permissions. Terminal remains the coding product.
 
-## Current direction — code-only agentic IDE (2026-09-02)
+## Historical direction — code-only agentic IDE (2026-09-02; narrowly superseded by record 65)
 
 The owner has superseded the app-owned Computer Use plan. Bimax Terminal and Bimax Desktop now
 expose one coding-agent boundary: project files, create/edit/delete, shell, tests, git, review,
 plans, code search, MCP, browser research, subagents, checkpoints, and task receipts.
 
-Computer Use is disabled in both products. Desktop does not register `bimax-mac`/`mac_control`,
+At that reset, Computer Use was disabled in both products. Record 65 stage 2 now permits only the app-owned,
+optional read-only capability described above. Desktop still does not register `bimax-mac`/`mac_control`,
 start takeover or focus brokers, request Accessibility, Screen Recording, or Microphone, or package
 the XPC service, bridge, helper, preview, or Mac capability provider. Historical CU records remain
 evidence, not active requirements. See `30_CODE_ONLY_AGENTIC_IDE_RESET_RECORD.md`.

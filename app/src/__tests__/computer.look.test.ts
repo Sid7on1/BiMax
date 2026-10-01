@@ -273,6 +273,94 @@ describe('the look service', () => {
   });
 });
 
+describe('revocation while a look is waiting', () => {
+  function deferred<T>() {
+    let resolve!: (value: T) => void;
+    const promise = new Promise<T>((done) => { resolve = done; });
+    return { promise, resolve };
+  }
+
+  function fixture(waitAt: 'find' | 'grant' | 'read') {
+    const arrived = deferred<void>();
+    const release = deferred<void>();
+    const pause = async () => { arrived.resolve(); await release.promise; };
+    let enabled = true;
+    const target = { name: 'Fixture', bundleId: 'ai.bimax.cu.fixture', pid: 123 };
+    const driver: LookDriver = {
+      runningApps: jest.fn(async () => { if (waitAt === 'find') await pause(); return [target]; }),
+      look: jest.fn(async () => { if (waitAt === 'read') await pause(); return { title: 'Fixture', markdown: '- AXStaticText = "private observation"' }; }),
+      end: jest.fn(async () => {}),
+    };
+    const ask = jest.fn(async () => { if (waitAt === 'grant') await pause(); return 'Allow looking at Fixture'; });
+    const service = createLookService({ enabled: () => enabled, driver: async () => driver, ask });
+    const pending = service.handle('t1', { t: 'host_call', id: 1, capability: 'look', op: 'look', args: { app: 'Fixture' } });
+    return { service, pending, driver, ask, arrived: arrived.promise, release: () => release.resolve(), off: () => { enabled = false; }, on: () => { enabled = true; } };
+  }
+
+  it('turning looking off while the card is up prevents a late Allow from reading', async () => {
+    const f = fixture('grant');
+    await f.arrived;
+    f.off();
+    f.release();
+    expect(await f.pending).toMatchObject({ ok: false });
+    expect(f.driver.look).not.toHaveBeenCalled();
+    expect(f.service.grants.apps('t1')).toEqual([]);
+  });
+
+  it('ending a Thread while its card is up cannot recreate a grant from a late Allow', async () => {
+    const f = fixture('grant');
+    await f.arrived;
+    await f.service.end('t1');
+    f.release();
+    expect(await f.pending).toMatchObject({ ok: false });
+    expect(f.driver.look).not.toHaveBeenCalled();
+    expect(f.service.grants.apps('t1')).toEqual([]);
+  });
+
+  it('ending a Thread during app discovery never raises a later grant card', async () => {
+    const f = fixture('find');
+    await f.arrived;
+    await f.service.end('t1');
+    f.release();
+    expect(await f.pending).toMatchObject({ ok: false });
+    expect(f.ask).not.toHaveBeenCalled();
+    expect(f.driver.look).not.toHaveBeenCalled();
+  });
+
+  it('a window read finishing after looking is turned off never returns its contents', async () => {
+    const f = fixture('read');
+    await f.arrived;
+    f.off();
+    f.release();
+    const result = await f.pending;
+    expect(result).toMatchObject({ ok: false });
+    expect(JSON.stringify(result)).not.toContain('private observation');
+  });
+
+  it('turning looking off and back on does not revive a pending Allow', async () => {
+    const f = fixture('grant');
+    await f.arrived;
+    f.off();
+    await f.service.revokeAll();
+    f.on();
+    f.release();
+    expect(await f.pending).toMatchObject({ ok: false });
+    expect(f.driver.look).not.toHaveBeenCalled();
+    expect(f.service.grants.apps('t1')).toEqual([]);
+  });
+
+  it('turning looking off ends already granted driver sessions', async () => {
+    const f = fixture('read');
+    await f.arrived;
+    f.off();
+    await f.service.revokeAll();
+    expect(f.driver.end).toHaveBeenCalledWith('t1');
+    expect(f.service.grants.apps('t1')).toEqual([]);
+    f.release();
+    expect(await f.pending).toMatchObject({ ok: false });
+  });
+});
+
 describe('the Thread manager carries host calls and its own cards', () => {
   type View = { state: EngineUiState };
 

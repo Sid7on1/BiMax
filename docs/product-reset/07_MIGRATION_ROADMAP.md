@@ -1,8 +1,12 @@
 # Migration roadmap
 
-> **Direction change, 2026-09-02:** Computer Use phases are retired from the shipped product. The
-> active migration is the code-only path in `30_CODE_ONLY_AGENTIC_IDE_RESET_RECORD.md`. Historical
-> phase records below remain evidence and are not a backlog to reactivate.
+> **Current program, 2026-10-01:** `65_COMPUTER_USE_RETURN_WITH_CUA_PLAN.md` replaces record 61's parked
+> Computer Use stages. Stage 1 is Measured; stage 2 is Implemented and Measured outside the installed app.
+> The local app is installed; its observation and Accessibility attribution await the owner's grant.
+> Stage 2's admission gate permits only optional app-owned read-only looks in a Bimax Thread in the ⌘2 bar.
+> Each stage ends on evidence; stage 3 safe mutation and stages 4–6 stay Target until the preceding exit is met.
+> Records 55/64 govern today's monolith and engine workers. The older split and CU phases below are historical
+> evidence, not authorization to restore their provider, XPC binaries, UI or fallbacks.
 
 The split is a sequence of reversible slices. “All tests green” at each slice means the tests that
 can actually detect the requested outcome, not deleting or weakening a failing test.

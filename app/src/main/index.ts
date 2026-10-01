@@ -1023,6 +1023,7 @@ function updateTray(): void {
     // Computer Use, look only (record 65 stage 2): off until ticked; each app still asks per task. New ⌘2 tasks get it.
     { label: 'Let Tasks Look at Other Apps (Preview)', type: 'checkbox', checked: loadSettings().computerLook === true, click: (item) => {
       saveSettings({ computerLook: item.checked });
+      if (!item.checked) void lookService.revokeAll();
       // Ticking it is the moment to ask macOS — for Accessibility only (a look reads the accessibility tree; it takes no
       // screenshot, so Screen Recording is never asked for). Never at launch, never for a coding task.
       if (item.checked && process.platform === 'darwin' && !systemPreferences.isTrustedAccessibilityClient(false)) systemPreferences.isTrustedAccessibilityClient(true);
