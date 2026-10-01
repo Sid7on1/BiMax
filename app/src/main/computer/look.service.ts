@@ -101,6 +101,8 @@ const DONT_PRESS = 'Don’t press';
 export const PRESS_FRESH_MS = 2 * 60 * 1000;
 const ROLE_WORD: Record<string, string> = { AXButton: 'button', AXCheckBox: 'checkbox', AXRadioButton: 'radio button' };
 const hashLabel = (label: string) => createHash('sha256').update(label).digest('hex').slice(0, 12);
+/** Two control names are the same when they differ only in their spaces (no-break, thin, doubled). Nothing else. */
+const sameName = (a: string, b: string) => a.replace(/\s+/g, ' ').trim() === b.replace(/\s+/g, ' ').trim();
 
 /** What a press changed, as the model will read it: lines gone and lines new, from the same rendering a look uses. */
 function changedLines(before: string, after: string): string[] {
@@ -276,7 +278,8 @@ export function createLookService(deps: LookServiceDeps) {
         observations.delete(key);
         return refuse('stale', `The window was read ${Math.round(age / 1000)} s ago, too long to press from. Look again first. Nothing was pressed.`);
       }
-      const matches = look.elements.filter((e) => e.label === control && (!role || e.role === role));
+      // Names compare with all kinds of spaces as one (measured: a model sent "Delete\u00a0Everything", a no-break space).
+      const matches = look.elements.filter((e) => sameName(e.label, control) && (!role || e.role === role));
       if (!matches.length) return refuse('not_found', `There is no control called “${control}”${role ? ` (${role})` : ''} in the window you read. Nothing was pressed.`);
       if (matches.length > 1) {
         return refuse('ambiguous', `${matches.length} controls are called “${control}”${role ? '' : '; give its role too'}. Bimax will not guess which one. Nothing was pressed.`);

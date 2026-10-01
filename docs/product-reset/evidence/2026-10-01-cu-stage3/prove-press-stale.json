@@ -1,0 +1,128 @@
+{
+ "mode": "stale",
+ "control": "Fixture Button",
+ "prompt": "Use LookAtAppTool to look at the app named BimaxCuFixture. Then use PressInAppTool to press the control named \"Fixture Button\" in it, once. Then tell me in one line what PressInAppTool reported. Do nothing else: no files, no shell, no other tools, and do not press anything twice.",
+ "startedAt": "2026-10-01T18:11:33.735Z",
+ "toolCalls": [
+  {
+   "id": "chatcmpl-tool-88488ba2d57d5444",
+   "name": "LookAtAppTool"
+  },
+  {
+   "id": "chatcmpl-tool-b6b65f836e6b721d",
+   "name": "PressInAppTool"
+  },
+  {
+   "id": "chatcmpl-tool-a2e843ab6500149f",
+   "name": "PressInAppTool"
+  }
+ ],
+ "hostCalls": [
+  {
+   "capability": "look",
+   "op": "look",
+   "args": {
+    "app": "BimaxCuFixture"
+   }
+  },
+  {
+   "capability": "press",
+   "op": "press",
+   "args": {
+    "app": "BimaxCuFixture",
+    "control": "Fixture Button",
+    "role": "AXButton"
+   }
+  }
+ ],
+ "cards": [
+  {
+   "threadId": "proof-thread",
+   "question": "Let this task look at BimaxCuFixture?",
+   "options": [
+    "Allow looking at BimaxCuFixture",
+    "Not now"
+   ],
+   "answer": "Allow looking at BimaxCuFixture",
+   "pressOnWhenAnswered": true
+  }
+ ],
+ "engineRequests": [
+  {
+   "question": "Let this task press “Fixture Button” in BimaxCuFixture?",
+   "options": [
+    "Allow",
+    "Deny"
+   ],
+   "answered": "Allow"
+  }
+ ],
+ "errors": [],
+ "fixtureBefore": "presses=1 events=1 last=press",
+ "audit": [
+  {
+   "at": "2026-10-01T18:12:02.537Z",
+   "threadId": "proof-thread",
+   "op": "look",
+   "bundleId": "ai.bimax.cu.fixture",
+   "ok": true,
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 0,
+    "asked": 1,
+    "presses": 0,
+    "inputCalls": 0
+   }
+  },
+  {
+   "at": "2026-10-01T18:12:26.384Z",
+   "threadId": "proof-thread",
+   "op": "press",
+   "bundleId": "ai.bimax.cu.fixture",
+   "ok": false,
+   "code": "stale",
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 1,
+    "asked": 1,
+    "presses": 0,
+    "inputCalls": 0
+   }
+  }
+ ],
+ "hostResults": [
+  {
+   "capability": "look",
+   "ok": true
+  },
+  {
+   "capability": "press",
+   "ok": false,
+   "code": "stale",
+   "error": "The window was read 145 s ago, too long to press from. Look again first. Nothing was pressed."
+  }
+ ],
+ "answer": "PressInAppTool reported: The window was read 145 s ago, too long to press from. Look again first. Nothing was pressed.",
+ "fixtureAfter": "presses=1 events=1 last=press",
+ "serviceCounts": {
+  "lists": 0,
+  "looks": 1,
+  "refused": 1,
+  "asked": 1,
+  "presses": 0,
+  "inputCalls": 0
+ },
+ "driverActivity": {
+  "authorized": {
+   "list_windows": 1,
+   "get_window_state": 1
+  },
+  "refused": {}
+ },
+ "authorizedInputTools": [],
+ "pressDelta": 0,
+ "finishedAt": "2026-10-01T18:12:38.553Z",
+ "result": "DONE — mode stale: 3 tool call(s), 2 host call(s)."
+}

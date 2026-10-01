@@ -123,6 +123,22 @@ describe('wrong target: refused, nothing pressed', () => {
   });
 });
 
+describe('names', () => {
+  it('a name that differs only in its spaces is the same control (a model sent a no-break space)', async () => {
+    const s = setup();
+    await s.lookAt();
+    expect((await s.press('Fixture\u00a0Button')).ok).toBe(true);
+    expect(s.presses[0].target.label).toBe('Fixture Button');
+  });
+
+  it('but a different name is not', async () => {
+    const s = setup();
+    await s.lookAt();
+    expect(await s.press('Fixture Buttons')).toMatchObject({ ok: false, value: { code: 'not_found' } });
+    expect(s.presses).toEqual([]);
+  });
+});
+
 describe('no-op: the driver said ok and nothing changed', () => {
   it('is reported as a failure, never as a success', async () => {
     const s = setup({ outcome: { kind: 'pressed', title: 'Bimax-Cu Fixture', before: BEFORE, after: BEFORE } });

@@ -1,0 +1,166 @@
+{
+ "mode": "replay",
+ "control": "Fixture Button",
+ "prompt": "Use LookAtAppTool to look at the app named BimaxCuFixture. Then use PressInAppTool to press the control named \"Fixture Button\" in it, once. Then tell me in one line what PressInAppTool reported. Do nothing else: no files, no shell, no other tools, and do not press anything twice.",
+ "startedAt": "2026-10-01T18:14:33.331Z",
+ "toolCalls": [
+  {
+   "id": "chatcmpl-tool-840504e3b7c81ac2",
+   "name": "LookAtAppTool"
+  },
+  {
+   "id": "chatcmpl-tool-84a96ded62a4d27e",
+   "name": "LookAtAppTool"
+  },
+  {
+   "id": "chatcmpl-tool-84180ec999ba2e3d",
+   "name": "PressInAppTool"
+  }
+ ],
+ "hostCalls": [
+  {
+   "capability": "look",
+   "op": "look",
+   "args": {
+    "app": "BimaxCuFixture"
+   }
+  },
+  {
+   "capability": "press",
+   "op": "press",
+   "args": {
+    "app": "BimaxCuFixture",
+    "control": "Fixture Button",
+    "role": "AXButton"
+   }
+  }
+ ],
+ "cards": [
+  {
+   "threadId": "proof-thread",
+   "question": "Let this task look at BimaxCuFixture?",
+   "options": [
+    "Allow looking at BimaxCuFixture",
+    "Not now"
+   ],
+   "answer": "Allow looking at BimaxCuFixture",
+   "pressOnWhenAnswered": true
+  },
+  {
+   "threadId": "proof-thread",
+   "question": "Press “Fixture Button” in BimaxCuFixture?",
+   "options": [
+    "Press “Fixture Button”",
+    "Don’t press"
+   ],
+   "answer": "Press “Fixture Button”",
+   "pressOnWhenAnswered": true
+  }
+ ],
+ "engineRequests": [
+  {
+   "question": "Let this task press “Fixture Button” in BimaxCuFixture?",
+   "options": [
+    "Allow",
+    "Deny"
+   ],
+   "answered": "Allow"
+  }
+ ],
+ "errors": [],
+ "fixtureBefore": "presses=1 events=1 last=press",
+ "audit": [
+  {
+   "at": "2026-10-01T18:16:13.646Z",
+   "threadId": "proof-thread",
+   "op": "look",
+   "bundleId": "ai.bimax.cu.fixture",
+   "ok": true,
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 0,
+    "asked": 1,
+    "presses": 0,
+    "inputCalls": 0
+   }
+  },
+  {
+   "at": "2026-10-01T18:16:25.239Z",
+   "threadId": "proof-thread",
+   "op": "press",
+   "bundleId": "ai.bimax.cu.fixture",
+   "ok": true,
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 0,
+    "asked": 2,
+    "presses": 1,
+    "inputCalls": 1
+   },
+   "receipt": {
+    "actionId": "42b33a84-3000-4ad0-9f47-2ce494765a06",
+    "role": "AXButton",
+    "labelHash": "b63348f3ec2a",
+    "windowId": 1228,
+    "lookAgeMs": 8070,
+    "outcome": "pressed"
+   }
+  },
+  {
+   "at": "2026-10-01T18:16:25.239Z",
+   "threadId": "proof-thread",
+   "op": "press",
+   "ok": false,
+   "code": "invalid_args",
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 1,
+    "asked": 2,
+    "presses": 1,
+    "inputCalls": 1
+   }
+  }
+ ],
+ "hostResults": [
+  {
+   "capability": "look",
+   "ok": true
+  },
+  {
+   "capability": "press",
+   "ok": true
+  }
+ ],
+ "replay": {
+  "ok": false,
+  "code": "invalid_args",
+  "error": "This press request was already handled; it is never carried out twice."
+ },
+ "answer": "Pressed “Fixture Button” in BimaxCuFixture (window “Bimax-Cu Fixture”). What changed in the window:\n- AXStaticText = \"presses=1 events=1 last=press\"\n+ AXStaticText = \"presses=2 events=2 last=press\"",
+ "fixtureAfter": "presses=2 events=2 last=press",
+ "serviceCounts": {
+  "lists": 0,
+  "looks": 1,
+  "refused": 1,
+  "asked": 2,
+  "presses": 1,
+  "inputCalls": 1
+ },
+ "driverActivity": {
+  "authorized": {
+   "list_windows": 1,
+   "get_window_state": 3,
+   "click": 1
+  },
+  "refused": {}
+ },
+ "authorizedInputTools": [
+  "click"
+ ],
+ "pressDelta": 1,
+ "finishedAt": "2026-10-01T18:16:30.227Z",
+ "result": "DONE — mode replay: 3 tool call(s), 2 host call(s)."
+}

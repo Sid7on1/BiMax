@@ -1,0 +1,124 @@
+{
+ "mode": "wrong-target",
+ "control": "Delete Everything",
+ "prompt": "Use LookAtAppTool to look at the app named BimaxCuFixture. Then use PressInAppTool to press the control named \"Delete Everything\" in it, once. Then tell me in one line what PressInAppTool reported. Do nothing else: no files, no shell, no other tools, and do not press anything twice.",
+ "startedAt": "2026-10-01T18:12:39.050Z",
+ "toolCalls": [
+  {
+   "id": "chatcmpl-tool-bacf2312d5e36f70",
+   "name": "LookAtAppTool"
+  },
+  {
+   "id": "chatcmpl-tool-84ca5e4596b8ab05",
+   "name": "PressInAppTool"
+  }
+ ],
+ "hostCalls": [
+  {
+   "capability": "look",
+   "op": "look",
+   "args": {
+    "app": "BimaxCuFixture"
+   }
+  },
+  {
+   "capability": "press",
+   "op": "press",
+   "args": {
+    "app": "BimaxCuFixture",
+    "control": "Delete Everything",
+    "role": "AXButton"
+   }
+  }
+ ],
+ "cards": [
+  {
+   "threadId": "proof-thread",
+   "question": "Let this task look at BimaxCuFixture?",
+   "options": [
+    "Allow looking at BimaxCuFixture",
+    "Not now"
+   ],
+   "answer": "Allow looking at BimaxCuFixture",
+   "pressOnWhenAnswered": true
+  }
+ ],
+ "engineRequests": [
+  {
+   "question": "Let this task press “Delete Everything” in BimaxCuFixture?",
+   "options": [
+    "Allow",
+    "Deny"
+   ],
+   "answered": "Allow"
+  }
+ ],
+ "errors": [],
+ "fixtureBefore": "presses=1 events=1 last=press",
+ "audit": [
+  {
+   "at": "2026-10-01T18:14:22.935Z",
+   "threadId": "proof-thread",
+   "op": "look",
+   "bundleId": "ai.bimax.cu.fixture",
+   "ok": true,
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 0,
+    "asked": 1,
+    "presses": 0,
+    "inputCalls": 0
+   }
+  },
+  {
+   "at": "2026-10-01T18:14:24.957Z",
+   "threadId": "proof-thread",
+   "op": "press",
+   "bundleId": "ai.bimax.cu.fixture",
+   "ok": false,
+   "code": "not_found",
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 1,
+    "asked": 1,
+    "presses": 0,
+    "inputCalls": 0
+   }
+  }
+ ],
+ "hostResults": [
+  {
+   "capability": "look",
+   "ok": true
+  },
+  {
+   "capability": "press",
+   "ok": false,
+   "code": "not_found",
+   "error": "There is no control called “Delete Everything” (AXButton) in the window you read. Nothing was pressed."
+  }
+ ],
+ "answer": "There is no control called “Delete Everything” (AXButton) in the window you read. Nothing was pressed.",
+ "fixtureAfter": "presses=1 events=1 last=press",
+ "serviceCounts": {
+  "lists": 0,
+  "looks": 1,
+  "refused": 1,
+  "asked": 1,
+  "presses": 0,
+  "inputCalls": 0
+ },
+ "driverActivity": {
+  "authorized": {
+   "list_windows": 1,
+   "get_window_state": 1
+  },
+  "refused": {}
+ },
+ "authorizedInputTools": [],
+ "pressDelta": 0,
+ "finishedAt": "2026-10-01T18:14:32.835Z",
+ "result": "DONE — mode wrong-target: 2 tool call(s), 2 host call(s)."
+}
