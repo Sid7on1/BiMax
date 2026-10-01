@@ -3,6 +3,8 @@ import { app, BrowserWindow, clipboard, ipcMain, dialog, shell, session, systemP
 import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron';
 import path from 'node:path';
 import { ThreadManager } from './thread.manager';
+import { createLookService } from './computer/look.service';
+import { createLookDriver } from './computer/look.driver';
 import { threadCapabilityEnvironment, threadIndexEnvironment, threadVoiceEnvironment, workerCapacityEnvironment, spendLedgerEnvironment } from './thread.environment';
 import { ThreadStorage } from './thread.storage';
 import { ThreadBinRecovery, BIN_UNDO_MS } from './thread.bin.recovery';
@@ -125,6 +127,29 @@ let win: BrowserWindow | null = null;
 let supervisor: EngineSupervisor | null = null;
 // Bimax Threads: one engine, history and approval namespace per folder-bound conversation (thread.manager.ts).
 let threads: ThreadManager;
+/**
+ * Computer Use, look only (record 65, stage 2). The driver is created here but starts nothing: it loads on the first
+ * look a person allowed. Off unless the person ticks "Let Tasks Look at Other Apps" in the menu bar item.
+ */
+const lookDriver = createLookDriver({
+  stateDir: path.join(app.getPath('userData'), 'computer'),
+  packaged: app.isPackaged,
+  resourcesPath: process.resourcesPath,
+  appPath: app.getAppPath(),
+});
+const lookService = createLookService({
+  enabled: () => loadSettings().computerLook === true,
+  driver: async () => lookDriver,
+  ask: (threadId, question, options, body) => threads.askOnBehalf(threadId, question, options, body),
+  // Content-free: which task asked what of which app, the answer, and both counts — the app's and the driver's own.
+  audit: (entry) => {
+    try {
+      const dir = path.join(app.getPath('userData'), 'computer');
+      mkdirSync(dir, { recursive: true, mode: 0o700 });
+      appendFileSync(path.join(dir, 'audit.jsonl'), `${JSON.stringify({ ...entry, driver: lookDriver.activity(entry.threadId) })}\n`, { mode: 0o600 });
+    } catch { /* never in the way of the answer */ }
+  },
+});
 let threadStorage: ThreadStorage;
 let binRecovery: ThreadBinRecovery;
 let threadBroker: Awaited<ReturnType<typeof createThreadBroker>>;
@@ -995,6 +1020,8 @@ function updateTray(): void {
       { label: 'Answer as a notification', type: 'radio', checked: pushTalkAnswer(loadSettings().pushTalkAnswer) === 'notification', click: () => { saveSettings({ pushTalkAnswer: 'notification' }); updateTray(); } },
     ] },
     { label: 'Speak When a Task Finishes', type: 'checkbox', checked: loadSettings().speakUpdates === true, click: (item) => { saveSettings({ speakUpdates: item.checked }); updateTray(); } },
+    // Computer Use, look only (record 65 stage 2): off until ticked; each app still asks per task. New ⌘2 tasks get it.
+    { label: 'Let Tasks Look at Other Apps (Preview)', type: 'checkbox', checked: loadSettings().computerLook === true, click: (item) => { saveSettings({ computerLook: item.checked }); updateTray(); } },
     ...(existsSync(notchHelperPath({ packaged: app.isPackaged, resourcesPath: process.resourcesPath, appPath: app.getAppPath() })) ? [{
       label: 'Show Bimax in the Notch', type: 'checkbox' as const, checked: loadSettings().notchDeck !== false,
       click: (item: Electron.MenuItem) => { saveSettings({ notchDeck: item.checked }); syncNotch(); updateTray(); },
@@ -1511,7 +1538,9 @@ function createSupervisor(threadId?: string): EngineSupervisor {
           ...rulesEnvironment(loadSettings().folderRules?.[project]),
           ...outcomeEnvironment(loadOutcomes()[project]),
           ...threadVoiceEnvironment(threads.talkState(threadId).voice),
-          ...(threads.talkState(threadId).model ? { BIMAX_THREAD_MODEL: threads.talkState(threadId).model } : {}) } : {}),
+          ...(threads.talkState(threadId).model ? { BIMAX_THREAD_MODEL: threads.talkState(threadId).model } : {}),
+          // Looking at other apps (record 65 stage 2): a ⌘2 task, only once the person turned it on.
+          ...(loadSettings().computerLook === true && threads.get(threadId).summary.origin !== 'project' ? { BIMAX_COMPUTER_LOOK: '1' } : {}) } : {}),
       }, callbacks);
     },
     now: () => Date.now(),
@@ -1782,6 +1811,8 @@ app.whenReady().then(async () => {
     },
     // The ⌘2 bar answers its own task's questions inline while it is on screen, and the main window those of the
     // thread it shows; everything else gets the popup.
+    hostCall: (id, msg) => lookService.handle(id, msg),
+    ended: (id) => { void lookService.end(id); },
     approval: (value) => {
       if (value.threadId === quickThreadId && quickWindow?.isVisible()) return;
       showThreadApproval();

@@ -22,11 +22,21 @@ files:
   # N-API prebuild through node-gyp-build, so that ships too. Without either, the bar falls back to vibrancy.
   - node_modules/electron-liquid-glass/**
   - node_modules/node-gyp-build/**
+  # Computer Use, look only (record 65 stage 2): Cua Driver's in-process SDK — its JS, the native library and Node
+  # add-on (darwin-arm64), and the UniFFI runtime they load. Loaded only on a look the person allowed. The driver's
+  # command-line binary and its AGPL perception extension are not part of these packages and never ship.
+  - node_modules/@trycua/cua-driver/**
+  - node_modules/@trycua/cua-driver-darwin-arm64/**
+  - node_modules/@ubjs/**
 
 # Native binaries can't load from inside the asar archive.
 asarUnpack:
   - node_modules/@lydell/**
   - node_modules/electron-liquid-glass/**
+  # The SDK hands its library's path to dlopen, which cannot read inside the archive: all of it is unpacked, and
+  # look.driver.ts imports it from app.asar.unpacked by its real path.
+  - node_modules/@trycua/**
+  - node_modules/@ubjs/**
 
 # engine/ holds index.js (the bundle) plus the tree-sitter .wasm assets it loads at runtime.
 extraResources:

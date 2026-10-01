@@ -8,7 +8,7 @@ import path from 'node:path';
  * the 2026-09-02 code-only reset and its other assertions REQUIRED Computer Use to be packaged —
  * `mac.extraFiles` had to contain `BimaxCuService.xpc`, `bimax-cu-bridge` and friends. With CU
  * disabled at the seams those assertions were not merely stale, they demanded the thing the product
- * had deliberately removed, so the whole file went. `code.only.product.boundary.test.ts` is the
+ * had deliberately removed, so the whole file went. `computer.admission.boundary.test.ts` (the code-only gate until record 65 stage 2) is the
  * boundary now.
  *
  * The Terminal (CLI) half of this file went to archive/cli-tui/ on 2026-09-06 along with the

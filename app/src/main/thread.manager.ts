@@ -99,6 +99,13 @@ interface Dependencies {
   selected(selection: ThreadSelection): void;
   message(id: string, msg: Outbound): void;
   approval(value: ThreadApproval): void;
+  /**
+   * The engine asked the app to do something only the app may (record 65, stage 2: look at another app's window). The
+   * answer goes back to that engine, never to a window. Optional: without it every host call is told "not available".
+   */
+  hostCall?(id: string, msg: HostCall): Promise<HostResult>;
+  /** The thread was stopped or released: whatever the app granted it (looking at an app) ends. */
+  ended?(id: string): void;
   save(value: SavedThread): void;
   /** Write now, before returning: used when a message is accepted or handed to the engine. Falls back to `save`. */
   saveNow?(value: SavedThread): void;
@@ -131,6 +138,11 @@ export const MAX_THREADS = 200;
 
 /** The id of the manager's own "resume failed" choice. The engine's request ids are positive. */
 const RESUME_CHOICE_ID = -1;
+/** Cards the app raises itself on a thread's behalf (a grant to look at an app) count down from here, below the resume card. */
+const HOST_CARD_FIRST_ID = -100;
+
+type HostCall = Extract<Outbound, { t: 'host_call' }>;
+type HostResult = Extract<Inbound, { t: 'host_result' }>;
 /** How long a starting engine has to confirm or refuse a resume. */
 const RESUME_DEADLINE_MS = 20_000;
 export const RESUME_CHOICES = {
@@ -162,6 +174,9 @@ export class ThreadManager {
   /** Cancels the pending idle sweep, when one is armed (see startIdleReaper). */
   private reapCancel?: () => void;
   private exchanges = new Map<string, number>();
+  /** Cards this manager raised on a thread's behalf (askOnBehalf), by request id, awaiting the person's answer. */
+  private hostCards = new Map<number, (answer: string) => void>();
+  private nextHostCard = HOST_CARD_FIRST_ID;
   activeId: string | null = null;
   constructor(private deps: Dependencies, saved: SavedThread[] = []) {
     for (const item of saved) this.adopt(item);
@@ -262,6 +277,7 @@ export class ThreadManager {
     if (!r) throw new Error('Thread not found');
     if (r.engine || r.draining) throw new Error('Stop this thread first.');
     this.records.delete(id);
+    this.deps.ended?.(id);
     if (this.activeId === id) this.activeId = null;
     for (const other of this.records.values()) {
       if (!other.summary.peers.includes(id)) continue;
@@ -423,6 +439,8 @@ export class ThreadManager {
     const r = this.records.get(id);
     if (!r?.engine) return;
     if (this.swallowQuietResume(r, msg)) return;
+    // A request for the app itself, not for a window: answered here, back to this engine only.
+    if (msg.t === 'host_call') { this.answerHostCall(id, r, msg); return; }
     if (msg.t === 'ready') this.engineReady(r);
     if (msg.t === 'request') msg = this.holdApproval(id, r, msg);
     if (msg.t === 'event') {
@@ -443,6 +461,51 @@ export class ThreadManager {
     // Only dispatch queued inputs after the current protocol event has been delivered.
     if (r.ready && r.summary.status === 'idle') for (const next of this.byPriority()) this.pump(next);
     this.persist(r);
+  }
+
+  private answerHostCall(id: string, r: LiveThread, msg: HostCall): void {
+    const engine = r.engine;
+    // Only the engine that asked hears the answer: one restarted in between starts with no call waiting.
+    const answer = (result: HostResult) => { if (r.engine && r.engine === engine) engine.sendFromRenderer(result); };
+    const failed = (error: string): HostResult => ({ t: 'host_result', id: msg.id, ok: false, error, value: { code: 'unavailable' } });
+    if (!this.deps.hostCall) { answer(failed('Looking at other apps is not available.')); return; }
+    this.deps.hostCall(id, msg).then(
+      (result) => answer({ ...result, t: 'host_result', id: msg.id }),
+      (error) => answer(failed(String(error instanceof Error ? error.message : error).slice(0, 200))),
+    );
+  }
+
+  /**
+   * A card the app raises in this thread on the thread's behalf — "Let this task look at Notes?" — answered like any
+   * approval (token, one of its choices) but by the app, never forwarded to the engine. Resolves '' when the thread is
+   * stopped or its turn is cancelled first: no answer is never a yes.
+   */
+  askOnBehalf(id: string, question: string, options: string[], body?: string): Promise<string> {
+    const r = this.records.get(id);
+    if (!r?.engine) return Promise.resolve('');
+    const cardId = this.nextHostCard--;
+    const request = { t: 'request', id: cardId, kind: 'prompt', question, options, isAsk: false, ...(body ? { body } : {}) } as Extract<Outbound, { t: 'request' }>;
+    const approval: ThreadApproval = { threadId: id, title: r.summary.title, root: r.summary.root, request, token: randomUUID() };
+    return new Promise<string>((resolve) => {
+      this.hostCards.set(cardId, resolve);
+      r.pending.set(cardId, approval);
+      r.summary.status = 'needs-you';
+      const msg = { ...request, approvalToken: approval.token } as Outbound;
+      r.state = engineReducer(r.state, { type: 'outbound', msg });
+      this.deps.message(id, msg);
+      this.deps.approval(approval);
+      this.persist(r);
+    });
+  }
+
+  /** Every card the app raised in this thread, answered "no": the thread is going away or its turn was cancelled. */
+  private dropHostCards(r: LiveThread): void {
+    for (const cardId of r.pending.keys()) {
+      const resolve = this.hostCards.get(cardId);
+      if (!resolve) continue;
+      this.hostCards.delete(cardId);
+      resolve('');
+    }
   }
 
   /** A "Resumed …" notice from a restart the manager made itself is not shown (see below). True: drop this message. */
@@ -628,6 +691,14 @@ export class ThreadManager {
     if (!validApprovalChoice(pending.request, msg.value)) throw new Error('Invalid approval choice');
     r.pending.delete(msg.id);
     this.dropRequest(r);
+    const card = this.hostCards.get(msg.id);
+    if (card) {
+      this.hostCards.delete(msg.id);
+      r.summary.status = 'working';
+      card(String(msg.value));
+      this.persist(r);
+      return 'handled';
+    }
     if (msg.id === RESUME_CHOICE_ID) {
       this.resumeChoice(r, String(msg.value));
       this.persist(r);
@@ -641,6 +712,7 @@ export class ThreadManager {
   private cancelTurn(r: LiveThread): void {
     r.interruptAsked = true;
     r.inputs = [];
+    this.dropHostCards(r);
     r.pending.clear();
     this.dropRequest(r);
   }
@@ -813,6 +885,7 @@ export class ThreadManager {
     if (r.summary.status === 'working' || r.summary.status === 'needs-you') r.summary.outcome = 'interrupted';
     if (options.keepInputs) this.recoverInputs(r, 'the task was restarted', true);
     else r.inputs = [];
+    this.dropHostCards(r);
     r.engine = undefined; r.ready = false; r.pending.clear(); r.restartWanted = false;
     r.resumeDeadline?.(); r.resumeDeadline = undefined; r.holdInputs = false;
     this.drain(r, engine);
@@ -820,6 +893,7 @@ export class ThreadManager {
     this.dropRequest(r);
     r.state = { ...r.state, spinner: { state: 'idle', message: '' }, engine: { state: 'exited', detail: options.reason ?? 'Thread stopped' } };
     this.persist(r);
+    this.deps.ended?.(id);
     for (const other of this.byPriority()) this.pump(other);
   }
   /**

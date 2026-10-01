@@ -47,6 +47,9 @@ export function buildEngineChildEnv(input: {
     BGW_FIRST_CHUNK_TIMEOUT_MS: '45000',
     ...(input.compileCacheDir ? { NODE_COMPILE_CACHE: input.compileCacheDir } : {}),
   };
+  // Looking at other apps (record 65): only this app's own decision for this engine turns it on, never an inherited value.
+  if (input.extraEnv.BIMAX_COMPUTER_LOOK === '1') env.BIMAX_COMPUTER_LOOK = '1';
+  else delete env.BIMAX_COMPUTER_LOOK;
   for (const variable of [
     'BIMAX_MAC_CAPABILITY_PROVIDER',
     'BIMAX_CU_SERVICE_BINARY',

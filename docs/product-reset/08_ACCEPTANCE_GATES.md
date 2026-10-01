@@ -1,6 +1,35 @@
 # Acceptance gates
 
-## Code-only product gate (current, 2026-09-02)
+## Computer Use admission gate (current, 2026-10-01 — record 65 stage 2)
+
+It replaces the code-only gate of 2026-09-02 below, in the same change that let Computer Use back in, look only.
+Enforced by `src/__tests__/computer.admission.boundary.test.ts` and `scripts/verify-desktop-package.mjs`.
+
+- The coding surfaces are unchanged: create/read/edit/multi-edit/delete/mkdir, shell, tests, git, search, LSP, review,
+  plans, checkpoints, subagents, browser research and ordinary MCP integrations; `files`, `git` and `security` in the
+  app reach for no Accessibility, Screen Recording or Computer Use code.
+- No window exposes Control Mac, Live Target, takeover, Computer Use model readiness or a Trust Center journey. The one
+  entry point is the menu bar item "Let Tasks Look at Other Apps (Preview)", **off until the person ticks it**.
+- With it on, a new ⌘2 task's engine gets `LookAtAppTool` (list apps, look at one app's front window) and nothing
+  else; project windows do not. Only the app's own decision for that engine sets `BIMAX_COMPUTER_LOOK`; an inherited
+  value is dropped.
+- The first look at each app in a task raises a card the **app** raises and answers ("Let this task look at …?",
+  Allow / Not now); "Not now" is remembered for the task; stopping it ends every grant. Bimax itself, the password and
+  keychain apps and System Settings are never looked at.
+- The driver runs in-process, `bounded`: a runtime manifest that may list apps only, and per grant a version-2
+  manifest naming one app, allowing `list_apps`, `list_windows`, `get_window_state`, `get_screen_size` and denying every
+  input tool by name. The menu bar is cut out of every observation and password fields lose their value; the text
+  reaches the model fenced as untrusted and taints the session.
+- The engine still rejects `bimax-mac` and skips MCP tools named `mac_control`, `computer_control` or `computer`; Desktop
+  still strips the old CU environment variables and emits no host capability for them.
+- The bundle contains no XPC service, CU bridge/helper/preview or Mac capability provider. The one Computer Use part is
+  `@trycua/cua-driver` **0.31.0**, outside the archive, with no driver command-line binary and no perception extension.
+  Declared usage descriptions stay exactly AppleEvents and Microphone (voice).
+- Launching and completing a code task requests no TCC permission: the driver loads only on a look the person allowed.
+  Widening any of this — another tool, another operation, an input permission, another entry point — must make a test
+  fail.
+
+### Code-only product gate (2026-09-02 — replaced by the admission gate above)
 
 - Terminal and Desktop expose create/read/edit/multi-edit/delete/mkdir, shell, tests, git, search,
   LSP, review, plans, checkpoints, subagents, browser research, and ordinary MCP integrations.
