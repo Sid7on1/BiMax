@@ -50,12 +50,13 @@ export function lookManifest(bundleId: string, minutes = 30, idleMinutes = 10): 
 }
 
 /**
- * Record 65 stage 6 (§6h), using an app: the input tools a use session may call, and nothing else. `click` presses a
- * control by the element token of a snapshot taken in the same session (an AX press: no pointer, no focus change, no
- * coordinates); `set_value` writes one text box's value the same way. Every other input tool stays denied by name —
- * typing keys, Return, shortcuts, dragging, coordinates, bringing an app forward.
+ * Record 65 stage 6 (§6h), using an app: the input tools a use session may call, and nothing else. `click` performs an
+ * AX action (press, or a text box's confirm — its Return) on the element token of a snapshot taken in the same session:
+ * no pointer, no focus change, no coordinates; `set_value` writes one text box's value or picks one pop-up item the same
+ * way; `scroll` turns the wheel over one element by its token, in the background. Every other input tool stays denied by
+ * name — typing keys, shortcuts, dragging, coordinates, bringing an app forward.
  */
-export const USE_TOOLS = ['click', 'set_value'] as const;
+export const USE_TOOLS = ['click', 'set_value', 'scroll'] as const;
 
 /**
  * Controls a press never targets even though they publish a press: those that open a menu (in the background a native
@@ -65,6 +66,9 @@ export const PRESS_EXCLUDED_ROLES: ReadonlySet<string> = new Set([
   'AXWindow', 'AXMenuBar', 'AXMenuBarItem', 'AXPopUpButton', 'AXMenuButton', 'AXComboBox',
   'AXTextField', 'AXTextArea', 'AXSecureTextField', 'AXSearchField',
 ]);
+
+/** Pop-up buttons, whose items a task picks without opening the menu (the driver's set_value presses the item). */
+export const PICK_ROLES: ReadonlySet<string> = new Set(['AXPopUpButton']);
 
 /** The boxes a task may type into. Never a password field: AXSecureTextField is not here and never will be. */
 export const TYPE_ROLES: ReadonlySet<string> = new Set(['AXTextField', 'AXTextArea', 'AXComboBox', 'AXSearchField']);

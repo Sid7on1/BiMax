@@ -12,7 +12,9 @@ export type CommitReason =
   | { kind: 'word'; word: string }
   | { kind: 'dialog' }
   | { kind: 'after_typing' }
-  | { kind: 'unreadable' };
+  | { kind: 'unreadable' }
+  /** Return in a box that is not for searching: it may send what the box holds. */
+  | { kind: 'submit' };
 
 /**
  * Words (and a few phrases) on a control that sends, pays, deletes, confirms or otherwise commits. Matched as whole words
@@ -98,5 +100,6 @@ export function reasonText(reason: CommitReason, label: string): string {
     case 'dialog': return `“${label}” answers a question the app asked, so Bimax asks first.`;
     case 'after_typing': return 'Bimax typed text in this app, and this press may send it, so Bimax asks first.';
     case 'unreadable': return `Bimax cannot tell from the name “${label}” what this does, so it asks first.`;
+    case 'submit': return `Pressing Return in “${label}” may send what is in it, so Bimax asks first.`;
   }
 }

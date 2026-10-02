@@ -6,6 +6,7 @@ import { Outbound, HOST_CALL_EVENT } from '../protocol/protocol';
 import { engineEvents } from '../engine/events';
 import { createPressTool } from '../tools/implementations/press.tool';
 import { createTypeTool } from '../tools/implementations/type.tool';
+import { createScrollTool } from '../tools/implementations/scroll.tool';
 import { fenceUntrusted, untrustedChannel } from '../mind/taint';
 import { GovernorVetoError } from '../core/errors';
 import { checkToolArgs } from '../tools/args.validate';
@@ -41,7 +42,7 @@ describe('PressInAppTool', () => {
 
   it('names one app and one control; it is destructive and has no coordinates, keys or text', () => {
     const tool = createPressTool(governor) as any;
-    expect(Object.keys(tool.schema.properties).sort()).toEqual(['app', 'control', 'role']);
+    expect(Object.keys(tool.schema.properties).sort()).toEqual(['app', 'control', 'option', 'role']);
     expect(tool.schema.required).toEqual(['app', 'control']);
     expect(tool.isDestructive).toBe(true);
   });
@@ -89,7 +90,7 @@ describe('TypeInAppTool', () => {
 
   it('names one app, optionally one box, and one text; destructive; no keys, coordinates or Return', () => {
     const tool = createTypeTool(governor) as any;
-    expect(Object.keys(tool.schema.properties).sort()).toEqual(['app', 'field', 'role', 'text']);
+    expect(Object.keys(tool.schema.properties).sort()).toEqual(['app', 'field', 'role', 'submit', 'text']);
     expect(tool.schema.required).toEqual(['app', 'text']);
     expect(tool.isDestructive).toBe(true);
   });
@@ -110,6 +111,33 @@ describe('TypeInAppTool', () => {
 
   it('what it returns is screen text', () => {
     expect(untrustedChannel('TypeInAppTool')).toBe('screen');
+  });
+
+  it('submit is forwarded only when it is exactly true', async () => {
+    await run({ app: 'Music', field: 'Search', text: 'x', submit: true });
+    await run({ app: 'Music', field: 'Search', text: 'x', submit: 'yes' });
+    expect(calls.map((c) => c.args.submit)).toEqual([true, undefined]);
+  });
+});
+
+describe('ScrollInAppTool', () => {
+  let calls: Array<{ capability: string; op: string; args: any }>;
+  const governor = { approveTaskExecution: async () => {} } as any;
+  const listener = (capability: string, op: string, args: any, resolve: (r: HostCallResult) => void) => {
+    calls.push({ capability, op, args });
+    resolve({ ok: false, error: 'Scrolled down at “Mom”, but nothing moved.', value: { code: 'no_effect' } });
+  };
+  beforeEach(() => { calls = []; engineEvents.on(HOST_CALL_EVENT, listener); });
+  afterEach(() => { engineEvents.off(HOST_CALL_EVENT, listener); });
+
+  it('names one app, one control and a direction; no coordinates, keys or text', async () => {
+    const tool = createScrollTool(governor) as any;
+    expect(Object.keys(tool.schema.properties).sort()).toEqual(['app', 'control', 'direction', 'pages', 'role']);
+    expect(tool.schema.required).toEqual(['app', 'control', 'direction']);
+    const out = await tool.execute({ app: 'WhatsApp', control: 'Mom', direction: 'down', pages: 2 }, { cwd: process.cwd() });
+    expect(calls).toEqual([{ capability: 'scroll', op: 'scroll', args: { app: 'WhatsApp', control: 'Mom', direction: 'down', pages: 2 } }]);
+    expect(String(out)).toContain('nothing moved');
+    expect(untrustedChannel('ScrollInAppTool')).toBe('screen');
   });
 });
 
@@ -137,7 +165,7 @@ describe('admission: the engine has the press and type tools only when the app t
   it('registration needs both flags, and nothing in the engine sets either', () => {
     const root = path.resolve(__dirname, '..', '..');
     const container = fs.readFileSync(path.join(root, 'src/core/container.ts'), 'utf8');
-    expect(container).toContain("if (process.env.BIMAX_COMPUTER_LOOK === '1' && process.env.BIMAX_COMPUTER_USE === '1') {\n    toolRegistry.register(createPressTool(governor));\n    toolRegistry.register(createTypeTool(governor));\n  }");
+    expect(container).toContain("if (process.env.BIMAX_COMPUTER_LOOK === '1' && process.env.BIMAX_COMPUTER_USE === '1') {\n    toolRegistry.register(createPressTool(governor));\n    toolRegistry.register(createTypeTool(governor));\n    toolRegistry.register(createScrollTool(governor));\n  }");
     expect(container).not.toContain('BIMAX_COMPUTER_PRESS');
     const setters = [] as string[];
     const walk = (dir: string) => {

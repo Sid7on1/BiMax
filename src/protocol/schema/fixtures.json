@@ -57,7 +57,7 @@
         "version": "1.1.0",
         "buildCommit": "01234567"
       },
-      "protocolVersion": "3.5.0",
+      "protocolVersion": "3.6.0",
       "protocolMajor": 3,
       "minCompatibleMajor": 2,
       "maxCompatibleMajor": 3,
@@ -216,6 +216,19 @@
         "role": "AXTextField",
         "text": "hello"
       }
+    },
+    {
+      "t": "host_call",
+      "id": 16,
+      "capability": "scroll",
+      "op": "scroll",
+      "args": {
+        "app": "Music",
+        "control": "Charts",
+        "role": "AXButton",
+        "direction": "down",
+        "pages": 1
+      }
     }
   ],
   "inbound": [
@@ -256,6 +269,15 @@
       "ok": true,
       "value": {
         "text": "Typed into “alpha beta gamma” in BimaxCuFixture. The box now reads exactly: “hello”."
+      }
+    },
+    {
+      "t": "host_result",
+      "id": 16,
+      "ok": false,
+      "error": "Scrolled down at “Charts”, but nothing moved.",
+      "value": {
+        "code": "no_effect"
       }
     },
     {

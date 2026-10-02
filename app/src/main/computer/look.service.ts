@@ -3,7 +3,7 @@ import type { Outbound, Inbound } from '../../renderer/src/protocol';
 import { LookGrants } from './look.grants';
 import { NEVER_LOOK, isNeverUsed, validBundleId } from './look.manifest';
 import { renderLook } from './look.observation';
-import { commitReasonForPress, isSearchBox, reasonText, type CommitReason } from './look.commit';
+import { commitReasonForPress, commitWordIn, isSearchBox, reasonText, type CommitReason } from './look.commit';
 import type { ProcessIdentity } from './look.identity';
 
 /**
@@ -35,7 +35,15 @@ export interface RunningApp { name: string; bundleId: string; pid: number }
  * A control a read showed: enough to bind a later step to it — never the driver's token. `value` is a text box's text;
  * `at` is where it starts on screen, which finds a box again after typing renames it; `inDialog`, inside a sheet.
  */
-export interface LookElement { role: string; label: string; pressable: boolean; editable?: boolean; value?: string; inDialog?: boolean; at?: string }
+export interface LookElement {
+  role: string; label: string; pressable: boolean; editable?: boolean; value?: string; inDialog?: boolean; at?: string;
+  /** A pop-up button whose items can be picked without opening its menu. */
+  pickable?: boolean;
+  /** A text box for finding things (its role, its name, or a child control named Search): Return there sends nothing. */
+  searchBox?: boolean;
+}
+
+export type ScrollDirection = 'up' | 'down' | 'left' | 'right';
 
 /** What a step is bound to: the window a read saw, and one control in it by role and name. */
 export interface PressTarget { windowId: number; role: string; label: string }
@@ -56,11 +64,17 @@ export type TypeOutcome =
 export interface LookDriver {
   runningApps(): Promise<RunningApp[]>;
   /** The app's front window, read only, in a session scoped to that app for this Thread. */
-  look(threadId: string, app: RunningApp, query?: string): Promise<{ title: string; markdown: string; windowId?: number; elements?: LookElement[] }>;
+  look(threadId: string, app: RunningApp, query?: string): Promise<{ title: string; markdown: string; windowId?: number; elements?: LookElement[]; partial?: boolean }>;
   /** One press of one control, in a use session for that app. */
   press?(threadId: string, app: RunningApp, target: PressTarget): Promise<PressOutcome>;
   /** One typing into one box, in a use session for that app. */
   type?(threadId: string, app: RunningApp, target: PressTarget, text: string): Promise<TypeOutcome>;
+  /** Return in one box (its AX confirm), found by role and position when `at` is given. */
+  confirm?(threadId: string, app: RunningApp, target: PressTarget & { at?: string }): Promise<PressOutcome>;
+  /** One item of a pop-up, chosen without opening its menu; `value` is what the pop-up shows afterwards. */
+  pick?(threadId: string, app: RunningApp, target: PressTarget, option: string): Promise<TypeOutcome>;
+  /** Scroll the area under one control, in the background. */
+  scroll?(threadId: string, app: RunningApp, target: PressTarget, direction: ScrollDirection, pages: number): Promise<PressOutcome>;
   end(threadId: string): Promise<void>;
 }
 
@@ -100,6 +114,9 @@ export interface LookCounts {
   presses: number;
   /** Typings the box read back exactly. */
   typings: number;
+  /** Pop-up items chosen and read back, and scrolls that moved something. */
+  picks: number;
+  scrolls: number;
   /** Input calls the app sent to the driver at all — accepted or with an unknown outcome. Zero for a look-only Thread. */
   inputCalls: number;
 }
@@ -107,16 +124,18 @@ export interface LookCounts {
 /** One step, as the audit keeps it: which action, bound to which read, whether the person was asked, and the outcome. */
 export interface PressReceipt {
   actionId: string;
-  action: 'press' | 'type';
+  action: 'press' | 'type' | 'pick' | 'scroll';
   role: string;
   labelHash: string;
   windowId: number;
   lookAgeMs: number;
   /** Why the person was asked first, or null for an ordinary step that ran without a card. */
   asked: CommitReason['kind'] | 'overwrite' | 'keep_going' | null;
-  /** Typing: the text's hash and length, never the text. */
+  /** Typing (or the item picked): the text's hash and length, never the text. */
   textHash?: string;
   textLength?: number;
+  /** Typing with Return: whether Return was pressed. */
+  submitted?: boolean;
   /** Stage 5: the build that was acted on — the SHA-256 of the running executable, and its process. */
   exeSha256?: string;
   pid?: number;
@@ -131,6 +150,10 @@ const PRESS = (label: string) => `Press “${label}”`;
 const DONT_PRESS = 'Don’t press';
 const REPLACE = 'Replace it';
 const DONT_TYPE = 'Don’t type';
+const RETURN = 'Press Return';
+const DONT_RETURN = 'Don’t press Return';
+const CHOOSE = (option: string) => `Choose “${option}”`;
+const DONT_CHOOSE = 'Don’t choose';
 const KEEP_GOING = 'Keep going';
 const STOP_HERE = 'Stop here';
 /** How old the read a step is bound to may be when the step is asked for. */
@@ -139,9 +162,31 @@ export const PRESS_FRESH_MS = 2 * 60 * 1000;
 export const KEEP_GOING_EVERY = 40;
 /** The longest text one typing may set. */
 export const MAX_TYPE_CHARS = 2000;
+/** The most a single scroll may move, in pages. */
+export const MAX_SCROLL_PAGES = 5;
+const DIRECTIONS: readonly ScrollDirection[] = ['up', 'down', 'left', 'right'];
+/** A pop-up shows the chosen item: compared without case, spaces or invisible marks (the driver matches without case). */
+const sameChoice = (shown: string, option: string) => plainName(shown).replace(/\s+/g, ' ').trim().toLowerCase() === plainName(option).replace(/\s+/g, ' ').trim().toLowerCase();
 const hash = (text: string) => createHash('sha256').update(text).digest('hex').slice(0, 12);
-/** Two control names are the same when they differ only in their spaces (no-break, thin, doubled). Nothing else. */
-const sameName = (a: string, b: string) => a.replace(/\s+/g, ' ').trim() === b.replace(/\s+/g, ' ').trim();
+/**
+ * A name without its invisible formatting characters (Unicode Cf: direction marks, zero-width joiners). Measured: the
+ * driver names WhatsApp "\u200eWhatsApp", so "WhatsApp" found no app at all.
+ */
+export const plainName = (name: string) => name.replace(/\p{Cf}/gu, '');
+/** Two control names are the same when they differ only in their spaces (no-break, thin, doubled) and invisible marks. */
+const sameName = (a: string, b: string) => plainName(a).replace(/\s+/g, ' ').trim() === plainName(b).replace(/\s+/g, ' ').trim();
+/** The shortest name a model may give as the start of a longer one: a look shows a line of at most 300 characters. */
+export const LONG_NAME_PREFIX = 120;
+/**
+ * A control the model named: the same name, or — for a long name (measured: a WhatsApp community row runs past 200
+ * characters with its last message) — the start of it, at least LONG_NAME_PREFIX characters. Callers still require
+ * exactly one match, so a shared start is refused as ambiguous, never guessed.
+ */
+const isNamed = (label: string, wanted: string) => {
+  if (sameName(label, wanted)) return true;
+  const w = plainName(wanted).replace(/\s+/g, ' ').trim();
+  return w.length >= LONG_NAME_PREFIX && plainName(label).replace(/\s+/g, ' ').trim().startsWith(w);
+};
 /** Text shown on a card: one line, bounded. */
 const quote = (text: string, max = 300) => { const flat = text.replace(/\s+/g, ' ').trim(); return flat.length > max ? `${flat.slice(0, max - 1)}…` : flat; };
 
@@ -175,7 +220,7 @@ export function createLookService(deps: LookServiceDeps) {
   let previewGeneration = 0;
   const count = (threadId: string): LookCounts => {
     let c = counts.get(threadId);
-    if (!c) { c = { lists: 0, looks: 0, refused: 0, asked: 0, presses: 0, typings: 0, inputCalls: 0 }; counts.set(threadId, c); }
+    if (!c) { c = { lists: 0, looks: 0, refused: 0, asked: 0, presses: 0, typings: 0, picks: 0, scrolls: 0, inputCalls: 0 }; counts.set(threadId, c); }
     return c;
   };
   const now = () => (deps.now ? deps.now() : Date.now());
@@ -196,10 +241,12 @@ export function createLookService(deps: LookServiceDeps) {
 
   async function find(want: string): Promise<RunningApp | null> {
     const apps = await (await deps.driver()).runningApps();
-    const key = want.trim().toLowerCase();
+    const key = plainName(want).trim().toLowerCase();
+    const name = (a: RunningApp) => plainName(a.name).trim().toLowerCase();
+    if (!key) return null;
     return apps.find((a) => a.bundleId.toLowerCase() === key)
-      ?? apps.find((a) => a.name.toLowerCase() === key)
-      ?? apps.find((a) => a.name.toLowerCase().startsWith(key))
+      ?? apps.find((a) => name(a) === key)
+      ?? apps.find((a) => name(a).startsWith(key))
       ?? null;
   }
 
@@ -231,7 +278,7 @@ export function createLookService(deps: LookServiceDeps) {
       c.refused += 1;
       return fail(msg.id, 'not_permitted', 'This look was cancelled because the task stopped or looking was turned off.');
     };
-    if (msg.capability === 'press' || msg.capability === 'type') return useAnswer(threadId, msg, c, current);
+    if (msg.capability === 'press' || msg.capability === 'type' || msg.capability === 'scroll') return useAnswer(threadId, msg, c, current);
     if (msg.capability !== 'look') { c.refused += 1; return fail(msg.id, 'invalid_args', 'Bimax has no such capability.'); }
     if (!deps.enabled()) {
       c.refused += 1;
@@ -310,7 +357,8 @@ export function createLookService(deps: LookServiceDeps) {
       const running = exe ? `\nRunning build: ${exe.path} (process ${target.pid}, executable SHA-256 ${exe.sha256})` : '';
       const mode = useOn() && grants.mayUse(threadId, target.bundleId) ? 'you may press and type here' : 'read only';
       const header = `${target.name} — ${window.title ? `window “${window.title}”` : 'front window'} (${mode}${query ? `, lines matching “${query}”` : ''}):${running}`;
-      return { t: 'host_result', id: msg.id, ok: true, value: { text: `${header}\n${shown.text || '(nothing readable)'}` } };
+      const partial = window.partial ? '\n(Only part of the window could be read in time — the Mac is busy or the window is large. Look again if what you need is missing.)' : '';
+      return { t: 'host_result', id: msg.id, ok: true, value: { text: `${header}\n${shown.text || '(nothing readable)'}${partial}` } };
     } catch (error) {
       if (!current()) return revoked();
       c.refused += 1;
@@ -323,27 +371,32 @@ export function createLookService(deps: LookServiceDeps) {
   }
 
   /**
-   * One step in another app: a press (`capability: 'press'`) or a typing (`capability: 'type'`). Every refusal before
-   * the driver is asked says nothing was done; from the driver's call on, the result says exactly what is known.
+   * One step in another app: a press (`capability: 'press'`; with `option`, an item picked from a pop-up), a typing
+   * (`capability: 'type'`; with `submit`, then Return in that box) or a scroll (`capability: 'scroll'`). Every refusal
+   * before the driver is asked says nothing was done; from the driver's call on, the result says exactly what is known.
    */
   async function useAnswer(threadId: string, msg: HostCallMsg, c: LookCounts, current: () => boolean): Promise<HostResultMsg> {
     const typing = msg.capability === 'type';
-    const nothing = typing ? 'Nothing was typed.' : 'Nothing was pressed.';
+    const scrolling = msg.capability === 'scroll';
+    const raw = (msg.args && typeof msg.args === 'object' && !Array.isArray(msg.args)) ? msg.args as Record<string, unknown> : {};
+    const option = !typing && !scrolling && typeof raw.option === 'string' ? raw.option.slice(0, 200).trim() : '';
+    const picking = option !== '';
+    const nothing = typing ? 'Nothing was typed.' : scrolling ? 'Nothing was scrolled.' : picking ? 'Nothing was chosen.' : 'Nothing was pressed.';
     const live = () => current() && useOn();
     const refuse = (code: string, text: string) => { c.refused += 1; return fail(msg.id, code, text); };
     const cancelled = () => refuse('not_permitted', `This step was cancelled because the task stopped or using other apps was turned off. ${nothing}`);
     if (!deps.enabled() || !useOn()) {
       return refuse('not_permitted', `Using other apps is turned off. The person can turn it on from the Bimax item in the menu bar ("Let Tasks Use Other Apps"). ${nothing}`);
     }
-    if (msg.op !== msg.capability) return refuse('invalid_args', typing ? 'Typing has one operation: "type".' : 'Pressing has one operation: "press".');
+    if (msg.op !== msg.capability) return refuse('invalid_args', `This step has one operation: "${msg.capability}". ${nothing}`);
     // A request is carried out at most once, whatever reaches the app twice.
     const seen = `${threadId}:${msg.id}`;
     if (handledSteps.has(seen)) return refuse('invalid_args', `This request was already handled; it is never carried out twice. ${nothing}`);
     handledSteps.add(seen);
 
-    const args = (msg.args && typeof msg.args === 'object' && !Array.isArray(msg.args)) ? msg.args as Record<string, unknown> : {};
+    const args = raw;
     const want = String(args.app ?? '').slice(0, 200).trim();
-    const control = String((typing ? args.field : args.control) ?? '').slice(0, 200).trim();
+    const control = String((typing ? args.field : args.control) ?? '').slice(0, 1000).trim();
     const role = typeof args.role === 'string' ? args.role.trim().slice(0, 40) : '';
     const text = typing && typeof args.text === 'string' ? args.text : '';
     if (!want || (!typing && !control)) return refuse('invalid_args', `Say which app, and the name of the control exactly as the look showed it. ${nothing}`);
@@ -352,6 +405,11 @@ export function createLookService(deps: LookServiceDeps) {
       if (/[\r\n\u2028\u2029]/.test(text)) return refuse('invalid_args', `Typing never includes a line break: in many apps Return sends. Type one line. ${nothing}`);
       if (text.length > MAX_TYPE_CHARS) return refuse('invalid_args', `At most ${MAX_TYPE_CHARS} characters at a time. ${nothing}`);
     }
+    const submit = typing && args.submit === true;
+    const direction = String(args.direction ?? '') as ScrollDirection;
+    const pages = Number.isInteger(args.pages) ? Number(args.pages) : 1;
+    if (scrolling && !DIRECTIONS.includes(direction)) return refuse('invalid_args', `Say which way to scroll: up, down, left or right. ${nothing}`);
+    if (scrolling && (pages < 1 || pages > MAX_SCROLL_PAGES)) return refuse('invalid_args', `Scroll 1 to ${MAX_SCROLL_PAGES} pages at a time. ${nothing}`);
     try {
       const target = await find(want);
       if (!live()) return cancelled();
@@ -393,23 +451,33 @@ export function createLookService(deps: LookServiceDeps) {
       // model sent "Delete\u00a0Everything", a no-break space).
       let el: LookElement;
       if (typing) {
-        const named = control ? look.elements.filter((e) => sameName(e.label, control) && (!role || e.role === role)) : [];
-        if (control && !named.length) return refuse('not_found', `There is no box called “${control}”${role ? ` (${role})` : ''} in the window you read. ${nothing}`);
-        if (named.some((e) => e.role === 'AXSecureTextField')) return refuse('denied', `“${control}” is a password field. Bimax never types into one. ${nothing}`);
+        const named = control ? look.elements.filter((e) => isNamed(e.label, control) && (!role || e.role === role)) : [];
+        if (control && !named.length) return refuse('not_found', `There is no box called “${quote(control, 80)}”${role ? ` (${role})` : ''} in the window you read. ${nothing}`);
+        if (named.some((e) => e.role === 'AXSecureTextField')) return refuse('denied', `“${quote(control, 80)}” is a password field. Bimax never types into one. ${nothing}`);
         const boxes = control ? named.filter((e) => e.editable) : look.elements.filter((e) => e.editable && (!role || e.role === role));
-        if (control && !boxes.length) return refuse('not_permitted', `“${control}” is ${named[0].role}, not a text box Bimax can type into. ${nothing}`);
+        if (control && !boxes.length) return refuse('not_permitted', `“${quote(control, 80)}” is ${named[0].role}, not a text box Bimax can type into. ${nothing}`);
         if (!boxes.length) return refuse('not_found', `The window you read has no text box Bimax can type into. ${nothing}`);
-        if (boxes.length > 1) return refuse('ambiguous', `${boxes.length} text boxes match${control ? ` “${control}”` : ''}; give the box's name (and role) exactly as the look showed it. Bimax will not guess. ${nothing}`);
+        if (boxes.length > 1) return refuse('ambiguous', `${boxes.length} text boxes match${control ? ` “${quote(control, 80)}”` : ''}; give the box's name (and role) exactly as the look showed it. Bimax will not guess. ${nothing}`);
         el = boxes[0];
+      } else if (scrolling) {
+        // Any control the read showed marks the place to scroll — usually a row of the list to move.
+        const places = look.elements.filter((e) => isNamed(e.label, control) && (!role || e.role === role));
+        if (!places.length) return refuse('not_found', `There is no control called “${quote(control, 80)}”${role ? ` (${role})` : ''} in the window you read: name one inside the list to scroll. ${nothing}`);
+        if (places.length >= 2) return refuse('ambiguous', `${places.length} controls are called “${quote(control, 80)}”; name one that is there once. ${nothing}`);
+        el = places[0];
       } else {
-        const matches = look.elements.filter((e) => sameName(e.label, control) && (!role || e.role === role));
-        if (!matches.length) return refuse('not_found', `There is no control called “${control}”${role ? ` (${role})` : ''} in the window you read. ${nothing}`);
-        if (matches.length > 1) return refuse('ambiguous', `${matches.length} controls are called “${control}”${role ? '' : '; give its role too'}. Bimax will not guess which one. ${nothing}`);
+        const matches = look.elements.filter((e) => isNamed(e.label, control) && (!role || e.role === role));
+        if (!matches.length) return refuse('not_found', `There is no control called “${quote(control, 80)}”${role ? ` (${role})` : ''} in the window you read. ${nothing}`);
+        if (matches.length > 1) return refuse('ambiguous', `${matches.length} controls are called “${quote(control, 80)}”${role ? '' : '; give its role too'}. Bimax will not guess which one. ${nothing}`);
         el = matches[0];
-        if (!el.pressable) {
+        if (picking) {
+          if (!el.pickable) return refuse('not_permitted', `“${quote(control, 80)}” is ${el.role}, not a pop-up menu: press it instead, without "option". ${nothing}`);
+        } else if (!el.pressable) {
           return refuse('not_permitted', el.editable
-            ? `“${control}” is a text box: type into it (TypeInAppTool) instead of pressing it. ${nothing}`
-            : `“${control}” is ${el.role} and has no press of its own (menus and pop-ups are not pressed). ${nothing}`);
+            ? `“${quote(control, 80)}” is a text box: type into it (TypeInAppTool) instead of pressing it. ${nothing}`
+            : el.pickable
+              ? `“${quote(control, 80)}” is a pop-up menu: give the item to choose as "option" (Bimax picks it without opening the menu). ${nothing}`
+              : `“${quote(control, 80)}” is ${el.role} and has no press of its own. ${nothing}`);
         }
       }
       // One read, at most one step — whatever happens from here.
@@ -418,8 +486,9 @@ export function createLookService(deps: LookServiceDeps) {
       appStates.set(key, state);
 
       const receipt: PressReceipt = {
-        actionId: randomUUID(), action: typing ? 'type' : 'press', role: el.role, labelHash: hash(el.label), windowId: look.windowId,
-        lookAgeMs: age, asked: null, outcome: 'cancelled', ...(typing ? { textHash: hash(text), textLength: text.length } : {}),
+        actionId: randomUUID(), action: typing ? 'type' : scrolling ? 'scroll' : picking ? 'pick' : 'press', role: el.role, labelHash: hash(el.label), windowId: look.windowId,
+        lookAgeMs: age, asked: null, outcome: 'cancelled',
+        ...(typing ? { textHash: hash(text), textLength: text.length } : picking ? { textHash: hash(option), textLength: option.length } : {}),
       };
       lastReceipt.set(threadId, receipt);
 
@@ -428,7 +497,9 @@ export function createLookService(deps: LookServiceDeps) {
         const existing = el.value ?? '';
         const own = state.ownText;
         const ours = own !== undefined && own.role === el.role && own.at !== undefined && own.at === el.at && own.value === existing;
-        if (existing.trim() && !ours) {
+        // A search box's text is a query, not something the person wrote to anyone: replacing it never asks.
+        const findBox = el.searchBox === true || isSearchBox(el.role, el.label);
+        if (existing.trim() && !ours && !findBox) {
           receipt.asked = 'overwrite';
           c.asked += 1;
           const answer = await deps.ask(
@@ -442,7 +513,29 @@ export function createLookService(deps: LookServiceDeps) {
           if (answer !== REPLACE) { receipt.outcome = 'denied'; return refuse('denied', `The person did not let this task replace that text. ${nothing} Ask them what to do.`); }
           stepsSinceCard.set(threadId, 0);
         }
-      } else {
+      } else if (picking) {
+        // The item is what happens: "Delete" in a pop-up commits as surely as a Delete button. The pop-up's own name counts too.
+        const typedHere = state.typed !== undefined;
+        const ownWord = commitWordIn(el.label);
+        const fromOption = commitReasonForPress({ label: option, inDialog: el.inDialog === true, typedSinceLastCard: typedHere });
+        const pickReason: CommitReason | null = fromOption ?? (ownWord ? { kind: 'word', word: ownWord } : null);
+        if (pickReason) {
+          receipt.asked = pickReason.kind;
+          c.asked += 1;
+          const lines = [
+            reasonText(pickReason, fromOption ? option : el.label),
+            look.title ? `Window: “${quote(look.title, 120)}”.` : '',
+            `It chooses “${quote(option, 120)}” in the pop-up “${quote(el.label, 80)}” once, in the background, without opening the menu or moving your pointer. Stopping the task before then cancels it.`,
+          ].filter(Boolean);
+          const answer = await deps.ask(threadId, `Choose “${option}” in “${el.label}” in ${target.name}?`, [CHOOSE(option), DONT_CHOOSE], lines.join('\n'));
+          if (!live()) return cancelled();
+          if (answer !== CHOOSE(option)) {
+            receipt.outcome = 'denied';
+            return refuse('denied', `The person did not let this task choose “${option}”. Nothing was chosen. Do not choose it again; ask them what to do.`);
+          }
+          stepsSinceCard.set(threadId, 0);
+        }
+      } else if (!scrolling) {
         const reason = commitReasonForPress({ label: el.label, inDialog: el.inDialog === true, typedSinceLastCard: state.typed !== undefined });
         if (reason) {
           receipt.asked = reason.kind;
@@ -473,7 +566,7 @@ export function createLookService(deps: LookServiceDeps) {
           threadId,
           `Keep going in ${target.name}?`,
           [KEEP_GOING, STOP_HERE],
-          `This task has taken ${KEEP_GOING_EVERY} steps in other apps since you were last asked. Next: ${typing ? `type into “${quote(el.label, 80)}”` : `press “${quote(el.label, 80)}”`}. ` +
+          `This task has taken ${KEEP_GOING_EVERY} steps in other apps since you were last asked. Next: ${typing ? `type into “${quote(el.label, 80)}”` : scrolling ? `scroll ${direction} at “${quote(el.label, 80)}”` : picking ? `choose “${quote(option, 80)}” in “${quote(el.label, 80)}”` : `press “${quote(el.label, 80)}”`}. ` +
           `Bimax carries on only if you say so.`,
         );
         if (!live()) return cancelled();
@@ -494,15 +587,16 @@ export function createLookService(deps: LookServiceDeps) {
       }
       const driver = await deps.driver();
       if (!live()) return cancelled();
-      if (typing ? !driver.type : !driver.press) return refuse('unavailable', `This Bimax cannot ${typing ? 'type' : 'press'}. ${nothing}`);
+      if (typing ? !driver.type : scrolling ? !driver.scroll : picking ? !driver.pick : !driver.press) return refuse('unavailable', `This Bimax cannot do that step. ${nothing}`);
       const boundTo: PressTarget = { windowId: look.windowId, role: el.role, label: el.label };
-      return typing
-        ? await typeStep(threadId, msg, c, current, live, refuse, cancelled, driver, target, key, state, el, boundTo, text, receipt, look)
-        : await pressStep(threadId, msg, c, current, live, refuse, cancelled, driver, target, key, state, el, boundTo, receipt, look);
+      if (typing) return await typeStep(threadId, msg, c, current, live, refuse, cancelled, driver, target, key, state, el, boundTo, text, receipt, look, submit);
+      if (scrolling) return await scrollStep(threadId, msg, c, current, live, refuse, cancelled, driver, target, key, el, boundTo, direction, pages, receipt, look);
+      if (picking) return await pickStep(threadId, msg, c, current, live, refuse, cancelled, driver, target, key, el, boundTo, option, receipt, look);
+      return await pressStep(threadId, msg, c, current, live, refuse, cancelled, driver, target, key, state, el, boundTo, receipt, look);
     } catch (error) {
       if (!live()) return cancelled();
       const detail = error instanceof Error ? error.message : String(error);
-      return refuse('unavailable', `Bimax could not ${typing ? 'type' : 'press'}: ${detail.slice(0, 200)}. ${nothing}`);
+      return refuse('unavailable', `Bimax could not do that step: ${detail.slice(0, 200)}. ${nothing}`);
     }
   }
 
@@ -562,6 +656,7 @@ export function createLookService(deps: LookServiceDeps) {
   async function typeStep(
     threadId: string, msg: HostCallMsg, c: LookCounts, current: () => boolean, live: () => boolean, refuse: Refuse, cancelled: () => HostResultMsg,
     driver: LookDriver, target: RunningApp, key: string, state: AppState, el: LookElement, boundTo: PressTarget, text: string, receipt: PressReceipt, look: Observation,
+    submit = false,
   ): Promise<HostResultMsg> {
     let outcome: TypeOutcome;
     try {
@@ -580,7 +675,7 @@ export function createLookService(deps: LookServiceDeps) {
     }
     c.inputCalls += 1;
     // Whatever landed, a box that is not for searching now holds text Bimax put there: the next press in this app asks.
-    const searching = isSearchBox(el.role, el.label);
+    const searching = el.searchBox === true || isSearchBox(el.role, el.label);
     const landed = outcome.kind === 'typed' ? outcome.value : null;
     if (!searching) state.typed = { field: el.label, role: el.role, ...(el.at !== undefined ? { at: el.at } : {}), value: landed };
     state.ownText = { role: el.role, ...(el.at !== undefined ? { at: el.at } : {}), value: landed };
@@ -605,8 +700,134 @@ export function createLookService(deps: LookServiceDeps) {
     c.typings += 1;
     receipt.outcome = 'typed';
     const header = `Typed into “${el.label}” in ${target.name}${outcome.title ? ` (window “${outcome.title}”)` : ''}. The box now reads exactly: “${quote(outcome.value, 600)}”.`;
-    const note = searching ? '' : '\nNothing was sent: the next press in this app is shown to the person first, with this text.';
-    return { t: 'host_result', id: msg.id, ok: true, value: { text: `${header}${note}${reread ? `\n${NEXT_STEP}` : ''}` } };
+    if (!submit) {
+      const note = searching ? '' : '\nNothing was sent: the next press in this app is shown to the person first, with this text.';
+      return { t: 'host_result', id: msg.id, ok: true, value: { text: `${header}${note}${reread ? `\n${NEXT_STEP}` : ''}` } };
+    }
+    // Return in this box. In a search box it runs the search; in any other box it may send what the box holds, so the
+    // person sees the box's text first — read back from the screen just now, never the model's words.
+    receipt.submitted = false;
+    if (!searching) {
+      receipt.asked = 'submit';
+      c.asked += 1;
+      const lines = [
+        reasonText({ kind: 'submit' }, el.label),
+        look.title ? `Window: “${quote(look.title, 120)}”.` : '',
+        state.lastOpened ? `Bimax last opened here: “${quote(state.lastOpened, 120)}”.` : '',
+        `The box reads now: “${quote(outcome.value)}”.`,
+        'It presses Return once, in the box, in the background, without moving your pointer. Stopping the task before then cancels it.',
+      ].filter(Boolean);
+      const answer = await deps.ask(threadId, `Press Return in “${quote(el.label, 80)}” in ${target.name}?`, [RETURN, DONT_RETURN], lines.join('\n'));
+      if (!live()) return refuse('not_permitted', `Typed into “${el.label}”; Return was not pressed, because the task stopped or using other apps was turned off. Nothing was sent.`);
+      if (answer !== RETURN) return refuse('denied', `Typed into “${el.label}”, but the person did not let this task press Return. Nothing was sent. Do not press Return again; ask them what to do.`);
+      stepsSinceCard.set(threadId, 0);
+    }
+    if (!driver.confirm) return refuse('unavailable', `Typed into “${el.label}”; this Bimax cannot press Return. Nothing was sent.`);
+    // The box is found again by where it starts: typing renamed it if the app names it by its text.
+    observations.delete(key);
+    let confirmed: PressOutcome;
+    try {
+      confirmed = await driver.confirm(threadId, target, { windowId: look.windowId, role: el.role, label: outcome.value, ...(el.at !== undefined ? { at: el.at } : {}) });
+    } catch (error) {
+      if (!live()) return refuse('not_permitted', `Typed into “${el.label}”; Return was not pressed, because the task stopped. Nothing was sent.`);
+      const detail = error instanceof Error ? error.message : String(error);
+      return refuse('unavailable', `Typed into “${el.label}”, but Bimax could not reach the box, so Return was not pressed: ${detail.slice(0, 200)}`);
+    }
+    if (confirmed.kind === 'not_pressed') {
+      return refuse('stale', `Typed into “${el.label}”, but the box changed before Return, so Return was not pressed (${confirmed.detail ?? confirmed.reason}). Look again.`);
+    }
+    c.inputCalls += 1;
+    if (confirmed.kind === 'uncertain') {
+      return refuse('uncertain', `Typed into “${el.label}” and sent Return, but Bimax cannot tell whether it happened (${confirmed.detail}). Look before doing anything else; do not press Return again to make sure.`);
+    }
+    receipt.submitted = true;
+    if (!searching) state.typed = undefined; // the person saw the text on the card and let Return go
+    if (!current()) return refuse('not_permitted', `Typed into “${el.label}” and pressed Return; then the task was stopped, so the window is not shown.`);
+    const again = rebind(key, look.windowId, confirmed.title || look.title, confirmed.elements, look.exe);
+    const changes = changedLines(outcome.after, confirmed.after);
+    if (renderLook(outcome.after).text === renderLook(confirmed.after).text) {
+      return refuse('no_effect', `Typed into “${el.label}” and pressed Return, but nothing in the window changed yet. Look again before doing anything else; do not press Return again to make sure.`);
+    }
+    return { t: 'host_result', id: msg.id, ok: true, value: { text: `${header}\nThen pressed Return in it. What changed in the window:\n${changes.length ? changes.join('\n') : '(it changed, but no readable line did)'}${again ? `\n${NEXT_STEP}` : ''}` } };
+  }
+
+  async function pickStep(
+    threadId: string, msg: HostCallMsg, c: LookCounts, current: () => boolean, live: () => boolean, refuse: Refuse, cancelled: () => HostResultMsg,
+    driver: LookDriver, target: RunningApp, key: string, el: LookElement, boundTo: PressTarget, option: string, receipt: PressReceipt, look: Observation,
+  ): Promise<HostResultMsg> {
+    let outcome: TypeOutcome;
+    try {
+      outcome = await driver.pick!(threadId, target, boundTo, option);
+    } catch (error) {
+      if (!live()) return cancelled();
+      const detail = error instanceof Error ? error.message : String(error);
+      receipt.outcome = 'not_pressed';
+      return refuse('unavailable', `Bimax could not reach the window, so nothing was chosen: ${detail.slice(0, 200)}`);
+    }
+    if (outcome.kind === 'not_typed') {
+      receipt.outcome = 'not_pressed';
+      if (outcome.reason === 'ambiguous') return refuse('ambiguous', `The window now has more than one pop-up “${el.label}”. Nothing was chosen. Look again.`);
+      if (outcome.reason === 'refused') return refuse('not_found', `“${el.label}” did not take “${option}” (${outcome.detail ?? 'the driver said no'}). Nothing was chosen. Check the item's exact name.`);
+      return refuse('stale', `The window changed since you read it: the pop-up “${el.label}” is not there just once any more. Nothing was chosen. Look again.`);
+    }
+    c.inputCalls += 1;
+    if (outcome.kind === 'uncertain') {
+      receipt.outcome = 'uncertain';
+      return refuse('uncertain', `Bimax sent the choice but cannot tell whether it happened (${outcome.detail}). Look at the window before doing anything else; do not choose it again to make sure.`);
+    }
+    if (receipt.asked === null) stepsSinceCard.set(threadId, (stepsSinceCard.get(threadId) ?? 0) + 1);
+    if (!current()) { receipt.outcome = 'uncertain'; return refuse('not_permitted', 'The choice was sent; then the task was stopped, so the window is not shown.'); }
+    const reread = rebind(key, look.windowId, outcome.title || look.title, outcome.elements, look.exe);
+    if (outcome.value === null) {
+      receipt.outcome = 'uncertain';
+      return refuse('uncertain', `Bimax sent the choice but could not find the pop-up again to check it. Look before doing anything else.`);
+    }
+    if (!sameChoice(outcome.value, option)) {
+      const unchanged = outcome.value === (el.value ?? '');
+      receipt.outcome = unchanged ? 'no_effect' : 'mismatch';
+      return refuse(unchanged ? 'no_effect' : 'uncertain', unchanged
+        ? `The pop-up “${el.label}” still shows “${quote(outcome.value)}”: “${option}” was not chosen. Nothing else was tried.`
+        : `The pop-up “${el.label}” shows “${quote(outcome.value)}”, not “${option}”. Look at it before doing anything else.`);
+    }
+    c.picks += 1;
+    receipt.outcome = 'pressed';
+    const changes = changedLines(outcome.before, outcome.after);
+    return { t: 'host_result', id: msg.id, ok: true, value: { text: `Chose “${outcome.value}” in “${el.label}” in ${target.name}. What changed in the window:\n${changes.length ? changes.join('\n') : '(no readable line changed)'}${reread ? `\n${NEXT_STEP}` : ''}` } };
+  }
+
+  async function scrollStep(
+    threadId: string, msg: HostCallMsg, c: LookCounts, current: () => boolean, live: () => boolean, refuse: Refuse, cancelled: () => HostResultMsg,
+    driver: LookDriver, target: RunningApp, key: string, el: LookElement, boundTo: PressTarget, direction: ScrollDirection, pages: number, receipt: PressReceipt, look: Observation,
+  ): Promise<HostResultMsg> {
+    let outcome: PressOutcome;
+    try {
+      outcome = await driver.scroll!(threadId, target, boundTo, direction, pages);
+    } catch (error) {
+      if (!live()) return cancelled();
+      const detail = error instanceof Error ? error.message : String(error);
+      receipt.outcome = 'not_pressed';
+      return refuse('unavailable', `Bimax could not reach the window, so nothing was scrolled: ${detail.slice(0, 200)}`);
+    }
+    if (outcome.kind === 'not_pressed') {
+      receipt.outcome = 'not_pressed';
+      if (outcome.reason === 'ambiguous') return refuse('ambiguous', `The window now has more than one “${el.label}”. Nothing was scrolled. Look again.`);
+      if (outcome.reason === 'refused') return refuse('stale', `The scroll was refused before it was sent (${outcome.detail ?? 'the driver said no'}). Nothing was scrolled. Look again.`);
+      return refuse('stale', `The window changed since you read it: “${el.label}” is not there just once any more. Nothing was scrolled. Look again.`);
+    }
+    c.inputCalls += 1;
+    if (outcome.kind === 'uncertain') {
+      receipt.outcome = 'uncertain';
+      return refuse('uncertain', `Bimax sent the scroll but cannot tell whether it happened (${outcome.detail}). Look at the window before doing anything else.`);
+    }
+    if (receipt.asked === null) stepsSinceCard.set(threadId, (stepsSinceCard.get(threadId) ?? 0) + 1);
+    if (!current()) return refuse('not_permitted', 'Scrolled; then the task was stopped, so the window is not shown.');
+    const reread = rebind(key, look.windowId, outcome.title || look.title, outcome.elements, look.exe);
+    const moved = renderLook(outcome.before).text !== renderLook(outcome.after).text;
+    receipt.outcome = moved ? 'pressed' : 'no_effect';
+    if (!moved) return refuse('no_effect', `Scrolled ${direction} at “${el.label}”, but nothing moved: the end of the list, or this place does not scroll. Look at what is there before trying elsewhere.`);
+    c.scrolls += 1;
+    const changes = changedLines(outcome.before, outcome.after);
+    return { t: 'host_result', id: msg.id, ok: true, value: { text: `Scrolled ${direction} in ${target.name}. What changed in the window:\n${changes.join('\n')}${reread ? `\n${NEXT_STEP}` : ''}` } };
   }
 
   /** The Thread stopped or closed: every grant and session it had ends. */

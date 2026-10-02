@@ -72,6 +72,7 @@ const TASK_TYPE_MAP: Record<string, string> = {
   // the person must see first (§6h), and no engine mode can skip its card.
   PressInAppTool: 'COMPUTER_CONTROL',
   TypeInAppTool: 'COMPUTER_CONTROL',
+  ScrollInAppTool: 'COMPUTER_CONTROL',
   // NOTE: MultiEditTool is intentionally ABSENT — it is multi-FILE, so buildTool's single
   // args.path can't gate it. It calls governor.approveTaskExecution('FILE_WRITE') per distinct
   // file itself (multiedit.tool.ts), before any write, keeping the batch atomic.

@@ -27,6 +27,7 @@ const MUTANTS = [
   ['use grant: “Only look” ignored', SERVICE, "if (lookOnly.has(key)) return refuse('denied'", "if ((lookOnly.has(key)) && Date.now() < 0) return refuse('denied'"],
   ['using switched off still acts', SERVICE, 'if (!deps.enabled() || !useOn()) {', 'if (!deps.enabled()) {'],
   // Wrong target, stale frame, duplicate effect.
+  ['wrong target: any start of a name is enough', SERVICE, 'return w.length >= LONG_NAME_PREFIX && plainName(label)', 'return w.length >= 1 && plainName(label)'],
   ['wrong target: a shared name is pressed', SERVICE, "if (matches.length > 1) return refuse('ambiguous'", "if ((matches.length > 1) && Date.now() < 0) return refuse('ambiguous'"],
   ['wrong target: a control with no press is pressed', SERVICE, 'if (!el.pressable) {', 'if ((!el.pressable) && Date.now() < 0) {'],
   ['stale frame: any age is fresh', SERVICE, 'if (age > PRESS_FRESH_MS) {', 'if ((age > PRESS_FRESH_MS) && Date.now() < 0) {'],
@@ -36,7 +37,8 @@ const MUTANTS = [
   ['commit: no card at all', SERVICE, '        if (reason) {', '        if ((reason) && Date.now() < 0) {'],
   ['commit: any answer presses', SERVICE, 'if (answer !== PRESS(el.label)) {', 'if ((answer !== PRESS(el.label)) && Date.now() < 0) {'],
   ['commit: typing is not remembered', SERVICE, 'typedSinceLastCard: state.typed !== undefined', 'typedSinceLastCard: false'],
-  ['commit: a dialog is not noticed', SERVICE, 'inDialog: el.inDialog === true', 'inDialog: false'],
+  ['commit: a dialog is not noticed', SERVICE, 'inDialog: el.inDialog === true, typedSinceLastCard: state.typed !== undefined', 'inDialog: false, typedSinceLastCard: state.typed !== undefined'],
+  ['pick: a dialog is not noticed', SERVICE, '{ label: option, inDialog: el.inDialog === true,', '{ label: option, inDialog: false,'],
   ['commit: the typed text outlives the card that showed it', SERVICE, 'if (asked) state.typed = undefined;', 'if ((asked) && Date.now() < 0) state.typed = undefined;'],
   ['commit rule: unreadable names run', RULE, "  if (!/[a-z]/.test(foldName(step.label))) return { kind: 'unreadable' };\n", ''],
   ['commit rule: dialogs run', RULE, "  if (step.inDialog) return { kind: 'dialog' };\n", ''],
@@ -45,9 +47,25 @@ const MUTANTS = [
   // Typing.
   ['typing: a line break is typed', SERVICE, 'if (/[\\r\\n\\u2028\\u2029]/.test(text)) return refuse(', 'if ((/[\\r\\n\\u2028\\u2029]/.test(text)) && Date.now() < 0) return refuse('],
   ['typing: a password field is typed into', SERVICE, "if (named.some((e) => e.role === 'AXSecureTextField')) return refuse(", "if ((named.some((e) => e.role === 'AXSecureTextField')) && Date.now() < 0) return refuse("],
-  ['typing: the person’s text is replaced unasked', SERVICE, 'if (existing.trim() && !ours) {', 'if ((existing.trim() && !ours) && Date.now() < 0) {'],
+  ['typing: the person’s text is replaced unasked', SERVICE, 'if (existing.trim() && !ours && !findBox) {', 'if ((existing.trim() && !ours && !findBox) && Date.now() < 0) {'],
+  ['typing: a box that is not for searching counts as one when replacing', SERVICE, 'if (existing.trim() && !ours && !findBox) {', 'if (existing.trim() && !ours && findBox) {'],
   ['typing: any answer replaces', SERVICE, 'if (answer !== REPLACE) {', 'if ((answer !== REPLACE) && Date.now() < 0) {'],
   ['typing: the read-back is not compared', SERVICE, 'if (outcome.value !== text) {', 'if ((outcome.value !== text) && Date.now() < 0) {'],
+  // Return in a box.
+  ['return: always pressed after typing', SERVICE, '    if (!submit) {', '    if ((!submit) && Date.now() < 0) {'],
+  ['return: no card in a message box', SERVICE, "    if (!searching) {\n      receipt.asked = 'submit';", "    if ((!searching) && Date.now() < 0) {\n      receipt.asked = 'submit';"],
+  ['return: any answer presses Return', SERVICE, 'if (answer !== RETURN) return refuse(', 'if ((answer !== RETURN) && Date.now() < 0) return refuse('],
+  ['return: the driver’s search-box mark ignored', SERVICE, 'const searching = el.searchBox === true || isSearchBox(el.role, el.label);', 'const searching = isSearchBox(el.role, el.label);'],
+  // Picking from a pop-up.
+  ['pick: no card at all', SERVICE, '        if (pickReason) {', '        if ((pickReason) && Date.now() < 0) {'],
+  ['pick: any answer chooses', SERVICE, 'if (answer !== CHOOSE(option)) {', 'if ((answer !== CHOOSE(option)) && Date.now() < 0) {'],
+  ['pick: the pop-up’s own name ignored', SERVICE, "?? (ownWord ? { kind: 'word', word: ownWord } : null);", '?? null;'],
+  ['pick: not a pop-up is picked from', SERVICE, 'if (!el.pickable) return refuse(', 'if ((!el.pickable) && Date.now() < 0) return refuse('],
+  ['pick: the item shown is not compared', SERVICE, 'if (!sameChoice(outcome.value, option)) {', 'if ((!sameChoice(outcome.value, option)) && Date.now() < 0) {'],
+  // Scrolling.
+  ['scroll: nothing moved counts as a scroll', SERVICE, 'if (!moved) return refuse(', 'if ((!moved) && Date.now() < 0) return refuse('],
+  ['scroll: any direction is sent', SERVICE, 'if (scrolling && !DIRECTIONS.includes(direction)) return refuse(', 'if ((scrolling && !DIRECTIONS.includes(direction)) && Date.now() < 0) return refuse('],
+  ['scroll: any distance is sent', SERVICE, 'if (scrolling && (pages < 1 || pages > MAX_SCROLL_PAGES)) return refuse(', 'if ((scrolling && (pages < 1 || pages > MAX_SCROLL_PAGES)) && Date.now() < 0) return refuse('],
   // A long run, takeover, no-op, wrong build.
   ['keep going: never asked', SERVICE, 'if (receipt.asked === null && (stepsSinceCard.get(threadId) ?? 0) >= KEEP_GOING_EVERY) {', 'if ((receipt.asked === null && (stepsSinceCard.get(threadId) ?? 0) >= KEEP_GOING_EVERY) && Date.now() < 0) {'],
   ['keep going: “Stop here” ignored', SERVICE, 'if (answer !== KEEP_GOING) {', 'if ((answer !== KEEP_GOING) && Date.now() < 0) {'],

@@ -76,5 +76,6 @@ describe('matching', () => {
     expect(reasonText({ kind: 'dialog' }, 'OK')).toContain('answers a question');
     expect(reasonText({ kind: 'after_typing' }, 'x')).toContain('may send it');
     expect(reasonText({ kind: 'unreadable' }, '➤')).toContain('cannot tell');
+    expect(reasonText({ kind: 'submit' }, 'Compose message')).toContain('Pressing Return in “Compose message” may send what is in it');
   });
 });

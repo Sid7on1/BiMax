@@ -59,6 +59,7 @@ const CORE_TOOLS = new Set<string>([
   // Stages 3 and 6: registered only when the person also turned using other apps on (press and type).
   'PressInAppTool',
   'TypeInAppTool',
+  'ScrollInAppTool',
 ]);
 
 /**

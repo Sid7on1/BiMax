@@ -73,6 +73,7 @@ import { createThreadMessageTool } from '../tools/implementations/thread.message
 import { createLookTool } from '../tools/implementations/look.tool';
 import { createPressTool } from '../tools/implementations/press.tool';
 import { createTypeTool } from '../tools/implementations/type.tool';
+import { createScrollTool } from '../tools/implementations/scroll.tool';
 import { createDocumentTool } from '../tools/implementations/document.tool';
 import { createRegisterAgentTool } from '../tools/implementations/register.tool';
 import { createAskUserTool } from '../tools/implementations/ask_user.tool';
@@ -414,6 +415,7 @@ export async function createContainer(config?: Partial<EngineConfig>): Promise<{
   if (process.env.BIMAX_COMPUTER_LOOK === '1' && process.env.BIMAX_COMPUTER_USE === '1') {
     toolRegistry.register(createPressTool(governor));
     toolRegistry.register(createTypeTool(governor));
+    toolRegistry.register(createScrollTool(governor));
   }
   toolRegistry.register(createRegisterAgentTool(governor, toolRegistry));
   toolRegistry.register(createAskUserTool(governor, llmAdapter));

@@ -14,9 +14,10 @@ const read = (file: string): string => fs.readFileSync(path.join(root, file), 'u
  *
  * What may exist now, and nothing more: one component (Cua Driver's in-process SDK, pinned, unpacked), off until the
  * person ticks a menu bar item, reachable by a ⌘2 task only through LookAtAppTool (BIMAX_COMPUTER_LOOK) and, with a
- * second item ticked too, PressInAppTool and TypeInAppTool (BIMAX_COMPUTER_USE): an AX press of one named control or one
- * line set into one text box, by element token, in the background, in an app the person allowed for the task — never
- * a password, wallet or banking app, System Settings or Bimax — with the app's card before anything that commits. The
+ * second item ticked too, PressInAppTool, TypeInAppTool and ScrollInAppTool (BIMAX_COMPUTER_USE): an AX press of one
+ * named control (or one pop-up item), one line set into one text box (then, optionally, its own Return), or a wheel scroll
+ * over one control — by element token, in the background, in an app the person allowed for the task, never a password,
+ * wallet or banking app, System Settings or Bimax — with the app's card before anything that commits. The
  * old provider, its sidecars, its UI and its environment stay gone, and the coding surfaces stay free of it. Widening
  * any of this must make a test here fail.
  */
@@ -117,12 +118,12 @@ describe('Computer Use admission boundary (record 65 stages 2, 3 and 6; was the 
     expect(preload).not.toMatch(/permissionCoach|manualAlpha|takeover:|trust:report/);
   });
 
-  test('looking, pressing and typing are the whole capability: three engine tools, three host capabilities, manifests that deny the rest', () => {
+  test('looking, pressing, typing and scrolling are the whole capability: four engine tools, four host capabilities, manifests that deny the rest', () => {
     const container = read('src/core/container.ts');
     expect(container).toContain("if (process.env.BIMAX_COMPUTER_LOOK === '1') toolRegistry.register(createLookTool(governor));");
-    expect(container).toContain("if (process.env.BIMAX_COMPUTER_LOOK === '1' && process.env.BIMAX_COMPUTER_USE === '1') {\n    toolRegistry.register(createPressTool(governor));\n    toolRegistry.register(createTypeTool(governor));\n  }");
-    // Exactly these three computer tools are registered anywhere in the engine.
-    expect(container.match(/toolRegistry\.register\(create(Look|Press|Type)Tool\(/g)).toHaveLength(3);
+    expect(container).toContain("if (process.env.BIMAX_COMPUTER_LOOK === '1' && process.env.BIMAX_COMPUTER_USE === '1') {\n    toolRegistry.register(createPressTool(governor));\n    toolRegistry.register(createTypeTool(governor));\n    toolRegistry.register(createScrollTool(governor));\n  }");
+    // Exactly these four computer tools are registered anywhere in the engine.
+    expect(container.match(/toolRegistry\.register\(create(Look|Press|Type|Scroll)Tool\(/g)).toHaveLength(4);
     const tool = read('src/tools/implementations/look.tool.ts');
     expect(tool).toContain("enum: ['list_apps', 'look']");
     const press = read('src/tools/implementations/press.tool.ts');
@@ -130,14 +131,21 @@ describe('Computer Use admission boundary (record 65 stages 2, 3 and 6; was the 
     expect(press).not.toMatch(/\b(x|y|text|keys?|coordinates?)\s*:\s*\{\s*type/);
     const type = read('src/tools/implementations/type.tool.ts');
     expect(type).toContain("required: ['app', 'text']");
-    expect(type).not.toMatch(/\b(x|y|keys?|coordinates?|submit|send|enter)\s*:\s*\{\s*type/);
+    expect(type).not.toMatch(/\b(x|y|keys?|coordinates?|send|enter)\s*:\s*\{\s*type/);
+    // Return only as an explicit flag, and only true counts (the app then asks unless the box is for searching).
+    expect(type).toContain("submit: { type: 'boolean'");
+    expect(type).toContain('...(args.submit === true ? { submit: true } : {}),');
     expect(type).toContain('if (/[\\r\\n\\u2028\\u2029]/.test(args.text))');
+    const scroll = read('src/tools/implementations/scroll.tool.ts');
+    expect(scroll).toContain("required: ['app', 'control', 'direction']");
+    expect(scroll).toContain("direction: { type: 'string', enum: ['up', 'down', 'left', 'right']");
+    expect(scroll).not.toMatch(/\b(x|y|text|keys?|coordinates?)\s*:\s*\{\s*type/);
     const protocol = read('src/protocol/protocol.ts');
-    expect(protocol).toContain("export type HostCapability = 'look' | 'press' | 'type';");
+    expect(protocol).toContain("export type HostCapability = 'look' | 'press' | 'type' | 'scroll';");
     const service = read('app/src/main/computer/look.service.ts');
     expect(service).toContain("if (msg.op === 'list_apps')");
     expect(service).toContain("if (msg.op !== 'look')");
-    expect(service).toContain("if (msg.capability === 'press' || msg.capability === 'type') return useAnswer(threadId, msg, c, current);");
+    expect(service).toContain("if (msg.capability === 'press' || msg.capability === 'type' || msg.capability === 'scroll') return useAnswer(threadId, msg, c, current);");
     expect(service).toContain('if (msg.op !== msg.capability)');
     // Typing never carries a line break (Return sends in many apps), and is bounded.
     expect(service).toContain('if (/[\\r\\n\\u2028\\u2029]/.test(text)) return refuse(');
@@ -145,34 +153,41 @@ describe('Computer Use admission boundary (record 65 stages 2, 3 and 6; was the 
     // Each step is bound to a read under two minutes old; a long run of unasked steps stops for the person.
     expect(service).toContain('export const PRESS_FRESH_MS = 2 * 60 * 1000;');
     expect(service).toContain('export const KEEP_GOING_EVERY = 40;');
+    expect(service).toContain('export const MAX_SCROLL_PAGES = 5;');
     const manifest = read('app/src/main/computer/look.manifest.ts');
     for (const tool of ['click', 'type_text', 'set_value', 'press_key', 'hotkey', 'drag', 'scroll', 'invoke_menu', 'bring_to_front']) {
       expect(manifest).toContain(`'${tool}'`);
     }
     expect(manifest).toContain("export const LOOK_TOOLS = ['list_apps', 'list_windows', 'get_window_state', 'get_screen_size'] as const;");
-    // Stage 6: two input tools, one app per session, never a password field.
-    expect(manifest).toContain("export const USE_TOOLS = ['click', 'set_value'] as const;");
+    // Stage 6: three input tools, one app per session, never a password field.
+    expect(manifest).toContain("export const USE_TOOLS = ['click', 'set_value', 'scroll'] as const;");
+    expect(manifest).toContain("export const PICK_ROLES: ReadonlySet<string> = new Set(['AXPopUpButton']);");
     expect(manifest).toContain("export const TYPE_ROLES: ReadonlySet<string> = new Set(['AXTextField', 'AXTextArea', 'AXComboBox', 'AXSearchField']);");
     expect(manifest).not.toMatch(/TYPE_ROLES[^;]*AXSecureTextField/);
     expect(manifest).toContain("if (!validBundleId(bundleId) || NEVER_LOOK.has(bundleId)) throw new Error(`not an app a task may use: ${JSON.stringify(bundleId)}`);");
     for (const id of ['ai.bimax.app', 'com.apple.SecurityAgent', 'com.apple.loginwindow', 'com.apple.keychainaccess', 'com.apple.Passwords', 'com.apple.systempreferences']) {
       expect(manifest).toContain(`'${id}'`);
     }
-    // The driver presses only by element token, as an AX press, and types only by element token, as an AX value — in
-    // the background, never coordinates, never keystrokes.
+    // The driver clicks only through one helper — an AX action (press, or a box's confirm: its Return) on an element token,
+    // in the background — sets values only through another, and scrolls only by element token: never coordinates, never
+    // keystrokes, never the foreground.
     const driver = read('app/src/main/computer/look.driver.ts');
     expect(driver.match(/'click'/g)).toHaveLength(1);
-    expect(driver).toContain("await call(session, 'click', { pid: app.pid, window_id: target.windowId, element_token: matches[0].token, action: 'press', delivery_mode: 'background' });");
+    expect(driver).toContain("function clickToken(session: any, app: RunningApp, windowId: number, token: string, action: 'press' | 'confirm'): Promise<any> {\n    return call(session, 'click', { pid: app.pid, window_id: windowId, element_token: token, action, delivery_mode: 'background' });");
+    expect(driver.match(/clickToken\(session, app, target\.windowId, matches\[0\]\.token, '(press|confirm)'\)/g)).toHaveLength(2);
     expect(driver.match(/'set_value'/g)).toHaveLength(1);
-    expect(driver).toContain("await call(session, 'set_value', { pid: app.pid, element_token: box.token, value: text });");
-    expect(driver).not.toMatch(/'(type_text|press_key|hotkey|drag|scroll|bring_to_front|launch_app|double_click|right_click)'/);
+    expect(driver).toContain("return call(session, 'set_value', { pid: app.pid, element_token: token, value });");
+    expect(driver.match(/'scroll'/g)).toHaveLength(1);
+    expect(driver).toContain("await call(session, 'scroll', { pid: app.pid, element_token: matches[0].token, direction, by: 'page', amount: Math.min(50, Math.max(1, Math.round(pages)) * SCROLL_NOTCHES_PER_PAGE), delivery_mode: 'background' });");
+    expect(driver).not.toMatch(/'(type_text|press_key|hotkey|drag|bring_to_front|launch_app|double_click|right_click|foreground)'/);
   });
 
   test('a step meets the governor floors, then the app decides — and the app asks before anything that commits', () => {
     const factory = read('src/tools/tool.factory.ts');
     expect(factory).toContain("PressInAppTool: 'COMPUTER_CONTROL',");
     expect(factory).toContain("TypeInAppTool: 'COMPUTER_CONTROL',");
-    for (const file of ['src/tools/implementations/press.tool.ts', 'src/tools/implementations/type.tool.ts']) {
+    expect(factory).toContain("ScrollInAppTool: 'COMPUTER_CONTROL',");
+    for (const file of ['src/tools/implementations/press.tool.ts', 'src/tools/implementations/type.tool.ts', 'src/tools/implementations/scroll.tool.ts']) {
       const code = read(file);
       expect(code).toContain('isDestructive: true,');
       expect(code).not.toContain('approvalHandledInternally');
@@ -190,6 +205,11 @@ describe('Computer Use admission boundary (record 65 stages 2, 3 and 6; was the 
     expect(service).toContain("const reason = commitReasonForPress({ label: el.label, inDialog: el.inDialog === true, typedSinceLastCard: state.typed !== undefined });");
     expect(service.indexOf('commitReasonForPress(')).toBeLessThan(service.indexOf('outcome = await driver.press!('));
     expect(service).toContain('if (answer !== PRESS(el.label)) {');
+    // A pick is judged by its item (and the pop-up's own name); Return in a box that is not for searching asks.
+    expect(service).toContain('const fromOption = commitReasonForPress({ label: option, inDialog: el.inDialog === true, typedSinceLastCard: typedHere });');
+    expect(service).toContain('if (answer !== CHOOSE(option)) {');
+    expect(service).toContain("if (!searching) {\n      receipt.asked = 'submit';");
+    expect(service).toContain('if (answer !== RETURN) return refuse(');
     const rule = read('app/src/main/computer/look.commit.ts');
     for (const word of ["'send'", "'pay'", "'buy'", "'delete'", "'confirm'", "'ok'", "'allow'", "'submit'", "'transfer'"]) expect(rule).toContain(word);
     expect(rule).toContain("if (!/[a-z]/.test(foldName(step.label))) return { kind: 'unreadable' };");

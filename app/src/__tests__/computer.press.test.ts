@@ -1,6 +1,6 @@
-import { INPUT_TOOLS, LOOK_TOOLS, USE_TOOLS, TYPE_ROLES, isNeverUsed, useManifest } from '../main/computer/look.manifest';
+import { INPUT_TOOLS, LOOK_TOOLS, PICK_ROLES, USE_TOOLS, TYPE_ROLES, isNeverUsed, useManifest } from '../main/computer/look.manifest';
 import {
-  createLookService, KEEP_GOING_EVERY, MAX_TYPE_CHARS, PRESS_FRESH_MS,
+  createLookService, KEEP_GOING_EVERY, MAX_SCROLL_PAGES, MAX_TYPE_CHARS, PRESS_FRESH_MS,
   type LookDriver, type LookElement, type PressOutcome, type PressTarget, type RunningApp, type TypeOutcome,
 } from '../main/computer/look.service';
 import { windowElements } from '../main/computer/look.driver';
@@ -36,6 +36,10 @@ const ELEMENTS: LookElement[] = [
   { role: 'AXButton', label: 'OK', pressable: true },
   { role: 'AXButton', label: 'OK', pressable: true },
   { role: 'AXStaticText', label: 'presses=0', pressable: false },
+  { role: 'AXPopUpButton', label: 'First', pressable: false, pickable: true, value: 'First', at: '582,332' },
+  { role: 'AXPopUpButton', label: 'Delete…', pressable: false, pickable: true, value: 'Nothing', at: '582,400' },
+  // A search box whose name does not say so (measured: Music's reads "Apple Music"); the driver marks it from its Search child.
+  { role: 'AXTextField', label: 'Apple Music', pressable: false, editable: true, value: '', at: '600,40', searchBox: true },
 ];
 const ALLOW_USE = 'Allow using BimaxCuFixture';
 
@@ -43,6 +47,9 @@ interface Opts {
   look?: boolean; use?: boolean; answers?: string[]; elements?: LookElement[];
   outcome?: PressOutcome | (() => PressOutcome);
   typed?: TypeOutcome | ((text: string) => TypeOutcome);
+  confirmed?: PressOutcome;
+  picked?: TypeOutcome | ((option: string) => TypeOutcome);
+  scrolled?: PressOutcome;
   identify?: (pid: number) => Promise<ProcessIdentity | null>;
 }
 
@@ -54,6 +61,9 @@ function setup(opts: Opts = {}) {
   const asked: Array<{ question: string; options: string[]; body: string }> = [];
   const presses: Array<{ threadId: string; app: string; target: PressTarget }> = [];
   const typings: Array<{ app: string; target: PressTarget; text: string }> = [];
+  const confirms: Array<{ app: string; target: PressTarget & { at?: string } }> = [];
+  const picks: Array<{ app: string; target: PressTarget; option: string }> = [];
+  const scrolls: Array<{ app: string; target: PressTarget; direction: string; pages: number }> = [];
   const audit: any[] = [];
   let beforeDriver: (() => void) | null = null;
   let duringAsk: (() => void) | null = null;
@@ -74,6 +84,19 @@ function setup(opts: Opts = {}) {
       }) as TypeOutcome);
       return typeof o === 'function' ? o(text) : o;
     },
+    confirm: async (_threadId, app, target) => {
+      confirms.push({ app: app.bundleId, target });
+      return opts.confirmed ?? { kind: 'pressed', title: 'Bimax-Cu Fixture', before: AFTER, after: `${AFTER}\n  - [91] AXStaticText = "results: 3"`, elements };
+    },
+    pick: async (_threadId, app, target, option) => {
+      picks.push({ app: app.bundleId, target, option });
+      const o = opts.picked ?? ((opt: string) => ({ kind: 'typed', title: 'x', before: BEFORE, after: `${BEFORE}\n  - [92] AXStaticText = "chosen ${opt}"`, value: opt, elements }) as TypeOutcome);
+      return typeof o === 'function' ? o(option) : o;
+    },
+    scroll: async (_threadId, app, target, direction, pages) => {
+      scrolls.push({ app: app.bundleId, target, direction, pages });
+      return opts.scrolled ?? { kind: 'pressed', title: 'x', before: BEFORE, after: `${BEFORE}\n  - [93] AXButton "Row 13"`, elements };
+    },
     end: async () => {},
   };
   const service = createLookService({
@@ -90,13 +113,15 @@ function setup(opts: Opts = {}) {
     audit: (entry) => audit.push(entry),
   });
   let id = 0;
-  const call = (capability: 'look' | 'press' | 'type', op: string, args: Record<string, unknown>, callId = ++id) =>
+  const call = (capability: 'look' | 'press' | 'type' | 'scroll', op: string, args: Record<string, unknown>, callId = ++id) =>
     service.handle('t1', { t: 'host_call', id: callId, capability, op, args } as any);
   const lookAt = (app = 'BimaxCuFixture') => call('look', 'look', { app });
   const press = (control = 'Fixture Button', extra: Record<string, unknown> = {}) => call('press', 'press', { app: 'BimaxCuFixture', control, ...extra });
   const type = (text: string, extra: Record<string, unknown> = { field: 'Compose message' }) => call('type', 'type', { app: 'BimaxCuFixture', text, ...extra });
+  const scroll = (control = 'Mom', extra: Record<string, unknown> = { direction: 'down' }) => call('scroll', 'scroll', { app: 'BimaxCuFixture', control, ...extra });
+  const pick = (control: string, option: string) => call('press', 'press', { app: 'BimaxCuFixture', control, option });
   return {
-    service, call, lookAt, press, type, asked, presses, typings, audit,
+    service, call, lookAt, press, type, scroll, pick, asked, presses, typings, confirms, picks, scrolls, audit,
     tick: (ms: number) => { clock += ms; },
     lookOff: () => { look = false; }, useOff: () => { useOn = false; }, useBackOn: () => { useOn = true; },
     setElements: (next: LookElement[]) => { elements = next; },
@@ -104,7 +129,7 @@ function setup(opts: Opts = {}) {
     beforeDriver: (hook: () => void) => { beforeDriver = hook; },
     duringAsk: (hook: () => void) => { duringAsk = hook; },
     counts: () => service.counts('t1'),
-    pressCards: () => asked.filter((a) => a.question.startsWith('Press')),
+    pressCards: () => asked.filter((a) => a.question.startsWith('Press “')),
   };
 }
 
@@ -199,6 +224,18 @@ describe('ordinary steps run without a card', () => {
     expect((await s.press()).ok).toBe(true);
     expect(await s.press()).toMatchObject({ ok: false, value: { code: 'stale' } });
     expect(s.presses).toHaveLength(1);
+  });
+
+  it('a read cut short says so (measured: on a busy Mac the driver ran out of time after the menu bar)', async () => {
+    const s = setup();
+    const look = s.service; void look;
+    const partial = createLookService({
+      enabled: () => true, useEnabled: () => true, ask: async () => ALLOW_USE,
+      driver: async () => ({ runningApps: async () => [FIXTURE], look: async () => ({ title: 'x', markdown: BEFORE, windowId: 1, elements: ELEMENTS, partial: true }), end: async () => {} }),
+    });
+    const result = await partial.handle('t1', { t: 'host_call', id: 1, capability: 'look', op: 'look', args: { app: 'BimaxCuFixture' } } as any);
+    expect(text(result)).toContain('Only part of the window could be read in time');
+    expect(text(await s.lookAt())).not.toContain('Only part');
   });
 
   it('any app the person allowed, not only Bimax’s test apps', async () => {
@@ -304,12 +341,13 @@ describe('typing', () => {
   });
 
   it('the box may be left out when the window has exactly one; with two it must be named', async () => {
-    const one = setup({ elements: ELEMENTS.filter((e) => e.label !== 'Search') });
+    const one = setup({ elements: ELEMENTS.filter((e) => e.label !== 'Search' && e.label !== 'Apple Music') });
     await one.lookAt();
     expect((await one.type('hi', {})).ok).toBe(true);
     const two = setup();
     await two.lookAt();
     expect(await two.type('hi', {})).toMatchObject({ ok: false, value: { code: 'ambiguous' } });
+    expect((await two.type('hi', {})).error).toBeDefined();
     expect(two.typings).toEqual([]);
   });
 
@@ -357,6 +395,14 @@ describe('typing', () => {
     expect(yes.audit[1].receipt.asked).toBe('overwrite');
   });
 
+  it('text in a search box is a query: replacing it never asks (measured: Music’s box holds “Apple Music”)', async () => {
+    const els = ELEMENTS.map((e) => (e.label === 'Apple Music' ? { ...e, value: 'Apple Music' } : e));
+    const s = setup({ elements: els });
+    await s.lookAt();
+    expect((await s.type('blinding lights', { field: 'Apple Music' })).ok).toBe(true);
+    expect(s.asked).toHaveLength(1);
+  });
+
   it('typing again over Bimax’s own text does not ask', async () => {
     const s = setup();
     await s.lookAt();
@@ -393,6 +439,190 @@ describe('typing', () => {
       expect(s.typings).toHaveLength(1);
       expect(s.counts()).toMatchObject({ typings: 0, inputCalls: 1 });
     }
+  });
+});
+
+describe('Return in a box', () => {
+  it('in a search box it just runs: typed, read back, then Return — no card', async () => {
+    const s = setup();
+    await s.lookAt();
+    const result = await s.type('blinding lights', { field: 'Apple Music', submit: true });
+    expect(result.ok).toBe(true);
+    expect(s.asked).toHaveLength(1);
+    expect(s.confirms).toEqual([{ app: 'ai.bimax.cu.fixture', target: { windowId: WINDOW, role: 'AXTextField', label: 'blinding lights', at: '600,40' } }]);
+    expect(text(result)).toContain('Then pressed Return in it');
+    expect(text(result)).toContain('+ AXStaticText = "results: 3"');
+    expect(s.audit[1].receipt).toMatchObject({ action: 'type', submitted: true, asked: null });
+    // A search sends nothing, so the next ordinary press runs without a card.
+    expect((await s.press('Mom')).ok).toBe(true);
+    expect(s.pressCards()).toHaveLength(0);
+  });
+
+  it('in any other box it asks first, showing the text as the box reads it; “Don’t press Return” sends nothing', async () => {
+    const s = setup({ answers: [ALLOW_USE, 'Don’t press Return'] });
+    await s.lookAt();
+    expect((await s.press('Mom')).ok).toBe(true);
+    const result = await s.type('running late', { field: 'Compose message', submit: true });
+    expect(result).toMatchObject({ ok: false, value: { code: 'denied' } });
+    expect(result.error).toContain('Nothing was sent');
+    expect(s.asked[1].question).toBe('Press Return in “Compose message” in BimaxCuFixture?');
+    expect(s.asked[1].options).toEqual(['Press Return', 'Don’t press Return']);
+    expect(s.asked[1].body).toContain('may send what is in it');
+    expect(s.asked[1].body).toContain('The box reads now: “running late”');
+    expect(s.asked[1].body).toContain('Bimax last opened here: “Mom”');
+    expect(s.confirms).toEqual([]);
+    expect(s.typings).toHaveLength(1);
+  });
+
+  it('allowed: Return is pressed once, and the text it sent no longer makes the next press ask', async () => {
+    const s = setup({ answers: [ALLOW_USE, 'Press Return'] });
+    await s.lookAt();
+    expect((await s.type('running late', { field: 'Compose message', submit: true })).ok).toBe(true);
+    expect(s.confirms).toHaveLength(1);
+    expect(s.audit[1].receipt).toMatchObject({ asked: 'submit', submitted: true });
+    expect((await s.press('Mom')).ok).toBe(true);
+    expect(s.pressCards()).toHaveLength(0);
+  });
+
+  it('text that did not land is never followed by Return', async () => {
+    const s = setup({ typed: { kind: 'typed', title: 'x', before: BEFORE, after: BEFORE, value: '', elements: ELEMENTS } });
+    await s.lookAt();
+    expect(await s.type('blinding lights', { field: 'Apple Music', submit: true })).toMatchObject({ ok: false, value: { code: 'no_effect' } });
+    expect(s.confirms).toEqual([]);
+  });
+
+  it('Return that changed nothing is not a success, and is never pressed again', async () => {
+    const s = setup({ confirmed: { kind: 'pressed', title: 'x', before: AFTER, after: AFTER, elements: ELEMENTS } });
+    await s.lookAt();
+    const result = await s.type('blinding lights', { field: 'Apple Music', submit: true });
+    expect(result).toMatchObject({ ok: false, value: { code: 'no_effect' } });
+    expect(result.error).toContain('do not press Return again');
+    expect(s.confirms).toHaveLength(1);
+  });
+});
+
+describe('picking an item from a pop-up', () => {
+  it('an ordinary item: chosen without opening the menu, read back, no card', async () => {
+    const s = setup();
+    await s.lookAt();
+    const result = await s.pick('First', 'Second');
+    expect(result.ok).toBe(true);
+    expect(s.picks).toEqual([{ app: 'ai.bimax.cu.fixture', target: { windowId: WINDOW, role: 'AXPopUpButton', label: 'First' }, option: 'Second' }]);
+    expect(text(result)).toContain('Chose “Second” in “First”');
+    expect(s.asked).toHaveLength(1);
+    expect(s.presses).toEqual([]);
+    expect(s.counts()).toMatchObject({ picks: 1, inputCalls: 1 });
+    expect(s.audit[1].receipt).toMatchObject({ action: 'pick', asked: null, outcome: 'pressed' });
+    expect(JSON.stringify(s.audit[1])).not.toContain('Second');
+  });
+
+  it('an item that commits asks first; “Don’t choose” chooses nothing', async () => {
+    const s = setup({ answers: [ALLOW_USE, 'Don’t choose'] });
+    await s.lookAt();
+    expect(await s.pick('First', 'Delete All')).toMatchObject({ ok: false, value: { code: 'denied' } });
+    expect(s.asked[1]).toMatchObject({ question: 'Choose “Delete All” in “First” in BimaxCuFixture?', options: ['Choose “Delete All”', 'Don’t choose'] });
+    expect(s.picks).toEqual([]);
+  });
+
+  it('a pop-up whose own name commits asks for any item', async () => {
+    const s = setup({ answers: [ALLOW_USE, 'Choose “Everything”'] });
+    await s.lookAt();
+    expect((await s.pick('Delete…', 'Everything')).ok).toBe(true);
+    expect(s.asked[1].question).toBe('Choose “Everything” in “Delete…” in BimaxCuFixture?');
+    expect(s.asked[1].body).toContain('“Delete…” can send, buy, delete or confirm');
+  });
+
+  it('a pop-up inside a sheet or dialog asks for any item', async () => {
+    const els: LookElement[] = [{ role: 'AXPopUpButton', label: 'Format', pressable: false, pickable: true, value: 'PNG', inDialog: true, at: '1,1' }];
+    const s = setup({ elements: els, answers: [ALLOW_USE, 'Don’t choose'] });
+    await s.lookAt();
+    expect(await s.pick('Format', 'JPEG')).toMatchObject({ ok: false, value: { code: 'denied' } });
+    expect(s.asked[1].body).toContain('answers a question the app asked');
+    expect(s.picks).toEqual([]);
+  });
+
+  it('only a pop-up is picked from, and a pop-up is never pressed without an item', async () => {
+    const s = setup();
+    await s.lookAt();
+    expect(await s.pick('Fixture Button', 'Second')).toMatchObject({ ok: false, value: { code: 'not_permitted' } });
+    await s.lookAt();
+    const pressed = await s.press('First');
+    expect(pressed).toMatchObject({ ok: false, value: { code: 'not_permitted' } });
+    expect(pressed.error).toContain('give the item to choose as "option"');
+    expect(s.picks).toEqual([]);
+    expect(s.presses).toEqual([]);
+  });
+
+  it('an item that did not stick, or another item, is never “chosen”', async () => {
+    for (const [picked, code] of [
+      [{ kind: 'typed', title: 'x', before: BEFORE, after: BEFORE, value: 'First', elements: ELEMENTS }, 'no_effect'],
+      [{ kind: 'typed', title: 'x', before: BEFORE, after: AFTER, value: 'Third', elements: ELEMENTS }, 'uncertain'],
+      [{ kind: 'not_typed', reason: 'refused', detail: 'no item' }, 'not_found'],
+    ] as Array<[TypeOutcome, string]>) {
+      const s = setup({ picked });
+      await s.lookAt();
+      expect(await s.pick('First', 'Second')).toMatchObject({ ok: false, value: { code } });
+      expect(s.counts()?.picks).toBe(0);
+    }
+  });
+
+  it('the item is matched without case or invisible marks, as the driver matches it', async () => {
+    const s = setup({ picked: { kind: 'typed', title: 'x', before: BEFORE, after: AFTER, value: `${String.fromCharCode(0x200e)}second`, elements: ELEMENTS } });
+    await s.lookAt();
+    expect((await s.pick('First', 'Second')).ok).toBe(true);
+  });
+});
+
+describe('scrolling', () => {
+  it('scrolls at one named control, with no card, and says what came into view', async () => {
+    const s = setup();
+    await s.lookAt();
+    const result = await s.scroll('Mom', { direction: 'down', pages: 2 });
+    expect(result.ok).toBe(true);
+    expect(s.scrolls).toEqual([{ app: 'ai.bimax.cu.fixture', target: { windowId: WINDOW, role: 'AXRow', label: 'Mom' }, direction: 'down', pages: 2 }]);
+    expect(text(result)).toContain('+ AXButton "Row 13"');
+    expect(text(result)).toContain('without looking again');
+    expect(s.asked).toHaveLength(1);
+    expect(s.counts()).toMatchObject({ scrolls: 1, inputCalls: 1 });
+    expect(s.audit[1].receipt).toMatchObject({ action: 'scroll', asked: null, outcome: 'pressed' });
+  });
+
+  it('nothing moved is said plainly — the end of the list — and is not counted as a scroll', async () => {
+    const s = setup({ scrolled: { kind: 'pressed', title: 'x', before: BEFORE, after: BEFORE, elements: ELEMENTS } });
+    await s.lookAt();
+    const result = await s.scroll();
+    expect(result).toMatchObject({ ok: false, value: { code: 'no_effect' } });
+    expect(result.error).toContain('nothing moved');
+    expect(s.counts()?.scrolls).toBe(0);
+  });
+
+  it.each([
+    ['no direction', { }],
+    ['a direction that is not one of the four', { direction: 'sideways' }],
+    ['too far', { direction: 'down', pages: MAX_SCROLL_PAGES + 1 }],
+    ['zero pages', { direction: 'down', pages: 0 }],
+  ])('refuses %s before anything is sent', async (_name, extra) => {
+    const s = setup();
+    await s.lookAt();
+    expect(await s.scroll('Mom', extra as Record<string, unknown>)).toMatchObject({ ok: false, value: { code: 'invalid_args' } });
+    expect(s.scrolls).toEqual([]);
+  });
+
+  it('a place that is not there once is refused', async () => {
+    const s = setup();
+    await s.lookAt();
+    expect(await s.scroll('Nowhere')).toMatchObject({ ok: false, value: { code: 'not_found' } });
+    await s.lookAt();
+    expect(await s.scroll('OK')).toMatchObject({ ok: false, value: { code: 'ambiguous' } });
+    expect(s.scrolls).toEqual([]);
+  });
+
+  it('scrolls count toward “Keep going?” like any unasked step', async () => {
+    const s = setup({ answers: [ALLOW_USE, 'Stop here'] });
+    await s.lookAt();
+    for (let i = 0; i < KEEP_GOING_EVERY; i++) expect((await s.scroll()).ok).toBe(true);
+    expect(await s.scroll()).toMatchObject({ ok: false, value: { code: 'denied' } });
+    expect(s.asked[1].body).toContain('Next: scroll down at “Mom”');
   });
 });
 
@@ -449,6 +679,32 @@ describe('wrong target: refused, nothing done', () => {
     expect(s.presses[0].target.label).toBe('Fixture Button');
     expect(await s.press('Fixture Buttons')).toMatchObject({ ok: false, value: { code: 'not_found' } });
     expect(s.presses).toHaveLength(1);
+  });
+});
+
+describe('long names (measured: a WhatsApp community row runs past 200 characters with its last message)', () => {
+  const long = `Club community, 2 unread messages from General, ${'a very long preview of the last message '.repeat(6)}`;
+  const twin = `${long.slice(0, 150)} but a different ending`;
+  it('a long name is found whole, or by its first 120 characters or more — and only if one control starts that way', async () => {
+    const els: LookElement[] = [{ role: 'AXButton', label: long, pressable: true }, { role: 'AXButton', label: twin, pressable: true }];
+    const s = setup({ elements: els });
+    await s.lookAt();
+    expect((await s.press(long)).ok).toBe(true);
+    expect(s.presses[0].target.label).toBe(long);
+    expect((await s.press(long.slice(0, 160))).ok).toBe(true);
+    expect(s.presses[1].target.label).toBe(long);
+    expect(await s.press(long.slice(0, 140))).toMatchObject({ ok: false, value: { code: 'ambiguous' } });
+    await s.lookAt();
+    expect(await s.press(long.slice(0, 60))).toMatchObject({ ok: false, value: { code: 'not_found' } });
+    expect(s.presses).toHaveLength(2);
+  });
+
+  it('a refusal quotes a long name only in part', async () => {
+    const s = setup();
+    await s.lookAt();
+    const result = await s.press(long);
+    expect(result).toMatchObject({ ok: false, value: { code: 'not_found' } });
+    expect(result.error!.length).toBeLessThan(260);
   });
 });
 
@@ -565,19 +821,20 @@ describe('takeover: a Stop or a switch turned off cancels a step that was allowe
 });
 
 describe('the driver: one use session per app, with click and set_value alone', () => {
-  it('USE_TOOLS is exactly click and set_value; password fields are never a typing role', () => {
-    expect([...USE_TOOLS]).toEqual(['click', 'set_value']);
+  it('USE_TOOLS is exactly click, set_value and scroll; password fields are never a typing role; pop-ups are picked', () => {
+    expect([...USE_TOOLS]).toEqual(['click', 'set_value', 'scroll']);
+    expect([...PICK_ROLES]).toEqual(['AXPopUpButton']);
     expect([...TYPE_ROLES].sort()).toEqual(['AXComboBox', 'AXSearchField', 'AXTextArea', 'AXTextField']);
     expect(TYPE_ROLES.has('AXSecureTextField')).toBe(false);
   });
 
-  it('a use manifest allows the look tools, click and set_value, and denies every other input tool by name', () => {
+  it('a use manifest allows the look tools, click, set_value and scroll, and denies every other input tool by name', () => {
     const manifest = useManifest('net.whatsapp.WhatsApp');
-    expect(manifest).toContain(`  tools: [${[...LOOK_TOOLS, 'click', 'set_value'].join(', ')}]`);
+    expect(manifest).toContain(`  tools: [${[...LOOK_TOOLS, 'click', 'set_value', 'scroll'].join(', ')}]`);
     const deny = manifest.split('deny:\n')[1];
-    for (const tool of INPUT_TOOLS.filter((t) => t !== 'click' && t !== 'set_value')) expect(deny).toContain(tool);
-    expect(deny).not.toMatch(/\bclick\b|\bset_value\b/);
-    for (const tool of ['type_text', 'press_key', 'hotkey', 'scroll', 'drag', 'bring_to_front', 'launch_app', 'clipboard_write']) expect(deny).toContain(tool);
+    for (const tool of INPUT_TOOLS.filter((t) => !['click', 'set_value', 'scroll'].includes(t))) expect(deny).toContain(tool);
+    expect(deny).not.toMatch(/\bclick\b|\bset_value\b|(?<!_)\bscroll\b/);
+    for (const tool of ['type_text', 'press_key', 'hotkey', 'drag', 'bring_to_front', 'launch_app', 'clipboard_write']) expect(deny).toContain(tool);
     expect(() => useManifest('ai.bimax.app')).toThrow('not an app a task may use');
     expect(() => useManifest('com.apple.systempreferences')).toThrow('not an app a task may use');
   });
@@ -588,13 +845,15 @@ describe('the driver: one use session per app, with click and set_value alone', 
       { element_index: 1, parent_index: 0, role: 'AXMenuBarItem', label: 'Apple', actions: ['AXPress'] },
       { element_index: 2, parent_index: 1, role: 'AXButton', label: 'Log Out', actions: ['AXPress'] },
       { element_index: 62, role: 'AXWindow', label: 'Bimax-Cu Fixture' },
-      { element_index: 63, parent_index: 62, role: 'AXButton', label: 'Fixture Button', actions: ['AXPress'], enabled: true, element_token: 's1:63' },
+      { element_index: 63, parent_index: 62, role: 'AXButton', label: 'Fixture Button', value: 'a private preview', actions: ['AXPress'], enabled: true, element_token: 's1:63' },
       { element_index: 64, parent_index: 62, role: 'AXButton', label: 'Disabled', actions: ['AXPress'], enabled: false, element_token: 's1:64' },
       { element_index: 65, parent_index: 62, role: 'AXTextField', label: 'alpha', value: 'alpha', actions: ['AXConfirm'], frame: { x: 219.4, y: 371, w: 300, h: 26 }, element_token: 's1:65' },
       { element_index: 66, parent_index: 62, role: 'AXRow', label: 'Mom', actions: ['AXPress'], element_token: 's1:66' },
       { element_index: 67, parent_index: 62, role: 'AXPopUpButton', label: 'First', actions: ['AXShowMenu', 'AXPress'], element_token: 's1:67' },
       { element_index: 68, parent_index: 62, role: 'AXSecureTextField', label: 'Password', element_token: 's1:68' },
       { element_index: 69, parent_index: 62, role: 'AXSheet', label: 'Delete?' },
+      { element_index: 71, parent_index: 62, role: 'AXTextField', label: 'Apple Music', value: 'Apple Music', frame: { x: 600, y: 40, w: 200, h: 22 }, element_token: 's1:71' },
+      { element_index: 72, parent_index: 71, role: 'AXButton', label: 'Search', actions: ['AXPress'], element_token: 's1:72' },
       { element_index: 70, parent_index: 69, role: 'AXButton', label: 'Cancel', actions: ['AXPress'], element_token: 's1:70' },
       { element_index: 80, parent_index: 62, role: 'AXButton', actions: ['AXPress'], element_token: 's1:80' },
     ]);
@@ -606,8 +865,16 @@ describe('the driver: one use session per app, with click and set_value alone', 
       ['AXPopUpButton', 'First', false, false, false],
       ['AXSecureTextField', 'Password', false, false, false],
       ['AXSheet', 'Delete?', false, false, false],
+      ['AXTextField', 'Apple Music', false, true, false],
+      ['AXButton', 'Search', true, false, false],
       ['AXButton', 'Cancel', true, false, true],
     ]);
+    // A pop-up is picked, with its chosen item as value; a box with a child named Search is a search box.
+    expect(els.find((e) => e.label === 'First')).toMatchObject({ pickable: true });
+    expect(els.find((e) => e.label === 'Apple Music')).toMatchObject({ searchBox: true });
+    expect(els.find((e) => e.label === 'alpha')?.searchBox).toBeUndefined();
+    // A button's value is never kept (measured: a chat row's value is its last message).
+    expect(els.find((e) => e.label === 'Fixture Button')?.value).toBeUndefined();
     expect(els.find((e) => e.label === 'alpha')).toMatchObject({ value: 'alpha', at: '219,371' });
     expect(els.find((e) => e.label === 'Password')?.value).toBeUndefined();
   });

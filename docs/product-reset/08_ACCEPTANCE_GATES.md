@@ -23,22 +23,28 @@ Enforced by `src/__tests__/computer.admission.boundary.test.ts` and `scripts/ver
   closing it or any Stop of its turn — ends every grant. Bimax itself, the password and keychain apps and System
   Settings (by bundle id) and password managers, wallets and banking apps (by name) are never looked at or used.
 - **Using other apps (stage 6, §6h; replaces stage 3's test-app press).** With both items ticked, a new ⌘2 task also
-  gets `PressInAppTool` and `TypeInAppTool`: one AX press of one named, enabled control whose own action is a press
-  (not a menu, pop-up or text box), or one line set as one text box's whole value (never a password field, never a
-  line break, at most 2,000 characters), in an app the person let the task use. Each step is bound to a read of that
+  gets `PressInAppTool`, `TypeInAppTool` and `ScrollInAppTool`: one AX press of one named, enabled control whose own
+  action is a press (not a menu, pop-up or text box), or one item of a pop-up chosen without opening its menu; one line
+  set as one text box's whole value (never a password field, never a line break, at most 2,000 characters), then, only
+  if asked, that box's own Return (its AX confirm); or a background wheel scroll over one named control, 1–5 pages — in
+  an app the person let the task use. Each step is bound to a read of that
   window under two minutes old — a look, or the re-read of the step before — and each read allows one step. Every step
   meets the governor's computer-control floors first (sensitive targets and "not while unattended", **before** the
   Bimax Thread branch — record 46's trap — and plan mode); in a Thread the engine then raises no card of its own and
   **the app decides**: an ordinary step runs; a press whose name holds a commit word (send, pay, buy, delete, confirm,
   OK, allow, … in seven languages), a press inside a sheet or dialog, a name with no Latin letters, and the first press
   after Bimax typed into a box that is not for searching all stop on the app's card, which shows the window, what Bimax
-  last opened there and the typed text as the box reads it — never the model's words; typing over text Bimax did not
-  put there asks too; every 40 unasked steps the app asks "Keep going?". No card can be granted for the task. A Stop,
+  last opened there and the typed text as the box reads it — never the model's words; a pop-up item is judged the same
+  way (and by the pop-up's own name); Return in a box that is not a search box (its role, its name, or a child control
+  named Search) asks, showing the box's text; typing over text Bimax did not put there asks, except in a search box;
+  every 40 unasked steps the app asks "Keep going?". Names match with invisible marks ignored, and a name over 120
+  characters may be given by its start, if exactly one control starts that way. No card can be granted for the task. A Stop,
   either item unticked, or the window changing (the driver re-reads it and must find the control exactly once) cancels
   a step that has not been sent. A step is sent once, by element token, in the background, and never retried; the
   window is read again; "nothing changed" is a failure, and typing counts only if the box reads back exactly the text.
-  A use session's manifest allows `click` and `set_value` and still denies every other input tool by name — keys,
-  Return, shortcuts, dragging, scrolling, coordinates, bringing an app forward.
+  A use session's manifest allows `click`, `set_value` and `scroll` and still denies every other input tool by name —
+  keys, shortcuts, dragging, coordinates, bringing an app forward. Window reads get 4 s, and a read still cut short is
+  reported as partial.
 - **Which build is running (stage 5).** A look names the running executable and its SHA-256, read by the app from the
   process; a step is refused if that executable changed since the read (a rebuild or relaunch), and its receipt
   records the hash of the build it acted on.

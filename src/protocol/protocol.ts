@@ -21,7 +21,7 @@
 // Additive, so the major stays 3 and the `catalog` feature flag gates it.
 export const PROTOCOL_VERSION = 3;
 /** Semantic wire release. Major compatibility remains available to v2 clients. */
-export const PROTOCOL_SEMVER = '3.5.0';
+export const PROTOCOL_SEMVER = '3.6.0';
 export const PROTOCOL_MIN_COMPATIBLE_MAJOR = 2;
 export const PROTOCOL_MAX_COMPATIBLE_MAJOR = 3;
 
@@ -71,12 +71,12 @@ export interface RequestMsg {
 
 /**
  * The engine asks the app that hosts it to do something only the app may do (record 65): look at an app's window
- * (stage 2), press one control in it (stage 3) or type into one box (stage 6, 3.5.0), for a Bimax Thread the user let
- * do so. The app answers with a {@link HostResultMsg} of the same `id`. It travels on the engine's own channel, never a
+ * (stage 2), press one control in it (stage 3), type into one box (stage 6, 3.5.0) or scroll it (3.6.0), for a Bimax
+ * Thread the user let do so. The app answers with a {@link HostResultMsg} of the same `id`. It travels on the engine's own channel, never a
  * socket or an environment token, so nothing the engine runs (a shell command) can make the call. The app decides —
  * grant, scope, whether a step needs the person's card, what the result may contain; the engine only asks.
  */
-export type HostCapability = 'look' | 'press' | 'type';
+export type HostCapability = 'look' | 'press' | 'type' | 'scroll';
 
 export interface HostCallMsg {
   t: 'host_call';

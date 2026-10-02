@@ -2,13 +2,13 @@ import { createHash } from 'node:crypto';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import type { LookDriver, LookElement, PressOutcome, PressTarget, RunningApp, TypeOutcome } from './look.service';
-import { PRESS_EXCLUDED_ROLES, TYPE_ROLES, lookManifest, runtimeManifest, useManifest } from './look.manifest';
+import type { LookDriver, LookElement, PressOutcome, PressTarget, RunningApp, ScrollDirection, TypeOutcome } from './look.service';
+import { PICK_ROLES, PRESS_EXCLUDED_ROLES, TYPE_ROLES, lookManifest, runtimeManifest, useManifest } from './look.manifest';
 import { DIALOG_ROLES } from './look.commit';
 
 /**
  * Cua Driver 0.31, embedded in this process: look (record 65, stage 2) and, in an app the person let the task use, one
- * press or one typing at a time (stage 3, widened by stage 6 §6h).
+ * step at a time — press, type, Return in a box, pick from a pop-up, scroll (stage 3, widened by stage 6 §6h).
  *
  * In-process (`@trycua/cua-driver`, no daemon), so macOS attributes Accessibility to Bimax itself. Loaded on the first
  * look a person allowed — never at launch, so a coding task never loads it and never meets a permission prompt. The
@@ -53,6 +53,11 @@ export function windowElements(raw: unknown): WindowElement[] {
     }
     return { inWindow: false, inDialog };
   };
+  // A text box with a child control named Search (or Find) is a search box, whatever text it shows (measured: Music's
+  // toolbar search field reads "Apple Music", with a Search button inside it).
+  const searchParents = new Set<number>(list
+    .filter((e) => e && typeof e.label === 'string' && /^\s*(search|find)\s*$/i.test(e.label.replace(/\p{Cf}/gu, '')) && e.parent_index !== undefined)
+    .map((e) => Number(e.parent_index)));
   const out: WindowElement[] = [];
   for (const e of list) {
     if (!e || typeof e.role !== 'string' || typeof e.label !== 'string' || !e.label.trim() || e.role === 'AXWindow' || e.role === 'AXMenuBar') continue;
@@ -66,8 +71,11 @@ export function windowElements(raw: unknown): WindowElement[] {
       label: String(e.label),
       pressable: enabled && !PRESS_EXCLUDED_ROLES.has(role) && Array.isArray(e.actions) && e.actions.includes('AXPress'),
       editable: enabled && TYPE_ROLES.has(role),
-      ...(TYPE_ROLES.has(role) ? { value: typeof e.value === 'string' ? e.value : '' } : {}),
+      ...(enabled && PICK_ROLES.has(role) ? { pickable: true } : {}),
+      // A box's text, or a pop-up's chosen item — never a button's value (measured: a chat row's value is its last message).
+      ...(TYPE_ROLES.has(role) || PICK_ROLES.has(role) ? { value: typeof e.value === 'string' ? e.value : '' } : {}),
       inDialog: place.inDialog,
+      ...(TYPE_ROLES.has(role) && (role === 'AXSearchField' || searchParents.has(Number(e.element_index))) ? { searchBox: true } : {}),
       ...(frame && Number.isFinite(Number(frame.x)) && Number.isFinite(Number(frame.y)) ? { at: `${Math.round(Number(frame.x))},${Math.round(Number(frame.y))}` } : {}),
       token: String(e.element_token ?? ''),
     });
@@ -79,6 +87,15 @@ export function windowElements(raw: unknown): WindowElement[] {
 const shown = (els: WindowElement[]): LookElement[] => els.map(({ token, ...rest }) => { void token; return rest; });
 
 const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+/**
+ * The time one window read may take. The driver's default (1 s) walks the menu bar first and, on a busy Mac, ran out
+ * before the window: measured 2026-10-02, Music read as 2 controls instead of 115. A read still cut short says so.
+ */
+export const READ_TIMEOUT_MS = 4000;
+
+/** Wheel notches per page the model asks for (the driver's `by: page` step is small: measured 2 notches ≈ one chat row). */
+export const SCROLL_NOTCHES_PER_PAGE = 5;
 
 export interface LookDriverOptions {
   /** Where the manifests are written (0700 folder, 0600 files); removed with each session. */
@@ -192,6 +209,28 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
     return parse(await session.callTool(tool, JSON.stringify(args)));
   }
 
+  /** The one way anything is clicked: an AX action on an element token, in the background — never coordinates. */
+  function clickToken(session: any, app: RunningApp, windowId: number, token: string, action: 'press' | 'confirm'): Promise<any> {
+    return call(session, 'click', { pid: app.pid, window_id: windowId, element_token: token, action, delivery_mode: 'background' });
+  }
+
+  /** The one way a value is set: an AX value write on an element token — a text box's text, or a pop-up's item. */
+  function setValueToken(session: any, app: RunningApp, token: string, value: string): Promise<any> {
+    return call(session, 'set_value', { pid: app.pid, element_token: token, value });
+  }
+
+  /** Read again until the window shows a change, for about 1.5 s. A read may repeat; the action never does. */
+  async function readUntilChanged(session: any, app: RunningApp, windowId: number, before: any): Promise<any> {
+    let after = before;
+    for (const wait of [150, 300, 450, 600]) {
+      await sleep(wait);
+      try { after = await call(session, 'get_window_state', { pid: app.pid, window_id: windowId, include_screenshot: false, timeout_ms: READ_TIMEOUT_MS }); }
+      catch { break; }
+      if (String(after.tree_markdown ?? '') !== String(before.tree_markdown ?? '')) break;
+    }
+    return after;
+  }
+
   /** A use session: its own short-lived trusted session whose manifest adds `click` and `set_value` for this one app. */
   async function useSessionFor(threadId: string, app: RunningApp, generation: number): Promise<any> {
     requireCurrent(threadId, generation);
@@ -218,7 +257,8 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
       const data = await withRuntime(async () => { const { driver } = await start(); return parse(await driver.callTool('list_apps', '{}')); });
       return (Array.isArray(data.apps) ? data.apps : [])
         .filter((a: any) => a && a.running === true && Number(a.pid) > 0 && typeof a.bundle_id === 'string' && a.kind !== 'background')
-        .map((a: any) => ({ name: String(a.name ?? a.bundle_id), bundleId: String(a.bundle_id), pid: Number(a.pid) }));
+        // Names lose invisible formatting marks (measured: "\u200eWhatsApp"), so cards and matches read as the person does.
+        .map((a: any) => ({ name: String(a.name ?? a.bundle_id).replace(/\p{Cf}/gu, '').trim() || String(a.bundle_id), bundleId: String(a.bundle_id), pid: Number(a.pid) }));
     },
 
     async look(threadId: string, app: RunningApp, query?: string) {
@@ -236,7 +276,7 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
       const session = await useSessionFor(threadId, app, generation);
       requireCurrent(threadId, generation);
       // A fresh snapshot in this session: its tokens are the only ones a press uses.
-      const before = await call(session, 'get_window_state', { pid: app.pid, window_id: target.windowId, include_screenshot: false });
+      const before = await call(session, 'get_window_state', { pid: app.pid, window_id: target.windowId, include_screenshot: false, timeout_ms: READ_TIMEOUT_MS });
       const matches = windowElements(before.elements).filter((e) => e.role === target.role && e.label === target.label);
       if (matches.length !== 1 || !matches[0].pressable || !matches[0].token) {
         return { kind: 'not_pressed', reason: matches.length > 1 ? 'ambiguous' : 'changed' };
@@ -244,21 +284,14 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
       // The last moment a Stop or a switch turned off can cancel it: nothing has been sent yet.
       requireCurrent(threadId, generation);
       try {
-        await call(session, 'click', { pid: app.pid, window_id: target.windowId, element_token: matches[0].token, action: 'press', delivery_mode: 'background' });
+        await clickToken(session, app, target.windowId, matches[0].token, 'press');
       } catch (error: any) {
         const text = String(error?.inner?.reason ?? error?.message ?? error);
         // Refused by the driver before dispatch (a stale token, outside the manifest): nothing was pressed.
         if (/stale|supersed|not allowed|denied|refus|outside|not permitted/i.test(text)) return { kind: 'not_pressed', reason: 'refused', detail: text.slice(0, 200) };
         return { kind: 'uncertain', detail: text.slice(0, 200) };
       }
-      // Read again until the window shows a change, for about 1.5 s. A read may repeat; the press never does.
-      let after = before;
-      for (const wait of [150, 300, 450, 600]) {
-        await sleep(wait);
-        try { after = await call(session, 'get_window_state', { pid: app.pid, window_id: target.windowId, include_screenshot: false }); }
-        catch { break; }
-        if (String(after.tree_markdown ?? '') !== String(before.tree_markdown ?? '')) break;
-      }
+      const after = await readUntilChanged(session, app, target.windowId, before);
       return {
         kind: 'pressed', title: String(before.window_title ?? ''), before: String(before.tree_markdown ?? ''), after: String(after.tree_markdown ?? ''),
         elements: shown(windowElements(after.elements)),
@@ -274,7 +307,7 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
       const generation = generations.get(threadId) ?? 0;
       const session = await useSessionFor(threadId, app, generation);
       requireCurrent(threadId, generation);
-      const before = await call(session, 'get_window_state', { pid: app.pid, window_id: target.windowId, include_screenshot: false });
+      const before = await call(session, 'get_window_state', { pid: app.pid, window_id: target.windowId, include_screenshot: false, timeout_ms: READ_TIMEOUT_MS });
       const matches = windowElements(before.elements).filter((e) => e.role === target.role && e.label === target.label);
       if (matches.length !== 1 || !matches[0].editable || !matches[0].token) {
         return { kind: 'not_typed', reason: matches.length > 1 ? 'ambiguous' : 'changed' };
@@ -282,7 +315,7 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
       const box = matches[0];
       requireCurrent(threadId, generation);
       try {
-        await call(session, 'set_value', { pid: app.pid, element_token: box.token, value: text });
+        await setValueToken(session, app, box.token, text);
       } catch (error: any) {
         const reasonText = String(error?.inner?.reason ?? error?.message ?? error);
         if (/stale|supersed|not allowed|denied|refus|outside|not permitted|not settable|unsupported/i.test(reasonText)) return { kind: 'not_typed', reason: 'refused', detail: reasonText.slice(0, 200) };
@@ -292,7 +325,7 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
       let value: string | null = null;
       for (const wait of [150, 300, 450]) {
         await sleep(wait);
-        try { after = await call(session, 'get_window_state', { pid: app.pid, window_id: target.windowId, include_screenshot: false }); }
+        try { after = await call(session, 'get_window_state', { pid: app.pid, window_id: target.windowId, include_screenshot: false, timeout_ms: READ_TIMEOUT_MS }); }
         catch { break; }
         const again = windowElements(after.elements).filter((e) => e.role === box.role && box.at !== undefined && e.at === box.at);
         value = again.length === 1 ? (again[0].value ?? '') : null;
@@ -301,6 +334,90 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
       return {
         kind: 'typed', title: String(before.window_title ?? ''), before: String(before.tree_markdown ?? ''), after: String(after.tree_markdown ?? ''),
         value, elements: shown(windowElements(after.elements)),
+      };
+    },
+
+    /**
+     * Stage 6: Return in one text box — its own AX "confirm" action, by token, in the background; never a key event.
+     * The box is found by role and screen position (`at`), since typing renames a box named by its value. Never retried.
+     */
+    async confirm(threadId: string, app: RunningApp, target: PressTarget & { at?: string }): Promise<PressOutcome> {
+      const generation = generations.get(threadId) ?? 0;
+      const session = await useSessionFor(threadId, app, generation);
+      requireCurrent(threadId, generation);
+      const before = await call(session, 'get_window_state', { pid: app.pid, window_id: target.windowId, include_screenshot: false, timeout_ms: READ_TIMEOUT_MS });
+      const matches = windowElements(before.elements).filter((e) => e.role === target.role && (target.at !== undefined ? e.at === target.at : e.label === target.label));
+      if (matches.length !== 1 || !matches[0].editable || !matches[0].token) {
+        return { kind: 'not_pressed', reason: matches.length > 1 ? 'ambiguous' : 'changed' };
+      }
+      requireCurrent(threadId, generation);
+      try {
+        await clickToken(session, app, target.windowId, matches[0].token, 'confirm');
+      } catch (error: any) {
+        const text = String(error?.inner?.reason ?? error?.message ?? error);
+        if (/stale|supersed|not allowed|denied|refus|outside|not permitted|unsupported/i.test(text)) return { kind: 'not_pressed', reason: 'refused', detail: text.slice(0, 200) };
+        return { kind: 'uncertain', detail: text.slice(0, 200) };
+      }
+      const after = await readUntilChanged(session, app, target.windowId, before);
+      return {
+        kind: 'pressed', title: String(before.window_title ?? ''), before: String(before.tree_markdown ?? ''), after: String(after.tree_markdown ?? ''),
+        elements: shown(windowElements(after.elements)),
+      };
+    },
+
+    /**
+     * Stage 6: choose one item of a pop-up button without opening its menu — the driver's set_value finds the child item
+     * by title and presses it directly. The pop-up is found again by role and position, and its value read back.
+     */
+    async pick(threadId: string, app: RunningApp, target: PressTarget, option: string): Promise<TypeOutcome> {
+      const generation = generations.get(threadId) ?? 0;
+      const session = await useSessionFor(threadId, app, generation);
+      requireCurrent(threadId, generation);
+      const before = await call(session, 'get_window_state', { pid: app.pid, window_id: target.windowId, include_screenshot: false, timeout_ms: READ_TIMEOUT_MS });
+      const matches = windowElements(before.elements).filter((e) => e.role === target.role && e.label === target.label);
+      if (matches.length !== 1 || !matches[0].pickable || !matches[0].token) {
+        return { kind: 'not_typed', reason: matches.length > 1 ? 'ambiguous' : 'changed' };
+      }
+      const popup = matches[0];
+      requireCurrent(threadId, generation);
+      try {
+        await setValueToken(session, app, popup.token, option);
+      } catch (error: any) {
+        const text = String(error?.inner?.reason ?? error?.message ?? error);
+        if (/stale|supersed|not allowed|denied|refus|outside|not permitted|no (child|option|item)|not found|unsupported/i.test(text)) return { kind: 'not_typed', reason: 'refused', detail: text.slice(0, 200) };
+        return { kind: 'uncertain', detail: text.slice(0, 200) };
+      }
+      const after = await readUntilChanged(session, app, target.windowId, before);
+      const again = windowElements(after.elements).filter((e) => e.role === popup.role && popup.at !== undefined && e.at === popup.at);
+      return {
+        kind: 'typed', title: String(before.window_title ?? ''), before: String(before.tree_markdown ?? ''), after: String(after.tree_markdown ?? ''),
+        value: again.length === 1 ? (again[0].value ?? '') : null, elements: shown(windowElements(after.elements)),
+      };
+    },
+
+    /**
+     * Stage 6: scroll the area under one named control — the driver's targeted wheel path, by token, in the background
+     * (measured in WhatsApp behind the terminal: the list moved; the front app and the pointer did not). Never retried.
+     */
+    async scroll(threadId: string, app: RunningApp, target: PressTarget, direction: ScrollDirection, pages: number): Promise<PressOutcome> {
+      const generation = generations.get(threadId) ?? 0;
+      const session = await useSessionFor(threadId, app, generation);
+      requireCurrent(threadId, generation);
+      const before = await call(session, 'get_window_state', { pid: app.pid, window_id: target.windowId, include_screenshot: false, timeout_ms: READ_TIMEOUT_MS });
+      const matches = windowElements(before.elements).filter((e) => e.role === target.role && e.label === target.label);
+      if (matches.length !== 1 || !matches[0].token) return { kind: 'not_pressed', reason: matches.length > 1 ? 'ambiguous' : 'changed' };
+      requireCurrent(threadId, generation);
+      try {
+        await call(session, 'scroll', { pid: app.pid, element_token: matches[0].token, direction, by: 'page', amount: Math.min(50, Math.max(1, Math.round(pages)) * SCROLL_NOTCHES_PER_PAGE), delivery_mode: 'background' });
+      } catch (error: any) {
+        const text = String(error?.inner?.reason ?? error?.message ?? error);
+        if (/stale|supersed|not allowed|denied|refus|outside|not permitted/i.test(text)) return { kind: 'not_pressed', reason: 'refused', detail: text.slice(0, 200) };
+        return { kind: 'uncertain', detail: text.slice(0, 200) };
+      }
+      const after = await readUntilChanged(session, app, target.windowId, before);
+      return {
+        kind: 'pressed', title: String(before.window_title ?? ''), before: String(before.tree_markdown ?? ''), after: String(after.tree_markdown ?? ''),
+        elements: shown(windowElements(after.elements)),
       };
     },
 
@@ -340,12 +457,13 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
       .sort((a, b) => (b.z_index ?? 0) - (a.z_index ?? 0) || (b.bounds?.width ?? 0) * (b.bounds?.height ?? 0) - (a.bounds?.width ?? 0) * (a.bounds?.height ?? 0))[0];
     if (!pick) throw new Error(`${app.name} has no window open`);
     const state = await call(session, 'get_window_state', {
-      pid: app.pid, window_id: pick.window_id, include_screenshot: false, ...(query ? { query } : {}),
+      pid: app.pid, window_id: pick.window_id, include_screenshot: false, timeout_ms: READ_TIMEOUT_MS, ...(query ? { query } : {}),
     });
     requireCurrent(threadId, generation);
     if (state.degraded && !state.tree_markdown) throw new Error(String(state.degraded_reason ?? 'the window could not be read'));
+    const partial = state.truncated === true;
     // The controls are kept (without their tokens) so a later press or typing can be bound to what this look showed.
     const elements: LookElement[] = shown(windowElements(state.elements));
-    return { title: String(pick.title ?? ''), markdown: String(state.tree_markdown ?? ''), windowId: Number(pick.window_id), elements };
+    return { title: String(pick.title ?? ''), markdown: String(state.tree_markdown ?? ''), windowId: Number(pick.window_id), elements, ...(partial ? { partial: true } : {}) };
   }
 }
