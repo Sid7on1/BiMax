@@ -26,8 +26,9 @@ Driver telemetry was on by default and is off. Decision: the driver supplies the
 **Stage 6 continuation, 2026-10-02:** missing control names now return up to five real names/roles from the fresh,
 granted window, filtered for the action. Suggestions never authorize a fuzzy press. Implemented and locally verified:
 274 focused tests, 6 recovery mutants and 3 exact-target mutants caught; rebuilt and installed with a rollback.
-The installed Music retry and the owner's WhatsApp send remain unmeasured until their end states are independently
-verified. See record 65 §6h and `evidence/2026-10-02-cu-name-recovery/`.
+Installed Music run 4 failed after a delayed card expired the cached native use session; read recovery then reused
+a native session label. The lifecycle correction is Implemented and locally verified (277 tests, 8 controlled checks,
+5 rejected mutants). Music playback and the owner's WhatsApp send still require independent end-state verification. See record 65 §6h and `evidence/2026-10-02-cu-name-recovery/`.
 
 ## The monolith: research and plan — 2026-09-29
 

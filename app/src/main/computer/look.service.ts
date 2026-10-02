@@ -373,7 +373,7 @@ export function createLookService(deps: LookServiceDeps) {
       if (!current()) return revoked();
       c.refused += 1;
       const text = error instanceof Error ? error.message : String(error);
-      if (/accessibility|not trusted|permission/i.test(text)) {
+      if (/accessibility|process is not trusted/i.test(text)) {
         return fail(msg.id, 'not_permitted', 'Bimax needs Accessibility permission to read other apps: System Settings → Privacy & Security → Accessibility → turn on Bimax.');
       }
       return fail(msg.id, 'unavailable', `Bimax could not look: ${text.slice(0, 200)}`);

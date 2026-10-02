@@ -744,6 +744,31 @@ in 04/05/07 and the gap register were stale at stage 2 despite §6h's later evid
 `competitive/03_CAPABILITY_MATRIX.md` is still absent from this checkout (already identified by record 46); no new
 competitor or Win claim is made.
 
+
+**Authorization-session continuation (2026-10-02, Codex).** Installed run 4 subsequently failed. The foreground
+Search card waited from 09:26:38 to 09:33:55 UTC; its reused five-minute/two-minute-idle use context expired before
+the pre-action read. Audit: one earlier background click, no additional input at the failed foreground step.
+The model incorrectly asked for Accessibility repeatedly. At 09:36:12 a look hit an ended read session; recovery
+reused its deterministic native label, then at 09:36:23 collided with a live authorization context. These are native
+lease/lifecycle errors, not evidence that macOS TCC was disabled. Run 4 is a failed playback attempt, not recovery proof.
+
+Implemented: every approved input step closes its prior use context and starts a new bounded context with a unique
+native label, after the approval and before the existing fresh read/exact-target/generation checks. Its five-minute
+TTL and two-minute idle TTL are unchanged. No input dispatch is retried. A read-only look renews once for explicit
+native expiry/end errors, including expiry at window-state reading; unrelated denial does not renew. Retired contexts,
+manifest files and observer mappings are removed. The service no longer treats generic “permission” errors as TCC
+proof, and model advice distinguishes internal leases from explicit Accessibility failures.
+
+Local checks: 277 tests in seven suites, both typechecks, the existing 37 action-driver checks and four cancellation
+checks passed. Eight controlled-SDK checks exercise expired list/state reads, ended labels, denial, repeated expiry,
+delayed approval, uncertain input without replay and Bimax Thread/app isolation. Five behavioral mutants are rejected
+by those checks (cached use context, reused label, no close, renewal on unrelated denial, no renewal). No native input
+is sent by this harness. Evidence: `evidence/2026-10-02-cu-session-renewal/`; completed content-free run-4 audit is
+in `evidence/2026-10-02-cu-stage6-installed-run/run-4.json`. Installation and live retry status are recorded in that
+continuation's checkpoint. Playback, the owner's WhatsApp send and stage 6 release qualification still require end-state
+evidence. README, architecture (05), roadmap (07), gates (08), Mac Buddy vision, competitive evaluation rules and M02
+guide this correction; no product boundary or permission is widened.
+
 ## 7. Risks named now
 
 - **Driver drift.** 0.12 → 0.31 rewrote the codebase; a later release can change behaviour again (0.18 did). The

@@ -564,3 +564,14 @@ Used by [record 62](../62_PROVIDERS_KEYS_MCP_AND_BUGFIX_RECORD.md). Re-check bef
 - MCP TypeScript SDK 1.29.0 (local `node_modules`): `OAuthClientProvider`, `StreamableHTTPClientTransport.finishAuth`,
   `UnauthorizedError`, `ListRootsRequestSchema`, `ToolListChangedNotificationSchema` — read from the installed type
   definitions, exercised by `mcp.allservers.test.ts`.
+
+## 2026-10-02 — pinned Cua Driver authorization-session lifecycle
+
+Inspected first-party source in the existing research checkout at
+`~/Developer/bimax-research/cu/cua/libs/cua-driver/rust/crates/` (the pinned 0.31.0/9545a3d baseline already recorded
+in record 65). `cua-driver-core/src/session_authorization.rs` explicitly expires contexts on absolute/idle leases,
+returns “authorization context expired”, and refuses duplicate public/transport binding to a live context.
+`cua-driver-core/src/authorization.rs` checks that context before dispatch; its “Permission denied” text can therefore
+mean native context expiry rather than macOS TCC. `cua-driver-sdk/src/abi.rs` closes native session handles through
+`session_destroy`. No source was copied or dependency upgraded. Installed run 4 corroborates expiry after an approval
+wait and label-reuse failure; the correction and limits are in record 65 §6h and `evidence/2026-10-02-cu-session-renewal/`.

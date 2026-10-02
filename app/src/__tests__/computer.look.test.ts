@@ -239,6 +239,12 @@ describe('the look service', () => {
     expect(result.error).toContain('Privacy & Security → Accessibility');
   });
 
+  it.each(['Permission denied: authorization context expired', "session 'bimax-x' has ended", 'Permission denied: outside the manifest'])('does not invent a TCC diagnosis for %s', async message => {
+    const result = await setup({ lookError: new Error(message) }).call('look', { app: 'Notes' });
+    expect(result).toMatchObject({ ok: false, value: { code: 'unavailable' } });
+    expect(result.error).not.toContain('System Settings');
+  });
+
   it('turning it off stops the next look at once, even with a grant', async () => {
     const s = setup();
     await s.call('look', { app: 'Notes' });

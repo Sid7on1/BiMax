@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -27,7 +27,12 @@ export function inputToolsIn(counts: Record<string, number>, inputTools: readonl
   return Object.keys(counts).filter((tool) => inputTools.includes(tool) && counts[tool] > 0);
 }
 
-interface Session { session: any; manifest: string }
+interface Session { session: any; manifest: string; name: string }
+
+/** Only native lease/end errors are recoverable. A denied grant or TCC error never renews. */
+export function sessionLeaseEnded(error: any): boolean {
+  return /authorization context (?:expired|idle timeout exceeded)|session .*has ended|session has ended/i.test(String(error?.inner?.reason ?? error?.message ?? error));
+}
 
 /** A control in the window's own tree (never the menu bar), with the token a press needs. Internal: tokens stay here. */
 interface WindowElement extends LookElement { token: string }
@@ -172,7 +177,7 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
     try { return await work(); } catch (first: any) {
       if (!/expire|idle|lease|ttl/i.test(String(first?.inner?.reason ?? first?.message ?? first))) throw reason(first);
       runtime = null;
-      sessions.clear();
+      for (const key of [...sessions.keys()]) await dropSession(key);
       try { return await work(); } catch (second) { throw reason(second); }
     }
   }
@@ -193,16 +198,25 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
     if (existing) return existing.session;
     const { cua, driver } = await start();
     requireCurrent(threadId, generation);
-    const name = `bimax-${createHash('sha256').update(key).digest('hex').slice(0, 16)}`;
+    const name = `bimax-${createHash('sha256').update(key).digest('hex').slice(0, 16)}-${randomUUID()}`;
     const manifest = path.join(dir(), `${name}.yaml`);
     writeFileSync(manifest, lookManifest(app.bundleId), { mode: 0o600 });
     const session = cua.createTrustedSession(driver, cua.TrustedSessionOptions.create({
       publicSession: name, mode: cua.SessionPermissionMode.Bounded, ttlSeconds: 1800n, idleTtlSeconds: 600n,
       capabilityManifestPath: manifest,
     }));
-    sessions.set(key, { session, manifest });
+    sessions.set(key, { session, manifest, name });
     sessionThread.set(name, threadId);
     return session;
+  }
+
+  async function dropSession(key: string): Promise<void> {
+    const value = sessions.get(key);
+    if (!value) return;
+    sessions.delete(key);
+    try { await value.session.close?.(); } catch { /* expired or already ended */ }
+    sessionThread.delete(value.name);
+    rmSync(value.manifest, { force: true });
   }
 
   async function call(session: any, tool: string, args: Record<string, unknown>): Promise<any> {
@@ -239,19 +253,21 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
   async function useSessionFor(threadId: string, app: RunningApp, generation: number): Promise<any> {
     requireCurrent(threadId, generation);
     const key = `${threadId}|${app.bundleId}|use`;
-    const existing = sessions.get(key);
-    if (existing) return existing.session;
+    // Cards may wait longer than the native two-minute idle lease. Start each approved step with a fresh
+    // bounded context, then read/revalidate its target; never renew or replay after input dispatch.
+    await dropSession(key);
+    requireCurrent(threadId, generation);
     const manifestText = useManifest(app.bundleId); // throws for an app a task never uses
     const { cua, driver } = await start();
     requireCurrent(threadId, generation);
-    const name = `bimax-${createHash('sha256').update(key).digest('hex').slice(0, 16)}`;
+    const name = `bimax-${createHash('sha256').update(key).digest('hex').slice(0, 16)}-${randomUUID()}`;
     const manifest = path.join(dir(), `${name}.yaml`);
     writeFileSync(manifest, manifestText, { mode: 0o600 });
     const session = cua.createTrustedSession(driver, cua.TrustedSessionOptions.create({
       publicSession: name, mode: cua.SessionPermissionMode.Bounded, ttlSeconds: 300n, idleTtlSeconds: 120n,
       capabilityManifestPath: manifest,
     }));
-    sessions.set(key, { session, manifest });
+    sessions.set(key, { session, manifest, name });
     sessionThread.set(name, threadId);
     return session;
   }
@@ -267,7 +283,16 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
 
     async look(threadId: string, app: RunningApp, query?: string) {
       const generation = generations.get(threadId) ?? 0;
-      return withRuntime(() => lookOnce(threadId, app, query, generation));
+      try { return await lookOnce(threadId, app, query, generation); }
+      catch (error) {
+        requireCurrent(threadId, generation);
+        if (!sessionLeaseEnded(error)) throw reason(error);
+        await dropSession(`${threadId}|${app.bundleId}`);
+        requireCurrent(threadId, generation);
+        // Read-only renewal, once. The grant still stands; no input operation goes through this path.
+        try { return await lookOnce(threadId, app, query, generation); }
+        catch (second) { throw reason(second); }
+      }
     },
 
     /**
@@ -519,11 +544,9 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
 
     async end(threadId: string): Promise<void> {
       generations.set(threadId, (generations.get(threadId) ?? 0) + 1);
-      for (const [key, value] of [...sessions]) {
+      for (const key of [...sessions.keys()]) {
         if (!key.startsWith(`${threadId}|`)) continue;
-        sessions.delete(key);
-        try { await value.session.close?.(); } catch { /* already gone */ }
-        rmSync(value.manifest, { force: true });
+        await dropSession(key);
       }
     },
 
@@ -533,19 +556,9 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
   };
 
   async function lookOnce(threadId: string, app: RunningApp, query: string | undefined, generation: number) {
-    let session = await sessionFor(threadId, app, generation);
+    const session = await sessionFor(threadId, app, generation);
     requireCurrent(threadId, generation);
-    let windows: any;
-    try { windows = await call(session, 'list_windows', { pid: app.pid }); }
-    catch (error) {
-      requireCurrent(threadId, generation);
-      // A session past its time is renewed once: the person's grant still stands; only the driver's lease ended.
-      sessions.delete(`${threadId}|${app.bundleId}`);
-      session = await sessionFor(threadId, app, generation);
-      requireCurrent(threadId, generation);
-      windows = await call(session, 'list_windows', { pid: app.pid });
-      void error;
-    }
+    const windows = await call(session, 'list_windows', { pid: app.pid });
     requireCurrent(threadId, generation);
     const all: any[] = Array.isArray(windows.windows) ? windows.windows : [];
     const visible = all.filter((w) => w.is_on_screen && (w.bounds?.width ?? 0) > 60 && (w.bounds?.height ?? 0) > 60);

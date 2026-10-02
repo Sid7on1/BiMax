@@ -57,6 +57,12 @@ Enforced by `src/__tests__/computer.admission.boundary.test.ts` and `scripts/ver
   are quoted as data; long names supply a bounded copyable prefix under the existing unique-prefix rule. Ranking is
   a hint only: the missing request performs zero input, creates no action approval, renews no observation, and logs
   no screen text. Copying a suggestion still meets every exact-target, freshness, build, grant and approval check.
+- **Native session lifecycle (§6h).** Waiting on a card must not reuse an expired native use context: each approved
+  step starts a fresh bounded, app-scoped context before re-reading its exact target. Native labels are unique;
+  retired contexts, manifests and observer mappings are removed. Read-only renewal happens once, only for a native
+  lease/end error, and stays inside the existing Bimax Thread grant and generation. Never replay an input dispatch.
+  Generic permission/lease errors do not prove missing macOS Accessibility; only explicit Accessibility failures
+  receive that guidance. Controlled expiry/denial/revocation and input-count checks must catch broken renewal.
 - **Which build is running (stage 5).** A look names the running executable and its SHA-256, read by the app from the
   process; a step is refused if that executable changed since the read (a rebuild or relaunch), and its receipt
   records the hash of the build it acted on.
