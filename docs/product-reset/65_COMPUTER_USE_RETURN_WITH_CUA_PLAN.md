@@ -689,6 +689,23 @@ Actions 3/3, deep strict verify, engine byte-identical, same signing requirement
 (`evidence/2026-10-02-cu-front-installed/install.json`). No installed run with a model has been made yet; the use switch
 is off until the owner ticks it.
 
+**First installed task with a model (2026-10-02).** The owner ticked "Let Tasks Use Other Apps" and asked for a test
+("play … or send hi to my mom2"). Run 1, "Play the song Espresso by Sabrina Carpenter in the Music app." (a `bimax://task`
+link, `evidence/2026-10-02-cu-stage6-installed-run/run-1.json`): the model (gpt-oss-20b) used no Computer Use tool at
+all — its reasoning: "We are in a terminal environment, not a GUI" — and ran `open -a Music && osascript -e 'tell
+application "Music" to play …'` through BashTool; the person allowed it on the Bash card; macOS refused the AppleScript
+(Automation not granted). Zero Computer Use audit lines. Two defects, fixed in `d91bb81`: (1) the shell guard named only
+the archived tools, so with `PressInAppTool` registered it stayed inert — AppleScript app control and `open -a` are now
+refused and the model pointed at the use tools (`open -g -a` alone is let through, to start a closed app), before any card
+(`refuseBeforeApproval`); (2) nothing told the model it could use other apps — the session prompt now says so.
+
+Run 3, the same prompt on the `d91bb81` build (installed; rollback `Bimax.app.before-cu-shellguard-20261002`): the model
+now used the tools — `list_apps`, a look at Music (the owner allowed it), then `TypeInAppTool` into Music's search box with
+`submit` (from behind; reported typed) — and then pressed a name it made up, "espresso – sabrina carpenter", three times
+(AXCell, AXStaticText, no role); each was refused `not_found`, nothing pressed. Stopped watching there (session usage
+limit). Next: a `not_found` reply that names the closest real controls from the read; then re-run, and the WhatsApp
+"hi" to Mom 2 the owner asked for (the owner sends it on the card).
+
 ## 7. Risks named now
 
 - **Driver drift.** 0.12 → 0.31 rewrote the codebase; a later release can change behaviour again (0.18 did). The
