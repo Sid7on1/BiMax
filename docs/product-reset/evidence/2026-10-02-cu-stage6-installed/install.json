@@ -1,0 +1,22 @@
+{
+ "at": "2026-10-02T08:03:20.920374+00:00",
+ "baseCommit": "74d0a33",
+ "built": "BIMAX_LOCAL_BUILD_DIR=/private/tmp/bimax-cu-stage6/release bash app/scripts/build-local-mac.sh arm64",
+ "installed": "/Applications/Bimax.app",
+ "installedBy": "mv (same device) after quitting Bimax (it was idle)",
+ "rollback": "/Users/vishsiddharth/Developer/bimax-archive/apps/Bimax.app.before-cu-stage6-20261002",
+ "hashes": {
+  "Contents/Resources/app.asar": "0d420d4a8b8e30775adf3531c6a5c054467491ac29a5d919e1fd073e7d2ef0ab",
+  "Contents/Resources/engine/index.js": "57ce5e63b38cb40b4d270d4764b55a5c3de2a530f1f3b15328ed4fef6389e89e",
+  "Contents/Resources/app.asar.unpacked/node_modules/@trycua/cua-driver-darwin-arm64/libcua_driver_sdk.dylib": "c750313b572c68dcb06680bdaa9e66fa480ffed7633ee3f83bfb2363666b95a5",
+  "Contents/Resources/app.asar.unpacked/node_modules/@trycua/cua-driver-darwin-arm64/cua_driver_node_runtime.node": "e5f6052593f8abf8f6e72eb7c4c1f715c51c199d23474e3b7287c1da3cbe1b78"
+ },
+ "notes": [
+  "package gate 4/4 PASS on the built and the installed app; App Actions 3/3 in the built bundle; deep strict codesign verify passed",
+  "the packaged engine is byte-identical to app/engine/index.js: True; it contains ScrollInAppTool and TypeInAppTool",
+  "the installed main bundle has the menu item \"Let Tasks Use Other Apps (Preview)\" and no \"Press Buttons in the Test App\" item",
+  "same designated requirement as the previous install (Bimax Local Code Signing), so the Accessibility grant should carry over",
+  "the new switch is a NEW setting (computerUse): off until the owner ticks it",
+  "icon catalog skipped (Xcode license not agreed), legacy .icns shipped, as in the previous builds"
+ ]
+}

@@ -637,6 +637,13 @@ search, WhatsApp) only act for the front app, so they need a new ability: bring 
 put the person's previous app back (the driver's `delivery_mode: foreground` restores the previous front app). It is
 **not built**: it takes the screen, so it needs the owner's word and its own card. Target until then.
 
+**Installed (2026-10-02, evening).** Built from `74d0a33` with `build-local-mac.sh arm64` (package gate 4/4 on the built
+and the installed app, App Actions 3/3, deep strict verify; the packaged engine byte-identical to the rebuilt bundle;
+same Bimax Local Code Signing requirement, so the Accessibility grant should carry over); the previous app moved to
+`bimax-archive/apps/Bimax.app.before-cu-stage6-20261002`; Bimax was idle when quit and relaunched with its window
+(`evidence/2026-10-02-cu-stage6-installed/install.json`). The new switch "Let Tasks Use Other Apps (Preview)" is a new
+setting and is **off** until the owner ticks it; no installed run with a model has been made yet.
+
 ## 7. Risks named now
 
 - **Driver drift.** 0.12 → 0.31 rewrote the codebase; a later release can change behaviour again (0.18 did). The
