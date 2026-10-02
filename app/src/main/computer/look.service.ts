@@ -256,19 +256,29 @@ export function createLookService(deps: LookServiceDeps) {
   const lastReceipt = new Map<string, PressReceipt>();
   const lastTarget = new Map<string, string>();
 
-  async function find(want: string): Promise<RunningApp | null> {
+  async function find(want: string): Promise<{ target: RunningApp | null; apps: RunningApp[] }> {
     const apps = await (await deps.driver()).runningApps();
     const key = plainName(want).trim().toLowerCase();
     const name = (a: RunningApp) => plainName(a.name).trim().toLowerCase();
-    if (!key) return null;
-    return apps.find((a) => a.bundleId.toLowerCase() === key)
+    const target = !key ? null : apps.find((a) => a.bundleId.toLowerCase() === key)
       ?? apps.find((a) => name(a) === key)
       ?? apps.find((a) => name(a).startsWith(key))
       ?? null;
+    return { target, apps };
   }
 
   /** Never looked at or used, whatever the person answers: Bimax, password and security surfaces, wallets, banks. */
   const neverTouched = (app: RunningApp) => NEVER_LOOK.has(app.bundleId) || !validBundleId(app.bundleId) || isNeverUsed(app.name) || isNeverUsed(app.bundleId);
+
+  function missingApp(want: string, apps: RunningApp[]): string {
+    const words = (s: string) => plainName(s).toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [];
+    const wanted = new Set(words(want));
+    const candidates = apps.filter((a) => !neverTouched(a) && words(a.name).some((word) => wanted.has(word))).slice(0, 5);
+    const hints = candidates.map((a) => `${JSON.stringify(a.name.slice(0, 120))}: LookAtAppTool ${JSON.stringify({ app: a.bundleId })}`);
+    return `No app matched ${JSON.stringify(want)} in the current running-app list. This may be a name mismatch; it does not establish that the app is closed. `
+      + (hints.length ? `Possible names from that list (hints only; no window was read):\n${hints.join('\n')}\n` : '')
+      + 'Use the exact name or bundle id from list_apps. If the intended app is absent, it must be started before looking; launching is not a press or a look.';
+  }
 
   async function handle(threadId: string, msg: HostCallMsg): Promise<HostResultMsg> {
     const result = await answer(threadId, msg);
@@ -316,9 +326,9 @@ export function createLookService(deps: LookServiceDeps) {
 
       const want = String(args.app ?? '').slice(0, 200);
       if (!want.trim()) { c.refused += 1; return fail(msg.id, 'invalid_args', 'Say which app to look at.'); }
-      const target = await find(want);
+      const { target, apps } = await find(want);
       if (!current()) return revoked();
-      if (!target) { c.refused += 1; return fail(msg.id, 'not_found', `No open app is called "${want}". Use list_apps to see what is open.`); }
+      if (!target) { c.refused += 1; return fail(msg.id, 'not_found', missingApp(want, apps)); }
       lastTarget.set(threadId, target.bundleId);
       if (neverTouched(target)) {
         c.refused += 1;
@@ -446,9 +456,9 @@ export function createLookService(deps: LookServiceDeps) {
     if (scrolling && !DIRECTIONS.includes(direction)) return refuse('invalid_args', `Say which way to scroll: up, down, left or right. ${nothing}`);
     if (scrolling && (pages < 1 || pages > MAX_SCROLL_PAGES)) return refuse('invalid_args', `Scroll 1 to ${MAX_SCROLL_PAGES} pages at a time. ${nothing}`);
     try {
-      const target = await find(want);
+      const { target, apps } = await find(want);
       if (!live()) return cancelled();
-      if (!target) return refuse('not_found', `No open app is called "${want}". ${nothing}`);
+      if (!target) return refuse('not_found', `${missingApp(want, apps)} ${nothing}`);
       lastTarget.set(threadId, target.bundleId);
       if (neverTouched(target)) return refuse('denied', `${target.name} is never used by a task: it shows passwords, keys, money or Bimax's own approvals. ${nothing}`);
       const key = `${threadId}|${target.bundleId}`;

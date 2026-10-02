@@ -56,6 +56,33 @@ describe('shell is not a Computer Use channel', () => {
     expect(guiAutomationRefusal('open -g -a Music', CAP).refused).toBe(true);
   });
 
+  it.each([
+    ['open -a Music', "open -g -a 'Music'"],
+    ['open -a "Example Player"', "open -g -a 'Example Player'"],
+    ["open -a 'Musique'", "open -g -a 'Musique'"],
+    ['open -b com.example.player', "open -g -b 'com.example.player'"],
+  ])('refuses %s with a copyable background launch, without executing it', (command, expected) => {
+    const verdict = guiAutomationRefusal(command, 'PressInAppTool');
+    expect(verdict.refused).toBe(true);
+    expect(verdict.reason).toContain('Nothing was launched');
+    const line = verdict.reason!.split('\n').find((s) => s.startsWith('BashTool '))!;
+    const retry = JSON.parse(line.slice('BashTool '.length));
+    expect(retry).toEqual({ command: expected, timeout: 10000 });
+    expect(guiAutomationRefusal(retry.command, 'PressInAppTool').refused).toBe(false);
+    expect(verdict.reason).toContain('usual shell approval and sandbox');
+    expect(verdict.reason).toContain('list_apps again');
+  });
+
+  it.each([
+    'open -a Music && echo extra', 'open -a Music --args --play', 'sudo open -a Music',
+    'open -a "$(touch /tmp/injected)"', 'open -a "Music`date`"', 'open -a "$APP"',
+    'open -a Music\necho extra', 'open -a "Music; echo extra"', "open -a \"User's Player\"",
+  ])('does not construct a replay from shell syntax or extra authority: %s', command => {
+    const verdict = guiAutomationRefusal(command, 'PressInAppTool');
+    expect(verdict.refused).toBe(true);
+    expect(verdict.reason).not.toContain('\nBashTool {');
+  });
+
   it('stays inert when the build has no desktop capability to redirect to', () => {
     const command = `osascript -e 'tell application "Spotify" to play'`;
     expect(guiAutomationRefusal(command, undefined).refused).toBe(false);

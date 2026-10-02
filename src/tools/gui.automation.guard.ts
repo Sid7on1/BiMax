@@ -50,6 +50,17 @@ function howTo(capabilityToolName: string): string {
   return `Call ${capabilityToolName} with the equivalent action (open / click / type / key) and read its returned frame.`;
 }
 
+/** Advice only for a single literal app launch. Never copy shell syntax, arguments or substitutions into a retry. */
+function backgroundLaunchHint(command: string): string | undefined {
+  const match = /^\s*open\s+-(a|b)\s+(?:"([\p{L}\p{N} ._+-]+)"|'([\p{L}\p{N} ._+-]+)'|([\p{L}\p{N}._+-]+))\s*$/u.exec(command);
+  if (!match) return undefined;
+  const app = (match[2] ?? match[3] ?? match[4]).trim();
+  if (!app || app.length > 200 || app.startsWith('-')) return undefined;
+  const retry = `open -g -${match[1]} '${app}'`;
+  return `Nothing was launched. To start this same app without taking focus, request:\nBashTool ${JSON.stringify({ command: retry, timeout: 10000 })}\n`
+    + 'This is a new request, subject to the usual shell approval and sandbox. After it succeeds, list_apps again and look using the returned name or bundle id. A successful launch does not prove playback.';
+}
+
 /** Synthetic input drivers that reach the window server. */
 const SYNTHETIC_INPUT = new RegExp(`${COMMAND_START}(?:sudo\\s+)?cliclick\\b`, 'i');
 
@@ -81,6 +92,10 @@ export function guiAutomationRefusal(
       : SYNTHETIC_INPUT.test(text) ? 'synthetic keyboard/mouse input'
         : null;
   if (!matched) return { refused: false };
+
+  const launchHint = capabilityToolName === 'PressInAppTool' && matched === 'launching an application with open -a/-b'
+    ? backgroundLaunchHint(text) : undefined;
+  if (launchHint) return { refused: true, reason: launchHint };
 
   return {
     refused: true,

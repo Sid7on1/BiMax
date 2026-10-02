@@ -241,6 +241,34 @@ describe('the look service', () => {
     expect(result.error).toContain('Privacy & Security → Accessibility');
   });
 
+  it('an unmatched service name suggests an observed app without reading it or bypassing its card', async () => {
+    const s = setup();
+    const result = await s.call('look', { app: 'Apple Notes' });
+    expect(result).toMatchObject({ ok: false, value: { code: 'not_found' } });
+    expect(result.error).toContain('does not establish that the app is closed');
+    expect(result.error).toContain('LookAtAppTool {"app":"com.apple.Notes"}');
+    expect(s.asked).toEqual([]);
+    expect(s.looks).toEqual([]);
+    expect(s.service.counts('t1')?.inputCalls).toBe(0);
+    const copied = await s.call('look', { app: 'com.apple.Notes' });
+    expect(copied.ok).toBe(true);
+    expect(s.asked).toHaveLength(1);
+    expect(s.looks).toHaveLength(1);
+  });
+
+  it('missing-name guidance never suggests denied apps or claims a launch happened', async () => {
+    const s = setup();
+    const blocked = await s.call('look', { app: 'Apple Bimax' });
+    expect(blocked.error).not.toContain('LookAtAppTool {');
+    expect(blocked.error).not.toContain('ai.bimax.app');
+    const missing = await s.call('look', { app: 'Apple Music' });
+    expect(missing.error).toContain('current running-app list');
+    expect(missing.error).not.toContain('LookAtAppTool {');
+    expect(s.asked).toEqual([]);
+    expect(s.looks).toEqual([]);
+    expect(JSON.stringify(s.audit)).not.toContain('Apple Music');
+  });
+
   it.each(['Permission denied: authorization context expired', "session 'bimax-x' has ended", 'Permission denied: outside the manifest'])('does not invent a TCC diagnosis for %s', async message => {
     const result = await setup({ lookError: new Error(message) }).call('look', { app: 'Notes' });
     expect(result).toMatchObject({ ok: false, value: { code: 'unavailable' } });

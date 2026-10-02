@@ -586,3 +586,12 @@ these are observation degradation, not evidence of TCC denial. Inspected Electro
 `systemPreferences.isTrustedAccessibilityClient(prompt)` and `process.getSystemVersion()`; Bimax uses `false`, only after
 an admitted failed look, and chooses the settings label from the actual OS version. No SDK code copied or dependency
 changed. Record 65 and `evidence/2026-10-02-cu-permission-diagnosis/` preserve the failure trace and limitations.
+
+## 2026-10-02 — installed closed-Music recovery failure
+
+Local evidence only: saved Bimax Thread `6055c9bd-83e2-4de2-94cf-f32695321999`, 10:52 UTC,
+and the installed archive/engine hashes matching the previous diagnosis install. Music's bundle id was absent from
+discovery, the shell rejected `open -a Music`, and the model did not try the already-permitted background launch.
+No Music window was read or input dispatched. This is a model recovery failure, not new evidence of TCC denial or
+background search failure. The source correction and bounded tests/mutants are in record 65 and
+`evidence/2026-10-02-cu-launch-recovery/`; no external platform claim or competitor source is introduced.

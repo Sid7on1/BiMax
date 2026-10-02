@@ -825,6 +825,31 @@ unverified; this correction is locally verified and is not a release qualificati
 package gate 4/4, App Actions 3/3, deep strict signature and matching engine verified. The installed archive/engine
 contain the diagnosis and advice. Local designated requirement is unchanged; rollback and hashes are in `install.json`.
 
+**Closed-app/name recovery continuation (2026-10-02, Codex).** The owner's new task
+`6055c9bd-83e2-4de2-94cf-f32695321999` failed before any Music window read. Its returned running-app
+list contained no `com.apple.Music`; a look at “Apple Music” failed, `open -a Music` was refused before execution,
+and a look at “Music” failed. The model ignored the existing background-launch instruction and asked the owner
+to open Music. Installed archive/engine hashes matched the permission-diagnosis install and PID 99261 was running.
+The saved “completed” summary is not playback evidence. No missing-permission diagnosis occurred in this attempt.
+
+Implemented: a refusal of one literal `open -a/-b <app>` in a use-enabled task now supplies a copyable **background**
+BashTool request for the same literal app. It executes nothing, rewrites no command automatically, adds no launch
+capability to the driver, and keeps shell approval/sandbox checks. Compound commands, arguments, sudo, substitutions,
+quotes requiring shell interpretation and unsafe name characters get no constructed retry. The advice says to
+rediscover the running name/bundle id after launch and never treats launch success as playback.
+Missing-app replies distinguish an unmatched name from proof of a closed app and suggest up to five eligible observed
+names with exact bundle-id look requests when a name word overlaps. Suggestions read no window, renew no observation,
+and bypass no grant; protected apps are excluded. No alias is automatically authorized and no per-app workflow is added.
+
+Local checks: eight suites, 322 tests, app/engine typechecks passed; three behavior mutants caught (no launch hint,
+unsafe launch hint, advertising a protected app). Action/revocation checks and installation checkpoint are in
+`evidence/2026-10-02-cu-launch-recovery/`. The first failed run is preserved with unrelated running-app names omitted.
+Guided by README, 05/07/08, Mac Buddy vision, competitive evaluation rules and M02. Music playback, live model recovery,
+WhatsApp's owner-only Send and Stage 6 release qualification remain unverified. Installation status is recorded in
+that folder. Installed and reopened with matching engine bytes, verified recovery strings, deep strict signature,
+unchanged local designated requirement, package gate 4/4 and App Actions 3/3. A fresh installed run 6 is prepared;
+the owner must click Start and answer its cards. A successful local build/test does not change these end-state limits.
+
 ## 7. Risks named now
 
 - **Driver drift.** 0.12 → 0.31 rewrote the codebase; a later release can change behaviour again (0.18 did). The

@@ -58,7 +58,11 @@ Enforced by `src/__tests__/computer.admission.boundary.test.ts` and `scripts/ver
   a hint only: the missing request performs zero input, creates no action approval, renews no observation, and logs
   no screen text. Copying a suggestion still meets every exact-target, freshness, build, grant and approval check.
 - **Tool recovery contract (§6h).** Omitted look action may default only to read-only looking at an explicit app;
-  missing app or explicit invalid actions refuse. Copyable target/search retry hints use actual re-read controls and
+  missing app or explicit invalid actions refuse. Missing-app names are not proof that an app is closed; suggestions
+  use only eligible observed running apps, never auto-authorize an alias. A single literal foreground shell launch
+  may return copyable background-launch advice for the same app, without executing it or skipping shell approval/sandbox.
+  No constructed retry copies compound shell syntax, arguments or substitutions; driver launch remains denied.
+  Copyable target/search retry hints use actual re-read controls and
   leave foreground and commit cards intact. Never suggest replay of an unchanged Return in a non-search box or of
   uncertain input; never execute a suggested retry automatically. Live model compliance requires independent grading.
 - **Native session lifecycle (§6h).** Waiting on a card must not reuse an expired native use context: each approved
