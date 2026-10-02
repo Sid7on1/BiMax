@@ -1,0 +1,285 @@
+{
+ "kind": "live-real-apps-scripted",
+ "startedAt": "2026-10-02T08:28:27.662Z",
+ "apps": [
+  "music"
+ ],
+ "steps": [
+  {
+   "step": "music: look",
+   "ok": true,
+   "code": null,
+   "ms": 4999,
+   "error": null,
+   "resultLines": 243,
+   "cards": [
+    "Let this task use Music?"
+   ],
+   "frontBefore": "Muse",
+   "frontAfter": "Muse",
+   "pointerMoved": true
+  },
+  {
+   "step": "music: search with Return, from behind",
+   "ok": true,
+   "code": null,
+   "ms": 19522,
+   "error": null,
+   "resultLines": 43,
+   "cards": [],
+   "frontBefore": "Muse",
+   "frontAfter": "Muse",
+   "pointerMoved": true
+  },
+  {
+   "step": "music: look after the search from behind",
+   "ok": true,
+   "code": null,
+   "ms": 5055,
+   "error": null,
+   "resultLines": 244,
+   "cards": [],
+   "frontBefore": "Muse",
+   "frontAfter": "Bimax",
+   "pointerMoved": true
+  },
+  {
+   "step": "music: search with Return, brought forward",
+   "ok": false,
+   "code": "uncertain",
+   "ms": 12736,
+   "error": "Bimax sent the text but cannot tell whether it landed (type_text incomplete: delivered 0 of 7 character(s) via foreground keystrokes (30ms delay); retry only the remaining suffix). Look at the window before doing anything else, and do not type it again to make sure.\nBimax brought Music forward for t",
+   "resultLines": 1,
+   "cards": [
+    "Bring Music forward for a moment?"
+   ],
+   "frontBefore": "Bimax",
+   "frontAfter": "Muse",
+   "pointerMoved": false
+  },
+  {
+   "step": "music: look after the search in front",
+   "ok": true,
+   "code": null,
+   "ms": 5724,
+   "error": null,
+   "resultLines": 243,
+   "cards": [],
+   "frontBefore": "Muse",
+   "frontAfter": "Muse",
+   "pointerMoved": false
+  }
+ ],
+ "cards": [
+  {
+   "question": "Let this task use Music?",
+   "options": [
+    "Allow using Music",
+    "Only look",
+    "Not now"
+   ],
+   "answer": "Allow using Music",
+   "bodyHasTypedText": null,
+   "body": "Bimax will read Music's front window and may press its buttons and type into its text boxes, in the background, without moving your pointer. Before anything is sent, posted, bought, deleted or confirmed it stops and asks you, showing exactly what. This is for this task only; stopping the task ends it."
+  },
+  {
+   "question": "Bring Music forward for a moment?",
+   "options": [
+    "Bring Music forward once",
+    "Not now"
+   ],
+   "answer": "Bring Music forward once",
+   "bodyHasTypedText": null,
+   "body": "Some apps only respond to the app in front. For one step — type into “Flowers” — Bimax brings Music to the front for about 3 seconds, then puts Muse back. Please don't type until it has. Bimax asks every time."
+  }
+ ],
+ "notes": [],
+ "start": {
+  "front": "Muse",
+  "pointer": {
+   "x": 807,
+   "y": 629
+  }
+ },
+ "audit": [
+  {
+   "at": "2026-10-02T08:28:32.868Z",
+   "threadId": "probe-real-apps",
+   "op": "look",
+   "bundleId": "com.apple.Music",
+   "ok": true,
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 0,
+    "asked": 1,
+    "presses": 0,
+    "typings": 0,
+    "picks": 0,
+    "scrolls": 0,
+    "inputCalls": 0
+   }
+  },
+  {
+   "at": "2026-10-02T08:28:52.398Z",
+   "threadId": "probe-real-apps",
+   "op": "type",
+   "bundleId": "com.apple.Music",
+   "ok": true,
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 0,
+    "asked": 1,
+    "presses": 0,
+    "typings": 1,
+    "picks": 0,
+    "scrolls": 0,
+    "inputCalls": 2
+   },
+   "receipt": {
+    "actionId": "17012163-c994-4711-b34c-aaa8b0a3ab36",
+    "action": "type",
+    "role": "AXTextField",
+    "labelHash": "3b00b32d64af",
+    "windowId": 1870,
+    "lookAgeMs": 877,
+    "asked": null,
+    "outcome": "typed",
+    "textHash": "a3b6cb52ce98",
+    "textLength": 7,
+    "submitted": true
+   }
+  },
+  {
+   "at": "2026-10-02T08:28:59.486Z",
+   "threadId": "probe-real-apps",
+   "op": "look",
+   "bundleId": "com.apple.Music",
+   "ok": true,
+   "counts": {
+    "lists": 0,
+    "looks": 2,
+    "refused": 0,
+    "asked": 1,
+    "presses": 0,
+    "typings": 1,
+    "picks": 0,
+    "scrolls": 0,
+    "inputCalls": 2
+   }
+  },
+  {
+   "at": "2026-10-02T08:29:12.232Z",
+   "threadId": "probe-real-apps",
+   "op": "type",
+   "bundleId": "com.apple.Music",
+   "ok": false,
+   "code": "uncertain",
+   "counts": {
+    "lists": 0,
+    "looks": 2,
+    "refused": 1,
+    "asked": 2,
+    "presses": 0,
+    "typings": 1,
+    "picks": 0,
+    "scrolls": 0,
+    "inputCalls": 3
+   },
+   "receipt": {
+    "actionId": "2d848c22-a598-40d0-83c8-24b38eb2c660",
+    "action": "type",
+    "role": "AXTextField",
+    "labelHash": "a3b6cb52ce98",
+    "windowId": 1870,
+    "lookAgeMs": 858,
+    "asked": null,
+    "outcome": "uncertain",
+    "textHash": "a3b6cb52ce98",
+    "textLength": 7,
+    "front": {
+     "asked": true,
+     "before": "Muse",
+     "after": "Muse",
+     "restored": true
+    }
+   }
+  },
+  {
+   "at": "2026-10-02T08:29:19.984Z",
+   "threadId": "probe-real-apps",
+   "op": "look",
+   "bundleId": "com.apple.Music",
+   "ok": true,
+   "counts": {
+    "lists": 0,
+    "looks": 3,
+    "refused": 1,
+    "asked": 2,
+    "presses": 0,
+    "typings": 1,
+    "picks": 0,
+    "scrolls": 0,
+    "inputCalls": 3
+   }
+  }
+ ],
+ "musicWindow": {
+  "ok": true,
+  "roles": {
+   "AXOutline": 1,
+   "AXDisclosureTriangle": 1,
+   "AXButton": 67,
+   "AXOpaqueProviderGroup": 1,
+   "AXMenuButton": 28,
+   "AXHeading": 3,
+   "AXSlider": 1,
+   "AXTextField": 1,
+   "AXRadioButton": 2
+  },
+  "pressable": 94,
+  "named": 105,
+  "playPressable": true,
+  "searchBoxes": 1,
+  "songShownBefore": false,
+  "searchBehind": {
+   "ok": true,
+   "code": null,
+   "songFound": false
+  },
+  "searchFront": {
+   "ok": false,
+   "code": "uncertain",
+   "songFound": false
+  }
+ },
+ "driverActivity": {
+  "authorized": {
+   "list_windows": 3,
+   "get_window_state": 9,
+   "set_value": 2,
+   "click": 1
+  },
+  "refused": {}
+ },
+ "serviceCounts": {
+  "lists": 0,
+  "looks": 3,
+  "refused": 1,
+  "asked": 2,
+  "presses": 0,
+  "typings": 1,
+  "picks": 0,
+  "scrolls": 0,
+  "inputCalls": 3
+ },
+ "end": {
+  "front": "Muse",
+  "pointer": {
+   "x": 948,
+   "y": 728
+  }
+ },
+ "finishedAt": "2026-10-02T08:29:20.004Z"
+}

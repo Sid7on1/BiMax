@@ -65,8 +65,14 @@ export interface LookDriver {
   runningApps(): Promise<RunningApp[]>;
   /** The app's front window, read only, in a session scoped to that app for this Thread. */
   look(threadId: string, app: RunningApp, query?: string): Promise<{ title: string; markdown: string; windowId?: number; elements?: LookElement[]; partial?: boolean }>;
-  /** One press of one control, in a use session for that app. */
-  press?(threadId: string, app: RunningApp, target: PressTarget): Promise<PressOutcome>;
+  /** One press of one control, in a use session for that app; `front`: with the app brought forward for it (ability 4). */
+  press?(threadId: string, app: RunningApp, target: PressTarget, front?: boolean): Promise<PressOutcome>;
+  /** Ability 4: empty one box, then type into it with the app brought forward for a moment. */
+  typeFront?(threadId: string, app: RunningApp, target: PressTarget, text: string): Promise<TypeOutcome>;
+  /** Ability 4: a real Return keystroke into one box, with the app brought forward for a moment. */
+  returnFront?(threadId: string, app: RunningApp, target: PressTarget & { at?: string }): Promise<PressOutcome>;
+  /** Which app is in front now, by name (null: unknown). */
+  frontApp?(): Promise<string | null>;
   /** One typing into one box, in a use session for that app. */
   type?(threadId: string, app: RunningApp, target: PressTarget, text: string): Promise<TypeOutcome>;
   /** Return in one box (its AX confirm), found by role and position when `at` is given. */
@@ -136,6 +142,8 @@ export interface PressReceipt {
   textLength?: number;
   /** Typing with Return: whether Return was pressed. */
   submitted?: boolean;
+  /** Ability 4: the app was brought forward for this step — whether its own card asked, and whether the front app came back. */
+  front?: { asked: boolean; before: string | null; after?: string | null; restored?: boolean };
   /** Stage 5: the build that was acted on — the SHA-256 of the running executable, and its process. */
   exeSha256?: string;
   pid?: number;
@@ -150,6 +158,7 @@ const PRESS = (label: string) => `Press “${label}”`;
 const DONT_PRESS = 'Don’t press';
 const REPLACE = 'Replace it';
 const DONT_TYPE = 'Don’t type';
+const BRING = (name: string) => `Bring ${name} forward once`;
 const RETURN = 'Press Return';
 const DONT_RETURN = 'Don’t press Return';
 const CHOOSE = (option: string) => `Choose “${option}”`;
@@ -406,6 +415,9 @@ export function createLookService(deps: LookServiceDeps) {
       if (text.length > MAX_TYPE_CHARS) return refuse('invalid_args', `At most ${MAX_TYPE_CHARS} characters at a time. ${nothing}`);
     }
     const submit = typing && args.submit === true;
+    // Ability 4: this one step with the app brought forward for a moment, on the person's card — never by itself.
+    const front = args.front === true;
+    if (front && (scrolling || picking)) return refuse('invalid_args', `Bringing an app forward is for one press or one typing; scrolling and choosing work from behind. ${nothing}`);
     const direction = String(args.direction ?? '') as ScrollDirection;
     const pages = Number.isInteger(args.pages) ? Number(args.pages) : 1;
     if (scrolling && !DIRECTIONS.includes(direction)) return refuse('invalid_args', `Say which way to scroll: up, down, left or right. ${nothing}`);
@@ -491,6 +503,14 @@ export function createLookService(deps: LookServiceDeps) {
         ...(typing ? { textHash: hash(text), textLength: text.length } : picking ? { textHash: hash(option), textLength: option.length } : {}),
       };
       lastReceipt.set(threadId, receipt);
+      // Which app is in front now: the one Bimax promises to put back.
+      const frontBefore = front ? ((await (await deps.driver()).frontApp?.()) ?? null) : null;
+      if (front && !live()) return cancelled();
+      const backTo = frontBefore && frontBefore !== target.name ? frontBefore : 'your current app';
+      const frontLine = front
+        ? `To do this Bimax brings ${target.name} to the front for about 3 seconds, then puts ${backTo} back. Please don't type until it has.`
+        : '';
+      if (front) receipt.front = { asked: false, before: frontBefore };
 
       // Does the person need to see this step first? Only from what the app's tree says and what Bimax did here.
       if (typing) {
@@ -507,11 +527,12 @@ export function createLookService(deps: LookServiceDeps) {
             `Replace the text in “${quote(el.label, 80)}” in ${target.name}?`,
             [REPLACE, DONT_TYPE],
             `The box already holds text Bimax did not type: “${quote(existing)}”.\nTyping replaces all of it with: “${quote(text)}”.\n` +
-            `Stopping the task before then cancels it.`,
+            `${frontLine ? `${frontLine}\n` : ''}Stopping the task before then cancels it.`,
           );
           if (!live()) return cancelled();
           if (answer !== REPLACE) { receipt.outcome = 'denied'; return refuse('denied', `The person did not let this task replace that text. ${nothing} Ask them what to do.`); }
           stepsSinceCard.set(threadId, 0);
+          if (receipt.front) receipt.front.asked = true;
         }
       } else if (picking) {
         // The item is what happens: "Delete" in a pop-up commits as surely as a Delete button. The pop-up's own name counts too.
@@ -547,7 +568,9 @@ export function createLookService(deps: LookServiceDeps) {
             look.title ? `Window: “${quote(look.title, 120)}”.` : '',
             state.lastOpened ? `Bimax last opened here: “${quote(state.lastOpened, 120)}”.` : '',
             state.typed ? `Text Bimax typed in “${quote(state.typed.field, 80)}”, as the box reads now: ${typedNow === null ? '(Bimax could not read it back)' : `“${quote(typedNow)}”`}.` : '',
-            'It presses once, in the background, without moving your pointer. It checks the window first and presses nothing if it changed. Stopping the task before then cancels it.',
+            front
+              ? `${frontLine} It presses once, without moving your pointer. It checks the window first and presses nothing if it changed. Stopping the task before then cancels it.`
+              : 'It presses once, in the background, without moving your pointer. It checks the window first and presses nothing if it changed. Stopping the task before then cancels it.',
           ].filter(Boolean);
           const answer = await deps.ask(threadId, `Press “${el.label}” in ${target.name}?`, [PRESS(el.label), DONT_PRESS], lines.join('\n'));
           if (!live()) return cancelled();
@@ -556,10 +579,31 @@ export function createLookService(deps: LookServiceDeps) {
             return refuse('denied', `The person did not let this task press “${el.label}”. Nothing was pressed. Do not press it again; ask them what to do.`);
           }
           stepsSinceCard.set(threadId, 0);
+          if (receipt.front) receipt.front.asked = true;
         }
       }
+      // Ability 4: bringing the app forward takes the person's screen, so it is asked every time — on the step's own card
+      // when it had one (above), or on this one.
+      if (front && receipt.front && !receipt.front.asked) {
+        c.asked += 1;
+        const step = typing ? `type into “${quote(el.label, 80)}”` : `press “${quote(el.label, 80)}”`;
+        const answer = await deps.ask(
+          threadId,
+          `Bring ${target.name} forward for a moment?`,
+          [BRING(target.name), DENY],
+          `Some apps only respond to the app in front. For one step — ${step} — Bimax brings ${target.name} to the front for about ` +
+          `3 seconds, then puts ${backTo} back. Please don't type until it has. Bimax asks every time.`,
+        );
+        if (!live()) return cancelled();
+        if (answer !== BRING(target.name)) {
+          receipt.outcome = 'denied';
+          return refuse('denied', `The person did not let this task bring ${target.name} forward. ${nothing} Do not ask again for this step; tell them it needs ${target.name} in front.`);
+        }
+        receipt.front.asked = true;
+        stepsSinceCard.set(threadId, 0);
+      }
       // A long run of unasked steps stops for a word from the person.
-      if (receipt.asked === null && (stepsSinceCard.get(threadId) ?? 0) >= KEEP_GOING_EVERY) {
+      if (receipt.asked === null && !receipt.front && (stepsSinceCard.get(threadId) ?? 0) >= KEEP_GOING_EVERY) {
         receipt.asked = 'keep_going';
         c.asked += 1;
         const answer = await deps.ask(
@@ -587,12 +631,12 @@ export function createLookService(deps: LookServiceDeps) {
       }
       const driver = await deps.driver();
       if (!live()) return cancelled();
-      if (typing ? !driver.type : scrolling ? !driver.scroll : picking ? !driver.pick : !driver.press) return refuse('unavailable', `This Bimax cannot do that step. ${nothing}`);
+      if (typing ? !(front ? driver.typeFront : driver.type) : scrolling ? !driver.scroll : picking ? !driver.pick : !driver.press) return refuse('unavailable', `This Bimax cannot do that step. ${nothing}`);
       const boundTo: PressTarget = { windowId: look.windowId, role: el.role, label: el.label };
-      if (typing) return await typeStep(threadId, msg, c, current, live, refuse, cancelled, driver, target, key, state, el, boundTo, text, receipt, look, submit);
+      if (typing) return await typeStep(threadId, msg, c, current, live, refuse, cancelled, driver, target, key, state, el, boundTo, text, receipt, look, submit, front, frontLine);
       if (scrolling) return await scrollStep(threadId, msg, c, current, live, refuse, cancelled, driver, target, key, el, boundTo, direction, pages, receipt, look);
       if (picking) return await pickStep(threadId, msg, c, current, live, refuse, cancelled, driver, target, key, el, boundTo, option, receipt, look);
-      return await pressStep(threadId, msg, c, current, live, refuse, cancelled, driver, target, key, state, el, boundTo, receipt, look);
+      return await pressStep(threadId, msg, c, current, live, refuse, cancelled, driver, target, key, state, el, boundTo, receipt, look, front);
     } catch (error) {
       if (!live()) return cancelled();
       const detail = error instanceof Error ? error.message : String(error);
@@ -609,13 +653,30 @@ export function createLookService(deps: LookServiceDeps) {
     return true;
   }
 
+  /**
+   * After a step that brought the app forward: is the person's app back in front? Read from the driver's own app list,
+   * said plainly either way; Bimax never moves apps around to put it right.
+   */
+  async function frontReport(driver: LookDriver, receipt: PressReceipt, appName: string): Promise<string> {
+    if (!receipt.front) return '';
+    const after = (await driver.frontApp?.()) ?? null;
+    const before = receipt.front.before;
+    receipt.front.after = after;
+    receipt.front.restored = before !== null && after === before;
+    if (before === null || after === null) return `\nBimax brought ${appName} forward for this step; it could not tell which app is in front now.`;
+    return after === before
+      ? `\nBimax brought ${appName} forward for this step and put ${before} back in front.`
+      : `\n${before} did not come back to the front: ${after} is in front now. Tell the person; do not try to move apps around.`;
+  }
+
   async function pressStep(
     threadId: string, msg: HostCallMsg, c: LookCounts, current: () => boolean, live: () => boolean, refuse: Refuse, cancelled: () => HostResultMsg,
     driver: LookDriver, target: RunningApp, key: string, state: AppState, el: LookElement, boundTo: PressTarget, receipt: PressReceipt, look: Observation,
+    front = false,
   ): Promise<HostResultMsg> {
     let outcome: PressOutcome;
     try {
-      outcome = await driver.press!(threadId, target, boundTo);
+      outcome = front ? await driver.press!(threadId, target, boundTo, true) : await driver.press!(threadId, target, boundTo);
     } catch (error) {
       // Thrown means before the click: nothing was pressed.
       if (!live()) return cancelled();
@@ -630,9 +691,10 @@ export function createLookService(deps: LookServiceDeps) {
       return refuse('stale', `The window changed since you read it: “${el.label}” is not there just once any more. Nothing was pressed. Look again.`);
     }
     c.inputCalls += 1;
+    const frontNote = await frontReport(driver, receipt, target.name);
     if (outcome.kind === 'uncertain') {
       receipt.outcome = 'uncertain';
-      return refuse('uncertain', `Bimax sent the press but cannot tell whether it happened (${outcome.detail}). Look at the window before doing anything else, and do not press it again to make sure.`);
+      return refuse('uncertain', `Bimax sent the press but cannot tell whether it happened (${outcome.detail}). Look at the window before doing anything else, and do not press it again to make sure.${frontNote}`);
     }
     c.presses += 1;
     const asked = receipt.asked !== null && receipt.asked !== 'keep_going';
@@ -645,22 +707,23 @@ export function createLookService(deps: LookServiceDeps) {
     if (!current()) return refuse('not_permitted', `“${el.label}” was pressed; then the task was stopped or looking was turned off, so the window is not shown.`);
     const reread = rebind(key, look.windowId, outcome.title || look.title, outcome.elements, look.exe);
     if (!changed) {
-      return refuse('no_effect', `Pressed “${el.label}”, but nothing in the window changed. It may not have worked. Look again before trying anything else; do not press it again to make sure.`);
+      return refuse('no_effect', `Pressed “${el.label}”, but nothing in the window changed. It may not have worked${front ? '' : ' (some apps only respond to the app in front: the person can let Bimax bring it forward — press again with "front": true)'}. Look again before trying anything else.${frontNote}`);
     }
     const build = receipt.exeSha256 ? ` — the running build with executable SHA-256 ${receipt.exeSha256}, process ${target.pid}` : '';
     const header = `Pressed “${el.label}” in ${target.name}${outcome.title ? ` (window “${outcome.title}”)` : ''}${build}. What changed in the window:`;
     const body = changes.length ? changes.join('\n') : '(it changed, but no readable line did)';
-    return { t: 'host_result', id: msg.id, ok: true, value: { text: `${header}\n${body}${reread ? `\n${NEXT_STEP}` : ''}` } };
+    return { t: 'host_result', id: msg.id, ok: true, value: { text: `${header}\n${body}${frontNote}${reread ? `\n${NEXT_STEP}` : ''}` } };
   }
 
   async function typeStep(
     threadId: string, msg: HostCallMsg, c: LookCounts, current: () => boolean, live: () => boolean, refuse: Refuse, cancelled: () => HostResultMsg,
     driver: LookDriver, target: RunningApp, key: string, state: AppState, el: LookElement, boundTo: PressTarget, text: string, receipt: PressReceipt, look: Observation,
-    submit = false,
+    submit = false, front = false, frontLine = '',
   ): Promise<HostResultMsg> {
     let outcome: TypeOutcome;
     try {
-      outcome = await driver.type!(threadId, target, boundTo, text);
+      // Brought forward: the box is emptied, then typed into as keystrokes, and the person's app put back (ability 4).
+      outcome = front ? await driver.typeFront!(threadId, target, boundTo, text) : await driver.type!(threadId, target, boundTo, text);
     } catch (error) {
       if (!live()) return cancelled();
       const detail = error instanceof Error ? error.message : String(error);
@@ -670,10 +733,11 @@ export function createLookService(deps: LookServiceDeps) {
     if (outcome.kind === 'not_typed') {
       receipt.outcome = 'not_pressed';
       if (outcome.reason === 'ambiguous') return refuse('ambiguous', `The window now has more than one box “${el.label}”. Nothing was typed. Look again.`);
-      if (outcome.reason === 'refused') return refuse('stale', `The typing was refused before it was sent (${outcome.detail ?? 'the driver said no'}). Nothing was typed. This box may not take typing in the background.`);
+      if (outcome.reason === 'refused') return refuse('stale', `The typing was refused before it was sent (${outcome.detail ?? 'the driver said no'}). Nothing was typed.${front ? '' : ' This box may not take typing in the background.'}`);
       return refuse('stale', `The window changed since you read it: the box “${el.label}” is not there just once any more. Nothing was typed. Look again.`);
     }
     c.inputCalls += 1;
+    const frontNote = await frontReport(driver, receipt, target.name);
     // Whatever landed, a box that is not for searching now holds text Bimax put there: the next press in this app asks.
     const searching = el.searchBox === true || isSearchBox(el.role, el.label);
     const landed = outcome.kind === 'typed' ? outcome.value : null;
@@ -681,7 +745,7 @@ export function createLookService(deps: LookServiceDeps) {
     state.ownText = { role: el.role, ...(el.at !== undefined ? { at: el.at } : {}), value: landed };
     if (outcome.kind === 'uncertain') {
       receipt.outcome = 'uncertain';
-      return refuse('uncertain', `Bimax sent the text but cannot tell whether it landed (${outcome.detail}). Look at the window before doing anything else, and do not type it again to make sure.`);
+      return refuse('uncertain', `Bimax sent the text but cannot tell whether it landed (${outcome.detail}). Look at the window before doing anything else, and do not type it again to make sure.${frontNote}`);
     }
     if (receipt.asked === null) stepsSinceCard.set(threadId, (stepsSinceCard.get(threadId) ?? 0) + 1);
     if (!current()) { receipt.outcome = 'uncertain'; return refuse('not_permitted', 'The text was sent to the box; then the task was stopped or looking was turned off, so the window is not shown.'); }
@@ -694,12 +758,12 @@ export function createLookService(deps: LookServiceDeps) {
       const unchanged = outcome.value === (el.value ?? '');
       receipt.outcome = unchanged ? 'no_effect' : 'mismatch';
       return refuse(unchanged ? 'no_effect' : 'uncertain', unchanged
-        ? `The text did not land: the box still reads “${quote(outcome.value)}”. This box may not take typing in the background. Nothing else was tried.`
-        : `The box reads “${quote(outcome.value)}”, not the text Bimax typed. Look at it before doing anything else.`);
+        ? `The text did not land: the box still reads “${quote(outcome.value)}”.${front ? '' : ' This box may not take typing in the background: the person can let Bimax bring the app forward — type again with "front": true.'} Nothing else was tried.${frontNote}`
+        : `The box reads “${quote(outcome.value)}”, not the text Bimax typed. Look at it before doing anything else.${frontNote}`);
     }
     c.typings += 1;
     receipt.outcome = 'typed';
-    const header = `Typed into “${el.label}” in ${target.name}${outcome.title ? ` (window “${outcome.title}”)` : ''}. The box now reads exactly: “${quote(outcome.value, 600)}”.`;
+    const header = `Typed into “${el.label}” in ${target.name}${outcome.title ? ` (window “${outcome.title}”)` : ''}. The box now reads exactly: “${quote(outcome.value, 600)}”.${frontNote}`;
     if (!submit) {
       const note = searching ? '' : '\nNothing was sent: the next press in this app is shown to the person first, with this text.';
       return { t: 'host_result', id: msg.id, ok: true, value: { text: `${header}${note}${reread ? `\n${NEXT_STEP}` : ''}` } };
@@ -715,19 +779,23 @@ export function createLookService(deps: LookServiceDeps) {
         look.title ? `Window: “${quote(look.title, 120)}”.` : '',
         state.lastOpened ? `Bimax last opened here: “${quote(state.lastOpened, 120)}”.` : '',
         `The box reads now: “${quote(outcome.value)}”.`,
-        'It presses Return once, in the box, in the background, without moving your pointer. Stopping the task before then cancels it.',
+        front
+          ? `${frontLine} It presses Return once, in the box, without moving your pointer. Stopping the task before then cancels it.`
+          : 'It presses Return once, in the box, in the background, without moving your pointer. Stopping the task before then cancels it.',
       ].filter(Boolean);
       const answer = await deps.ask(threadId, `Press Return in “${quote(el.label, 80)}” in ${target.name}?`, [RETURN, DONT_RETURN], lines.join('\n'));
       if (!live()) return refuse('not_permitted', `Typed into “${el.label}”; Return was not pressed, because the task stopped or using other apps was turned off. Nothing was sent.`);
       if (answer !== RETURN) return refuse('denied', `Typed into “${el.label}”, but the person did not let this task press Return. Nothing was sent. Do not press Return again; ask them what to do.`);
       stepsSinceCard.set(threadId, 0);
     }
-    if (!driver.confirm) return refuse('unavailable', `Typed into “${el.label}”; this Bimax cannot press Return. Nothing was sent.`);
+    if (front ? !driver.returnFront : !driver.confirm) return refuse('unavailable', `Typed into “${el.label}”; this Bimax cannot press Return. Nothing was sent.`);
     // The box is found again by where it starts: typing renamed it if the app names it by its text.
     observations.delete(key);
     let confirmed: PressOutcome;
     try {
-      confirmed = await driver.confirm(threadId, target, { windowId: look.windowId, role: el.role, label: outcome.value, ...(el.at !== undefined ? { at: el.at } : {}) });
+      // In front, Return is a real keystroke (measured: Music runs its search from nothing else); behind, the box's AX confirm.
+      const box = { windowId: look.windowId, role: el.role, label: outcome.value, ...(el.at !== undefined ? { at: el.at } : {}) };
+      confirmed = front ? await driver.returnFront!(threadId, target, box) : await driver.confirm!(threadId, target, box);
     } catch (error) {
       if (!live()) return refuse('not_permitted', `Typed into “${el.label}”; Return was not pressed, because the task stopped. Nothing was sent.`);
       const detail = error instanceof Error ? error.message : String(error);
@@ -737,6 +805,7 @@ export function createLookService(deps: LookServiceDeps) {
       return refuse('stale', `Typed into “${el.label}”, but the box changed before Return, so Return was not pressed (${confirmed.detail ?? confirmed.reason}). Look again.`);
     }
     c.inputCalls += 1;
+    const returnNote = front ? await frontReport(driver, receipt, target.name) : '';
     if (confirmed.kind === 'uncertain') {
       return refuse('uncertain', `Typed into “${el.label}” and sent Return, but Bimax cannot tell whether it happened (${confirmed.detail}). Look before doing anything else; do not press Return again to make sure.`);
     }
@@ -746,9 +815,9 @@ export function createLookService(deps: LookServiceDeps) {
     const again = rebind(key, look.windowId, confirmed.title || look.title, confirmed.elements, look.exe);
     const changes = changedLines(outcome.after, confirmed.after);
     if (renderLook(outcome.after).text === renderLook(confirmed.after).text) {
-      return refuse('no_effect', `Typed into “${el.label}” and pressed Return, but nothing in the window changed yet. Look again before doing anything else; do not press Return again to make sure.`);
+      return refuse('no_effect', `Typed into “${el.label}” and pressed Return, but nothing in the window changed yet.${front ? '' : ' Some apps only take Return from the app in front: the person can let Bimax bring it forward — type again with "front": true.'} Look again before doing anything else.${returnNote}`);
     }
-    return { t: 'host_result', id: msg.id, ok: true, value: { text: `${header}\nThen pressed Return in it. What changed in the window:\n${changes.length ? changes.join('\n') : '(it changed, but no readable line did)'}${again ? `\n${NEXT_STEP}` : ''}` } };
+    return { t: 'host_result', id: msg.id, ok: true, value: { text: `${header}\nThen pressed Return in it. What changed in the window:\n${changes.length ? changes.join('\n') : '(it changed, but no readable line did)'}${returnNote}${again ? `\n${NEXT_STEP}` : ''}` } };
   }
 
   async function pickStep(

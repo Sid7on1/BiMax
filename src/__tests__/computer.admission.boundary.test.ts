@@ -159,8 +159,9 @@ describe('Computer Use admission boundary (record 65 stages 2, 3 and 6; was the 
       expect(manifest).toContain(`'${tool}'`);
     }
     expect(manifest).toContain("export const LOOK_TOOLS = ['list_apps', 'list_windows', 'get_window_state', 'get_screen_size'] as const;");
-    // Stage 6: three input tools, one app per session, never a password field.
-    expect(manifest).toContain("export const USE_TOOLS = ['click', 'set_value', 'scroll'] as const;");
+    // Stage 6: these input tools, one app per session, never a password field; type_text and press_key only for a step
+    // the person let bring the app forward (ability 4).
+    expect(manifest).toContain("export const USE_TOOLS = ['click', 'set_value', 'scroll', 'type_text', 'press_key'] as const;");
     expect(manifest).toContain("export const PICK_ROLES: ReadonlySet<string> = new Set(['AXPopUpButton']);");
     expect(manifest).toContain("export const TYPE_ROLES: ReadonlySet<string> = new Set(['AXTextField', 'AXTextArea', 'AXComboBox', 'AXSearchField']);");
     expect(manifest).not.toMatch(/TYPE_ROLES[^;]*AXSecureTextField/);
@@ -173,13 +174,22 @@ describe('Computer Use admission boundary (record 65 stages 2, 3 and 6; was the 
     // keystrokes, never the foreground.
     const driver = read('app/src/main/computer/look.driver.ts');
     expect(driver.match(/'click'/g)).toHaveLength(1);
-    expect(driver).toContain("function clickToken(session: any, app: RunningApp, windowId: number, token: string, action: 'press' | 'confirm'): Promise<any> {\n    return call(session, 'click', { pid: app.pid, window_id: windowId, element_token: token, action, delivery_mode: 'background' });");
-    expect(driver.match(/clickToken\(session, app, target\.windowId, matches\[0\]\.token, '(press|confirm)'\)/g)).toHaveLength(2);
+    expect(driver).toContain("function clickToken(session: any, app: RunningApp, windowId: number, token: string, action: 'press' | 'confirm', front = false): Promise<any> {\n    return call(session, 'click', { pid: app.pid, window_id: windowId, element_token: token, action, delivery_mode: front ? 'foreground' : 'background' });");
+    // Only a press may be in front, and only when asked for; Return-by-confirm is always behind.
+    expect(driver).toContain("await clickToken(session, app, target.windowId, matches[0].token, 'press', front);");
+    expect(driver).toContain("await clickToken(session, app, target.windowId, matches[0].token, 'confirm');");
+    // Ability 4: typing as keystrokes and the one key — Return — only in front, only by element token.
+    expect(driver.match(/'type_text'/g)).toHaveLength(1);
+    expect(driver).toContain("await call(session, 'type_text', { pid: app.pid, element_token: box.token, text, delivery_mode: 'foreground' });");
+    expect(driver.match(/'press_key'/g)).toHaveLength(1);
+    expect(driver).toContain("await call(session, 'press_key', { pid: app.pid, window_id: target.windowId, element_token: matches[0].token, key: 'return', delivery_mode: 'foreground' });");
+    expect(driver.match(/key: '/g)).toHaveLength(1);
+    expect(driver.match(/'foreground'/g)).toHaveLength(3);
     expect(driver.match(/'set_value'/g)).toHaveLength(1);
     expect(driver).toContain("return call(session, 'set_value', { pid: app.pid, element_token: token, value });");
     expect(driver.match(/'scroll'/g)).toHaveLength(1);
     expect(driver).toContain("await call(session, 'scroll', { pid: app.pid, element_token: matches[0].token, direction, by: 'page', amount: Math.min(50, Math.max(1, Math.round(pages)) * SCROLL_NOTCHES_PER_PAGE), delivery_mode: 'background' });");
-    expect(driver).not.toMatch(/'(type_text|press_key|hotkey|drag|bring_to_front|launch_app|double_click|right_click|foreground)'/);
+    expect(driver).not.toMatch(/'(hotkey|drag|bring_to_front|launch_app|double_click|right_click|move_cursor)'/);
   });
 
   test('a step meets the governor floors, then the app decides — and the app asks before anything that commits', () => {
@@ -203,13 +213,16 @@ describe('Computer Use admission boundary (record 65 stages 2, 3 and 6; was the 
     // The app's rule runs on every press before the driver is reached; its card answers with exactly one yes.
     const service = read('app/src/main/computer/look.service.ts');
     expect(service).toContain("const reason = commitReasonForPress({ label: el.label, inDialog: el.inDialog === true, typedSinceLastCard: state.typed !== undefined });");
-    expect(service.indexOf('commitReasonForPress(')).toBeLessThan(service.indexOf('outcome = await driver.press!('));
+    expect(service.indexOf('commitReasonForPress(')).toBeLessThan(service.indexOf('await driver.press!('));
     expect(service).toContain('if (answer !== PRESS(el.label)) {');
     // A pick is judged by its item (and the pop-up's own name); Return in a box that is not for searching asks.
     expect(service).toContain('const fromOption = commitReasonForPress({ label: option, inDialog: el.inDialog === true, typedSinceLastCard: typedHere });');
     expect(service).toContain('if (answer !== CHOOSE(option)) {');
     expect(service).toContain("if (!searching) {\n      receipt.asked = 'submit';");
     expect(service).toContain('if (answer !== RETURN) return refuse(');
+    // Ability 4: bringing an app forward is asked every time — on the step's own card, or on its own.
+    expect(service).toContain('if (front && receipt.front && !receipt.front.asked) {');
+    expect(service).toContain('if (answer !== BRING(target.name)) {');
     const rule = read('app/src/main/computer/look.commit.ts');
     for (const word of ["'send'", "'pay'", "'buy'", "'delete'", "'confirm'", "'ok'", "'allow'", "'submit'", "'transfer'"]) expect(rule).toContain(word);
     expect(rule).toContain("if (!/[a-z]/.test(foldName(step.label))) return { kind: 'unreadable' };");

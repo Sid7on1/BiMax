@@ -1,0 +1,12 @@
+{
+ "kind": "live-driver-scripted",
+ "mutant": null,
+ "startedAt": "2026-10-02T08:31:04.755Z",
+ "steps": [],
+ "cards": [],
+ "failures": [
+  "threw: Error: Command failed: python3 /Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-02-cu-stage6/scripts/read_fixture6.py\nTraceback (most recent call last):\n  File \"/Users/vishsiddharth/Bimax/docs/product-reset/evidence/2026-10-02-cu-stage6/scripts/read_fixture6.py\", line 8, in <module>\n    pid = int(subprocess.run(['pgrep', '-f', 'BimaxCuFixture.app/Contents/MacOS/bimax-cu-fixture'], capture_output=True, text=True).stdout.split()[0])\n              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^\nIndexError: list index out of range\n\n    at genericNodeError (node:internal/errors:985:15)\n    at wrappedFn (node:internal/errors:539:14)\n    at checkExecSyncError (node:child_process:939:11)\n    at execFileSync (node:child_process:975:15)\n    at func (node:electron/js2c/node_init:2:2625)\n    at readFixture (/Users/vishsiddharth/Bimax/app/scripts/computer/prove-use-driver.js:70:27)\n    at /Users/vishsiddharth/Bimax/app/scripts/computer/prove-use-driver.js:102:45\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)"
+ ],
+ "finishedAt": "2026-10-02T08:31:05.002Z",
+ "result": "FAIL — 1 check(s) failed"
+}

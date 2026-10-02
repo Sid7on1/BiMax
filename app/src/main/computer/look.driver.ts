@@ -209,9 +209,13 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
     return parse(await session.callTool(tool, JSON.stringify(args)));
   }
 
-  /** The one way anything is clicked: an AX action on an element token, in the background — never coordinates. */
-  function clickToken(session: any, app: RunningApp, windowId: number, token: string, action: 'press' | 'confirm'): Promise<any> {
-    return call(session, 'click', { pid: app.pid, window_id: windowId, element_token: token, action, delivery_mode: 'background' });
+  /**
+   * The one way anything is clicked: an AX action on an element token — never coordinates. In the background, unless
+   * the person allowed this one step to bring the app forward (§6h, ability 4): then the driver fronts the window, acts,
+   * and puts the previous front app back.
+   */
+  function clickToken(session: any, app: RunningApp, windowId: number, token: string, action: 'press' | 'confirm', front = false): Promise<any> {
+    return call(session, 'click', { pid: app.pid, window_id: windowId, element_token: token, action, delivery_mode: front ? 'foreground' : 'background' });
   }
 
   /** The one way a value is set: an AX value write on an element token — a text box's text, or a pop-up's item. */
@@ -271,7 +275,7 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
      * could press twice. Everything before the click throws (nothing was pressed); everything after it is returned,
      * with the window as read afterwards — what the next step is bound to.
      */
-    async press(threadId: string, app: RunningApp, target: PressTarget): Promise<PressOutcome> {
+    async press(threadId: string, app: RunningApp, target: PressTarget, front = false): Promise<PressOutcome> {
       const generation = generations.get(threadId) ?? 0;
       const session = await useSessionFor(threadId, app, generation);
       requireCurrent(threadId, generation);
@@ -284,7 +288,7 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
       // The last moment a Stop or a switch turned off can cancel it: nothing has been sent yet.
       requireCurrent(threadId, generation);
       try {
-        await clickToken(session, app, target.windowId, matches[0].token, 'press');
+        await clickToken(session, app, target.windowId, matches[0].token, 'press', front);
       } catch (error: any) {
         const text = String(error?.inner?.reason ?? error?.message ?? error);
         // Refused by the driver before dispatch (a stale token, outside the manifest): nothing was pressed.
@@ -393,6 +397,98 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
         kind: 'typed', title: String(before.window_title ?? ''), before: String(before.tree_markdown ?? ''), after: String(after.tree_markdown ?? ''),
         value: again.length === 1 ? (again[0].value ?? '') : null, elements: shown(windowElements(after.elements)),
       };
+    },
+
+    /**
+     * Ability 4 (§6h): type with the app brought forward for a moment — for apps that take no text from the background
+     * (measured: Music runs no search from a background value). The box is emptied first by an AX value write and read
+     * back without its old text; then the driver fronts the window, types the text as keystrokes into that box, and puts the previous
+     * front app back. The box is read back by role and position. Never retried. No line break ever reaches it.
+     */
+    async typeFront(threadId: string, app: RunningApp, target: PressTarget, text: string): Promise<TypeOutcome> {
+      if (/[\r\n\u2028\u2029]/.test(text)) return { kind: 'not_typed', reason: 'refused', detail: 'a line break' };
+      const generation = generations.get(threadId) ?? 0;
+      const session = await useSessionFor(threadId, app, generation);
+      requireCurrent(threadId, generation);
+      const before = await call(session, 'get_window_state', { pid: app.pid, window_id: target.windowId, include_screenshot: false, timeout_ms: READ_TIMEOUT_MS });
+      const matches = windowElements(before.elements).filter((e) => e.role === target.role && e.label === target.label);
+      if (matches.length !== 1 || !matches[0].editable || !matches[0].token) {
+        return { kind: 'not_typed', reason: matches.length > 1 ? 'ambiguous' : 'changed' };
+      }
+      let box = matches[0];
+      requireCurrent(threadId, generation);
+      if ((box.value ?? '') !== '') {
+        try { await setValueToken(session, app, box.token, ''); } catch (error: any) {
+          return { kind: 'not_typed', reason: 'refused', detail: `could not empty the box first: ${String(error?.inner?.reason ?? error?.message ?? error).slice(0, 160)}` };
+        }
+        const emptied = await call(session, 'get_window_state', { pid: app.pid, window_id: target.windowId, include_screenshot: false, timeout_ms: READ_TIMEOUT_MS });
+        const again = windowElements(emptied.elements).filter((e) => e.role === box.role && box.at !== undefined && e.at === box.at);
+        // Emptied means the old text is gone — not that the box reads "": some show a word when empty (measured: Music's
+        // search box reads "Apple Music"). The exact read-back after typing is what proves the result.
+        if (again.length !== 1 || (again[0].value ?? '') === (box.value ?? '') || !again[0].token) return { kind: 'not_typed', reason: 'refused', detail: 'the box did not empty' };
+        box = again[0];
+        requireCurrent(threadId, generation);
+      }
+      // Emptying a box is the whole step when there is no text: nothing is brought forward for it.
+      if (text !== '') try {
+        await call(session, 'type_text', { pid: app.pid, element_token: box.token, text, delivery_mode: 'foreground' });
+      } catch (error: any) {
+        const reasonText = String(error?.inner?.reason ?? error?.message ?? error);
+        if (/stale|supersed|not allowed|denied|refus|outside|not permitted/i.test(reasonText)) return { kind: 'not_typed', reason: 'refused', detail: reasonText.slice(0, 200) };
+        return { kind: 'uncertain', detail: reasonText.slice(0, 200) };
+      }
+      let after = before;
+      let value: string | null = null;
+      for (const wait of [200, 400, 600]) {
+        await sleep(wait);
+        try { after = await call(session, 'get_window_state', { pid: app.pid, window_id: target.windowId, include_screenshot: false, timeout_ms: READ_TIMEOUT_MS }); }
+        catch { break; }
+        const again = windowElements(after.elements).filter((e) => e.role === box.role && box.at !== undefined && e.at === box.at);
+        value = again.length === 1 ? (again[0].value ?? '') : null;
+        if (value === text) break;
+      }
+      return {
+        kind: 'typed', title: String(before.window_title ?? ''), before: String(before.tree_markdown ?? ''), after: String(after.tree_markdown ?? ''),
+        value, elements: shown(windowElements(after.elements)),
+      };
+    },
+
+    /**
+     * Ability 4: Return as a real keystroke into one box, with the app brought forward for a moment (measured: Music's
+     * search runs only from a real Return — not its AX confirm, in front or behind). The only key ever sent, and only
+     * here; the box is found by role and position.
+     */
+    async returnFront(threadId: string, app: RunningApp, target: PressTarget & { at?: string }): Promise<PressOutcome> {
+      const generation = generations.get(threadId) ?? 0;
+      const session = await useSessionFor(threadId, app, generation);
+      requireCurrent(threadId, generation);
+      const before = await call(session, 'get_window_state', { pid: app.pid, window_id: target.windowId, include_screenshot: false, timeout_ms: READ_TIMEOUT_MS });
+      const matches = windowElements(before.elements).filter((e) => e.role === target.role && (target.at !== undefined ? e.at === target.at : e.label === target.label));
+      if (matches.length !== 1 || !matches[0].editable || !matches[0].token) {
+        return { kind: 'not_pressed', reason: matches.length > 1 ? 'ambiguous' : 'changed' };
+      }
+      requireCurrent(threadId, generation);
+      try {
+        await call(session, 'press_key', { pid: app.pid, window_id: target.windowId, element_token: matches[0].token, key: 'return', delivery_mode: 'foreground' });
+      } catch (error: any) {
+        const text = String(error?.inner?.reason ?? error?.message ?? error);
+        if (/stale|supersed|not allowed|denied|refus|outside|not permitted/i.test(text)) return { kind: 'not_pressed', reason: 'refused', detail: text.slice(0, 200) };
+        return { kind: 'uncertain', detail: text.slice(0, 200) };
+      }
+      const after = await readUntilChanged(session, app, target.windowId, before);
+      return {
+        kind: 'pressed', title: String(before.window_title ?? ''), before: String(before.tree_markdown ?? ''), after: String(after.tree_markdown ?? ''),
+        elements: shown(windowElements(after.elements)),
+      };
+    },
+
+    /** Which app is in front now, by name, from the driver's own app list (its `active` flag) — or null. */
+    async frontApp(): Promise<string | null> {
+      try {
+        const data = await withRuntime(async () => { const { driver } = await start(); return parse(await driver.callTool('list_apps', '{}')); });
+        const active = (Array.isArray(data.apps) ? data.apps : []).find((a: any) => a && a.active === true);
+        return active ? String(active.name ?? active.bundle_id).replace(/\p{Cf}/gu, '').trim() : null;
+      } catch { return null; }
     },
 
     /**

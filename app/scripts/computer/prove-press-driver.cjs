@@ -38,6 +38,12 @@ const MUTANTS = {
   'pick-any-role': ['look.driver.ts', 'if (matches.length !== 1 || !matches[0].pickable || !matches[0].token) {', 'if (matches.length !== 1 || !matches[0].token) {'],
   // Scroll: sent in the foreground.
   'scroll-foreground': ['look.driver.ts', "amount: Math.min(50, Math.max(1, Math.round(pages)) * SCROLL_NOTCHES_PER_PAGE), delivery_mode: 'background' });", "amount: Math.min(50, Math.max(1, Math.round(pages)) * SCROLL_NOTCHES_PER_PAGE), delivery_mode: 'foreground' });"],
+  // Ability 4: typing in front without first emptying the box (the old text would stay in front of the new).
+  'type-front-no-empty': ['look.driver.ts', "if (again.length !== 1 || (again[0].value ?? '') === (box.value ?? '') || !again[0].token) return { kind: 'not_typed', reason: 'refused', detail: 'the box did not empty' };", ''],
+  // Ability 4: typing sent from behind although the step was to be in front.
+  'type-front-behind': ['look.driver.ts', "await call(session, 'type_text', { pid: app.pid, element_token: box.token, text, delivery_mode: 'foreground' });", "await call(session, 'type_text', { pid: app.pid, element_token: box.token, text, delivery_mode: 'background' });"],
+  // Ability 4: a key other than Return.
+  'any-key': ['look.driver.ts', "key: 'return', delivery_mode: 'foreground' });", "key: 'enter', delivery_mode: 'foreground' });"],
   // Scroll: an error is retried.
   'scroll-retry': ['look.driver.ts', "await call(session, 'scroll', { pid: app.pid, element_token: matches[0].token, direction, by: 'page', amount: Math.min(50, Math.max(1, Math.round(pages)) * SCROLL_NOTCHES_PER_PAGE), delivery_mode: 'background' });", "try { await call(session, 'scroll', { pid: app.pid, element_token: matches[0].token, direction, by: 'page', amount: Math.min(50, Math.max(1, Math.round(pages)) * SCROLL_NOTCHES_PER_PAGE), delivery_mode: 'background' }); } catch { await call(session, 'scroll', { pid: app.pid, element_token: matches[0].token, direction, by: 'page', amount: Math.min(50, Math.max(1, Math.round(pages)) * SCROLL_NOTCHES_PER_PAGE), delivery_mode: 'background' }); }"],
 };
@@ -87,6 +93,15 @@ const SCENARIOS = [
   { name: 'pick-unknown-item', pick: 'Tenth', expect: { kind: 'not_typed', reason: 'refused', sets: 1, token: 's1:68' } },
   { name: 'pick-not-a-pop-up', pick: 'Second', pickTarget: TARGET, expect: { kind: 'not_typed', reason: 'changed', sets: 0 } },
   // Scroll: the wheel over one row, by token, in the background; never retried.
+  // Ability 4: one step with the app brought forward — a press, typing (the box emptied first), Return as a keystroke.
+  { name: 'press-front', elements: [WINDOW, button()], afterStatus: 'presses=1', front: true, expect: { kind: 'pressed', clicks: 1, unchanged: false, delivery: 'foreground' } },
+  { name: 'type-front', typeFront: 'running late', box: 'old draft', expect: { kind: 'typed', sets: 1, typeTexts: 1, value: 'running late' } },
+  { name: 'type-front-box-will-not-empty', typeFront: 'running late', box: 'old draft', ignoreSet: true, expect: { kind: 'not_typed', reason: 'refused', sets: 1, typeTexts: 0 } },
+  { name: 'type-front-line-break', typeFront: 'one\ntwo', box: '', expect: { kind: 'not_typed', reason: 'refused', sets: 0, typeTexts: 0 } },
+  // A box that shows a word when empty (measured: Music's search box reads "Apple Music"): emptied all the same.
+  { name: 'type-front-placeholder', typeFront: 'Levitating', box: 'Blinding Lights', emptyShows: 'Apple Music', expect: { kind: 'typed', sets: 1, typeTexts: 1, value: 'Levitating' } },
+  { name: 'type-front-empty-text', typeFront: '', box: 'old draft', expect: { kind: 'typed', sets: 1, typeTexts: 0, value: '' } },
+  { name: 'return-front', returnFront: true, box: 'blinding lights', expect: { kind: 'pressed', keys: 1 } },
   { name: 'scroll', scroll: { direction: 'down', pages: 2 }, expect: { kind: 'pressed', scrolls: 1, unchanged: false, amount: 10 } },
   { name: 'scroll-row-gone', scroll: { direction: 'down', pages: 1 }, scrollTarget: { windowId: 1228, role: 'AXRow', label: 'Row 99' }, expect: { kind: 'not_pressed', reason: 'changed', scrolls: 0 } },
   { name: 'scroll-unknown', scroll: { direction: 'up', pages: 1 }, scrollError: 'the request timed out', expect: { kind: 'uncertain', scrolls: 1, amount: 5 } },
@@ -108,7 +123,7 @@ async function main() {
   const { createLookDriver } = require(compiled);
   const results = [];
   for (const scenario of SCENARIOS) {
-    const state = { calls: [], clicks: [], sets: [], scrolls: [], sessions: 0, manifests: [], scenario, status: 'presses=0', box: scenario.box ?? '', offset: 0, popup: 'First', confirmed: false, onRead: null };
+    const state = { calls: [], clicks: [], sets: [], scrolls: [], typeTexts: [], keys: [], sessions: 0, manifests: [], scenario, status: 'presses=0', box: scenario.box ?? '', offset: 0, popup: 'First', confirmed: false, onRead: null };
     globalThis[key] = state;
     const appPath = path.join(temp, scenario.name);
     const sdkDir = path.join(appPath, 'node_modules/@trycua/cua-driver/dist');
@@ -134,7 +149,7 @@ async function main() {
             const popup = { element_index: 68, parent_index: 62, role: 'AXPopUpButton', label: 'First', value: state.popup, actions: ['AXShowMenu', 'AXPress'], frame: { x: 582, y: 332, w: 145, h: 23 } };
             const base = sc.pick !== undefined ? [{ element_index: 62, role: 'AXWindow', label: 'Bimax-Cu Fixture' }, popup, ${'{'} element_index: 63, parent_index: 62, role: 'AXButton', label: 'Fixture Button', actions: ['AXPress'], enabled: true }]
               : sc.scroll !== undefined ? [{ element_index: 62, role: 'AXWindow', label: 'Bimax-Cu Fixture' }, ...rows]
-              : sc.type === undefined && !sc.confirm ? sc.elements : [
+              : sc.type === undefined && sc.typeFront === undefined && !sc.confirm && !sc.returnFront ? sc.elements : [
               ${'{'} element_index: 62, role: 'AXWindow', label: 'Bimax-Cu Fixture' },
               ...(sc.noBox ? [] : [sc.secure ? { ...(${box.toString()})(state.box), role: 'AXSecureTextField' } : { ...(${box.toString()})(state.box), ...(sc.disabled ? { enabled: false } : {}) }]),
               ...(sc.twoBoxes ? [{ ...(${box.toString()})(''), element_index: 66, frame: { x: 219, y: 300, w: 300, h: 26 } }] : []),
@@ -143,6 +158,16 @@ async function main() {
             ];
             const elements = base.map((e) => ({ ...e, element_token: 's' + state.calls.length + ':' + e.element_index }));
             return { structuredJson: JSON.stringify({ window_title: 'Bimax-Cu Fixture', elements, tree_markdown: (${tree.toString()})(state.status) + '\\n  - offset=' + state.offset + ' popup=' + state.popup + ' confirmed=' + state.confirmed }) };
+          }
+          if (tool === 'type_text') {
+            state.typeTexts.push(args);
+            state.box = (state.scenario.emptyShows && state.box === state.scenario.emptyShows ? '' : state.box) + args.text;
+            return { structuredJson: '{}' };
+          }
+          if (tool === 'press_key') {
+            state.keys.push(args);
+            state.confirmed = true;
+            return { structuredJson: '{}' };
           }
           if (tool === 'scroll') {
             state.scrolls.push(args);
@@ -159,7 +184,7 @@ async function main() {
           if (tool === 'set_value') {
             state.sets.push(args);
             if (state.scenario.setError) return { isError: true, text: state.scenario.setError };
-            if (!state.scenario.ignoreSet) state.box = args.value;
+            if (!state.scenario.ignoreSet) state.box = args.value === '' && state.scenario.emptyShows ? state.scenario.emptyShows : args.value;
             return { structuredJson: '{}' };
           }
           if (tool === 'click') {
@@ -179,16 +204,33 @@ async function main() {
     const POPUP_TARGET = { windowId: 1228, role: 'AXPopUpButton', label: 'First' };
     const act = scenario.type !== undefined ? driver.type('t1', scenario.app || FIXTURE, BOX_TARGET, scenario.type)
       // The box was typed into: it is named by its text now, so it is asked for by where it starts.
+      : scenario.typeFront !== undefined ? driver.typeFront('t1', scenario.app || FIXTURE, { ...BOX_TARGET, label: scenario.box || 'Compose message' }, scenario.typeFront)
+      : scenario.returnFront ? driver.returnFront('t1', scenario.app || FIXTURE, { ...BOX_TARGET, at: '219,371' })
       : scenario.confirm ? driver.confirm('t1', scenario.app || FIXTURE, { ...BOX_TARGET, at: '219,371' })
       : scenario.pick !== undefined ? driver.pick('t1', scenario.app || FIXTURE, scenario.pickTarget || POPUP_TARGET, scenario.pick)
       : scenario.scroll !== undefined ? driver.scroll('t1', scenario.app || FIXTURE, scenario.scrollTarget || ROWS_TARGET, scenario.scroll.direction, scenario.scroll.pages)
-      : driver.press('t1', scenario.app || FIXTURE, scenario.target || TARGET);
+      : driver.press('t1', scenario.app || FIXTURE, scenario.target || TARGET, scenario.front === true);
     const outcome = await act.then((value) => ({ value }), (error) => ({ thrown: error.message }));
     const e = scenario.expect;
     const label = `${scenario.name}:`;
     assert.equal(state.clicks.length, e.clicks ?? 0, `${label} clicked ${state.clicks.length} times, expected ${e.clicks ?? 0}`);
     assert.equal(state.sets.length, e.sets ?? 0, `${label} set ${state.sets.length} values, expected ${e.sets ?? 0}`);
     assert.equal(state.scrolls.length, e.scrolls ?? 0, `${label} scrolled ${state.scrolls.length} times, expected ${e.scrolls ?? 0}`);
+    assert.equal(state.typeTexts.length, e.typeTexts ?? 0, `${label} typed as keystrokes ${state.typeTexts.length} times, expected ${e.typeTexts ?? 0}`);
+    assert.equal(state.keys.length, e.keys ?? 0, `${label} sent ${state.keys.length} keys, expected ${e.keys ?? 0}`);
+    for (const typed of state.typeTexts) {
+      // Keystrokes only in front, only into the box by a token from a read in this session, and only into an empty box.
+      assert.deepEqual(Object.keys(typed).sort(), ['delivery_mode', 'element_token', 'pid', 'text'], `${label} type_text args`);
+      assert.equal(typed.delivery_mode, 'foreground', `${label} type_text only in front`);
+      assert.match(typed.element_token, /^s\d+:65$/, `${label} type_text into the box`);
+      assert.doesNotMatch(typed.text, /[\r\n]/, `${label} no line break`);
+    }
+    if (scenario.typeFront !== undefined && e.typeTexts) assert.equal(state.sets[0]?.value, '', `${label} the box is emptied before typing in front`);
+    for (const key of state.keys) {
+      assert.deepEqual(Object.keys(key).sort(), ['delivery_mode', 'element_token', 'key', 'pid', 'window_id'], `${label} press_key args`);
+      assert.equal(key.key, 'return', `${label} the only key is Return`);
+      assert.equal(key.delivery_mode, 'foreground', `${label} Return as a key only in front`);
+    }
     for (const scroll of state.scrolls) {
       // Only ever the wheel over one element, by a token from this session's own fresh read, in the background.
       assert.deepEqual(Object.keys(scroll).sort(), ['amount', 'by', 'delivery_mode', 'direction', 'element_token', 'pid'], `${label} scroll args`);
@@ -208,7 +250,7 @@ async function main() {
     for (const click of state.clicks) {
       // Only ever an AX press by a token from this session's own fresh read: no coordinates, no foreground.
       assert.deepEqual(Object.keys(click).sort(), ['action', 'delivery_mode', 'element_token', 'pid', 'window_id'], `${label} click args`);
-      assert.equal(click.action, e.action ?? 'press', `${label} click action`); assert.equal(click.delivery_mode, 'background');
+      assert.equal(click.action, e.action ?? 'press', `${label} click action`); assert.equal(click.delivery_mode, e.delivery ?? 'background', `${label} click delivery`);
       assert.match(click.element_token, /^s1:/, `${label} the token must come from the read just before the click`);
     }
     for (const set of state.sets) {
@@ -217,9 +259,9 @@ async function main() {
       assert.equal(set.element_token, e.token ?? 's1:65', `${label} the token must be the box's (or the pop-up's), from the read just before`);
     }
     for (const manifest of state.manifests) {
-      assert.match(manifest, /allow:\n {2}tools: \[list_apps, list_windows, get_window_state, get_screen_size, click, set_value, scroll\]/, `${label} use manifest allows`);
-      assert.doesNotMatch(manifest.split('deny:')[1], /\bclick\b|\bset_value\b|, scroll\b/, `${label} use manifest denies none of them`);
-      assert.match(manifest.split('deny:')[1], /type_text, set_value|type_text, press_key|press_key, hotkey/, `${label} use manifest denies keys`);
+      assert.match(manifest, /allow:\n {2}tools: \[list_apps, list_windows, get_window_state, get_screen_size, click, set_value, scroll, type_text, press_key\]/, `${label} use manifest allows`);
+      assert.doesNotMatch(manifest.split('deny:')[1], /\bclick\b|\bset_value\b|, scroll\b|\btype_text\b|\bpress_key\b/, `${label} use manifest denies none of them`);
+      assert.match(manifest.split('deny:')[1], /\bhotkey\b/, `${label} use manifest denies shortcuts`);
       assert.match(manifest, new RegExp(`bundle_id: ${(scenario.app || FIXTURE).bundleId.replace(/\./g, '\\.')}`), `${label} use manifest names the one app`);
     }
     results.push({ scenario: scenario.name, outcome: outcome.thrown ? { thrown: outcome.thrown } : { kind: outcome.value.kind, reason: outcome.value.reason, value: outcome.value.value }, calls: state.calls, clicks: state.clicks.length, sets: state.sets.length, scrolls: state.scrolls.length, sessions: state.sessions });

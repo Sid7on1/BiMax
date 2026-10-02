@@ -11,10 +11,12 @@
  *
  *   npx electron scripts/computer/probe-real-apps.js --apps music,whatsapp --out <evidence.json>
  *
- * Music:    look → type a song's name into the search box with Return (a search box: no card) → what came up.
- * WhatsApp: look → scroll the chat list (no card) until the row of the person's own chat ("(You)") shows, at most 12
- *           pages → open it → type one line into the message box (no card, read back) → press "Send": the card must
- *           appear, naming the typed text; answered Don’t press → clear the box (Bimax's own text: no card).
+ * Music:    look → search with Return from behind → if nothing came up, again with the app brought forward (its card,
+ *           answered yes) → press the song's row (it plays) → press Pause. Graded by the re-reads.
+ * WhatsApp: look → New Chat from behind, then brought forward if nothing changed → find the person's own chat in that
+ *           panel (scrolling it if needed) → open it (a press in a panel: its card, answered yes) → type one line into
+ *           the message box (brought forward if it did not land) → press "Send": its card, answered Don’t press → clear
+ *           the box. If the own chat is not found, the panel is closed. Nothing is ever sent.
  */
 const { app, screen } = require('electron');
 const { execFileSync } = require('node:child_process');
@@ -109,42 +111,70 @@ app.whenReady().then(async () => {
       const search = last.filter((e) => e.editable && e.searchBox);
       evidence.musicWindow.searchBoxes = search.length;
       if (search.length === 1) {
-        const before = new Set(last.map((e) => `${e.role}|${e.label}`));
-        const q = await step('music: search with Return', 'type', 'type', { app: 'Music', field: search[0].label, role: search[0].role, text: 'Blinding Lights', submit: true });
-        await new Promise((r) => setTimeout(r, 2500));
-        await step('music: look at the results', 'look', 'look', { app: 'Music' });
-        const fresh = last.filter((e) => !before.has(`${e.role}|${e.label}`));
-        // A public catalogue, not the person's data: the first new controls are kept to show what a search brings up.
-        evidence.musicWindow.afterSearch = { ok: q.r.ok, code: q.rec.code, newControls: fresh.length, sample: fresh.slice(0, 15).map((e) => `${e.role} ${e.label}`.slice(0, 80)) };
+        // A song the window does not show yet, so "found" can only come from this search.
+        const SONG = arg('song', 'Levitating');
+        const ARTIST = arg('artist', 'Dua Lipa');
+        const isSong = (e) => e.pressable && e.label.startsWith(`${SONG}, Song`) && e.label.includes(ARTIST);
+        evidence.musicWindow.songShownBefore = last.some(isSong);
+        const box = search[0];
+        const q1 = await step('music: search with Return, from behind', 'type', 'type', { app: 'Music', field: box.label, role: box.role, text: SONG, submit: true });
+        await new Promise((r) => setTimeout(r, 2000));
+        await step('music: look after the search from behind', 'look', 'look', { app: 'Music' });
+        let song = last.find(isSong);
+        evidence.musicWindow.searchBehind = { ok: q1.r.ok, code: q1.rec.code, songFound: !!song };
+        if (!song) {
+          const box2 = last.find((e) => e.editable && e.searchBox && e.role === box.role && e.at === box.at);
+          if (box2) {
+            const q2 = await step('music: search with Return, brought forward', 'type', 'type', { app: 'Music', field: box2.label, role: box2.role, text: SONG, submit: true, front: true });
+            await new Promise((r) => setTimeout(r, 2000));
+            await step('music: look after the search in front', 'look', 'look', { app: 'Music' });
+            song = last.find(isSong);
+            evidence.musicWindow.searchFront = { ok: q2.r.ok, code: q2.rec.code, songFound: !!song };
+          }
+        }
+        if (song) {
+          const play = await step('music: press the song', 'press', 'press', { app: 'Music', control: song.label, role: song.role });
+          await new Promise((r) => setTimeout(r, 1500));
+          await step('music: look while it plays', 'look', 'look', { app: 'Music' });
+          const pause = last.find((e) => e.pressable && /^pause$/i.test(e.label));
+          evidence.musicWindow.playing = { ok: play.r.ok, code: play.rec.code, pauseShown: !!pause };
+          if (pause) {
+            const stop = await step('music: press Pause', 'press', 'press', { app: 'Music', control: pause.label, role: pause.role });
+            evidence.musicWindow.paused = { ok: stop.r.ok, playShown: last.some((e) => e.pressable && /^play$/i.test(e.label)) };
+          }
+        }
       } else evidence.notes.push(`music: ${search.length} search boxes in the window read`);
     }
     if (apps.includes('whatsapp')) {
       const { r } = await step('whatsapp: look', 'look', 'look', { app: 'WhatsApp' });
       evidence.whatsappWindow = { ok: r.ok, roles: roles(last), pressable: last.filter((e) => e.pressable).length, editable: last.filter((e) => e.editable).length, named: last.length };
-      const isSelf = (e) => e.pressable && /\((you|yo|vous|du)\)|message yourself/i.test(e.label);
-      let self = last.find(isSelf);
-      // Scroll the chat list down, a page at a time, at a chat row, until the person's own chat shows.
-      let scrolled = 0;
-      while (!self && scrolled < 12) {
-        const rows = last.filter((e) => e.role === 'AXButton' && e.pressable && e.label.length < 80);
-        const anchor = rows[Math.floor(rows.length / 2)];
-        if (!anchor) break;
-        secrets.add(anchor.label);
-        const sc = await step(`whatsapp: scroll the chat list (${scrolled + 1})`, 'scroll', 'scroll', { app: 'WhatsApp', control: anchor.label, role: anchor.role, direction: 'down', pages: 1 });
-        scrolled += 1;
-        if (!sc.r.ok) break;
+      const plain = (t) => String(t).replace(/\p{Cf}/gu, '').trim();
+      const isSelf = (e) => e.pressable && /\((you|yo|vous|du)\)|message yourself/i.test(plain(e.label));
+      let self;
+      const newChat = last.find((e) => e.pressable && /^new chat$/i.test(plain(e.label)));
+      if (newChat) {
+        let nc = await step('whatsapp: New Chat, from behind', 'press', 'press', { app: 'WhatsApp', control: newChat.label, role: newChat.role });
+        if (!nc.r.ok && nc.rec.code === 'no_effect') {
+          await step('whatsapp: look again', 'look', 'look', { app: 'WhatsApp' });
+          const again = last.find((e) => e.pressable && /^new chat$/i.test(plain(e.label)));
+          if (again) nc = await step('whatsapp: New Chat, brought forward', 'press', 'press', { app: 'WhatsApp', control: again.label, role: again.role, front: true });
+        }
+        evidence.whatsappWindow.newChat = { ok: nc.r.ok, code: nc.rec.code, sheet: last.some((e) => e.inDialog) };
         self = last.find(isSelf);
-      }
-      evidence.whatsappWindow.scrolledPages = scrolled;
-      // Not among the recent chats: New Chat lists the person's own chat near the top.
-      if (!self) {
-        const plain = (t) => String(t).replace(/\p{Cf}/gu, '').trim();
-        const look2 = await step('whatsapp: look again', 'look', 'look', { app: 'WhatsApp' });
-        const newChat = look2.r.ok ? last.find((e) => e.pressable && /^new chat$/i.test(plain(e.label))) : undefined;
-        if (newChat) {
-          const nc = await step('whatsapp: open New Chat', 'press', 'press', { app: 'WhatsApp', control: newChat.label, role: newChat.role });
-          self = nc.r.ok ? last.find(isSelf) : undefined;
-          evidence.whatsappWindow.newChat = { ok: nc.r.ok, roles: roles(last), selfFound: !!self, editable: last.filter((e) => e.editable).length };
+        // The own chat may be further down the panel's list.
+        for (let page = 0; !self && nc.r.ok && page < 6; page++) {
+          const rows = last.filter((e) => e.inDialog && e.pressable && e.label.length < 80 && !/^(close|new group|new community|new contact)$/i.test(plain(e.label)));
+          const anchor = rows[Math.floor(rows.length / 2)];
+          if (!anchor) break;
+          secrets.add(anchor.label);
+          const sc = await step(`whatsapp: scroll the panel (${page + 1})`, 'scroll', 'scroll', { app: 'WhatsApp', control: anchor.label, role: anchor.role, direction: 'down', pages: 1 });
+          if (!sc.r.ok) break;
+          self = last.find(isSelf);
+        }
+        evidence.whatsappWindow.selfInPanel = !!self;
+        if (!self && nc.r.ok) {
+          const close = last.find((e) => e.pressable && /^close$/i.test(plain(e.label)));
+          if (close) await step('whatsapp: close the panel', 'press', 'press', { app: 'WhatsApp', control: close.label, role: close.role });
         }
       }
       evidence.whatsappWindow.selfChatRow = self ? self.role : null;
@@ -157,8 +187,14 @@ app.whenReady().then(async () => {
         if (open.r.ok && boxes.length === 1) {
           const text = `Bimax test, not sent ${Date.now() % 1000}`;
           const box = boxes[0];
-          const typed = await step('whatsapp: type into the message box', 'type', 'type', { app: 'WhatsApp', field: box.label, role: box.role, text });
+          let typed = await step('whatsapp: type into the message box, from behind', 'type', 'type', { app: 'WhatsApp', field: box.label, role: box.role, text });
+          if (!typed.r.ok && ['no_effect', 'stale'].includes(typed.rec.code)) {
+            await step('whatsapp: look again', 'look', 'look', { app: 'WhatsApp' });
+            const box2 = last.find((e) => e.editable && e.role === box.role && e.at === box.at);
+            if (box2) typed = await step('whatsapp: type into the message box, brought forward', 'type', 'type', { app: 'WhatsApp', field: box2.label, role: box2.role, text, front: true });
+          }
           evidence.whatsappWindow.typedReadBack = typed.r.ok;
+          evidence.whatsappWindow.typedCode = typed.rec.code;
           const send = last.find((e) => e.pressable && /^send$/i.test(e.label));
           evidence.whatsappWindow.sendButton = send ? send.role : null;
           if (typed.r.ok && send) {

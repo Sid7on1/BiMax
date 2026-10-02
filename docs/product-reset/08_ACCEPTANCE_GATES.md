@@ -42,9 +42,16 @@ Enforced by `src/__tests__/computer.admission.boundary.test.ts` and `scripts/ver
   either item unticked, or the window changing (the driver re-reads it and must find the control exactly once) cancels
   a step that has not been sent. A step is sent once, by element token, in the background, and never retried; the
   window is read again; "nothing changed" is a failure, and typing counts only if the box reads back exactly the text.
-  A use session's manifest allows `click`, `set_value` and `scroll` and still denies every other input tool by name —
-  keys, shortcuts, dragging, coordinates, bringing an app forward. Window reads get 4 s, and a read still cut short is
-  reported as partial.
+  A use session's manifest allows `click`, `set_value`, `scroll`, `type_text` and `press_key` and still denies every
+  other input tool by name — shortcuts, dragging, coordinates, launching or keeping an app in front. Window reads get
+  4 s, and a read still cut short is reported as partial.
+- **One step with the app brought forward (ability 4, the owner's choice: asked every time).** A press or a typing may
+  carry `front`: the app asks first — on the step's own commit, overwrite or Return card, which then says so, or on its
+  own card ("Bring … forward for a moment?", naming the step and the app it will put back) — never for the task, never
+  for a scroll or a pick. The driver then fronts the window for that one step and puts the previous front app back: a
+  press by element token; typing as keystrokes into one box emptied first (read back empty) and read back exactly;
+  Return as the one key ever sent (`press_key` with `key: 'return'`, only in front, only into a box). Afterwards the app
+  reads which app is in front and says whether the person's app came back; it never moves apps around to fix it.
 - **Which build is running (stage 5).** A look names the running executable and its SHA-256, read by the app from the
   process; a step is refused if that executable changed since the read (a rebuild or relaunch), and its receipt
   records the hash of the build it acted on.

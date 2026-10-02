@@ -66,17 +66,29 @@ const MUTANTS = [
   ['scroll: nothing moved counts as a scroll', SERVICE, 'if (!moved) return refuse(', 'if ((!moved) && Date.now() < 0) return refuse('],
   ['scroll: any direction is sent', SERVICE, 'if (scrolling && !DIRECTIONS.includes(direction)) return refuse(', 'if ((scrolling && !DIRECTIONS.includes(direction)) && Date.now() < 0) return refuse('],
   ['scroll: any distance is sent', SERVICE, 'if (scrolling && (pages < 1 || pages > MAX_SCROLL_PAGES)) return refuse(', 'if ((scrolling && (pages < 1 || pages > MAX_SCROLL_PAGES)) && Date.now() < 0) return refuse('],
+  // Bringing the app forward for one step (ability 4).
+  ['front: no card', SERVICE, 'if (front && receipt.front && !receipt.front.asked) {', 'if ((front && receipt.front && !receipt.front.asked) && Date.now() < 0) {'],
+  ['front: any answer brings it forward', SERVICE, 'if (answer !== BRING(target.name)) {', 'if ((answer !== BRING(target.name)) && Date.now() < 0) {'],
+  ['front: a commit card that never said so counts', SERVICE, '              ? `${frontLine} It presses once,', '              ? `It presses once,'],
+  ['front: the person’s app is never checked', SERVICE, '    return after === before\n      ? ', '    return true\n      ? '],
+  ['front: pressed from behind anyway', SERVICE, 'outcome = front ? await driver.press!(threadId, target, boundTo, true)', 'outcome = false ? await driver.press!(threadId, target, boundTo, true)'],
+  ['front: typed from behind anyway', SERVICE, 'outcome = front ? await driver.typeFront!(', 'outcome = false ? await driver.typeFront!('],
+  ['front: Return by confirm anyway', SERVICE, 'confirmed = front ? await driver.returnFront!(', 'confirmed = false ? await driver.returnFront!('],
+  ['front: allowed for scrolling and choosing', SERVICE, 'if (front && (scrolling || picking)) return refuse(', 'if ((front && (scrolling || picking)) && Date.now() < 0) return refuse('],
   // A long run, takeover, no-op, wrong build.
-  ['keep going: never asked', SERVICE, 'if (receipt.asked === null && (stepsSinceCard.get(threadId) ?? 0) >= KEEP_GOING_EVERY) {', 'if ((receipt.asked === null && (stepsSinceCard.get(threadId) ?? 0) >= KEEP_GOING_EVERY) && Date.now() < 0) {'],
+  ['keep going: never asked', SERVICE, 'if (receipt.asked === null && !receipt.front && (stepsSinceCard.get(threadId) ?? 0) >= KEEP_GOING_EVERY) {', 'if ((receipt.asked === null && !receipt.front && (stepsSinceCard.get(threadId) ?? 0) >= KEEP_GOING_EVERY) && Date.now() < 0) {'],
   ['keep going: “Stop here” ignored', SERVICE, 'if (answer !== KEEP_GOING) {', 'if ((answer !== KEEP_GOING) && Date.now() < 0) {'],
   ['takeover: nothing re-checked before the driver', SERVICE, '      const driver = await deps.driver();\n      if (!live()) return cancelled();\n      if (typing', '      const driver = await deps.driver();\n      if (typing'],
   ['no-op: an unchanged window counts as success', SERVICE, 'if (!changed) {', 'if ((!changed) && Date.now() < 0) {'],
   ['wrong build: a rebuild since the read is not checked', SERVICE, 'if (!exeNow || exeNow.sha256 !== look.exe.sha256 || exeNow.path !== look.exe.path) {', 'if (!exeNow) {'],
 ];
 
+// `--only <text>`: run just the mutants whose name contains it (the full run takes ~25 min on this Mac).
+const onlyAt = process.argv.indexOf('--only');
+const only = onlyAt > 0 ? process.argv[onlyAt + 1] : '';
 let survived = 0;
 try {
-  for (const [name, file, from, to] of MUTANTS) {
+  for (const [name, file, from, to] of MUTANTS.filter(([n]) => !only || n.includes(only))) {
     const original = originals.get(file);
     if (original.split(from).length !== 2) throw new Error(`mutant "${name}": its source text is not found exactly once`);
     fs.writeFileSync(file, original.replace(from, to));
@@ -93,5 +105,6 @@ try {
 for (const [file, original] of originals) {
   if (fs.readFileSync(file, 'utf8') !== original) { console.error(`${path.basename(file)} was NOT restored`); process.exit(2); }
 }
-console.log(survived ? `${survived} mutant(s) survived` : `all ${MUTANTS.length} mutants caught; look.service.ts and look.commit.ts restored byte-identical`);
+const ran = MUTANTS.filter(([n]) => !only || n.includes(only)).length;
+console.log(survived ? `${survived} mutant(s) survived` : `all ${ran} mutants${only ? ` matching "${only}"` : ''} caught; look.service.ts and look.commit.ts restored byte-identical`);
 process.exit(survived ? 1 : 0);

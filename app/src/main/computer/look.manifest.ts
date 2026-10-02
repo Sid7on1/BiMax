@@ -53,17 +53,22 @@ export function lookManifest(bundleId: string, minutes = 30, idleMinutes = 10): 
  * Record 65 stage 6 (§6h), using an app: the input tools a use session may call, and nothing else. `click` performs an
  * AX action (press, or a text box's confirm — its Return) on the element token of a snapshot taken in the same session:
  * no pointer, no focus change, no coordinates; `set_value` writes one text box's value or picks one pop-up item the same
- * way; `scroll` turns the wheel over one element by its token, in the background. Every other input tool stays denied by
- * name — typing keys, shortcuts, dragging, coordinates, bringing an app forward.
+ * way; `scroll` turns the wheel over one element by its token, in the background. Ability 4 (an app brought forward for
+ * one step, on the person's card each time): `type_text` types into one box by its token and `press_key` sends Return —
+ * the only key look.driver.ts ever names — both only with delivery_mode foreground, which puts the previous front app
+ * back. Every other input tool stays denied by name — shortcuts, dragging, coordinates, launching or keeping an app in
+ * front.
  */
-export const USE_TOOLS = ['click', 'set_value', 'scroll'] as const;
+export const USE_TOOLS = ['click', 'set_value', 'scroll', 'type_text', 'press_key'] as const;
 
 /**
  * Controls a press never targets even though they publish a press: those that open a menu (in the background a native
  * menu can take over the screen; picking from one is its own ability, later) and text boxes (typed into, not pressed).
  */
 export const PRESS_EXCLUDED_ROLES: ReadonlySet<string> = new Set([
-  'AXWindow', 'AXMenuBar', 'AXMenuBarItem', 'AXPopUpButton', 'AXMenuButton', 'AXComboBox',
+  // Not AXMenuButton: its press is its own action and its menu is AXShowMenu (measured: Music lists each song as one, and
+  // its press plays the song).
+  'AXWindow', 'AXMenuBar', 'AXMenuBarItem', 'AXPopUpButton', 'AXComboBox',
   'AXTextField', 'AXTextArea', 'AXSecureTextField', 'AXSearchField',
 ]);
 

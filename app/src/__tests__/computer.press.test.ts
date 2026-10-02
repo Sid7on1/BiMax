@@ -50,6 +50,8 @@ interface Opts {
   confirmed?: PressOutcome;
   picked?: TypeOutcome | ((option: string) => TypeOutcome);
   scrolled?: PressOutcome;
+  /** What the driver reports in front, call by call (the last repeats). */
+  fronts?: Array<string | null>;
   identify?: (pid: number) => Promise<ProcessIdentity | null>;
 }
 
@@ -59,7 +61,10 @@ function setup(opts: Opts = {}) {
   let clock = 1_000_000;
   const answers = [...(opts.answers ?? [ALLOW_USE])];
   const asked: Array<{ question: string; options: string[]; body: string }> = [];
-  const presses: Array<{ threadId: string; app: string; target: PressTarget }> = [];
+  const presses: Array<{ threadId: string; app: string; target: PressTarget; front?: boolean }> = [];
+  const frontTypings: Array<{ app: string; target: PressTarget; text: string }> = [];
+  const frontReturns: Array<{ app: string; target: PressTarget }> = [];
+  const fronts = [...(opts.fronts ?? ['Muse'])];
   const typings: Array<{ app: string; target: PressTarget; text: string }> = [];
   const confirms: Array<{ app: string; target: PressTarget & { at?: string } }> = [];
   const picks: Array<{ app: string; target: PressTarget; option: string }> = [];
@@ -71,8 +76,8 @@ function setup(opts: Opts = {}) {
   const driver: LookDriver = {
     runningApps: async () => [FIXTURE, NOTES, VAULT, BANK],
     look: async (_t, app) => ({ title: app === FIXTURE ? 'Bimax-Cu Fixture' : 'Groceries', markdown: BEFORE, windowId: WINDOW, elements }),
-    press: async (threadId, app, target) => {
-      presses.push({ threadId, app: app.bundleId, target });
+    press: async (threadId, app, target, front) => {
+      presses.push({ threadId, app: app.bundleId, target, ...(front ? { front } : {}) });
       const o = opts.outcome ?? { kind: 'pressed', title: 'Bimax-Cu Fixture', before: BEFORE, after: AFTER, elements };
       return typeof o === 'function' ? o() : o;
     },
@@ -84,6 +89,15 @@ function setup(opts: Opts = {}) {
       }) as TypeOutcome);
       return typeof o === 'function' ? o(text) : o;
     },
+    typeFront: async (_threadId, app, target, text) => {
+      frontTypings.push({ app: app.bundleId, target, text });
+      return { kind: 'typed', title: 'Bimax-Cu Fixture', before: BEFORE, after: AFTER, value: text, elements: elements.map((e) => (e.role === target.role && e.label === target.label ? { ...e, label: text || e.label, value: text } : e)) };
+    },
+    returnFront: async (_threadId, app, target) => {
+      frontReturns.push({ app: app.bundleId, target });
+      return { kind: 'pressed', title: 'Bimax-Cu Fixture', before: AFTER, after: `${AFTER}\n  - [91] AXStaticText = "results: 3"`, elements };
+    },
+    frontApp: async () => (fronts.length > 1 ? fronts.shift()! : fronts[0] ?? null),
     confirm: async (_threadId, app, target) => {
       confirms.push({ app: app.bundleId, target });
       return opts.confirmed ?? { kind: 'pressed', title: 'Bimax-Cu Fixture', before: AFTER, after: `${AFTER}\n  - [91] AXStaticText = "results: 3"`, elements };
@@ -121,7 +135,7 @@ function setup(opts: Opts = {}) {
   const scroll = (control = 'Mom', extra: Record<string, unknown> = { direction: 'down' }) => call('scroll', 'scroll', { app: 'BimaxCuFixture', control, ...extra });
   const pick = (control: string, option: string) => call('press', 'press', { app: 'BimaxCuFixture', control, option });
   return {
-    service, call, lookAt, press, type, scroll, pick, asked, presses, typings, confirms, picks, scrolls, audit,
+    service, call, lookAt, press, type, scroll, pick, asked, presses, typings, confirms, picks, scrolls, frontTypings, frontReturns, audit,
     tick: (ms: number) => { clock += ms; },
     lookOff: () => { look = false; }, useOff: () => { useOn = false; }, useBackOn: () => { useOn = true; },
     setElements: (next: LookElement[]) => { elements = next; },
@@ -496,7 +510,7 @@ describe('Return in a box', () => {
     await s.lookAt();
     const result = await s.type('blinding lights', { field: 'Apple Music', submit: true });
     expect(result).toMatchObject({ ok: false, value: { code: 'no_effect' } });
-    expect(result.error).toContain('do not press Return again');
+    expect(result.error).toContain('Look again before doing anything else');
     expect(s.confirms).toHaveLength(1);
   });
 });
@@ -623,6 +637,92 @@ describe('scrolling', () => {
     for (let i = 0; i < KEEP_GOING_EVERY; i++) expect((await s.scroll()).ok).toBe(true);
     expect(await s.scroll()).toMatchObject({ ok: false, value: { code: 'denied' } });
     expect(s.asked[1].body).toContain('Next: scroll down at “Mom”');
+  });
+});
+
+describe('bringing the app forward for one step (ability 4) — asked every time, and the person’s app put back', () => {
+  it('an ordinary press in front: its own card names the app, the step and the app put back; the result says it came back', async () => {
+    const s = setup({ answers: [ALLOW_USE, 'Bring BimaxCuFixture forward once'], fronts: ['Muse', 'Muse'] });
+    await s.lookAt();
+    const result = await s.press('Mom', { front: true });
+    expect(result.ok).toBe(true);
+    expect(s.asked[1].question).toBe('Bring BimaxCuFixture forward for a moment?');
+    expect(s.asked[1].options).toEqual(['Bring BimaxCuFixture forward once', 'Not now']);
+    expect(s.asked[1].body).toContain('press “Mom”');
+    expect(s.asked[1].body).toContain('puts Muse back');
+    expect(s.asked[1].body).toContain('Please don\'t type until it has');
+    expect(s.presses).toEqual([{ threadId: 't1', app: 'ai.bimax.cu.fixture', target: { windowId: WINDOW, role: 'AXRow', label: 'Mom' }, front: true }]);
+    expect(text(result)).toContain('put Muse back in front');
+    expect(s.audit[1].receipt.front).toEqual({ asked: true, before: 'Muse', after: 'Muse', restored: true });
+  });
+
+  it('“Not now” brings nothing forward and presses nothing', async () => {
+    const s = setup({ answers: [ALLOW_USE, 'Not now'] });
+    await s.lookAt();
+    expect(await s.press('Mom', { front: true })).toMatchObject({ ok: false, value: { code: 'denied' } });
+    expect(s.presses).toEqual([]);
+  });
+
+  it('every time — an earlier yes covers nothing later', async () => {
+    const s = setup({ answers: [ALLOW_USE, 'Bring BimaxCuFixture forward once', 'Not now'] });
+    await s.lookAt();
+    expect((await s.press('Mom', { front: true })).ok).toBe(true);
+    expect(await s.press('Mom', { front: true })).toMatchObject({ ok: false, value: { code: 'denied' } });
+    expect(s.asked.filter((a) => a.question.startsWith('Bring'))).toHaveLength(2);
+    expect(s.presses).toHaveLength(1);
+  });
+
+  it('a step that commits asks once: its own card says the app comes forward', async () => {
+    const s = setup({ answers: [ALLOW_USE, 'Press “Send”'] });
+    await s.lookAt();
+    expect((await s.press('Send', { front: true })).ok).toBe(true);
+    expect(s.asked).toHaveLength(2);
+    expect(s.asked[1].question).toBe('Press “Send” in BimaxCuFixture?');
+    expect(s.asked[1].body).toContain('brings BimaxCuFixture to the front for about 3 seconds, then puts Muse back');
+    expect(s.presses[0].front).toBe(true);
+  });
+
+  it('when the person’s app does not come back, it is said — Bimax moves nothing to fix it', async () => {
+    const s = setup({ answers: [ALLOW_USE, 'Bring BimaxCuFixture forward once'], fronts: ['Muse', 'BimaxCuFixture'] });
+    await s.lookAt();
+    const result = await s.press('Mom', { front: true });
+    expect(text(result)).toContain('Muse did not come back to the front: BimaxCuFixture is in front now');
+    expect(s.audit[1].receipt.front).toMatchObject({ restored: false });
+  });
+
+  it('typing in front: the front typing path, then Return as a keystroke in a search box — one card', async () => {
+    const s = setup({ answers: [ALLOW_USE, 'Bring BimaxCuFixture forward once'] });
+    await s.lookAt();
+    const result = await s.type('blinding lights', { field: 'Apple Music', submit: true, front: true });
+    expect(result.ok).toBe(true);
+    expect(s.typings).toEqual([]);
+    expect(s.frontTypings).toHaveLength(1);
+    expect(s.frontReturns).toHaveLength(1);
+    expect(s.confirms).toEqual([]);
+    expect(s.asked.filter((a) => a.question.startsWith('Bring'))).toHaveLength(1);
+    expect(s.asked[1].body).toContain('type into “Apple Music”');
+  });
+
+  it('Return in front in a message box: the Return card also says the app comes forward', async () => {
+    const s = setup({ answers: [ALLOW_USE, 'Bring BimaxCuFixture forward once', 'Press Return'] });
+    await s.lookAt();
+    expect((await s.type('running late', { field: 'Compose message', submit: true, front: true })).ok).toBe(true);
+    expect(s.asked[2].question).toBe('Press Return in “Compose message” in BimaxCuFixture?');
+    expect(s.asked[2].body).toContain('brings BimaxCuFixture to the front for about 3 seconds');
+    expect(s.frontReturns).toHaveLength(1);
+  });
+
+  it('scrolling and choosing from a pop-up never bring an app forward', async () => {
+    const s = setup();
+    await s.lookAt();
+    expect(await s.scroll('Mom', { direction: 'down', front: true })).toMatchObject({ ok: false, value: { code: 'invalid_args' } });
+    expect(await s.call('press', 'press', { app: 'BimaxCuFixture', control: 'First', option: 'Second', front: true })).toMatchObject({ ok: false, value: { code: 'invalid_args' } });
+  });
+
+  it('a press from behind that changed nothing says the person can let Bimax bring the app forward', async () => {
+    const s = setup({ outcome: { kind: 'pressed', title: 'x', before: BEFORE, after: BEFORE, elements: ELEMENTS } });
+    await s.lookAt();
+    expect((await s.press()).error).toContain('"front": true');
   });
 });
 
@@ -821,20 +921,20 @@ describe('takeover: a Stop or a switch turned off cancels a step that was allowe
 });
 
 describe('the driver: one use session per app, with click and set_value alone', () => {
-  it('USE_TOOLS is exactly click, set_value and scroll; password fields are never a typing role; pop-ups are picked', () => {
-    expect([...USE_TOOLS]).toEqual(['click', 'set_value', 'scroll']);
+  it('USE_TOOLS is exactly click, set_value, scroll — and type_text and press_key for a step in front; never a password field', () => {
+    expect([...USE_TOOLS]).toEqual(['click', 'set_value', 'scroll', 'type_text', 'press_key']);
     expect([...PICK_ROLES]).toEqual(['AXPopUpButton']);
     expect([...TYPE_ROLES].sort()).toEqual(['AXComboBox', 'AXSearchField', 'AXTextArea', 'AXTextField']);
     expect(TYPE_ROLES.has('AXSecureTextField')).toBe(false);
   });
 
-  it('a use manifest allows the look tools, click, set_value and scroll, and denies every other input tool by name', () => {
+  it('a use manifest allows the look tools and USE_TOOLS, and denies every other input tool by name', () => {
     const manifest = useManifest('net.whatsapp.WhatsApp');
-    expect(manifest).toContain(`  tools: [${[...LOOK_TOOLS, 'click', 'set_value', 'scroll'].join(', ')}]`);
+    expect(manifest).toContain(`  tools: [${[...LOOK_TOOLS, ...USE_TOOLS].join(', ')}]`);
     const deny = manifest.split('deny:\n')[1];
-    for (const tool of INPUT_TOOLS.filter((t) => !['click', 'set_value', 'scroll'].includes(t))) expect(deny).toContain(tool);
-    expect(deny).not.toMatch(/\bclick\b|\bset_value\b|(?<!_)\bscroll\b/);
-    for (const tool of ['type_text', 'press_key', 'hotkey', 'drag', 'bring_to_front', 'launch_app', 'clipboard_write']) expect(deny).toContain(tool);
+    for (const tool of INPUT_TOOLS.filter((t) => !(USE_TOOLS as readonly string[]).includes(t))) expect(deny).toContain(tool);
+    expect(deny).not.toMatch(/\bclick\b|\bset_value\b|(?<!_)\bscroll\b|\btype_text\b|\bpress_key\b/);
+    for (const tool of ['hotkey', 'drag', 'bring_to_front', 'launch_app', 'clipboard_write', 'double_click', 'move_cursor']) expect(deny).toContain(tool);
     expect(() => useManifest('ai.bimax.app')).toThrow('not an app a task may use');
     expect(() => useManifest('com.apple.systempreferences')).toThrow('not an app a task may use');
   });

@@ -1,0 +1,159 @@
+{
+ "kind": "live-real-apps-scripted",
+ "startedAt": "2026-10-02T08:25:12.296Z",
+ "apps": [
+  "music"
+ ],
+ "steps": [
+  {
+   "step": "music: look",
+   "ok": true,
+   "code": null,
+   "ms": 4589,
+   "error": null,
+   "resultLines": 244,
+   "cards": [
+    "Let this task use Music?"
+   ],
+   "frontBefore": "Aside",
+   "frontAfter": "Muse",
+   "pointerMoved": true
+  },
+  {
+   "step": "music: search with Return, from behind",
+   "ok": true,
+   "code": null,
+   "ms": 23766,
+   "error": null,
+   "resultLines": 43,
+   "cards": [],
+   "frontBefore": "Muse",
+   "frontAfter": "Aside",
+   "pointerMoved": true
+  }
+ ],
+ "cards": [
+  {
+   "question": "Let this task use Music?",
+   "options": [
+    "Allow using Music",
+    "Only look",
+    "Not now"
+   ],
+   "answer": "Allow using Music",
+   "bodyHasTypedText": null,
+   "body": "Bimax will read Music's front window and may press its buttons and type into its text boxes, in the background, without moving your pointer. Before anything is sent, posted, bought, deleted or confirmed it stops and asks you, showing exactly what. This is for this task only; stopping the task ends it."
+  }
+ ],
+ "notes": [],
+ "start": {
+  "front": "Aside",
+  "pointer": {
+   "x": 220,
+   "y": 334
+  }
+ },
+ "audit": [
+  {
+   "at": "2026-10-02T08:25:17.217Z",
+   "threadId": "probe-real-apps",
+   "op": "look",
+   "bundleId": "com.apple.Music",
+   "ok": true,
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 0,
+    "asked": 1,
+    "presses": 0,
+    "typings": 0,
+    "picks": 0,
+    "scrolls": 0,
+    "inputCalls": 0
+   }
+  },
+  {
+   "at": "2026-10-02T08:25:40.829Z",
+   "threadId": "probe-real-apps",
+   "op": "type",
+   "bundleId": "com.apple.Music",
+   "ok": true,
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 0,
+    "asked": 1,
+    "presses": 0,
+    "typings": 1,
+    "picks": 0,
+    "scrolls": 0,
+    "inputCalls": 2
+   },
+   "receipt": {
+    "actionId": "9435e1ef-ac2e-48a1-95f0-f8422358eac5",
+    "action": "type",
+    "role": "AXTextField",
+    "labelHash": "311c3b56560d",
+    "windowId": 1870,
+    "lookAgeMs": 1327,
+    "asked": null,
+    "outcome": "typed",
+    "textHash": "311c3b56560d",
+    "textLength": 15,
+    "submitted": true
+   }
+  }
+ ],
+ "musicWindow": {
+  "ok": true,
+  "roles": {
+   "AXOutline": 1,
+   "AXDisclosureTriangle": 1,
+   "AXButton": 68,
+   "AXOpaqueProviderGroup": 1,
+   "AXMenuButton": 28,
+   "AXHeading": 3,
+   "AXSlider": 1,
+   "AXTextField": 1,
+   "AXRadioButton": 2
+  },
+  "pressable": 95,
+  "named": 106,
+  "playPressable": true,
+  "searchBoxes": 1,
+  "search": {
+   "ok": true,
+   "code": null,
+   "songFound": false,
+   "songRole": null
+  }
+ },
+ "driverActivity": {
+  "authorized": {
+   "list_windows": 1,
+   "get_window_state": 6,
+   "set_value": 1,
+   "click": 1
+  },
+  "refused": {}
+ },
+ "serviceCounts": {
+  "lists": 0,
+  "looks": 1,
+  "refused": 0,
+  "asked": 1,
+  "presses": 0,
+  "typings": 1,
+  "picks": 0,
+  "scrolls": 0,
+  "inputCalls": 2
+ },
+ "end": {
+  "front": "Aside",
+  "pointer": {
+   "x": 578,
+   "y": 178
+  }
+ },
+ "finishedAt": "2026-10-02T08:25:41.132Z"
+}

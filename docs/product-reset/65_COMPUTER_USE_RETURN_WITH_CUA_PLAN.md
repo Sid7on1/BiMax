@@ -644,6 +644,33 @@ same Bimax Local Code Signing requirement, so the Accessibility grant should car
 (`evidence/2026-10-02-cu-stage6-installed/install.json`). The new switch "Let Tasks Use Other Apps (Preview)" is a new
 setting and is **off** until the owner ticks it; no installed run with a model has been made yet.
 
+**Ability 4 — one step with the app brought forward, asked every time (2026-10-02, night; not installed).** The owner
+asked whether Bimax switches windows like a three-finger swipe and can get back to where it was, then chose "Yes, ask me
+each time" for a bring-forward step. Measured first with the standalone driver (CuaDriver.app's own grant), the owner's
+app in front: Music's search takes no text from a background value, AX confirm (behind or in front) or its Search button;
+a foreground keystroke typing (15 characters, 2.4 s) plus a **real Return keystroke** (2.9 s) ran it, and a background
+press on the result (an `AXMenuButton` — so menu buttons are pressable now) played the song, and Pause stopped it;
+WhatsApp's New Chat did nothing from behind and opened its panel in front (2.75 s); a background press closed the panel.
+Every time, the previous front app came back (3 of 3 foreground steps).
+
+Built: `front: true` on `PressInAppTool` and `TypeInAppTool` (never scroll or pick); the app asks every time — on the
+step's own commit, overwrite or Return card, which then says so, or on "Bring … forward for a moment?" naming the step and
+the app it puts back; the driver's foreground press, foreground keystroke typing into a box emptied first (emptied means
+the old text is gone — Music's empty box reads "Apple Music"), and `press_key` Return, the one key, only in front; then
+the app reads which app is in front and says whether the person's came back, never moving apps to fix it. Tests: 364 in
+18 suites (no cache) when built, 260 in the seven Computer Use suites after the last change; 51/51 service and rule
+mutants; driver proof 37/37 with 15/15 mutants; app and engine `tsc` clean; the fixture live check PASS (run 6; run 5 is
+kept as `INVALID-fixture-not-running`).
+
+**Live, through Bimax's own embedded driver, it did NOT work yet** (`music-run5/6-front`, `whatsapp-run7-front`): the
+card was asked and answered, then typing in front delivered 0 of 7 characters ("type_text incomplete", reported as
+uncertain), and New Chat in front changed nothing while WhatsApp was left in front ("Ghostty did not come back to the
+front: WhatsApp is", reported as such). These ran in an Electron started from the terminal, which the SDK's README says
+changes the macOS responsibility chain; the owner was also switching apps during the runs, so the front-app reads are
+not clean. Not shown: the bring-forward step in the installed Bimax.app, with the owner away from the keyboard. Until
+it is, ability 4 is Implemented, not Measured, and is not installed. Nothing was sent; only the owner's own WhatsApp
+panel was opened and closed; no chat was opened.
+
 ## 7. Risks named now
 
 - **Driver drift.** 0.12 → 0.31 rewrote the codebase; a later release can change behaviour again (0.18 did). The

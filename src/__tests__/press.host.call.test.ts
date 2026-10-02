@@ -42,7 +42,7 @@ describe('PressInAppTool', () => {
 
   it('names one app and one control; it is destructive and has no coordinates, keys or text', () => {
     const tool = createPressTool(governor) as any;
-    expect(Object.keys(tool.schema.properties).sort()).toEqual(['app', 'control', 'option', 'role']);
+    expect(Object.keys(tool.schema.properties).sort()).toEqual(['app', 'control', 'front', 'option', 'role']);
     expect(tool.schema.required).toEqual(['app', 'control']);
     expect(tool.isDestructive).toBe(true);
   });
@@ -90,7 +90,7 @@ describe('TypeInAppTool', () => {
 
   it('names one app, optionally one box, and one text; destructive; no keys, coordinates or Return', () => {
     const tool = createTypeTool(governor) as any;
-    expect(Object.keys(tool.schema.properties).sort()).toEqual(['app', 'field', 'role', 'submit', 'text']);
+    expect(Object.keys(tool.schema.properties).sort()).toEqual(['app', 'field', 'front', 'role', 'submit', 'text']);
     expect(tool.schema.required).toEqual(['app', 'text']);
     expect(tool.isDestructive).toBe(true);
   });
@@ -113,10 +113,10 @@ describe('TypeInAppTool', () => {
     expect(untrustedChannel('TypeInAppTool')).toBe('screen');
   });
 
-  it('submit is forwarded only when it is exactly true', async () => {
-    await run({ app: 'Music', field: 'Search', text: 'x', submit: true });
-    await run({ app: 'Music', field: 'Search', text: 'x', submit: 'yes' });
-    expect(calls.map((c) => c.args.submit)).toEqual([true, undefined]);
+  it('submit and front are forwarded only when exactly true', async () => {
+    await run({ app: 'Music', field: 'Search', text: 'x', submit: true, front: true });
+    await run({ app: 'Music', field: 'Search', text: 'x', submit: 'yes', front: 1 });
+    expect(calls.map((c) => [c.args.submit, c.args.front])).toEqual([[true, true], [undefined, undefined]]);
   });
 });
 
