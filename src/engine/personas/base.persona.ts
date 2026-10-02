@@ -17,6 +17,7 @@ import { loadProjectGuide } from '../projectGuide';
 import { folderGlance } from './folder.glance';
 import { folderRulesSection } from '../../tools/thread.rules';
 import { voiceModeSection } from '../../tools/thread.voice';
+import { otherAppsSection } from '../../tools/implementations/look.tool';
 import { beginTodoTurn, getTodoPromptBlock, retireCompletedTodos } from '../../tools/implementations/todo.tool';
 import { getGoalManager } from '../../memory/goal.manager';
 import { agentModePromptSection } from '../agentMode';
@@ -272,6 +273,10 @@ export abstract class AgentPersona {
     // Talk mode: the reply is read aloud, so it is written to be heard. Empty outside talk-mode threads.
     const voiceMode = voiceModeSection();
     if (voiceMode) sections.voiceMode = voiceMode;
+    // Other apps (record 65 stage 6): only when the app let this task see them. Placed in the session segment below —
+    // a section built here and listed nowhere would never reach the model (the journal block was, for months).
+    const otherApps = otherAppsSection();
+    if (otherApps) sections.otherApps = otherApps;
 
     if (opts?.exemplars) {
       sections.exemplars = opts.exemplars;
@@ -361,6 +366,7 @@ export abstract class AgentPersona {
       sections.projectGuide,
       sections.folderRules,
       sections.voiceMode,
+      sections.otherApps,
       sections.tools,
       sections.loadOnDemand,
       sections.skills,

@@ -57,8 +57,11 @@ function stripAnsi(text: string): string {
 function motionToolName(resolveToolNames?: () => readonly string[]): string | undefined {
   try {
     const names = resolveToolNames?.() ?? [];
+    // Record 65 stage 6: with "Let Tasks Use Other Apps" on, PressInAppTool is that capability. Measured 2026-10-02: the
+    // guard knew only the archived names, so "play Espresso in Music" went out as `osascript … tell application "Music"`.
     return names.find(name => name === 'mcp__bimax-mac__mac_control'
-      || name === 'mac_control' || name === 'ComputerTool');
+      || name === 'mac_control' || name === 'ComputerTool')
+      ?? names.find(name => name === 'PressInAppTool');
   } catch {
     return undefined;
   }
@@ -104,6 +107,12 @@ Reserve BashTool for actual shell operations (installs, builds, git, processes, 
       background: { type: 'boolean', description: 'Run as a tracked background task (long builds, test suites, servers). Returns a task id immediately.' }
     },
     required: ['command']
+  },
+  // Shell is not a Computer Use channel: refused before any approval card, so nobody is asked to allow a command that will
+  // be refused anyway (measured 2026-10-02: the person allowed `osascript … tell application "Music"` on its card).
+  refuseBeforeApproval: (args: { command: string }) => {
+    const verdict = guiAutomationRefusal(args?.command, motionToolName(resolveToolNames));
+    return verdict.refused ? `Command blocked: ${verdict.reason}` : undefined;
   },
   execute: async (args: { command: string, timeout?: number, background?: boolean }, context?: any) => {
     // Coerce the model-supplied timeout. LLMs frequently emit it as a string,

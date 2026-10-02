@@ -33,6 +33,23 @@ const APPLESCRIPT_APP_CONTROL = new RegExp(
 const OPEN_APPLICATION = new RegExp(
   `${COMMAND_START}(?:sudo\\s+)?open\\s+(?:-[a-zA-Z]*\\s+)*-(?:a|b)\\b`, 'i');
 
+/**
+ * `open -g …`: launch in the background, never bringing the app forward. Record 65 stage 6's tools can use an app but not
+ * start one (the driver's launch_app stays denied), so starting a closed app this way is the one `open` a task keeps — it
+ * still meets the governor's card like any shell command that changes something.
+ */
+const OPEN_IN_BACKGROUND = new RegExp(`${COMMAND_START}(?:sudo\\s+)?open\\s+(?:-[a-zA-Z]*\\s+)*-[a-zA-Z]*g`, 'i');
+
+/** How to do it properly, per desktop capability. */
+function howTo(capabilityToolName: string): string {
+  if (capabilityToolName === 'PressInAppTool') {
+    return 'Read the app with LookAtAppTool, then use PressInAppTool, TypeInAppTool or ScrollInAppTool; each step is shown '
+      + 'to the user, and anything that sends, buys, deletes or confirms is asked first. If the app is not open, start '
+      + 'it in the background with `open -g -a "<App>"`, then look at it.';
+  }
+  return `Call ${capabilityToolName} with the equivalent action (open / click / type / key) and read its returned frame.`;
+}
+
 /** Synthetic input drivers that reach the window server. */
 const SYNTHETIC_INPUT = new RegExp(`${COMMAND_START}(?:sudo\\s+)?cliclick\\b`, 'i');
 
@@ -56,8 +73,11 @@ export function guiAutomationRefusal(
   const text = String(command || '');
   if (!text.trim()) return { refused: false };
 
+  // Every `open -a/-b` in the command must be a background one for the launch to be let through.
+  const opensInFront = OPEN_APPLICATION.test(text) && !(capabilityToolName === 'PressInAppTool'
+    && text.split(/[;&|\n]/).map((part) => part.trim()).filter((part) => OPEN_APPLICATION.test(part)).every((part) => OPEN_IN_BACKGROUND.test(part)));
   const matched = APPLESCRIPT_APP_CONTROL.test(text) ? 'AppleScript application control'
-    : OPEN_APPLICATION.test(text) ? 'launching an application with open -a/-b'
+    : opensInFront ? 'launching an application with open -a/-b'
       : SYNTHETIC_INPUT.test(text) ? 'synthetic keyboard/mouse input'
         : null;
   if (!matched) return { refused: false };
@@ -67,8 +87,7 @@ export function guiAutomationRefusal(
     reason: `this command performs GUI automation (${matched}), which must go through `
       + `${capabilityToolName} instead of the shell. The shell path bypasses approval, the recipient `
       + `receipt, the user-takeover interlock and stop-before-effect, so a Mac action taken this way `
-      + `is invisible to the user and unverifiable. Call ${capabilityToolName} with the equivalent `
-      + `action (open / click / type / key) and read its returned frame. If you genuinely need the `
+      + `is invisible to the user and unverifiable. ${howTo(capabilityToolName)} If you genuinely need the `
       + `shell for something that is not desktop control, run that part without addressing an `
       + `application.`,
   };

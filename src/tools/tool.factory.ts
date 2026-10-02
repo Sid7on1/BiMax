@@ -2,7 +2,7 @@ import { IGovernor } from '../core/interfaces';
 import { Logger } from '../utils/logger';
 import { engineEvents } from '../engine/events';
 import { runPreHooks, runPostHooks } from './hooks';
-import { isTypedOutcome, outcomeBlocked, outcomeError, TypedOutcome } from './outcome';
+import { classifiedError, isTypedOutcome, outcomeBlocked, outcomeError, TypedOutcome } from './outcome';
 import { recordGuard } from './guard.timing';
 import { activeTaskGuard } from '../evidence/task.guard';
 import { reportCapability } from '../core/capability.status';
@@ -31,6 +31,12 @@ export interface ToolDef<TArgs = any> {
   isConcurrencySafe?: boolean | ((args: any) => boolean);
   /** The implementation performs a richer, resolved-target Governor check before mutation. */
   approvalHandledInternally?: boolean;
+  /**
+   * A refusal that needs no one's answer, checked before the Governor raises any card: return the reason (an Error is
+   * thrown with it, classified as a permission block) or nothing. Measured 2026-10-02: BashTool's GUI-automation refusal
+   * ran after the approval card, so the person was asked to allow an AppleScript command that was then refused anyway.
+   */
+  refuseBeforeApproval?: (args: TArgs) => string | undefined;
   execute: (args: TArgs, context?: any) => Promise<any>;
 }
 
@@ -110,6 +116,8 @@ export function buildTool(def: ToolDef, governor: IGovernor): BuiltTool {
         action: 'Inspect the tool result before continuing.' });
       try {
         context?.signal?.throwIfAborted();
+        const refusal = def.refuseBeforeApproval?.(args ?? {});
+        if (refusal) throw classifiedError(refusal, 'permission', 'blocked');
         await enforceThreadScope(args, context?.cwd || process.cwd());
         const payload = taskType === 'OS_COMMAND'
           ? { tool: def.name, command: args.command, context, isDestructive }

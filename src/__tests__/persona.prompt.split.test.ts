@@ -125,3 +125,43 @@ describe('optional prompt blocks (flaw list E40)', () => {
     expect([...built].filter((key) => !joined.includes(`<<${key}>>`))).toEqual([]);
   });
 });
+
+describe('other apps on this Mac (record 65 stage 6)', () => {
+  // Measured 2026-10-02 in the installed app: with no word about them the model said "we are in a terminal environment,
+  // not a GUI" and scripted Music with osascript.
+  const env = (vars: Record<string, string | undefined>, run: () => void) => {
+    const saved = { look: process.env.BIMAX_COMPUTER_LOOK, use: process.env.BIMAX_COMPUTER_USE };
+    for (const [k, v] of Object.entries(vars)) { if (v === undefined) delete process.env[k]; else process.env[k] = v; }
+    try { run(); } finally {
+      if (saved.look === undefined) delete process.env.BIMAX_COMPUTER_LOOK; else process.env.BIMAX_COMPUTER_LOOK = saved.look;
+      if (saved.use === undefined) delete process.env.BIMAX_COMPUTER_USE; else process.env.BIMAX_COMPUTER_USE = saved.use;
+    }
+  };
+
+  test('a task that may use other apps is told so, and how, in the session segment', () => {
+    env({ BIMAX_COMPUTER_LOOK: '1', BIMAX_COMPUTER_USE: '1' }, () => {
+      const parts = persona().getSystemPromptParts({});
+      expect(parts.dynamicSuffix).toContain('### OTHER APPS ON THIS MAC');
+      expect(parts.dynamicSuffix).toContain('you are not limited to the terminal');
+      for (const tool of ['LookAtAppTool', 'PressInAppTool', 'TypeInAppTool', 'ScrollInAppTool']) expect(parts.dynamicSuffix).toContain(tool);
+      expect(parts.dynamicSuffix).toContain('Never control apps with osascript');
+      expect(parts.dynamicSuffix).toContain('"front": true');
+      expect(parts.staticPrefix).not.toContain('OTHER APPS');
+    });
+  });
+
+  test('looking only: told it can look, not act', () => {
+    env({ BIMAX_COMPUTER_LOOK: '1', BIMAX_COMPUTER_USE: undefined }, () => {
+      const suffix = persona().getSystemPromptParts({}).dynamicSuffix;
+      expect(suffix).toContain('### OTHER APPS ON THIS MAC');
+      expect(suffix).toContain('You cannot press or type in them here');
+      expect(suffix).not.toContain('PressInAppTool');
+    });
+  });
+
+  test('a task without it hears nothing about other apps', () => {
+    env({ BIMAX_COMPUTER_LOOK: undefined, BIMAX_COMPUTER_USE: '1' }, () => {
+      expect(persona().getSystemPrompt({})).not.toContain('OTHER APPS ON THIS MAC');
+    });
+  });
+});
