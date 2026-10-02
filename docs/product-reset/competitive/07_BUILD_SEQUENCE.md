@@ -10,6 +10,16 @@ built (§6g). Next is the owner's choice. Stages 4–6 (advisory small models, X
 The look-only admission gate in `08_ACCEPTANCE_GATES.md` supersedes the code-only gate only to that extent.
 Historical CU workstreams below are not reactivated by this sequence.
 
+## Prioritization review — 2026-10-02, after installed Music run 6
+
+Run 6 followed the literal background-launch hint but still failed to complete Music. The installed trace and limits
+are in record 65 §6h; Stage 6 remains experimental and its exit is unmet. Recommendation to the owner: shift the main
+effort to core agent reliability qualification (real coding/recovery/resume journeys, per-model tool conformance and
+truthful completion), then repository changes tied to demonstrated defects. Further individual Music prompt hints
+are not evidence of a general recovery solution. This is a prioritization recommendation, not a new owner decision,
+permission change or authorization to revive any archived CU route. The current monolith decision in record 64
+supersedes historical repository/process split topology below.
+
 ## Proposed refactor sequence — 2026-09-08
 
 Recheck amendment: record 33 requires extending the existing outcome contract, adaptive scheduler,

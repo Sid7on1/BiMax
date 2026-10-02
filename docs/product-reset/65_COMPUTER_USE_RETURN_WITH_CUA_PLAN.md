@@ -850,6 +850,16 @@ that folder. Installed and reopened with matching engine bytes, verified recover
 unchanged local designated requirement, package gate 4/4 and App Actions 3/3. A fresh installed run 6 is prepared;
 the owner must click Start and answer its cards. A successful local build/test does not change these end-state limits.
 
+**Installed run 6 follow-up (2026-10-02).** The owner started the prepared retry. The model followed the new
+literal background-launch hint after its foreground launch was refused; the subsequent Music reads and typed query
+succeeded. Background Return changed a suggestions popover, which is not proof of rendered song results or playback.
+The model then attempted refused AppleScript, guessed an AXCell name, pressed Search with no effect, and retried typing
+after a filtered look without usable named controls. No `front: true` recovery request appears in the saved calls.
+No verified playback end state was captured. The final explanation's request for AppleScript is not authorization to
+restore that route. Evidence: `evidence/2026-10-02-cu-launch-recovery/run-6-failure.json` and the installed-run audit
+`run-6.json`. This records launch-hint compliance in one trace, not a Measured end-to-end Music journey. Generic recovery,
+filtered observation/target behavior and model conformance need investigation before further CU readiness claims.
+
 ## 7. Risks named now
 
 - **Driver drift.** 0.12 → 0.31 rewrote the codebase; a later release can change behaviour again (0.18 did). The

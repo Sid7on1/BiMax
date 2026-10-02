@@ -28,7 +28,7 @@ coaching by the model. Session renewal is now Implemented and locally verified (
 and explicit targeting/foreground-search hints are Implemented and locally verified (292 tests, 3 rejected mutants); live playback and the owner-approved WhatsApp send still require end-state evidence. See record 65 §6h and `evidence/2026-10-02-cu-name-recovery/`.
 An additional false permission diagnosis (any error mentioning Accessibility) is corrected with a nonprompting
 native trust check and one bounded transient read retry; 300 tests, three diagnosis and six driver mutants pass locally.
-The owner's macOS 27 setting is Device Control and Data Access; Bimax was already enabled in the inspected UI. The next installed task failed before a Music read: Music was absent from discovery and the model ignored background-launch recovery. Exact literal launch and observed-name advice are Implemented and locally verified (322 tests, three caught mutants); installed model compliance/playback remain unverified.
+The owner's macOS 27 setting is Device Control and Data Access; Bimax was already enabled in the inspected UI. The next installed task failed before a Music read: Music was absent from discovery and the model ignored background-launch recovery. Exact literal launch and observed-name advice are Implemented and locally verified (322 tests, three caught mutants); run 6 followed the launch hint but did not complete Music: blocked AppleScript, guessed/ineffective controls and no foreground retry. Broader installed recovery/playback remain unverified.
 Stage 6's baseline/repetition/distribution exit, M02's current mutation/persistence journey, X01, clean-Mac qualification
 and any Win remain **Target/unmeasured**. Record 46's “disabled” status below is historical.
 
