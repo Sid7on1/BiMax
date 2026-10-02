@@ -66,10 +66,16 @@ export interface AppSettings {
    */
   computerLook?: boolean;
   /**
-   * Computer Use, one press at a time (record 65 stage 3): new ⌘2 tasks that may look may also ask to press one control
-   * in Bimax's own test app; every press is asked on two cards. Off when absent; only meaningful with computerLook on.
+   * Retired (record 65 stage 3's "press in the test app" switch). Kept so an existing settings file still parses; nothing
+   * reads it, and it never turns on {@link computerUse}.
    */
   computerPress?: boolean;
+  /**
+   * Computer Use, using other apps (record 65 stage 6, §6h): new ⌘2 tasks that may look may also press and type in an
+   * app the person allows per task; anything that sends, buys, deletes or confirms is asked on a card first. Off when
+   * absent; only meaningful with computerLook on.
+   */
+  computerUse?: boolean;
   /** Folders with an outcome, keyed by real path (folder.outcomes.ts, backlog FL1 part 2). */
   folderOutcomes?: Record<string, import('./folder.outcomes').FolderOutcome>;
 }

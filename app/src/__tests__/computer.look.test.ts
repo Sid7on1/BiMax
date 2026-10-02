@@ -197,7 +197,7 @@ describe('the look service', () => {
     // Allowed once, for this Thread: the next look does not ask again.
     await s.call('look', { app: 'Notes' });
     expect(s.asked).toHaveLength(1);
-    expect(s.service.counts('t1')).toEqual({ lists: 0, looks: 2, refused: 0, asked: 1, presses: 0, inputCalls: 0 });
+    expect(s.service.counts('t1')).toEqual({ lists: 0, looks: 2, refused: 0, asked: 1, presses: 0, typings: 0, inputCalls: 0 });
   });
 
   it('"Not now" is remembered: the task is told no again, the person is not asked again', async () => {
@@ -259,7 +259,7 @@ describe('the look service', () => {
     ]);
     const logged = JSON.stringify(s.audit);
     expect(logged).not.toMatch(/eggs|milk|Groceries|Log Out/);
-    expect(s.audit[2].counts).toEqual({ lists: 0, looks: 1, refused: 2, asked: 1, presses: 0, inputCalls: 0 });
+    expect(s.audit[2].counts).toEqual({ lists: 0, looks: 1, refused: 2, asked: 1, presses: 0, typings: 0, inputCalls: 0 });
   });
 
   it('ending a Thread ends its sessions, and a Thread that never looked does not start the driver', async () => {

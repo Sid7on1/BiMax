@@ -80,7 +80,7 @@ export function untrustedChannel(toolName: string): TaintSource | null {
   if (toolName === 'WebFetchTool' || toolName === 'WebSearchTool') return 'web';
   if (toolName.startsWith('mcp__')) return 'mcp';
   // Another app's window (record 65): whatever it shows was written by someone else, like a web page.
-  if (toolName === 'LookAtAppTool' || toolName === 'PressInAppTool') return 'screen';
+  if (toolName === 'LookAtAppTool' || toolName === 'PressInAppTool' || toolName === 'TypeInAppTool') return 'screen';
   return null;
 }
 

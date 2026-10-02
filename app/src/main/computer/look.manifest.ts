@@ -1,5 +1,5 @@
 /**
- * The Cua Driver capability manifests Bimax writes for Computer Use, look only (record 65, stage 2).
+ * The Cua Driver capability manifests Bimax writes for Computer Use: look (record 65, stage 2) and use (stage 6, §6h).
  *
  * The driver runs in `bounded` mode and enforces these itself, so even a bug in Bimax's own checks cannot make it
  * click: a look grant allows observing one app's windows and names every input tool as denied. Version 2 is the first
@@ -50,24 +50,44 @@ export function lookManifest(bundleId: string, minutes = 30, idleMinutes = 10): 
 }
 
 /**
- * Record 65 stage 3, pressing. The one input tool a press session may use: `click`, which Bimax only ever calls with an
- * element token from a snapshot it took in the same session (an AX press: no pointer, no focus change, no coordinates).
- * Every other input tool stays denied by name.
+ * Record 65 stage 6 (§6h), using an app: the input tools a use session may call, and nothing else. `click` presses a
+ * control by the element token of a snapshot taken in the same session (an AX press: no pointer, no focus change, no
+ * coordinates); `set_value` writes one text box's value the same way. Every other input tool stays denied by name —
+ * typing keys, Return, shortcuts, dragging, coordinates, bringing an app forward.
  */
-export const PRESS_TOOLS = ['click'] as const;
+export const USE_TOOLS = ['click', 'set_value'] as const;
 
 /**
- * The apps a task may press in: Bimax's own test apps, and nothing else — the stage 3 fixture and stage 5's X01 to-do app
- * (app/benchmarks/x01-todo). Widening it must fail a test.
+ * Controls a press never targets even though they publish a press: those that open a menu (in the background a native
+ * menu can take over the screen; picking from one is its own ability, later) and text boxes (typed into, not pressed).
  */
-export const PRESS_APPS: ReadonlySet<string> = new Set(['ai.bimax.cu.fixture', 'ai.bimax.cu.x01-todo']);
+export const PRESS_EXCLUDED_ROLES: ReadonlySet<string> = new Set([
+  'AXWindow', 'AXMenuBar', 'AXMenuBarItem', 'AXPopUpButton', 'AXMenuButton', 'AXComboBox',
+  'AXTextField', 'AXTextArea', 'AXSecureTextField', 'AXSearchField',
+]);
 
-/** The controls a press may target: plain ones whose own AX action is a press. */
-export const PRESS_ROLES: ReadonlySet<string> = new Set(['AXButton', 'AXCheckBox', 'AXRadioButton']);
+/** The boxes a task may type into. Never a password field: AXSecureTextField is not here and never will be. */
+export const TYPE_ROLES: ReadonlySet<string> = new Set(['AXTextField', 'AXTextArea', 'AXComboBox', 'AXSearchField']);
 
-/** One press session: the look tools plus `click`, for one app on {@link PRESS_APPS}, short-lived. */
-export function pressManifest(bundleId: string, minutes = 5, idleMinutes = 2): string {
-  if (!validBundleId(bundleId) || !PRESS_APPS.has(bundleId)) throw new Error(`not an app a task may press in: ${JSON.stringify(bundleId)}`);
+/**
+ * Apps never looked at or used, by name, whatever the person answers (beside {@link NEVER_LOOK}'s bundle ids):
+ * password managers, wallets and banking apps. The same families as the engine governor's sensitive-target floor, which
+ * still runs first.
+ */
+const NEVER_USE_NAMES: RegExp[] = [
+  /keychain|passwords?\b|1password|lastpass|bitwarden|dashlane|keepass|keeper|enpass|proton pass/i,
+  /\bwallet\b|metamask|ledger|trezor|exodus|coinbase|binance|kraken|crypto/i,
+  /\bbank|banking|paypal|venmo|zelle|cash app|revolut|robinhood|\bwise\b|schwab|fidelity|vanguard/i,
+  /system settings|system preferences/i,
+];
+
+export function isNeverUsed(name: string): boolean {
+  return NEVER_USE_NAMES.some((pattern) => pattern.test(name));
+}
+
+/** One use session: the look tools plus {@link USE_TOOLS}, for one app, short-lived. */
+export function useManifest(bundleId: string, minutes = 5, idleMinutes = 2): string {
+  if (!validBundleId(bundleId) || NEVER_LOOK.has(bundleId)) throw new Error(`not an app a task may use: ${JSON.stringify(bundleId)}`);
   return [
     'version: 2',
     'mode: bounded',
@@ -78,9 +98,9 @@ export function pressManifest(bundleId: string, minutes = 5, idleMinutes = 2): s
     `    - bundle_id: ${bundleId}`,
     '      windows: all',
     'allow:',
-    `  tools: [${[...LOOK_TOOLS, ...PRESS_TOOLS].join(', ')}]`,
+    `  tools: [${[...LOOK_TOOLS, ...USE_TOOLS].join(', ')}]`,
     'deny:',
-    `  tools: [${INPUT_TOOLS.filter((tool) => !(PRESS_TOOLS as readonly string[]).includes(tool)).join(', ')}]`,
+    `  tools: [${INPUT_TOOLS.filter((tool) => !(USE_TOOLS as readonly string[]).includes(tool)).join(', ')}]`,
     '',
   ].join('\n');
 }

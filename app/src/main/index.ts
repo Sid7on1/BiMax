@@ -140,7 +140,8 @@ const lookDriver = createLookDriver({
 });
 const lookService = createLookService({
   enabled: () => loadSettings().computerLook === true,
-  pressEnabled: () => loadSettings().computerLook === true && loadSettings().computerPress === true,
+  // Stage 6 (§6h): using other apps — press and type — its own switch, only with looking on.
+  useEnabled: () => loadSettings().computerLook === true && loadSettings().computerUse === true,
   // Stage 5: which build is running, for a task that built the app it is looking at.
   identify: identifyProcess,
   driver: async () => lookDriver,
@@ -1033,10 +1034,11 @@ function updateTray(): void {
       if (item.checked && process.platform === 'darwin' && !systemPreferences.isTrustedAccessibilityClient(false)) systemPreferences.isTrustedAccessibilityClient(true);
       updateTray();
     } },
-    // One press at a time (record 65 stage 3), in Bimax's own test app only: its own switch, off until ticked, usable only
-    // while looking is on. Every press still asks twice. Unticking it cancels any press that has not been sent.
-    { label: 'Let Tasks Press Buttons in the Test App (Preview)', type: 'checkbox', checked: loadSettings().computerPress === true, enabled: loadSettings().computerLook === true, click: (item) => {
-      saveSettings({ computerPress: item.checked });
+    // Using other apps (record 65 stage 6, §6h): press and type in an app the person allows per task, asked again before
+    // anything that sends, buys, deletes or confirms. Its own switch, off until ticked (the stage 3 test-app switch it
+    // replaces is not carried over), usable only while looking is on. Unticking it cancels any step not yet sent.
+    { label: 'Let Tasks Use Other Apps (Preview)', type: 'checkbox', checked: loadSettings().computerUse === true, enabled: loadSettings().computerLook === true, click: (item) => {
+      saveSettings({ computerUse: item.checked });
       if (!item.checked) void lookService.revokeAll();
       updateTray();
     } },
@@ -1559,8 +1561,8 @@ function createSupervisor(threadId?: string): EngineSupervisor {
           ...(threads.talkState(threadId).model ? { BIMAX_THREAD_MODEL: threads.talkState(threadId).model } : {}),
           // Looking at other apps (record 65 stage 2): a ⌘2 task, only once the person turned it on.
           ...(loadSettings().computerLook === true && threads.get(threadId).summary.origin !== 'project' ? { BIMAX_COMPUTER_LOOK: '1' } : {}),
-          // Pressing (stage 3): the same ⌘2 task, only once the person turned BOTH switches on.
-          ...(loadSettings().computerLook === true && loadSettings().computerPress === true && threads.get(threadId).summary.origin !== 'project' ? { BIMAX_COMPUTER_PRESS: '1' } : {}) } : {}),
+          // Using other apps (stage 6): the same ⌘2 task, only once the person turned BOTH switches on.
+          ...(loadSettings().computerLook === true && loadSettings().computerUse === true && threads.get(threadId).summary.origin !== 'project' ? { BIMAX_COMPUTER_USE: '1' } : {}) } : {}),
       }, callbacks);
     },
     now: () => Date.now(),

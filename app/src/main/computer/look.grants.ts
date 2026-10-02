@@ -1,5 +1,6 @@
 /**
- * Which apps each Bimax Thread may look at (record 65, stage 2) — decided by the user on a grant card, held by the app.
+ * Which apps each Bimax Thread may look at (record 65, stage 2) or use — press and type in (stage 6, §6h) — decided by the
+ * user on a grant card, held by the app.
  *
  * Never by the engine: a grant is set only here, from the user's answer to a card the app itself raised. A "no" is
  * remembered for the Thread too, so the task is told no again instead of asking the user again. A Thread that stops or
@@ -7,6 +8,7 @@
  */
 export class LookGrants {
   private allowed = new Map<string, Set<string>>();
+  private using = new Map<string, Set<string>>();
   private refused = new Map<string, Set<string>>();
 
   allow(threadId: string, bundleId: string): void {
@@ -14,8 +16,19 @@ export class LookGrants {
     (this.allowed.get(threadId) ?? this.allowed.set(threadId, new Set()).get(threadId)!).add(bundleId);
   }
 
+  /** Looking, and using: pressing and typing. Only ever from the person's answer on a card that said so. */
+  allowUse(threadId: string, bundleId: string): void {
+    this.allow(threadId, bundleId);
+    (this.using.get(threadId) ?? this.using.set(threadId, new Set()).get(threadId)!).add(bundleId);
+  }
+
+  mayUse(threadId: string, bundleId: string): boolean {
+    return this.using.get(threadId)?.has(bundleId) === true;
+  }
+
   refuse(threadId: string, bundleId: string): void {
     this.allowed.get(threadId)?.delete(bundleId);
+    this.using.get(threadId)?.delete(bundleId);
     (this.refused.get(threadId) ?? this.refused.set(threadId, new Set()).get(threadId)!).add(bundleId);
   }
 
@@ -33,6 +46,7 @@ export class LookGrants {
   end(threadId: string): string[] {
     const had = this.apps(threadId);
     this.allowed.delete(threadId);
+    this.using.delete(threadId);
     this.refused.delete(threadId);
     return had;
   }

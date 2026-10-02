@@ -21,6 +21,10 @@
  *   replay        the press request is delivered twice      presses +1 only
  *
  * Run from a terminal that holds Accessibility, with BimaxCuFixture.app open.
+ *
+ * Since stage 6 (§6h) the engine raises no card of its own for a step in a Bimax Thread — the app decides — so
+ * `deny-engine` has nothing to deny and an ordinary press like "Fixture Button" runs without the app's card; the modes
+ * stand as the record of stage 3. Stage 6's own live check is prove-use-driver.js.
  */
 const { app } = require('electron');
 const { Worker, MessageChannel } = require('node:worker_threads');
@@ -87,7 +91,7 @@ app.whenReady().then(async () => {
   const lookDriver = cu.createLookDriver({ stateDir: fs.mkdtempSync(path.join(os.tmpdir(), 'bimax-press-state-')), packaged: false, resourcesPath: '', appPath: appRoot });
   const service = cu.createLookService({
     enabled: () => true,
-    pressEnabled: () => pressOn,
+    useEnabled: () => pressOn,
     now: () => Date.now() + clockOffset,
     driver: async () => lookDriver,
     ask: async (threadId, question, options, body) => {
@@ -115,7 +119,7 @@ app.whenReady().then(async () => {
   // As the app starts a ⌘2 task's engine: Thread mode, both switches on.
   const env = {
     ...process.env, BIMAX_HEADLESS: '1', BIMAX_CWD: project, WORKSPACE_ROOT: project, BIMAX_THREAD_ROOT: project, BIMAX_THREAD_ID: threadId,
-    BIMAX_STATE_DIR: stateDir, BIMAX_ENGINE_MODULE: target, BIMAX_COMPUTER_LOOK: '1', BIMAX_COMPUTER_PRESS: '1',
+    BIMAX_STATE_DIR: stateDir, BIMAX_ENGINE_MODULE: target, BIMAX_COMPUTER_LOOK: '1', BIMAX_COMPUTER_USE: '1',
   };
 
   const { port1, port2 } = new MessageChannel();

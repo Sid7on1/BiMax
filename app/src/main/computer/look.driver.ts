@@ -2,12 +2,13 @@ import { createHash } from 'node:crypto';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import type { LookDriver, LookElement, PressOutcome, PressTarget, RunningApp } from './look.service';
-import { PRESS_ROLES, lookManifest, pressManifest, runtimeManifest } from './look.manifest';
+import type { LookDriver, LookElement, PressOutcome, PressTarget, RunningApp, TypeOutcome } from './look.service';
+import { PRESS_EXCLUDED_ROLES, TYPE_ROLES, lookManifest, runtimeManifest, useManifest } from './look.manifest';
+import { DIALOG_ROLES } from './look.commit';
 
 /**
- * Cua Driver 0.31, embedded in this process: look (record 65, stage 2) and, for the test app only, one press at a time
- * (stage 3).
+ * Cua Driver 0.31, embedded in this process: look (record 65, stage 2) and, in an app the person let the task use, one
+ * press or one typing at a time (stage 3, widened by stage 6 §6h).
  *
  * In-process (`@trycua/cua-driver`, no daemon), so macOS attributes Accessibility to Bimax itself. Loaded on the first
  * look a person allowed — never at launch, so a coding task never loads it and never meets a permission prompt. The
@@ -34,28 +35,48 @@ interface WindowElement extends LookElement { token: string }
 /**
  * The controls inside the window — under its AXWindow, never under the menu bar the driver also returns (the model
  * never sees the menu bar, so it can never be pressed). Only named ones: a control without a name cannot be asked
- * about on a card or matched again before a press.
+ * about on a card or matched again before a press. Pressable: any enabled control whose own AX action is a press,
+ * except those that open a menu or take text (PRESS_EXCLUDED_ROLES). Editable: an enabled text box (TYPE_ROLES) — never
+ * a password field. A text box with no title is named by its value, so its name changes as text goes in; a box is
+ * found again after typing by its role and where it starts on screen (`at`).
  */
 export function windowElements(raw: unknown): WindowElement[] {
   const list: any[] = Array.isArray(raw) ? raw : [];
   const byIndex = new Map<number, any>(list.map((e) => [Number(e?.element_index), e]));
-  const inWindow = (e: any): boolean => {
-    for (let cur = e, hops = 0; cur && hops < 64; cur = byIndex.get(Number(cur.parent_index)), hops++) {
-      if (cur.role === 'AXMenuBar') return false;
-      if (cur.role === 'AXWindow') return true;
-      if (cur.parent_index === undefined) return false;
+  const ancestry = (e: any): { inWindow: boolean; inDialog: boolean } => {
+    let inDialog = false;
+    for (let cur = byIndex.get(Number(e.parent_index)), hops = 0; cur && hops < 64; cur = byIndex.get(Number(cur.parent_index)), hops++) {
+      if (cur.role === 'AXMenuBar') return { inWindow: false, inDialog };
+      if (DIALOG_ROLES.has(cur.role)) inDialog = true;
+      if (cur.role === 'AXWindow') return { inWindow: true, inDialog };
+      if (cur.parent_index === undefined) break;
     }
-    return false;
+    return { inWindow: false, inDialog };
   };
-  return list
-    .filter((e) => e && typeof e.role === 'string' && typeof e.label === 'string' && e.label.trim() && e.role !== 'AXWindow' && inWindow(e))
-    .map((e) => ({
-      role: String(e.role),
+  const out: WindowElement[] = [];
+  for (const e of list) {
+    if (!e || typeof e.role !== 'string' || typeof e.label !== 'string' || !e.label.trim() || e.role === 'AXWindow' || e.role === 'AXMenuBar') continue;
+    const place = ancestry(e);
+    if (!place.inWindow) continue;
+    const role = String(e.role);
+    const enabled = e.enabled !== false;
+    const frame = e.frame && typeof e.frame === 'object' ? e.frame : null;
+    out.push({
+      role,
       label: String(e.label),
-      pressable: PRESS_ROLES.has(String(e.role)) && Array.isArray(e.actions) && e.actions.includes('AXPress') && e.enabled !== false,
+      pressable: enabled && !PRESS_EXCLUDED_ROLES.has(role) && Array.isArray(e.actions) && e.actions.includes('AXPress'),
+      editable: enabled && TYPE_ROLES.has(role),
+      ...(TYPE_ROLES.has(role) ? { value: typeof e.value === 'string' ? e.value : '' } : {}),
+      inDialog: place.inDialog,
+      ...(frame && Number.isFinite(Number(frame.x)) && Number.isFinite(Number(frame.y)) ? { at: `${Math.round(Number(frame.x))},${Math.round(Number(frame.y))}` } : {}),
       token: String(e.element_token ?? ''),
-    }));
+    });
+  }
+  return out;
 }
+
+/** What a look or a re-read hands the service: the controls without their tokens (tokens never leave this file). */
+const shown = (els: WindowElement[]): LookElement[] => els.map(({ token, ...rest }) => { void token; return rest; });
 
 const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
@@ -171,13 +192,13 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
     return parse(await session.callTool(tool, JSON.stringify(args)));
   }
 
-  /** A press session: its own short-lived trusted session whose manifest adds `click`, for an app on PRESS_APPS only. */
-  async function pressSessionFor(threadId: string, app: RunningApp, generation: number): Promise<any> {
+  /** A use session: its own short-lived trusted session whose manifest adds `click` and `set_value` for this one app. */
+  async function useSessionFor(threadId: string, app: RunningApp, generation: number): Promise<any> {
     requireCurrent(threadId, generation);
-    const key = `${threadId}|${app.bundleId}|press`;
+    const key = `${threadId}|${app.bundleId}|use`;
     const existing = sessions.get(key);
     if (existing) return existing.session;
-    const manifestText = pressManifest(app.bundleId); // throws for any app not on PRESS_APPS
+    const manifestText = useManifest(app.bundleId); // throws for an app a task never uses
     const { cua, driver } = await start();
     requireCurrent(threadId, generation);
     const name = `bimax-${createHash('sha256').update(key).digest('hex').slice(0, 16)}`;
@@ -207,11 +228,12 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
 
     /**
      * One press (stage 3). Never through withRuntime and never retried: once `click` may have been sent, repeating it
-     * could press twice. Everything before the click throws (nothing was pressed); everything after it is returned.
+     * could press twice. Everything before the click throws (nothing was pressed); everything after it is returned,
+     * with the window as read afterwards — what the next step is bound to.
      */
     async press(threadId: string, app: RunningApp, target: PressTarget): Promise<PressOutcome> {
       const generation = generations.get(threadId) ?? 0;
-      const session = await pressSessionFor(threadId, app, generation);
+      const session = await useSessionFor(threadId, app, generation);
       requireCurrent(threadId, generation);
       // A fresh snapshot in this session: its tokens are the only ones a press uses.
       const before = await call(session, 'get_window_state', { pid: app.pid, window_id: target.windowId, include_screenshot: false });
@@ -237,7 +259,49 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
         catch { break; }
         if (String(after.tree_markdown ?? '') !== String(before.tree_markdown ?? '')) break;
       }
-      return { kind: 'pressed', title: String(before.window_title ?? ''), before: String(before.tree_markdown ?? ''), after: String(after.tree_markdown ?? '') };
+      return {
+        kind: 'pressed', title: String(before.window_title ?? ''), before: String(before.tree_markdown ?? ''), after: String(after.tree_markdown ?? ''),
+        elements: shown(windowElements(after.elements)),
+      };
+    },
+
+    /**
+     * One typing (stage 6): set one text box's whole value, by the token of a snapshot taken just before, in the
+     * background — never keystrokes, so never Return. Never retried. The box is found again by its role and where it
+     * starts, and the result says exactly what it reads now; the driver's "ok" is not proof.
+     */
+    async type(threadId: string, app: RunningApp, target: PressTarget, text: string): Promise<TypeOutcome> {
+      const generation = generations.get(threadId) ?? 0;
+      const session = await useSessionFor(threadId, app, generation);
+      requireCurrent(threadId, generation);
+      const before = await call(session, 'get_window_state', { pid: app.pid, window_id: target.windowId, include_screenshot: false });
+      const matches = windowElements(before.elements).filter((e) => e.role === target.role && e.label === target.label);
+      if (matches.length !== 1 || !matches[0].editable || !matches[0].token) {
+        return { kind: 'not_typed', reason: matches.length > 1 ? 'ambiguous' : 'changed' };
+      }
+      const box = matches[0];
+      requireCurrent(threadId, generation);
+      try {
+        await call(session, 'set_value', { pid: app.pid, element_token: box.token, value: text });
+      } catch (error: any) {
+        const reasonText = String(error?.inner?.reason ?? error?.message ?? error);
+        if (/stale|supersed|not allowed|denied|refus|outside|not permitted|not settable|unsupported/i.test(reasonText)) return { kind: 'not_typed', reason: 'refused', detail: reasonText.slice(0, 200) };
+        return { kind: 'uncertain', detail: reasonText.slice(0, 200) };
+      }
+      let after = before;
+      let value: string | null = null;
+      for (const wait of [150, 300, 450]) {
+        await sleep(wait);
+        try { after = await call(session, 'get_window_state', { pid: app.pid, window_id: target.windowId, include_screenshot: false }); }
+        catch { break; }
+        const again = windowElements(after.elements).filter((e) => e.role === box.role && box.at !== undefined && e.at === box.at);
+        value = again.length === 1 ? (again[0].value ?? '') : null;
+        if (value === text) break;
+      }
+      return {
+        kind: 'typed', title: String(before.window_title ?? ''), before: String(before.tree_markdown ?? ''), after: String(after.tree_markdown ?? ''),
+        value, elements: shown(windowElements(after.elements)),
+      };
     },
 
     async end(threadId: string): Promise<void> {
@@ -280,8 +344,8 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
     });
     requireCurrent(threadId, generation);
     if (state.degraded && !state.tree_markdown) throw new Error(String(state.degraded_reason ?? 'the window could not be read'));
-    // The controls are kept (without their tokens) so a later press can be bound to what this look showed.
-    const elements: LookElement[] = windowElements(state.elements).map(({ role, label, pressable }) => ({ role, label, pressable }));
+    // The controls are kept (without their tokens) so a later press or typing can be bound to what this look showed.
+    const elements: LookElement[] = shown(windowElements(state.elements));
     return { title: String(pick.title ?? ''), markdown: String(state.tree_markdown ?? ''), windowId: Number(pick.window_id), elements };
   }
 }

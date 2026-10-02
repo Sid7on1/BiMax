@@ -354,16 +354,6 @@ export function approvalCard(plan: ChangePlan | null, taskType: string, payload:
     declared = declaredEffectLines(mapToolCall(String(payload?.tool || ''), payload ?? {}, cwd));
   } catch { /* the card is still worth showing without this */ }
 
-  // Record 65 stage 3: a press in another app's window. This is the engine's card; the app then checks the control
-  // against the window the task just read and asks once more for the press itself — nothing is pressed until both.
-  if (!plan && String(payload?.tool || '') === 'PressInAppTool') {
-    const control = String(payload?.control ?? '').trim().slice(0, 80) || 'a control';
-    const app = String(payload?.app ?? '').trim().slice(0, 80) || 'another app';
-    return {
-      question: `Let this task press “${control}” in ${app}?`,
-      body: 'Bimax will then check that this control is in the window it just read, and ask you once more before pressing it. Nothing is pressed until you allow both.',
-    };
-  }
   if (!plan) {
     const target = typeof payload?.targetPath === 'string' ? payload.targetPath : typeof payload?.path === 'string' ? payload.path : '';
     const what = String(payload?.tool || 'this action');

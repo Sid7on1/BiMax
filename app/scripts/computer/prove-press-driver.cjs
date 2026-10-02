@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-/** Record 65 stage 3: the real driver wrapper's press path, run against a controlled SDK that records every call.
- * No native UI is touched. This proves the wrapper's ordering and refusals — what is clicked, when, and how often — not
- * TCC, the real driver or installed-app behaviour.
+/** Record 65 stages 3 and 6: the real driver wrapper's press and typing paths, run against a controlled SDK that
+ * records every call. No native UI is touched. This proves the wrapper's ordering and refusals — what is clicked or set,
+ * when, and how often — not TCC, the real driver or installed-app behaviour.
  * Run: node app/scripts/computer/prove-press-driver.cjs [--mutant=<name>]
  * Each mutant edits a temporary compiled copy; every one must fail these same checks (exit 1).
  */
@@ -24,6 +24,14 @@ const MUTANTS = {
   'no-generation-before-click': ['look.driver.ts', "      // The last moment a Stop or a switch turned off can cancel it: nothing has been sent yet.\n      requireCurrent(threadId, generation);\n", ''],
   // An error from click is retried.
   'retry-click': ['look.driver.ts', "        return { kind: 'uncertain', detail: text.slice(0, 200) };", `        try { await call(session, 'click', ${CLICK_ARGS}); } catch { /* retried */ }\n        return { kind: 'uncertain', detail: text.slice(0, 200) };`],
+  // Typing: a box name two boxes share is typed into anyway.
+  'type-no-uniqueness': ['look.driver.ts', 'if (matches.length !== 1 || !matches[0].editable || !matches[0].token) {', 'if (!matches[0] || !matches[0].editable || !matches[0].token) {'],
+  // Typing: something that is not a text box (a password field) is typed into.
+  'type-no-editable': ['look.driver.ts', 'if (matches.length !== 1 || !matches[0].editable || !matches[0].token) {', 'if (matches.length !== 1 || !matches[0].token) {'],
+  // Typing: an error from set_value is retried.
+  'type-retry': ['look.driver.ts', "        return { kind: 'uncertain', detail: reasonText.slice(0, 200) };", "        try { await call(session, 'set_value', { pid: app.pid, element_token: box.token, value: text }); } catch { /* retried */ }\n        return { kind: 'uncertain', detail: reasonText.slice(0, 200) };"],
+  // Typing: the read-back takes any box's value, not the box that was typed into.
+  'type-any-box': ['look.driver.ts', 'e.role === box.role && box.at !== undefined && e.at === box.at', 'e.role === box.role'],
 };
 if (mutantArg && !MUTANTS[mutantArg]) { console.error(`unknown mutant ${mutantArg}; one of ${Object.keys(MUTANTS).join(', ')}`); process.exit(2); }
 
@@ -31,7 +39,11 @@ const WINDOW = { element_index: 62, role: 'AXWindow', label: 'Bimax-Cu Fixture' 
 const button = (extra = {}) => ({ element_index: 63, parent_index: 62, role: 'AXButton', label: 'Fixture Button', actions: ['AXPress'], enabled: true, ...extra });
 const tree = (status) => `- [62] AXWindow "Bimax-Cu Fixture"\n  - [63] AXButton "Fixture Button"\n  - [90] AXStaticText = "${status}"`;
 const FIXTURE = { name: 'BimaxCuFixture', bundleId: 'ai.bimax.cu.fixture', pid: 123 };
+const NOTES = { name: 'Notes', bundleId: 'com.apple.Notes', pid: 9 };
 const TARGET = { windowId: 1228, role: 'AXButton', label: 'Fixture Button' };
+const BOX_TARGET = { windowId: 1228, role: 'AXTextField', label: 'Compose message' };
+// A text box the driver names by its title while empty and by its value once filled (measured on the fixture).
+const box = (value, extra = {}) => ({ element_index: 65, parent_index: 62, role: 'AXTextField', label: value || 'Compose message', value, actions: ['AXConfirm'], enabled: true, frame: { x: 219, y: 371, w: 300, h: 26 }, ...extra });
 
 const SCENARIOS = [
   { name: 'pressed', elements: [WINDOW, button()], afterStatus: 'presses=1', expect: { kind: 'pressed', clicks: 1, unchanged: false } },
@@ -43,7 +55,22 @@ const SCENARIOS = [
   { name: 'stopped-during-read', elements: [WINDOW, button()], stopDuringRead: true, expect: { thrown: 'This look grant ended.', clicks: 0 } },
   { name: 'click-unknown', elements: [WINDOW, button()], clickError: 'the request timed out', expect: { kind: 'uncertain', clicks: 1 } },
   { name: 'click-refused', elements: [WINDOW, button()], clickError: 'stale element token: a newer snapshot superseded it', expect: { kind: 'not_pressed', reason: 'refused', clicks: 1 } },
-  { name: 'not-the-test-app', elements: [WINDOW, button()], app: { name: 'Notes', bundleId: 'com.apple.Notes', pid: 9 }, expect: { thrown: 'not an app a task may press in', clicks: 0, sessions: 0 } },
+  // Stage 6: any app the person allowed (the service checks the grant), never one a task never uses.
+  { name: 'another-app', elements: [WINDOW, button()], afterStatus: 'presses=1', app: NOTES, expect: { kind: 'pressed', clicks: 1, unchanged: false } },
+  { name: 'never-used-app', elements: [WINDOW, button()], app: { name: 'Bimax', bundleId: 'ai.bimax.app', pid: 8 }, expect: { thrown: 'not an app a task may use', clicks: 0, sessions: 0 } },
+  { name: 'a-row', elements: [WINDOW, button({ role: 'AXRow' })], afterStatus: 'presses=1', target: { ...TARGET, role: 'AXRow' }, expect: { kind: 'pressed', clicks: 1, unchanged: false } },
+  { name: 'a-pop-up', elements: [WINDOW, button({ role: 'AXPopUpButton', actions: ['AXShowMenu', 'AXPress'] })], target: { ...TARGET, role: 'AXPopUpButton' }, expect: { kind: 'not_pressed', reason: 'changed', clicks: 0 } },
+  // Typing.
+  { name: 'typed', type: 'running late', box: '', expect: { kind: 'typed', sets: 1, value: 'running late' } },
+  { name: 'type-did-not-land', type: 'running late', box: '', ignoreSet: true, expect: { kind: 'typed', sets: 1, value: '' } },
+  { name: 'type-box-gone', type: 'x', noBox: true, expect: { kind: 'not_typed', reason: 'changed', sets: 0 } },
+  { name: 'type-shared-name', type: 'x', box: '', twoBoxes: true, expect: { kind: 'not_typed', reason: 'ambiguous', sets: 0 } },
+  { name: 'type-password-field', type: 'x', box: '', secure: true, expect: { kind: 'not_typed', reason: 'changed', sets: 0 } },
+  // Same role and name, but disabled: only the wrapper's own "is it a box Bimax may type into" check can refuse it.
+  { name: 'type-disabled-box', type: 'x', box: '', disabled: true, expect: { kind: 'not_typed', reason: 'changed', sets: 0 } },
+  { name: 'type-refused', type: 'x', box: '', setError: 'stale element token: a newer snapshot superseded it', expect: { kind: 'not_typed', reason: 'refused', sets: 1 } },
+  { name: 'type-unknown', type: 'x', box: '', setError: 'the request timed out', expect: { kind: 'uncertain', sets: 1 } },
+  { name: 'type-stopped-during-read', type: 'x', box: '', stopDuringRead: true, expect: { thrown: 'This look grant ended.', sets: 0 } },
 ];
 
 async function main() {
@@ -62,7 +89,7 @@ async function main() {
   const { createLookDriver } = require(compiled);
   const results = [];
   for (const scenario of SCENARIOS) {
-    const state = { calls: [], clicks: [], sessions: 0, manifests: [], scenario, status: 'presses=0', onRead: null };
+    const state = { calls: [], clicks: [], sets: [], sessions: 0, manifests: [], scenario, status: 'presses=0', box: scenario.box ?? '', onRead: null };
     globalThis[key] = state;
     const appPath = path.join(temp, scenario.name);
     const sdkDir = path.join(appPath, 'node_modules/@trycua/cua-driver/dist');
@@ -83,8 +110,22 @@ async function main() {
           state.calls.push(tool);
           if (tool === 'get_window_state') {
             const hook = state.onRead; state.onRead = null; if (hook) await hook();
-            const elements = state.scenario.elements.map((e) => ({ ...e, element_token: 's' + state.calls.length + ':' + e.element_index }));
+            const sc = state.scenario;
+            const base = sc.type === undefined ? sc.elements : [
+              ${'{'} element_index: 62, role: 'AXWindow', label: 'Bimax-Cu Fixture' },
+              ...(sc.noBox ? [] : [sc.secure ? { ...(${box.toString()})(state.box), role: 'AXSecureTextField' } : { ...(${box.toString()})(state.box), ...(sc.disabled ? { enabled: false } : {}) }]),
+              ...(sc.twoBoxes ? [{ ...(${box.toString()})(''), element_index: 66, frame: { x: 219, y: 300, w: 300, h: 26 } }] : []),
+              // Another box elsewhere, holding text of its own: a read-back must not take its value.
+              { ...(${box.toString()})('elsewhere'), element_index: 67, frame: { x: 219, y: 500, w: 300, h: 26 } },
+            ];
+            const elements = base.map((e) => ({ ...e, element_token: 's' + state.calls.length + ':' + e.element_index }));
             return { structuredJson: JSON.stringify({ window_title: 'Bimax-Cu Fixture', elements, tree_markdown: (${tree.toString()})(state.status) }) };
+          }
+          if (tool === 'set_value') {
+            state.sets.push(args);
+            if (state.scenario.setError) return { isError: true, text: state.scenario.setError };
+            if (!state.scenario.ignoreSet) state.box = args.value;
+            return { structuredJson: '{}' };
           }
           if (tool === 'click') {
             state.clicks.push(args);
@@ -98,10 +139,15 @@ async function main() {
     `);
     const driver = createLookDriver({ stateDir: path.join(appPath, 'state'), packaged: false, resourcesPath: '', appPath });
     if (scenario.stopDuringRead) state.onRead = () => driver.end('t1');
-    const outcome = await driver.press('t1', scenario.app || FIXTURE, TARGET).then((value) => ({ value }), (error) => ({ thrown: error.message }));
+    const act = scenario.type !== undefined
+      ? driver.type('t1', scenario.app || FIXTURE, BOX_TARGET, scenario.type)
+      : driver.press('t1', scenario.app || FIXTURE, scenario.target || TARGET);
+    const outcome = await act.then((value) => ({ value }), (error) => ({ thrown: error.message }));
     const e = scenario.expect;
     const label = `${scenario.name}:`;
-    assert.equal(state.clicks.length, e.clicks, `${label} clicked ${state.clicks.length} times, expected ${e.clicks}`);
+    assert.equal(state.clicks.length, e.clicks ?? 0, `${label} clicked ${state.clicks.length} times, expected ${e.clicks ?? 0}`);
+    assert.equal(state.sets.length, e.sets ?? 0, `${label} set ${state.sets.length} values, expected ${e.sets ?? 0}`);
+    if (e.value !== undefined) assert.equal(outcome.value?.value, e.value, `${label} the box read back ${JSON.stringify(outcome.value?.value)}`);
     if (e.thrown) assert.match(String(outcome.thrown), new RegExp(e.thrown), `${label} expected a refusal before any click`);
     else {
       assert.equal(outcome.value.kind, e.kind, `${label} outcome ${outcome.value?.kind ?? outcome.thrown}`);
@@ -115,12 +161,18 @@ async function main() {
       assert.equal(click.action, 'press'); assert.equal(click.delivery_mode, 'background');
       assert.match(click.element_token, /^s1:/, `${label} the token must come from the read just before the click`);
     }
-    for (const manifest of state.manifests) {
-      assert.match(manifest, /allow:\n {2}tools: \[list_apps, list_windows, get_window_state, get_screen_size, click\]/, `${label} press manifest allows`);
-      assert.doesNotMatch(manifest.split('deny:')[1], /\bclick\b/, `${label} press manifest denies click`);
-      assert.match(manifest, /bundle_id: ai\.bimax\.cu\.fixture/, `${label} press manifest names the test app`);
+    for (const set of state.sets) {
+      // Only ever an AX value write by a token from this session's own fresh read: no keystrokes, no coordinates.
+      assert.deepEqual(Object.keys(set).sort(), ['element_token', 'pid', 'value'], `${label} set_value args`);
+      assert.match(set.element_token, /^s1:65$/, `${label} the token must be the box's, from the read just before`);
     }
-    results.push({ scenario: scenario.name, outcome: outcome.thrown ? { thrown: outcome.thrown } : { kind: outcome.value.kind, reason: outcome.value.reason }, calls: state.calls, clicks: state.clicks.length, sessions: state.sessions });
+    for (const manifest of state.manifests) {
+      assert.match(manifest, /allow:\n {2}tools: \[list_apps, list_windows, get_window_state, get_screen_size, click, set_value\]/, `${label} use manifest allows`);
+      assert.doesNotMatch(manifest.split('deny:')[1], /\bclick\b|\bset_value\b/, `${label} use manifest denies neither`);
+      assert.match(manifest.split('deny:')[1], /type_text, set_value|type_text, press_key|press_key, hotkey/, `${label} use manifest denies keys`);
+      assert.match(manifest, new RegExp(`bundle_id: ${(scenario.app || FIXTURE).bundleId.replace(/\./g, '\\.')}`), `${label} use manifest names the one app`);
+    }
+    results.push({ scenario: scenario.name, outcome: outcome.thrown ? { thrown: outcome.thrown } : { kind: outcome.value.kind, reason: outcome.value.reason, value: outcome.value.value }, calls: state.calls, clicks: state.clicks.length, sets: state.sets.length, sessions: state.sessions });
   }
   console.log(JSON.stringify({ kind: 'deterministic-controlled-sdk', mutant: mutantArg || null, passed: results.length, results }, null, 2));
 }

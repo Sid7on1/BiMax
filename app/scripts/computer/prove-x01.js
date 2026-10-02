@@ -104,7 +104,7 @@ app.whenReady().then(async () => {
   const lookDriver = cu.createLookDriver({ stateDir: fs.mkdtempSync(path.join(os.tmpdir(), 'bimax-x01-state-')), packaged: false, resourcesPath: '', appPath: appRoot });
   const service = cu.createLookService({
     enabled: () => true,
-    pressEnabled: () => true,
+    useEnabled: () => true,
     identify: cu.identifyProcess,
     driver: async () => lookDriver,
     ask: async (threadId, question, options) => {
@@ -119,7 +119,7 @@ app.whenReady().then(async () => {
   const threadId = 'x01-thread';
   const env = {
     ...process.env, BIMAX_HEADLESS: '1', BIMAX_CWD: run, WORKSPACE_ROOT: run, BIMAX_THREAD_ROOT: run, BIMAX_THREAD_ID: threadId,
-    BIMAX_STATE_DIR: stateDir, BIMAX_ENGINE_MODULE: target, BIMAX_COMPUTER_LOOK: '1', BIMAX_COMPUTER_PRESS: '1',
+    BIMAX_STATE_DIR: stateDir, BIMAX_ENGINE_MODULE: target, BIMAX_COMPUTER_LOOK: '1', BIMAX_COMPUTER_USE: '1',
   };
   const { port1, port2 } = new MessageChannel();
   const worker = new Worker(target, { env, workerData: { bimaxEngineRoot: run, bimaxEnginePort: port2 }, transferList: [port2], stdout: true, stderr: true });

@@ -57,7 +57,7 @@
         "version": "1.1.0",
         "buildCommit": "01234567"
       },
-      "protocolVersion": "3.4.0",
+      "protocolVersion": "3.5.0",
       "protocolMajor": 3,
       "minCompatibleMajor": 2,
       "maxCompatibleMajor": 3,
@@ -204,6 +204,18 @@
         "control": "Fixture Button",
         "role": "AXButton"
       }
+    },
+    {
+      "t": "host_call",
+      "id": 15,
+      "capability": "type",
+      "op": "type",
+      "args": {
+        "app": "BimaxCuFixture",
+        "field": "alpha beta gamma",
+        "role": "AXTextField",
+        "text": "hello"
+      }
     }
   ],
   "inbound": [
@@ -236,6 +248,14 @@
       "error": "Pressed, but nothing in the window changed.",
       "value": {
         "code": "no_effect"
+      }
+    },
+    {
+      "t": "host_result",
+      "id": 15,
+      "ok": true,
+      "value": {
+        "text": "Typed into “alpha beta gamma” in BimaxCuFixture. The box now reads exactly: “hello”."
       }
     },
     {

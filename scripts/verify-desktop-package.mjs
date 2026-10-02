@@ -115,5 +115,5 @@ if (!/new\s+(?:[\w$]+\.)*Worker\s*\(/.test(packagedMain)) {
 
 console.log(`desktop package gate: PASS ${bundle}`);
 console.log(`desktop package gate: PASS ${expectedArchitecture} app executable and bundled engine`);
-console.log('desktop package gate: PASS no Computer Use sidecar is packaged; the only Computer Use part is the pinned driver SDK (record 65: look, and one press in the test app)');
+console.log('desktop package gate: PASS no Computer Use sidecar is packaged; the only Computer Use part is the pinned driver SDK (record 65: look, press and type in apps the person allows)');
 console.log('desktop package gate: PASS packaged run resolves the engine from the bundle, as a worker thread, with no override');

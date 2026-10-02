@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { Governor, TASK_GRANT_OPTION } from '../governor/governor';
+import { Governor } from '../governor/governor';
 import { GlobalPrompter } from '../engine/prompter';
 import { SafetyPolicy } from '../governor/policy.engine';
 import { taskGrants } from '../governor/task.grants';
@@ -8,8 +8,9 @@ import { taskGrants } from '../governor/task.grants';
 /**
  * Record 46's restoration trap, fixed in record 65 stage 3: inside a Bimax Thread the governor's Thread branch returned
  * before the computer-control floors, so neither the sensitive-target refusal nor "not while unattended" held there.
- * A press (PressInAppTool, COMPUTER_CONTROL) must meet both floors first, then the engine's own one-time card — never
- * a grant for the task — before the app asks again for the press itself.
+ * A press or a typing (PressInAppTool, TypeInAppTool: COMPUTER_CONTROL) must meet both floors and plan mode first.
+ * Since stage 6 (§6h, the owner's choice) the engine raises no card of its own in a Thread: the app reads the window,
+ * runs ordinary steps and stops on its own card before anything that commits.
  */
 
 const bus = { emit: jest.fn(), on: jest.fn() } as any;
@@ -55,17 +56,25 @@ test('in plan mode a press is refused', async () => {
   expect(ask).not.toHaveBeenCalled();
 });
 
-test('an ordinary press asks every time, once, naming the control — and offers no grant for the task', async () => {
-  const ask = jest.spyOn(GlobalPrompter, 'ask').mockResolvedValueOnce('Allow').mockResolvedValueOnce('Allow').mockResolvedValue('Deny');
+test('past the floors, a press or a typing in a Thread raises no engine card and leaves no grant: the app owns the card', async () => {
+  const ask = jest.spyOn(GlobalPrompter, 'ask').mockResolvedValue('Deny');
   const governor = new Governor(bus);
-  await expect(press(governor, 'BimaxCuFixture', 'Fixture Button')).resolves.toBeUndefined();
-  await expect(press(governor, 'BimaxCuFixture', 'Fixture Button')).resolves.toBeUndefined();
-  await expect(press(governor, 'BimaxCuFixture', 'Fixture Button')).rejects.toThrow('Action declined');
-  expect(ask).toHaveBeenCalledTimes(3);
-  const [question, options] = ask.mock.calls[0];
-  expect(question).toBe('Let this task press “Fixture Button” in BimaxCuFixture?');
-  expect(options).toEqual(['Allow', 'Deny']);
-  expect(options).not.toContain(TASK_GRANT_OPTION);
+  await expect(press(governor, 'WhatsApp', 'Send')).resolves.toBeUndefined();
+  await expect(governor.approveTaskExecution('COMPUTER_CONTROL', { tool: 'TypeInAppTool', app: 'WhatsApp', text: 'hi', context: { cwd: root }, isDestructive: true })).resolves.toBeUndefined();
+  expect(ask).not.toHaveBeenCalled();
+  expect(taskGrants.list()).toEqual([]);
+});
+
+test('a typing meets the same floors as a press', async () => {
+  const ask = jest.spyOn(GlobalPrompter, 'ask').mockResolvedValue('Allow');
+  const governor = new Governor(bus);
+  const type = (app: string) => governor.approveTaskExecution('COMPUTER_CONTROL', { tool: 'TypeInAppTool', app, text: 'x', context: { cwd: root }, isDestructive: true });
+  await expect(type('1Password')).rejects.toThrow(/sensitive targets/);
+  governor.mode = 'plan';
+  await expect(type('Notes')).rejects.toThrow(/Plan mode/);
+  governor.mode = 'unattended';
+  await expect(type('Notes')).rejects.toThrow('not allowed while unattended');
+  expect(ask).not.toHaveBeenCalled();
 });
 
 test('outside a Thread the floors still come first', async () => {

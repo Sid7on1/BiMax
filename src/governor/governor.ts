@@ -159,6 +159,11 @@ export class Governor implements IGovernor {
       }
       let routine = payload.isDestructive === false;
       if (taskType === 'OS_COMMAND') routine = isReadOnlyShellCommand(payload.command);
+      // Record 65 §6h (the owner's choice, 2026-10-02): in a Bimax Thread, computer control is approved by the app,
+      // which reads the window and so knows what a step does — ordinary steps run, and anything that sends, pays,
+      // deletes or confirms stops on the app's card showing exactly what. The floors at the top of this method
+      // (sensitive targets, unattended) and plan mode above have already run; nothing here can skip the app's card.
+      if (taskType === 'COMPUTER_CONTROL') routine = true;
       if (taskType === 'FILE_WRITE' && typeof payload.targetPath === 'string') {
         try { await fsp.lstat(payload.targetPath); routine = false; }
         catch (error: any) { if (error.code === 'ENOENT') routine = true; else throw error; }

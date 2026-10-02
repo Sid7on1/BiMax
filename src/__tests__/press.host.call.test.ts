@@ -5,15 +5,18 @@ import { ProtocolHost, HostCallResult } from '../protocol/host';
 import { Outbound, HOST_CALL_EVENT } from '../protocol/protocol';
 import { engineEvents } from '../engine/events';
 import { createPressTool } from '../tools/implementations/press.tool';
+import { createTypeTool } from '../tools/implementations/type.tool';
 import { fenceUntrusted, untrustedChannel } from '../mind/taint';
 import { GovernorVetoError } from '../core/errors';
 import { checkToolArgs } from '../tools/args.validate';
 
 /**
- * Record 65 stage 3: the engine asks its app to press one control in another app's window, and only asks.
+ * Record 65 stages 3 and 6: the engine asks its app to press one control, or type into one box, in another app's
+ * window, and only asks.
  *
- * The request is a `host_call` of capability `press`; the tool runs only after the governor's computer-control floors
- * and its one-time card (buildTool → COMPUTER_CONTROL); everything the app says back is screen text.
+ * The request is a `host_call` of capability `press` or `type`; the tool runs only after the governor's computer-control
+ * floors (buildTool → COMPUTER_CONTROL); the app decides whether the person must see the step first (§6h); everything
+ * the app says back is screen text.
  */
 describe('PressInAppTool', () => {
   let approvals: Array<{ taskType: string; payload: any }>;
@@ -72,6 +75,44 @@ describe('PressInAppTool', () => {
   });
 });
 
+describe('TypeInAppTool', () => {
+  let approvals: Array<{ taskType: string; payload: any }>;
+  const governor = { approveTaskExecution: async (taskType: string, payload: any) => { approvals.push({ taskType, payload }); } } as any;
+  let calls: Array<{ capability: string; op: string; args: any }>;
+  const listener = (capability: string, op: string, args: any, resolve: (r: HostCallResult) => void) => {
+    calls.push({ capability, op, args });
+    resolve({ ok: true, value: { text: 'Typed into “Compose message”. The box now reads exactly: “hi”.' } });
+  };
+  beforeEach(() => { approvals = []; calls = []; engineEvents.on(HOST_CALL_EVENT, listener); });
+  afterEach(() => { engineEvents.off(HOST_CALL_EVENT, listener); });
+  const run = (args: Record<string, unknown>) => (createTypeTool(governor) as any).execute(args, { cwd: process.cwd() });
+
+  it('names one app, optionally one box, and one text; destructive; no keys, coordinates or Return', () => {
+    const tool = createTypeTool(governor) as any;
+    expect(Object.keys(tool.schema.properties).sort()).toEqual(['app', 'field', 'role', 'text']);
+    expect(tool.schema.required).toEqual(['app', 'text']);
+    expect(tool.isDestructive).toBe(true);
+  });
+
+  it('meets the governor as computer control, then asks the app with capability type', async () => {
+    const out = await run({ app: 'WhatsApp', field: 'Compose message', role: 'AXTextArea', text: 'hi' });
+    expect(approvals[0]).toMatchObject({ taskType: 'COMPUTER_CONTROL', payload: { tool: 'TypeInAppTool', app: 'WhatsApp', text: 'hi' } });
+    expect(calls).toEqual([{ capability: 'type', op: 'type', args: { app: 'WhatsApp', field: 'Compose message', role: 'AXTextArea', text: 'hi' } }]);
+    expect(out).toContain('reads exactly');
+  });
+
+  it('a line break never reaches the app', async () => {
+    for (const text of ['hi\nthere', 'hi\rthere', `hi${String.fromCharCode(0x2028)}there`]) {
+      expect(String(await run({ app: 'WhatsApp', text }))).toContain('no line breaks');
+    }
+    expect(calls).toEqual([]);
+  });
+
+  it('what it returns is screen text', () => {
+    expect(untrustedChannel('TypeInAppTool')).toBe('screen');
+  });
+});
+
 describe('the press capability travels as its own host_call', () => {
   it('ProtocolHost writes the capability the tool asked for', () => {
     const emitter = new EventEmitter();
@@ -92,11 +133,12 @@ describe('what a press returns is screen text', () => {
   });
 });
 
-describe('admission: the engine has the press tool only when the app turns on looking AND pressing', () => {
+describe('admission: the engine has the press and type tools only when the app turns on looking AND using', () => {
   it('registration needs both flags, and nothing in the engine sets either', () => {
     const root = path.resolve(__dirname, '..', '..');
     const container = fs.readFileSync(path.join(root, 'src/core/container.ts'), 'utf8');
-    expect(container).toContain("if (process.env.BIMAX_COMPUTER_LOOK === '1' && process.env.BIMAX_COMPUTER_PRESS === '1') toolRegistry.register(createPressTool(governor));");
+    expect(container).toContain("if (process.env.BIMAX_COMPUTER_LOOK === '1' && process.env.BIMAX_COMPUTER_USE === '1') {\n    toolRegistry.register(createPressTool(governor));\n    toolRegistry.register(createTypeTool(governor));\n  }");
+    expect(container).not.toContain('BIMAX_COMPUTER_PRESS');
     const setters = [] as string[];
     const walk = (dir: string) => {
       for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -104,7 +146,7 @@ describe('admission: the engine has the press tool only when the app turns on lo
         if (entry.isDirectory()) { if (entry.name !== '__tests__') walk(p); continue; }
         if (!/\.tsx?$/.test(entry.name)) continue;
         const code = fs.readFileSync(p, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
-        if (/BIMAX_COMPUTER_PRESS['"]?\s*(?:=(?!=)|:)/.test(code)) setters.push(path.relative(root, p));
+        if (/BIMAX_COMPUTER_(?:USE|PRESS)['"]?\s*(?:=(?!=)|:)/.test(code)) setters.push(path.relative(root, p));
       }
     };
     walk(path.join(root, 'src'));

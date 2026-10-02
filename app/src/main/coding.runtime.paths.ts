@@ -50,9 +50,11 @@ export function buildEngineChildEnv(input: {
   // Looking at other apps (record 65): only this app's own decision for this engine turns it on, never an inherited value.
   if (input.extraEnv.BIMAX_COMPUTER_LOOK === '1') env.BIMAX_COMPUTER_LOOK = '1';
   else delete env.BIMAX_COMPUTER_LOOK;
-  // Pressing (stage 3): the same rule, and never without looking.
-  if (input.extraEnv.BIMAX_COMPUTER_PRESS === '1' && env.BIMAX_COMPUTER_LOOK === '1') env.BIMAX_COMPUTER_PRESS = '1';
-  else delete env.BIMAX_COMPUTER_PRESS;
+  // Using other apps — press and type (stage 6): the same rule, and never without looking. The stage 3 variable is
+  // retired and never passed on.
+  if (input.extraEnv.BIMAX_COMPUTER_USE === '1' && env.BIMAX_COMPUTER_LOOK === '1') env.BIMAX_COMPUTER_USE = '1';
+  else delete env.BIMAX_COMPUTER_USE;
+  delete env.BIMAX_COMPUTER_PRESS;
   for (const variable of [
     'BIMAX_MAC_CAPABILITY_PROVIDER',
     'BIMAX_CU_SERVICE_BINARY',

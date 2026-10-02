@@ -130,6 +130,7 @@ export const OUTBOUND_FIXTURES: Outbound[] = [
   },
   { t: 'host_call', id: 12, capability: 'look', op: 'look', args: { app: 'Notes', query: 'groceries' } },
   { t: 'host_call', id: 14, capability: 'press', op: 'press', args: { app: 'BimaxCuFixture', control: 'Fixture Button', role: 'AXButton' } },
+  { t: 'host_call', id: 15, capability: 'type', op: 'type', args: { app: 'BimaxCuFixture', field: 'alpha beta gamma', role: 'AXTextField', text: 'hello' } },
 ];
 
 export const INBOUND_FIXTURES: Inbound[] = [
@@ -137,6 +138,7 @@ export const INBOUND_FIXTURES: Inbound[] = [
   { t: 'host_result', id: 12, ok: true, value: { text: 'AXWindow "Notes"\n  AXTextArea "groceries: eggs, milk"' } },
   { t: 'host_result', id: 13, ok: false, error: 'The user did not let this task look at Notes.', value: { code: 'denied' } },
   { t: 'host_result', id: 14, ok: false, error: 'Pressed, but nothing in the window changed.', value: { code: 'no_effect' } },
+  { t: 'host_result', id: 15, ok: true, value: { text: 'Typed into “alpha beta gamma” in BimaxCuFixture. The box now reads exactly: “hello”.' } },
   { t: 'input', text: 'refactor the auth module' },
   { t: 'interrupt' },
   { t: 'steer', text: 'also update the README' },

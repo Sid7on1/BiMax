@@ -8,16 +8,19 @@ const root = path.resolve(__dirname, '..', '..');
 const read = (file: string): string => fs.readFileSync(path.join(root, file), 'utf8');
 
 /**
- * Computer Use admission boundary — record 65, stages 2 and 3. It replaced the code-only gate of 2026-09-02 in the
- * commit that let Computer Use back in, look only, and was widened in stage 3's commit by exactly one press.
+ * Computer Use admission boundary — record 65, stages 2, 3 and 6. It replaced the code-only gate of 2026-09-02 in the
+ * commit that let Computer Use back in, look only; stage 3 widened it by one press in Bimax's test apps; stage 6 (§6h,
+ * the owner's choice on 2026-10-02) widened it to using any app the person allows: press and type.
  *
  * What may exist now, and nothing more: one component (Cua Driver's in-process SDK, pinned, unpacked), off until the
  * person ticks a menu bar item, reachable by a ⌘2 task only through LookAtAppTool (BIMAX_COMPUTER_LOOK) and, with a
- * second item ticked too, PressInAppTool (BIMAX_COMPUTER_PRESS): one AX press of one named control, in Bimax's own test
- * app only, asked on two cards every time. The old provider, its sidecars, its UI and its environment stay gone, and the
- * coding surfaces stay free of it. Widening any of this must make a test here fail.
+ * second item ticked too, PressInAppTool and TypeInAppTool (BIMAX_COMPUTER_USE): an AX press of one named control or one
+ * line set into one text box, by element token, in the background, in an app the person allowed for the task — never
+ * a password, wallet or banking app, System Settings or Bimax — with the app's card before anything that commits. The
+ * old provider, its sidecars, its UI and its environment stay gone, and the coding surfaces stay free of it. Widening
+ * any of this must make a test here fail.
  */
-describe('Computer Use admission boundary (record 65 stages 2–3; was the code-only gate)', () => {
+describe('Computer Use admission boundary (record 65 stages 2, 3 and 6; was the code-only gate)', () => {
   test('the coding engine keeps the agentic IDE mutation tools', () => {
     const container = read('src/core/container.ts');
     for (const registration of [
@@ -114,50 +117,82 @@ describe('Computer Use admission boundary (record 65 stages 2–3; was the code-
     expect(preload).not.toMatch(/permissionCoach|manualAlpha|takeover:|trust:report/);
   });
 
-  test('looking and one press in the test app are the whole capability: two engine tools, two host capabilities, manifests that deny the rest', () => {
+  test('looking, pressing and typing are the whole capability: three engine tools, three host capabilities, manifests that deny the rest', () => {
     const container = read('src/core/container.ts');
     expect(container).toContain("if (process.env.BIMAX_COMPUTER_LOOK === '1') toolRegistry.register(createLookTool(governor));");
-    expect(container).toContain("if (process.env.BIMAX_COMPUTER_LOOK === '1' && process.env.BIMAX_COMPUTER_PRESS === '1') toolRegistry.register(createPressTool(governor));");
-    // Exactly these two computer tools are registered anywhere in the engine.
-    expect(container.match(/toolRegistry\.register\(create(Look|Press)Tool\(/g)).toHaveLength(2);
+    expect(container).toContain("if (process.env.BIMAX_COMPUTER_LOOK === '1' && process.env.BIMAX_COMPUTER_USE === '1') {\n    toolRegistry.register(createPressTool(governor));\n    toolRegistry.register(createTypeTool(governor));\n  }");
+    // Exactly these three computer tools are registered anywhere in the engine.
+    expect(container.match(/toolRegistry\.register\(create(Look|Press|Type)Tool\(/g)).toHaveLength(3);
     const tool = read('src/tools/implementations/look.tool.ts');
     expect(tool).toContain("enum: ['list_apps', 'look']");
     const press = read('src/tools/implementations/press.tool.ts');
     expect(press).toContain("required: ['app', 'control']");
     expect(press).not.toMatch(/\b(x|y|text|keys?|coordinates?)\s*:\s*\{\s*type/);
+    const type = read('src/tools/implementations/type.tool.ts');
+    expect(type).toContain("required: ['app', 'text']");
+    expect(type).not.toMatch(/\b(x|y|keys?|coordinates?|submit|send|enter)\s*:\s*\{\s*type/);
+    expect(type).toContain('if (/[\\r\\n\\u2028\\u2029]/.test(args.text))');
     const protocol = read('src/protocol/protocol.ts');
-    expect(protocol).toContain("export type HostCapability = 'look' | 'press';");
+    expect(protocol).toContain("export type HostCapability = 'look' | 'press' | 'type';");
     const service = read('app/src/main/computer/look.service.ts');
     expect(service).toContain("if (msg.op === 'list_apps')");
     expect(service).toContain("if (msg.op !== 'look')");
-    expect(service).toContain("if (msg.op !== 'press')");
+    expect(service).toContain("if (msg.capability === 'press' || msg.capability === 'type') return useAnswer(threadId, msg, c, current);");
+    expect(service).toContain('if (msg.op !== msg.capability)');
+    // Typing never carries a line break (Return sends in many apps), and is bounded.
+    expect(service).toContain('if (/[\\r\\n\\u2028\\u2029]/.test(text)) return refuse(');
+    expect(service).toContain('export const MAX_TYPE_CHARS = 2000;');
+    // Each step is bound to a read under two minutes old; a long run of unasked steps stops for the person.
+    expect(service).toContain('export const PRESS_FRESH_MS = 2 * 60 * 1000;');
+    expect(service).toContain('export const KEEP_GOING_EVERY = 40;');
     const manifest = read('app/src/main/computer/look.manifest.ts');
     for (const tool of ['click', 'type_text', 'set_value', 'press_key', 'hotkey', 'drag', 'scroll', 'invoke_menu', 'bring_to_front']) {
       expect(manifest).toContain(`'${tool}'`);
     }
     expect(manifest).toContain("export const LOOK_TOOLS = ['list_apps', 'list_windows', 'get_window_state', 'get_screen_size'] as const;");
-    // Stage 3: one input tool, one app, three roles.
-    expect(manifest).toContain("export const PRESS_TOOLS = ['click'] as const;");
-    // Bimax's own test apps only: the stage 3 fixture and stage 5's X01 to-do app (app/benchmarks/x01-todo).
-    expect(manifest).toContain("export const PRESS_APPS: ReadonlySet<string> = new Set(['ai.bimax.cu.fixture', 'ai.bimax.cu.x01-todo']);");
-    expect(read('app/benchmarks/x01-todo/build.sh')).toContain('<key>CFBundleIdentifier</key><string>ai.bimax.cu.x01-todo</string>');
-    expect(manifest).toContain("export const PRESS_ROLES: ReadonlySet<string> = new Set(['AXButton', 'AXCheckBox', 'AXRadioButton']);");
-    // The driver clicks only by element token, as an AX press, in the background — never coordinates.
+    // Stage 6: two input tools, one app per session, never a password field.
+    expect(manifest).toContain("export const USE_TOOLS = ['click', 'set_value'] as const;");
+    expect(manifest).toContain("export const TYPE_ROLES: ReadonlySet<string> = new Set(['AXTextField', 'AXTextArea', 'AXComboBox', 'AXSearchField']);");
+    expect(manifest).not.toMatch(/TYPE_ROLES[^;]*AXSecureTextField/);
+    expect(manifest).toContain("if (!validBundleId(bundleId) || NEVER_LOOK.has(bundleId)) throw new Error(`not an app a task may use: ${JSON.stringify(bundleId)}`);");
+    for (const id of ['ai.bimax.app', 'com.apple.SecurityAgent', 'com.apple.loginwindow', 'com.apple.keychainaccess', 'com.apple.Passwords', 'com.apple.systempreferences']) {
+      expect(manifest).toContain(`'${id}'`);
+    }
+    // The driver presses only by element token, as an AX press, and types only by element token, as an AX value — in
+    // the background, never coordinates, never keystrokes.
     const driver = read('app/src/main/computer/look.driver.ts');
     expect(driver.match(/'click'/g)).toHaveLength(1);
     expect(driver).toContain("await call(session, 'click', { pid: app.pid, window_id: target.windowId, element_token: matches[0].token, action: 'press', delivery_mode: 'background' });");
+    expect(driver.match(/'set_value'/g)).toHaveLength(1);
+    expect(driver).toContain("await call(session, 'set_value', { pid: app.pid, element_token: box.token, value: text });");
+    expect(driver).not.toMatch(/'(type_text|press_key|hotkey|drag|scroll|bring_to_front|launch_app|double_click|right_click)'/);
   });
 
-  test('every press meets the governor floors and a card from the engine as well as the app', () => {
+  test('a step meets the governor floors, then the app decides — and the app asks before anything that commits', () => {
     const factory = read('src/tools/tool.factory.ts');
     expect(factory).toContain("PressInAppTool: 'COMPUTER_CONTROL',");
-    const press = read('src/tools/implementations/press.tool.ts');
-    expect(press).toContain('isDestructive: true,');
-    expect(press).not.toContain('approvalHandledInternally');
+    expect(factory).toContain("TypeInAppTool: 'COMPUTER_CONTROL',");
+    for (const file of ['src/tools/implementations/press.tool.ts', 'src/tools/implementations/type.tool.ts']) {
+      const code = read(file);
+      expect(code).toContain('isDestructive: true,');
+      expect(code).not.toContain('approvalHandledInternally');
+    }
     const governor = read('src/governor/governor.ts');
-    // The computer-control floors come before the Bimax Thread branch that returns early (record 46's trap).
-    expect(governor.indexOf("if (this.mode === 'unattended') throw new GovernorVetoError('Computer control is not allowed while unattended.');"))
-      .toBeLessThan(governor.indexOf('if (process.env.BIMAX_THREAD_ROOT && taskType !== \'API_CALL\')'));
+    // The computer-control floors come before the Bimax Thread branch that returns early (record 46's trap), and plan
+    // mode refuses before the Thread hands computer control to the app.
+    const threadBranch = governor.indexOf('if (process.env.BIMAX_THREAD_ROOT && taskType !== \'API_CALL\')');
+    expect(governor.indexOf("if (this.mode === 'unattended') throw new GovernorVetoError('Computer control is not allowed while unattended.');")).toBeLessThan(threadBranch);
+    const handOff = governor.indexOf("if (taskType === 'COMPUTER_CONTROL') routine = true;");
+    expect(handOff).toBeGreaterThan(governor.indexOf("if (this.mode === 'plan' && payload.isDestructive !== false) throw new GovernorVetoError('Plan mode: approve the plan before changing files.');", threadBranch));
+    expect(governor.match(/taskType === 'COMPUTER_CONTROL'\) routine = true/g)).toHaveLength(1);
+    // The app's rule runs on every press before the driver is reached; its card answers with exactly one yes.
+    const service = read('app/src/main/computer/look.service.ts');
+    expect(service).toContain("const reason = commitReasonForPress({ label: el.label, inDialog: el.inDialog === true, typedSinceLastCard: state.typed !== undefined });");
+    expect(service.indexOf('commitReasonForPress(')).toBeLessThan(service.indexOf('outcome = await driver.press!('));
+    expect(service).toContain('if (answer !== PRESS(el.label)) {');
+    const rule = read('app/src/main/computer/look.commit.ts');
+    for (const word of ["'send'", "'pay'", "'buy'", "'delete'", "'confirm'", "'ok'", "'allow'", "'submit'", "'transfer'"]) expect(rule).toContain(word);
+    expect(rule).toContain("if (!/[a-z]/.test(foldName(step.label))) return { kind: 'unreadable' };");
   });
 
   test('it is off until the person turns it on, from one menu bar item, and only for ⌘2 tasks', () => {
@@ -172,11 +207,13 @@ describe('Computer Use admission boundary (record 65 stages 2–3; was the code-
     expect(main).toContain("...(loadSettings().computerLook === true && threads.get(threadId).summary.origin !== 'project' ? { BIMAX_COMPUTER_LOOK: '1' } : {})");
     // Exactly one place sets the flag for an engine.
     expect(main.match(/BIMAX_COMPUTER_LOOK: '1'/g)).toHaveLength(1);
-    // Stage 3: pressing has its own item, usable only while looking is on; unticking it revokes; one place sets its flag.
-    expect(main).toContain("label: 'Let Tasks Press Buttons in the Test App (Preview)', type: 'checkbox', checked: loadSettings().computerPress === true, enabled: loadSettings().computerLook === true");
-    expect(main).toContain("pressEnabled: () => loadSettings().computerLook === true && loadSettings().computerPress === true");
-    expect(main).toContain("...(loadSettings().computerLook === true && loadSettings().computerPress === true && threads.get(threadId).summary.origin !== 'project' ? { BIMAX_COMPUTER_PRESS: '1' } : {})");
-    expect(main.match(/BIMAX_COMPUTER_PRESS: '1'/g)).toHaveLength(1);
+    // Stage 6: using has its own item, usable only while looking is on, under a NEW setting (the stage 3 test-app switch
+    // is not carried over); unticking it revokes; one place sets its flag; the stage 3 flag is set nowhere.
+    expect(main).toContain("label: 'Let Tasks Use Other Apps (Preview)', type: 'checkbox', checked: loadSettings().computerUse === true, enabled: loadSettings().computerLook === true");
+    expect(main).toContain("useEnabled: () => loadSettings().computerLook === true && loadSettings().computerUse === true");
+    expect(main).toContain("...(loadSettings().computerLook === true && loadSettings().computerUse === true && threads.get(threadId).summary.origin !== 'project' ? { BIMAX_COMPUTER_USE: '1' } : {})");
+    expect(main.match(/BIMAX_COMPUTER_USE: '1'/g)).toHaveLength(1);
+    expect(main).not.toMatch(/BIMAX_COMPUTER_PRESS|computerPress/);
     expect(main.match(/if \(!item\.checked\) void lookService\.revokeAll\(\);/g)).toHaveLength(2);
   });
 

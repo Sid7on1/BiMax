@@ -1,9 +1,10 @@
 # Acceptance gates
 
-## Computer Use admission gate (current, 2026-10-01 — record 65 stages 2–3)
+## Computer Use admission gate (current, 2026-10-02 — record 65 stages 2, 3 and 6)
 
 It replaces the code-only gate of 2026-09-02 below, in the same change that let Computer Use back in, look only; stage
-3 widened it by exactly one press, in the same change that added the press.
+3 widened it by exactly one press, in the same change that added the press; stage 6 (§6h, the owner's choice on
+2026-10-02) widened it to using any app the person allows — press and type — in the same change that built it.
 Enforced by `src/__tests__/computer.admission.boundary.test.ts` and `scripts/verify-desktop-package.mjs`.
 
 - The coding surfaces are unchanged: create/read/edit/multi-edit/delete/mkdir, shell, tests, git, search, LSP, review,
@@ -11,26 +12,36 @@ Enforced by `src/__tests__/computer.admission.boundary.test.ts` and `scripts/ver
   app reach for no Accessibility, Screen Recording or Computer Use code.
 - No window exposes Control Mac, Live Target, takeover, Computer Use model readiness or a Trust Center journey. The
   entry points are the menu bar items "Let Tasks Look at Other Apps (Preview)" and, usable only while that is ticked,
-  "Let Tasks Press Buttons in the Test App (Preview)" — **each off until the person ticks it**.
+  "Let Tasks Use Other Apps (Preview)" (a new setting: stage 3's test-app switch is not carried over) — **each off
+  until the person ticks it**.
 - With it on, a new ⌘2 task's engine gets `LookAtAppTool` (list apps, look at one app's front window) and nothing
   else; project windows do not. Only the app's own decision for that engine sets `BIMAX_COMPUTER_LOOK`; an inherited
   value is dropped.
 - The first look at each app in a task raises a card the **app** raises and answers ("Let this task look at …?",
-  Allow / Not now); "Not now" is remembered for the task; stopping it — closing it or any Stop of its turn — ends
-  every grant. Bimax itself, the password and keychain apps and System Settings are never looked at.
-- **Pressing (stage 3).** With both items ticked, a new ⌘2 task also gets `PressInAppTool`: one AX press of one named,
-  enabled button, checkbox or radio button, in **Bimax's own test apps only** (`PRESS_APPS`: the stage 3 fixture and
-  stage 5's X01 to-do app). A press is bound to a look
-  of that window under two minutes old, and each look allows at most one press. Every press meets the governor's
-  computer-control floors first — sensitive targets and "not while unattended" now run **before** the Bimax Thread
-  branch (record 46's trap) — then the engine's one-time card, then the app's own card; neither can be granted for the
-  task. A Stop, either item unticked, or the window changing (the driver re-reads it and must find the control exactly
-  once) cancels a press that has not been sent. The press is sent once, by element token, in the background, and never
-  retried; the window is read again and "nothing changed" is reported as a failure, never a success. A press session's
-  manifest allows `click` and still denies every other input tool by name.
+  Allow / Not now; with using on, "Let this task use …?", Allow using / Only look / Not now; an app allowed for looking
+  before using was on is asked again before its first step); the answer is remembered for the task; stopping it —
+  closing it or any Stop of its turn — ends every grant. Bimax itself, the password and keychain apps and System
+  Settings (by bundle id) and password managers, wallets and banking apps (by name) are never looked at or used.
+- **Using other apps (stage 6, §6h; replaces stage 3's test-app press).** With both items ticked, a new ⌘2 task also
+  gets `PressInAppTool` and `TypeInAppTool`: one AX press of one named, enabled control whose own action is a press
+  (not a menu, pop-up or text box), or one line set as one text box's whole value (never a password field, never a
+  line break, at most 2,000 characters), in an app the person let the task use. Each step is bound to a read of that
+  window under two minutes old — a look, or the re-read of the step before — and each read allows one step. Every step
+  meets the governor's computer-control floors first (sensitive targets and "not while unattended", **before** the
+  Bimax Thread branch — record 46's trap — and plan mode); in a Thread the engine then raises no card of its own and
+  **the app decides**: an ordinary step runs; a press whose name holds a commit word (send, pay, buy, delete, confirm,
+  OK, allow, … in seven languages), a press inside a sheet or dialog, a name with no Latin letters, and the first press
+  after Bimax typed into a box that is not for searching all stop on the app's card, which shows the window, what Bimax
+  last opened there and the typed text as the box reads it — never the model's words; typing over text Bimax did not
+  put there asks too; every 40 unasked steps the app asks "Keep going?". No card can be granted for the task. A Stop,
+  either item unticked, or the window changing (the driver re-reads it and must find the control exactly once) cancels
+  a step that has not been sent. A step is sent once, by element token, in the background, and never retried; the
+  window is read again; "nothing changed" is a failure, and typing counts only if the box reads back exactly the text.
+  A use session's manifest allows `click` and `set_value` and still denies every other input tool by name — keys,
+  Return, shortcuts, dragging, scrolling, coordinates, bringing an app forward.
 - **Which build is running (stage 5).** A look names the running executable and its SHA-256, read by the app from the
-  process; a press is refused if that executable changed since the look (a rebuild or relaunch), and its receipt
-  records the hash of the build it pressed.
+  process; a step is refused if that executable changed since the read (a rebuild or relaunch), and its receipt
+  records the hash of the build it acted on.
 - Turning the preview off closes granted sessions. A stop or off/on cycle invalidates in-flight discovery, grant
   answers and observations: no late approval may recreate a grant and no revoked observation reaches the model.
 - The driver runs in-process, `bounded`: a runtime manifest that may list apps only, and per grant a version-2
