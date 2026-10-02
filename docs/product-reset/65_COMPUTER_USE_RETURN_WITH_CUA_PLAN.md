@@ -527,6 +527,80 @@ replies slowed from seconds to 3–6 minutes each — reading and searching only
 minutes, again without an edit, and was stopped when the owner set the stage aside (`x01-run2-STOPPED-by-owner.json`).
 Recorded as observed, not as a measurement of the model in general: the provider was slow both times.
 
+## 6h. Stage 6 — general abilities in any app the person allows, asked before anything that commits (2026-10-02)
+
+**Status: press and type Implemented, and Measured outside the installed app on Bimax's own fixture only (below); not
+built into an installed app; not run on any real app; scroll/pick Target.** It replaces §3's stage 6 wording
+("two or three of the owner's own workflows"). Offered three workflows (music buttons, play a song, a WhatsApp text),
+the owner answered: *"there should not be a specific workflow kind of thing, it must do everything, like specific
+hardcoded workflow is a dumb approach"* — the same rule as 2026-07-26 (universal, never per-app). So stage 6 builds
+**abilities**, and apps appear only as the places they are tested: Apple Music (chosen over Spotify, which is not
+installed here) and WhatsApp's "Message yourself" chat (the owner's choice for every first send).
+
+Re-checked first, the morning of 2026-10-02 on `bbfe7e8`: 111 tests in the handoff's eight suites (the handoff's "115 in
+seven" was a different suite list, not lost tests), press mutants 11/11, the controlled-SDK driver proof 10/10 with its
+4 mutants caught, revocation proof and its mutant, app typecheck, installed package gate 4/4.
+
+**Abilities, in build order:** (1) **press** any named, enabled control whose own accessibility action is a press —
+buttons, rows, cells, tabs, links, menu items, pop-ups — no longer only buttons, checkboxes and radio buttons, and no
+longer only Bimax's test apps; (2) **type** into one text box (text field, text area, combo box), never a password field
+and never a line break, so typing alone can never press Return; (3) **scroll and pick** in lists and menus. Not in this
+stage: dragging, keyboard shortcuts, coordinates, bringing an app forward.
+
+**Rules, the same in every app (approved by the owner 2026-10-02):**
+
+| Rule | How |
+|---|---|
+| The person allows each app by hand, once per task | The first look at an app while "use" is on asks "Let this task use <app>?" (allow / only look / not now). A look-only grant is asked again before the first press or typing. Stop or switch-off ends every grant, as today |
+| Some apps are never used | Bimax itself, the password, keychain and login surfaces, System Settings (as today, by bundle id), plus password managers, wallets and banking apps by name — the governor's sensitive-target floor still runs first in the engine |
+| Ordinary steps run without a card | Opening a chat, typing into a box, pressing Play. Each one is shown in the Thread as it happens; Stop ends everything. The engine's per-press card goes: in a Thread the app owns computer-control approval, after the governor's floors (sensitive targets, unattended, plan mode) |
+| Anything that leaves the Mac or cannot be undone always stops on the app's card | A press whose control name holds a commit word (send, post, share, reply, forward, call, pay, buy, order, subscribe, transfer, confirm, approve, accept, allow, delete, remove, erase, trash, discard, clear, reset, sign out, install, OK, yes, continue, save…), any press inside a sheet or dialog, the first press in an app after Bimax typed into a non-search box there, and typing over text Bimax did not put there. The card shows the app, the window, what Bimax last opened there (the control's name as the app gave it) and the exact text now in the box Bimax typed into, read back from the screen — never the model's words |
+| Unsure means ask | A control name with no Latin letters (symbols, emoji, other scripts) asks; a control with no name cannot be pressed at all |
+| Checked by reading again | After every step the window is read again; that read is what the next step is bound to (no separate look needed). "Nothing changed" is a failure; typing counts only if the box reads back exactly the text; an unknown outcome is said and never retried |
+| A runaway task stops | Every 40 steps without a card, the app asks "Keep going?" |
+| Screen text is never an instruction | As today: tool results are screen text, fenced and tainting |
+
+These are the owner's "two cards": one when the task first uses an app, one right before a commit. They replace stage
+3's "every press asks twice"; the owner confirmed the change in so many words ("Yes, build it").
+
+**Exit (unchanged from §3):** beat v1.1.0's 3/15 on the same fixtures across three repeats; 20 clean repetitions of each
+risky path (a send above all) before any release claim; Developer ID before anyone else runs it. Live checks first in
+Bimax's own fixture, then Apple Music and WhatsApp-to-self in the installed app with the owner present.
+
+**Built (2026-10-02, abilities 1 and 2).** Engine: `TypeInAppTool` beside `PressInAppTool`, both registered only with
+`BIMAX_COMPUTER_LOOK=1` and the new `BIMAX_COMPUTER_USE=1` (the stage 3 variable is retired and stripped); protocol
+3.5.0 adds host capability `type`; in a Thread the governor runs the computer-control floors and plan mode, then hands
+the decision to the app (`if (taskType === 'COMPUTER_CONTROL') routine = true`), so the engine's per-press card and its
+approval-card branch are gone. App: `look.commit.ts` (the rule: commit words in seven languages, dialogs, unreadable
+names, the first press after typing outside a search box), `look.service.ts` (use grants with "Only look", a look-only
+grant asked again before its first step, each step bound to the previous step's re-read, the overwrite card, the
+keep-going card every 40 unasked steps, typing read back by the box's role and screen position), `look.driver.ts`
+(`click` and `set_value` by element token only; any control whose own action is a press except menus, pop-ups and text
+boxes; `inDialog` from AXSheet/AXDialog ancestors), `look.manifest.ts` (`USE_TOOLS = ['click', 'set_value']`,
+`useManifest` for any app outside `NEVER_LOOK`, never-used names for password managers, wallets and banks), and a new
+menu item and setting, "Let Tasks Use Other Apps (Preview)" / `computerUse`, off until ticked.
+
+**Measured (this Mac, outside the installed app).** Measured first on the fixture with the standalone reader: a text box
+the driver names by its VALUE once filled ("alpha beta gamma"), so a box is found again after typing by role and screen
+position, not by name. Tests: 63 service, 97 rule (`computer.commit.test.ts`), gate, governor, host-call and protocol
+suites — 244 in nine suites; the neighbouring governor, thread, taint, protocol and registry suites 109/109 and the
+tool-schema contract 5/5 under bun; app and engine `tsc` clean. Mutants: 28/28 in the service and rule (written so the
+code still compiles — six "caught" by a compile error at first, rewritten until each failed a test), 8/8 in the driver
+against a controlled SDK (22 scenarios; one survived until a disabled-box scenario was added). Live
+(`app/scripts/computer/prove-use-driver.js`, evidence `evidence/2026-10-02-cu-stage6/`): Electron, the service and
+Cua Driver 0.31 in-process, BimaxCuFixture, scripted steps, the person played; graded by the standalone reader and the
+driver's observer. Runs 2 and 3 PASS: the use card; typing over the fixture's own text asked first, then the box read
+back exactly and the reader saw it; retyping over Bimax's own text asked nothing; the first press after typing asked
+once, its card showing the text as the box read it, and the reader saw one press; an ordinary checkbox press on that
+re-read ran with no card and no look, and the reader saw it flip; a line break was refused with the text area
+unchanged; Bimax itself was refused with no card. Authorized: look tools, `click` ×2, `set_value` ×2, nothing else.
+Run 1 is kept as `…-HARNESS-EXPECTED-NO-CARD`: the service asked before replacing the fixture's own text, which the
+harness wrongly expected not to happen. Planted faults no-card, wrong-text and double-press each FAIL the live check.
+
+**Not shown:** any real app (Apple Music, WhatsApp), whether a Catalyst or web text box takes a background `set_value`
+(the driver's own notes say WhatsApp may need foreground typing — not built, and never a silent fallback), a model
+driving these steps, the installed app, scroll/pick, the 3/15 baseline, 20 clean sends, another Mac, Developer ID.
+
 ## 7. Risks named now
 
 - **Driver drift.** 0.12 → 0.31 rewrote the codebase; a later release can change behaviour again (0.18 did). The

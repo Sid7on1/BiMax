@@ -1,0 +1,363 @@
+{
+ "kind": "live-driver-scripted",
+ "mutant": "no-card",
+ "startedAt": "2026-10-02T07:19:17.942Z",
+ "steps": [
+  {
+   "step": "1 look",
+   "capability": "look",
+   "op": "look",
+   "args": {
+    "app": "BimaxCuFixture"
+   },
+   "ok": true,
+   "text": "BimaxCuFixture — window “Bimax-Cu Fixture” (you may press and type here):\nAXWindow \"Bimax-Cu Fixture\" (id bimax-cu-fixture-window)\n  AXButton \"Fixture Button\" (id fixture-button)\n  AXCheckBox \"Fixture Checkbox\" (id fixture-checkbox)\n  AXTextField = \"bimax stage six 6621 again\" (id fixture-textfield)\n  AXSlider (id fixture-slider)\n  AXIncrementor (id fixture-stepper)\n    AXButton\n    AXButton\n  AXPopUpButton = \"First\" (id fixture-popup)\n  AXComboBox (id fixture-combo)\n    AXButton (id fixture-combo)\n  AXRadioButton \"One\" (id fixture-radio-one)\n  AXRadioButton \"Two\" (id fixture-radio-two)\n  AXTextArea = \"alpha beta gamma delta\" (id fixture-textview)\n        AXStaticText = \"Row 1\"\n        AXStaticText = \"Row 2\"\n        AXStaticText = \"Row 3\"\n        AXStaticText = \"Row 4\"\n        AXStaticText = \"Row 5\"\n        AXStaticText = \"Row 6\"\n        AXStaticText = \"Row 7\"\n        AXStaticText = \"Row 8\"\n        AXStaticText = \"Row 9\"\n        AXStaticText = \"Row 10\"\n        AXStaticText = \"Row 11\"\n        AXStaticText = \"Row 12\"\n        AXStaticText = \"Row 13\"\n        AXStaticText = \"Row 14\"\n        AXStaticText = \"Row 15\"\n        AXStaticText = \"Row 16\"\n        AXStaticText = \"Row 17\"\n        A",
+   "cards": [
+    "Let this task use BimaxCuFixture?"
+   ]
+  },
+  {
+   "step": "2 type field",
+   "capability": "type",
+   "op": "type",
+   "args": {
+    "app": "BimaxCuFixture",
+    "field": "bimax stage six 6621 again",
+    "role": "AXTextField",
+    "text": "bimax stage six 58779"
+   },
+   "ok": true,
+   "text": "Typed into “bimax stage six 6621 again” in BimaxCuFixture (window “Bimax-Cu Fixture”). The box now reads exactly: “bimax stage six 58779”.\nNothing was sent: the next press in this app is shown to the person first, with this text.\nBimax read the window again just now; your next step can use that read without looking again.",
+   "cards": [
+    "Replace the text in “bimax stage six 6621 again” in BimaxCuFixture?"
+   ]
+  },
+  {
+   "step": "2b retype",
+   "capability": "type",
+   "op": "type",
+   "args": {
+    "app": "BimaxCuFixture",
+    "field": "bimax stage six 58779",
+    "role": "AXTextField",
+    "text": "bimax stage six 58779 again"
+   },
+   "ok": true,
+   "text": "Typed into “bimax stage six 58779” in BimaxCuFixture (window “Bimax-Cu Fixture”). The box now reads exactly: “bimax stage six 58779 again”.\nNothing was sent: the next press in this app is shown to the person first, with this text.\nBimax read the window again just now; your next step can use that read without looking again.",
+   "cards": []
+  },
+  {
+   "step": "3 press after typing",
+   "capability": "press",
+   "op": "press",
+   "args": {
+    "app": "BimaxCuFixture",
+    "control": "Fixture Button",
+    "role": "AXButton"
+   },
+   "ok": true,
+   "text": "Pressed “Fixture Button” in BimaxCuFixture (window “Bimax-Cu Fixture”). What changed in the window:\n- AXStaticText = \"presses=2 events=4 last=toggle\"\n+ AXStaticText = \"presses=3 events=5 last=press\"\nBimax read the window again just now; your next step can use that read without looking again.",
+   "cards": []
+  },
+  {
+   "step": "4 ordinary press",
+   "capability": "press",
+   "op": "press",
+   "args": {
+    "app": "BimaxCuFixture",
+    "control": "Fixture Checkbox",
+    "role": "AXCheckBox"
+   },
+   "ok": true,
+   "text": "Pressed “Fixture Checkbox” in BimaxCuFixture (window “Bimax-Cu Fixture”). What changed in the window:\n- AXStaticText = \"presses=3 events=5 last=press\"\n+ AXStaticText = \"presses=3 events=6 last=toggle\"\nBimax read the window again just now; your next step can use that read without looking again.",
+   "cards": []
+  },
+  {
+   "step": "5 line break",
+   "capability": "type",
+   "op": "type",
+   "args": {
+    "app": "BimaxCuFixture",
+    "field": "alpha beta gamma delta",
+    "role": "AXTextArea",
+    "text": "one\ntwo"
+   },
+   "ok": false,
+   "code": "invalid_args",
+   "error": "Typing never includes a line break: in many apps Return sends. Type one line. Nothing was typed.",
+   "text": "",
+   "cards": []
+  },
+  {
+   "step": "6 never-used",
+   "capability": "look",
+   "op": "look",
+   "args": {
+    "app": "ai.bimax.app"
+   },
+   "ok": false,
+   "code": "denied",
+   "error": "Bimax is never looked at: it shows passwords, keys, money or Bimax's own approvals.",
+   "text": "",
+   "cards": []
+  }
+ ],
+ "cards": [
+  {
+   "question": "Let this task use BimaxCuFixture?",
+   "options": [
+    "Allow using BimaxCuFixture",
+    "Only look",
+    "Not now"
+   ],
+   "body": "Bimax will read BimaxCuFixture's front window and may press its buttons and type into its text boxes, in the background, without moving your pointer. Before anything is sent, posted, bought, deleted or confirmed it stops and asks you, showing exactly what. This is for this task only; stopping the task ends it.",
+   "answer": "Allow using BimaxCuFixture"
+  },
+  {
+   "question": "Replace the text in “bimax stage six 6621 again” in BimaxCuFixture?",
+   "options": [
+    "Replace it",
+    "Don’t type"
+   ],
+   "body": "The box already holds text Bimax did not type: “bimax stage six 6621 again”.\nTyping replaces all of it with: “bimax stage six 58779”.\nStopping the task before then cancels it.",
+   "answer": "Replace it"
+  }
+ ],
+ "failures": [
+  "3: the press after typing asked once",
+  "3: the card shows the typed text as the box reads it"
+ ],
+ "fixtureBefore": {
+  "pid": 40049,
+  "window_id": 1818,
+  "status": "presses=2 events=4 last=toggle",
+  "textField": "bimax stage six 6621 again",
+  "textArea": "alpha beta gamma delta",
+  "checkbox": "0"
+ },
+ "audit": [
+  {
+   "at": "2026-10-02T07:19:21.658Z",
+   "threadId": "proof-use",
+   "op": "look",
+   "bundleId": "ai.bimax.cu.fixture",
+   "ok": true,
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 0,
+    "asked": 1,
+    "presses": 0,
+    "typings": 0,
+    "inputCalls": 0
+   }
+  },
+  {
+   "at": "2026-10-02T07:19:26.710Z",
+   "threadId": "proof-use",
+   "op": "type",
+   "bundleId": "ai.bimax.cu.fixture",
+   "ok": true,
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 0,
+    "asked": 2,
+    "presses": 0,
+    "typings": 1,
+    "inputCalls": 1
+   },
+   "receipt": {
+    "actionId": "f7cd7ff6-d19d-459f-a84e-c58ed109688c",
+    "action": "type",
+    "role": "AXTextField",
+    "labelHash": "cea4e2bdf565",
+    "windowId": 1818,
+    "lookAgeMs": 777,
+    "asked": "overwrite",
+    "outcome": "typed",
+    "textHash": "5ea23f7bcf05",
+    "textLength": 21
+   }
+  },
+  {
+   "at": "2026-10-02T07:19:32.647Z",
+   "threadId": "proof-use",
+   "op": "type",
+   "bundleId": "ai.bimax.cu.fixture",
+   "ok": true,
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 0,
+    "asked": 2,
+    "presses": 0,
+    "typings": 2,
+    "inputCalls": 2
+   },
+   "receipt": {
+    "actionId": "96fe8884-43a1-4ce8-8811-86be3c2b44c1",
+    "action": "type",
+    "role": "AXTextField",
+    "labelHash": "5ea23f7bcf05",
+    "windowId": 1818,
+    "lookAgeMs": 1622,
+    "asked": null,
+    "outcome": "typed",
+    "textHash": "f35346cb851c",
+    "textLength": 27
+   }
+  },
+  {
+   "at": "2026-10-02T07:19:39.007Z",
+   "threadId": "proof-use",
+   "op": "press",
+   "bundleId": "ai.bimax.cu.fixture",
+   "ok": true,
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 0,
+    "asked": 2,
+    "presses": 1,
+    "typings": 2,
+    "inputCalls": 3
+   },
+   "receipt": {
+    "actionId": "40f5c392-67a2-4152-8600-7564683c1a18",
+    "action": "press",
+    "role": "AXButton",
+    "labelHash": "b63348f3ec2a",
+    "windowId": 1818,
+    "lookAgeMs": 1745,
+    "asked": null,
+    "outcome": "pressed"
+   }
+  },
+  {
+   "at": "2026-10-02T07:19:45.193Z",
+   "threadId": "proof-use",
+   "op": "press",
+   "bundleId": "ai.bimax.cu.fixture",
+   "ok": true,
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 0,
+    "asked": 2,
+    "presses": 2,
+    "typings": 2,
+    "inputCalls": 4
+   },
+   "receipt": {
+    "actionId": "a6e3431e-6947-47df-becf-e24c3918468c",
+    "action": "press",
+    "role": "AXCheckBox",
+    "labelHash": "efe37fcef3ba",
+    "windowId": 1818,
+    "lookAgeMs": 1628,
+    "asked": null,
+    "outcome": "pressed"
+   }
+  },
+  {
+   "at": "2026-10-02T07:19:46.026Z",
+   "threadId": "proof-use",
+   "op": "type",
+   "ok": false,
+   "code": "invalid_args",
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 1,
+    "asked": 2,
+    "presses": 2,
+    "typings": 2,
+    "inputCalls": 4
+   }
+  },
+  {
+   "at": "2026-10-02T07:19:47.721Z",
+   "threadId": "proof-use",
+   "op": "look",
+   "bundleId": "ai.bimax.app",
+   "ok": false,
+   "code": "denied",
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 2,
+    "asked": 2,
+    "presses": 2,
+    "typings": 2,
+    "inputCalls": 4
+   }
+  }
+ ],
+ "afterType": {
+  "pid": 40049,
+  "window_id": 1818,
+  "status": "presses=2 events=4 last=toggle",
+  "textField": "bimax stage six 58779",
+  "textArea": "alpha beta gamma delta",
+  "checkbox": "0"
+ },
+ "afterRetype": {
+  "pid": 40049,
+  "window_id": 1818,
+  "status": "presses=2 events=4 last=toggle",
+  "textField": "bimax stage six 58779 again",
+  "textArea": "alpha beta gamma delta",
+  "checkbox": "0"
+ },
+ "afterPress": {
+  "pid": 40049,
+  "window_id": 1818,
+  "status": "presses=3 events=5 last=press",
+  "textField": "bimax stage six 58779 again",
+  "textArea": "alpha beta gamma delta",
+  "checkbox": "0"
+ },
+ "afterCheckbox": {
+  "pid": 40049,
+  "window_id": 1818,
+  "status": "presses=3 events=6 last=toggle",
+  "textField": "bimax stage six 58779 again",
+  "textArea": "alpha beta gamma delta",
+  "checkbox": "1"
+ },
+ "afterLineBreak": {
+  "pid": 40049,
+  "window_id": 1818,
+  "status": "presses=3 events=6 last=toggle",
+  "textField": "bimax stage six 58779 again",
+  "textArea": "alpha beta gamma delta",
+  "checkbox": "1"
+ },
+ "driverActivity": {
+  "authorized": {
+   "list_windows": 1,
+   "get_window_state": 9,
+   "set_value": 2,
+   "click": 2
+  },
+  "refused": {}
+ },
+ "authorizedTools": [
+  "list_windows",
+  "get_window_state",
+  "set_value",
+  "click"
+ ],
+ "serviceCounts": {
+  "lists": 0,
+  "looks": 1,
+  "refused": 2,
+  "asked": 2,
+  "presses": 2,
+  "typings": 2,
+  "inputCalls": 4
+ },
+ "finishedAt": "2026-10-02T07:19:47.722Z",
+ "result": "FAIL — 2 check(s) failed"
+}

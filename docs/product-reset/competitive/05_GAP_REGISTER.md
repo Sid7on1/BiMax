@@ -6,6 +6,13 @@ Stage 1 is **Measured** outside the product; stage 2 is **Measured in the instal
 stage 3, one press in the test app on two cards, is **Measured outside and inside the installed app** (exit met;
 record 65 §6e). Stage 4's small models (laya-mlx, CUA-S1 nano/forms) were researched and **declined** (§6f). Stage 5's X01 is **not
 Measured**: its parts were built and the owner set the stage aside (§6g).
+**Stage 6 (2026-10-02, §6h): general abilities, not workflows** — the owner rejected per-app workflows; press any named
+control and type one line into one box, in any app the person allows per task, with the app's card before anything
+that commits (send, pay, delete, confirm, a dialog, the first press after typing, an unreadable name, typing over the
+person's own text). **Implemented**, and **Measured outside the installed app on Bimax's own fixture only** (real
+embedded driver, scripted steps, independent reader: 2 clean runs, 3 planted faults each caught; 28 service and 8 driver
+mutants caught). **Not built, not installed, not measured on a real app** (Apple Music, WhatsApp-to-self are next, with
+the owner present); scroll/pick is Target; the 3/15 baseline and the 20-repetition send bar are not met.
 The local look-only app is installed; under Bimax's own Accessibility grant allow, Not now, Stop and
 preview-off are Measured (zero authorized input, fixture unchanged, SDK mapped from the installed app); a Stop that did
 not end an earlier grant was fixed, installed and re-checked (record 65 §6d). It has one menu bar opt-in, app-owned per-app grants for a Bimax Thread in the ⌘2 bar, a bounded pinned
