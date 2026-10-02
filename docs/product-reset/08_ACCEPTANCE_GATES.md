@@ -65,8 +65,11 @@ Enforced by `src/__tests__/computer.admission.boundary.test.ts` and `scripts/ver
   step starts a fresh bounded, app-scoped context before re-reading its exact target. Native labels are unique;
   retired contexts, manifests and observer mappings are removed. Read-only renewal happens once, only for a native
   lease/end error, and stays inside the existing Bimax Thread grant and generation. Never replay an input dispatch.
-  Generic permission/lease errors do not prove missing macOS Accessibility; only explicit Accessibility failures
-  receive that guidance. Controlled expiry/denial/revocation and input-count checks must catch broken renewal.
+  A pinned explicit unready-window/AX timeout may retry its read once after a brief settle, still generation-bound.
+  Generic permission/lease/Accessibility-word errors do not prove missing macOS Accessibility. An admitted failed look
+  may query the app's own native trust without prompting; granted trust forbids missing-permission coaching. Hosts
+  without that query need explicit denial text. Use the permission's current OS name, and retain only a fixed failure
+  enum/optional boolean in the audit. Controlled expiry/denial/revocation and input-count checks catch broken recovery.
 - **Which build is running (stage 5).** A look names the running executable and its SHA-256, read by the app from the
   process; a step is refused if that executable changed since the read (a rebuild or relaunch), and its receipt
   records the hash of the build it acted on.

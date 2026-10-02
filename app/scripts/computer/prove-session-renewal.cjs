@@ -8,11 +8,12 @@ const appRoot = path.resolve(__dirname, '../..');
 const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'bimax-session-renewal-'));
 const mutant = process.argv.find(x => x.startsWith('--mutant='))?.split('=')[1];
 const mutations = {
+  no_transient_retry: ["} else if (/\\bax_(?:tree_empty|app_launching|window_unresolved):|AX tree walk .*did not return within/i.test(reason(error).message)) {", "} else if (false) {"],
   cached_use: ["await dropSession(key);\n    requireCurrent(threadId, generation);\n    const manifestText", "if (sessions.has(key)) return sessions.get(key).session;\n    const manifestText"],
   reused_name: ["}-${randomUUID()}`", "}`"],
   no_close: ["try { await value.session.close?.(); }", "try { /* no close */ }"],
-  all_errors: ['if (!sessionLeaseEnded(error)) throw reason(error);', 'if (false) throw reason(error);'],
-  no_renewal: ['if (!sessionLeaseEnded(error)) throw reason(error);', 'throw reason(error);'],
+  all_errors: ['else { throw reason(error); }', 'else { /* retry unrelated denial */ }'],
+  no_renewal: ['if (sessionLeaseEnded(error)) {', 'if (sessionLeaseEnded(error)) { throw reason(error);'],
 };
 const key = Symbol.for('bimax.session.renewal.proof');
 async function main() {
@@ -24,8 +25,8 @@ async function main() {
     });}}] : [] });
   const {createLookDriver} = require(path.join(temp,'driver.cjs'));
   const checks=[];
-  for (const scenario of ['list-expired','state-expired','ended','denied','twice-expired','delayed-press','uncertain-input','isolation']) {
-    const state={sessions:[],calls:[],errors:scenario==='twice-expired'?2:1}; globalThis[key]=state;
+  for (const scenario of ['list-expired','state-expired','ended','denied','twice-expired','ax-unready','ax-timeout','twice-unready','delayed-press','uncertain-input','isolation']) {
+    const state={sessions:[],calls:[],errors:['twice-expired','twice-unready'].includes(scenario)?2:1}; globalThis[key]=state;
     const appPath=path.join(temp,scenario), sdk=path.join(appPath,'node_modules/@trycua/cua-driver/dist'); fs.mkdirSync(sdk,{recursive:true});
     fs.writeFileSync(path.join(sdk,'../package.json'),'{"type":"module"}');
     fs.writeFileSync(path.join(sdk,'index.js'),`
@@ -40,9 +41,9 @@ async function main() {
         return {close:async()=>{record.closed=true;},callTool:async(tool)=>{
           state.calls.push(tool);
           if(record.expired)throw new Error('Permission denied: authorization context expired');
-          const errorTool=scenario==='state-expired'?'get_window_state':'list_windows';
-          if(['list-expired','state-expired','ended','denied','twice-expired'].includes(scenario)&&tool===errorTool&&state.errors-->0)
-            throw new Error(scenario==='denied'?'Permission denied: outside the manifest':scenario==='ended'?"session 'x' has ended; call start_session":'Permission denied: authorization context expired');
+          const errorTool=['state-expired','ax-unready','ax-timeout','twice-unready'].includes(scenario)?'get_window_state':'list_windows';
+          if(['list-expired','state-expired','ended','denied','twice-expired','ax-unready','ax-timeout','twice-unready'].includes(scenario)&&tool===errorTool&&state.errors-->0)
+            throw new Error(['ax-unready','twice-unready'].includes(scenario)?'ax_app_launching: app did not answer accessibility within timeout_ms':scenario==='ax-timeout'?'AX tree walk for pid=123 did not return within 9 s: an accessibility call stopped answering':scenario==='denied'?'Permission denied: outside the manifest':scenario==='ended'?"session 'x' has ended; call start_session":'Permission denied: authorization context expired');
           if(tool==='click'&&scenario==='uncertain-input')throw new Error('transport disconnected after dispatch');
           if(tool==='list_windows')return {structuredJson:JSON.stringify({windows:[{window_id:1,title:'Fixture',is_on_screen:true,bounds:{width:100,height:100}}]})};
           return {structuredJson:JSON.stringify({tree_markdown:'fixture',elements:[{element_index:0,role:'AXWindow'},{element_index:1,parent_index:0,role:'AXButton',label:'Fixture Button',actions:['AXPress'],element_token:'target'}]})};
@@ -67,9 +68,9 @@ async function main() {
       await driver.end('t1');assert(state.sessions[0].closed&&state.sessions[2].closed);assert(!state.sessions[1].closed,'ended another Thread context');
     }else{
       const result=await driver.look('t1',app).then(()=>({ok:true}),error=>({ok:false,error:error.message}));
-      assert.equal(result.ok,!['denied','twice-expired'].includes(scenario));
-      assert.equal(state.sessions.length,scenario==='denied'?1:2,'renewal count');
-      if(scenario!=='denied')assert(state.sessions[0].closed,'expired context not closed');
+      assert.equal(result.ok,!['denied','twice-expired','twice-unready'].includes(scenario));
+      assert.equal(state.sessions.length,['denied','ax-unready','ax-timeout','twice-unready'].includes(scenario)?1:2,'renewal count');
+      if(!['denied','ax-unready','ax-timeout','twice-unready'].includes(scenario))assert(state.sessions[0].closed,'expired context not closed');
       assert(state.sessions.every(s=>!s.manifest.includes('allow:\n  tools: [click')));
       assert(!state.calls.includes('click'),'read recovery dispatched input');
     }

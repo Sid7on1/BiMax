@@ -575,3 +575,14 @@ returns “authorization context expired”, and refuses duplicate public/transp
 mean native context expiry rather than macOS TCC. `cua-driver-sdk/src/abi.rs` closes native session handles through
 `session_destroy`. No source was copied or dependency upgraded. Installed run 4 corroborates expiry after an approval
 wait and label-reuse failure; the correction and limits are in record 65 §6h and `evidence/2026-10-02-cu-session-renewal/`.
+
+## 2026-10-02 — Accessibility diagnosis and macOS 27 permission label
+
+Independent System Settings UI inspection on the owner's macOS **27.0** (`sw_vers -productVersion`) shows
+Privacy & Security → **Device Control and Data Access**, with Bimax on. This is observed on one Mac, not a universal
+version-matrix claim. No grant was changed. The pinned Cua 0.31.0 source (`platform-macos/src/tools/get_window_state.rs`)
+contains accessibility-word errors for an AX walk backstop, `ax_app_launching`, `ax_window_unresolved` and `ax_tree_empty`;
+these are observation degradation, not evidence of TCC denial. Inspected Electron's shipped `electron.d.ts` confirms
+`systemPreferences.isTrustedAccessibilityClient(prompt)` and `process.getSystemVersion()`; Bimax uses `false`, only after
+an admitted failed look, and chooses the settings label from the actual OS version. No SDK code copied or dependency
+changed. Record 65 and `evidence/2026-10-02-cu-permission-diagnosis/` preserve the failure trace and limitations.

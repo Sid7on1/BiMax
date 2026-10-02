@@ -1,0 +1,553 @@
+{
+  "kind": "deterministic-controlled-sdk",
+  "mutant": null,
+  "passed": 37,
+  "results": [
+    {
+      "scenario": "pressed",
+      "outcome": {
+        "kind": "pressed"
+      },
+      "calls": [
+        "get_window_state",
+        "click",
+        "get_window_state"
+      ],
+      "clicks": 1,
+      "sets": 0,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "no-op",
+      "outcome": {
+        "kind": "pressed"
+      },
+      "calls": [
+        "get_window_state",
+        "click",
+        "get_window_state",
+        "get_window_state",
+        "get_window_state",
+        "get_window_state"
+      ],
+      "clicks": 1,
+      "sets": 0,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "control-gone",
+      "outcome": {
+        "kind": "not_pressed",
+        "reason": "changed"
+      },
+      "calls": [
+        "get_window_state"
+      ],
+      "clicks": 0,
+      "sets": 0,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "shared-name",
+      "outcome": {
+        "kind": "not_pressed",
+        "reason": "ambiguous"
+      },
+      "calls": [
+        "get_window_state"
+      ],
+      "clicks": 0,
+      "sets": 0,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "disabled",
+      "outcome": {
+        "kind": "not_pressed",
+        "reason": "changed"
+      },
+      "calls": [
+        "get_window_state"
+      ],
+      "clicks": 0,
+      "sets": 0,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "menu-bar-only",
+      "outcome": {
+        "kind": "not_pressed",
+        "reason": "changed"
+      },
+      "calls": [
+        "get_window_state"
+      ],
+      "clicks": 0,
+      "sets": 0,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "stopped-during-read",
+      "outcome": {
+        "thrown": "This look grant ended."
+      },
+      "calls": [
+        "get_window_state"
+      ],
+      "clicks": 0,
+      "sets": 0,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "click-unknown",
+      "outcome": {
+        "kind": "uncertain"
+      },
+      "calls": [
+        "get_window_state",
+        "click"
+      ],
+      "clicks": 1,
+      "sets": 0,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "click-refused",
+      "outcome": {
+        "kind": "not_pressed",
+        "reason": "refused"
+      },
+      "calls": [
+        "get_window_state",
+        "click"
+      ],
+      "clicks": 1,
+      "sets": 0,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "another-app",
+      "outcome": {
+        "kind": "pressed"
+      },
+      "calls": [
+        "get_window_state",
+        "click",
+        "get_window_state"
+      ],
+      "clicks": 1,
+      "sets": 0,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "never-used-app",
+      "outcome": {
+        "thrown": "not an app a task may use: \"ai.bimax.app\""
+      },
+      "calls": [],
+      "clicks": 0,
+      "sets": 0,
+      "scrolls": 0,
+      "sessions": 0
+    },
+    {
+      "scenario": "a-row",
+      "outcome": {
+        "kind": "pressed"
+      },
+      "calls": [
+        "get_window_state",
+        "click",
+        "get_window_state"
+      ],
+      "clicks": 1,
+      "sets": 0,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "a-pop-up",
+      "outcome": {
+        "kind": "not_pressed",
+        "reason": "changed"
+      },
+      "calls": [
+        "get_window_state"
+      ],
+      "clicks": 0,
+      "sets": 0,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "typed",
+      "outcome": {
+        "kind": "typed",
+        "value": "running late"
+      },
+      "calls": [
+        "get_window_state",
+        "set_value",
+        "get_window_state"
+      ],
+      "clicks": 0,
+      "sets": 1,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "type-did-not-land",
+      "outcome": {
+        "kind": "typed",
+        "value": ""
+      },
+      "calls": [
+        "get_window_state",
+        "set_value",
+        "get_window_state",
+        "get_window_state",
+        "get_window_state"
+      ],
+      "clicks": 0,
+      "sets": 1,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "type-box-gone",
+      "outcome": {
+        "kind": "not_typed",
+        "reason": "changed"
+      },
+      "calls": [
+        "get_window_state"
+      ],
+      "clicks": 0,
+      "sets": 0,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "type-shared-name",
+      "outcome": {
+        "kind": "not_typed",
+        "reason": "ambiguous"
+      },
+      "calls": [
+        "get_window_state"
+      ],
+      "clicks": 0,
+      "sets": 0,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "type-password-field",
+      "outcome": {
+        "kind": "not_typed",
+        "reason": "changed"
+      },
+      "calls": [
+        "get_window_state"
+      ],
+      "clicks": 0,
+      "sets": 0,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "type-disabled-box",
+      "outcome": {
+        "kind": "not_typed",
+        "reason": "changed"
+      },
+      "calls": [
+        "get_window_state"
+      ],
+      "clicks": 0,
+      "sets": 0,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "type-refused",
+      "outcome": {
+        "kind": "not_typed",
+        "reason": "refused"
+      },
+      "calls": [
+        "get_window_state",
+        "set_value"
+      ],
+      "clicks": 0,
+      "sets": 1,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "type-unknown",
+      "outcome": {
+        "kind": "uncertain"
+      },
+      "calls": [
+        "get_window_state",
+        "set_value"
+      ],
+      "clicks": 0,
+      "sets": 1,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "type-stopped-during-read",
+      "outcome": {
+        "thrown": "This look grant ended."
+      },
+      "calls": [
+        "get_window_state"
+      ],
+      "clicks": 0,
+      "sets": 0,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "confirm",
+      "outcome": {
+        "kind": "pressed"
+      },
+      "calls": [
+        "get_window_state",
+        "click",
+        "get_window_state"
+      ],
+      "clicks": 1,
+      "sets": 0,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "confirm-box-gone",
+      "outcome": {
+        "kind": "not_pressed",
+        "reason": "changed"
+      },
+      "calls": [
+        "get_window_state"
+      ],
+      "clicks": 0,
+      "sets": 0,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "pick",
+      "outcome": {
+        "kind": "typed",
+        "value": "Second"
+      },
+      "calls": [
+        "get_window_state",
+        "set_value",
+        "get_window_state"
+      ],
+      "clicks": 0,
+      "sets": 1,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "pick-unknown-item",
+      "outcome": {
+        "kind": "not_typed",
+        "reason": "refused"
+      },
+      "calls": [
+        "get_window_state",
+        "set_value"
+      ],
+      "clicks": 0,
+      "sets": 1,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "pick-not-a-pop-up",
+      "outcome": {
+        "kind": "not_typed",
+        "reason": "changed"
+      },
+      "calls": [
+        "get_window_state"
+      ],
+      "clicks": 0,
+      "sets": 0,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "press-front",
+      "outcome": {
+        "kind": "pressed"
+      },
+      "calls": [
+        "get_window_state",
+        "click",
+        "get_window_state"
+      ],
+      "clicks": 1,
+      "sets": 0,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "type-front",
+      "outcome": {
+        "kind": "typed",
+        "value": "running late"
+      },
+      "calls": [
+        "get_window_state",
+        "set_value",
+        "get_window_state",
+        "type_text",
+        "get_window_state"
+      ],
+      "clicks": 0,
+      "sets": 1,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "type-front-box-will-not-empty",
+      "outcome": {
+        "kind": "not_typed",
+        "reason": "refused"
+      },
+      "calls": [
+        "get_window_state",
+        "set_value",
+        "get_window_state"
+      ],
+      "clicks": 0,
+      "sets": 1,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "type-front-line-break",
+      "outcome": {
+        "kind": "not_typed",
+        "reason": "refused"
+      },
+      "calls": [],
+      "clicks": 0,
+      "sets": 0,
+      "scrolls": 0,
+      "sessions": 0
+    },
+    {
+      "scenario": "type-front-placeholder",
+      "outcome": {
+        "kind": "typed",
+        "value": "Levitating"
+      },
+      "calls": [
+        "get_window_state",
+        "set_value",
+        "get_window_state",
+        "type_text",
+        "get_window_state"
+      ],
+      "clicks": 0,
+      "sets": 1,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "type-front-empty-text",
+      "outcome": {
+        "kind": "typed",
+        "value": ""
+      },
+      "calls": [
+        "get_window_state",
+        "set_value",
+        "get_window_state",
+        "get_window_state"
+      ],
+      "clicks": 0,
+      "sets": 1,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "return-front",
+      "outcome": {
+        "kind": "pressed"
+      },
+      "calls": [
+        "get_window_state",
+        "press_key",
+        "get_window_state"
+      ],
+      "clicks": 0,
+      "sets": 0,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "scroll",
+      "outcome": {
+        "kind": "pressed"
+      },
+      "calls": [
+        "get_window_state",
+        "scroll",
+        "get_window_state"
+      ],
+      "clicks": 0,
+      "sets": 0,
+      "scrolls": 1,
+      "sessions": 1
+    },
+    {
+      "scenario": "scroll-row-gone",
+      "outcome": {
+        "kind": "not_pressed",
+        "reason": "changed"
+      },
+      "calls": [
+        "get_window_state"
+      ],
+      "clicks": 0,
+      "sets": 0,
+      "scrolls": 0,
+      "sessions": 1
+    },
+    {
+      "scenario": "scroll-unknown",
+      "outcome": {
+        "kind": "uncertain"
+      },
+      "calls": [
+        "get_window_state",
+        "scroll"
+      ],
+      "clicks": 0,
+      "sets": 0,
+      "scrolls": 1,
+      "sessions": 1
+    }
+  ]
+}

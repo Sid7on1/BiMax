@@ -144,12 +144,12 @@ describe('the look service', () => {
   const NOTES: RunningApp = { name: 'Notes', bundleId: 'com.apple.Notes', pid: 11 };
   const BIMAX: RunningApp = { name: 'Bimax', bundleId: 'ai.bimax.app', pid: 12 };
 
-  function setup(opts: { enabled?: boolean; answer?: string; lookError?: Error } = {}) {
+  function setup(opts: { enabled?: boolean; answer?: string; lookError?: Error; appsError?: Error; trust?: boolean | (() => boolean); settingsLabel?: string } = {}) {
     const asked: Array<{ question: string; options: string[] }> = [];
     const looks: Array<{ threadId: string; app: string; query?: string }> = [];
     const ended: string[] = [];
     const driver: LookDriver = {
-      runningApps: async () => [NOTES, BIMAX],
+      runningApps: async () => { if (opts.appsError) throw opts.appsError; return [NOTES, BIMAX]; },
       look: async (threadId, app, query) => {
         if (opts.lookError) throw opts.lookError;
         looks.push({ threadId, app: app.bundleId, query });
@@ -161,6 +161,8 @@ describe('the look service', () => {
     const audit: any[] = [];
     const service = createLookService({
       enabled: () => enabled,
+      accessibilityGranted: typeof opts.trust === 'function' ? opts.trust : () => typeof opts.trust === 'boolean' ? opts.trust : undefined,
+      accessibilitySettingsLabel: opts.settingsLabel,
       driver: async () => driver,
       ask: async (_t, question, options) => { asked.push({ question, options }); return opts.answer ?? options[0]; },
       audit: (entry) => audit.push(entry),
@@ -243,6 +245,52 @@ describe('the look service', () => {
     const result = await setup({ lookError: new Error(message) }).call('look', { app: 'Notes' });
     expect(result).toMatchObject({ ok: false, value: { code: 'unavailable' } });
     expect(result.error).not.toContain('System Settings');
+  });
+
+  it.each([
+    'AX tree walk did not return: an accessibility call stopped answering past its timeout budget',
+    'ax_app_launching: app did not answer accessibility within timeout_ms',
+    'ax_window_unresolved: accessibility elements belong to another window',
+    'ax_tree_empty: accessibility tree was not ready',
+    'process is not trusted for accessibility',
+  ])('an enabled native grant prevents false permission coaching for %s', async message => {
+    const s = setup({ trust: true, lookError: new Error(message) });
+    const result = await s.call('look', { app: 'Notes' });
+    expect(result).toMatchObject({ ok: false, value: { code: 'unavailable', readFailure: { accessibilityGranted: true } } });
+    expect(result.error).toContain('already has Accessibility access');
+    expect(result.error).not.toContain('Check System Settings');
+    expect(s.audit[0].readFailure.accessibilityGranted).toBe(true);
+    expect(JSON.stringify(s.audit)).not.toContain(message);
+    expect(s.service.counts('t1')?.inputCalls).toBe(0);
+  });
+
+  it('AX timeouts and unready windows without a permission probe are not missing permissions', async () => {
+    for (const message of ['accessibility call stopped answering past timeout', 'ax_window_unresolved: accessibility surface missing']) {
+      const result = await setup({ lookError: new Error(message) }).call('look', { app: 'Notes' });
+      expect(result).toMatchObject({ ok: false, value: { code: 'unavailable' } });
+      expect(result.error).not.toContain('System Settings');
+    }
+  });
+
+  it('native refusal uses the current macOS label and advises reopening an already enabled app', async () => {
+    const result = await setup({ trust: false, settingsLabel: 'Device Control and Data Access', lookError: new Error('ax_tree_empty: accessibility surface absent') }).call('look', { app: 'Notes' });
+    expect(result).toMatchObject({ ok: false, value: { code: 'not_permitted', readFailure: { kind: 'permission_denied', accessibilityGranted: false } } });
+    expect(result.error).toContain('Privacy & Security → Device Control and Data Access → Bimax');
+    expect(result.error).toContain('If Bimax is already enabled, quit and reopen');
+  });
+
+  it('the nonprompting probe runs only after an admitted failed look; unrelated errors keep their cause', async () => {
+    const probe = jest.fn(() => false);
+    const ok = setup({ trust: probe }); await ok.call('list_apps'); await ok.call('look', { app: 'Notes' });
+    expect(probe).not.toHaveBeenCalled();
+    await setup({ trust: probe, answer: 'Not now', lookError: new Error('Accessibility denied') }).call('look', { app: 'Notes' });
+    expect(probe).not.toHaveBeenCalled();
+    await setup({ trust: probe, appsError: new Error('list failed') }).call('list_apps');
+    await setup({ trust: probe, appsError: new Error('list failed') }).call('look', { app: 'Notes' });
+    expect(probe).not.toHaveBeenCalled();
+    const broken = setup({ trust: probe, lookError: new Error('Permission denied: authorization context expired') });
+    expect(await broken.call('look', { app: 'Notes' })).toMatchObject({ value: { code: 'unavailable', readFailure: { kind: 'read_failed' } } });
+    expect(probe).toHaveBeenCalledTimes(1);
   });
 
   it('turning it off stops the next look at once, even with a grant', async () => {

@@ -286,10 +286,14 @@ export function createLookDriver(options: LookDriverOptions): LookDriver & { act
       try { return await lookOnce(threadId, app, query, generation); }
       catch (error) {
         requireCurrent(threadId, generation);
-        if (!sessionLeaseEnded(error)) throw reason(error);
-        await dropSession(`${threadId}|${app.bundleId}`);
+        if (sessionLeaseEnded(error)) {
+          await dropSession(`${threadId}|${app.bundleId}`);
+        } else if (/\bax_(?:tree_empty|app_launching|window_unresolved):|AX tree walk .*did not return within/i.test(reason(error).message)) {
+          // The pinned driver's explicit unready/timeout responses: one read-only retry after a brief settle.
+          // No permission denial or input operation is retried, and Stop still invalidates the observation.
+          await sleep(150);
+        } else { throw reason(error); }
         requireCurrent(threadId, generation);
-        // Read-only renewal, once. The grant still stands; no input operation goes through this path.
         try { return await lookOnce(threadId, app, query, generation); }
         catch (second) { throw reason(second); }
       }

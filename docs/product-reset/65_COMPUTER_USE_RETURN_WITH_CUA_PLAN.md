@@ -796,6 +796,35 @@ weak-model compliance must still be tested live. The follow-up build is installe
 App Actions 3/3, matching engine bytes and deep strict signature verified, with the same local designated requirement.
 The installed archive/engine contain the new recovery/default strings. Rollback and artifact hashes are in `install.json`.
 
+
+**Permission diagnosis continuation (2026-10-02, Codex).** Owner could not find “Accessibility”, then confirmed it was
+already granted. Independent System Settings UI inspection on macOS 27.0 found the privacy pane named **Device Control
+and Data Access** and Bimax switched on; no permission was changed. The new task's failed look at 10:09:53 UTC became
+an Accessibility request, then look/type succeeded at 10:17–10:18 without a Codex permission change. Source inspection
+found the service still classified every error containing “accessibility” as TCC denial, including the pinned driver's
+explicit AX-tree timeout, app-launching, empty-tree and unresolved-window messages. The exact original native reason
+cannot be recovered: that branch discarded it. We do not claim to know that earlier failure's precise subtype.
+
+Implemented: after an admitted failed look only, the app queries its own native Accessibility trust with
+`systemPreferences.isTrustedAccessibilityClient(false)` (no prompt). Confirmed granted access prevents permission
+coaching even if the error mentions Accessibility/not-trusted. A missing process grant gets the actual OS setting name
+(macOS 27: Device Control and Data Access), with quit/reopen advice when it is already enabled. A host without a native
+probe needs explicit denial text; an AX timeout/unready message alone is not enough. The tool receives the correct
+read failure and optional native boolean; the audit records only a fixed enum and boolean, never raw error/screen text.
+The pinned driver's explicit unready/timeout responses get one read-only retry after 150 ms; leases still renew once,
+arbitrary denial does not retry, and every generation check and input non-replay boundary stays intact.
+
+Local evidence: 300 tests in seven suites and both typechecks pass; 11 controlled driver scenarios, 37 action checks
+and four cancellation checks pass. Three diagnosis mutants and six driver mutants are caught, including false keyword
+classification, ignoring native positive/negative state, unrelated-denial retry and removed transient read recovery.
+The first app compile caught a catch-variable collision/test closure type/JSON typing, corrected before passing checks.
+Evidence: `evidence/2026-10-02-cu-permission-diagnosis/` includes the observed setting, content-free audit and precise
+limits. README, 05/07/08, Mac Buddy vision and competitive/M02 rules guided the change. Installation checkpoint and
+rollback are recorded there. Music playback, WhatsApp's owner-only Send card and the broader release exit remain
+unverified; this correction is locally verified and is not a release qualification claim. Installed and reopened:
+package gate 4/4, App Actions 3/3, deep strict signature and matching engine verified. The installed archive/engine
+contain the diagnosis and advice. Local designated requirement is unchanged; rollback and hashes are in `install.json`.
+
 ## 7. Risks named now
 
 - **Driver drift.** 0.12 → 0.31 rewrote the codebase; a later release can change behaviour again (0.18 did). The

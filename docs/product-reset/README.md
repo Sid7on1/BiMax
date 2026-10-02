@@ -29,7 +29,9 @@ granted window, filtered for the action. Suggestions never authorize a fuzzy pre
 Installed Music run 4 failed after a delayed card expired the cached native use session; read recovery then reused
 a native session label. The lifecycle correction is Implemented and locally verified (277 tests, 8 controlled checks,
 5 rejected mutants). Installed run 5 still failed on model argument/foreground recovery; an omitted look action now
-defaults safely to looking, and recovery offers explicit targeting/search retry arguments (292 tests, 3 rejected mutants). Music playback and the owner's WhatsApp send still require independent end-state verification. See record 65 §6h and `evidence/2026-10-02-cu-name-recovery/`.
+defaults safely to looking, and recovery offers explicit targeting/search retry arguments (292 tests, 3 rejected mutants). Accessibility-word read errors no longer imply permission denial; a native nonprompting trust check and one bounded
+read retry are locally verified (300 tests; diagnosis/driver mutants caught). On the owner's macOS 27, the setting is
+Device Control and Data Access and Bimax was observed enabled. Music playback and the owner's WhatsApp send still require independent end-state verification. See record 65 §6h and `evidence/2026-10-02-cu-name-recovery/`.
 
 ## The monolith: research and plan — 2026-09-29
 

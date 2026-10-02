@@ -1,0 +1,54 @@
+{
+  "kind": "deterministic-controlled-sdk",
+  "mutant": false,
+  "passed": 4,
+  "results": [
+    {
+      "waitAt": "start",
+      "outcome": {
+        "ok": false,
+        "error": "This look grant ended."
+      },
+      "sessions": 0,
+      "closed": 0,
+      "calls": []
+    },
+    {
+      "waitAt": "list",
+      "outcome": {
+        "ok": false,
+        "error": "This look grant ended."
+      },
+      "sessions": 1,
+      "closed": 1,
+      "calls": [
+        "list_windows"
+      ]
+    },
+    {
+      "waitAt": "list-error",
+      "outcome": {
+        "ok": false,
+        "error": "This look grant ended."
+      },
+      "sessions": 1,
+      "closed": 1,
+      "calls": [
+        "list_windows"
+      ]
+    },
+    {
+      "waitAt": "state",
+      "outcome": {
+        "ok": false,
+        "error": "This look grant ended."
+      },
+      "sessions": 1,
+      "closed": 1,
+      "calls": [
+        "list_windows",
+        "get_window_state"
+      ]
+    }
+  ]
+}

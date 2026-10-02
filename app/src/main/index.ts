@@ -139,6 +139,8 @@ const lookDriver = createLookDriver({
   appPath: app.getAppPath(),
 });
 const lookService = createLookService({
+  accessibilityGranted: () => process.platform === 'darwin' ? systemPreferences.isTrustedAccessibilityClient(false) : undefined,
+  accessibilitySettingsLabel: Number(process.getSystemVersion().split('.')[0]) >= 27 ? 'Device Control and Data Access' : 'Accessibility',
   enabled: () => loadSettings().computerLook === true,
   // Stage 6 (§6h): using other apps — press and type — its own switch, only with looking on.
   useEnabled: () => loadSettings().computerLook === true && loadSettings().computerUse === true,

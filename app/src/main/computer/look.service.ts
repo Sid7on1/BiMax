@@ -3,6 +3,7 @@ import type { Outbound, Inbound } from '../../renderer/src/protocol';
 import { LookGrants } from './look.grants';
 import { NEVER_LOOK, isNeverUsed, validBundleId } from './look.manifest';
 import { renderLook } from './look.observation';
+import { diagnoseReadFailure, type ReadFailure } from './look.failure';
 import { controlSuggestions } from './look.suggestions';
 import { commitReasonForPress, commitWordIn, isSearchBox, reasonText, type CommitReason } from './look.commit';
 import type { ProcessIdentity } from './look.identity';
@@ -89,6 +90,10 @@ export interface LookServiceDeps {
   /** The person turned looking on (menu bar item, off by default). Read on every call: turning it off stops looks at once. */
   enabled(): boolean;
   driver(): Promise<LookDriver>;
+  /** App-owned native trust probe, nonprompting, only after a failed admitted look. Never used at launch. */
+  accessibilityGranted?(): boolean | undefined;
+  /** The privacy permission's name on this version of macOS. */
+  accessibilitySettingsLabel?: string;
   /** Raise a card in this Thread and wait for the person's answer ('' if the Thread stopped first). */
   ask(threadId: string, question: string, options: string[], body: string): Promise<string>;
   /** One content-free line per host call — never window text. Optional: tests and hosts without a log omit it. */
@@ -110,6 +115,8 @@ export interface LookAuditEntry {
   ok: boolean;
   code?: string;
   counts: LookCounts;
+  /** Fixed diagnosis and optional native boolean only; never driver/screen text. */
+  readFailure?: ReadFailure;
   /** A step's receipt, content-free: the control's name and any typed text only as hashes. */
   receipt?: PressReceipt;
 }
@@ -271,6 +278,7 @@ export function createLookService(deps: LookServiceDeps) {
         at: new Date().toISOString(), threadId, op: String(msg.op).slice(0, 40),
         ...(lastTarget.get(threadId) ? { bundleId: lastTarget.get(threadId) } : {}),
         ok: result.ok, ...(result.ok ? {} : { code: String(value.code ?? '') }), counts: { ...count(threadId) },
+        ...(value.readFailure ? { readFailure: value.readFailure as ReadFailure } : {}),
         ...(lastReceipt.get(threadId) ? { receipt: lastReceipt.get(threadId) } : {}),
       });
     } catch { /* the log must never change the answer */ }
@@ -295,6 +303,7 @@ export function createLookService(deps: LookServiceDeps) {
       return fail(msg.id, 'not_permitted', 'Looking at other apps is turned off. The person can turn it on from the Bimax item in the menu bar ("Let Tasks Look at Other Apps").');
     }
     const args = (msg.args && typeof msg.args === 'object' && !Array.isArray(msg.args)) ? msg.args as Record<string, unknown> : {};
+    let attemptedLook = false;
     try {
       if (msg.op === 'list_apps') {
         const apps = (await (await deps.driver()).runningApps()).filter((a) => !neverTouched(a));
@@ -353,6 +362,7 @@ export function createLookService(deps: LookServiceDeps) {
       const query = typeof args.query === 'string' && args.query.trim() ? args.query.slice(0, 200) : undefined;
       const driver = await deps.driver();
       if (!current()) return revoked();
+      attemptedLook = true;
       const window = await driver.look(threadId, target, query);
       if (!current()) return revoked();
       // Stage 5: which build is running, so a task that just built this app can tell it is looking at that build.
@@ -373,10 +383,22 @@ export function createLookService(deps: LookServiceDeps) {
       if (!current()) return revoked();
       c.refused += 1;
       const text = error instanceof Error ? error.message : String(error);
-      if (/accessibility|process is not trusted/i.test(text)) {
-        return fail(msg.id, 'not_permitted', 'Bimax needs Accessibility permission to read other apps: System Settings → Privacy & Security → Accessibility → turn on Bimax.');
+      let granted: boolean | undefined;
+      try { if (attemptedLook) granted = deps.accessibilityGranted?.(); } catch { /* no trustworthy permission diagnosis */ }
+      const readFailure = diagnoseReadFailure(text, granted);
+      const permissionNote = granted === true ? ' macOS reports Bimax already has Accessibility access. Do not ask the person to enable it again.' : '';
+      let message: string;
+      if (readFailure.kind === 'permission_denied') {
+        const setting = deps.accessibilitySettingsLabel ?? 'Accessibility';
+        message = `macOS reports Accessibility access is unavailable to this Bimax process. Check System Settings → Privacy & Security → ${setting} → Bimax. If Bimax is already enabled, quit and reopen Bimax; do not keep asking the person to enable it.`;
+      } else if (readFailure.kind === 'app_unready') {
+        message = `Bimax could not read the app's window yet: its accessibility surface is not ready or could not be matched to that window. Look again after the app settles; nothing was pressed or typed.${permissionNote}`;
+      } else if (readFailure.kind === 'read_timeout') {
+        message = `Bimax's window read timed out while the app was not answering. Look again after it settles; nothing was pressed or typed.${permissionNote}`;
+      } else {
+        message = `Bimax could not look: ${text.slice(0, 200)}${permissionNote}`;
       }
-      return fail(msg.id, 'unavailable', `Bimax could not look: ${text.slice(0, 200)}`);
+      return { t: 'host_result', id: msg.id, ok: false, error: message, value: { code: readFailure.kind === 'permission_denied' ? 'not_permitted' : 'unavailable', readFailure } };
     }
   }
 

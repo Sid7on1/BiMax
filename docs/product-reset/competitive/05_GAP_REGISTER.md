@@ -26,6 +26,9 @@ until an actual retry. Installed run 4 failed on native session expiry and label
 coaching by the model. Session renewal is now Implemented and locally verified (277 tests, 8 controlled checks,
 5 rejected mutants). Run 5 failed on model recovery despite the confirmed latest install. A read-only look default
 and explicit targeting/foreground-search hints are Implemented and locally verified (292 tests, 3 rejected mutants); live playback and the owner-approved WhatsApp send still require end-state evidence. See record 65 §6h and `evidence/2026-10-02-cu-name-recovery/`.
+An additional false permission diagnosis (any error mentioning Accessibility) is corrected with a nonprompting
+native trust check and one bounded transient read retry; 300 tests, three diagnosis and six driver mutants pass locally.
+The owner's macOS 27 setting is Device Control and Data Access; Bimax was already enabled in the inspected UI.
 Stage 6's baseline/repetition/distribution exit, M02's current mutation/persistence journey, X01, clean-Mac qualification
 and any Win remain **Target/unmeasured**. Record 46's “disabled” status below is historical.
 
