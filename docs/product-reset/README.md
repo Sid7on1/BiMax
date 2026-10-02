@@ -28,7 +28,8 @@ granted window, filtered for the action. Suggestions never authorize a fuzzy pre
 274 focused tests, 6 recovery mutants and 3 exact-target mutants caught; rebuilt and installed with a rollback.
 Installed Music run 4 failed after a delayed card expired the cached native use session; read recovery then reused
 a native session label. The lifecycle correction is Implemented and locally verified (277 tests, 8 controlled checks,
-5 rejected mutants). Music playback and the owner's WhatsApp send still require independent end-state verification. See record 65 §6h and `evidence/2026-10-02-cu-name-recovery/`.
+5 rejected mutants). Installed run 5 still failed on model argument/foreground recovery; an omitted look action now
+defaults safely to looking, and recovery offers explicit targeting/search retry arguments (292 tests, 3 rejected mutants). Music playback and the owner's WhatsApp send still require independent end-state verification. See record 65 §6h and `evidence/2026-10-02-cu-name-recovery/`.
 
 ## The monolith: research and plan — 2026-09-29
 

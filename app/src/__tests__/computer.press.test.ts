@@ -505,6 +505,32 @@ describe('Return in a box', () => {
     expect(s.confirms).toEqual([]);
   });
 
+  it('a failed background search proposes the re-read box and foreground card, without replay', async () => {
+    const box = ELEMENTS.find(e => e.label === 'Apple Music')!;
+    const s = setup({ confirmed: { kind: 'pressed', title: 'x', before: AFTER, after: AFTER,
+      elements: [{ ...box, label: 'Espresso Sabrina Carpenter', value: 'Espresso Sabrina Carpenter' }] }, answers: [ALLOW_USE, 'Not now'] });
+    await s.lookAt();
+    const result = await s.type('Espresso Sabrina Carpenter', { field: 'Apple Music', submit: true });
+    const line = result.error!.split('\n').find(l => l.startsWith('TypeInAppTool {'))!;
+    const retry = JSON.parse(line.slice('TypeInAppTool '.length));
+    expect(retry).toEqual({ app: 'BimaxCuFixture', field: 'Espresso Sabrina Carpenter', role: 'AXTextField', text: 'Espresso Sabrina Carpenter', submit: true, front: true });
+    expect(s.typings).toHaveLength(1); expect(s.confirms).toHaveLength(1); expect(s.frontTypings).toEqual([]);
+    // The current re-read is already bound; copying a hint still meets the ordinary foreground card.
+    expect(await s.type(retry.text, retry)).toMatchObject({ ok: false, value: { code: 'denied' } });
+    expect(s.asked[1].question).toContain('Bring BimaxCuFixture forward');
+    expect(s.frontTypings).toEqual([]); expect(s.frontReturns).toEqual([]);
+    expect(JSON.stringify(s.audit)).not.toContain('Espresso');
+  });
+
+  it('unchanged Return in a message box never supplies a replay request', async () => {
+    const s = setup({ confirmed: { kind: 'pressed', title: 'x', before: AFTER, after: AFTER, elements: ELEMENTS }, answers: [ALLOW_USE, 'Press Return'] });
+    await s.lookAt();
+    const result = await s.type('running late', { field: 'Compose message', submit: true });
+    expect(result).toMatchObject({ ok: false, value: { code: 'no_effect' } });
+    expect(result.error).not.toContain('TypeInAppTool {');
+    expect(s.confirms).toHaveLength(1);
+  });
+
   it('Return that changed nothing is not a success, and is never pressed again', async () => {
     const s = setup({ confirmed: { kind: 'pressed', title: 'x', before: AFTER, after: AFTER, elements: ELEMENTS } });
     await s.lookAt();
@@ -769,6 +795,15 @@ describe('missing names: recover from observed controls without guessing a targe
     expect((await s.press('Espresso, Sabrina Carpenter', { role: 'AXMenuButton' })).ok).toBe(true);
     expect(s.presses).toHaveLength(1);
     expect(s.presses[0].target.label).toBe('Espresso, Sabrina Carpenter');
+  });
+
+  it('one editable box supplies the exact targeting keys, without typing or asking', async () => {
+    const s = setup({ elements: [{ role: 'AXTextField', label: 'Espresso Sabrina Carpenter', editable: true, pressable: false }] });
+    await s.lookAt();
+    const result = await s.type('Espresso', { field: 'AXTextField', role: 'AXTextField' });
+    const line = result.error!.split('\n').find(l => l.startsWith('TypeInAppTool targeting'))!;
+    expect(JSON.parse(line.slice(line.indexOf('{')))).toEqual({ field: 'Espresso Sabrina Carpenter', role: 'AXTextField' });
+    expect(s.typings).toEqual([]); expect(s.asked).toHaveLength(1);
   });
 
   it('the right name with the wrong role returns its real role, without pressing', async () => {

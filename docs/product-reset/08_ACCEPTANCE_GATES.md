@@ -57,6 +57,10 @@ Enforced by `src/__tests__/computer.admission.boundary.test.ts` and `scripts/ver
   are quoted as data; long names supply a bounded copyable prefix under the existing unique-prefix rule. Ranking is
   a hint only: the missing request performs zero input, creates no action approval, renews no observation, and logs
   no screen text. Copying a suggestion still meets every exact-target, freshness, build, grant and approval check.
+- **Tool recovery contract (§6h).** Omitted look action may default only to read-only looking at an explicit app;
+  missing app or explicit invalid actions refuse. Copyable target/search retry hints use actual re-read controls and
+  leave foreground and commit cards intact. Never suggest replay of an unchanged Return in a non-search box or of
+  uncertain input; never execute a suggested retry automatically. Live model compliance requires independent grading.
 - **Native session lifecycle (§6h).** Waiting on a card must not reuse an expired native use context: each approved
   step starts a fresh bounded, app-scoped context before re-reading its exact target. Native labels are unique;
   retired contexts, manifests and observer mappings are removed. Read-only renewal happens once, only for a native

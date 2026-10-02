@@ -818,7 +818,13 @@ export function createLookService(deps: LookServiceDeps) {
     const again = rebind(key, look.windowId, confirmed.title || look.title, confirmed.elements, look.exe);
     const changes = changedLines(outcome.after, confirmed.after);
     if (renderLook(outcome.after).text === renderLook(confirmed.after).text) {
-      return refuse('no_effect', `Typed into “${el.label}” and pressed Return, but nothing in the window changed yet.${front ? '' : ' Some apps only take Return from the app in front: the person can let Bimax bring it forward — type again with "front": true.'} Look again before doing anything else.${returnNote}`);
+      // A copyable recovery request, from the re-read target. Hint only: it still needs a new read and a foreground
+      // card. Never recommend replaying Return in a message/transaction box, or repeating an uncertain input.
+      const boxes = (confirmed.elements ?? []).filter(e => e.editable && e.role === el.role &&
+        (el.at !== undefined ? e.at === el.at : e.label === el.label));
+      const retry = !front && searching && boxes.length === 1 && boxes[0].label.length <= 300
+        ? `\nAfter a fresh LookAtAppTool read, if search results are still absent and this box is still the intended target, request this once (Bimax asks the user first):\nTypeInAppTool ${JSON.stringify({ app: target.name, field: boxes[0].label, role: boxes[0].role, text, submit: true, front: true })}` : '';
+      return refuse('no_effect', `Typed into “${el.label}” and pressed Return, but nothing in the window changed yet.${front ? '' : ' Some apps only take Return from the app in front: the person can let Bimax bring it forward — type again with "front": true.'} Look again before doing anything else.${returnNote}${retry}`);
     }
     return { t: 'host_result', id: msg.id, ok: true, value: { text: `${header}\nThen pressed Return in it. What changed in the window:\n${changes.length ? changes.join('\n') : '(it changed, but no readable line did)'}${returnNote}${again ? `\n${NEXT_STEP}` : ''}` } };
   }

@@ -4,5 +4,189 @@
  "prompt": "Play the song Espresso by Sabrina Carpenter in the Music app.",
  "startedAt": "2026-10-02T09:48:18Z",
  "auditBefore": 30,
- "audit": []
+ "audit": [
+  {
+   "at": "2026-10-02T09:53:14.035Z",
+   "threadId": "a21e28d4-240e-4664-9b9a-6c96a9a83451",
+   "op": "list_apps",
+   "ok": true,
+   "counts": {
+    "lists": 1,
+    "looks": 0,
+    "refused": 0,
+    "asked": 0,
+    "presses": 0,
+    "typings": 0,
+    "picks": 0,
+    "scrolls": 0,
+    "inputCalls": 0
+   },
+   "driver": {
+    "authorized": {},
+    "refused": {}
+   }
+  },
+  {
+   "at": "2026-10-02T09:53:40.613Z",
+   "threadId": "a21e28d4-240e-4664-9b9a-6c96a9a83451",
+   "op": "look",
+   "bundleId": "com.apple.Music",
+   "ok": true,
+   "counts": {
+    "lists": 1,
+    "looks": 1,
+    "refused": 0,
+    "asked": 1,
+    "presses": 0,
+    "typings": 0,
+    "picks": 0,
+    "scrolls": 0,
+    "inputCalls": 0
+   },
+   "driver": {
+    "authorized": {
+     "list_windows": 1,
+     "get_window_state": 1
+    },
+    "refused": {}
+   }
+  },
+  {
+   "at": "2026-10-02T09:53:48.613Z",
+   "threadId": "a21e28d4-240e-4664-9b9a-6c96a9a83451",
+   "op": "type",
+   "bundleId": "com.apple.Music",
+   "ok": false,
+   "code": "not_found",
+   "counts": {
+    "lists": 1,
+    "looks": 1,
+    "refused": 1,
+    "asked": 1,
+    "presses": 0,
+    "typings": 0,
+    "picks": 0,
+    "scrolls": 0,
+    "inputCalls": 0
+   },
+   "driver": {
+    "authorized": {
+     "list_windows": 1,
+     "get_window_state": 1
+    },
+    "refused": {}
+   }
+  },
+  {
+   "at": "2026-10-02T09:54:14.296Z",
+   "threadId": "a21e28d4-240e-4664-9b9a-6c96a9a83451",
+   "op": "type",
+   "bundleId": "com.apple.Music",
+   "ok": false,
+   "code": "no_effect",
+   "counts": {
+    "lists": 1,
+    "looks": 1,
+    "refused": 2,
+    "asked": 1,
+    "presses": 0,
+    "typings": 1,
+    "picks": 0,
+    "scrolls": 0,
+    "inputCalls": 2
+   },
+   "receipt": {
+    "actionId": "26d7eaf3-0d3a-4d22-ac3d-9bb014631720",
+    "action": "type",
+    "role": "AXTextField",
+    "labelHash": "c777d4c164ad",
+    "windowId": 1870,
+    "lookAgeMs": 18991,
+    "asked": null,
+    "outcome": "typed",
+    "textHash": "c777d4c164ad",
+    "textLength": 26,
+    "exeSha256": "55d8febd91c1ffa3a689ef07da69ec67a1a49cc07eb39b40acc6e73a9f99bf82",
+    "pid": 75301,
+    "submitted": true
+   },
+   "driver": {
+    "authorized": {
+     "list_windows": 1,
+     "get_window_state": 8,
+     "set_value": 1,
+     "click": 1
+    },
+    "refused": {}
+   }
+  },
+  {
+   "at": "2026-10-02T09:54:31.396Z",
+   "threadId": "a21e28d4-240e-4664-9b9a-6c96a9a83451",
+   "op": "press",
+   "bundleId": "com.apple.Music",
+   "ok": false,
+   "code": "no_effect",
+   "counts": {
+    "lists": 1,
+    "looks": 1,
+    "refused": 3,
+    "asked": 1,
+    "presses": 1,
+    "typings": 1,
+    "picks": 0,
+    "scrolls": 0,
+    "inputCalls": 3
+   },
+   "receipt": {
+    "actionId": "a40d159b-e7e7-4ba6-8bc4-23513c7ffd87",
+    "action": "press",
+    "role": "AXButton",
+    "labelHash": "49c266baaaa7",
+    "windowId": 1870,
+    "lookAgeMs": 6833,
+    "asked": null,
+    "outcome": "no_effect",
+    "exeSha256": "55d8febd91c1ffa3a689ef07da69ec67a1a49cc07eb39b40acc6e73a9f99bf82",
+    "pid": 75301
+   },
+   "driver": {
+    "authorized": {
+     "list_windows": 1,
+     "get_window_state": 13,
+     "set_value": 1,
+     "click": 2
+    },
+    "refused": {}
+   }
+  },
+  {
+   "at": "2026-10-02T09:54:47.552Z",
+   "threadId": "a21e28d4-240e-4664-9b9a-6c96a9a83451",
+   "op": "type",
+   "bundleId": "com.apple.Music",
+   "ok": false,
+   "code": "not_found",
+   "counts": {
+    "lists": 1,
+    "looks": 1,
+    "refused": 4,
+    "asked": 1,
+    "presses": 1,
+    "typings": 1,
+    "picks": 0,
+    "scrolls": 0,
+    "inputCalls": 3
+   },
+   "driver": {
+    "authorized": {
+     "list_windows": 1,
+     "get_window_state": 13,
+     "set_value": 1,
+     "click": 2
+    },
+    "refused": {}
+   }
+  }
+ ]
 }

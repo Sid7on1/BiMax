@@ -769,6 +769,33 @@ continuation's checkpoint. Playback, the owner's WhatsApp send and stage 6 relea
 evidence. README, architecture (05), roadmap (07), gates (08), Mac Buddy vision, competitive evaluation rules and M02
 guide this correction; no product boundary or permission is widened.
 
+
+**Retry guidance continuation (2026-10-02, Codex).** Owner reported continued issues after installation. Verified the
+running `/Applications/Bimax.app` process, the app.asar and engine hashes against the session-renewal install, the
+engine against the local build, and its deep strict signature: the owner was running that updated build. Installed
+run 5 still failed: the model omitted the look action, tried a role as the field name, typed/submitted successfully
+in the background without changing results, pressed Search with no change, then invented the field name Search again.
+It was interrupted; the log also raised an error-thrashing warning. No expiry/label collision appears in this run.
+A current install does not establish reliable model recovery or successful playback.
+
+Implemented follow-up: `LookAtAppTool` defaults only an omitted action to a read-only look; an absent app and an
+explicit invalid action still refuse. The existing per-app grant and optional-capability gate decide admission.
+When exactly one eligible editable box is suggested, the refusal supplies copyable `field`/`role` targeting keys.
+An unchanged background Return in a search box supplies a conditional foreground retry request using the re-read
+box's actual name, same query and `submit: true, front: true`. This is advice only, after a fresh look; copying it still
+asks the existing foreground card. No input is replayed by recovery. Message/transaction boxes and uncertain results
+get no such replay request. No new app workflow, permission or executor is introduced.
+
+Seven focused suites pass (292 tests), app/engine typechecks pass; three behavior mutants must fail the same checks
+(no default, recommending message Return replay, old rather than re-read field name). Evidence and installation
+checkpoint: `evidence/2026-10-02-cu-retry-guidance/`; content-free audit: installed `run-5.json`. The initial app typecheck
+caught an optional `elements` access, corrected to withhold guidance if no controls were re-read; the passing checks
+were rerun. Guided by README, 05/07/08, Mac Buddy vision and the existing competitive/M02 end-state rules. Playback,
+WhatsApp's owner-clicked send and Stage 6 release exit remain unverified. This correction improves the contract;
+weak-model compliance must still be tested live. The follow-up build is installed and reopened; package gate 4/4,
+App Actions 3/3, matching engine bytes and deep strict signature verified, with the same local designated requirement.
+The installed archive/engine contain the new recovery/default strings. Rollback and artifact hashes are in `install.json`.
+
 ## 7. Risks named now
 
 - **Driver drift.** 0.12 → 0.31 rewrote the codebase; a later release can change behaviour again (0.18 did). The

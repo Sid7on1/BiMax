@@ -1,6 +1,7 @@
 import { EventEmitter } from 'events';
 import { ProtocolHost, HostCallResult } from '../protocol/host';
 import { Inbound, Outbound, HOST_CALL_EVENT } from '../protocol/protocol';
+import { checkToolArgs } from '../tools/args.validate';
 import { engineEvents } from '../engine/events';
 import { createLookTool, hostCall } from '../tools/implementations/look.tool';
 import { fenceUntrusted, untrustedChannel, markToolTaint, getTaintTracker } from '../mind/taint';
@@ -106,6 +107,23 @@ describe('LookAtAppTool', () => {
     const out = await run({ action: 'look', app: 'Notes', query: 'save' });
     expect(calls).toEqual([{ op: 'look', args: { app: 'Notes', query: 'save' } }]);
     expect(out).toBe('AXButton "Save"');
+  });
+
+  it('a named app with omitted action passes schema and only requests a granted look', async () => {
+    engineEvents.on(HOST_CALL_EVENT, listener);
+    const tool = createLookTool(governor);
+    const checked = checkToolArgs(tool.schema, { app: 'Music' });
+    expect(checked.violations).toEqual([]);
+    await tool.execute(checked.args);
+    expect(calls).toEqual([{ op: 'look', args: { app: 'Music' } }]);
+  });
+
+  it('defaults neither an absent app nor an explicitly invalid action into discovery/input', async () => {
+    engineEvents.on(HOST_CALL_EVENT, listener);
+    expect(await run({})).toContain('Say which app');
+    expect(await run({ app: 'Music', action: null })).toContain('action must be');
+    expect(await run({ app: 'Music', action: 'click' })).toContain('action must be');
+    expect(calls).toEqual([]);
   });
 
   it('a look without an app is refused before anything is asked', async () => {

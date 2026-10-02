@@ -24,7 +24,8 @@ requested action remains refused and copied names still meet exact-target and ap
 locally verified**: 274 focused tests and 6 rejected behaviour mutants; installed-model recovery remains unmeasured
 until an actual retry. Installed run 4 failed on native session expiry and label reuse, with false Accessibility
 coaching by the model. Session renewal is now Implemented and locally verified (277 tests, 8 controlled checks,
-5 rejected mutants); live playback and the owner-approved WhatsApp send still require end-state evidence. See record 65 §6h and `evidence/2026-10-02-cu-name-recovery/`.
+5 rejected mutants). Run 5 failed on model recovery despite the confirmed latest install. A read-only look default
+and explicit targeting/foreground-search hints are Implemented and locally verified (292 tests, 3 rejected mutants); live playback and the owner-approved WhatsApp send still require end-state evidence. See record 65 §6h and `evidence/2026-10-02-cu-name-recovery/`.
 Stage 6's baseline/repetition/distribution exit, M02's current mutation/persistence journey, X01, clean-Mac qualification
 and any Win remain **Target/unmeasured**. Record 46's “disabled” status below is historical.
 
