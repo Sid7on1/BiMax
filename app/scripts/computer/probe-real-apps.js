@@ -114,7 +114,8 @@ app.whenReady().then(async () => {
         // A song the window does not show yet, so "found" can only come from this search.
         const SONG = arg('song', 'Levitating');
         const ARTIST = arg('artist', 'Dua Lipa');
-        const isSong = (e) => e.pressable && e.label.startsWith(`${SONG}, Song`) && e.label.includes(ARTIST);
+        // "Espresso, Song · Sabrina Carpenter" in a list, "Espresso, Sabrina Carpenter" as the top result (both measured).
+        const isSong = (e) => e.pressable && e.label.startsWith(`${SONG},`) && e.label.includes(ARTIST);
         evidence.musicWindow.songShownBefore = last.some(isSong);
         const box = search[0];
         const q1 = await step('music: search with Return, from behind', 'type', 'type', { app: 'Music', field: box.label, role: box.role, text: SONG, submit: true });

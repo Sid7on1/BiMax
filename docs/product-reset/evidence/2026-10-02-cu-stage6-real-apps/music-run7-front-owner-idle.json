@@ -1,0 +1,288 @@
+{
+ "kind": "live-real-apps-scripted",
+ "startedAt": "2026-10-02T08:36:59.084Z",
+ "apps": [
+  "music"
+ ],
+ "steps": [
+  {
+   "step": "music: look",
+   "ok": true,
+   "code": null,
+   "ms": 5188,
+   "error": null,
+   "resultLines": 243,
+   "cards": [
+    "Let this task use Music?"
+   ],
+   "frontBefore": "Ghostty",
+   "frontAfter": "Ghostty",
+   "pointerMoved": false
+  },
+  {
+   "step": "music: search with Return, from behind",
+   "ok": false,
+   "code": "no_effect",
+   "ms": 33202,
+   "error": "Typed into “Apple Music” and pressed Return, but nothing in the window changed yet. Some apps only take Return from the app in front: the person can let Bimax bring it forward — type again with \"front\": true. Look again before doing anything else.",
+   "resultLines": 1,
+   "cards": [],
+   "frontBefore": "Ghostty",
+   "frontAfter": "Ghostty",
+   "pointerMoved": false
+  },
+  {
+   "step": "music: look after the search from behind",
+   "ok": true,
+   "code": null,
+   "ms": 5240,
+   "error": null,
+   "resultLines": 244,
+   "cards": [],
+   "frontBefore": "Ghostty",
+   "frontAfter": "Ghostty",
+   "pointerMoved": false
+  },
+  {
+   "step": "music: search with Return, brought forward",
+   "ok": true,
+   "code": null,
+   "ms": 22893,
+   "error": null,
+   "resultLines": 45,
+   "cards": [
+    "Bring Music forward for a moment?"
+   ],
+   "frontBefore": "Ghostty",
+   "frontAfter": "Ghostty",
+   "pointerMoved": false
+  },
+  {
+   "step": "music: look after the search in front",
+   "ok": true,
+   "code": null,
+   "ms": 2992,
+   "error": null,
+   "resultLines": 229,
+   "cards": [],
+   "frontBefore": "Ghostty",
+   "frontAfter": "Ghostty",
+   "pointerMoved": false
+  }
+ ],
+ "cards": [
+  {
+   "question": "Let this task use Music?",
+   "options": [
+    "Allow using Music",
+    "Only look",
+    "Not now"
+   ],
+   "answer": "Allow using Music",
+   "bodyHasTypedText": null,
+   "body": "Bimax will read Music's front window and may press its buttons and type into its text boxes, in the background, without moving your pointer. Before anything is sent, posted, bought, deleted or confirmed it stops and asks you, showing exactly what. This is for this task only; stopping the task ends it."
+  },
+  {
+   "question": "Bring Music forward for a moment?",
+   "options": [
+    "Bring Music forward once",
+    "Not now"
+   ],
+   "answer": "Bring Music forward once",
+   "bodyHasTypedText": null,
+   "body": "Some apps only respond to the app in front. For one step — type into “Espresso” — Bimax brings Music to the front for about 3 seconds, then puts Ghostty back. Please don't type until it has. Bimax asks every time."
+  }
+ ],
+ "notes": [],
+ "start": {
+  "front": "Ghostty",
+  "pointer": {
+   "x": 531,
+   "y": 776
+  }
+ },
+ "audit": [
+  {
+   "at": "2026-10-02T08:37:04.416Z",
+   "threadId": "probe-real-apps",
+   "op": "look",
+   "bundleId": "com.apple.Music",
+   "ok": true,
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 0,
+    "asked": 1,
+    "presses": 0,
+    "typings": 0,
+    "picks": 0,
+    "scrolls": 0,
+    "inputCalls": 0
+   }
+  },
+  {
+   "at": "2026-10-02T08:37:37.628Z",
+   "threadId": "probe-real-apps",
+   "op": "type",
+   "bundleId": "com.apple.Music",
+   "ok": false,
+   "code": "no_effect",
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 1,
+    "asked": 1,
+    "presses": 0,
+    "typings": 1,
+    "picks": 0,
+    "scrolls": 0,
+    "inputCalls": 2
+   },
+   "receipt": {
+    "actionId": "14c5eba4-063b-4cfb-a732-5355e1d8bf96",
+    "action": "type",
+    "role": "AXTextField",
+    "labelHash": "3b00b32d64af",
+    "windowId": 1870,
+    "lookAgeMs": 810,
+    "asked": null,
+    "outcome": "typed",
+    "textHash": "e25dc4762c33",
+    "textLength": 8,
+    "submitted": true
+   }
+  },
+  {
+   "at": "2026-10-02T08:37:44.888Z",
+   "threadId": "probe-real-apps",
+   "op": "look",
+   "bundleId": "com.apple.Music",
+   "ok": true,
+   "counts": {
+    "lists": 0,
+    "looks": 2,
+    "refused": 1,
+    "asked": 1,
+    "presses": 0,
+    "typings": 1,
+    "picks": 0,
+    "scrolls": 0,
+    "inputCalls": 2
+   }
+  },
+  {
+   "at": "2026-10-02T08:38:07.793Z",
+   "threadId": "probe-real-apps",
+   "op": "type",
+   "bundleId": "com.apple.Music",
+   "ok": true,
+   "counts": {
+    "lists": 0,
+    "looks": 2,
+    "refused": 1,
+    "asked": 2,
+    "presses": 0,
+    "typings": 2,
+    "picks": 0,
+    "scrolls": 0,
+    "inputCalls": 4
+   },
+   "receipt": {
+    "actionId": "9c9e743d-008c-4897-9bd6-ea1b22efb657",
+    "action": "type",
+    "role": "AXTextField",
+    "labelHash": "e25dc4762c33",
+    "windowId": 1870,
+    "lookAgeMs": 817,
+    "asked": null,
+    "outcome": "typed",
+    "textHash": "e25dc4762c33",
+    "textLength": 8,
+    "front": {
+     "asked": true,
+     "before": "Ghostty",
+     "after": "Ghostty",
+     "restored": true
+    },
+    "submitted": true
+   }
+  },
+  {
+   "at": "2026-10-02T08:38:12.812Z",
+   "threadId": "probe-real-apps",
+   "op": "look",
+   "bundleId": "com.apple.Music",
+   "ok": true,
+   "counts": {
+    "lists": 0,
+    "looks": 3,
+    "refused": 1,
+    "asked": 2,
+    "presses": 0,
+    "typings": 2,
+    "picks": 0,
+    "scrolls": 0,
+    "inputCalls": 4
+   }
+  }
+ ],
+ "musicWindow": {
+  "ok": true,
+  "roles": {
+   "AXOutline": 1,
+   "AXDisclosureTriangle": 1,
+   "AXButton": 67,
+   "AXOpaqueProviderGroup": 1,
+   "AXMenuButton": 28,
+   "AXHeading": 3,
+   "AXSlider": 1,
+   "AXTextField": 1,
+   "AXRadioButton": 2
+  },
+  "pressable": 94,
+  "named": 105,
+  "playPressable": true,
+  "searchBoxes": 1,
+  "songShownBefore": false,
+  "searchBehind": {
+   "ok": false,
+   "code": "no_effect",
+   "songFound": false
+  },
+  "searchFront": {
+   "ok": true,
+   "code": null,
+   "songFound": false
+  }
+ },
+ "driverActivity": {
+  "authorized": {
+   "list_windows": 3,
+   "get_window_state": 15,
+   "set_value": 2,
+   "click": 1,
+   "type_text": 1,
+   "press_key": 1
+  },
+  "refused": {}
+ },
+ "serviceCounts": {
+  "lists": 0,
+  "looks": 3,
+  "refused": 1,
+  "asked": 2,
+  "presses": 0,
+  "typings": 2,
+  "picks": 0,
+  "scrolls": 0,
+  "inputCalls": 4
+ },
+ "end": {
+  "front": "Ghostty",
+  "pointer": {
+   "x": 531,
+   "y": 776
+  }
+ },
+ "finishedAt": "2026-10-02T08:38:12.831Z"
+}

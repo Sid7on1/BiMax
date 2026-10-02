@@ -671,6 +671,18 @@ not clean. Not shown: the bring-forward step in the installed Bimax.app, with th
 it is, ability 4 is Implemented, not Measured, and is not installed. Nothing was sent; only the owner's own WhatsApp
 panel was opened and closed; no chat was opened.
 
+**Then, with the owner away from the keyboard ("oky go on i have 2 minutes"), the same embedded driver worked**
+(`music-run7-front-owner-idle`, `whatsapp-run8-front-owner-idle`): Music — from behind, the search did nothing
+(`no_effect`, said so); on the bring-forward card's yes, the box was emptied, "Espresso" typed as keystrokes and read
+back exactly, Return sent as the one key, the window changed, and Ghostty was in front before and after (`restored:
+true`); the result row reads "Espresso, Sabrina Carpenter" (a top-result form the probe's song pattern did not expect,
+so it did not press it — checked afterwards with the standalone reader). WhatsApp — New Chat from behind `no_effect`; on
+the card's yes, brought forward, the panel opened, and the app in front before (Music) was in front after; the panel's
+close was asked (a press in a sheet) and closed it. Driver observer: `type_text` 1, `press_key` 1, `click` 3, nothing
+else of input. So the earlier failures went with the owner switching apps during the runs; still one Mac, two steps,
+one try each, run from the terminal — Measured once, not Product-ready. Music came to the front by itself once after
+its search (seen at the start of the WhatsApp run); Bimax does not move apps to undo that.
+
 ## 7. Risks named now
 
 - **Driver drift.** 0.12 → 0.31 rewrote the codebase; a later release can change behaviour again (0.18 did). The
