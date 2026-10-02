@@ -1,0 +1,179 @@
+{
+ "kind": "live-real-apps-scripted",
+ "startedAt": "2026-10-02T07:53:56.054Z",
+ "apps": [
+  "whatsapp"
+ ],
+ "steps": [
+  {
+   "step": "whatsapp: look",
+   "ok": true,
+   "code": null,
+   "ms": 3031,
+   "error": null,
+   "resultLines": 41,
+   "cards": [
+    "Let this task use WhatsApp?"
+   ],
+   "frontBefore": "ChatGPT",
+   "frontAfter": "ChatGPT",
+   "pointerMoved": true
+  },
+  {
+   "step": "whatsapp: scroll the chat list (1)",
+   "ok": true,
+   "code": null,
+   "ms": 5461,
+   "error": null,
+   "resultLines": 15,
+   "cards": [],
+   "frontBefore": "ChatGPT",
+   "frontAfter": "Muse",
+   "pointerMoved": true
+  },
+  {
+   "step": "whatsapp: scroll the chat list (2)",
+   "ok": false,
+   "code": "not_found",
+   "ms": 841,
+   "error": null,
+   "resultLines": 1,
+   "cards": [],
+   "frontBefore": "Muse",
+   "frontAfter": "Muse",
+   "pointerMoved": false
+  }
+ ],
+ "cards": [
+  {
+   "question": "Let this task use WhatsApp?",
+   "options": [
+    "Allow using WhatsApp",
+    "Only look",
+    "Not now"
+   ],
+   "answer": "Allow using WhatsApp",
+   "bodyHasTypedText": null,
+   "body": "Bimax will read WhatsApp's front window and may press its buttons and type into its text boxes, in the background, without moving your pointer. Before anything is sent, posted, bought, deleted or confirmed it stops and asks you, showing exactly what. This is for this task only; stopping the task ends it."
+  }
+ ],
+ "notes": [
+  "whatsapp: no row for the person's own chat in the window read; nothing pressed"
+ ],
+ "start": {
+  "front": "ChatGPT",
+  "pointer": {
+   "x": 108,
+   "y": 803
+  }
+ },
+ "audit": [
+  {
+   "at": "2026-10-02T07:53:59.347Z",
+   "threadId": "probe-real-apps",
+   "op": "look",
+   "bundleId": "net.whatsapp.WhatsApp",
+   "ok": true,
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 0,
+    "asked": 1,
+    "presses": 0,
+    "typings": 0,
+    "picks": 0,
+    "scrolls": 0,
+    "inputCalls": 0
+   }
+  },
+  {
+   "at": "2026-10-02T07:54:04.820Z",
+   "threadId": "probe-real-apps",
+   "op": "scroll",
+   "bundleId": "net.whatsapp.WhatsApp",
+   "ok": true,
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 0,
+    "asked": 1,
+    "presses": 0,
+    "typings": 0,
+    "picks": 0,
+    "scrolls": 1,
+    "inputCalls": 1
+   },
+   "receipt": {
+    "actionId": "f0d6e0ce-3b43-46d1-a5af-2572b7fc51b5",
+    "action": "scroll",
+    "role": "AXButton",
+    "labelHash": "b2829cc1540b",
+    "windowId": 1872,
+    "lookAgeMs": 886,
+    "asked": null,
+    "outcome": "pressed"
+   }
+  },
+  {
+   "at": "2026-10-02T07:54:05.671Z",
+   "threadId": "probe-real-apps",
+   "op": "scroll",
+   "bundleId": "net.whatsapp.WhatsApp",
+   "ok": false,
+   "code": "not_found",
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 1,
+    "asked": 1,
+    "presses": 0,
+    "typings": 0,
+    "picks": 0,
+    "scrolls": 1,
+    "inputCalls": 1
+   }
+  }
+ ],
+ "whatsappWindow": {
+  "ok": true,
+  "roles": {
+   "AXStaticText": 13,
+   "AXHeading": 3,
+   "AXButton": 17,
+   "AXLink": 2,
+   "AXSplitter": 1
+  },
+  "pressable": 36,
+  "editable": 0,
+  "named": 36,
+  "scrolledPages": 2,
+  "selfChatRow": null
+ },
+ "driverActivity": {
+  "authorized": {
+   "list_windows": 1,
+   "get_window_state": 3,
+   "scroll": 1
+  },
+  "refused": {}
+ },
+ "serviceCounts": {
+  "lists": 0,
+  "looks": 1,
+  "refused": 1,
+  "asked": 1,
+  "presses": 0,
+  "typings": 0,
+  "picks": 0,
+  "scrolls": 1,
+  "inputCalls": 1
+ },
+ "end": {
+  "front": "Muse",
+  "pointer": {
+   "x": 423,
+   "y": 579
+  }
+ },
+ "finishedAt": "2026-10-02T07:54:05.690Z"
+}

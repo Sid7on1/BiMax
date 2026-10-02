@@ -1,0 +1,79 @@
+{
+ "kind": "live-real-apps-scripted",
+ "startedAt": "2026-10-02T07:34:55.639Z",
+ "apps": [
+  "whatsapp"
+ ],
+ "steps": [
+  {
+   "step": "whatsapp: look",
+   "ok": false,
+   "code": "not_found",
+   "ms": 1004,
+   "error": "No open app is called \"WhatsApp\". Use list_apps to see what is open.",
+   "resultLines": 1,
+   "cards": [],
+   "frontBefore": "Ghostty",
+   "frontAfter": "Ghostty",
+   "pointerMoved": false
+  }
+ ],
+ "cards": [],
+ "notes": [
+  "whatsapp: no row for the person's own chat in the window read; nothing pressed"
+ ],
+ "start": {
+  "front": "Ghostty",
+  "pointer": {
+   "x": 436,
+   "y": 642
+  }
+ },
+ "audit": [
+  {
+   "at": "2026-10-02T07:34:56.883Z",
+   "threadId": "probe-real-apps",
+   "op": "look",
+   "ok": false,
+   "code": "not_found",
+   "counts": {
+    "lists": 0,
+    "looks": 0,
+    "refused": 1,
+    "asked": 0,
+    "presses": 0,
+    "typings": 0,
+    "inputCalls": 0
+   }
+  }
+ ],
+ "whatsappWindow": {
+  "ok": false,
+  "roles": {},
+  "pressable": 0,
+  "editable": 0,
+  "named": 0,
+  "selfChatRow": null
+ },
+ "driverActivity": {
+  "authorized": {},
+  "refused": {}
+ },
+ "serviceCounts": {
+  "lists": 0,
+  "looks": 0,
+  "refused": 1,
+  "asked": 0,
+  "presses": 0,
+  "typings": 0,
+  "inputCalls": 0
+ },
+ "end": {
+  "front": "Ghostty",
+  "pointer": {
+   "x": 436,
+   "y": 642
+  }
+ },
+ "finishedAt": "2026-10-02T07:34:56.899Z"
+}

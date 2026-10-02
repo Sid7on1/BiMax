@@ -601,6 +601,42 @@ harness wrongly expected not to happen. Planted faults no-card, wrong-text and d
 (the driver's own notes say WhatsApp may need foreground typing — not built, and never a silent fallback), a model
 driving these steps, the installed app, scroll/pick, the 3/15 baseline, 20 clean sends, another Mac, Developer ID.
 
+**Ability 3 and the real apps (2026-10-02, afternoon).** The owner: "go on do whats not done", and asked whether Bimax
+switches windows the way a three-finger swipe does, and can get back to where it was.
+
+Built: `ScrollInAppTool` (protocol 3.6.0, host capability `scroll`; the driver's wheel path by element token, in the
+background, 1–5 pages, never retried; "nothing moved" is said, never a success); `PressInAppTool` `option` (one pop-up
+item chosen by the driver's `set_value`, without opening the menu; read back; judged by the commit rule on the item and
+on the pop-up's own name); `TypeInAppTool` `submit` (then the box's own AX confirm — Return — at once in a search box,
+after a card showing the box's text in any other box). `USE_TOOLS = ['click', 'set_value', 'scroll']`; one `clickToken`
+helper (press, confirm), one `setValueToken` helper.
+
+Measured on the owner's real apps (`app/scripts/computer/probe-real-apps.js`, scripted, no model, the person played;
+evidence `evidence/2026-10-02-cu-stage6-real-apps/`, names never kept), and four defects found and fixed generally:
+
+| Finding | Fix |
+|---|---|
+| The driver names WhatsApp "\u200eWhatsApp" (a direction mark), so "WhatsApp" found no app (`whatsapp-run1-NAME-HAD-INVISIBLE-MARK`) | Names compare with Unicode format characters removed; the driver's app names lose them |
+| A window read has 1 s by default and walks the menu bar first; on a busy Mac Music read as 2 controls instead of 115 (`music-run2`) | Every read gets 4 s (`READ_TIMEOUT_MS`); a read still cut short is reported as partial |
+| WhatsApp community rows run past 200 characters with their last message, so they could not be named at all | Up to 1,000 characters; a name of 120+ characters may be given by its start if exactly one control starts that way; refusals quote 80 |
+| Music's search box reads "Apple Music" (its scope), so typing a search asked "Replace the text?" (`music-run3`) | A box with a child control named Search is a search box (driver); replacing a search box's text never asks |
+
+What worked in the background, with the front app unchanged by Bimax (the owner was switching between Ghostty, Muse and
+ChatGPT during the runs, so pointer movement and front-app changes in the records are theirs; no step brought WhatsApp
+or Music forward): reading Music across desktops (its window on another Space: 115 controls); reading WhatsApp; 10
+scrolls through WhatsApp's chat list (`whatsapp-run6`). What did **not** work in the background: Music runs no search
+from a background `set_value`, AX confirm or its Search button (the text lands; the results never come); WhatsApp's
+"New Chat" press changed nothing (`no_effect`, reported as such). The owner's own chat was not among the recent chats.
+No chat was opened (that would show a contact read receipts) and nothing was typed into WhatsApp or sent. One probe
+run quoted a chat name in a refusal; that file was deleted before any commit and the probe now keeps only codes for
+WhatsApp steps.
+
+**So, to the owner's question:** Bimax never switches windows or desktops — it acts on the other app's window in the
+background, so there is nothing to get back to; the records show it never moved the front app. Some apps (Music's
+search, WhatsApp) only act for the front app, so they need a new ability: bring the app forward for a moment, act, and
+put the person's previous app back (the driver's `delivery_mode: foreground` restores the previous front app). It is
+**not built**: it takes the screen, so it needs the owner's word and its own card. Target until then.
+
 ## 7. Risks named now
 
 - **Driver drift.** 0.12 → 0.31 rewrote the codebase; a later release can change behaviour again (0.18 did). The

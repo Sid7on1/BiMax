@@ -1,0 +1,101 @@
+{
+ "kind": "live-real-apps-scripted",
+ "startedAt": "2026-10-02T07:33:52.697Z",
+ "apps": [
+  "music"
+ ],
+ "steps": [
+  {
+   "step": "music: look",
+   "ok": true,
+   "code": null,
+   "ms": 5263,
+   "error": null,
+   "resultLines": 149,
+   "cards": [
+    "Let this task use Music?"
+   ],
+   "frontBefore": "Ghostty",
+   "frontAfter": "Ghostty",
+   "pointerMoved": false
+  }
+ ],
+ "cards": [
+  {
+   "question": "Let this task use Music?",
+   "options": [
+    "Allow using Music",
+    "Only look",
+    "Not now"
+   ],
+   "answer": "Allow using Music",
+   "bodyHasTypedText": null,
+   "body": "Bimax will read Music's front window and may press its buttons and type into its text boxes, in the background, without moving your pointer. Before anything is sent, posted, bought, deleted or confirmed it stops and asks you, showing exactly what. This is for this task only; stopping the task ends it."
+  }
+ ],
+ "notes": [
+  "music: no control named \"Play\" in the window read"
+ ],
+ "start": {
+  "front": "Ghostty",
+  "pointer": {
+   "x": 436,
+   "y": 642
+  }
+ },
+ "audit": [
+  {
+   "at": "2026-10-02T07:33:58.461Z",
+   "threadId": "probe-real-apps",
+   "op": "look",
+   "bundleId": "com.apple.Music",
+   "ok": true,
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 0,
+    "asked": 1,
+    "presses": 0,
+    "typings": 0,
+    "inputCalls": 0
+   }
+  }
+ ],
+ "musicWindow": {
+  "ok": true,
+  "roles": {
+   "AXOutline": 1,
+   "AXDisclosureTriangle": 1,
+   "AXButton": 53,
+   "AXHeading": 1,
+   "AXOpaqueProviderGroup": 1
+  },
+  "pressable": 54,
+  "named": 57,
+  "playButton": false
+ },
+ "driverActivity": {
+  "authorized": {
+   "list_windows": 1,
+   "get_window_state": 1
+  },
+  "refused": {}
+ },
+ "serviceCounts": {
+  "lists": 0,
+  "looks": 1,
+  "refused": 0,
+  "asked": 1,
+  "presses": 0,
+  "typings": 0,
+  "inputCalls": 0
+ },
+ "end": {
+  "front": "Ghostty",
+  "pointer": {
+   "x": 436,
+   "y": 642
+  }
+ },
+ "finishedAt": "2026-10-02T07:33:58.486Z"
+}

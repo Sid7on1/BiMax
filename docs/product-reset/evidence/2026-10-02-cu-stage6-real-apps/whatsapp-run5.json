@@ -1,0 +1,229 @@
+{
+ "kind": "live-real-apps-scripted",
+ "startedAt": "2026-10-02T07:54:21.133Z",
+ "apps": [
+  "whatsapp"
+ ],
+ "steps": [
+  {
+   "step": "whatsapp: look",
+   "ok": true,
+   "code": null,
+   "ms": 2778,
+   "error": null,
+   "resultLines": 42,
+   "cards": [
+    "Let this task use WhatsApp?"
+   ],
+   "frontBefore": "Ghostty",
+   "frontAfter": "Ghostty",
+   "pointerMoved": true
+  },
+  {
+   "step": "whatsapp: scroll the chat list (1)",
+   "ok": true,
+   "code": null,
+   "ms": 5165,
+   "error": null,
+   "resultLines": 17,
+   "cards": [],
+   "frontBefore": "Ghostty",
+   "frontAfter": "Ghostty",
+   "pointerMoved": true
+  },
+  {
+   "step": "whatsapp: scroll the chat list (2)",
+   "ok": true,
+   "code": null,
+   "ms": 5172,
+   "error": null,
+   "resultLines": 16,
+   "cards": [],
+   "frontBefore": "Ghostty",
+   "frontAfter": "Ghostty",
+   "pointerMoved": false
+  },
+  {
+   "step": "whatsapp: scroll the chat list (3)",
+   "ok": false,
+   "code": "no_effect",
+   "ms": 5710,
+   "error": null,
+   "resultLines": 1,
+   "cards": [],
+   "frontBefore": "Ghostty",
+   "frontAfter": "Muse",
+   "pointerMoved": true
+  }
+ ],
+ "cards": [
+  {
+   "question": "Let this task use WhatsApp?",
+   "options": [
+    "Allow using WhatsApp",
+    "Only look",
+    "Not now"
+   ],
+   "answer": "Allow using WhatsApp",
+   "bodyHasTypedText": null,
+   "body": "Bimax will read WhatsApp's front window and may press its buttons and type into its text boxes, in the background, without moving your pointer. Before anything is sent, posted, bought, deleted or confirmed it stops and asks you, showing exactly what. This is for this task only; stopping the task ends it."
+  }
+ ],
+ "notes": [
+  "whatsapp: no row for the person's own chat in the window read; nothing pressed"
+ ],
+ "start": {
+  "front": "Ghostty",
+  "pointer": {
+   "x": 551,
+   "y": 633
+  }
+ },
+ "audit": [
+  {
+   "at": "2026-10-02T07:54:24.111Z",
+   "threadId": "probe-real-apps",
+   "op": "look",
+   "bundleId": "net.whatsapp.WhatsApp",
+   "ok": true,
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 0,
+    "asked": 1,
+    "presses": 0,
+    "typings": 0,
+    "picks": 0,
+    "scrolls": 0,
+    "inputCalls": 0
+   }
+  },
+  {
+   "at": "2026-10-02T07:54:29.285Z",
+   "threadId": "probe-real-apps",
+   "op": "scroll",
+   "bundleId": "net.whatsapp.WhatsApp",
+   "ok": true,
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 0,
+    "asked": 1,
+    "presses": 0,
+    "typings": 0,
+    "picks": 0,
+    "scrolls": 1,
+    "inputCalls": 1
+   },
+   "receipt": {
+    "actionId": "38d0e664-17ad-446d-80b6-5a619f3ac871",
+    "action": "scroll",
+    "role": "AXButton",
+    "labelHash": "18094b9f2de8",
+    "windowId": 1872,
+    "lookAgeMs": 816,
+    "asked": null,
+    "outcome": "pressed"
+   }
+  },
+  {
+   "at": "2026-10-02T07:54:34.467Z",
+   "threadId": "probe-real-apps",
+   "op": "scroll",
+   "bundleId": "net.whatsapp.WhatsApp",
+   "ok": true,
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 0,
+    "asked": 1,
+    "presses": 0,
+    "typings": 0,
+    "picks": 0,
+    "scrolls": 2,
+    "inputCalls": 2
+   },
+   "receipt": {
+    "actionId": "02c21bda-253c-4d0f-9949-aad180419e04",
+    "action": "scroll",
+    "role": "AXButton",
+    "labelHash": "7b77a0f4d5cb",
+    "windowId": 1872,
+    "lookAgeMs": 833,
+    "asked": null,
+    "outcome": "pressed"
+   }
+  },
+  {
+   "at": "2026-10-02T07:54:40.173Z",
+   "threadId": "probe-real-apps",
+   "op": "scroll",
+   "bundleId": "net.whatsapp.WhatsApp",
+   "ok": false,
+   "code": "no_effect",
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 1,
+    "asked": 1,
+    "presses": 0,
+    "typings": 0,
+    "picks": 0,
+    "scrolls": 2,
+    "inputCalls": 3
+   },
+   "receipt": {
+    "actionId": "0d270a79-5ee0-4f5e-af3f-8ab430476f88",
+    "action": "scroll",
+    "role": "AXButton",
+    "labelHash": "661541ccd861",
+    "windowId": 1872,
+    "lookAgeMs": 834,
+    "asked": null,
+    "outcome": "no_effect"
+   }
+  }
+ ],
+ "whatsappWindow": {
+  "ok": true,
+  "roles": {
+   "AXStaticText": 13,
+   "AXHeading": 3,
+   "AXButton": 17,
+   "AXLink": 2,
+   "AXSplitter": 1
+  },
+  "pressable": 36,
+  "editable": 0,
+  "named": 36,
+  "scrolledPages": 3,
+  "selfChatRow": null
+ },
+ "driverActivity": {
+  "authorized": {
+   "list_windows": 1,
+   "get_window_state": 7,
+   "scroll": 3
+  },
+  "refused": {}
+ },
+ "serviceCounts": {
+  "lists": 0,
+  "looks": 1,
+  "refused": 1,
+  "asked": 1,
+  "presses": 0,
+  "typings": 0,
+  "picks": 0,
+  "scrolls": 2,
+  "inputCalls": 3
+ },
+ "end": {
+  "front": "Muse",
+  "pointer": {
+   "x": 615,
+   "y": 352
+  }
+ },
+ "finishedAt": "2026-10-02T07:54:40.215Z"
+}

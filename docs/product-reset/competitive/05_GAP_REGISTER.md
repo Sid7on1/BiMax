@@ -11,8 +11,10 @@ control and type one line into one box, in any app the person allows per task, w
 that commits (send, pay, delete, confirm, a dialog, the first press after typing, an unreadable name, typing over the
 person's own text). **Implemented**, and **Measured outside the installed app on Bimax's own fixture only** (real
 embedded driver, scripted steps, independent reader: 2 clean runs, 3 planted faults each caught; 28 service and 8 driver
-mutants caught). **Not built, not installed, not measured on a real app** (Apple Music, WhatsApp-to-self are next, with
-the owner present); scroll/pick is Target; the 3/15 baseline and the 20-repetition send bar are not met.
+mutants caught). Then Return, pick and scroll were added; on the owner's real apps, reading (across desktops) and
+scrolling work in the background, while Music's search and WhatsApp's New Chat do not act unless the app is in front —
+a bring-forward-and-return step is **Target**. No message was sent; the 3/15 baseline and the 20-repetition send bar are
+not met.
 The local look-only app is installed; under Bimax's own Accessibility grant allow, Not now, Stop and
 preview-off are Measured (zero authorized input, fixture unchanged, SDK mapped from the installed app); a Stop that did
 not end an earlier grant was fixed, installed and re-checked (record 65 §6d). It has one menu bar opt-in, app-owned per-app grants for a Bimax Thread in the ⌘2 bar, a bounded pinned

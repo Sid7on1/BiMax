@@ -1,0 +1,203 @@
+{
+ "kind": "live-real-apps-scripted",
+ "startedAt": "2026-10-02T07:50:44.144Z",
+ "apps": [
+  "music"
+ ],
+ "steps": [
+  {
+   "step": "music: look",
+   "ok": true,
+   "code": null,
+   "ms": 4182,
+   "error": null,
+   "resultLines": 166,
+   "cards": [
+    "Let this task use Music?"
+   ],
+   "frontBefore": "Muse",
+   "frontAfter": "Muse",
+   "pointerMoved": true
+  },
+  {
+   "step": "music: search with Return",
+   "ok": false,
+   "code": "no_effect",
+   "ms": 24793,
+   "error": "Typed into “Apple Music” and pressed Return, but nothing in the window changed yet. Look again before doing anything else; do not press Return again to make sure.",
+   "resultLines": 1,
+   "cards": [
+    "Replace the text in “Apple Music” in Music?"
+   ],
+   "frontBefore": "Muse",
+   "frontAfter": "Muse",
+   "pointerMoved": true
+  },
+  {
+   "step": "music: look at the results",
+   "ok": true,
+   "code": null,
+   "ms": 4761,
+   "error": null,
+   "resultLines": 167,
+   "cards": [],
+   "frontBefore": "Muse",
+   "frontAfter": "Muse",
+   "pointerMoved": false
+  }
+ ],
+ "cards": [
+  {
+   "question": "Let this task use Music?",
+   "options": [
+    "Allow using Music",
+    "Only look",
+    "Not now"
+   ],
+   "answer": "Allow using Music",
+   "bodyHasTypedText": null,
+   "body": "Bimax will read Music's front window and may press its buttons and type into its text boxes, in the background, without moving your pointer. Before anything is sent, posted, bought, deleted or confirmed it stops and asks you, showing exactly what. This is for this task only; stopping the task ends it."
+  },
+  {
+   "question": "Replace the text in “Apple Music” in Music?",
+   "options": [
+    "Replace it",
+    "Don’t type"
+   ],
+   "answer": "Replace it",
+   "bodyHasTypedText": null,
+   "body": "The box already holds text Bimax did not type: “Apple Music”.\nTyping replaces all of it with: “Blinding Lights”.\nStopping the task before then cancels it."
+  }
+ ],
+ "notes": [],
+ "start": {
+  "front": "Muse",
+  "pointer": {
+   "x": 857,
+   "y": 774
+  }
+ },
+ "audit": [
+  {
+   "at": "2026-10-02T07:50:48.544Z",
+   "threadId": "probe-real-apps",
+   "op": "look",
+   "bundleId": "com.apple.Music",
+   "ok": true,
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 0,
+    "asked": 1,
+    "presses": 0,
+    "typings": 0,
+    "picks": 0,
+    "scrolls": 0,
+    "inputCalls": 0
+   }
+  },
+  {
+   "at": "2026-10-02T07:51:13.355Z",
+   "threadId": "probe-real-apps",
+   "op": "type",
+   "bundleId": "com.apple.Music",
+   "ok": false,
+   "code": "no_effect",
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 1,
+    "asked": 2,
+    "presses": 0,
+    "typings": 1,
+    "picks": 0,
+    "scrolls": 0,
+    "inputCalls": 2
+   },
+   "receipt": {
+    "actionId": "1d4000bb-26cd-4b56-bfce-19173c49827b",
+    "action": "type",
+    "role": "AXTextField",
+    "labelHash": "3b00b32d64af",
+    "windowId": 1870,
+    "lookAgeMs": 785,
+    "asked": "overwrite",
+    "outcome": "typed",
+    "textHash": "311c3b56560d",
+    "textLength": 15,
+    "submitted": true
+   }
+  },
+  {
+   "at": "2026-10-02T07:51:20.643Z",
+   "threadId": "probe-real-apps",
+   "op": "look",
+   "bundleId": "com.apple.Music",
+   "ok": true,
+   "counts": {
+    "lists": 0,
+    "looks": 2,
+    "refused": 1,
+    "asked": 2,
+    "presses": 0,
+    "typings": 1,
+    "picks": 0,
+    "scrolls": 0,
+    "inputCalls": 2
+   }
+  }
+ ],
+ "musicWindow": {
+  "ok": true,
+  "roles": {
+   "AXOutline": 1,
+   "AXDisclosureTriangle": 1,
+   "AXButton": 61,
+   "AXHeading": 1,
+   "AXOpaqueProviderGroup": 1,
+   "AXTextField": 1,
+   "AXRadioButton": 2
+  },
+  "pressable": 64,
+  "named": 68,
+  "playPressable": false,
+  "searchBoxes": 1,
+  "afterSearch": {
+   "ok": false,
+   "code": "no_effect",
+   "newControls": 2,
+   "sample": [
+    "AXTextField Blinding Lights",
+    "AXButton cancel"
+   ]
+  }
+ },
+ "driverActivity": {
+  "authorized": {
+   "list_windows": 2,
+   "get_window_state": 9,
+   "set_value": 1,
+   "click": 1
+  },
+  "refused": {}
+ },
+ "serviceCounts": {
+  "lists": 0,
+  "looks": 2,
+  "refused": 1,
+  "asked": 2,
+  "presses": 0,
+  "typings": 1,
+  "picks": 0,
+  "scrolls": 0,
+  "inputCalls": 2
+ },
+ "end": {
+  "front": "Muse",
+  "pointer": {
+   "x": 1020,
+   "y": 568
+  }
+ },
+ "finishedAt": "2026-10-02T07:51:20.667Z"
+}

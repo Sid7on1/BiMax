@@ -1,0 +1,102 @@
+{
+ "kind": "live-real-apps-scripted",
+ "startedAt": "2026-10-02T07:35:27.427Z",
+ "apps": [
+  "whatsapp"
+ ],
+ "steps": [
+  {
+   "step": "whatsapp: look",
+   "ok": true,
+   "code": null,
+   "ms": 3522,
+   "error": null,
+   "resultLines": 39,
+   "cards": [
+    "Let this task use WhatsApp?"
+   ],
+   "frontBefore": "Ghostty",
+   "frontAfter": "Ghostty",
+   "pointerMoved": false
+  }
+ ],
+ "cards": [
+  {
+   "question": "Let this task use WhatsApp?",
+   "options": [
+    "Allow using WhatsApp",
+    "Only look",
+    "Not now"
+   ],
+   "answer": "Allow using WhatsApp",
+   "bodyHasTypedText": null,
+   "body": "Bimax will read WhatsApp's front window and may press its buttons and type into its text boxes, in the background, without moving your pointer. Before anything is sent, posted, bought, deleted or confirmed it stops and asks you, showing exactly what. This is for this task only; stopping the task ends it."
+  }
+ ],
+ "notes": [
+  "whatsapp: no row for the person's own chat in the window read; nothing pressed"
+ ],
+ "start": {
+  "front": "Ghostty",
+  "pointer": {
+   "x": 436,
+   "y": 642
+  }
+ },
+ "audit": [
+  {
+   "at": "2026-10-02T07:35:31.115Z",
+   "threadId": "probe-real-apps",
+   "op": "look",
+   "bundleId": "net.whatsapp.WhatsApp",
+   "ok": true,
+   "counts": {
+    "lists": 0,
+    "looks": 1,
+    "refused": 0,
+    "asked": 1,
+    "presses": 0,
+    "typings": 0,
+    "inputCalls": 0
+   }
+  }
+ ],
+ "whatsappWindow": {
+  "ok": true,
+  "roles": {
+   "AXStaticText": 13,
+   "AXHeading": 3,
+   "AXButton": 15,
+   "AXSplitter": 1,
+   "AXLink": 2
+  },
+  "pressable": 34,
+  "editable": 0,
+  "named": 34,
+  "selfChatRow": null
+ },
+ "driverActivity": {
+  "authorized": {
+   "list_windows": 1,
+   "get_window_state": 1
+  },
+  "refused": {}
+ },
+ "serviceCounts": {
+  "lists": 0,
+  "looks": 1,
+  "refused": 0,
+  "asked": 1,
+  "presses": 0,
+  "typings": 0,
+  "inputCalls": 0
+ },
+ "end": {
+  "front": "Ghostty",
+  "pointer": {
+   "x": 436,
+   "y": 642
+  }
+ },
+ "finishedAt": "2026-10-02T07:35:31.138Z"
+}
