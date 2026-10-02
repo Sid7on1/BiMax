@@ -683,6 +683,12 @@ else of input. So the earlier failures went with the owner switching apps during
 one try each, run from the terminal — Measured once, not Product-ready. Music came to the front by itself once after
 its search (seen at the start of the WhatsApp run); Bimax does not move apps to undo that.
 
+**Installed (2026-10-02, late night).** Built from `015c0db` (package gate 4/4 on the built and the installed app, App
+Actions 3/3, deep strict verify, engine byte-identical, same signing requirement); the previous app moved to
+`bimax-archive/apps/Bimax.app.before-cu-front-20261002`; Bimax was idle when quit and relaunched with its window
+(`evidence/2026-10-02-cu-front-installed/install.json`). No installed run with a model has been made yet; the use switch
+is off until the owner ticks it.
+
 ## 7. Risks named now
 
 - **Driver drift.** 0.12 → 0.31 rewrote the codebase; a later release can change behaviour again (0.18 did). The

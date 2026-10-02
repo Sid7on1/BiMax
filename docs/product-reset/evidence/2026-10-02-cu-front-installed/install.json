@@ -1,0 +1,19 @@
+{
+ "at": "2026-10-02T08:41:28.835997+00:00",
+ "baseCommit": "015c0db (code); 4124c66 (docs only since)",
+ "built": "BIMAX_LOCAL_BUILD_DIR=/private/tmp/bimax-cu-stage6b/release bash app/scripts/build-local-mac.sh arm64",
+ "installed": "/Applications/Bimax.app",
+ "installedBy": "mv (same device) after quitting Bimax (it was idle)",
+ "rollback": "/Users/vishsiddharth/Developer/bimax-archive/apps/Bimax.app.before-cu-front-20261002",
+ "hashes": {
+  "Contents/Resources/app.asar": "2ec5e67216503b57078e3a74c9b1eb8ca396384b96bcb4d06711480e287de28d",
+  "Contents/Resources/engine/index.js": "74b6943a9751d12f7fc25d09b64040fc176d5dda0d2f3edcc25276e6d8425906"
+ },
+ "notes": [
+  "package gate 4/4 PASS on the built and the installed app; App Actions 3/3; deep strict codesign verify passed",
+  "the packaged engine is byte-identical to app/engine/index.js (contains ScrollInAppTool, TypeInAppTool front/submit)",
+  "the main bundle contains the bring-forward card, typeFront, returnFront and press_key",
+  "same designated requirement (Bimax Local Code Signing), so the Accessibility grant should carry over",
+  "relaunched with 1 window; the use switch stays whatever the owner set (it was off)"
+ ]
+}
