@@ -17,14 +17,14 @@ a bring-forward step (asked every time) is **Measured once**: with the owner swi
 characters; New Chat unchanged; once the person's app not put back); with the owner idle it worked 2/2 (Music search
 typed and run, WhatsApp New Chat opened; the previous front app back both times). No message was sent; the 3/15 baseline and the 20-repetition send bar are
 not met.
-The local look-only app is installed; under Bimax's own Accessibility grant allow, Not now, Stop and
-preview-off are Measured (zero authorized input, fixture unchanged, SDK mapped from the installed app); a Stop that did
-not end an earlier grant was fixed, installed and re-checked (record 65 §6d). It has one menu bar opt-in, app-owned per-app grants for a Bimax Thread in the ⌘2 bar, a bounded pinned
-Cua Driver 0.31.0 SDK, no input tools, filtered/untrusted observations and content-free host/driver counters.
-Four reproduced in-flight revocation defects are repaired, with six service regressions and four controlled-SDK
-driver checks, including a rejected generation-check mutant. These are deterministic checks, not live TCC evidence.
-Stages 3–6 remain **Target**. M02's mutation/persistence journey, X01, clean-Mac/release qualification and any Win
-claim are not established by a read-only session. Record 46's “disabled” status below is historical.
+The local app includes these abilities; its installed stage 2/3 exits remain Measured with their own evidence.
+The first stage 6 model tasks exposed shell-control bypass (fixed in `d91bb81`) and repeated invented control names
+(refused without pressing). The name-recovery continuation now suggests at most five observed names/roles, while the
+requested action remains refused and copied names still meet exact-target and approval checks. **Implemented and
+locally verified**: 274 focused tests and 6 rejected behaviour mutants; installed-model recovery remains unmeasured
+until an actual retry. See record 65 §6h and `evidence/2026-10-02-cu-name-recovery/`.
+Stage 6's baseline/repetition/distribution exit, M02's current mutation/persistence journey, X01, clean-Mac qualification
+and any Win remain **Target/unmeasured**. Record 46's “disabled” status below is historical.
 
 ## UI behavior update — 2026-10-01
 

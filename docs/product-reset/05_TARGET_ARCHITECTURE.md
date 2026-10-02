@@ -1,14 +1,15 @@
 # Target architecture
 
-> **Current implementation, 2026-10-01 — records 55, 64 and 65:** Bimax for Mac builds this repository's
-> engine and runs each Bimax Thread in a worker, communicating over its MessagePort. The app alone owns an optional
-> read-only Computer Use capability: pinned Cua Driver 0.31.0 in-process, bounded runtime and per-app manifests,
-> app-raised grant cards, no input tools. Only opted-in ⌘2 tasks receive `LookAtAppTool`; project windows do not.
-> Stage 2 is Implemented and Measured outside the installed app; installed observation/TCC attribution remain pending.
-> Revocation invalidates requests awaiting discovery, approval or observation, and closes granted sessions.
-> The admission gate is `08_ACCEPTANCE_GATES.md`. The old `bimax-mac` provider, XPC service and fallback ladder
-> remain retired. Stages 3–6 are Target. The split topology and pinned Terminal artifact below are historical;
-> records 55/64 supersede them. Terminal remains outside Computer Use and macOS-permission ownership.
+> **Current implementation, 2026-10-02 — records 55, 64 and 65:** Bimax for Mac runs each Bimax Thread's
+> engine in a worker over its MessagePort. Opted-in ⌘2 tasks may look, press, type, submit Return, pick a pop-up item
+> and scroll in apps the person grants for that task; project windows receive none of these tools. The app owns the
+> pinned in-process Cua Driver 0.31.0, grants, commit/overwrite cards, freshness and build binding, and verification.
+> A foreground press or typing asks on every step and checks restoration. Stage 2 and 3 exits are Measured in the
+> installed app; stage 4 was declined; stage 5 was set aside (X01 unmeasured). Stage 6 abilities are Implemented and
+> locally Measured within record 65 §6h's limits; its fixture baseline, repetitions and distribution exit remain owed.
+> Recovery suggestions are names from an observed window only, never fuzzy action authority. The admission gate is
+> `08_ACCEPTANCE_GATES.md`. Legacy provider, XPC service and fallback ladder stay retired. The split topology below
+> is historical; Terminal stays outside Computer Use and permission ownership.
 
 ## Repository and process ownership
 

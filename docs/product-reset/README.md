@@ -23,6 +23,12 @@ driver 0.31 performed 7 of 8 graded actions without moving the user's front app 
 stepper change that did nothing — caught only by Bimax's own re-read. The 0.18 floating-panel blocker is gone.
 Driver telemetry was on by default and is off. Decision: the driver supplies the primitives; Bimax verifies them.
 
+**Stage 6 continuation, 2026-10-02:** missing control names now return up to five real names/roles from the fresh,
+granted window, filtered for the action. Suggestions never authorize a fuzzy press. Implemented and locally verified:
+274 focused tests, 6 recovery mutants and 3 exact-target mutants caught; rebuilt and installed with a rollback.
+The installed Music retry and the owner's WhatsApp send remain unmeasured until their end states are independently
+verified. See record 65 §6h and `evidence/2026-10-02-cu-name-recovery/`.
+
 ## The monolith: research and plan — 2026-09-29
 
 [64_MONOLITH_RESEARCH_AND_PLAN.md](64_MONOLITH_RESEARCH_AND_PLAN.md): the owner chose a monolith. Research (Electron,

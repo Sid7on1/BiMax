@@ -3,6 +3,7 @@ import type { Outbound, Inbound } from '../../renderer/src/protocol';
 import { LookGrants } from './look.grants';
 import { NEVER_LOOK, isNeverUsed, validBundleId } from './look.manifest';
 import { renderLook } from './look.observation';
+import { controlSuggestions } from './look.suggestions';
 import { commitReasonForPress, commitWordIn, isSearchBox, reasonText, type CommitReason } from './look.commit';
 import type { ProcessIdentity } from './look.identity';
 
@@ -459,12 +460,14 @@ export function createLookService(deps: LookServiceDeps) {
         return refuse('stale', `The window was read ${Math.round(age / 1000)} s ago, too long to act from. Look again first. ${nothing}`);
       }
 
+      const suggestions = () => controlSuggestions(look.elements, control, typing ? 'type' : scrolling ? 'scroll' : picking ? 'pick' : 'press');
+
       // Exactly one control (or box) that the read showed. Names compare with all kinds of spaces as one (measured: a
       // model sent "Delete\u00a0Everything", a no-break space).
       let el: LookElement;
       if (typing) {
         const named = control ? look.elements.filter((e) => isNamed(e.label, control) && (!role || e.role === role)) : [];
-        if (control && !named.length) return refuse('not_found', `There is no box called “${quote(control, 80)}”${role ? ` (${role})` : ''} in the window you read. ${nothing}`);
+        if (control && !named.length) return refuse('not_found', `There is no box called “${quote(control, 80)}”${role ? ` (${role})` : ''} in the window you read. ${nothing}${suggestions()}`);
         if (named.some((e) => e.role === 'AXSecureTextField')) return refuse('denied', `“${quote(control, 80)}” is a password field. Bimax never types into one. ${nothing}`);
         const boxes = control ? named.filter((e) => e.editable) : look.elements.filter((e) => e.editable && (!role || e.role === role));
         if (control && !boxes.length) return refuse('not_permitted', `“${quote(control, 80)}” is ${named[0].role}, not a text box Bimax can type into. ${nothing}`);
@@ -474,12 +477,12 @@ export function createLookService(deps: LookServiceDeps) {
       } else if (scrolling) {
         // Any control the read showed marks the place to scroll — usually a row of the list to move.
         const places = look.elements.filter((e) => isNamed(e.label, control) && (!role || e.role === role));
-        if (!places.length) return refuse('not_found', `There is no control called “${quote(control, 80)}”${role ? ` (${role})` : ''} in the window you read: name one inside the list to scroll. ${nothing}`);
+        if (!places.length) return refuse('not_found', `There is no control called “${quote(control, 80)}”${role ? ` (${role})` : ''} in the window you read: name one inside the list to scroll. ${nothing}${suggestions()}`);
         if (places.length >= 2) return refuse('ambiguous', `${places.length} controls are called “${quote(control, 80)}”; name one that is there once. ${nothing}`);
         el = places[0];
       } else {
         const matches = look.elements.filter((e) => isNamed(e.label, control) && (!role || e.role === role));
-        if (!matches.length) return refuse('not_found', `There is no control called “${quote(control, 80)}”${role ? ` (${role})` : ''} in the window you read. ${nothing}`);
+        if (!matches.length) return refuse('not_found', `There is no control called “${quote(control, 80)}”${role ? ` (${role})` : ''} in the window you read. ${nothing}${suggestions()}`);
         if (matches.length > 1) return refuse('ambiguous', `${matches.length} controls are called “${quote(control, 80)}”${role ? '' : '; give its role too'}. Bimax will not guess which one. ${nothing}`);
         el = matches[0];
         if (picking) {

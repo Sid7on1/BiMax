@@ -1,6 +1,6 @@
 # 65 — Computer Use returns: Bimax's own layer on the latest Cua Driver, with small local decision models
 
-**Date: 2026-10-01. Status: stage 1 Measured (§6); stage 2 Implemented and Measured outside the installed app (§6b); stages 3–6 Target.** It is the plan the owner asked for:
+**Date: 2026-10-01; current status updated 2026-10-02. Stage 1 Measured; stages 2 and 3 installed exits met; stage 4 declined; stage 5 set aside with X01 unmeasured; stage 6 abilities Implemented with local evidence, release exit unmet (§6h).** It is the plan the owner asked for:
 
 > "plan the roll out of the bimax computer use from the archive and slowly integrate this into repo … use laya mlx
 > model and … the latest CUA … the new CUA came out is much more efficent and there are mini models to operate it, we
@@ -529,8 +529,7 @@ Recorded as observed, not as a measurement of the model in general: the provider
 
 ## 6h. Stage 6 — general abilities in any app the person allows, asked before anything that commits (2026-10-02)
 
-**Status: press and type Implemented, and Measured outside the installed app on Bimax's own fixture only (below); not
-built into an installed app; not run on any real app; scroll/pick Target.** It replaces §3's stage 6 wording
+**Current status: press, type, Return, pick, scroll and an explicitly approved foreground step are Implemented and installed; local fixture and real-app evidence below has its own limits. The baseline, repetition and distribution exit remains unmet.** It replaces §3's stage 6 wording
 ("two or three of the owner's own workflows"). Offered three workflows (music buttons, play a song, a WhatsApp text),
 the owner answered: *"there should not be a specific workflow kind of thing, it must do everything, like specific
 hardcoded workflow is a dumb approach"* — the same rule as 2026-07-26 (universal, never per-app). So stage 6 builds
@@ -705,6 +704,45 @@ now used the tools — `list_apps`, a look at Music (the owner allowed it), then
 (AXCell, AXStaticText, no role); each was refused `not_found`, nothing pressed. Stopped watching there (session usage
 limit). Next: a `not_found` reply that names the closest real controls from the read; then re-run, and the WhatsApp
 "hi" to Mom 2 the owner asked for (the owner sends it on the card).
+
+**Missing-name recovery continuation (2026-10-02, Codex).** Implemented: a refused control name now returns up to five
+real names and roles from the granted app's fresh observed window, ranked by word/bigram overlap and filtered for
+press/type/pick/scroll. Wrong-role requests can see the real role. Password fields, values and element tokens are
+excluded. Names are JSON-quoted; labels over 300 characters use the existing unique long-prefix rule. The requested
+action remains `not_found`, with zero input or new action card; no fuzzy match ever becomes action authority. Copying
+an intended suggestion goes through the unchanged exact-target, commit, freshness and driver re-read checks. No new
+permission, executor or per-app workflow is added. The engine's use-only session advice now distinguishes a typed
+query from rendered results and says to change approach after a missing name, including the existing approved
+foreground search ability when background Return produces no results.
+
+Local verification: **274 tests in seven suites passed**, app and engine typechecks passed; **6/6 recovery behaviour mutants and 3/3 exact-target mutants
+caught** (missing hints, action filter removed, password labels exposed, ranking removed, duplicates retained,
+unbounded labels). The reported made-up song spelling and wrong AX role are replayed against a controlled window;
+only an explicitly copied real row is pressed. A commit suggestion still asks, denial sends no input, stale reads
+return no suggestions, shared prefixes remain ambiguous and screen text never enters the audit. The prior refusal
+quote-length check still checks its original first-line bound; recovery lines have their own bound/duplicate checks.
+One initial invocation failed to compile a test's optional count, corrected; one overlapped the deliberate mutations
+and is invalid, discarded and rerun after exact source restoration. These are local checks, not a live-model result.
+Evidence: `evidence/2026-10-02-cu-name-recovery/`.
+
+Installed: rebuilt locally from `d429a4b` plus the three source edits, package gate 4/4, App Actions 3/3 and deep
+strict signature verified on the built and installed bundle. Installed engine is byte-identical to the build; the
+stable local signing requirement is unchanged. Rollback: `~/Developer/bimax-archive/apps/Bimax.app.before-cu-name-recovery-20261002`.
+`install.json` records hashes. The same plain Music prompt is started as installed run 4; owner answers the cards.
+At the first missing box name, the installed reply gave the actual text-field name and refused with zero typing;
+this establishes delivery of the hint, not song playback or model recovery. The independent CUA read still shows
+Blinding Lights paused (`music-before.json`). The model next asked to bring Music forward for one Search press;
+the owner's answer on that card is still pending at this checkpoint. Playback is not graded, and WhatsApp has not
+been started: its real “hi” to Mom 2 remains for the owner to send on the final card.
+
+Research mapping: **V20/V26**, record 12. Baseline: installed run 3 repeated an invented control three times. Candidate:
+bounded observed-name hints, never fuzzy authorization. Constraints: granted window, existing freshness, zero input
+on refusal, unchanged cards, untrusted screen data, content-free audit. Adoption requires the controlled end states
+and rejected mutants above; installed model recovery remains unmeasured until the retry actually completes.
+README, 05, 07, 08, this record, Mac Buddy vision, competitive README/04/05/06 and M02 guided the work. Current notices
+in 04/05/07 and the gap register were stale at stage 2 despite §6h's later evidence and are reconciled. The mandatory
+`competitive/03_CAPABILITY_MATRIX.md` is still absent from this checkout (already identified by record 46); no new
+competitor or Win claim is made.
 
 ## 7. Risks named now
 

@@ -1,12 +1,12 @@
 # Migration roadmap
 
-> **Current program, 2026-10-01:** `65_COMPUTER_USE_RETURN_WITH_CUA_PLAN.md` replaces record 61's parked
-> Computer Use stages. Stage 1 is Measured; stage 2 is Implemented and Measured outside the installed app.
-> The local app is installed; its observation and Accessibility attribution await the owner's grant.
-> Stage 2's admission gate permits only optional app-owned read-only looks in a Bimax Thread in the ⌘2 bar.
-> Each stage ends on evidence; stage 3 safe mutation and stages 4–6 stay Target until the preceding exit is met.
-> Records 55/64 govern today's monolith and engine workers. The older split and CU phases below are historical
-> evidence, not authorization to restore their provider, XPC binaries, UI or fallbacks.
+> **Current program, 2026-10-02:** record 65 governs the optional app-owned Computer Use return. Stages 2 and 3
+> have installed exit evidence; stage 4 was declined; stage 5 was set aside by the owner with X01 unmeasured. Stage 6
+> general abilities (press, type, Return, pick, scroll, an explicitly approved foreground step) are Implemented and
+> locally Measured as detailed in §6h. Missing-name recovery suggests observed controls but still refuses the action.
+> Stage 6's baseline/repetition/distribution exit remains unmet. Each stage ends on evidence; nothing is waived.
+> Records 55/64 govern the monolith and engine workers. Older split/CU phases below are historical evidence, not
+> authorization to restore their provider, XPC binaries, UI or fallbacks.
 
 The split is a sequence of reversible slices. “All tests green” at each slice means the tests that
 can actually detect the requested outcome, not deleting or weakening a failing test.

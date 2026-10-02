@@ -1,0 +1,106 @@
+→ renderer + main
+vite v6.4.3 building SSR bundle for production...
+transforming...
+✓ 92 modules transformed.
+rendering chunks...
+out/main/index.js  608.90 kB
+✓ built in 379ms
+vite v6.4.3 building SSR bundle for production...
+transforming...
+✓ 1 modules transformed.
+rendering chunks...
+out/preload/index.js  17.88 kB
+✓ built in 12ms
+vite v6.4.3 building for production...
+transforming...
+✓ 2009 modules transformed.
+rendering chunks...
+../../out/renderer/index.html                                                0.57 kB
+../../out/renderer/assets/inter-vietnamese-wght-normal-CBcvBZtf.woff2       10.25 kB
+../../out/renderer/assets/inter-greek-ext-wght-normal-DlzME5K_.woff2        11.23 kB
+../../out/renderer/assets/inter-cyrillic-wght-normal-DqGufNeO.woff2         18.75 kB
+../../out/renderer/assets/inter-greek-wght-normal-CkhJZR-_.woff2            19.00 kB
+../../out/renderer/assets/inter-cyrillic-ext-wght-normal-BOeWTOD4.woff2     25.96 kB
+../../out/renderer/assets/inter-latin-wght-normal-Dx4kXJAl.woff2            48.26 kB
+../../out/renderer/assets/inter-latin-ext-wght-normal-DO1Apj_S.woff2        85.07 kB
+../../out/renderer/assets/index-Dbgmr69-.css                               163.58 kB
+../../out/renderer/assets/index-Db88wNmS.js                              3,162.72 kB
+✓ built in 1.86s
+→ engine
+note: 'darwin-arm64' ignored — the engine bundle is architecture-independent
+Bundled 1623 modules in 319ms
+
+  index.js                        22.1 MB    (entry point)
+  tree-sitter-8stttztc.wasm       186.53 KB  (asset)
+  tree-sitter-bash-1yqrksvj.wasm  1.40 MB    (asset)
+
+engine bundle:  23M at /Users/vishsiddharth/Bimax/app/engine
+verifying /Users/vishsiddharth/Bimax/app/engine/index.js
+  (hosted as a worker thread in this process over a MessagePort — the monolith)
+  ok  boot                42 bytes  (a start-up phase, on the protocol channel)
+  ok  health             109 bytes  (a heartbeat, on the protocol channel (arms the hang watchdog))
+  ok  pong                19 bytes  (ping)
+  ok  configResult       781 bytes  (configGet)
+  ok  queryResult       4311 bytes  (query (slash-command completions))
+  ok  folder             126 bytes  (query '@VerifyProbe' found the project's own file)
+  ok  catalogResult    39907 bytes  (catalogGet)
+PASS — engine bundle answered all 7 exchanges (46976 bytes outbound).
+→ voice helper
+voice helper: Xcode toolchain refused (You have not agreed to the Xcode license agreements. Please run 'sudo xcodebuild -license' from within a Terminal window to review and agree to the Xcode and Apple SDKs license.); using Command Line Tools
+native/voice/main.swift:268:57: warning: capture of 'utterance' with non-Sendable type 'AVSpeechUtterance' in a '@Sendable' closure [#SendableClosureCaptures]
+266 |       done = continuation
+267 |       synthesizer.delegate = self
+268 |       DispatchQueue.main.async { self.synthesizer.speak(utterance) }
+    |                                                         `- warning: capture of 'utterance' with non-Sendable type 'AVSpeechUtterance' in a '@Sendable' closure [#SendableClosureCaptures]
+269 |     }
+270 |   }
+
+/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/AVFAudio.framework/Headers/AVSpeechSynthesis.h:167:12: note: class 'AVSpeechUtterance' does not conform to the 'Sendable' protocol
+165 | NS_SWIFT_NONSENDABLE
+166 | NS_CLASS_AVAILABLE(10_14, 7_0)
+167 | @interface AVSpeechUtterance : NSObject<NSCopying, NSSecureCoding>
+    |            `- note: class 'AVSpeechUtterance' does not conform to the 'Sendable' protocol
+168 | 
+169 | + (instancetype)speechUtteranceWithString:(NSString *)string;
+
+[#SendableClosureCaptures]: <https://docs.swift.org/compiler/documentation/diagnostics/sendable-closure-captures>
+voice helper → voice/bimax-voice (arm64)
+notch helper: Xcode toolchain refused (You have not agreed to the Xcode license agreements. Please run 'sudo xcodebuild -license' from within a Terminal window to review and agree to the Xcode and Apple SDKs license.); using Command Line Tools
+notch helper → notch/bimax-notch (arm64)
+→ app intents extension
+app intents: Xcode toolchain refused (license not accepted); using Command Line Tools
+2026-10-02 14:50:46.242 appintentsmetadataprocessor[74466:4736323] Starting appintentsmetadataprocessor export
+2026-10-02 14:50:46.321 appintentsmetadataprocessor[74466:4736323] Writing Metadata.appintents
+2026-10-02 14:50:46.321 appintentsmetadataprocessor[74466:4736323] Metadata root: /Users/vishsiddharth/Bimax/app/intents/BimaxIntents.appex/Contents/Resources/Metadata.appintents
+app intents → intents/BimaxIntents.appex (arm64)
+  intents: BimaxChangeQuery BimaxThreadQuery FindBimaxChanges FindBimaxTasks OpenBimaxTask OpenBimaxTaskFolder StartBimaxTask
+→ package app directory (unhardened, outside iCloud)
+  • electron-builder  version=26.15.3 os=27.0.0
+  • loaded configuration  file=/Users/vishsiddharth/Bimax/app/electron-builder.yml
+  • executing @electron/rebuild  electronVersion=43.3.0 arch=arm64 buildFromSource=false workspaceRoot=/Users/vishsiddharth/Bimax/app projectDir=./ appDir=./
+  • installing native dependencies  arch=arm64
+  • completed installing native dependencies
+  • packaging       platform=darwin arch=arm64 electron=43.3.0 appOutDir=/private/tmp/bimax-cu-name-recovery/release/mac-arm64
+  • downloaded      label=electron progress=100%
+  • downloaded electron zip extracted successfully  output=/private/tmp/bimax-cu-name-recovery/release/mac-arm64
+  • searching for node modules  pm=npm searchDir=/Users/vishsiddharth/Bimax/app
+  • duplicate dependency references  dependencies=["@ai-sdk/provider-utils@5.0.25","@ai-sdk/provider@4.0.7","@ai-sdk/provider@4.0.7","ai@7.0.58","react@18.3.1","react@18.3.1","react@18.3.1","@codemirror/language@6.12.4","@codemirror/state@6.7.1","@codemirror/view@6.43.6","@codemirror/language@6.12.4","@codemirror/state@6.7.1","@codemirror/view@6.43.6","@codemirror/autocomplete@6.20.3","@codemirror/language@6.12.4","@codemirror/state@6.7.1","@lezer/highlight@1.2.3","@lezer/lr@1.4.10","@codemirror/autocomplete@6.20.3","@codemirror/language@6.12.4","@codemirror/state@6.7.1","@lezer/highlight@1.2.3","@lezer/lr@1.4.10","@codemirror/autocomplete@6.20.3","@codemirror/lang-css@6.3.1","@codemirror/lang-javascript@6.2.5","@codemirror/language@6.12.4","@codemirror/state@6.7.1","@codemirror/view@6.43.6","@lezer/css@1.3.4","@lezer/highlight@1.2.3","@lezer/lr@1.4.10","@codemirror/autocomplete@6.20.3","@codemirror/language@6.12.4","@codemirror/state@6.7.1","@codemirror/view@6.43.6","@codemirror/state@6.7.1","@codemirror/view@6.43.6","@lezer/highlight@1.2.3","@lezer/lr@1.4.10","@codemirror/language@6.12.4","@lezer/highlight@1.2.3","@lezer/lr@1.4.10","@codemirror/autocomplete@6.20.3","@codemirror/lang-html@6.4.11","@codemirror/language@6.12.4","@codemirror/state@6.7.1","@codemirror/view@6.43.6","@lezer/highlight@1.2.3","@codemirror/autocomplete@6.20.3","@codemirror/language@6.12.4","@codemirror/state@6.7.1","@lezer/highlight@1.2.3","@lezer/lr@1.4.10","@codemirror/autocomplete@6.20.3","@codemirror/language@6.12.4","@codemirror/state@6.7.1","@lezer/highlight@1.2.3","@lezer/highlight@1.2.3","@lezer/lr@1.4.10","@codemirror/state@6.7.1","@codemirror/view@6.43.6","@lezer/highlight@1.2.3","@lezer/lr@1.4.10","@codemirror/state@6.7.1","@codemirror/view@6.43.6","@codemirror/state@6.7.1","ajv@8.20.0","express@5.2.1","debug@4.4.3","http-errors@2.0.1","iconv-lite@0.7.3","on-finished@2.4.1","qs@6.15.3","raw-body@3.0.2","type-is@2.1.0","debug@4.4.3","debug@4.4.3","on-finished@2.4.1","get-intrinsic@1.3.0","call-bind-apply-helpers@1.0.2","call-bind-apply-helpers@1.0.2","es-object-atoms@1.1.2","call-bound@1.0.4","get-intrinsic@1.3.0","side-channel-map@1.0.1","debug@4.4.3","debug@4.4.3","http-errors@2.0.1","on-finished@2.4.1","send@1.2.1","http-errors@2.0.1","@types/react@18.3.31","react@18.3.1","@types/react@18.3.31","react@18.3.1","@radix-ui/react-primitive@2.1.7","@types/react@18.3.31","react@18.3.1","@types/react@18.3.31","react@18.3.1","@types/react@18.3.31","react-dom@18.3.1","react@18.3.1","@types/react@18.3.31","react@18.3.1","@radix-ui/react-primitive@2.1.7","@types/react@18.3.31","react-dom@18.3.1","react@18.3.1","@types/react@18.3.31","react@18.3.1","@types/react@18.3.31","react@18.3.1","@radix-ui/react-primitive@2.1.7","@types/react@18.3.31","react-dom@18.3.1","react@18.3.1","@types/react@18.3.31","react-dom@18.3.1","react@18.3.1","@radix-ui/react-slot@1.3.0","@types/react@18.3.31","react-dom@18.3.1","react@18.3.1","@types/react@18.3.31","react@18.3.1","@radix-ui/react-use-effect-event@0.0.3","@types/react@18.3.31","react@18.3.1","@types/react@18.3.31","react-dom@18.3.1","@types/react@18.3.31","@types/react@18.3.31","react-style-singleton@2.2.3","react@18.3.1","@types/react@18.3.31","react@18.3.1","react@18.3.1","@types/react@18.3.31","react@18.3.1","@types/react@18.3.31","react@18.3.1","react@18.3.1","ai@7.0.58","@ai-sdk/provider-utils@5.0.25","@ai-sdk/provider@4.0.7","@ai-sdk/provider-utils@5.0.25","@ai-sdk/provider@4.0.7","@codemirror/autocomplete@6.20.3","@codemirror/commands@6.10.4","@codemirror/language@6.12.4","@codemirror/lint@6.9.7","@codemirror/search@6.7.1","@codemirror/state@6.7.1","@codemirror/view@6.43.6","react@18.3.1","react@18.3.1","loose-envify@1.4.0","react-dom@18.3.1","react@18.3.1","react-dom@18.3.1","react@18.3.1","loose-envify@1.4.0"]
+  • cleared extended attributes  bundle=/private/tmp/bimax-cu-name-recovery/release/mac-arm64/Bimax.app
+  • app icon source: icon.png → AppIcon.appiconset (flat; see this script's header)
+You have not agreed to the Xcode license agreements. Please run 'sudo xcodebuild -license' from within a Terminal window to review and agree to the Xcode and Apple SDKs license.
+  • app icon catalog SKIPPED (Command failed: xcrun actool --output-format human-readable-text --notices --warnings --errors --app-icon AppIcon --output-partial-info-plist /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-icon-ScfeRi/partial.plist --platform macosx --target-device mac --minimum-deployment-target 13.0 --compile /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-icon-ScfeRi/out /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-icon-ScfeRi/Bimax.xcassets) — shipping the legacy .icns only
+  • skipped macOS code signing  reason=identity explicitly is set to null
+→ local nested signing (stable local identity when available; no hardened runtime)
+local app signed without hardened runtime (Bimax Local Code Signing): /private/tmp/bimax-cu-name-recovery/release/mac-arm64/Bimax.app
+→ verify
+desktop package gate: PASS /private/tmp/bimax-cu-name-recovery/release/mac-arm64/Bimax.app
+desktop package gate: PASS arm64 app executable and bundled engine
+desktop package gate: PASS no Computer Use sidecar is packaged; the only Computer Use part is the pinned driver SDK (record 65: look, press and type in apps the person allows)
+desktop package gate: PASS packaged run resolves the engine from the bundle, as a worker thread, with no override
+Checking /private/tmp/bimax-cu-name-recovery/release/mac-arm64/Bimax.app
+  · bimax:// URL scheme
+  · App Intents metadata for 1 extension(s)
+  · bundled engine
+
+✓ 3 action(s) present in the built bundle.
+Built → /private/tmp/bimax-cu-name-recovery/release/mac-arm64/Bimax.app

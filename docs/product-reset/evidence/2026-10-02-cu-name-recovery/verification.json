@@ -1,0 +1,40 @@
+{
+  "tests": {
+    "suites": 7,
+    "passed": 274,
+    "failures": 0,
+    "raw": "tests.txt"
+  },
+  "mutants": {
+    "caught": 6,
+    "total": 6,
+    "compileFailuresCounted": false,
+    "raw": "mutants.txt"
+  },
+  "typechecks": {
+    "app": {
+      "command": "npx tsc --noEmit",
+      "exit": 0
+    },
+    "engine": {
+      "command": "npx tsc --noEmit",
+      "exit": 0
+    }
+  },
+  "installedChecks": {
+    "packageGates": 4,
+    "appActions": 3,
+    "deepStrictSignature": true,
+    "engineMatchesBuiltBundle": true
+  },
+  "sourceSha256": {
+    "app/src/main/computer/look.suggestions.ts": "5b9d15e0e32e33f9310aff59710ecb17c4e324ac2caac12df2d031dfd3edcd3f",
+    "app/src/main/computer/look.service.ts": "d18fc143587ba8d6b4efb1056cdd0b588614dd7ed615a7ba27f5533b0f3b9aef",
+    "src/tools/implementations/look.tool.ts": "2af32c277e3a8065e2d011c6f658a3b241f473b4bc485a09c95351eb54a67e15"
+  },
+  "exactTargetMutants": {
+    "caught": 3,
+    "total": 3,
+    "raw": "exact-target-mutants.txt"
+  }
+}

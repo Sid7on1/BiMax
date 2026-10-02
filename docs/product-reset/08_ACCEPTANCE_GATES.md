@@ -52,6 +52,11 @@ Enforced by `src/__tests__/computer.admission.boundary.test.ts` and `scripts/ver
   press by element token; typing as keystrokes into one box emptied first (read back empty) and read back exactly;
   Return as the one key ever sent (`press_key` with `key: 'return'`, only in front, only into a box). Afterwards the app
   reads which app is in front and says whether the person's app came back; it never moves apps around to fix it.
+- **Missing-name recovery (§6h).** A `not_found` control reply may suggest at most five names and roles from the
+  granted app's still-fresh observed window, filtered for the requested action and excluding password fields. Names
+  are quoted as data; long names supply a bounded copyable prefix under the existing unique-prefix rule. Ranking is
+  a hint only: the missing request performs zero input, creates no action approval, renews no observation, and logs
+  no screen text. Copying a suggestion still meets every exact-target, freshness, build, grant and approval check.
 - **Which build is running (stage 5).** A look names the running executable and its SHA-256, read by the app from the
   process; a step is refused if that executable changed since the read (a rebuild or relaunch), and its receipt
   records the hash of the build it acted on.

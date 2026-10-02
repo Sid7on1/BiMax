@@ -747,6 +747,99 @@ describe('a long run of unasked steps stops for a word from the person', () => {
   });
 });
 
+describe('missing names: recover from observed controls without guessing a target', () => {
+  it('the invented song name suggests the real pressable row, despite a wrong role; only copying it presses', async () => {
+    const els: LookElement[] = [
+      { role: 'AXTextField', label: 'Espresso Sabrina Carpenter', editable: true, pressable: false },
+      { role: 'AXButton', label: 'Play', pressable: true },
+      { role: 'AXMenuButton', label: 'Espresso, Another Artist', pressable: true },
+      { role: 'AXMenuButton', label: 'Espresso, Sabrina Carpenter', pressable: true },
+    ];
+    const s = setup({ elements: els });
+    await s.lookAt();
+    const missing = await s.press('espresso – sabrina carpenter', { role: 'AXCell' });
+    expect(missing).toMatchObject({ ok: false, value: { code: 'not_found' } });
+    expect(missing.error).toContain('AXMenuButton: "Espresso, Sabrina Carpenter"');
+    expect(missing.error!.indexOf('"Espresso, Sabrina Carpenter"')).toBeLessThan(missing.error!.indexOf('"Espresso, Another Artist"'));
+    expect(missing.error).not.toContain('AXTextField:');
+    expect(s.presses).toEqual([]);
+    expect(s.asked).toHaveLength(1);
+    expect(s.counts()?.inputCalls).toBe(0);
+    expect(JSON.stringify(s.audit)).not.toContain('Espresso');
+    expect((await s.press('Espresso, Sabrina Carpenter', { role: 'AXMenuButton' })).ok).toBe(true);
+    expect(s.presses).toHaveLength(1);
+    expect(s.presses[0].target.label).toBe('Espresso, Sabrina Carpenter');
+  });
+
+  it('the right name with the wrong role returns its real role, without pressing', async () => {
+    const s = setup(); await s.lookAt();
+    const result = await s.press('Fixture Button', { role: 'AXCell' });
+    expect(result).toMatchObject({ ok: false, value: { code: 'not_found' } });
+    expect(result.error).toContain('AXButton: "Fixture Button"');
+    expect(s.presses).toEqual([]);
+  });
+
+  it('typing and choosing suggest only boxes and pop-ups respectively, never password labels or values', async () => {
+    const s = setup({ elements: [...ELEMENTS,
+      { role: 'AXSecureTextField', label: 'Secret password label', value: 'secret value', editable: true, pressable: true },
+    ] });
+    await s.lookAt();
+    const typed = await s.type('hi', { field: 'missing box' });
+    expect(typed.error).toContain('AXTextField: "Compose message"');
+    expect(typed.error).not.toContain('AXButton:');
+    const picked = await s.pick('missing popup', 'Second');
+    expect(picked.error).toContain('AXPopUpButton: "First"');
+    expect(picked.error).not.toContain('AXTextField:');
+    const scrolled = await s.scroll('missing row');
+    for (const r of [typed, picked, scrolled]) {
+      expect(r).toMatchObject({ ok: false, value: { code: 'not_found' } });
+      expect(r.error).not.toContain('Secret password label');
+      expect(r.error).not.toContain('secret value');
+    }
+    expect(s.typings).toEqual([]); expect(s.picks).toEqual([]); expect(s.scrolls).toEqual([]);
+  });
+
+  it('suggestions are bounded, unique, copyable for long names, and preserve quoted screen text', async () => {
+    const long = 'Result "quoted" '.repeat(50);
+    const els: LookElement[] = [
+      { role: 'AXButton', label: long, pressable: true },
+      { role: 'AXButton', label: long, pressable: true },
+      ...Array.from({ length: 10 }, (_, i) => ({ role: 'AXButton', label: `Result ${i}`, pressable: true })),
+    ];
+    const s = setup({ elements: els }); await s.lookAt();
+    const result = await s.press('Result quoted absent');
+    const hints = result.error!.split('\n').filter((l) => l.startsWith('AXButton:'));
+    expect(hints).toHaveLength(5);
+    expect(new Set(hints).size).toBe(5);
+    const prefix = JSON.parse(hints[0].slice('AXButton: '.length).replace(' (name prefix)', ''));
+    expect(prefix).toBe(long.slice(0, 300));
+    expect(result.error!.length).toBeLessThan(2500);
+    expect(s.presses).toEqual([]);
+    // Shared full names remain ambiguous even when a suggested prefix was copied.
+    expect(await s.press(prefix)).toMatchObject({ ok: false, value: { code: 'ambiguous' } });
+    expect(s.presses).toEqual([]);
+  });
+
+  it('a hint never renews freshness or bypasses a commit card', async () => {
+    const s = setup({ answers: [ALLOW_USE, 'Don’t press'] }); await s.lookAt();
+    const missing = await s.press('sendd');
+    expect(missing.error).toContain('AXButton: "Send"');
+    expect(await s.press('Send')).toMatchObject({ ok: false, value: { code: 'denied' } });
+    expect(s.pressCards()).toHaveLength(1); expect(s.presses).toEqual([]);
+    await s.lookAt(); s.tick(PRESS_FRESH_MS + 1);
+    const stale = await s.press('sendd');
+    expect(stale).toMatchObject({ ok: false, value: { code: 'stale' } });
+    expect(stale.error).not.toContain('Closest real names');
+  });
+
+  it('a window with no eligible control asks for a new look and makes no action', async () => {
+    const s = setup({ elements: [{ role: 'AXStaticText', label: 'No results yet', pressable: false }] });
+    await s.lookAt(); const result = await s.press('Missing song');
+    expect(result.error).toContain('No named controls for this action were in that read');
+    expect(s.presses).toEqual([]);
+  });
+});
+
 describe('wrong target: refused, nothing done', () => {
   it.each([
     ['a control the look did not show', 'Save', {}, 'not_found'],
@@ -804,7 +897,8 @@ describe('long names (measured: a WhatsApp community row runs past 200 character
     await s.lookAt();
     const result = await s.press(long);
     expect(result).toMatchObject({ ok: false, value: { code: 'not_found' } });
-    expect(result.error!.length).toBeLessThan(260);
+    expect(result.error!.split('\n')[0].length).toBeLessThan(260);
+    expect(result.error).not.toContain(long);
   });
 });
 
