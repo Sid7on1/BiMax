@@ -329,7 +329,8 @@ export class ContextManager {
     // that made long sessions slow and expensive. Near the tail, only the last few messages are
     // uncached; everything earlier stays a byte-stable, cacheable prefix. (Within one agent-loop
     // turn the position is stable too — tool rounds append after it.)
-    if (_graphStore) {
+    if (process.env.BIMAX_REPO_MAP === '0') msgs = injectRepoMap(msgs, '');
+    if (_graphStore && process.env.BIMAX_REPO_MAP !== '0') {
       try {
         // Cross-repo (PR3): merges every indexed repo in a multi-repo workspace into one map; with a
         // single repo it returns exactly the old single-repo outline. Sync — never blocks on disk.

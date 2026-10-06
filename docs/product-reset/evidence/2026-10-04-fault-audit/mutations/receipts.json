@@ -1,0 +1,274 @@
+[
+  {
+    "label": "hard-loop-halt",
+    "file": "src/core/agent.tool.round.ts",
+    "killed": true,
+    "restored": true,
+    "failedAssertions": [
+      "halts a model ignoring hard loop signals and preserves complete tool exchanges"
+    ],
+    "sourceSha256": "f3eb5eeef560b63b7fb79aacc80d633acfdc11c06385dc4df0820548413921bb",
+    "exitCode": 1
+  },
+  {
+    "label": "verified-transition",
+    "file": "src/outcome/outcome.manager.ts",
+    "killed": true,
+    "restored": true,
+    "failedAssertions": [
+      "refuses direct verified transitions, including delegated tasks without independent evidence"
+    ],
+    "sourceSha256": "034e2b88be3342a062e123184c06740b1a9254ba634faf76aad0c5aba63470aa",
+    "exitCode": 1
+  },
+  {
+    "label": "criterion-scope",
+    "file": "src/outcome/outcome.manager.ts",
+    "killed": true,
+    "restored": true,
+    "failedAssertions": [
+      "refuses direct verified transitions, including delegated tasks without independent evidence",
+      "unscoped build criteria demand repository-wide proof"
+    ],
+    "sourceSha256": "034e2b88be3342a062e123184c06740b1a9254ba634faf76aad0c5aba63470aa",
+    "exitCode": 1
+  },
+  {
+    "label": "scoped-execution-proof",
+    "file": "src/mind/outcome.sensor.ts",
+    "killed": true,
+    "restored": true,
+    "failedAssertions": [
+      "evidence project identity never turns a sibling or subfolder suite into whole-project proof",
+      "scoped green tests need execution attestation; no-tests flags cannot verify a named source"
+    ],
+    "sourceSha256": "7324490ebce9b7abced6df3e1251b24b9c4575f679940d16856b1d68505924ce",
+    "exitCode": 1
+  },
+  {
+    "label": "trace-redaction",
+    "file": "src/telemetry/trace.ts",
+    "killed": true,
+    "restored": true,
+    "failedAssertions": [
+      "redacts modern keys before the trace ring and persisted span, including status and arrays"
+    ],
+    "sourceSha256": "f057375a93d2fbf30218a2b7330a7d207f8d042dc06035899bdffa8742496de9",
+    "exitCode": 1
+  },
+  {
+    "label": "file-provenance",
+    "file": "src/mind/taint.ts",
+    "killed": true,
+    "restored": true,
+    "failedAssertions": [
+      "fences repository text and enforces taint even before Thread grants and bypass",
+      "labels and taints repository-derived output from ReadDocumentTool",
+      "labels and taints repository-derived output from ComposerSearchTool",
+      "labels and taints repository-derived output from GraphContextTool",
+      "labels and taints repository-derived output from GraphQueryTool",
+      "labels and taints repository-derived output from LspQueryTool",
+      "labels and taints repository-derived output from GrepTool",
+      "labels and taints repository-derived output from CodeSearchTool",
+      "labels and taints repository-derived output from MemoryQueryTool",
+      "labels and taints repository-derived output from ToolWorkflowTool"
+    ],
+    "sourceSha256": "302488487cefa76b2d5e6d05bc92dbc3985821e863e4d64951173a57e7197bce",
+    "exitCode": 1
+  },
+  {
+    "label": "shell-read-provenance",
+    "file": "src/mind/taint.ts",
+    "killed": true,
+    "restored": true,
+    "failedAssertions": [
+      "a poisoned file read through Bash cannot approve a downloader (same round: false)",
+      "a poisoned file read through Bash cannot approve a downloader (same round: true)"
+    ],
+    "sourceSha256": "302488487cefa76b2d5e6d05bc92dbc3985821e863e4d64951173a57e7197bce",
+    "exitCode": 1
+  },
+  {
+    "label": "same-round-taint",
+    "file": "src/core/tool.outcome.observers.ts",
+    "killed": true,
+    "restored": true,
+    "failedAssertions": [
+      "a poisoned file read through Bash cannot approve a downloader (same round: true)"
+    ],
+    "sourceSha256": "c511f1e26c33e98dbe0549fe05494d7714b67bff47b2c62ff0087a2deffac338",
+    "exitCode": 1
+  },
+  {
+    "label": "taint-bypass",
+    "file": "src/governor/governor.ts",
+    "killed": true,
+    "restored": true,
+    "failedAssertions": [
+      "fences repository text and enforces taint even before Thread grants and bypass"
+    ],
+    "sourceSha256": "a363c2b198254e3d8b090376b7abf3bb23cac7e183b4ddc19cfc81df0cb63054",
+    "exitCode": 1
+  },
+  {
+    "label": "exact-shell-grant",
+    "file": "src/governor/governor.ts",
+    "killed": true,
+    "restored": true,
+    "failedAssertions": [
+      "shell allow remembers one exact command and unexpected approval answers fail closed"
+    ],
+    "sourceSha256": "a363c2b198254e3d8b090376b7abf3bb23cac7e183b4ddc19cfc81df0cb63054",
+    "exitCode": 1
+  },
+  {
+    "label": "approval-reader",
+    "file": "src/tools/shell.readonly.ts",
+    "killed": true,
+    "restored": true,
+    "failedAssertions": [
+      "a concurrency reader cannot waive permission for env bash injected.sh",
+      "a concurrency reader cannot waive permission for /tmp/ls",
+      "a concurrency reader cannot waive permission for sed 1woutput file",
+      "a concurrency reader cannot waive permission for sort -o output file",
+      "a concurrency reader cannot waive permission for rg --pre injected.sh text",
+      "a concurrency reader cannot waive permission for npm config set registry evil",
+      "a concurrency reader cannot waive permission for git symbolic-ref HEAD refs/heads/evil",
+      "a concurrency reader cannot waive permission for git diff --output=output"
+    ],
+    "sourceSha256": "a9c6d4cbda385649ac9abb354584d3388f1c70fe6f58b833206bd468820061bf",
+    "exitCode": 1
+  },
+  {
+    "label": "background-containment",
+    "file": "src/core/shell.tasks.ts",
+    "killed": true,
+    "restored": true,
+    "failedAssertions": [
+      "background Thread shell enforces real workspace isolation at the direct and retry seam"
+    ],
+    "sourceSha256": "a9b18c9a58e3a1be6cded99e2339ad0238e5b69cad49089788f37838607c65ee",
+    "exitCode": 1
+  },
+  {
+    "label": "run-ceiling",
+    "file": "src/core/run.budget.ts",
+    "killed": true,
+    "restored": true,
+    "failedAssertions": [
+      "run ceilings share reservations, settle once and cannot reset with a nested run"
+    ],
+    "sourceSha256": "7bc76f26fc15e4df171e6b6251eb2c2000d1c315eccce26dd152aa866ac9ad4a",
+    "exitCode": 1
+  },
+  {
+    "label": "adapter-admission",
+    "file": "src/core/llm.adapter.ts",
+    "killed": true,
+    "restored": true,
+    "failedAssertions": [
+      "denies the actual adapter request before sending when prompt plus output exceeds the run cap"
+    ],
+    "sourceSha256": "2227e24c0640c68fbb025791c06d067dbfd961c2c2c7eca34e3fa7730724f361",
+    "exitCode": 1
+  },
+  {
+    "label": "worker-budget-sharing",
+    "file": "src/core/subagent.manager.ts",
+    "killed": true,
+    "restored": true,
+    "failedAssertions": [
+      "passes the same run counters through the real sub-agent worker transport"
+    ],
+    "sourceSha256": "e86e8ca3e02118732fe2a4da00c6e3b92e76f8b3f09f3ba36254a4bcb5fd60e1",
+    "exitCode": 1
+  },
+  {
+    "label": "split-pricing",
+    "file": "src/core/model.pricing.ts",
+    "killed": true,
+    "restored": true,
+    "failedAssertions": [
+      "settles split usage and cached input on the actual route, including generator cancellation at usage"
+    ],
+    "sourceSha256": "90948840d90f5f02f9377f58c49d7a2ec91a30cf580d1c64c4a34e3373966d60",
+    "exitCode": 1
+  },
+  {
+    "label": "memory-cache",
+    "file": "src/memory/vector.store.ts",
+    "killed": true,
+    "restored": true,
+    "failedAssertions": [
+      "unchanged memory queries reuse parsed data and index; external replacement and deletion invalidate"
+    ],
+    "sourceSha256": "ea2abeb6d5672c57fe8ef0679321f04a053f06ef6f497fd125cf9fdde347b140",
+    "exitCode": 1
+  },
+  {
+    "label": "memory-invalidation",
+    "file": "src/memory/vector.store.ts",
+    "killed": true,
+    "restored": true,
+    "failedAssertions": [
+      "unchanged memory queries reuse parsed data and index; external replacement and deletion invalidate"
+    ],
+    "sourceSha256": "ea2abeb6d5672c57fe8ef0679321f04a053f06ef6f497fd125cf9fdde347b140",
+    "exitCode": 1
+  },
+  {
+    "label": "identifier-components",
+    "file": "src/memory/bm25.ts",
+    "killed": true,
+    "restored": true,
+    "failedAssertions": [
+      "camelCase search retains the exact identifier and retrieves its components"
+    ],
+    "sourceSha256": "85303c3c3a30ced4cc9ec979bf652c1ba4c2e1d4bac9a730a8258aa2a5bd872e",
+    "exitCode": 1
+  },
+  {
+    "label": "prompt-bound",
+    "file": "src/engine/personas/base.persona.ts",
+    "killed": true,
+    "restored": true,
+    "failedAssertions": [
+      "bounds optional recall without truncating safety, user preferences or live verification contracts"
+    ],
+    "sourceSha256": "0d3d5dd497e79686264c7c9da37efd00825d3cec1f5bc474f84b7e44f5e49936",
+    "exitCode": 1
+  },
+  {
+    "label": "save-cache-identity",
+    "file": "src/memory/vector.store.ts",
+    "killed": true,
+    "restored": true,
+    "failedAssertions": [
+      "does not attach an external writer identity to its own cache during save"
+    ],
+    "sourceSha256": "ea2abeb6d5672c57fe8ef0679321f04a053f06ef6f497fd125cf9fdde347b140",
+    "exitCode": 1
+  },
+  {
+    "label": "generator-error-propagation",
+    "file": "src/core/agent.loop.ts",
+    "killed": true,
+    "restored": true,
+    "failedAssertions": [
+      "the run-budget generator preserves injected-error cleanup and propagation"
+    ],
+    "sourceSha256": "35a7ee80d5cb3b8c44543fb3ec3d8b026094d7f1152ee0d92ce1859ad3fe82c1",
+    "exitCode": 1
+  },
+  {
+    "label": "repomap-opt-out",
+    "file": "src/memory/context.manager.ts",
+    "killed": true,
+    "restored": true,
+    "failedAssertions": [
+      "RepoMap opt-out removes a stale map and stops refresh for the actual context pass"
+    ],
+    "sourceSha256": "3ec7722ad39675d4ff8d3803acdbef4eab6f420d9689b0924c7e0c5d2c105088",
+    "exitCode": 1
+  }
+]

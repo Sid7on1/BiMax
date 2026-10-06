@@ -1,0 +1,11 @@
+const { app } = require('electron');
+const fs=require('node:fs'),path=require('node:path');
+const fixture=JSON.parse(fs.readFileSync('/tmp/bimax-fresh-chat-runtime/fixture.json','utf8'));
+const bundle=process.env.BIMAX_FIXTURE_BUNDLE;
+if(!bundle) throw new Error('fixture bundle required');
+Object.defineProperty(app,'isPackaged',{value:true});
+Object.defineProperty(process,'resourcesPath',{value:path.join(bundle,'Contents/Resources')});
+app.setPath('userData',fixture.data); app.setAppPath(path.join(process.resourcesPath,'app.asar'));
+app.commandLine.appendSwitch('remote-debugging-port','9237');
+app.commandLine.appendSwitch('remote-debugging-address','127.0.0.1');
+require(path.join(process.resourcesPath,'app.asar/out/main/index.js'));

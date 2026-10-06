@@ -223,10 +223,10 @@ function table(ctx: Ctx, columns: string[], rows: string[][], caption?: string):
 
 function renderBlock(ctx: Ctx, block: Block, baseDir: string): void {
   switch (block.kind) {
-    case 'heading': return heading(ctx, block.level, block.text);
-    case 'paragraph': return body(ctx, block.text);
-    case 'bullets': return list(ctx, block.items, false);
-    case 'numbered': return list(ctx, block.items, true);
+    case 'heading': heading(ctx, block.level, block.text); return;
+    case 'paragraph': body(ctx, block.text); return;
+    case 'bullets': list(ctx, block.items, false); return;
+    case 'numbered': list(ctx, block.items, true); return;
     case 'keyvalue': {
       ctx.doc.fontSize(TYPE.small);
       for (const pair of block.pairs) {
@@ -270,7 +270,7 @@ function renderBlock(ctx: Ctx, block: Block, baseDir: string): void {
       ctx.doc.moveDown(0.6);
       return;
     }
-    case 'table': return table(ctx, block.columns, block.rows, block.caption);
+    case 'table': table(ctx, block.columns, block.rows, block.caption); return;
     case 'image': {
       const img = loadImage(block.path, baseDir);
       const maxH = ctx.doc.page.height - PAGE.marginTop - PAGE.marginBottom;
@@ -288,7 +288,7 @@ function renderBlock(ctx: Ctx, block: Block, baseDir: string): void {
       ctx.doc.moveDown(0.8);
       return;
     }
-    case 'chart': return chart(ctx, block);
+    case 'chart': chart(ctx, block); return;
     case 'divider': {
       ensure(ctx, 18);
       ctx.doc.moveDown(0.4);
@@ -306,6 +306,7 @@ export function buildPdf(spec: DocumentSpec, baseDir: string = process.cwd()): P
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({
       size: 'A4',
+      bufferPages: true,
       margins: { top: PAGE.marginTop, bottom: PAGE.marginBottom, left: PAGE.marginLeft, right: PAGE.marginRight },
       info: { Title: spec.title, Author: spec.author || 'Bimax' },
     });
@@ -336,10 +337,12 @@ export function buildPdf(spec: DocumentSpec, baseDir: string = process.cwd()): P
     const range = doc.bufferedPageRange();
     for (let i = range.start; i < range.start + range.count; i++) {
       doc.switchToPage(i);
-      doc.font('Helvetica').fontSize(TYPE.micro).fillColor(ink(COLOR.faint))
-        .text(`${i - range.start + 1}`, PAGE.marginLeft, doc.page.height - PAGE.marginBottom + 24, {
-          width, align: 'center', lineBreak: false,
-        });
+      const number = String(i - range.start + 1);
+      doc.font('Helvetica').fontSize(TYPE.micro).fillColor(ink(COLOR.faint));
+      // An explicit width starts PDFKit's flow wrapper even with lineBreak:false. Footer text
+      // lies below the content margin, so that wrapper creates an unintended extra page.
+      const x = PAGE.marginLeft + (width - doc.widthOfString(number)) / 2;
+      doc.text(number, x, doc.page.height - PAGE.marginBottom + 24, { lineBreak: false });
     }
 
     doc.end();

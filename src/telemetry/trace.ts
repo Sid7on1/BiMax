@@ -3,6 +3,7 @@ import { randomBytes } from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Logger } from '../utils/logger';
+import { redactSecretsDeep } from '../security/secret.scan';
 
 /**
  * Trace layer — OpenTelemetry GenAI semantic-convention spans, zero external dependencies.
@@ -188,6 +189,7 @@ export class Tracer {
 
   onSpanEnd(span: EndedSpan): void {
     if (this.closed) return;
+    span = redactSecretsDeep(span);
     this.recent.push(span);
     if (this.recent.length > Tracer.RECENT_MAX) this.recent.splice(0, this.recent.length - Tracer.RECENT_MAX);
 

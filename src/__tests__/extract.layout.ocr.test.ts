@@ -101,7 +101,7 @@ describe('a scanned page the converter dropped is still read', () => {
     const result = await extractFile(pdf);
 
     expect(ocr.ocrPages).toHaveBeenCalledTimes(1);
-    // Page 2 alone — rasterising all three is unavoidable, recognising all three is not.
+    // Only dropped page 2 is recognized; raster coverage is tested separately with real children.
     expect(ocr.ocrPages).toHaveBeenCalledWith(['/tmp/page-2.png']);
 
     expect(result.segments.map((s) => s.locator.page)).toEqual([1, 2, 3]);

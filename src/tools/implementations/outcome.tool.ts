@@ -10,6 +10,7 @@ interface OutcomeArgs {
     id?: string;
     description: string;
     required?: boolean;
+    files?: string[];
     verification?: 'build_test' | 'runtime' | 'visual' | 'research' | 'user' | 'other';
     requires_fresh_evidence?: boolean;
   }>;
@@ -111,6 +112,7 @@ export const createOutcomeTool = (governor: IGovernor) => buildTool({
           type: 'object',
           properties: {
             id: { type: 'string' }, description: { type: 'string' }, required: { type: 'boolean' },
+            files: { type: 'array', items: { type: 'string' }, description: 'Exact checked files; unscoped build criteria require repository-wide proof.' },
             verification: { type: 'string', enum: ['build_test', 'runtime', 'visual', 'research', 'user', 'other'] },
             requires_fresh_evidence: { type: 'boolean' },
           },
@@ -162,7 +164,7 @@ export const createOutcomeTool = (governor: IGovernor) => buildTool({
     switch (args.action) {
       case 'define':
         manager.define(args.objective || '', (args.criteria || []).map(c => ({
-          id: c.id, description: c.description, required: c.required, verification: c.verification,
+          id: c.id, description: c.description, required: c.required, verification: c.verification, files: c.files,
           requiresFreshEvidence: c.requires_fresh_evidence,
         })));
         return renderStatus(manager);

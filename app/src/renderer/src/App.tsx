@@ -326,7 +326,7 @@ export function App(): React.ReactElement {
     setComposerRevision(value => value + 1);
     void window.bimax.threads.create();
     setView('chat');
-  }, [interrupt, sendCommand, state.project]);
+  }, [state.project, state.threadId]);
 
   const resumeSession = useCallback((id: string) => {
     clearDraft(`${state.project}#${state.threadId ?? ''}`);
@@ -584,6 +584,7 @@ export function App(): React.ReactElement {
                   <Composer
                     key={`${state.threadId}:${composerRevision}`}
                     draftKey={`${state.project}#${state.threadId ?? ''}`}
+                    threadId={state.threadId}
                     busy={busy}
                     mode={state.mode}
                     tier={state.tier}

@@ -23,13 +23,13 @@ export function registerAgent(name: string) {
 
 export function getKnownAgents(): string[] {
   // Keep this import lazy. The headless entry imports the router before personas are built;
-  // eagerly loading skills.loader here also loads base.persona, whose tool graph reaches back to
+  // eagerly loading persona.config.loader here also loads base.persona, whose tool graph reaches back to
   // this router. CommonJS then exposes a half-initialized AgentPersona and DynamicPersona crashes
   // at module evaluation (`Class extends value undefined`). By the time callers ask for the menu,
-  // persona construction is complete and loading the legacy JSON skills is safe.
-  const { SkillLoader } = require('./skills.loader') as typeof import('./skills.loader');
-  const dynamicSkills = Object.keys(SkillLoader.getAllSkills());
-  return Array.from(new Set([...builtInAgents, ...dynamicSkills]));
+  // persona construction is complete and loading the legacy JSON personas is safe.
+  const { PersonaConfigLoader } = require('./persona.config.loader') as typeof import('./persona.config.loader');
+  const dynamicPersonas = Object.keys(PersonaConfigLoader.getAllPersonas());
+  return Array.from(new Set([...builtInAgents, ...dynamicPersonas]));
 }
 
 export function routeQuery(query: string): string {

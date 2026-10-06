@@ -1,3 +1,4 @@
+import { activeRunBudget } from './run.budget';
 import { Worker } from 'worker_threads';
 import * as path from 'path';
 import { existsSync } from 'fs';
@@ -32,6 +33,7 @@ interface WorkerHandle {
 }
 
 export interface SubAgentConfig {
+  runBudget?: SharedArrayBuffer;
   agentType: string;
   prompt: string;
   cwd: string;
@@ -162,6 +164,7 @@ export class SubAgentManager {
   // bundled into the embedded worker), but a re-exec of the whole binary carries every dependency.
   private createHandle(taskId: string, config: SubAgentConfig, workerOpts: any): WorkerHandle {
     if (this.isBun && !this.hasScriptOverride) {
+      if (config.runBudget) throw new Error('Shared run budgets require the desktop worker transport.');
       return this.spawnSubprocessHandle(config, workerOpts);
     }
     // The Bimax app names the engine bundle it started (BIMAX_ENGINE_MODULE). Run the sub-agent as that same
@@ -186,7 +189,7 @@ export class SubAgentManager {
     const env = { ...(workerOpts.env || process.env), BIMAX_SUBAGENT_CONFIG: JSON.stringify(config) };
     const worker = new Worker(bundle, {
       env, stdout: true, stderr: false,
-      workerData: { bimaxEngineRoot: config.cwd || process.cwd() },
+      workerData: { bimaxEngineRoot: config.cwd || process.cwd(), runBudget: config.runBudget },
       resourceLimits: { maxOldGenerationSizeMb: SUBAGENT_WORKER_HEAP_MB },
     });
     const emitter = new EventEmitter();
@@ -356,6 +359,7 @@ export class SubAgentManager {
         ...(config.scope ? { 'bimax.subagent.scope': config.scope } : {}),
       });
 
+      config.runBudget = activeRunBudget();
       const workerOpts = {
         workerData: config,
         // Floored episodes get their own env copy with the floor flag — thread-scoped, so the

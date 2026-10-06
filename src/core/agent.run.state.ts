@@ -88,6 +88,8 @@ export class RunState {
   operationTerminalBlocker: string | null = null;
   terminalBlockerNudged = false;
   llmRounds = 0;
+  /** Hard-loop rounds without abandoning the offending pattern; circuit breaker stops immediately. */
+  hardLoopRounds = 0;
 
   constructor(llm: LLMProvider, maxIterations: number | undefined, env: NodeJS.ProcessEnv = process.env) {
     this.maxIter = maxIterations ?? (parseInt(env.BIMAX_MAX_ITERATIONS || '', 10) || 500);

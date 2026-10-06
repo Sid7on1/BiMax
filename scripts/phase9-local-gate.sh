@@ -12,7 +12,6 @@ PHASE9_SUITES=(
   app/src/phase9/__tests__/anomaly.ranker.test.ts
   app/src/phase9/__tests__/capability.worker.process.test.ts
   app/src/phase9/__tests__/simulator.adapters.test.ts
-  app/src/phase9/__tests__/computer.use.pack.test.ts
   app/src/phase9/__tests__/ml.alchemist.test.ts
   app/src/phase9/__tests__/adaptive.policy.test.ts
 )
@@ -62,9 +61,6 @@ mutate_app "the anomaly ranker accepts an undersized corpus" src/phase9/anomaly.
 mutate_app "an executable digest mismatch is ignored" src/phase9/capability.worker.process.ts \
   "          if (hello.t !== 'hello' || hello.protocol !== this.protocol || hello.contentDigest !== this.contentDigest) {" \
   "          if (hello.t !== 'hello' || hello.protocol !== this.protocol) {"
-mutate_app "Computer Use can be activated outside Desktop" src/phase9/computer.use.pack.ts \
-  "      ...(input.host === 'desktop' ? [] : ['Computer Use can only be activated by Bimax for Mac.'])," \
-  "      ...[],"
 mutate_app "a smaller degraded model passes the quality gate" src/phase9/ml.alchemist.ts \
   '  if (metrics.quality < qualityFloor) reasons.push(`Quality ${metrics.quality} is below the ${qualityFloor} contract floor.`);' \
   "  if (false) reasons.push('quality ignored');"

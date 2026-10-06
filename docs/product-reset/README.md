@@ -1,6 +1,90 @@
 # Bimax product reset
 
-## Computer Use returns, on the latest Cua Driver — plan, 2026-10-01
+## PDF reliability — 2026-10-06, round 4
+
+[Record 74](74_PDF_RELIABILITY_SPRINT.md) repairs footer-induced extra pages and missing page
+numbers, preserves final text pages and real errors, bounds PDF child execution/captured output,
+propagates Stop and validates owned raster coverage. Mixed PDFs render only the unreadable-page
+envelope; OCR consumers dispose owned jobs after use. The reproduced extra-page path explains
+one source of earlier layout timeouts; general native OCR reliability remains Target.
+Local qualification and remaining limits are recorded there. Computer Use remains retired.
+
+Local qualification: 50 focused tests, 26 assertion-caught mutants, 3,949 Jest / 132 Bun tests,
+root/app builds/typechecks and seven staged engine exchanges pass; three bundled PDF pages are
+independently read and visually inspected. This is local evidence, not installed/provider qualification.
+
+## Bimax Thread undo reliability — 2026-10-06, round 3
+
+[Record 73](73_THREAD_UNDO_RELIABILITY_SPRINT.md) refuses unavailable backups and escaped paths,
+serializes undo by canonical journal, stages replacement files before Bin moves and verifies
+actual disk postconditions. Verified step receipts allow interrupted retries to preserve completed
+steps and later human edits. Engine backup coverage gaps remain explicit; history reports partial
+coverage and progress. Implemented and locally verified with 67 focused tests and 19 behavioral
+mutants. Installed Finder/permission, crash durability and performance remain unmeasured;
+the known PDF-layout timeout issue remains unresolved. Computer Use remains retired.
+
+## Transaction reliability sprint — 2026-10-06, round 2
+
+[Record 72](72_TRANSACTION_RELIABILITY_SPRINT.md) coalesces snapshots, fences transaction lifecycle
+races, preserves multiple recovery records and verifies rollback bytes and permissions. Snapshot
+buffers share a 64 MiB aggregate default including retained recoveries; `/tx status` exposes actual
+coverage, memory and pending recovery. Implemented and locally verified with 44 focused tests and
+21 assertion-caught mutants. Installed/crash recovery and performance claims remain unmeasured;
+intermittent PDF test timeouts remain unresolved. Computer Use remains retired.
+
+## Background task reliability sprint — 2026-10-06
+
+[Record 71](71_BACKGROUND_TASK_RELIABILITY_SPRINT.md) connects TasksTool to the shell tasks
+BashTool actually returns, repairs paused/resistant cancellation and close races, preserves streamed
+UTF-8/lines, honors explicit short timeouts, refuses immediate failed-spawn success and replaces
+wait polling with targeted, abortable lifecycle subscriptions. Implemented and locally verified:
+thirteen assertion-caught mutants, 3,870 Jest / 132 Bun tests, builds and seven worker exchanges;
+installed/provider/recovery and performance claims remain unmeasured. Computer Use remains retired.
+
+## Fresh chats and isolated recorded replay — 2026-10-05
+
+[Record 69](69_FRESH_CHAT_AND_REPLAY_ISOLATION.md) repairs old recorded tool calls reaching a fresh
+chat through the background harness lab's live event stream. Replay is async-local and leaves live
+events, history, steering and completion state alone. Explicit repo opening starts fresh; old chats
+resume by selection; the sidebar action reads **New**. Evidence records local qualification and install.
+[Record 70](70_CODE_BEHAVIOR_ENGINE_RECOMMENDATIONS.md) proposes mastering running-code diagnosis,
+then executable bug reproduction, coordinated stack changes and revision comparison. These remain
+**Target**, not implemented features. The selected Outputs Shelf and CU retirement retain their scope.
+
+## Current-source fault audit and repair — 2026-10-04
+
+[Record 68](68_FAULT_AUDIT_AND_REPAIR.md) verifies the supplied August-tree audit against this Mac's
+current monolith. Real holes in background isolation, approvals, hard-loop termination, verification
+scope, file provenance, telemetry redaction, per-run budgets and memory caching are repaired and
+locally verified. Identifier tokenization, optional context bounds and persona/skill naming are
+clarified. Sandbox defaults, modern secret scanning and hybrid retrieval were already implemented;
+BYOK/model defaults remain unchanged. Evidence and remaining provider/billing/installed-app limits
+are recorded explicitly. Computer Use remains retired.
+
+
+## Outputs Shelf — selected feature, research and plan, 2026-10-04
+
+[67_OUTPUTS_SHELF_RESEARCH_AND_PLAN.md](67_OUTPUTS_SHELF_RESEARCH_AND_PLAN.md) records the owner's
+selection of Outputs Shelf and current first-party research into Hermes/Claude artifacts, Manus
+attachments, agent skills, and optional Cloudflare storage. The plan starts with durable,
+Bimax Thread-owned output registration and offline discovery, then safe previews, retained
+versions, existing skill capture, handoff bundles, and optional private sync/sharing. All slices
+remain **Target**; no shelf runtime or cloud deployment was added. The proposed
+[O01 journey](competitive/examples/O01_FIND_AND_OPEN_OUTPUT.md) requires exact-file end-state and
+mutation proof. Computer Use remains retired under record 66.
+
+## Computer Use retired — owner decision, 2026-10-04
+
+The owner explicitly withdrew Computer Use: “roll off the bimax cu completely keep it in archive again i dont
+want that feature at all”. [66_COMPUTER_USE_RETIREMENT_RECORD.md](66_COMPUTER_USE_RETIREMENT_RECORD.md) governs the
+current boundary. The look/press/type/scroll tools, app services, preview switches, Accessibility request path,
+native driver dependency and feature proof scripts are archived outside the repository. Saved flags cannot restore
+them; stale host requests and governor COMPUTER_CONTROL requests refuse. Coding, Bimax Threads, Finder folder
+selection and on-device dictation remain. Records 55/64 still govern engine workers in the monolith. Record 65 and
+its measurements below are historical evidence, not an active rollout or authorization to reintroduce the feature.
+
+
+## Historical Computer Use return — retired 2026-10-04
 
 [65_COMPUTER_USE_RETURN_WITH_CUA_PLAN.md](65_COMPUTER_USE_RETURN_WITH_CUA_PLAN.md): **stage 1 Measured; stage 2 Measured in the
 installed app (exit met, one Mac, one model); stage 3 (one press in the test app, two cards every time) Measured outside

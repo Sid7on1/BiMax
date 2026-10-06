@@ -36,7 +36,7 @@ test('workspace containment and computer control still refuse', async () => {
   (governor.fs as any).checkVeto = jest.fn().mockRejectedValue(new GovernorVetoError('outside the workspace'));
   await expect(governor.approveTaskExecution('FILE_WRITE', { targetPath: '/etc/hosts' } as any)).rejects.toThrow('outside the workspace');
   (governor.fs as any).checkVeto = jest.fn().mockResolvedValue(undefined);
-  await expect(governor.approveTaskExecution('COMPUTER_CONTROL', { action: 'click', app: 'Notes' } as any)).rejects.toThrow('not allowed while unattended');
+  await expect(governor.approveTaskExecution('COMPUTER_CONTROL', { action: 'click', app: 'Notes' } as any)).rejects.toThrow('Computer Use has been removed');
   expect(ask).not.toHaveBeenCalled();
 });
 

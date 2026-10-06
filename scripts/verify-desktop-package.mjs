@@ -71,26 +71,25 @@ for (const forbidden of [
   if (existsSync(forbidden)) fail(`code-only build packaged a Computer Use component: ${forbidden}`);
 }
 
-// Computer Use returns look only (record 65, stage 2) on exactly one component: Cua Driver's in-process SDK, unpacked
-// (its native library is dlopen'd by path) and pinned. Nothing else of the driver ships — not its command-line binary,
-// not its AGPL perception extension — and the old sidecars above stay banned.
+// No retired Computer Use driver dependency may ship, inside or outside ASAR.
 const unpacked = path.join(contents, 'Resources', 'app.asar.unpacked', 'node_modules');
-const sdk = path.join(unpacked, '@trycua', 'cua-driver');
-if (existsSync(sdk)) {
-  const pinned = JSON.parse(readFileSync(path.join(sdk, 'package.json'), 'utf8')).version;
-  if (pinned !== '0.31.0') fail(`Computer Use driver SDK is ${pinned}, not the pinned 0.31.0 (record 65 stage 1 measured that one)`);
-  const native = path.join(unpacked, '@trycua', 'cua-driver-darwin-arm64');
-  for (const file of ['libcua_driver_sdk.dylib', 'cua_driver_node_runtime.node']) {
-    if (!existsSync(path.join(native, file))) fail(`Computer Use driver SDK is missing its native ${file} outside the archive`);
-  }
-  const walk = (dir) => readdirSync(dir, { withFileTypes: true }).flatMap((e) => e.isDirectory() ? walk(path.join(dir, e.name)) : [path.join(dir, e.name)]);
-  for (const file of walk(path.join(unpacked, '@trycua'))) {
-    const name = path.basename(file);
-    if (name === 'cua-driver' || /perception/i.test(name)) fail(`a Computer Use driver component other than the SDK is packaged: ${file}`);
+const archivedPaths = asar.listPackage(files.asar);
+for (const name of ['@trycua', '@ubjs']) {
+  if (existsSync(path.join(unpacked, name)) || archivedPaths.some(p => p.includes(`/node_modules/${name}/`))) {
+    fail(`retired Computer Use dependency is packaged: ${name}`);
   }
 }
 
 const packagedMain = asar.extractFile(files.asar, 'out/main/index.js').toString('utf8');
+
+for (const marker of ['Let Tasks Look at Other Apps', 'Let Tasks Use Other Apps',
+  'createLookService', 'createLookDriver', 'isTrustedAccessibilityClient']) {
+  if (packagedMain.includes(marker)) fail(`retired Computer Use integration is packaged: ${marker}`);
+}
+const packagedEngine = readFileSync(files.engine, 'utf8');
+for (const name of ['LookAtAppTool', 'PressInAppTool', 'TypeInAppTool', 'ScrollInAppTool']) {
+  if (packagedEngine.includes(name)) fail(`retired Computer Use engine tool is packaged: ${name}`);
+}
 
 // A shipped build must resolve its engine from inside the bundle and must not obey an environment
 // override — "cannot walk to ../src or silently compile whichever engine happens to be beside it"
@@ -115,5 +114,5 @@ if (!/new\s+(?:[\w$]+\.)*Worker\s*\(/.test(packagedMain)) {
 
 console.log(`desktop package gate: PASS ${bundle}`);
 console.log(`desktop package gate: PASS ${expectedArchitecture} app executable and bundled engine`);
-console.log('desktop package gate: PASS no Computer Use sidecar is packaged; the only Computer Use part is the pinned driver SDK (record 65: look, press and type in apps the person allows)');
+console.log('desktop package gate: PASS no Computer Use sidecar or driver SDK is packaged');
 console.log('desktop package gate: PASS packaged run resolves the engine from the bundle, as a worker thread, with no override');

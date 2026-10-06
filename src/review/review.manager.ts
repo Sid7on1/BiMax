@@ -7,7 +7,7 @@ import {
   ReviewFacts, ReviewApprovalKind, emptyFacts, toSnapshot, readsAsApproved, pendingApprovals,
 } from './review.model';
 import { CLAIMING_TOOLS } from '../core/agent.loop';
-import { commandPathTokens } from '../mind/epistemic.ledger';
+import { isRepoWideEvidenceCommand } from '../mind/epistemic.ledger';
 
 /**
  * The review recorder — the single producer of per-thread review state, shaped exactly like the
@@ -131,7 +131,7 @@ export class ReviewManager {
     this.facts.verifications.push({
       command: String(e.command).slice(0, 200), ok: !!e.ok, settled: Number(e.settled) || 0, at: Date.now(),
       coveredFiles: Array.isArray(e.coveredFiles) ? [...new Set(e.coveredFiles.map(String))] : [],
-      repoWide: e.repoWide === true || (e.repoWide === undefined && !!e.ok && commandPathTokens(e.command).length === 0),
+      repoWide: e.repoWide === true || (e.repoWide === undefined && !!e.ok && isRepoWideEvidenceCommand(e.command)),
     });
     if (this.facts.verifications.length > VERIFICATION_CAP) {
       this.facts.verifications.splice(0, this.facts.verifications.length - VERIFICATION_CAP);
@@ -228,7 +228,7 @@ export class ReviewManager {
         verifications: Array.isArray(parsed.verifications) ? parsed.verifications.map((v: any) => ({
           ...v,
           coveredFiles: Array.isArray(v.coveredFiles) ? v.coveredFiles.map(String) : [],
-          repoWide: v.repoWide === true || (v.repoWide === undefined && !!v.ok && commandPathTokens(String(v.command || '')).length === 0),
+          repoWide: v.repoWide === true || (v.repoWide === undefined && !!v.ok && isRepoWideEvidenceCommand(String(v.command || ''))),
         })) : [],
         checkpoints: Array.isArray(parsed.checkpoints) ? parsed.checkpoints : [],
         todos: Array.isArray(parsed.todos) ? parsed.todos : [],

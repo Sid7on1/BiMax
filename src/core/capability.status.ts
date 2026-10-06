@@ -1,4 +1,5 @@
 import { engineEvents } from '../engine/events';
+import { isReplayActive } from './replay.scope';
 
 export type CapabilityState = 'degraded' | 'unavailable' | 'ready';
 export interface CapabilityStatus {
@@ -24,6 +25,7 @@ export function capabilityMessage(status: CapabilityStatus) {
   };
 }
 export function reportCapability(input: Omit<CapabilityStatus, 'observedAt'>): void {
+  if (isReplayActive()) return;
   if (!states.has(input.id) && input.state === 'ready') return;
   const status = { ...input, observedAt: new Date().toISOString() };
   // Reserve one slot for overflow. Never evict an unresolved failure to show another one.

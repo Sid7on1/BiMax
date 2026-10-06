@@ -70,10 +70,6 @@ import { createSpawnSubagentTool } from '../tools/implementations/spawn.tool';
 import { createTasksTool } from '../tools/implementations/tasks.tool';
 import { createNotebookEditTool } from '../tools/implementations/notebook.tool';
 import { createThreadMessageTool } from '../tools/implementations/thread.message.tool';
-import { createLookTool } from '../tools/implementations/look.tool';
-import { createPressTool } from '../tools/implementations/press.tool';
-import { createTypeTool } from '../tools/implementations/type.tool';
-import { createScrollTool } from '../tools/implementations/scroll.tool';
 import { createDocumentTool } from '../tools/implementations/document.tool';
 import { createRegisterAgentTool } from '../tools/implementations/register.tool';
 import { createAskUserTool } from '../tools/implementations/ask_user.tool';
@@ -214,7 +210,7 @@ export async function createContainer(config?: Partial<EngineConfig>): Promise<{
   toolRegistry.register(createRelatedTestsTool(governor));
   toolRegistry.register(createDeleteTool(governor));
   toolRegistry.register(createMakeDirTool(governor));
-  toolRegistry.register(createBashTool(governor, () => toolRegistry.getToolNames()));
+  toolRegistry.register(createBashTool(governor));
   toolRegistry.register(createGrepTool(governor));
   toolRegistry.register(createGlobTool(governor));
   toolRegistry.register(createTodoWriteTool(governor));
@@ -408,15 +404,6 @@ export async function createContainer(config?: Partial<EngineConfig>): Promise<{
   toolRegistry.register(createNotebookEditTool(governor));
   toolRegistry.register(createDocumentTool(governor));
   if (process.env.BIMAX_THREAD_ID) toolRegistry.register(createThreadMessageTool(governor));
-  // Computer Use, look only (record 65 stage 2): the app sets this for a Bimax Thread only when the user turned it on.
-  if (process.env.BIMAX_COMPUTER_LOOK === '1') toolRegistry.register(createLookTool(governor));
-  // Stage 6 (§6h): using other apps — press and type — only where looking is on too. The app asks before any step that
-  // sends, buys, deletes or confirms.
-  if (process.env.BIMAX_COMPUTER_LOOK === '1' && process.env.BIMAX_COMPUTER_USE === '1') {
-    toolRegistry.register(createPressTool(governor));
-    toolRegistry.register(createTypeTool(governor));
-    toolRegistry.register(createScrollTool(governor));
-  }
   toolRegistry.register(createRegisterAgentTool(governor, toolRegistry));
   toolRegistry.register(createAskUserTool(governor, llmAdapter));
   toolRegistry.register(createGitTool(governor));

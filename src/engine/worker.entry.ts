@@ -1,3 +1,4 @@
+import { inheritRunBudget } from '../core/run.budget';
 // The egress perimeter must go up before any module here opens a socket — see
 // security/egress.perimeter.ts for why the guard lives beneath the code rather than beside it.
 import { installEgressPerimeter } from '../security/egress.perimeter';
@@ -9,7 +10,7 @@ import { EventBus } from '../core/event.bus';
 import { buildKeyPool } from './provider';
 import { SubAgentConfig, SUB_RESULT, SUB_ERROR, SUB_EVENT, SUB_READY, MAX_SUBAGENT_DEPTH } from '../core/subagent.manager';
 import { loadConfig } from './config';
-import { SkillLoader } from './skills.loader';
+import { PersonaConfigLoader } from './persona.config.loader';
 import { DynamicPersona } from './personas/dynamic.persona';
 import { ToolRegistry } from '../tools/tool.registry';
 import { LlmAdapter } from '../core/llm.adapter';
@@ -68,6 +69,7 @@ async function runSubAgentCore(
   // lives in bash.tool.ts (kernel sandbox via the thread-local FLOOR_ENV), but the Node-side
   // file tools must be confined too — narrow the governor's workspace boundary to the episode
   // root so Write/Edit/Delete outside the worktree are vetoed in-process.
+  inheritRunBudget(config.runBudget instanceof SharedArrayBuffer ? config.runBudget : workerData?.runBudget);
   const episodeFloor = floorRoot();
   if (episodeFloor) SafetyPolicy.allowedWorkspace = episodeFloor;
 
@@ -215,11 +217,11 @@ async function runSubAgentCore(
     else if (config.agentType === 'OpenClaw') agent = new OpenClawPersona(toolRegistry, llmAdapter);
     else if (config.agentType === 'BiMax') agent = new BiMaxPersona(toolRegistry, llmAdapter);
     else {
-      // Must load skills again in this thread
-      SkillLoader.loadSkills();
-      const skillConfig = SkillLoader.getSkill(config.agentType);
-      if (skillConfig) {
-        agent = new DynamicPersona(skillConfig, toolRegistry, llmAdapter);
+      // Each worker loads its own persona configuration
+      PersonaConfigLoader.loadPersonas();
+      const personaConfig = PersonaConfigLoader.getPersona(config.agentType);
+      if (personaConfig) {
+        agent = new DynamicPersona(personaConfig, toolRegistry, llmAdapter);
       } else {
         // Unknown/blank type → spawn BiMax itself rather than failing the whole sub-agent.
         agent = new BiMaxPersona(toolRegistry, llmAdapter);

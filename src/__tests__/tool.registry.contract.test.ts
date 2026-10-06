@@ -29,12 +29,24 @@ interface Finding { tool: string; detail: string }
 let tools: Array<{ name: string; schema: any; description?: string }> = [];
 
 beforeAll(async () => {
+  // Stale launch flags must not register the retired capability in either product surface.
+  process.env.BIMAX_COMPUTER_LOOK = '1';
+  process.env.BIMAX_COMPUTER_USE = '1';
+  process.env.BIMAX_COMPUTER_PRESS = '1';
   const { toolRegistry } = await createContainer(await loadConfig());
   const registry = toolRegistry as any;
   tools = (registry.getToolNames() as string[])
     .map((name) => registry.getTool(name))
     .filter(Boolean)
     .map((t: any) => ({ name: t.name ?? t.definition?.name, schema: t.schema ?? t.definition?.schema ?? t.parameters, description: t.description ?? t.definition?.description }));
+});
+
+test('the real model registry has coding tools and no Computer Use, even with old flags enabled', () => {
+  const names = tools.map(t => t.name);
+  expect(names).toContain('BashTool');
+  for (const name of ['LookAtAppTool', 'PressInAppTool', 'TypeInAppTool', 'ScrollInAppTool']) {
+    expect(names).not.toContain(name);
+  }
 });
 
 test('the registry is not empty — a container that registers nothing would pass every check below', () => {

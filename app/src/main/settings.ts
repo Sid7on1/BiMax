@@ -60,22 +60,6 @@ export interface AppSettings {
   notchRecall?: boolean;
   /** Talk mode keeps listening while Bimax speaks, so the person can interrupt by talking (FL10). Off when absent. */
   talkBargeIn?: boolean;
-  /**
-   * Computer Use, look only (record 65 stage 2): new ⌘2 tasks may ask to look at other apps' windows; each app still
-   * asks per task on a card. Off when absent — it is only ever turned on by the person, from the menu bar item.
-   */
-  computerLook?: boolean;
-  /**
-   * Retired (record 65 stage 3's "press in the test app" switch). Kept so an existing settings file still parses; nothing
-   * reads it, and it never turns on {@link computerUse}.
-   */
-  computerPress?: boolean;
-  /**
-   * Computer Use, using other apps (record 65 stage 6, §6h): new ⌘2 tasks that may look may also press and type in an
-   * app the person allows per task; anything that sends, buys, deletes or confirms is asked on a card first. Off when
-   * absent; only meaningful with computerLook on.
-   */
-  computerUse?: boolean;
   /** Folders with an outcome, keyed by real path (folder.outcomes.ts, backlog FL1 part 2). */
   folderOutcomes?: Record<string, import('./folder.outcomes').FolderOutcome>;
 }
@@ -89,6 +73,10 @@ function settingsPath(): string {
 export function loadSettings(): AppSettings {
   try {
     const raw = JSON.parse(readFileSync(settingsPath(), 'utf8'));
+    if (raw && typeof raw === 'object') {
+      // Retire only these preview switches; preserve conversations and all other preferences.
+      for (const key of ['computerLook', 'computerPress', 'computerUse']) delete raw[key];
+    }
     return raw && typeof raw === 'object' ? (raw as AppSettings) : {};
   } catch {
     return {}; // first run / unreadable — defaults

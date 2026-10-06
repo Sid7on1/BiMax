@@ -18,7 +18,7 @@ const HANDLED: Record<string, string> = {
 };
 /**
  * Answered by the host itself: a reply resolves a pending request, a ping is answered with a pong, and a host_result
- * resolves a pending host call (record 65) — proven end to end through the port host below.
+ * is ignored after Computer Use retirement — proven end to end through the port host below.
  */
 const HOST_OWN = new Set(['reply', 'ping', 'host_result']);
 
@@ -42,21 +42,26 @@ test('each inbound kind reaches its handler through the port host', async () => 
 
 // The heartbeat's own test is in port.host.test.ts ('the heartbeat goes out on the port, through the queue …').
 
-test('a host_result reaches the waiting host call through the real port host (record 65)', async () => {
+test('a retired host call refuses immediately and sends nothing to the app', async () => {
   const { port1, port2 } = new MessageChannel();
   const emitter = new EventEmitter();
   const outbound: any[] = [];
-  // The port host posts each outbound message serialized once, as JSON text (port.host.ts).
-  port2.on('message', (frame) => { for (const line of String(frame).split('\n').filter(Boolean)) { try { outbound.push(JSON.parse(line)); } catch { /* not a frame */ } } });
+  port2.on('message', (frame) => { for (const line of String(frame).split('\n').filter(Boolean)) { try { outbound.push(JSON.parse(line)); } catch {} } });
   const dispose = startPortHost({ emitter, port: port1 } as any);
   const results: unknown[] = [];
-  emitter.emit('host_call', 'look', 'list_apps', {}, (r: unknown) => results.push(r));
-  await new Promise((resolve) => setTimeout(resolve, 30));
-  const call = outbound.find((m) => m && m.t === 'host_call');
-  expect(call).toMatchObject({ t: 'host_call', capability: 'look', op: 'list_apps' });
-  port2.postMessage({ t: 'host_result', id: call.id, ok: true, value: { text: 'Notes' } });
-  await new Promise((resolve) => setTimeout(resolve, 30));
-  dispose();
-  port1.close(); port2.close();
-  expect(results).toEqual([{ ok: true, value: { text: 'Notes' }, error: undefined }]);
+  try {
+    for (const capability of ['look', 'press', 'type', 'scroll']) {
+      emitter.emit('host_call', capability, 'old_operation', {}, (r: unknown) => results.push(r));
+    }
+    await new Promise(resolve => setTimeout(resolve, 30));
+    expect(outbound.filter(m => m.t === 'host_call')).toEqual([]);
+    expect(results).toEqual(Array(4).fill({ ok: false, error: 'Computer Use has been removed from Bimax.' }));
+    port2.postMessage({ t: 'host_result', id: 1, ok: true, value: { text: 'Notes' } });
+    await new Promise(resolve => setTimeout(resolve, 30));
+    expect(results).toHaveLength(4);
+    // Positive control: the coding protocol remains live on this exact port.
+    port2.postMessage({ t: 'ping', id: 71 });
+    await new Promise(resolve => setTimeout(resolve, 30));
+    expect(outbound).toContainEqual({ t: 'pong', id: 71 });
+  } finally { dispose(); port1.close(); port2.close(); }
 });

@@ -1,6 +1,17 @@
 # Migration roadmap
 
-> **Current program, 2026-10-02:** record 65 governs the optional app-owned Computer Use return. Stages 2 and 3
+## Computer Use retired — owner decision, 2026-10-04
+
+The owner explicitly withdrew Computer Use: “roll off the bimax cu completely keep it in archive again i dont
+want that feature at all”. [66_COMPUTER_USE_RETIREMENT_RECORD.md](66_COMPUTER_USE_RETIREMENT_RECORD.md) governs the
+current boundary. The look/press/type/scroll tools, app services, preview switches, Accessibility request path,
+native driver dependency and feature proof scripts are archived outside the repository. Saved flags cannot restore
+them; stale host requests and governor COMPUTER_CONTROL requests refuse. Coding, Bimax Threads, Finder folder
+selection and on-device dictation remain. Records 55/64 still govern engine workers in the monolith. Record 65 and
+its measurements below are historical evidence, not an active rollout or authorization to reintroduce the feature.
+
+
+> **Historical program, 2026-10-02 — superseded by record 66:** record 65 governs the optional app-owned Computer Use return. Stages 2 and 3
 > have installed exit evidence; stage 4 was declined; stage 5 was set aside by the owner with X01 unmeasured. Stage 6
 > general abilities (press, type, Return, pick, scroll, an explicitly approved foreground step) are Implemented and
 > locally Measured as detailed in §6h. Missing-name recovery suggests observed controls but still refuses the action.

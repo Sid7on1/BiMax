@@ -1,0 +1,21 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { AgentLoop } from '../../../../src/core/agent.loop';
+import { EpisodeWriter, RecordingProvider } from '../../../../src/mind/episode.recorder';
+import { initialEngineState } from '../../../../app/src/renderer/src/engine.state';
+const base='/tmp/bimax-fresh-chat-runtime', project=path.join(base,'repo'), data=path.join(base,'user-data');
+fs.mkdirSync(project,{recursive:true}); fs.mkdirSync(path.join(project,'.git'),{recursive:true});
+fs.mkdirSync(path.join(data,'threads'),{recursive:true});
+fs.writeFileSync(path.join(project,'package.json'),'{}');
+const writer=new EpisodeWriter(project);
+let call=0;
+const provider={async *chat() { if(call++===0) yield {type:'tool_call' as const,id:'old-recorded-call',name:'ListTool',args:'{}'}; else yield {type:'token' as const,text:'Recorded answer.'}; yield {type:'done' as const}; }};
+const registry={getSchemas:()=>[{type:'function',function:{name:'ListTool',parameters:{type:'object',properties:{}}}}],getTool:()=>({name:'ListTool',isConcurrencySafe:false,execute:async()=> 'STALE_TOOL_OUTPUT'})};
+const loop=new AgentLoop(new RecordingProvider(provider,writer),registry as any);
+for await(const _ of loop.execute([{role:'user',content:'old task'}],'fixture system',{maxIterations:4})){}
+const summary={id:'fixture-old',root:project,title:'Previous fixture conversation',updatedAt:Date.now(),status:'idle',peers:[],origin:'project'};
+const callEntry={id:'saved-old-card',toolName:'ListTool',input:'{}',output:'STALE_TOOL_OUTPUT',status:'success',startTime:new Date().toISOString(),endTime:new Date().toISOString()};
+const state={...initialEngineState,threadId:summary.id,project,items:[{kind:'msg',msg:{id:'old-user',role:'user',content:'PREVIOUS_CONVERSATION',timestamp:new Date().toISOString()}},{kind:'tool',call:callEntry}]};
+fs.writeFileSync(path.join(data,'threads/fixture-old.json'),JSON.stringify({summary,state}));
+fs.writeFileSync(path.join(base,'fixture.json'),JSON.stringify({base,project,data,episodeId:writer.id}));
+console.log('Created synthetic old chat and real recorded episode; no provider called.');

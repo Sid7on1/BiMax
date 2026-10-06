@@ -68,9 +68,12 @@ describe('BashTool hands the model output with no terminal escapes', () => {
   }, 30_000);
 
   it('leaves TERM alone, because TERM=dumb breaks build scripts that call tput', async () => {
-    const tool = load();
-    const res = await tool.execute({ command: 'echo "TERM=[$TERM]"' }, { cwd: process.cwd() });
-    const text = typeof res === 'string' ? res : res.text ?? JSON.stringify(res);
-    expect(text).not.toContain('TERM=[dumb]');
+    const previous = process.env.TERM; process.env.TERM = 'xterm-256color';
+    try {
+      const tool = load();
+      const res = await tool.execute({ command: 'echo "TERM=[$TERM]"' }, { cwd: process.cwd() });
+      const text = typeof res === 'string' ? res : res.text ?? JSON.stringify(res);
+      expect(text).toContain('TERM=[xterm-256color]');
+    } finally { if (previous === undefined) delete process.env.TERM; else process.env.TERM = previous; }
   }, 30_000);
 });

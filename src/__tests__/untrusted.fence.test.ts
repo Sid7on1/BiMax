@@ -23,9 +23,9 @@ describe('fenceUntrusted', () => {
       .toBe('<untrusted source="mcp: mcp__github__search_issues">\nrows\n</untrusted>');
   });
 
-  test('Bimax\'s own tools and empty output are left alone', () => {
-    expect(fenceUntrusted('ReadFileTool', '{"path":"a.ts"}', 'const a = 1;')).toBe('const a = 1;');
-    expect(fenceUntrusted('BashTool', '{"command":"ls"}', 'a\nb')).toBe('a\nb');
+  test('repository data is fenced; local status and empty output are left alone', () => {
+    expect(fenceUntrusted('ReadFileTool', '{"path":"a.ts"}', 'const a = 1;')).toBe('<untrusted source="file: a.ts">\nconst a = 1;\n</untrusted>');
+    expect(fenceUntrusted('BashTool', '{"command":"ls"}', 'a\nb')).toBe('<untrusted source="shell: ls">\na\nb\n</untrusted>');
     expect(fenceUntrusted('WebFetchTool', '{"url":"https://x"}', '  ')).toBe('  ');
   });
 

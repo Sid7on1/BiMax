@@ -21,15 +21,22 @@ function fakeBin(): BinOps & { trashed: string[]; restored: string[] } {
   return {
     trashed, restored,
     async moveToBin(target) { trashed.push(target); fs.rmSync(target, { recursive: true, force: true }); return null; },
-    async restoreFromBin(_trashPath, original) { restored.push(original); fs.writeFileSync(original, 'from the Bin'); },
+    async restoreFromBin(trashPath, original) { restored.push(original); fs.renameSync(trashPath, original); },
   };
 }
 
 beforeEach(() => {
   root = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'undo-root-')));
   state = fs.mkdtempSync(path.join(os.tmpdir(), 'undo-state-'));
+  jest.spyOn(os, 'homedir').mockReturnValue(path.join(state, 'home'));
+  for (const [folder, name] of [['.Trash', 'old.txt'], ['Library/Mobile Documents/.Trash', 'Agents.docx']]) {
+    const source = path.join(os.homedir(), folder!, name!);
+    fs.mkdirSync(path.dirname(source), { recursive: true });
+    fs.writeFileSync(source, 'from the Bin');
+  }
 });
 afterEach(() => {
+  jest.restoreAllMocks();
   fs.rmSync(root, { recursive: true, force: true });
   fs.rmSync(state, { recursive: true, force: true });
 });

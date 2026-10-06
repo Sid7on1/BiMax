@@ -1,9 +1,13 @@
 import { EventEmitter } from 'events';
 import { appStore } from '../state/app.state';
 import { recordToolCall } from './toolHistory';
+import { isReplayActive } from '../core/replay.scope';
 
 class AppEventEmitter extends EventEmitter {
   emit(event: string | symbol, ...args: any[]): boolean {
+    // The lab's recorded calls are evaluation data. Delivering them here also writes them to the
+    // live session recorder, review state and UI, so suppress the entire live event seam in replay.
+    if (isReplayActive()) return false;
     const result = super.emit(event, ...args);
     
     // Bridge to new appStore state
@@ -119,7 +123,7 @@ export interface MessageEntry {
 // - tool_call: (call: ToolCallEntry) => A tool started running
 // - tool_call_result: (call: ToolCallEntry) => A tool finished (status success/error)
 // - veto_prompt: (question, options, resolve, isAskPrompt?) => Triggers permission overlay
-// - host_call: (capability, op, args, resolve) => Asks the hosting app (record 65; ProtocolHost → host_call)
+// - host_call: retired compatibility event; ProtocolHost resolves it unavailable without contacting the app.
 // - spinner_state: (state: AgentState, message?: string) => Updates the footer status indicator
 // - status: (text: string) => Status bar update
 // - mode_change: (mode: string) => Governor mode change (footer)

@@ -16,7 +16,8 @@ export type JournalOp =
   | { op: 'move'; from: string; to: string }
   | { op: 'create'; path: string }
   | { op: 'restore'; path: string; backup: string }
-  | { op: 'trash'; path: string; trashPath: string | null };
+  | { op: 'trash'; path: string; trashPath: string | null }
+  | { op: 'unprotected'; path: string; reason: string };
 
 export interface JournalEntry { type: 'change'; id: string; at: number; title: string; tool: string; ops: JournalOp[] }
 
@@ -43,13 +44,18 @@ export async function recordBeforeChange(plan: ChangePlan, tool: string): Promis
   let n = 0;
   for (const target of plan.overwrites) {
     try {
+      if ((await fs.lstat(target)).isSymbolicLink()) throw new Error('a symlink replacement cannot be reversed by this journal');
       const stat = await fs.stat(target);
-      if (!stat.isFile() || stat.size > MAX_BACKUP_BYTES) continue;
+      if (!stat.isFile()) throw new Error('the pre-change path is not a regular file');
+      if (stat.size > MAX_BACKUP_BYTES) throw new Error(`file exceeds the ${MAX_BACKUP_BYTES} byte backup limit`);
       const backup = path.join(journalDir(), 'backups', id, `${n++}-${path.basename(target)}`);
       await fs.mkdir(path.dirname(backup), { recursive: true });
       await fs.copyFile(target, backup);
       ops.push({ op: 'restore', path: target, backup });
-    } catch { /* unreadable: there is nothing to restore, so no step for it */ }
+    } catch (error) {
+      // Keep the coverage gap in the same entry; omitting it would make a partial change look reversible.
+      ops.push({ op: 'unprotected', path: target, reason: (error as Error).message });
+    }
   }
   if (!ops.length) return null;
   const entry: JournalEntry = { type: 'change', id, at: Date.now(), title: plan.title, tool, ops };

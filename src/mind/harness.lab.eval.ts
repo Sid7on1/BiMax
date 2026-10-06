@@ -18,7 +18,7 @@ import {
  * effects: both arms of every pair go through replayEpisode, whose LLM responses come
  * from the recording (ReplayProvider) and whose "tools" only re-serve recorded result
  * strings — no real tool, shell, network, or model call can occur, and the learning
- * observers stand down (setReplayActive). Recorded content is treated as untrusted data
+ * observers stand down inside an async-local replay scope. Recorded content is treated as untrusted data
  * to be measured, never as instructions to execute.
  *
  * What a pair honestly measures (all labeled 'measured' in the gate evidence):

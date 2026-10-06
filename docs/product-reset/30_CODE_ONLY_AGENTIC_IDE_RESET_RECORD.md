@@ -1,5 +1,10 @@
 # Code-only agentic IDE reset record
 
+> **Boundary reinstated 2026-10-04.** [Record 66](66_COMPUTER_USE_RETIREMENT_RECORD.md) retires record 65's opt-in
+> tools and driver. The current code-only gate is at the top of `08_ACCEPTANCE_GATES.md`. The historical blanket
+> Microphone/TCC ban below does not remove existing on-device dictation or Finder folder selection; their explicit
+> user gestures retain Microphone and Finder AppleEvents ownership. No Accessibility or Screen Recording flow ships.
+
 Status: Implemented boundary and locally verified, 2026-09-02.
 
 ## Owner decision

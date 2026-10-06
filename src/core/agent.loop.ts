@@ -1,3 +1,4 @@
+import { activeRunBudget, createRunBudget, inRunBudget } from './run.budget';
 import { setTimeout as delay } from 'node:timers/promises';
 import { reportCapability } from './capability.status';
 import { LLMProvider, Message, ChatEvent } from './llm.provider';
@@ -28,7 +29,7 @@ import { runToolRound, type ToolRoundHost } from './agent.tool.round';
 export { PREPARATORY_MOTION_ACTIONS, terminalCapabilityBlocker, sanitizeToolArgs } from './agent.tool.round';
 import { taskMetrics } from '../telemetry/task.metrics';
 import type { TypedOutcome } from '../tools/outcome';
-import { startEpisodeRecording } from '../mind/episode.recorder';
+import { startEpisodeRecording, isReplayActive } from '../mind/episode.recorder';
 import { getTracer } from '../telemetry/trace';
 import { applyImplicitWriteConstraints, applyImplicitDocumentConstraints } from '../tools/write.constraints';
 import { canonicalToolArgs } from './tool.args';
@@ -243,6 +244,7 @@ export class AgentLoop {
   }
 
   private takeSteering(): void {
+    if (isReplayActive()) return;
     for (const text of drainSteer()) {
       this.messages.push({ role: 'user', content: steerMessage(text) });
       engineEvents.emit('steered', { text });
@@ -287,13 +289,23 @@ export class AgentLoop {
     options?: AgentLoopOptions,
     context?: any
   ): AsyncGenerator<string> {
+    const buffer = activeRunBudget() ?? createRunBudget();
+    const run = (messages: Message[], prompt: string, opts: AgentLoopOptions | undefined) => {
+      const iterator = this.run(messages, prompt, opts, context);
+      return {
+        [Symbol.asyncIterator]() { return this; },
+        next: () => inRunBudget(buffer, () => iterator.next()),
+        return: () => inRunBudget(buffer, () => iterator.return(undefined)),
+        throw: (error: unknown) => inRunBudget(buffer, () => iterator.throw(error)),
+      };
+    };
     const minutes = options?.maxMinutes ?? 0;
-    if (!(minutes > 0)) { yield* this.run(initialMessages, systemPrompt, options, context); return; }
+    if (!(minutes > 0)) { yield* run(initialMessages, systemPrompt, options); return; }
     const limit = new AbortController();
     const timer = setTimeout(() => limit.abort(), minutes * 60_000);
     const signal = options?.signal ? AbortSignal.any([options.signal, limit.signal]) : limit.signal;
     try {
-      yield* this.run(initialMessages, systemPrompt, { ...options, signal }, context);
+      yield* run(initialMessages, systemPrompt, { ...options, signal });
     } finally {
       clearTimeout(timer);
     }
@@ -823,7 +835,7 @@ export class AgentLoop {
     context: any, signal: AbortSignal | undefined,
   ): AsyncGenerator<string, 'continue' | 'stop'> {
     // Steering that arrived during this last step: the task is not over until it has been read (F7).
-    if (hasSteer()) { this.takeSteering(); return 'continue'; }
+    if (!isReplayActive() && hasSteer()) { this.takeSteering(); return 'continue'; }
     // A turn with no tool call that collapsed to pure filler gave the user
     // nothing. Rather than silently ending on an empty reply, nudge the model
     // once to answer directly and let the loop run again. Guarded against spin.
@@ -843,7 +855,7 @@ export class AgentLoop {
     // Only auto-continue when THIS turn is actively working the checklist. The list is now
     // durable across turns (for prompt injection), so without this gate a stray follow-up
     // message after a task with open items would wrongly force a continue.
-    const incomplete = todosTouchedThisTurn()
+    const incomplete = !isReplayActive() && todosTouchedThisTurn()
       ? getActiveTodos().filter(t => t.status !== 'completed')
       : [];
     if (incomplete.length > 0 && st.persistenceNudges < st.MAX_PERSISTENCE_NUDGES) {
@@ -869,7 +881,7 @@ export class AgentLoop {
     }
     let outcomeNudge = '';
     try {
-      outcomeNudge = getOutcomeManager().continuationPrompt();
+      if (!isReplayActive()) outcomeNudge = getOutcomeManager().continuationPrompt();
     } catch { /* root outcome runtime is optional in workers/tests */ }
     if (outcomeNudge && st.persistenceNudges < st.MAX_PERSISTENCE_NUDGES) {
       st.persistenceNudges++;
@@ -896,7 +908,7 @@ export class AgentLoop {
     }
     // Completion checks (F3): before the turn may end "done", the engine runs the task's checks itself and grades
     // them by the exit code and files it observed. A failure within the retry limit sends the task back to work.
-    const completion = getCompletionChecks();
+    const completion = isReplayActive() ? null : getCompletionChecks();
     if (completion && !signal?.aborted) {
       const verdict = await completion.settle((command) => this.runCheckCommand(command, context, signal, options?.sessionId), context?.cwd || process.cwd());
       if ('continue' in verdict) {
@@ -950,10 +962,11 @@ export class AgentLoop {
     const rootSpan = tracer.startSpan('invoke_agent bimax', {
       'gen_ai.operation.name': 'invoke_agent',
       'gen_ai.agent.name': 'bimax',
+      'bimax.replay': isReplayActive(),
     });
     // Per-task counters. A nested execute() (sub-agent) is ignored by begin(), so the outer task
     // keeps owning the turn count — see src/telemetry/task.metrics.ts.
-    taskMetrics.begin(options?.metricsLabel);
+    if (!isReplayActive()) taskMetrics.begin(options?.metricsLabel);
     try {
 
     for (let i = 0; i < st.maxIter; i++) {
@@ -1000,7 +1013,7 @@ export class AgentLoop {
       const round = new RoundState();
 
       st.llmRounds++;
-      taskMetrics.recordTurn();
+      if (!isReplayActive()) taskMetrics.recordTurn();
       const chatSpan = tracer.startSpan(
         `chat ${String((this.llm as any)?.userModel || (this.llm as any)?.defaultModel || 'unknown')}`,
         {
@@ -1107,8 +1120,10 @@ export class AgentLoop {
       rootSpan.end();
       // Close the task on every exit path, including throw and interrupt. An interrupted task is
       // recorded but flagged, so its short turn count is never read as efficiency.
-      if (signal?.aborted) taskMetrics.markInterrupted();
-      taskMetrics.end();
+      if (!isReplayActive()) {
+        if (signal?.aborted) taskMetrics.markInterrupted();
+        taskMetrics.end();
+      }
     }
   }
 }

@@ -1,6 +1,121 @@
 # Bimax gap register
 
-## Computer Use return — 2026-10-01, record 65
+## PDF production and reading — 2026-10-06, round 4
+
+[Record 74](../74_PDF_RELIABILITY_SPRINT.md): **Implemented and locally verified.** Footers no
+longer create an additional page, and every completed page is numbered. Final text pages survive;
+real errors retain their diagnosis. PDF subprocess deadlines/Stop/captured-byte bounds and fresh
+owned render jobs replace unbounded execution and stale/missing-image acceptance. Mixed documents
+render only the unreadable-page envelope; OCR consumers dispose jobs on success/failure. This
+repairs a reproduced unnecessary-OCR cause of prior layout timeouts. General native OCR,
+recognizer cancellation, whole-document/raster resource budgets, installed/provider/full R01 and
+measured performance remain Target/unmeasured. Outputs Shelf remains Target; Computer Use retired.
+
+Local qualification: 50 focused tests, 26 assertion-caught mutants, 3,949 Jest / 132 Bun tests,
+root/app builds/typechecks and seven staged engine exchanges pass; three bundled PDF pages are
+independently read and visually inspected. This is local evidence, not installed/provider qualification.
+
+## Bimax Thread undo coverage and progress — 2026-10-06, round 3
+
+[Record 73](../73_THREAD_UNDO_RELIABILITY_SPRINT.md): **Implemented and locally verified.** Undo
+preflights saved copies and canonical paths, serializes aliases/batches, stages replacements before
+Bin moves and checks disk postconditions. Indexed verified receipts let retries skip completed
+steps and retain later human edits; history exposes progress and missing coverage. Engine backup
+failures remain explicit as unprotected operations. Sixty-seven focused tests and nineteen
+behavioral mutants pass. Installed Finder/permission, crash durability, historical backup
+integrity, cross-process atomicity, full R01 and measured performance remain Target/unmeasured.
+The known PDF-layout timeout issue is retained and unresolved.
+
+## Transaction coverage and recovery — 2026-10-06, round 2
+
+[Record 72](../72_TRANSACTION_RELIABILITY_SPRINT.md): **Implemented and locally verified.** Same-path
+captures coalesce; pending tracking and restoration fence lifecycle commands; multiple unresolved
+recoveries survive later rollback. Byte/mode read-back applies to forced rollback too. A shared
+64 MiB baseline budget bounds simultaneous captures and retained recovery buffers; status exposes
+coverage and memory. Forty-four focused tests and twenty-one behavioral mutants pass. Full R01,
+installed/provider/crash recovery, external-writer atomicity and measured RSS/energy/latency remain
+Target/unmeasured. Broad and isolated PDF timeout failures are preserved, not claimed repaired.
+
+## Background command inspection and cancellation — 2026-10-06
+
+[Record 71](../71_BACKGROUND_TASK_RELIABILITY_SPRINT.md): **Implemented and locally verified.**
+TasksTool now reaches shell IDs returned by BashTool, including bounded output,
+exit/failure state and real pause/resume/stop. Wait targets one task, responds to Stop and uses
+one deadline instead of periodic scans. Paused/resistant process cancellation, paused-close
+lifecycle, fragmented UTF-8/lines, explicit short timeouts and synchronous failed-spawn success
+are repaired. Thirteen mutants, 3,870 Jest / 132 Bun tests, builds and seven staged worker exchanges
+pass; 316 unrelated dirty-file hashes remain unchanged. An initial PDF-routing timeout run and its
+unchanged passing reruns are retained. Output stays untrusted; inspection cannot certify code correctness. Full installed
+C04/R01, live providers, escaped process groups and measured performance remain Target/unmeasured.
+
+## Fresh-chat/replay repair — Implemented, locally verified, 2026-10-05
+
+[Record 69](../69_FRESH_CHAT_AND_REPLAY_ISOLATION.md) replaces latest-chat auto-resume on explicit
+repository open, renames New and isolates real recorded harness replay from live events and state.
+Eight behavioral mutations qualify the focused assertions. Full R01, provider-backed installed
+conversation, crash/reaper/load performance and distribution remain unmeasured.
+
+[Record 70](../70_CODE_BEHAVIOR_ENGINE_RECOMMENDATIONS.md) proposes a narrower engineering wedge:
+follow one TypeScript app behavior through browser/server/data/code → produce a reproducer → change
+intent across the stack → compare behavior across revisions. All four slices remain **Target**;
+no novelty/Win claim and no replacement of record 67's selected Outputs Shelf scope.
+
+
+## Supplied fault audit — Implemented and locally verified, 2026-10-04
+
+[Record 68](../68_FAULT_AUDIT_AND_REPAIR.md) closes reproduced gaps in background/retry OS isolation,
+blanket shell grants, approval answer validation, hard-loop halt, direct task verification, build
+criterion scope, file-derived provenance, trace export redaction, shared per-run admission budgets,
+VectorStore reload cost and camelCase BM25 retrieval. Permission checks are stricter than concurrency
+classification. Scoped green runner verification requires execution evidence, not a filename alone.
+The VectorStore cache uses nanosecond file identity and rejects stale identity association after a
+save/external-writer race. An intermittent native Vision OCR empty result remains unresolved;
+passing isolated/full retries do not establish OCR reliability.
+Existing modern redaction, BM25/FTS5/RRF and app sandbox defaults refute the audit's stale claims.
+
+Unmeasured/Target: arbitrary requirement/visual evaluation, full installed R01/R02 qualification,
+provider-backed semantic retrieval quality, provider-specific multimodal/cache-creation accounting,
+unknown-route prices and prepaid service accounting. Native DeepSeek peak rates/configurable route
+rates replace silent flat arithmetic; fallback charges remain explicitly estimates. Saved model
+choices and BYOK stay unchanged. No Product-ready/Win or measured latency/cost improvement claim.
+
+
+## Outputs Shelf — selected, Target, 2026-10-04
+
+[Record 67](../67_OUTPUTS_SHELF_RESEARCH_AND_PLAN.md) maps the owner's selected feature to current
+source and primary-source research. Document writers and reusable skill capture already exist;
+typed output descriptors, durable global discovery, verified retention/version identity,
+cross-chat output actions, and optional cloud sharing remain **Target/unmeasured**. Current
+document receipts are text, not a durable shelf registration contract. S0/S1 prioritize
+owner-bound registration and opening an exact retained output offline with its engine stopped.
+The [O01 contract](examples/O01_FIND_AND_OPEN_OUTPUT.md) extends C04/R01 recovery with output
+ownership, replay deduplication, persistence faults, and independent reopened-file hashes;
+its fixture/runner remain Target. No Product-ready, novelty, competitor Win, or cloud-cost claim.
+The other suggested features were not selected; Computer Use remains archived.
+
+## Computer Use retirement — 2026-10-04
+
+**Owner-withdrawn scope, Implemented and locally installed:** Computer Use is archived, with no active tools, preview menus, native driver dependency
+or permission request path. Record [66](../66_COMPUTER_USE_RETIREMENT_RECORD.md) and the
+[retirement evidence](../evidence/2026-10-04-cu-retirement/README.md) supersede record 65's active build sequence.
+X01 and Computer Use journeys are archived rather than claimed achieved. Coding and Thread reliability journeys
+remain applicable. Local proof cannot upgrade clean-Mac distribution or installed C04/R01 race qualification.
+
+## Renderer Thread ownership — 2026-10-04
+
+**Implemented and locally verified:** the main window's engine-message and lifecycle IPC preserve the owning
+Bimax Thread ID through preload. The renderer rejects foreign or unscoped events after adopting a Thread, before
+query resolution, streaming or reduction; the reducer independently checks scoped actions, including transcript
+restores. The composer's separate clear/restore listener also checks ownership. Same-Thread history restores remain
+supported. The restore payload's ID identifies an engine session, not a Thread; ownership uses the IPC envelope.
+
+Evidence and remaining boundaries are in
+[`../evidence/2026-10-04-thread-ipc-isolation/README.md`](../evidence/2026-10-04-thread-ipc-isolation/README.md).
+Installed-app race/reaper/crash qualification for C04/R01 remains **Target/unmeasured**. Fresh-open selection,
+project reopening an existing conversation, same-Thread history hydration timing, and stale-stamped sends rejected
+by main are deliberately outside this fix. No Product-ready or Win claim is made.
+
+## Historical Computer Use return — retired 2026-10-04
 
 Stage 1 is **Measured** outside the product; stage 2 is **Measured in the installed app** (exit met; one Mac, one model);
 stage 3, one press in the test app on two cards, is **Measured outside and inside the installed app** (exit met;

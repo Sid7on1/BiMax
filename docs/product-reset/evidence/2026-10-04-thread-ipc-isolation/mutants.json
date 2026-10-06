@@ -1,0 +1,58 @@
+{
+  "command": [
+    "npx",
+    "jest",
+    "--runInBand",
+    "--coverage=false",
+    "--silent=false",
+    "app/src/__tests__/engine.thread.isolation.test.ts"
+  ],
+  "results": [
+    {
+      "name": "baseline",
+      "exit_code": 0,
+      "log": "baseline.log"
+    },
+    {
+      "name": "preload-drops-owner",
+      "exit_code": 1,
+      "log": "preload-drops-owner.log"
+    },
+    {
+      "name": "renderer-admits-foreign-replies",
+      "exit_code": 1,
+      "log": "renderer-admits-foreign-replies.log"
+    },
+    {
+      "name": "reducer-admits-foreign-restore",
+      "exit_code": 1,
+      "log": "reducer-admits-foreign-restore.log"
+    },
+    {
+      "name": "switch-keeps-buffered-text",
+      "exit_code": 1,
+      "log": "switch-keeps-buffered-text.log"
+    },
+    {
+      "name": "attachment-admits-foreign-reply",
+      "exit_code": 1,
+      "log": "attachment-admits-foreign-reply.log"
+    },
+    {
+      "name": "preload-drops-lifecycle-owner",
+      "exit_code": 1,
+      "log": "preload-drops-lifecycle-owner.log"
+    },
+    {
+      "name": "composer-admits-foreign-restore",
+      "exit_code": 1,
+      "log": "composer-admits-foreign-restore.log"
+    }
+  ],
+  "source_sha256": {
+    "app/src/preload/index.ts": "b329296d9174c01cb352fd7ca7b3d426f3131a1af74aa1e38ab1f64733008c7a",
+    "app/src/renderer/src/useEngine.ts": "c828cbaba444994dbb88bc0d9b9043e8bcf02e56c22063477fd002b5640b0692",
+    "app/src/renderer/src/engine.state.ts": "b776767821f18c463d3d00a419b4e40145d243c0db0af2277703777339e23379",
+    "app/src/renderer/src/components/Composer.tsx": "49d3830658dd5d1c5471faa4937f45df86c79b5a8569305f93630cf7864c013c"
+  }
+}

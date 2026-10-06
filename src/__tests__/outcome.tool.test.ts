@@ -28,7 +28,7 @@ describe('OutcomeTool', () => {
     const tool = createOutcomeTool(governor);
     const defined = await tool.execute({
       action: 'define', objective: 'Deliver a tested change',
-      criteria: [{ id: 'tests', description: 'The targeted tests pass', verification: 'build_test' }],
+      criteria: [{ id: 'tests', description: 'The targeted tests pass', verification: 'build_test', files: ['targeted.test.ts'] }],
     });
     expect(defined).toMatch(/Completion gate: CLOSED/);
 
@@ -41,7 +41,7 @@ describe('OutcomeTool', () => {
       evidence_source: 'npx jest targeted.test.ts', evidence_ok: true, criterion_ids: ['tests'],
     });
     expect(claimed).toMatch(/Completion gate: CLOSED/);
-    manager.onBuildEvidence({ command: 'npx jest targeted.test.ts', ok: true });
+    manager.onBuildEvidence({ command: 'npx jest targeted.test.ts', ok: true, coveredFiles: ['targeted.test.ts'] });
     expect(manager.snapshot()?.canComplete).toBe(true);
     const finished = await tool.execute({ action: 'finish', finish_status: 'verified' });
     expect(finished).toMatch(/Phase: verified/);

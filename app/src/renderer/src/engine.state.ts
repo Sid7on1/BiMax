@@ -107,8 +107,8 @@ export const initialEngineState: EngineUiState = {
 };
 
 type Action =
-  | { type: 'outbound'; msg: Outbound }
-  | { type: 'engineState'; state: string; detail: string }
+  | { type: 'outbound'; msg: Outbound; threadId?: string }
+  | { type: 'engineState'; state: string; detail: string; threadId?: string }
   | { type: 'project'; dir: string }
   | { type: 'restoreThread'; state: EngineUiState }
   | { type: 'localUser'; text: string }
@@ -291,6 +291,11 @@ function onEvent(state: EngineUiState, name: string, args: any[]): EngineUiState
 }
 
 export function engineReducer(state: EngineUiState, action: Action): EngineUiState {
+  // IPC actions retain their owner through dispatch, including session_restore. Its payload id is
+  // an engine session id (also used by /branch), not a Bimax Thread id. Internal manager folds omit
+  // the envelope because the manager already selects the owning record before calling this reducer.
+  if ((action.type === 'outbound' || action.type === 'engineState')
+    && 'threadId' in action && action.threadId !== state.threadId) return state;
   switch (action.type) {
     case 'outbound': {
       const m = action.msg;

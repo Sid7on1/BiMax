@@ -37,10 +37,6 @@ const ENV_OVERRIDES: Partial<Record<keyof EngineConfig, string>> = {
   liteModel: 'BGW_LITE_MODEL',
   visionModel: 'BGW_VISION_MODEL',
   reasoningEffort: 'BGW_REASONING_EFFORT',
-  computerPip: 'BIMAX_COMPUTER_PIP',
-  computerVisible: 'BIMAX_COMPUTER_VISIBLE',
-  computerRecord: 'BIMAX_COMPUTER_RECORD',
-  computerApprovals: 'BIMAX_COMPUTER_APPROVALS',
 };
 
 const STRICT_MODEL_KEYS: readonly (keyof EngineConfig)[] = [
@@ -143,19 +139,6 @@ export interface EngineConfig {
   // Accessibility: calm static UI — disables spinner/shimmer animation (also set via BGW_REDUCED_MOTION env).
   reducedMotion?: boolean;
 
-  // ── Computer use ────────────────────────────────────────────────────────────────────────────
-  // Defaults mirror the capability provider's own config (see the Desktop `capabilities/mac`
-  // tree), so the same run behaves identically whether it is driven from the CLI or the app.
-  /** Picture-in-picture view of what computer use is doing. Off by default: it is a second capture
-   *  surface, and one that can occlude the very window being driven. */
-  computerPip: boolean;
-  /** Show the driven app while acting, rather than operating a hidden surface. */
-  computerVisible: boolean;
-  /** Record a video of computer-use runs. Off by default — recordings are large and sensitive. */
-  computerRecord: boolean;
-  /** When the user is asked to approve an action: every action, or only high-impact ones. */
-  computerApprovals: 'always' | 'high-impact-only';
-
   // ── Memory / retrieval ────────────────────────────────────────────────────────────────────────
   // Model ids for the four-stage memory pipeline (see src/memory). '' or 0 = the built-in default;
   // resolution and env overrides live in src/memory/settings.ts. Changing the embedding model or
@@ -226,10 +209,6 @@ export const DEFAULTS: EngineConfig = {
   contextMode: 'smart',
   contextWindowTokens: 0,
   parallelToolCalls: true,
-  computerPip: false,
-  computerVisible: true,
-  computerRecord: false,
-  computerApprovals: 'always',
   memoryEmbeddingModel: '',
   memoryEmbeddingDimensions: 0,
   memoryRerankModel: '',
@@ -305,7 +284,6 @@ function parseEnvValue(key: keyof EngineConfig, raw: string): unknown {
   // Union-typed keys cannot take an arbitrary string: the declared type would be a lie, and an
   // unrecognized approval mode must fail SAFE (ask about everything) rather than silently widening
   // what runs unattended. Matches the capability provider's own config.
-  if (key === 'computerApprovals') return raw === 'high-impact-only' ? 'high-impact-only' : 'always';
   const kind = typeof (DEFAULTS as any)[key];
   if (kind === 'number') {
     const n = Number(raw);

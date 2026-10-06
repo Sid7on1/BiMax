@@ -47,31 +47,7 @@ function stripAnsi(text: string): string {
   return text.includes('\u001b') ? text.replace(ANSI_ESCAPE, '') : text;
 }
 
-/**
- * Names this build's desktop-control capability, if it has one.
- *
- * Resolved per call, never captured at construction: the Mac provider's tools are registered
- * asynchronously after eligibility is decided, so a value snapshotted when BashTool is built would
- * be undefined for the entire session and the guard would never engage.
- */
-function motionToolName(resolveToolNames?: () => readonly string[]): string | undefined {
-  try {
-    const names = resolveToolNames?.() ?? [];
-    // Record 65 stage 6: with "Let Tasks Use Other Apps" on, PressInAppTool is that capability. Measured 2026-10-02: the
-    // guard knew only the archived names, so "play Espresso in Music" went out as `osascript … tell application "Music"`.
-    return names.find(name => name === 'mcp__bimax-mac__mac_control'
-      || name === 'mac_control' || name === 'ComputerTool')
-      ?? names.find(name => name === 'PressInAppTool');
-  } catch {
-    return undefined;
-  }
-}
-
-export const createBashTool = (
-  governor: IGovernor,
-  /** Live view of the registered tools. Omitted (workers, tests) → the guard stays inert. */
-  resolveToolNames?: () => readonly string[],
-) => buildTool({
+export const createBashTool = (governor: IGovernor) => buildTool({
   name: 'BashTool',
   description: `Executes a bash command and returns stdout/stderr.
 
@@ -111,7 +87,7 @@ Reserve BashTool for actual shell operations (installs, builds, git, processes, 
   // Shell is not a Computer Use channel: refused before any approval card, so nobody is asked to allow a command that will
   // be refused anyway (measured 2026-10-02: the person allowed `osascript … tell application "Music"` on its card).
   refuseBeforeApproval: (args: { command: string }) => {
-    const verdict = guiAutomationRefusal(args?.command, motionToolName(resolveToolNames));
+    const verdict = guiAutomationRefusal(args?.command);
     return verdict.refused ? `Command blocked: ${verdict.reason}` : undefined;
   },
   execute: async (args: { command: string, timeout?: number, background?: boolean }, context?: any) => {
@@ -121,7 +97,7 @@ Reserve BashTool for actual shell operations (installs, builds, git, processes, 
     // the whole task. Clamp to a finite integer in [0, 600000]ms.
     // Shell is not a Computer Use channel. Refused BEFORE the sandbox, the governor, or any
     // execution, so a GUI-automation command never reaches the window server by this path.
-    const guiRefusal = guiAutomationRefusal(args.command, motionToolName(resolveToolNames));
+    const guiRefusal = guiAutomationRefusal(args.command);
     if (guiRefusal.refused) {
       throw classifiedError(`Command blocked: ${guiRefusal.reason}`, 'permission', 'blocked');
     }
@@ -158,11 +134,12 @@ Reserve BashTool for actual shell operations (installs, builds, git, processes, 
       if (sovereignBlocked) throw classifiedError(`Command blocked: ${sovereignBlocked}`, 'permission', 'blocked');
       // Background promotion: long-running work becomes a tracked task workspace instead of a
       // blocking foreground exec (task registry + execution ledger; honest pause via SIGSTOP).
-      // Not available under the sandbox floor — the floored argv path must stay foreground where
-      // the sandbox profile wraps it.
-      if (args.background && !floorRoot() && !sandboxArgv(cmd, currentCwd)) {
+      // startShellTask applies the same OS isolation, including direct calls and retries.
+      if (args.background) {
         const { startShellTask } = require('../../core/shell.tasks');
-        const { task, summary } = startShellTask(cmd, { cwd: currentCwd, timeoutMs: timeoutMs > 30_000 ? timeoutMs : 0, learningOrigin: context?.learningTrace });
+        const { task, summary } = startShellTask(cmd, { cwd: currentCwd,
+          timeoutMs: args.timeout === undefined ? 0 : timeoutMs, learningOrigin: context?.learningTrace });
+        if (task.state === 'failed-resumable') throw classifiedError(summary, 'external');
         return outcomeOk(JSON.stringify({ taskId: task.id, state: task.state, note: summary }, null, 2), { exitCode: 0 });
       }
       const flArgv = floorArgv(cmd);

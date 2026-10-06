@@ -169,8 +169,8 @@ declare global {
       talk: import("../../preload/index").BimaxApi["talk"];
       organize: import("../../preload/index").BimaxApi["organize"];
       send: (msg: Inbound) => void;
-      onMessage: (cb: (msg: Outbound) => void) => () => void;
-      onEngineState: (cb: (state: string, detail: string) => void) => () => void;
+      onMessage: (cb: (msg: Outbound, threadId?: string) => void) => () => void;
+      onEngineState: (cb: (state: string, detail: string, threadId?: string) => void) => () => void;
       onProject: (cb: (dir: string, generation: number) => void) => () => void;
       supervisor: {
         onStatus: (cb: (status: SupervisorStatus) => void) => () => void;

@@ -171,7 +171,7 @@ export class OutcomeManager {
       return {
         id,
         title: String(input.title || '').trim(),
-        status: input.status || 'pending',
+        status: input.status === 'verified' ? 'completed' : input.status || 'pending',
         required: input.required !== false,
         dependsOn: Array.isArray(input.dependsOn) ? [...new Set(input.dependsOn.map(String))] : [],
         owner: input.owner ? String(input.owner) : undefined,
@@ -201,6 +201,7 @@ export class OutcomeManager {
     const contract = this.requireContract();
     const task = contract.tasks.find(t => t.id === id);
     if (!task) throw new Error(`Unknown outcome task: ${id}`);
+    if (status === 'verified') return this.validateTask(id);
     if (status === 'in_progress') {
       const incomplete = task.dependsOn.filter(dep => {
         const d = contract.tasks.find(t => t.id === dep);
@@ -435,12 +436,11 @@ export class OutcomeManager {
     }
   }
 
-  /** Promote a delegated completion only after fresh, trusted parent-side verification exists. */
+  /** Promote a completion only after fresh, trusted parent-side verification exists. */
   validateTask(id: string, evidenceIds: string[] = []): OutcomeTask {
     const contract = this.requireContract();
     const task = contract.tasks.find(item => item.id === id);
     if (!task) throw new Error(`Unknown outcome task: ${id}`);
-    if (!task.owner) throw new Error(`Task ${id} is local and does not require delegated-task validation.`);
     if (task.status !== 'completed') throw new Error(`Task ${id} must be completed before validation (currently ${task.status}).`);
     if (task.assignment?.integrationStatus === 'pending') throw new Error(`Task ${id} has isolated changes pending integration.`);
     if (task.assignment?.integrationStatus === 'conflict') throw new Error(`Task ${id} has an unresolved integration conflict.`);
@@ -450,19 +450,19 @@ export class OutcomeManager {
       if (requested.size && !requested.has(evidence.id)) return false;
       return task.criterionIds.length === 0 || evidence.criterionIds.some(id => task.criterionIds.includes(id));
     });
-    if (!candidates.length) throw new Error(`Task ${id} has no fresh trusted parent verification.`);
+    if (!candidates.length) throw new Error(`Task ${id} has no fresh trusted parent verification.${task.assignment?.observedChangedFiles.length ? ' Missing verification covering: ' + task.assignment.observedChangedFiles.join(', ') : ''}`);
     const requiredFiles = (task.assignment?.observedChangedFiles || []).filter(requiresBuildVerification);
     if (requiredFiles.length) {
       const repoWide = candidates.some(evidence => evidence.repoWide === true);
-      const covered = new Set(candidates.flatMap(evidence => evidence.coveredFiles || []).map(file => file.replace(/\\/g, '/').replace(/^\.\//, '')));
-      const missing = repoWide ? [] : requiredFiles.filter(file => {
-        const normalized = file.replace(/\\/g, '/').replace(/^\.\//, '');
-        return ![...covered].some(candidate => candidate === normalized || candidate.endsWith(`/${normalized}`) || normalized.endsWith(`/${candidate}`));
-      });
+      const covered = new Set(candidates.flatMap(evidence => evidence.coveredFiles || []).map(file => path.resolve(file)));
+      const missing = repoWide ? [] : requiredFiles.filter(file => !covered.has(path.resolve(file)));
       if (missing.length) throw new Error(`Task ${id} has no fresh trusted verification covering: ${missing.join(', ')}`);
     }
     task.evidenceIds = [...new Set([...(task.evidenceIds || []), ...candidates.map(evidence => evidence.id)])];
-    return this.updateTask(id, 'verified', task.owner);
+    task.status = 'verified';
+    task.updatedAt = Date.now();
+    this.touch();
+    return this.task(id)!;
   }
 
   /** Verify that reviewed isolated files now exactly match the parent checkout. Does not merge. */
@@ -693,7 +693,10 @@ export class OutcomeManager {
   /** Existing build/test evidence automatically covers criteria that explicitly request it. */
   onBuildEvidence(event: { command?: string; ok?: boolean; coveredFiles?: string[]; repoWide?: boolean }): void {
     if (!this.contract || !event?.command) return;
-    const ids = this.contract.criteria.filter(c => c.verification === 'build_test').map(c => c.id);
+    const covered = new Set((event.coveredFiles || []).map(file => path.resolve(file)));
+    const ids = this.contract.criteria.filter(c => c.verification === 'build_test' && (
+      event.repoWide === true || (c.files?.length && c.files.every(file => covered.has(path.resolve(file))))
+    )).map(c => c.id);
     if (!ids.length) return;
     this.addEvidence({
       kind: 'test', summary: String(event.command), source: String(event.command), ok: !!event.ok,

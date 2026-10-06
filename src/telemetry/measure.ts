@@ -1,3 +1,4 @@
+import { redactSecrets } from '../security/secret.scan';
 import { randomBytes } from 'crypto';
 import { monitorEventLoopDelay } from 'perf_hooks';
 
@@ -192,7 +193,8 @@ export function serializeSpan(span: SpanRecord): SpanRecord {
 function sanitizeAttr(value: AttrValue): { value: AttrValue; redacted: boolean } {
   if (typeof value !== 'string') return { value, redacted: false };
   if (value.length > MAX_ATTR_CHARS || value.includes('\n')) return { value: REDACTED, redacted: true };
-  return { value, redacted: false };
+  const clean = redactSecrets(value);
+  return { value: clean, redacted: clean !== value };
 }
 
 // --- recorder ---------------------------------------------------------------------------------------

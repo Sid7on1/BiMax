@@ -5,6 +5,16 @@ import { AgentLoop } from '../core/agent.loop';
 import { LLMProvider, Message, ChatEvent } from '../core/llm.provider';
 import { EpisodeWriter, RecordingProvider, listEpisodes } from '../mind/episode.recorder';
 import { replayEpisode } from '../mind/replay.harness';
+import { engineEvents } from '../engine/events';
+import { SessionRecorder } from '../engine/session.recorder';
+import { sessionDir } from '../engine/session';
+import { ProtocolHost } from '../protocol/host';
+import { ThreadManager } from '../../app/src/main/thread.manager';
+import { appStore } from '../state/app.state';
+import { clearSteer, pushSteer, drainSteer } from '../core/steering';
+import { taskMetrics } from '../telemetry/task.metrics';
+import { getTaintTracker } from '../mind/taint';
+import { CompletionChecks, __setCompletionChecks } from '../outcome/completion.check';
 
 /** Scripted provider: one pre-baked event stream per chat() call, in order. */
 function scripted(streams: ChatEvent[][]): LLMProvider {
@@ -18,10 +28,10 @@ function scripted(streams: ChatEvent[][]): LLMProvider {
 }
 
 /** Minimal real-shaped registry for the RECORDING run: one Bash-ish tool with a fixed result. */
-function liveRegistry() {
+function liveRegistry(toolName = 'ListTool') {
   return {
-    getSchemas: () => [{ type: 'function', function: { name: 'ListTool', parameters: { type: 'object', properties: {} } } }],
-    getTool: (name: string) => name === 'ListTool'
+    getSchemas: () => [{ type: 'function', function: { name: toolName, parameters: { type: 'object', properties: {} } } }],
+    getTool: (name: string) => name === toolName
       ? { name, isConcurrencySafe: false, execute: async () => 'a.ts\nb.ts' }
       : undefined,
   };
@@ -40,10 +50,10 @@ describe('Replay harness (v2 Phase 4 — re-run recorded episodes, divergence re
   });
 
   /** Record a real 2-call episode: model asks for ListTool, then answers with text. */
-  async function recordEpisode(): Promise<string> {
+  async function recordEpisode(toolName = 'ListTool'): Promise<string> {
     const streams: ChatEvent[][] = [
       [
-        { type: 'tool_call', id: 'c1', name: 'ListTool', args: '{}' },
+        { type: 'tool_call', id: 'c1', name: toolName, args: '{}' },
         { type: 'done' },
       ],
       [
@@ -53,7 +63,7 @@ describe('Replay harness (v2 Phase 4 — re-run recorded episodes, divergence re
     ];
     const writer = new EpisodeWriter(dir);
     const recording = new RecordingProvider(scripted(streams), writer);
-    const loop = new AgentLoop(recording, liveRegistry() as any);
+    const loop = new AgentLoop(recording, liveRegistry(toolName) as any);
     const initial: Message[] = [{ role: 'user', content: 'what files are here?' }];
     let text = '';
     for await (const chunk of loop.execute(initial, SYSTEM, { maxIterations: 4 })) text += chunk;
@@ -108,5 +118,66 @@ describe('Replay harness (v2 Phase 4 — re-run recorded episodes, divergence re
 
     const report = await replayEpisode(id, { root: dir });
     expect('error' in report && /tampered/i.test((report as any).error)).toBe(true);
+  });
+
+  it('keeps old replay cards out of a fresh desktop chat, appStore and persisted session', async () => {
+    const id = await recordEpisode();
+    const previousStateDir = process.env.BIMAX_STATE_DIR;
+    process.env.BIMAX_STATE_DIR = dir;
+    const recorder = new SessionRecorder();
+    const onMessage = recorder.onMessage.bind(recorder), onTool = recorder.onToolResult.bind(recorder);
+    const desktop = new ThreadManager({ engine: () => ({ openProject: jest.fn(), sendFromRenderer: jest.fn(), dispose: jest.fn() }),
+      selected: jest.fn(), message: jest.fn(), approval: jest.fn(), save: jest.fn(), changed: jest.fn() });
+    const fresh = desktop.openProject(dir);
+    const wire: any[] = [];
+    const host = new ProtocolHost(line => { wire.push(line); desktop.receive(fresh, line); });
+    engineEvents.on('message', onMessage); engineEvents.on('tool_call_result', onTool); host.attach(engineEvents);
+    try {
+      engineEvents.emit('message', { id: 'fresh-user', role: 'user', content: 'hi', timestamp: new Date() });
+      const file = path.join(sessionDir(), `${recorder.currentId()}.jsonl`);
+      const beforeFile = fs.readFileSync(file, 'utf8'), beforeStore = appStore.getState();
+      const beforeWire = wire.length;
+      const report = await replayEpisode(id, { root: dir });
+      expect(report).toMatchObject({ identical: true });
+      expect(wire.slice(beforeWire)).toEqual([]);
+      expect(appStore.getState()).toBe(beforeStore);
+      expect(fs.readFileSync(file, 'utf8')).toBe(beforeFile);
+      engineEvents.emit('message', { id: 'fresh-answer', role: 'assistant', content: 'Hello!', timestamp: new Date() });
+      expect(desktop.get(fresh).state.items.map(item => item.kind === 'msg' ? item.msg.content : 'OLD TOOL')).toEqual(['hi', 'Hello!']);
+      expect(fs.readFileSync(file, 'utf8').trim().split('\n').map(line => JSON.parse(line).content)).toEqual(['hi', 'Hello!']);
+    } finally {
+      host.detach(); engineEvents.off('message', onMessage); engineEvents.off('tool_call_result', onTool);
+      recorder.shutdown();
+      if (previousStateDir === undefined) delete process.env.BIMAX_STATE_DIR; else process.env.BIMAX_STATE_DIR = previousStateDir;
+    }
+  });
+
+  it('does not consume live steering or finish/count the live task', async () => {
+    const id = await recordEpisode();
+    taskMetrics.reset(); taskMetrics.begin('foreground'); taskMetrics.recordTurn();
+    pushSteer('live follow-up');
+    try {
+      const report = await replayEpisode(id, { root: dir });
+      expect('identical' in report && report.identical).toBe(true);
+      expect(drainSteer()).toEqual(['live follow-up']);
+      expect(taskMetrics.isRecording).toBe(true);
+      expect(taskMetrics.end()).toMatchObject({ label: 'foreground', turns: 1, toolCalls: 0 });
+    } finally { clearSteer(); taskMetrics.reset(); }
+  });
+
+  it.each(['ReadFileTool', 'EditFileTool'])('replaying %s cannot taint live context or alter/execute live checks', async toolName => {
+    const id = await recordEpisode(toolName);
+    getTaintTracker().clear('fixture');
+    const checks = new CompletionChecks({ sessionId: () => 'foreground', directory: () => dir });
+    checks.beginTurn(); checks.set([{ kind: 'command', command: 'touch replay-must-not-run' }]);
+    const before = checks.snapshot(), settle = jest.spyOn(checks, 'settle');
+    __setCompletionChecks(checks);
+    try {
+      const report = await replayEpisode(id, { root: dir });
+      expect('identical' in report && report.identical).toBe(true);
+      expect(getTaintTracker().isTainted()).toBe(false);
+      expect(checks.snapshot()).toEqual(before);
+      expect(settle).not.toHaveBeenCalled();
+    } finally { __setCompletionChecks(null); getTaintTracker().clear('cleanup'); }
   });
 });

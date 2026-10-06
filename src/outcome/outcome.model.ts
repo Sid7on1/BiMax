@@ -38,6 +38,8 @@ export interface OutcomeCriterion {
   required: boolean;
   status: CriterionStatus;
   /** Optional verifier class used to connect existing engine evidence automatically. */
+  /** Exact files whose checks may automatically satisfy this criterion. Unscoped criteria need repo-wide proof. */
+  files?: string[];
   verification?: 'build_test' | 'runtime' | 'visual' | 'research' | 'user' | 'other';
   /** True by default: a later mutation makes prior passing evidence stale. */
   requiresFreshEvidence: boolean;
@@ -245,6 +247,7 @@ export function createContract(
       required: data.required !== false,
       status: data.status || 'pending',
       verification: data.verification,
+      files: Array.isArray(data.files) ? [...new Set(data.files.map(String))] : undefined,
       requiresFreshEvidence: data.requiresFreshEvidence !== false,
       evidenceIds: Array.isArray(data.evidenceIds) ? [...new Set(data.evidenceIds.map(String))] : [],
       updatedAt: Number(data.updatedAt) || at,

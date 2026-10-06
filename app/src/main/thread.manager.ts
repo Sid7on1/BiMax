@@ -100,13 +100,8 @@ interface Dependencies {
   message(id: string, msg: Outbound): void;
   approval(value: ThreadApproval): void;
   /**
-   * The engine asked the app to do something only the app may (record 65, stage 2: look at another app's window). The
-   * answer goes back to that engine, never to a window. Optional: without it every host call is told "not available".
-   */
-  hostCall?(id: string, msg: HostCall): Promise<HostResult>;
-  /**
    * The thread was stopped or released, or its turn was (any Stop button, a night shift ending it, talking over it):
-   * whatever the app granted it (looking at an app) ends. The card promises "stopping the task ends it".
+   * optional app-owned resources for that turn are released.
    */
   ended?(id: string): void;
   save(value: SavedThread): void;
@@ -145,7 +140,6 @@ const RESUME_CHOICE_ID = -1;
 const HOST_CARD_FIRST_ID = -100;
 
 type HostCall = Extract<Outbound, { t: 'host_call' }>;
-type HostResult = Extract<Inbound, { t: 'host_result' }>;
 /** How long a starting engine has to confirm or refuse a resume. */
 const RESUME_DEADLINE_MS = 20_000;
 export const RESUME_CHOICES = {
@@ -229,11 +223,15 @@ export class ThreadManager {
     return r;
   }
   engine(id: string): ThreadEngine | undefined { return this.records.get(id)?.engine; }
-  /** The thread of a project opened in the main window, so reopening the project returns to it instead of adding another. */
-  projectThread(root: string): string | undefined {
-    return [...this.records.values()]
-      .filter(r => r.summary.origin === 'project' && r.summary.root === root)
-      .sort((a, b) => b.summary.updatedAt - a.summary.updatedAt)[0]?.summary.id;
+  /** Explicitly opening a repo starts a fresh Bimax Thread. Credential renewal restarts the
+   * selected conversation in that repo, preserving its history and queued input. */
+  openProject(root: string, options: { restart?: boolean } = {}): string {
+    const active = this.activeId ? this.records.get(this.activeId) : undefined;
+    const reuse = options.restart && active?.summary.root === root;
+    const id = reuse ? active.summary.id : this.create(root, '', 'project');
+    if (reuse) this.stop(id, { keepInputs: true });
+    this.start(id);
+    return id;
   }
   create(root: string, prompt = '', origin: 'quick' | 'project' = 'quick', model?: string, voice = false): string {
     this.ensureRoom();
@@ -466,20 +464,14 @@ export class ThreadManager {
     this.persist(r);
   }
 
-  private answerHostCall(id: string, r: LiveThread, msg: HostCall): void {
-    const engine = r.engine;
-    // Only the engine that asked hears the answer: one restarted in between starts with no call waiting.
-    const answer = (result: HostResult) => { if (r.engine && r.engine === engine) engine.sendFromRenderer(result); };
-    const failed = (error: string): HostResult => ({ t: 'host_result', id: msg.id, ok: false, error, value: { code: 'unavailable' } });
-    if (!this.deps.hostCall) { answer(failed('Looking at other apps is not available.')); return; }
-    this.deps.hostCall(id, msg).then(
-      (result) => answer({ ...result, t: 'host_result', id: msg.id }),
-      (error) => answer(failed(String(error instanceof Error ? error.message : error).slice(0, 200))),
-    );
+  /** Compatibility refusal for an old engine generation; no host Computer Use handler exists. */
+  private answerHostCall(_id: string, r: LiveThread, msg: HostCall): void {
+    r.engine?.sendFromRenderer({ t: 'host_result', id: msg.id, ok: false,
+      error: 'Computer Use has been removed from Bimax.', value: { code: 'unavailable' } });
   }
 
   /**
-   * A card the app raises in this thread on the thread's behalf — "Let this task look at Notes?" — answered like any
+   * A card the app raises in this thread on the thread's behalf, answered like any
    * approval (token, one of its choices) but by the app, never forwarded to the engine. Resolves '' when the thread is
    * stopped or its turn is cancelled first: no answer is never a yes.
    */

@@ -1,5 +1,10 @@
 # 65 — Computer Use returns: Bimax's own layer on the latest Cua Driver, with small local decision models
 
+> **Retired 2026-10-04 by explicit owner decision.** Record [66](66_COMPUTER_USE_RETIREMENT_RECORD.md) supersedes
+> this rollout and its feature admission gate. Sources, native driver and feature tests/probes are preserved in
+> `/Users/vishsiddharth/Developer/bimax-archive/computer-use/2026-10-04-retired-cua-driver/`. Measurements below remain
+> historical; none authorizes active Computer Use or an automatic future return.
+
 **Date: 2026-10-01; current status updated 2026-10-02. Stage 1 Measured; stages 2 and 3 installed exits met; stage 4 declined; stage 5 set aside with X01 unmeasured; stage 6 abilities Implemented with local evidence, release exit unmet (§6h).** It is the plan the owner asked for:
 
 > "plan the roll out of the bimax computer use from the archive and slowly integrate this into repo … use laya mlx

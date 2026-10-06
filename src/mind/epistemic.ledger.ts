@@ -75,6 +75,11 @@ export function isEvidenceCommand(command: string): boolean {
   return /\b(npm (run )?(test|build)|npx? (tsc|jest|vitest|eslint)|yarn (test|build)|pnpm (test|build)|go (build|test|vet)|cargo (build|test|check)|pytest|tsc\b|jest\b|vitest\b|make (test|build|check))\b/.test(c);
 }
 
+/** A bounded whole-repository check, with no narrowing flags, directory switch or shell masking. */
+export function isRepoWideEvidenceCommand(command: string): boolean {
+  return /^(?:(?:npm|yarn|pnpm) (?:test|build|run (?:test|build))|(?:npx )?(?:jest|vitest)(?: --(?:runInBand|coverage(?:=false)?))?|(?:npx )?tsc(?: --noEmit)?|bun test|node --test|go (?:test|build|vet) \.\/\.\.\.|cargo (?:test|build|check)|pytest|make (?:test|build|check))$/.test(command.trim());
+}
+
 /** File-ish tokens in a shell command (path arguments) — used to detect scoped vs repo-wide runs. */
 export function commandPathTokens(command: string): string[] {
   return (command || '')
@@ -283,7 +288,7 @@ export class EpistemicLedger {
     this.expire(now);
     const cmdPaths = commandPathTokens(opts?.command || '');
     // Attested scope is deliberately narrow: it never widens into a repo-wide settle.
-    const repoWide = evidenceOk && opts?.exactFiles === undefined && cmdPaths.length === 0;
+    const repoWide = evidenceOk && opts?.exactFiles === undefined && isRepoWideEvidenceCommand(opts?.command || '');
     const inWindow = this.data.open.filter(c => now - c.at <= EVIDENCE_WINDOW_MS
       && (opts?.claimIds === undefined || (!!c.id && opts.claimIds.includes(c.id))));
     if (inWindow.length === 0) return { settled: 0, coveredFiles: [], repoWide };
@@ -301,7 +306,7 @@ export class EpistemicLedger {
       // claims settle — never the command's targets, which express intent, not outcome.
       covered = opts?.exactFiles !== undefined
         ? inWindow.map(c => ({ claim: c, w: c.file && opts.exactFiles!.includes(c.file) ? W_EXACT : 0 })).filter(x => x.w > 0)
-        : cmdPaths.length === 0
+        : repoWide
           ? inWindow.map(c => ({ claim: c, w: W_EXACT }))
           : inWindow.map(c => ({ claim: c, w: this.coverWeight(c.file, cmdPaths) })).filter(x => x.w > 0);
     } else {

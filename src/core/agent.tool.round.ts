@@ -7,7 +7,7 @@ import { engineEvents, ToolCallEntry } from '../engine/events';
 import { getGlobalPatternStore } from '../genome/pattern.store';
 import { recordUsage } from '../mind/usage.counters';
 import { TypedOutcome, typedFromError } from '../tools/outcome';
-import { fenceUntrusted } from '../mind/taint';
+import { fenceUntrusted, markToolTaint, getTaintTracker } from '../mind/taint';
 import { isReplayActive } from '../mind/episode.recorder';
 import { getTracer } from '../telemetry/trace';
 import { type ScreenshotObservationContext, screenshotFromToolResult, buildScreenshotObservation, appendScreenshotObservation, pruneScreenshotObservations } from './multimodal';
@@ -215,7 +215,7 @@ async function executeToolCall(
     // Counted at the point the tool actually RUNS — after the governor, the arg validation
     // and the hooks have all let it through. A tool the model asked for and was refused is
     // not a tool in use, and counting the request would make a blocked tool look popular.
-    recordUsage('tool', tool.name);
+    if (!isReplayActive()) recordUsage('tool', tool.name);
     const result = await tool.execute(argsObj, toolContext);
     const resultStr = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
     // A tool's own `invalid_args` refuses the arguments before doing anything, so it is a rejection like the two above.
@@ -404,9 +404,13 @@ export async function runToolRound(
   for (const tc of round.toolCalls) {
     const ran = resultById.get(tc.id);
     const result = ran ? ran.result : 'Tool call interrupted before it ran.';
-    // Web and MCP output goes to the model fenced as untrusted data (flaw list A5); every check below reads the
+    // File, shell, web and MCP output goes to the model fenced as untrusted data (flaw list A5); every check below reads the
     // tool's own unfenced result.
-    host.messages.push({ role: 'tool', tool_call_id: tc.id, content: ran ? fenceUntrusted(tc.name, tc.args || '{}', result) : result });
+    // A failed optional observer cannot leave newly introduced untrusted data unmarked.
+    if (ran && !isReplayActive() && !getTaintTracker().isTainted()) markToolTaint(tc.name, tc.args || '{}', result);
+    // Recorded results are the exact, already-fenced messages the original loop sent. Re-fencing
+    // them changes the request hash and makes an unchanged harness appear to diverge.
+    host.messages.push({ role: 'tool', tool_call_id: tc.id, content: ran && !isReplayActive() ? fenceUntrusted(tc.name, tc.args || '{}', result) : result });
     if (ran) {
       let structuredFailure = false;
       try { structuredFailure = JSON.parse(result)?.ok === false; } catch { /* text result */ }
@@ -460,5 +464,14 @@ export async function runToolRound(
   try { engineEvents.emit('mind_changed' as any); } catch { /* best-effort */ }
 
   applyLoopSignals(host, loopSignals);
+  const hard = loopSignals.some(signal => signal.severity === 'hard');
+  // No-signal gaps include detector cooldowns, so they cannot erase prior hard strikes.
+  if (hard) st.hardLoopRounds++;
+  if (loopSignals.some(signal => signal.type === 'circuit_breaker') || st.hardLoopRounds >= 3) {
+    const reason = 'Stopped: repeated hard loop signals exhausted this run’s recovery allowance.';
+    engineEvents.emit('status', reason);
+    engineEvents.emit('message', { id: `loop-stop-${Date.now()}`, role: 'system', level: 'warn', content: reason, timestamp: new Date() });
+    return 'stop';
+  }
   return 'ok';
 }

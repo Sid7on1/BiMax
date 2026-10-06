@@ -177,7 +177,7 @@ export function TaskSidebar({
           className="glass-pill flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] font-semibold text-ink focus-visible:outline-2 focus-visible:outline-ember"
         >
           <PenLine size={15} />
-          <span className="flex-1 text-left">New thread</span>
+          <span className="flex-1 text-left">New</span>
           <Keycap>⌘N</Keycap>
         </button>
       </div>

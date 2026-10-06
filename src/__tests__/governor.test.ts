@@ -8,7 +8,7 @@ import * as fs from 'fs/promises';
 
 jest.mock('../engine/prompter', () => ({
   GlobalPrompter: {
-    ask: jest.fn().mockResolvedValue('y'),
+    ask: jest.fn().mockResolvedValue('Yes'),
     isBusy: jest.fn().mockReturnValue(false),
     register: jest.fn(),
   }

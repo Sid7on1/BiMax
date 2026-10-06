@@ -71,3 +71,40 @@ describe('reachable command outcome sensor', () => {
       .toEqual({ arrayValue: { values: [{ stringValue: 'src/a.ts' }] } });
   });
 });
+
+
+describe('evidence project identity', () => {
+  it('never turns a sibling or subfolder suite into whole-project proof', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'bimax-evidence-root-'));
+    const ledger = new EpistemicLedger(root), events = new EventLedger(root);
+    const mock = jest.spyOn(selfModel, 'mindSingletonRoot').mockReturnValue(root);
+    __setEpistemicLedger(ledger); __setEventLedger(events);
+    try {
+      ledger.openClaim('ts', 0.8, 'src/auth.ts');
+      const args = { command: 'npm test', result: 'pass', exitCode: 0, background: false };
+      expect(observeCommandOutcome(capture('sibling').span, { ...args, cwd: root + '-other' })).toBeNull();
+      expect(observeCommandOutcome(capture('subfolder').span, { ...args, cwd: path.join(root, 'unrelated') }))
+        .toMatchObject({ settled: 0, repoWide: false });
+      expect(ledger.stats().open).toBe(1);
+      expect(observeCommandOutcome(capture('root').span, { ...args, cwd: root }))
+        .toMatchObject({ settled: 1, repoWide: true });
+    } finally { ledger.saveNow(); __setEpistemicLedger(null); __setEventLedger(null); mock.mockRestore(); fs.rmSync(root, { recursive: true, force: true }); }
+  });
+});
+
+
+it('scoped green tests need execution attestation; no-tests flags cannot verify a named source', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'bimax-scope-proof-'));
+  const ledger = new EpistemicLedger(root), events = new EventLedger(root);
+  const mock = jest.spyOn(selfModel, 'mindSingletonRoot').mockReturnValue(root);
+  __setEpistemicLedger(ledger); __setEventLedger(events);
+  try {
+    ledger.openClaim('ts', 0.8, 'src/auth.ts');
+    const args = { command: 'npx jest --passWithNoTests src/auth.ts', exitCode: 0, background: false, cwd: root };
+    expect(observeCommandOutcome(capture('skipped').span, { ...args, result: 'PASS src/auth.ts' }))
+      .toMatchObject({ settled: 0, coveredFiles: [], repoWide: false });
+    expect(ledger.stats().open).toBe(1);
+    expect(observeCommandOutcome(capture('executed').span, { ...args, result: 'SF:src/auth.ts\nLH:3\nend_of_record' }))
+      .toMatchObject({ settled: 1, coveredFiles: ['src/auth.ts'], repoWide: false });
+  } finally { ledger.saveNow(); __setEpistemicLedger(null); __setEventLedger(null); mock.mockRestore(); fs.rmSync(root, { recursive: true, force: true }); }
+});

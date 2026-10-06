@@ -45,6 +45,18 @@ export function scopesOverlap(a: string, b: string): boolean {
 
 export class SubAgentBlackboard {
   private claims = new Map<string, SubAgentClaim>();
+  private listeners = new Set<() => void>();
+
+  onChange(listener: () => void): () => void {
+    this.listeners.add(listener);
+    return () => { this.listeners.delete(listener); };
+  }
+
+  private changed(): void {
+    for (const listener of this.listeners) {
+      try { listener(); } catch { /* observers cannot break worker completion */ }
+    }
+  }
 
   register(taskId: string, agentType: string, scope: string, prompt: string, outcomeTaskId?: string): void {
     this.claims.set(taskId, {
@@ -66,12 +78,12 @@ export class SubAgentBlackboard {
 
   markDone(taskId: string, result: string): void {
     const c = this.claims.get(taskId);
-    if (c) { c.status = 'done'; c.phase = 'done'; c.endedAt = Date.now(); c.result = result; }
+    if (c) { c.status = 'done'; c.phase = 'done'; c.endedAt = Date.now(); c.result = result; this.changed(); }
   }
 
   markFailed(taskId: string, error: string): void {
     const c = this.claims.get(taskId);
-    if (c) { c.status = 'failed'; c.phase = 'failed'; c.endedAt = Date.now(); c.error = error; }
+    if (c) { c.status = 'failed'; c.phase = 'failed'; c.endedAt = Date.now(); c.error = error; this.changed(); }
   }
 
   /** Running claims whose scope overlaps the candidate — the sibling collisions to avoid. */
@@ -96,7 +108,7 @@ export class SubAgentBlackboard {
     }
   }
 
-  clear(): void { this.claims.clear(); }
+  clear(): void { this.claims.clear(); this.changed(); }
 }
 
 export const globalSubAgentBlackboard = new SubAgentBlackboard();

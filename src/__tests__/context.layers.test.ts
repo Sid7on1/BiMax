@@ -275,3 +275,16 @@ describe('ContextManager — compaction hygiene (no transient accumulation)', ()
     expect(second.some(m => contentToText(m.content).includes('OVERHEAD-SUMMARY'))).toBe(true);
   });
 });
+
+
+it('RepoMap opt-out removes a stale map and stops refresh for the actual context pass', async () => {
+  const previous = process.env.BIMAX_REPO_MAP; process.env.BIMAX_REPO_MAP = '0';
+  try {
+    const manager = new ContextManager(noopLlm, 128000);
+    const out = await manager.checkAndCompact([
+      { role: 'system', content: '[RepoMap] old outline' }, { role: 'user', content: 'fix auth' },
+    ]);
+    expect(out.some(m => contentToText(m.content).startsWith('[RepoMap]'))).toBe(false);
+    expect(out.some(m => m.content === 'fix auth')).toBe(true);
+  } finally { if (previous === undefined) delete process.env.BIMAX_REPO_MAP; else process.env.BIMAX_REPO_MAP = previous; }
+});

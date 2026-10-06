@@ -1,5 +1,87 @@
 # Competitive build sequence
 
+## PDF reliability sprint — 2026-10-06, round 4
+
+[Record 74](../74_PDF_RELIABILITY_SPRINT.md): preserve prior timeout failures → trace actual
+subprocesses and generated pages → reproduce footer pagination and reader faults → number retained
+pages without footer flow → bound child execution/output and preserve real errors/UTF-8 → isolate
+owned raster jobs and verify exact coverage → restrict render envelopes → dispose after OCR and
+propagate Stop → executable mutations with exact restoration → broad/runtime/build/staged-worker
+checks and render every QA page. General native OCR, resource/performance and installed/full R01
+qualification remain separate Targets. No new feature sequence or Computer Use route is activated.
+
+Local qualification: 50 focused tests, 26 assertion-caught mutants, 3,949 Jest / 132 Bun tests,
+root/app builds/typechecks and seven staged engine exchanges pass; three bundled PDF pages are
+independently read and visually inspected. This is local evidence, not installed/provider qualification.
+
+## Bimax Thread undo sprint — 2026-10-06, round 3
+
+[Record 73](../73_THREAD_UNDO_RELIABILITY_SPRINT.md): reproduce silent skips, symlink escapes,
+overlapping undo and false callback success → preflight coverage/canonical paths → serialize
+journals/batches → stage and independently verify restoration → persist indexed completed-step
+receipts and resume only unfinished work → retain explicit engine coverage gaps → remove repeated
+path/suffix scans → sixty-seven focused tests and nineteen assertion-caught mutations → broad,
+runtime, build, staged-worker and dirty-byte checks. Native Finder/permission, crash/full R01,
+backup provenance and performance measurement remain separate Targets. PDF timeout failures remain.
+
+## Transaction sprint — 2026-10-06, round 2
+
+[Record 72](../72_TRANSACTION_RELIABILITY_SPRINT.md): reproduce real snapshot/lifecycle/recovery
+failures → coalesce capture and fence closure/restoration → preserve all unresolved baselines →
+verify permission/content postconditions → reserve a shared baseline-memory budget → expose real
+coverage/status → forty-four focused tests and twenty-one assertion-caught mutations → broad,
+runtime, build and staged-engine checks with dirty-byte preservation. Full R01, crash/installed
+qualification and performance measurement remain separate Targets. PDF timeout evidence is retained;
+this sequence does not claim the unrelated PDF reliability issue solved.
+
+## Background task sprint — 2026-10-06
+
+[Record 71](../71_BACKGROUND_TASK_RELIABILITY_SPRINT.md): inspect the real BashTool/task/worker
+paths → preserve failing assertions → connect shell inspection and targeted wait → bound cancellation
+and reconcile close races → retain UTF-8 and logical lines → classify controls as exclusive and
+fence task output → real process checks → thirteen caught behavioral mutants and broad local gates.
+Implemented and locally verified: 3,870 Jest / 132 Bun tests, root/app builds and seven staged
+worker exchanges. Initial PDF timeouts are preserved beside passing unchanged qualification.
+Installed/provider/full recovery and performance measurement remain separate Targets.
+
+## Fresh-chat repair and engineering proposal — 2026-10-05
+
+[Record 69](../69_FRESH_CHAT_AND_REPLAY_ISOLATION.md): reproduce newest-chat reopening and background
+replay event leakage → scope replay and isolate its observers → bind open/restart policy to the
+selected Bimax Thread → assert persistence and foreground positive controls → catch fault mutations
+→ build/sign/inspect staged and installed artifacts. Record 66 remains the current code-only boundary.
+
+[Record 70](../70_CODE_BEHAVIOR_ENGINE_RECOMMENDATIONS.md) proposes behavior tracing → executable
+reproduction → coordinated intent changes → revision comparison, mastering one TypeScript stack
+before expanding. This is **Target**, not authorization to implement the new feature sequence.
+The previously selected Outputs Shelf sequence in record 67 remains Target.
+
+
+## Fault-audit repair sequence — delivered locally, 2026-10-04
+
+[Record 68](../68_FAULT_AUDIT_AND_REPAIR.md): inspect the current tree → repair shell/approval floors
+→ bound hard loops → bind verified tasks/build criteria to fresh scoped evidence → fence repository
+text and scrub telemetry → share per-run worker budgets with route-aware estimates → cache memory
+reads/indexes → normalize identifiers and cap optional recall. Controlled behavioral mutants must
+fail assertions and restore exact source bytes; compiler failures do not count. Local builds,
+protocol worker smoke and offline suites precede any live-provider/installed-app qualification.
+Billing/default-model changes require a separate product decision; Computer Use stays retired.
+
+
+## Current owner scope — 2026-10-04
+
+Computer Use is withdrawn and archived under [record 66](../66_COMPUTER_USE_RETIREMENT_RECORD.md).
+The October 1/2 CU sequences and older native workstreams below are historical, not current
+authorization or pending release work. Records 55/64 govern the current engine-worker monolith.
+
+The owner selected Outputs Shelf from the new feature suggestions. Its research and proposed
+order are [record 67](../67_OUTPUTS_SHELF_RESEARCH_AND_PLAN.md): S0 durable output contract/storage
+and failure proof → S1 DocumentTool registration, offline discovery and real file actions →
+S2 revisions/retention and additional producers → S3 reuse existing skills and bundle exports →
+S4 optional Cloudflare sync/sharing. Every slice remains **Target**. First qualify S0/S1 against
+[O01](examples/O01_FIND_AND_OPEN_OUTPUT.md), C04/R01 and the current code-only package gates.
+This is a planning order, not an implementation, calendar, or authorization to upload user files.
+
 ## Computer Use evidence sequence — 2026-10-01, record 65
 
 Stage 1 is Measured; stage 2 is Measured in the installed app (exit met; one Mac, one model). Installed, under Bimax's own

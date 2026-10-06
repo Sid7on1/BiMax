@@ -1,11 +1,13 @@
 import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs/promises';
+import { constants } from 'fs';
 import * as path from 'path';
 import { createHash, randomBytes } from 'crypto';
 import { Logger } from '../utils/logger';
 
 /**
- * Atomic multi-file edit transactions (`/tx`).
+ * Tracked multi-file edit transactions (`/tx`).
+ * Snapshot lifecycle is fenced; filesystem reads and writes are not an OS-level atomic unit.
  *
  * The pre-edit state of a path is a THREE-state value, not a string:
  *
@@ -52,7 +54,7 @@ export interface Baseline {
   bytes?: Buffer;
   /** Present only for `file`. */
   sha256?: string;
-  /** Present only for `file` — restored with the content so a mode change does not survive. */
+  /** Present only for `file` — restored with content; external mode changes require --force. */
   mode?: number;
   size?: number;
   /** True when the path itself is a symlink; restoring writes THROUGH it, never replacing it. */
@@ -128,10 +130,32 @@ interface RetainedRecovery {
   records: EditRecord[];
 }
 
-interface TransactionManagerOptions {
+interface OpenTransaction {
+  id: string;
+  edits: EditRecord[];
+  snapshots: Map<string, Promise<EditRecord>>;
+  pending: number;
+}
+
+export interface TransactionManagerOptions {
   /** Root under which `.breakglass/transactions/<id>/` is written. Defaults to the process cwd. */
   recoveryRoot?: string;
   maxSnapshotBytes?: number;
+  /** Aggregate byte budget for captured/reserved baselines, including unresolved recoveries. */
+  maxTotalSnapshotBytes?: number;
+}
+
+export interface TransactionStatus {
+  id: string | null;
+  phase: 'idle' | 'open' | 'restoring';
+  paths: number;
+  protectedPaths: number;
+  unprotectedPaths: number;
+  pendingSnapshots: number;
+  snapshotBytes: number;
+  /** Includes old recovery baselines and reads that have reserved space but are still pending. */
+  heldSnapshotBytes: number;
+  maxTotalSnapshotBytes: number;
 }
 
 function contentToken(bytes: Buffer): string {
@@ -143,17 +167,23 @@ function toBuffer(intent: string | Uint8Array): Buffer {
 }
 
 export class TransactionManager {
-  private openTx: { id: string; edits: EditRecord[] } | null = null;
+  private openTx: OpenTransaction | null = null;
   private rollingBack = false;
   /** Baselines that rollback could not put back, kept so the bytes are not lost with the process. */
-  private retained: RetainedRecovery | null = null;
+  private retained = new Map<string, RetainedRecovery>();
 
   private readonly recoveryRoot?: string;
   private readonly maxSnapshotBytes: number;
+  private readonly maxTotalSnapshotBytes: number;
+  private heldSnapshotBytes = 0;
 
   constructor(options: TransactionManagerOptions = {}) {
     this.recoveryRoot = options.recoveryRoot;
     this.maxSnapshotBytes = options.maxSnapshotBytes ?? DEFAULT_MAX_SNAPSHOT_BYTES;
+    this.maxTotalSnapshotBytes = options.maxTotalSnapshotBytes ?? DEFAULT_MAX_SNAPSHOT_BYTES;
+    for (const limit of [this.maxSnapshotBytes, this.maxTotalSnapshotBytes]) {
+      if (!Number.isSafeInteger(limit) || limit < 0) throw new RangeError('Snapshot byte budgets must be non-negative safe integers.');
+    }
   }
 
   isOpen(): boolean {
@@ -166,21 +196,34 @@ export class TransactionManager {
 
   /** Paths whose pre-transaction bytes are still held after a failed restoration. */
   pendingRecovery(): { id: string; paths: string[]; dir: string | null } | null {
-    if (!this.retained || this.retained.records.length === 0) return null;
+    return this.pendingRecoveries()[0] ?? null;
+  }
+
+  pendingRecoveries(): { id: string; paths: string[]; dir: string | null }[] {
+    return [...this.retained.values()].map(r => ({ id: r.id, paths: r.records.map(e => e.absPath), dir: r.dir }));
+  }
+
+  status(): TransactionStatus {
+    const edits = this.openTx?.edits ?? [];
+    const unprotectedPaths = edits.filter(e => e.baseline.kind === 'unreadable').length;
     return {
-      id: this.retained.id,
-      paths: this.retained.records.map(r => r.absPath),
-      dir: this.retained.dir,
+      id: this.currentId(), phase: this.rollingBack ? 'restoring' : this.openTx ? 'open' : 'idle',
+      paths: edits.length, protectedPaths: edits.length - unprotectedPaths, unprotectedPaths,
+      pendingSnapshots: this.openTx?.pending ?? 0,
+      snapshotBytes: edits.reduce((n, e) => n + (e.baseline.bytes?.length ?? 0), 0),
+      heldSnapshotBytes: this.heldSnapshotBytes, maxTotalSnapshotBytes: this.maxTotalSnapshotBytes,
     };
   }
 
   begin(id: string): string {
+    if (this.rollingBack) return 'A restoration is in progress. Wait before beginning another transaction.';
     if (this.openTx) {
       return `Transaction ${this.openTx.id} is already open. Commit or rollback it first.`;
     }
-    this.openTx = { id, edits: [] };
+    if (this.retained.has(id)) return `Transaction ${id} still has recovery records. Choose a different ID.`;
+    this.openTx = { id, edits: [], snapshots: new Map(), pending: 0 };
     Logger.info(`[TX] Opened transaction ${id}`);
-    return `Transaction ${id} opened. All file edits until /tx commit are tracked for atomic rollback.`;
+    return `Transaction ${id} opened. File edits until /tx commit are tracked for rollback; unreadable snapshots are reported as unprotected.`;
   }
 
   /**
@@ -189,46 +232,49 @@ export class TransactionManager {
    * `intent` is what the caller is about to leave on disk (content, or `null` for a delete). It is
    * what makes a later third-party edit detectable at rollback time: a state that is neither the
    * baseline nor something we declared came from somebody else. Omitting it does not break
-   * rollback, but that path is then restored unverified and the receipt says so.
+   * tracking, but changed content is kept as a conflict and the receipt says so.
    */
   async trackEdit(absPath: string, intent?: MutationIntent): Promise<TrackResult> {
+    if (this.rollingBack) throw new Error('A restoration is in progress; file edits cannot be tracked yet.');
     if (!this.openTx) return { tracked: false, baseline: 'absent', protectedByTx: false };
+    const tx = this.openTx;
     const key = path.resolve(absPath);
     // `undefined` means the caller did not say; `null` means "this path will be gone".
     const intentGiven = intent !== undefined;
 
-    const existing = this.openTx.edits.find(e => e.absPath === key);
-    if (existing) {
-      // Only the FIRST pre-edit snapshot is the baseline, but every declared write counts as a
-      // state this transaction produced — otherwise a second edit to the same file would look
-      // like somebody else's change at rollback time.
+    // Register the promise before yielding: callers of the same path share the FIRST baseline.
+    let snapshot = tx.snapshots.get(key);
+    if (!snapshot) {
+      tx.pending++;
+      snapshot = this.capture(key, true).then(baseline => {
+        const record: EditRecord = { absPath: key, baseline, expected: new Set(), intentDeclared: false };
+        tx.edits.push(record);
+        return record;
+      }).finally(() => { tx.pending--; });
+      tx.snapshots.set(key, snapshot);
+    }
+    // Count every waiting caller too; lifecycle operations must not close between their continuations.
+    tx.pending++;
+    let record: EditRecord;
+    try {
+      record = await snapshot;
       if (intentGiven) {
-        existing.intentDeclared = true;
-        existing.expected.add(intent === null ? ABSENT : contentToken(toBuffer(intent)));
+        record.intentDeclared = true;
+        record.expected.add(intent === null ? ABSENT : contentToken(toBuffer(intent)));
       }
-      return {
-        tracked: true,
-        baseline: existing.baseline.kind,
-        protectedByTx: existing.baseline.kind !== 'unreadable',
-        message: existing.baseline.error,
-      };
+    } finally {
+      tx.pending--;
     }
-
-    const baseline = await this.capture(key);
-    const expected = new Set<string>();
-    if (intentGiven) {
-      expected.add(intent === null ? ABSENT : contentToken(toBuffer(intent)));
-    }
-    this.openTx.edits.push({ absPath: key, baseline, expected, intentDeclared: intentGiven });
+    const baseline = record.baseline;
 
     if (baseline.kind === 'unreadable') {
-      Logger.warn(`[TX] ${this.openTx.id}: ${key} is NOT protected — ${baseline.error}`);
+      Logger.warn(`[TX] ${tx.id}: ${key} is NOT protected — ${baseline.error}`);
       return { tracked: true, baseline: 'unreadable', protectedByTx: false, message: baseline.error };
     }
     if (!intentGiven) {
       // Say it here, where the caller is, rather than only in a rollback receipt nobody may read.
       Logger.warn(
-        `[TX] ${this.openTx.id}: ${key} was tracked without a declared write. Rollback cannot tell ` +
+        `[TX] ${tx.id}: ${key} was tracked without a declared write. Rollback cannot tell ` +
         `this transaction's own change from an external one, so it will keep whatever is on disk.`
       );
     }
@@ -237,9 +283,11 @@ export class TransactionManager {
 
   commit(): string {
     if (!this.openTx) return 'No open transaction to commit.';
+    if (this.openTx.pending) return 'Snapshot capture is in progress. Wait before committing this transaction.';
     const id = this.openTx.id;
     const count = this.openTx.edits.length;
     const unprotected = this.openTx.edits.filter(e => e.baseline.kind === 'unreadable');
+    this.releaseBaselines(this.openTx.edits);
     this.openTx = null;
     Logger.info(`[TX] Committed ${id} (${count} file(s))`);
     const msg = [`Transaction ${id} committed (${count} file(s) changed).`];
@@ -259,10 +307,13 @@ export class TransactionManager {
   /** Same as `rollback`, with the per-path outcomes the receipt is built from. */
   async rollbackDetailed(options: { force?: boolean } = {}): Promise<RollbackResult> {
     if (this.rollingBack) {
-      return { id: '', message: 'A rollback is already in progress.', entries: [], pending: 0 };
+      return { id: '', message: 'A restoration is already in progress.', entries: [], pending: 0 };
     }
     if (!this.openTx) {
       return { id: '', message: 'No open transaction to roll back.', entries: [], pending: 0 };
+    }
+    if (this.openTx.pending) {
+      return { id: '', message: 'Snapshot capture is in progress. Wait before rolling back this transaction.', entries: [], pending: 0 };
     }
     const { id, edits } = this.openTx;
     // Stop tracking new edits into a transaction that is being undone, but keep the records: they
@@ -279,7 +330,9 @@ export class TransactionManager {
         if (entry.status === 'failed' || entry.status === 'conflict') keep.push(record);
       }
       const dir = keep.length ? await this.retainBaselines(id, keep, entries) : null;
-      this.retained = keep.length ? { id, dir, records: keep } : null;
+      if (keep.length) this.retained.set(id, { id, dir, records: keep });
+      const kept = new Set(keep);
+      this.releaseBaselines(edits.filter(e => !kept.has(e)));
     } finally {
       this.rollingBack = false;
     }
@@ -293,36 +346,59 @@ export class TransactionManager {
   }
 
   /**
-   * Retry the paths a rollback could not restore. Conflicts are NOT retried — they were kept on
-   * purpose; their pre-transaction bytes are in the retained directory for a human to apply.
+   * Retry unresolved paths using the same strict conflict checks. A conflict is only restored if
+   * its current state now matches a declared write; recovery never implies --force.
    */
   async recover(): Promise<string> {
-    if (!this.retained || this.retained.records.length === 0) return 'Nothing is pending recovery.';
-    const { id, records } = this.retained;
-    const entries: RestoreEntry[] = [];
-    const keep: EditRecord[] = [];
-    for (const record of records) {
-      const entry = await this.restoreOne(record, false);
-      entries.push(entry);
-      if (entry.status === 'failed' || entry.status === 'conflict') keep.push(record);
+    if (this.rollingBack) return 'A restoration is already in progress.';
+    if (this.openTx) return 'Commit or roll back the open transaction before retrying recovery.';
+    if (!this.retained.size) return 'Nothing is pending recovery.';
+    this.rollingBack = true;
+    const receipts: string[] = [];
+    try {
+      for (const { id, records, dir } of [...this.retained.values()]) {
+        const entries: RestoreEntry[] = [];
+        const keep: EditRecord[] = [];
+        for (const record of records) {
+          const entry = await this.restoreOne(record, false);
+          entries.push(entry);
+          if (entry.status === 'failed' || entry.status === 'conflict') keep.push(record);
+        }
+        const kept = new Set(keep);
+        this.releaseBaselines(records.filter(e => !kept.has(e)));
+        if (keep.length) this.retained.set(id, { id, dir, records: keep });
+        else this.retained.delete(id);
+        receipts.push(`Recovery of transaction ${id}: ${this.receipt(id, entries)}`);
+      }
+    } finally {
+      this.rollingBack = false;
     }
-    this.retained = keep.length ? { id, dir: this.retained.dir, records: keep } : null;
-    return `Recovery of transaction ${id}: ${this.receipt(id, entries)}`;
+    return receipts.join('\n');
+  }
+
+  private releaseBaselines(records: EditRecord[]): void {
+    this.heldSnapshotBytes -= records.reduce((n, r) => n + (r.baseline.bytes?.length ?? 0), 0);
   }
 
   /** Called on a mutating tool's failure while a transaction is open — auto-rollback. */
   async autoRollback(failedPath: string, reason: string): Promise<string> {
     if (!this.openTx) return '';
     const txId = this.openTx.id;
-    const rollbackMsg = await this.rollback();
-    return `Edit to ${failedPath} failed (${reason}). Auto-rolled back transaction ${txId}.\n${rollbackMsg}`;
+    const result = await this.rollbackDetailed();
+    const outcome = result.id === txId
+      ? `Automatic rollback attempted for transaction ${txId}; inspect the per-path outcomes below.`
+      : `Automatic rollback could not start for transaction ${txId}.`;
+    return `Edit to ${failedPath} failed (${reason}). ${outcome}\n${result.message}`;
   }
 
   // ---------------------------------------------------------------------------------------------
 
   /** Read the pre-edit state. Missing, empty and unreadable are three different answers. */
-  private async capture(absPath: string): Promise<Baseline> {
+  private async capture(absPath: string, reserveBaseline = false): Promise<Baseline> {
     let viaSymlink = false;
+    let handle: fs.FileHandle | undefined;
+    let reserved = 0;
+    let accepted = false;
     try {
       const link = await fs.lstat(absPath);
       viaSymlink = link.isSymbolicLink();
@@ -330,7 +406,9 @@ export class TransactionManager {
       /* resolved below by stat */
     }
     try {
-      const st = await fs.stat(absPath);
+      // Nonblocking open prevents a path swapped for a FIFO from hanging the engine.
+      handle = await fs.open(absPath, constants.O_RDONLY | constants.O_NONBLOCK);
+      const st = await handle.stat();
       if (!st.isFile()) {
         return { kind: 'unreadable', error: `not a regular file (${st.isDirectory() ? 'directory' : 'special file'})`, code: 'ENOTFILE', viaSymlink };
       }
@@ -343,13 +421,40 @@ export class TransactionManager {
           viaSymlink,
         };
       }
-      const bytes = await fs.readFile(absPath);
+      if (reserveBaseline && st.size > this.maxTotalSnapshotBytes - this.heldSnapshotBytes) {
+        return {
+          kind: 'unreadable', code: 'ETXBUDGET', size: st.size, viaSymlink,
+          error: `snapshot memory budget exhausted (${this.heldSnapshotBytes} held + ${st.size} bytes > ${this.maxTotalSnapshotBytes} byte aggregate limit)`,
+        };
+      }
+      if (reserveBaseline) {
+        reserved = st.size;
+        this.heldSnapshotBytes += reserved;
+      }
+      // Allocate exactly the inspected size: a file growing during the read cannot exceed the cap.
+      const bytes = Buffer.alloc(st.size);
+      let offset = 0;
+      while (offset < bytes.length) {
+        const { bytesRead } = await handle.read(bytes, offset, bytes.length - offset, offset);
+        if (!bytesRead) break;
+        offset += bytesRead;
+      }
+      const after = await handle.stat();
+      const atPath = await fs.stat(absPath);
+      if (offset !== st.size || after.size !== st.size || after.mtimeMs !== st.mtimeMs ||
+          after.ctimeMs !== st.ctimeMs || after.mode !== st.mode || atPath.dev !== st.dev || atPath.ino !== st.ino) {
+        return { kind: 'unreadable', code: 'ESTALE', viaSymlink, error: 'file changed during snapshot capture; no stable baseline was captured' };
+      }
+      accepted = true;
       return { kind: 'file', bytes, sha256: contentToken(bytes), mode: st.mode & 0o7777, size: bytes.length, viaSymlink };
     } catch (e: any) {
       // ENOENT is the ONLY error that means "nothing was here". Everything else is a file we
       // failed to read, and deleting it on rollback would destroy content we never captured.
-      if (e?.code === 'ENOENT') return { kind: 'absent', viaSymlink };
+      if (e?.code === 'ENOENT' && !handle && !viaSymlink) return { kind: 'absent', viaSymlink };
       return { kind: 'unreadable', error: `${e?.code || 'read failed'}: ${e?.message ?? String(e)}`, code: e?.code, viaSymlink };
+    } finally {
+      if (!accepted) this.heldSnapshotBytes -= reserved;
+      await handle?.close().catch(() => {});
     }
   }
 
@@ -367,22 +472,21 @@ export class TransactionManager {
     }
 
     const current = await this.capture(absPath);
-    if (current.kind === 'unreadable') {
+    if (current.kind === 'unreadable' && !force) {
       // We cannot see what is there now, so we cannot prove it is ours to overwrite.
       return {
         absPath,
-        status: force ? await this.forceStatus(record) : 'conflict',
+        status: 'conflict',
         verified,
-        detail: force
-          ? `overwrote an unreadable current state (${current.error}) because --force was given`
-          : `current content could not be read (${current.error}); it was left alone`,
+        detail: `current content could not be read (${current.error}); it was left alone`,
       };
     }
 
     const baselineToken = baseline.kind === 'absent' ? ABSENT : baseline.sha256!;
-    const currentToken = current.kind === 'absent' ? ABSENT : current.sha256!;
+    const currentToken = current.kind === 'absent' ? ABSENT : current.sha256 ?? '';
+    const modeMatches = baseline.kind !== 'file' || current.kind !== 'file' || current.mode === baseline.mode;
 
-    if (currentToken === baselineToken) {
+    if (currentToken === baselineToken && modeMatches) {
       return { absPath, status: 'unchanged', verified, detail: 'already matched the pre-transaction state' };
     }
 
@@ -392,12 +496,12 @@ export class TransactionManager {
     // A torn write (the process died mid-write, leaving neither state) also lands here: the file is
     // kept, the original is retained on disk, and `/tx rollback --force` applies it deliberately.
     const producedByUs = expected.has(currentToken);
-    if (!producedByUs && !force) {
+    if ((!producedByUs || !modeMatches) && !force) {
       return {
         absPath,
         status: 'conflict',
         verified,
-        detail: intentDeclared
+        detail: !modeMatches ? 'file permissions changed outside the declared content write; the newer mode was kept' : intentDeclared
           ? 'changed after this transaction wrote it; the newer content was kept'
           : 'the caller never declared what it wrote, so this content could not be attributed to this transaction; it was kept',
       };
@@ -412,7 +516,7 @@ export class TransactionManager {
       }
       await this.writeBack(absPath, baseline);
       const after = await this.capture(absPath);
-      if (after.kind !== 'file' || after.sha256 !== baseline.sha256) {
+      if (after.kind !== 'file' || after.sha256 !== baseline.sha256 || after.mode !== baseline.mode) {
         throw new Error(`read-back mismatch after restoring ${absPath}`);
       }
       return {
@@ -424,20 +528,6 @@ export class TransactionManager {
     } catch (e: any) {
       Logger.error(`[TX] Rollback failed for ${absPath}: ${e?.message ?? e}`);
       return { absPath, status: 'failed', verified, detail: e?.message ?? String(e) };
-    }
-  }
-
-  private async forceStatus(record: EditRecord): Promise<RestoreStatus> {
-    try {
-      if (record.baseline.kind === 'absent') {
-        await fs.rm(record.absPath, { force: true });
-        return 'removed';
-      }
-      await this.writeBack(record.absPath, record.baseline);
-      return 'restored';
-    } catch (e: any) {
-      Logger.error(`[TX] Forced rollback failed for ${record.absPath}: ${e?.message ?? e}`);
-      return 'failed';
     }
   }
 
@@ -456,7 +546,7 @@ export class TransactionManager {
     }
     if (isLink) {
       await fs.writeFile(absPath, bytes);
-      if (baseline.mode !== undefined) await fs.chmod(absPath, baseline.mode).catch(() => {});
+      if (baseline.mode !== undefined) await fs.chmod(absPath, baseline.mode);
       return;
     }
     const dir = path.dirname(absPath);

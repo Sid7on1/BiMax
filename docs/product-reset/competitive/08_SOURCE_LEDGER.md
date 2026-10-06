@@ -1,5 +1,71 @@
 # Competitive source ledger
 
+## Fault audit and provider pricing — checked 2026-10-04
+
+[Record 68](../68_FAULT_AUDIT_AND_REPAIR.md) distinguishes the supplied August public-tree audit from
+inspected current source (sandbox/app engine boot, outcome/evidence, taint, telemetry, hybrid memory,
+persona and Agent Skills loaders). No competitor source or dependency was imported.
+
+- [DeepSeek API pricing](https://api-docs.deepseek.com/quick_start/pricing/): first-party peak/off-peak
+  native input/output/cache-hit schedules. Peak Flash ($0.30/$1.20 per million, cached $0.006) and Pro
+  ($1.32/$3.96, cached $0.044) inform conservative native-route estimates. These rates cannot be applied
+  to NVIDIA/OpenRouter or treated as a Bimax wallet invoice. Recheck before commercial activation.
+- [Alibaba Cloud Model Studio models](https://www.alibabacloud.com/help/en/model-studio/models):
+  model/region/deployment-specific Qwen support/prices were inspected. No global Qwen rate or launch
+  lineup was inferred, and no default was changed. NVIDIA's attempted pricing page was inaccessible;
+  it does not establish a current NIM per-token charge. Unknown routes stay explicitly estimated.
+
+Local assertions and mutation receipts, not the pasted audit's confidence, establish the repairs.
+Provider-backed end-state quality, prepaid balances and general semantic evaluators remain Target.
+
+
+## Outputs Shelf and agent skills — checked 2026-10-04
+
+[Record 67](../67_OUTPUTS_SHELF_RESEARCH_AND_PLAN.md) is the current feature plan. These sources
+were opened as first-party documentation, not installed-agent measurements. All Bimax additions
+remain Target; the owner selected only Outputs Shelf. No third-party source, skill package,
+dependency, cloud resource, or account credential was imported.
+
+| Primary source | Established fact and planning limit |
+|---|---|
+| [Hermes Desktop](https://hermes-agent.nousresearch.com/docs/user-guide/desktop) | Searchable generated-output gallery, session provenance, origin-aware file resolution. Bimax durability/ownership still needs its own end-state proof. |
+| [Claude Artifacts](https://support.claude.com/en/articles/17153992-what-are-artifacts-and-how-do-i-use-them) | Cross-conversation collection, editing, templates, and format-dependent export. Artifact availability does not establish a Bimax renderer or editable Office runtime. |
+| [Manus attachments](https://open.manus.im/docs/v2/attachments) | Execution path, temporary download URL, file and version IDs are different fields. Plan durable identity separately from transport. |
+| [Codex/ChatGPT skills](https://learn.chatgpt.com/docs/build-skills) | Portable instructions/resources with progressive loading and scope. Retrieved through the official OpenAI documentation search/fetch tools. |
+| [Claude Agent Skills](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview) | Document skills and differing surface/runtime requirements; no automatic cross-surface synchronization. Avoid assuming a skill has its original environment in Bimax. |
+| [Hermes skills](https://hermes-agent.nousresearch.com/docs/user-guide/features/skills) | Staged loading, bundles, and source-based recipe learning. Bimax already has completed-task skill capture; extend it. |
+| [OpenClaw skills](https://docs.openclaw.ai/tools/skills) | Inventory, readiness, visibility, and dependency gates are distinct. Installation alone cannot confer authority or prove readiness. |
+| [OpenCode skills](https://opencode.ai/docs/skills/) | On-demand SKILL.md discovery, compatible roots and skill permission patterns. Import compatibility requires concrete mapping/tests. |
+| [Agent Skills specification](https://agentskills.io/specification) | Metadata/resources and optional compatibility/license fields; experimental tool allowance. Bimax-specific output descriptors are a separate contract. |
+| [Anthropic skills README](https://github.com/anthropics/skills), [xlsx metadata](https://github.com/anthropics/skills/blob/main/skills/xlsx/SKILL.md), [xlsx license](https://github.com/anthropics/skills/blob/main/skills/xlsx/LICENSE.txt) | Repository license scope varies by skill; document skills are source-available, with proprietary terms. Reference inspection only; no import/adaptation selected. |
+| [R2 Worker API](https://developers.cloudflare.com/r2/api/workers/workers-api-reference/), [D1 Worker API](https://developers.cloudflare.com/d1/worker-api/d1-database/) | Object streaming and bound SQL access support an optional storage service; account identity/authorization remain application work. |
+| [R2 presigned URLs](https://developers.cloudflare.com/r2/api/s3/presigned-urls/) | Signed URLs are bearer grants through expiry. Proposed revocable shares check authorization in a Worker on each request. |
+| [R2 pricing](https://developers.cloudflare.com/r2/pricing/), [Workers pricing](https://developers.cloudflare.com/workers/platform/pricing/), [D1 pricing](https://developers.cloudflare.com/d1/platform/pricing/) | Separate storage/operation, request/CPU, and row/storage meters. No fixed monthly Bimax quote or free-operation promise. Recheck before activation. |
+
+Cursor's `docs.cursor.com/en/context/skills` page was inaccessible in this check and is not evidence
+for a current skill capability. The missing competitive capability matrix and record 31 remain
+unavailable; their content was not inferred. Local producer/outcome/skill/files/security/SQLite
+seams informed the plan. O01 specifies future independent end-state/mutation qualification;
+this research produced no new runtime or competitive result.
+
+## Feature suggestions after Computer Use retirement — checked 2026-10-04
+
+- [Git: git-worktree](https://git-scm.com/docs/git-worktree) documents multiple working trees sharing one
+  repository. This is a foundation for proposed isolated solution comparisons (backlog L6/L17), not proof that
+  Bimax already supports product Thread isolation, safe handoff or comparative grading.
+- [Playwright: tracing](https://playwright.dev/docs/api/class-tracing) distinguishes browser-context traces
+  from Playwright Test tracing that includes assertions. A possible local-web QA feature must retain actual
+  assertion outcomes; a trace alone is not completion evidence. No native Computer Use is proposed.
+- [GitHub: re-running workflows and jobs](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/re-run-workflows-and-jobs)
+  documents failed-job reruns via `gh run rerun --failed`. This is adjacent infrastructure for proposed Project
+  Guardian/CI diagnosis (L5), not an implemented Bimax repair loop or authorization to launch paid CI runs.
+
+Recommendations use current retirement record 66, existing backlog 48 and proposal record 52. Output discovery,
+bounded fault checks, failure reduction and isolated alternatives are proposed product extensions; no competitor
+absence, novelty, performance or Product-ready claim is made. The referenced `03_CAPABILITY_MATRIX.md` and
+record 31 are absent from the current repository; their stale pointers are not treated as inspected evidence.
+No feature code or dependencies changed, and no runtime tests were needed for this research-only addition.
+
 ## Context audit and feature research — checked 2026-09-14
 
 [Record 51](../51_CONTEXT_UPGRADE_AUDIT.md) records inspected source at `333329f`, 25 passing Bun
@@ -595,3 +661,102 @@ discovery, the shell rejected `open -a Music`, and the model did not try the alr
 No Music window was read or input dispatched. This is a model recovery failure, not new evidence of TCC denial or
 background search failure. The source correction and bounded tests/mutants are in record 65 and
 `evidence/2026-10-02-cu-launch-recovery/`; no external platform claim or competitor source is introduced.
+
+## 2026-10-05 — fresh chat evidence and code-behavior proposal
+
+Current source inspected: `startEngine`/ThreadManager project selection, BasePersona harness lab,
+RecordedReplayBackend/AgentLoop, engineEvents/ProtocolHost/SessionRecorder, renderer/preload owner
+subscriptions and episode fencing. A real recorded call is delivered to live listeners before the
+fix; record 69 preserves final-state regressions, eight mutants and local installation evidence.
+No user transcript or credential contents are published.
+
+Primary documentation rechecked for record 70 on 2026-10-05:
+- [Playwright Trace Viewer](https://playwright.dev/docs/trace-viewer): action before/after DOM,
+  source, console and network exploration are existing building blocks, not a novel Bimax feature.
+- [OpenTelemetry JavaScript instrumentation](https://opentelemetry.io/docs/languages/js/instrumentation/):
+  active asynchronous context and nested spans support causal correlation; this alone does not
+  recover arbitrary function locals or explain all behavior.
+- [Sourcegraph precise code navigation](https://sourcegraph.com/docs/code-navigation/precise-code-navigation):
+  compiler-generated SCIP indexes support precise symbol navigation.
+
+The joined symbol/execution/reproducer/revision product and its proposed usefulness are our design
+inference, not a claim about rival absence, market novelty or measured superiority. All slices Target.
+
+## 2026-10-06 — background task lifecycle and pipe decoding
+
+Primary sources rechecked for record 71:
+
+- [Node child processes](https://nodejs.org/api/child_process.html): detached POSIX children form
+  process groups; close follows child exit and stdio closure; sending a signal does not establish
+  termination and SIGTERM can be handled without exiting. Bimax's real fixtures independently
+  verify cooperative cancellation, resistant parent/descendant removal and drained output.
+- [Node StringDecoder](https://nodejs.org/api/string_decoder.html): decoding keeps incomplete
+  multibyte characters until subsequent bytes arrive and end flushes the remaining input. Bimax's
+  controlled split-byte fixture verifies its actual shell output rather than a copied algorithm.
+
+Inspected local BashTool, shell tasks, TaskRegistry, sub-agent blackboard/manager, tool factory,
+shared taint channel and background evidence observer. No competitor source copied; no new
+external model, service, platform-performance or competitive-superiority claim introduced.
+
+## 2026-10-06 — transaction lifecycle and bounded filesystem snapshots
+
+Primary documentation rechecked for record 72:
+
+- [Node 22 filesystem API](https://nodejs.org/docs/latest-v22.x/api/fs.html): FileHandle open/stat/read/
+  close APIs support reading through one descriptor; reads may be short and callers must fill the
+  requested range themselves. Filesystem checks do not make a later operation race-free. The bounded
+  allocation, shared reservation and post-read rejection policy are Bimax implementation choices,
+  verified with real file growth/replacement fixtures and controlled short reads, not Node guarantees
+  of atomic multi-file rollback or an externally measured performance claim.
+
+Inspected TransactionManager, `/tx`, actual write/edit/delete/multi-edit call sites and existing
+rollback tests. Record 72 preserves initial failures, mutation/restoration hashes and final-state
+filesystem checks. Missing competitive matrix and referenced reset records are explicitly reported.
+No competitor source reused, provider/default/credential changes, install or public Win claim.
+
+## 2026-10-06 — Bimax Thread undo containment and verification
+
+[Record 73](../73_THREAD_UNDO_RELIABILITY_SPRINT.md) uses inspected app undo/Bin/IPC and engine
+journal/governor source, real scratch-file assertions and executable source mutations.
+
+- [Node 22 filesystem API](https://nodejs.org/docs/latest-v22.x/api/fs.html), opened as current
+  first-party documentation: realpath resolves filesystem links; lstat identifies the link itself;
+  copyFile supports exclusive destination creation and is not promised atomic; FileHandle
+  open/stat/read/close supports descriptor checks and bounded streaming. These inform canonical
+  parents, exclusive staging, nonblocking regular-file checks and byte/mode read-back. They do not
+  establish protection against cross-process path swaps, durability/fsync, Bin permissions,
+  recursive directory integrity or historical source-copy provenance.
+
+No competitor/platform superiority claim or imported source is involved. Installed native Bin,
+crash recovery and performance measurements remain Target/unmeasured; missing reset records are
+reported in record 73. First-party API text is evidence of semantics, not a successful Bimax journey.
+
+## 2026-10-06 — PDF footer pagination and owned reader jobs, round 4
+
+[Record 74](../74_PDF_RELIABILITY_SPRINT.md) repairs inspected document paths in the current
+55/64/66 monolith; no dependency or competitor source is imported.
+
+- [PDFKit text documentation](https://pdfkit.org/docs/text.html), opened 2026-10-06: text flows
+  into new pages; width selects a wrapping region and lineBreak is documented as disabling
+  wrapping. Inspected installed PDFKit **0.20.2** selects its LineWrapper when an explicit width
+  exists even with lineBreak:false. Real Poppler page-count/text assertions reproduce the footer
+  adding a page, so the repair omits width and measures placement instead of relying on that
+  general documentation sentence. bufferPages retains pages for explicit numbering.
+- [Node v22.17.0 child-process documentation](https://nodejs.org/download/release/v22.17.0/docs/api/child_process.html):
+  spawn owns pipes; close follows exit and stream closure; detached establishes a new process
+  group/session on non-Windows platforms. execFile's convenience behavior is not a whole-tree
+  termination guarantee. [Process signals](https://nodejs.org/download/release/v22.17.0/docs/api/process.html#processkillpid-signal)
+  distinguish a signal sender from observed process death; signal 0 checks existence.
+  [Versioned util documentation](https://nodejs.org/download/release/v22.17.0/docs/api/util.html)
+  was also inspected during diagnosis; the actual callback/promisified Poppler probe completed.
+  No promisify defect is claimed. These are explicit versioned first-party pages, not a claim to
+  have read latest-v22 pages (those requests were inaccessible). Actual test runtime: **22.13.1**.
+- Inspected local `/opt/homebrew/bin/pdftotext -v`: **Poppler 26.08.0**. Actual generated-file
+  metadata/text and three rendered pages qualify the local artifact. The attempted upstream
+  GitLab man-page URL was inaccessible and is not relied on as retrieved evidence.
+- The unchanged layout-suite process trace records a footer-only OCR invocation taking 21,369 ms,
+  while Poppler extraction/metadata complete in tens of milliseconds. That trace supports the
+  specific unnecessary-OCR diagnosis, not general native OCR reliability or a speedup benchmark.
+
+General OCR, clean-Mac tooling/distribution, installed/provider journeys and resource/performance
+qualification remain Target. Details and exploratory fixture exclusions are retained with record 74.

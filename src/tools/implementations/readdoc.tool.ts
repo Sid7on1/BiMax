@@ -79,56 +79,61 @@ Use this for inspection reports, SOPs, manuals, drawings, and any scanned corres
         }, null, 2));
       }
 
-      const tooling = await pdfToolingAvailable();
+      const tooling = await pdfToolingAvailable({ signal: context?.signal });
       if (!tooling.ok) return outcomeError('external', new PdfToolingMissing(tooling.missing[0]).message);
 
       const result = await readPdf(file, {
-        firstPage: args.firstPage, lastPage: args.lastPage, dpi: args.dpi,
+        firstPage: args.firstPage, lastPage: args.lastPage, dpi: args.dpi, signal: context?.signal,
       });
 
-      // Only pages that genuinely need looking at reach the recognizer. On a digital PDF that is
-      // none of them, which is the whole point of trying the text layer first.
-      const needOcr = result.pages.filter(p => p.source === 'raster' && p.imagePath);
-      let backend: string | undefined;
-      const recognized = new Map<string, { text: string; confidence?: number; lines: number; error?: string }>();
-      if (needOcr.length > 0) {
-        const ocr = await ocrPages(needOcr.map(p => p.imagePath!));
-        backend = ocr.backend;
-        for (const page of ocr.pages) recognized.set(page.imagePath, page);
-      }
-
-      const pages = result.pages.map(page => {
-        if (page.source === 'text-layer') {
-          return { page: page.page, source: 'text-layer', text: page.text ?? '' };
+      try {
+        context?.signal?.throwIfAborted();
+        // Only pages that genuinely need looking at reach the recognizer. On a digital PDF that is
+        // none of them, which is the whole point of trying the text layer first.
+        const needOcr = result.pages.filter(p => p.source === 'raster' && p.imagePath);
+        let backend: string | undefined;
+        const recognized = new Map<string, { text: string; confidence?: number; lines: number; error?: string }>();
+        if (needOcr.length > 0) {
+          const ocr = await ocrPages(needOcr.map(p => p.imagePath!));
+          context?.signal?.throwIfAborted();
+          backend = ocr.backend;
+          for (const page of ocr.pages) recognized.set(page.imagePath, page);
         }
-        const hit = page.imagePath ? recognized.get(page.imagePath) : undefined;
-        // A page with no text layer that the recognizer also found nothing on is BLANK, not a scan
-        // we read. Labelling it 'ocr' would imply a recognizer read something, and a trailing page
-        // carrying only a footer would look like a page whose contents we failed to recover.
-        const source = hit && hit.lines === 0 && !hit.error ? 'blank' : 'ocr';
-        return {
-          page: page.page,
-          source,
-          text: hit?.text ?? '',
-          lines: hit?.lines ?? 0,
-          ...(hit?.confidence !== undefined ? { confidence: Number(hit.confidence.toFixed(3)) } : {}),
-          ...(hit?.confidence !== undefined && hit.confidence < LOW_CONFIDENCE ? { lowConfidence: true } : {}),
-          ...(hit?.error ? { error: hit.error } : {}),
-        };
-      });
 
-      return outcomeOk(JSON.stringify({
-        file: args.path,
-        kind: 'pdf',
-        totalPages: result.totalPages,
-        pagesRead: pages.length,
-        ...(backend ? { ocrBackend: backend } : {}),
-        readExactly: pages.filter(p => p.source === 'text-layer').length,
-        readByOcr: pages.filter(p => p.source === 'ocr').length,
-        blank: pages.filter(p => p.source === 'blank').length,
-        pages,
-      }, null, 2));
+        const pages = result.pages.map(page => {
+          if (page.source === 'text-layer') {
+            return { page: page.page, source: 'text-layer', text: page.text ?? '' };
+          }
+          const hit = page.imagePath ? recognized.get(page.imagePath) : undefined;
+          // A page with no text layer that the recognizer also found nothing on is BLANK, not a scan
+          // we read. Labelling it 'ocr' would imply a recognizer read something, and a trailing page
+          // carrying only a footer would look like a page whose contents we failed to recover.
+          const source = hit && hit.lines === 0 && !hit.error ? 'blank' : 'ocr';
+          return {
+            page: page.page,
+            source,
+            text: hit?.text ?? '',
+            lines: hit?.lines ?? 0,
+            ...(hit?.confidence !== undefined ? { confidence: Number(hit.confidence.toFixed(3)) } : {}),
+            ...(hit?.confidence !== undefined && hit.confidence < LOW_CONFIDENCE ? { lowConfidence: true } : {}),
+            ...(hit?.error ? { error: hit.error } : {}),
+          };
+        });
+
+        return outcomeOk(JSON.stringify({
+          file: args.path,
+          kind: 'pdf',
+          totalPages: result.totalPages,
+          pagesRead: pages.length,
+          ...(backend ? { ocrBackend: backend } : {}),
+          readExactly: pages.filter(p => p.source === 'text-layer').length,
+          readByOcr: pages.filter(p => p.source === 'ocr').length,
+          blank: pages.filter(p => p.source === 'blank').length,
+          pages,
+        }, null, 2));
+      } finally { await result.dispose?.(); }
     } catch (error: unknown) {
+      if (context?.signal?.aborted) throw error;
       if (error instanceof NoOcrBackend || error instanceof PdfToolingMissing) {
         return outcomeError('external', error.message);
       }

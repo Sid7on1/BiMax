@@ -146,13 +146,13 @@ const api = {
     rulesPick: () => ipcRenderer.invoke('threads:rules-pick'),
   },
   send: (msg: unknown): void => ipcRenderer.send('engine:send', msg, activeThreadId),
-  onMessage: (cb: (msg: unknown) => void): (() => void) => {
-    const h = (_e: unknown, msg: unknown): void => cb(msg);
+  onMessage: (cb: (msg: unknown, threadId?: string) => void): (() => void) => {
+    const h = (_e: unknown, msg: unknown, threadId?: string): void => cb(msg, threadId);
     ipcRenderer.on('engine:msg', h);
     return () => ipcRenderer.removeListener('engine:msg', h);
   },
-  onEngineState: (cb: (state: string, detail: string) => void): (() => void) => {
-    const h = (_e: unknown, state: string, detail: string): void => cb(state, detail);
+  onEngineState: (cb: (state: string, detail: string, threadId?: string) => void): (() => void) => {
+    const h = (_e: unknown, state: string, detail: string, threadId?: string): void => cb(state, detail, threadId);
     ipcRenderer.on('engine:state', h);
     return () => ipcRenderer.removeListener('engine:state', h);
   },

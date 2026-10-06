@@ -1,6 +1,26 @@
 # Target architecture
 
-> **Current implementation, 2026-10-02 — records 55, 64 and 65:** Bimax for Mac runs each Bimax Thread's
+## Fresh project conversations and scoped replay — 2026-10-05
+
+[Record 69](69_FRESH_CHAT_AND_REPLAY_ISOLATION.md) changes explicit repository opening to create a
+fresh Bimax Thread. Credential renewal restarts the selected matching-root conversation; history
+selection remains explicit. Harness evaluation uses asynchronous execution-local replay scope and
+cannot publish recorded calls into live events, saved sessions or live-loop bookkeeping. Records
+55/64's monolith and record 66's Computer Use retirement remain current.
+
+
+## Computer Use retired — owner decision, 2026-10-04
+
+The owner explicitly withdrew Computer Use: “roll off the bimax cu completely keep it in archive again i dont
+want that feature at all”. [66_COMPUTER_USE_RETIREMENT_RECORD.md](66_COMPUTER_USE_RETIREMENT_RECORD.md) governs the
+current boundary. The look/press/type/scroll tools, app services, preview switches, Accessibility request path,
+native driver dependency and feature proof scripts are archived outside the repository. Saved flags cannot restore
+them; stale host requests and governor COMPUTER_CONTROL requests refuse. Coding, Bimax Threads, Finder folder
+selection and on-device dictation remain. Records 55/64 still govern engine workers in the monolith. Record 65 and
+its measurements below are historical evidence, not an active rollout or authorization to reintroduce the feature.
+
+
+> **Historical implementation, 2026-10-02 — superseded by record 66:** Bimax for Mac runs each Bimax Thread's
 > engine in a worker over its MessagePort. Opted-in ⌘2 tasks may look, press, type, submit Return, pick a pop-up item
 > and scroll in apps the person grants for that task; project windows receive none of these tools. The app owns the
 > pinned in-process Cua Driver 0.31.0, grants, commit/overwrite cards, freshness and build binding, and verification.

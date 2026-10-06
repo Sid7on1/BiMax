@@ -210,6 +210,7 @@ export interface VectorStoreOptions {
 
 export class VectorStore {
   private store: VectorDocument[] = [];
+  private diskIdentity: string | null = null;
   private readonly STORE_PATH: string;
   private rwMutex = new Mutex();
   private readonly MAX_VECTORS: number;
@@ -301,6 +302,9 @@ export class VectorStore {
         const pendingRecency = this.recencyDirty
           ? new Map(this.store.map((doc) => [doc.id, doc.lastUsedAt ?? 0]))
           : null;
+        const stat = await fs.stat(this.STORE_PATH, { bigint: true });
+        const identity = `${stat.dev}:${stat.ino}:${stat.size}:${stat.mtimeNs}:${stat.ctimeNs}`;
+        if (identity === this.diskIdentity) return;
         const data = await fs.readFile(this.STORE_PATH, 'utf-8');
         const parsed = JSON.parse(data);
         if (!Array.isArray(parsed)) throw new Error('Invalid memory store');
@@ -325,12 +329,18 @@ export class VectorStore {
             }
           }
         }
+        this.diskIdentity = identity;
         this.indexDirty = true;
         Logger.info(`[VectorStore] Loaded ${this.store.length} memories from disk.`);
         reportCapability({ id: 'memory-storage-read', label: 'Memory storage', state: 'ready',
           reason: 'Stored memories were read successfully.', impact: '', action: '' });
       } catch (error: any) {
-        if (error?.code === 'ENOENT') return;
+        if (error?.code === 'ENOENT') {
+          this.store = [];
+          this.diskIdentity = null;
+          this.indexDirty = true;
+          return;
+        }
         reportCapability({ id: 'memory-storage-read', label: 'Memory storage', state: 'unavailable',
           reason: 'Stored memories could not be read.', impact: 'Memory results cannot be trusted as complete.',
           action: 'Check the memory file and disk access before retrying.' });
@@ -345,7 +355,18 @@ export class VectorStore {
   private async saveStore() {
     try {
       await fs.mkdir(path.dirname(this.STORE_PATH), { recursive: true });
-      await fs.writeFile(this.STORE_PATH, JSON.stringify(this.store, null, 2), 'utf-8');
+      const tmp = `${this.STORE_PATH}.${process.pid}.${Date.now()}.tmp`;
+      try {
+        await fs.writeFile(tmp, JSON.stringify(this.store, null, 2), 'utf-8');
+        const written = await fs.stat(tmp, { bigint: true });
+        await fs.rename(tmp, this.STORE_PATH);
+        const stat = await fs.stat(this.STORE_PATH, { bigint: true });
+        // Cache only the bytes we wrote. Another writer may replace/overwrite the destination
+        // between rename and stat; its identity must never be attached to our in-memory data.
+        const stillOurs = stat.dev === written.dev && stat.ino === written.ino
+          && stat.size === written.size && stat.mtimeNs === written.mtimeNs;
+        this.diskIdentity = stillOurs ? `${stat.dev}:${stat.ino}:${stat.size}:${stat.mtimeNs}:${stat.ctimeNs}` : null;
+      } finally { await fs.rm(tmp, { force: true }).catch(() => {}); }
       reportCapability({ id: 'memory-storage-write', label: 'Memory persistence', state: 'ready',
         reason: 'Stored memories were saved successfully.', impact: '', action: '' });
     } catch (error) {
@@ -653,8 +674,11 @@ export class VectorStore {
     this.recencyTimer = setTimeout(() => {
       this.recencyTimer = null;
       if (!this.recencyDirty) return;
-      this.recencyDirty = false;
-      this.rwMutex.runExclusive(async () => { await this.saveStore(); }).catch(() => {
+      this.rwMutex.runExclusive(async () => {
+        await this.loadStore(true);
+        await this.saveStore();
+        this.recencyDirty = false;
+      }).catch(() => {
         // Keep the dirty bit: the next retrieval or write gets another chance to persist it.
         this.recencyDirty = true;
       });

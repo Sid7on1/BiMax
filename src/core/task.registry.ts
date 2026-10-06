@@ -54,14 +54,14 @@ const LEGAL: Record<TaskState, TaskState[]> = {
   'queued':           ['starting', 'cancelled'],
   'starting':         ['running', 'streaming', 'waiting-model', 'waiting-tool', 'waiting-browser', 'failed', 'failed-resumable', 'cancelling', 'cancelled'],
   'running':          ['streaming', 'waiting-model', 'waiting-tool', 'waiting-browser', 'waiting-user', 'retrying', 'recovering', 'paused', 'cancelling', 'completed', 'failed', 'failed-resumable'],
-  'streaming':        ['running', 'waiting-model', 'waiting-tool', 'completed', 'failed', 'failed-resumable', 'cancelling'],
+  'streaming':        ['running', 'waiting-model', 'waiting-tool', 'paused', 'completed', 'failed', 'failed-resumable', 'cancelling'],
   'waiting-model':    ['running', 'streaming', 'retrying', 'cancelling', 'failed', 'failed-resumable'],
   'waiting-tool':     ['running', 'retrying', 'cancelling', 'failed', 'failed-resumable'],
   'waiting-browser':  ['running', 'recovering', 'retrying', 'cancelling', 'failed', 'failed-resumable'],
   'waiting-user':     ['running', 'cancelling', 'cancelled'],
   'retrying':         ['running', 'starting', 'failed', 'failed-resumable', 'cancelling'],
   'recovering':       ['running', 'starting', 'failed', 'failed-resumable', 'cancelling'],
-  'paused':           ['running', 'cancelling', 'cancelled'],
+  'paused':           ['running', 'cancelling', 'cancelled', 'completed', 'failed', 'failed-resumable'],
   'cancelling':       ['cancelled', 'failed'],
   'cancelled':        [],
   'completed':        [],
@@ -75,6 +75,14 @@ export class TaskRegistry {
   private tasks = new Map<string, WorkspaceTask>();
   private handles = new Map<string, TaskHandle>();
   private outputs = new Map<string, string[]>(); // bounded ring buffers (OUTPUT_MAX_LINES)
+  private streamTails = new Map<string, string>(); // channel of the unfinished last line
+  private listeners = new Set<() => void>();
+
+  /** Subscribe to lifecycle changes; the disposer belongs to the pending waiter. */
+  onChange(listener: () => void): () => void {
+    this.listeners.add(listener);
+    return () => { this.listeners.delete(listener); };
+  }
 
   static readonly OUTPUT_MAX_LINES = 400;
 
@@ -162,6 +170,7 @@ export class TaskRegistry {
   }
 
   appendOutput(id: string, chunk: string): void {
+    this.streamTails.delete(id);
     let buf = this.outputs.get(id);
     if (!buf) { buf = []; this.outputs.set(id, buf); }
     for (const line of chunk.split('\n')) {
@@ -169,6 +178,27 @@ export class TaskRegistry {
     }
     // Bounded storage: keep the newest OUTPUT_MAX_LINES lines (virtualized tail, not the world).
     if (buf.length > TaskRegistry.OUTPUT_MAX_LINES) buf.splice(0, buf.length - TaskRegistry.OUTPUT_MAX_LINES);
+  }
+  /** Pipe chunks are not lines. Join only consecutive chunks from the same output channel. */
+  appendStreamOutput(id: string, chunk: string, channel: string): void {
+    if (!chunk) return;
+    let buf = this.outputs.get(id);
+    if (!buf) { buf = []; this.outputs.set(id, buf); }
+    let start = 0;
+    let continues = this.streamTails.get(id) === channel;
+    while (start < chunk.length) {
+      const newline = chunk.indexOf('\n', start);
+      const end = newline === -1 ? chunk.length : newline;
+      const previous = continues ? buf.pop() || '' : '';
+      const available = Math.max(0, 500 - previous.length);
+      const text = previous + chunk.slice(start, Math.min(end, start + available));
+      buf.push(previous.length > 500 || end - start > available ? text.slice(0, 500) + '…' : text);
+      if (buf.length > TaskRegistry.OUTPUT_MAX_LINES) buf.shift();
+      continues = false;
+      start = end + 1;
+    }
+    if (chunk.endsWith('\n')) this.streamTails.delete(id);
+    else this.streamTails.set(id, channel);
   }
   output(id: string, lastN = 40): string {
     const buf = this.outputs.get(id) || [];
@@ -220,6 +250,7 @@ export class TaskRegistry {
     if (!TERMINAL_STATES.has(t.state)) return `${t.title} is still ${t.state} — cancel it first.`;
     this.tasks.delete(t.id);
     this.outputs.delete(t.id);
+    this.streamTails.delete(t.id);
     this.changed();
     return `Closed ${t.title}.`;
   }
@@ -231,6 +262,9 @@ export class TaskRegistry {
   }
 
   private changed(): void {
+    for (const listener of this.listeners) {
+      try { listener(); } catch { /* observers cannot break task lifecycle */ }
+    }
     try { engineEvents.emit('tasks_changed'); } catch { /* wiring optional in tests */ }
   }
 }

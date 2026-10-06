@@ -122,6 +122,7 @@ export function buildOfflineProfile(cwd: string): string {
 export function sandboxArgv(command: string, cwd: string): string[] | null {
   if (!isSandboxEnabled()) return null;
   const backend = sandboxBackend();
+  if (!backend && enabled) throw new Error('Shell sandboxing is enabled but no OS backend is available.');
   if (process.env.BIMAX_THREAD_ROOT) {
     if (!backend) throw new Error('This thread requires an OS sandbox for shell commands; none is available.');
     cwd = process.env.BIMAX_THREAD_ROOT;

@@ -8,7 +8,7 @@ import { YoloClassifier } from '../security/yolo.classifier';
 import { engineEvents } from '../engine/events';
 import { BashStaticAnalyzer } from './bash.analyzer';
 import * as fsp from 'fs/promises';
-import { isReadOnlyShellCommand } from '../tools/shell.readonly';
+import { isApprovalReadOnlyShellCommand } from '../tools/shell.readonly';
 import { enforceThreadScope } from '../tools/thread.scope';
 import { approvalCard, deletesOutsideBin, planFileChange } from '../tools/thread.changes';
 import { recordBeforeChange } from '../tools/thread.journal';
@@ -20,16 +20,6 @@ import { taintRestriction } from '../mind/taint';
 /** The approval-card choice that allows a described change for the rest of the task (N13). */
 export const TASK_GRANT_OPTION = 'Allow for this task';
 const THREAD_DELETE_GUIDANCE = 'In a Bimax thread, deletes go to the Bin so the user can undo them. Delete with a plain `rm <path>…` (optionally after `cd <folder> &&`; same-folder wildcards are fine) or DeleteTool — not find -delete, a pipeline or a chain of commands. Nothing was deleted.';
-
-/**
- * REPAIR NOTE (2026-08-18): the 2026-08-15 corruption-recovery commit (f7caa05) silently
- * dropped this file's entire Computer Use safety machinery — the sensitive-target hard floor,
- * COMPUTER_CONTROL handling in plan-block/Layer-4, the high-impact exemption from blanket allow
- * rules, and the session-grant API. COMPUTER_CONTROL approvals then passed UNPROMPTED in every
- * mode except strict. Restored verbatim from 398f5b8 (pre-regression); the safety suite
- * (computer.use.safety.test.ts) pins each piece. The Desktop's consent channel is literally
- * named 'engine-governor' — this floor is what stands between the model and mac_control.
- */
 
 /**
  * `unattended` (backlog FL5, night shift): nobody is there to answer, so what would be asked is decided instead.
@@ -44,27 +34,6 @@ export interface ToolPermissionRule {
   pattern?: string;
   effect: 'allow' | 'deny';
   persistent: boolean;
-}
-
-/**
- * Targets computer control must never touch, regardless of grants, rules, or mode: credential
- * stores, OS security surfaces, and asset wallets. Matched against the app/window name a desktop
- * action names (and the browser host when one obviously identifies a credential manager). The
- * list is deliberately short and high-confidence — everything else still faces the normal
- * approval ladder.
- */
-const SENSITIVE_COMPUTER_TARGETS: RegExp[] = [
-  /keychain/i,
-  /1password|lastpass|bitwarden|dashlane|keepass|keeper/i,
-  /system settings|system preferences/i,
-  /passwords?\.app/i,
-  /\bwallet\b|metamask|ledger live|trezor/i,
-];
-
-export function isSensitiveComputerTarget(target: string): boolean {
-  const t = (target || '').trim();
-  if (!t) return false;
-  return SENSITIVE_COMPUTER_TARGETS.some(pattern => pattern.test(t));
 }
 
 export class Governor implements IGovernor {
@@ -83,27 +52,6 @@ export class Governor implements IGovernor {
     if (this.budget) this.budget.enabled = m !== 'bypass';
   }
   public rules: ToolPermissionRule[] = [];
-  // Session-scoped computer-control grants ("this browser domain" / "this desktop app"), never
-  // persisted — a fresh session always starts with zero standing computer-control permissions.
-  private sessionGrants = new Set<string>();
-
-  /** Scope key a COMPUTER_CONTROL payload can be granted under: browser domain or desktop app. */
-  public static computerGrantKey(payload: any): string | null {
-    const host = String(payload?.host || '').trim().toLowerCase();
-    if (host) return `domain:${host}`;
-    const app = String(payload?.app || '').trim().toLowerCase();
-    if (app) return `app:${app}`;
-    return null;
-  }
-
-  public computerGrants(): string[] { return Array.from(this.sessionGrants).sort(); }
-
-  public revokeComputerGrants(): number {
-    const n = this.sessionGrants.size;
-    this.sessionGrants.clear();
-    return n;
-  }
-
   constructor(private eventBus: IEventBus, private yolo?: YoloClassifier) {
     this.budget = new BudgetVeto();
     this.fs = new FileSystemVeto();
@@ -124,19 +72,19 @@ export class Governor implements IGovernor {
   }
 
   public async approveTaskExecution(taskType: string, payload: any): Promise<void> {
-    // Hard floors for computer control: credential stores, OS security surfaces and wallets are denied outright, and
-    // so is any computer control while nobody is watching — before the Bimax Thread branch below, before bypass, rules
-    // and grants. They used to sit after that branch, which returns early, so inside a Thread neither held (record 46's
-    // restoration trap; fixed in record 65 stage 3, the first stage that lets a Thread press anything). A
-    // prompt-injected page or a blanket "always allow" must never steer clicks into a password manager.
+    // Retired capability: refuse even stale plugins, bypass mode, and saved allow rules before any shortcut.
     if (taskType === 'COMPUTER_CONTROL') {
-      const target = `${payload?.app || ''} ${payload?.host || ''}`.trim();
-      if (isSensitiveComputerTarget(target)) {
-        throw new GovernorVetoError(
-          `Computer control is not allowed on sensitive targets (credential managers, system security settings, wallets): ${target}. Do it manually if it is genuinely needed.`
-        );
-      }
-      if (this.mode === 'unattended') throw new GovernorVetoError('Computer control is not allowed while unattended.');
+      throw new GovernorVetoError('Computer Use has been removed from Bimax.');
+    }
+
+    // Taint capability narrowing (v2 D3) — computed BEFORE the rule shortcut so a persistent
+    // "Always Allow" created in a clean session can never waive it: once untrusted content
+    // (file/web/MCP output) is in the conversation, network-capable commands are hard-blocked in
+    // auto mode and always face the human elsewhere.
+    const taintCut: { action: 'block' | 'ask'; reason: string } | null =
+      taskType === 'OS_COMMAND' ? taintRestriction(payload.command || '', this.mode) : null;
+    if (taintCut?.action === 'block') {
+      throw new GovernorVetoError(`Blocked: ${taintCut.reason}`);
     }
 
     // Folder-bound Bimax threads (BIMAX_THREAD_ROOT) cannot inherit bypass or persistent blanket grants.
@@ -158,12 +106,7 @@ export class Governor implements IGovernor {
         throw new GovernorVetoError(THREAD_DELETE_GUIDANCE);
       }
       let routine = payload.isDestructive === false;
-      if (taskType === 'OS_COMMAND') routine = isReadOnlyShellCommand(payload.command);
-      // Record 65 §6h (the owner's choice, 2026-10-02): in a Bimax Thread, computer control is approved by the app,
-      // which reads the window and so knows what a step does — ordinary steps run, and anything that sends, pays,
-      // deletes or confirms stops on the app's card showing exactly what. The floors at the top of this method
-      // (sensitive targets, unattended) and plan mode above have already run; nothing here can skip the app's card.
-      if (taskType === 'COMPUTER_CONTROL') routine = true;
+      if (taskType === 'OS_COMMAND') routine = isApprovalReadOnlyShellCommand(payload.command) && !taintCut;
       if (taskType === 'FILE_WRITE' && typeof payload.targetPath === 'string') {
         try { await fsp.lstat(payload.targetPath); routine = false; }
         catch (error: any) { if (error.code === 'ENOENT') routine = true; else throw error; }
@@ -178,15 +121,15 @@ export class Governor implements IGovernor {
         // N13: every floor above has already run. A change the user allowed for this task — the same file, the same
         // command, or an undoable change inside the folder — is not asked about again; anything else is.
         const grant = grantFor(taskType, change, payload, process.env.BIMAX_THREAD_ROOT, threadCwd);
-        const granted = grant ? taskGrants.use(grant.key) : null;
+        const granted = grant && !taintCut ? taskGrants.use(grant.key) : null;
         if (granted) {
           engineEvents.emit('status', `Allowed for this task: ${granted.label}`);
         } else {
           const card = approvalCard(change, taskType, payload);
-          const options = grant ? ['Allow', TASK_GRANT_OPTION, 'Deny'] : ['Allow', 'Deny'];
-          const body = grant ? `${card.body}\n\n“${TASK_GRANT_OPTION}” also allows ${grant.label} until this task ends, without asking again.` : card.body;
-          const answer = await GlobalPrompter.ask(card.question, options, { body });
-          if (answer === TASK_GRANT_OPTION && grant) {
+          const options = grant && !taintCut ? ['Allow', TASK_GRANT_OPTION, 'Deny'] : ['Allow', 'Deny'];
+          const body = grant && !taintCut ? `${card.body}\n\n“${TASK_GRANT_OPTION}” also allows ${grant.label} until this task ends, without asking again.` : card.body;
+          const answer = await GlobalPrompter.ask(taintCut ? `TAINTED CONTEXT — ${taintCut.reason}\n${card.question}` : card.question, options, { body });
+          if (answer === TASK_GRANT_OPTION && grant && !taintCut) {
             taskGrants.add(grant);
             engineEvents.emit('message', { id: `grant-${Date.now()}`, role: 'system', level: 'info', content: `For the rest of this task Bimax will not ask again about ${grant.label}. Run /grants clear to be asked again.`, timestamp: new Date() });
           } else if (answer !== 'Allow') {
@@ -203,14 +146,12 @@ export class Governor implements IGovernor {
       return;
     }
 
-    // (The computer-control hard floors run at the top of this method, ahead of the Thread branch.)
-
     // Workspace containment is a hard floor, including persistent allow rules and bypass mode.
     if (taskType === 'FILE_WRITE' || taskType === 'FILE_DELETE') {
       await this.fs.checkVeto(payload.targetPath);
     }
 
-    if (this.mode === 'bypass') {
+    if (this.mode === 'bypass' && !taintCut) {
       Logger.info(`[Governor] ⚠️ Bypassed completely for task: ${taskType}`);
       engineEvents.emit('status', `Approved (Bypassed): ${taskType}`);
       return;
@@ -223,8 +164,8 @@ export class Governor implements IGovernor {
       const blocked =
         taskType === 'FILE_WRITE' ||
         taskType === 'FILE_DELETE' ||
-        (taskType === 'OS_COMMAND' && this.bashAnalyzer.analyze(payload.command || '').category !== 'read') ||
-        (payload.isDestructive !== false && (taskType === 'TOOL_EXECUTION' || taskType === 'COMPUTER_CONTROL'));
+        (taskType === 'OS_COMMAND' && !isApprovalReadOnlyShellCommand(payload.command || '')) ||
+        (payload.isDestructive !== false && taskType === 'TOOL_EXECUTION');
 
       if (blocked) {
         const label = taskType === 'OS_COMMAND'
@@ -240,45 +181,25 @@ export class Governor implements IGovernor {
       return;
     }
 
-    // Taint capability narrowing (v2 D3) — computed BEFORE the rule shortcut so a persistent
-    // "Always Allow" created in a clean session can never waive it: once untrusted content
-    // (web/MCP output) is in the conversation, network-capable commands are hard-blocked in
-    // auto mode and always face the human elsewhere.
-    const taintCut: { action: 'block' | 'ask'; reason: string } | null =
-      taskType === 'OS_COMMAND' ? taintRestriction(payload.command || '', this.mode) : null;
-    if (taintCut?.action === 'block') {
-      throw new GovernorVetoError(`Blocked: ${taintCut.reason}`);
-    }
-
     // Unattended (a night shift): a tainted network command was already refused above — taintRestriction blocks
     // rather than asks when nobody is watching — so what reaches here is decided without a prompt.
     if (this.mode === 'unattended') {
-      if (taskType === 'COMPUTER_CONTROL') throw new GovernorVetoError('Computer control is not allowed while unattended.');
       engineEvents.emit('status', `Approved (unattended): ${taskType}`);
       return;
     }
 
     // Layer 1: Persistent Rules Check
-    const matchingRule = this.rules.find(r => r.tool === taskType); // Simplistic matching
+    const matchingRule = this.rules.find(r => r.tool === taskType && (
+      taskType !== 'OS_COMMAND' || r.effect === 'deny' || (r.pattern !== undefined && r.pattern === payload.command)
+    ));
     if (matchingRule) {
       if (matchingRule.effect === 'deny') {
         throw new GovernorVetoError(`Rule explicitly denied task: ${taskType}`);
       }
-      // High-impact computer control (uploads, sends, purchases) never rides a blanket allow —
-      // each occurrence faces the human individually.
-      if (matchingRule.effect === 'allow' && !taintCut && !(taskType === 'COMPUTER_CONTROL' && payload.highImpact)) {
+      if (matchingRule.effect === 'allow' && !taintCut) {
         engineEvents.emit('status', `Approved (Rule): ${taskType}`);
         return;
       }
-    }
-
-    // Layer 1.5: session-scoped computer-control grants. A grant covers routine interaction
-    // (click/type/press/select) within ONE browser domain or ONE desktop app for THIS session
-    // only; high-impact actions and tainted contexts still prompt.
-    const computerGrantKey = taskType === 'COMPUTER_CONTROL' ? Governor.computerGrantKey(payload) : null;
-    if (computerGrantKey && !payload.highImpact && !taintCut && this.sessionGrants.has(computerGrantKey)) {
-      engineEvents.emit('status', `Approved (session grant ${computerGrantKey}): ${payload.action || taskType}`);
-      return;
     }
 
     try {
@@ -294,7 +215,7 @@ export class Governor implements IGovernor {
         // Taint-narrowed commands (computed above) keep none of the fast paths below —
         // they fall through to the human prompt with the taint source named. Read-only
         // auto-approve is unaffected for untainted-restricted commands (ls can't exfil).
-        if (analysis.category === 'read' && analysis.risk === 'none' && this.mode !== 'strict' && !taintCut) {
+        if (analysis.category === 'read' && analysis.risk === 'none' && isApprovalReadOnlyShellCommand(payload.command) && this.mode !== 'strict' && !taintCut) {
           // Auto-approve read-only safe commands
           Logger.info(`[Governor] Auto-approved safe read command: ${payload.command}`);
           engineEvents.emit('status', `Approved (Static Analysis): ${taskType}`);
@@ -320,48 +241,35 @@ export class Governor implements IGovernor {
     }
 
     // Layer 4: Interactive Fallback
-    // Generic and computer-control tools used to be marked destructive by buildTool but silently
-    // skipped the prompt because only file/shell task types were considered here. That made browser
-    // clicks and external MCP actions effectively ungated in interactive mode. Honor the tool's
-    // fail-closed declaration for these task classes as well.
+    // Honor the fail-closed destructive declaration of generic tools as well as file/shell tasks.
     const isDestructiveTask = payload.isDestructive !== false && (
       taskType === 'FILE_WRITE' || taskType === 'OS_COMMAND' || taskType === 'FILE_DELETE'
-      || taskType === 'TOOL_EXECUTION' || taskType === 'COMPUTER_CONTROL'
+      || taskType === 'TOOL_EXECUTION'
     );
-    const shouldAsk = isDestructiveTask || this.mode === 'strict';
+    const shouldAsk = isDestructiveTask || this.mode === 'strict' || !!taintCut;
 
     if (shouldAsk) {
-      const computerScope = String(payload.host || payload.app || '').trim();
       const label = taskType === 'FILE_WRITE' ? `Write ${payload.targetPath || payload.path || 'file'}`
         : taskType === 'OS_COMMAND' ? `Run: ${(payload.command || '').slice(0, 60)}`
-        : taskType === 'COMPUTER_CONTROL' ? `${payload.highImpact ? '⚡ HIGH-IMPACT — ' : ''}${payload.action || 'Act'} in ${payload.tool || 'computer control'}${computerScope ? ` @ ${computerScope}` : ''}`
         : taskType === 'TOOL_EXECUTION' && payload.tool ? `Run ${payload.tool}`
         : `${taskType}`;
 
       // A taint-narrowed command asks with the taint source in view — the human decides knowingly.
       const question = taintCut ? `⚠ TAINTED CONTEXT — ${taintCut.reason}\nAllow anyway? ${label}` : `Allow? ${label}`;
-      // Computer control never offers the blanket "Always Allow" — its widest shortcut is a
-      // session-scoped grant for one domain/app, and high-impact actions get plain Yes/No.
-      const grantOption = computerGrantKey && !payload.highImpact && !taintCut
-        ? `Allow ${computerGrantKey.replace(':', ' ')} for this session` : null;
-      const options = taskType === 'COMPUTER_CONTROL'
-        ? ['Yes', 'No', ...(grantOption ? [grantOption] : [])]
-        : ['Yes', 'No', 'Always Allow This Tool'];
+      const always = taskType === 'OS_COMMAND' ? 'Always Allow This Command' : 'Always Allow This Tool';
+      const options = taintCut ? ['Yes', 'No'] : ['Yes', 'No', always];
       const answer = await GlobalPrompter.ask(question, options);
 
-      if (answer === 'No') {
+      if (answer !== 'Yes' && (taintCut || answer !== always)) {
         throw new GovernorVetoError("User explicitly denied this action.");
       }
 
-      if (answer === 'Always Allow This Tool' && taskType !== 'COMPUTER_CONTROL') {
-        this.addRule({ tool: taskType, effect: 'allow', persistent: true });
+      if (answer === always && !taintCut) {
+        this.addRule({ tool: taskType, effect: 'allow', persistent: true, ...(taskType === 'OS_COMMAND' ? { pattern: String(payload.command) } : {}) });
         Logger.info(`[Governor] Added persistent allow rule for ${taskType}`);
       }
 
-      if (grantOption && answer === grantOption && computerGrantKey) {
-        this.sessionGrants.add(computerGrantKey);
-        Logger.info(`[Governor] Session computer-control grant added: ${computerGrantKey}`);
-      }
+
     }
 
     Logger.info(`[Governor] ✅ Veto cleared. Task approved.`);

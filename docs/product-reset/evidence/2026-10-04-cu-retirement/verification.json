@@ -1,0 +1,121 @@
+{
+  "focusedSuites": 11,
+  "focusedChecks": 72,
+  "regressionSuites": 12,
+  "regressionChecks": 135,
+  "realRegistryChecks": 6,
+  "retirementBehaviorFaultsCaught": 5,
+  "packageFaultsCaught": 2,
+  "priorIPCFaultsCaught": 7,
+  "typechecks": "both passed",
+  "build": "passed",
+  "installedPackage": "passed",
+  "installedActions": 3,
+  "installedEngineWorkerExchanges": 7,
+  "liveModelTurns": 0,
+  "rawLogs": {
+    "focused.log": {
+      "present": true,
+      "lastLines": [
+        "[INFO] 2026-10-03T21:03:19.634Z - [Governor] Initialized Multi-Layer Permission Engine.",
+        "[INFO] 2026-10-03T21:03:19.636Z - [Governor] Loaded physical budget: $0.00 / $5.00",
+        "[INFO] 2026-10-03T21:03:19.636Z - [Governor] Initialized Multi-Layer Permission Engine.",
+        "",
+        "Test Suites: 11 passed, 11 total",
+        "Tests:       72 passed, 72 total",
+        "Snapshots:   0 total",
+        "Time:        6.043 s",
+        "Ran all test suites within paths \"src/__tests__/computer.retirement.test.ts\", \"app/src/__tests__/computer.retirement.test.ts\", \"src/__tests__/gui.automation.guard.test.ts\", \"src/__tests__/persona.prompt.split.test.ts\", \"src/__tests__/host.handlers.test.ts\", \"src/__tests__/governor.unattended.test.ts\", \"app/src/__tests__/engine.thread.isolation.test.ts\", \"app/src/__tests__/coding.runtime.paths.test.ts\", \"app/src/__tests__/app.menu.test.ts\", \"src/__tests__/packaging.boundary.test.ts\", \"src/__tests__/release.archive.gates.test.ts\"."
+      ]
+    },
+    "regression.log": {
+      "present": true,
+      "lastLines": [
+        "[INFO] 2026-10-03T21:00:43.657Z - [Governor] \u2705 Veto cleared. Task approved.",
+        "[INFO] 2026-10-03T21:00:43.657Z - [Governor] \u2705 Veto cleared. Task approved.",
+        "[INFO] 2026-10-03T21:00:43.659Z - [Governor] Initialized Multi-Layer Permission Engine.",
+        "",
+        "Test Suites: 12 passed, 12 total",
+        "Tests:       135 passed, 135 total",
+        "Snapshots:   0 total",
+        "Time:        4.49 s",
+        "Ran all test suites within paths \"src/__tests__/governor.test.ts\", \"src/__tests__/governor.budget.cap.env.test.ts\", \"src/__tests__/protocol.contract.test.ts\", \"src/__tests__/protocol.test.ts\", \"src/__tests__/port.host.test.ts\", \"app/src/__tests__/engine.store.test.ts\", \"app/src/__tests__/thread.manager.reaper.test.ts\", \"app/src/__tests__/thread.parts.test.ts\", \"app/src/__tests__/thread.history.test.ts\", \"app/src/__tests__/threads.reliability.test.ts\", \"app/src/__tests__/approval.one.card.test.ts\", \"app/src/__tests__/desktop.runtime.security.test.ts\"."
+      ]
+    },
+    "registry.log": {
+      "present": true,
+      "lastLines": [
+        "(pass) every tool has a usable name and description [2.26ms]",
+        "(pass) every schema is an object schema whose required fields actually exist [0.11ms]",
+        "(pass) a multi-action tool always enumerates its actions [0.02ms]",
+        "(pass) undescribed parameters may shrink, never grow [0.21ms]",
+        "",
+        " 6 pass",
+        " 0 fail",
+        " 10 expect() calls",
+        "Ran 6 tests across 1 file. [4.83s]"
+      ]
+    },
+    "engine-typecheck.log": {
+      "present": true,
+      "lastLines": []
+    },
+    "app-typecheck.log": {
+      "present": true,
+      "lastLines": [
+        "",
+        "> bimax-app@1.1.0 typecheck",
+        "> tsc --noEmit",
+        ""
+      ]
+    },
+    "build.log": {
+      "present": true,
+      "lastLines": [
+        "desktop package gate: PASS no Computer Use sidecar or driver SDK is packaged",
+        "desktop package gate: PASS packaged run resolves the engine from the bundle, as a worker thread, with no override",
+        "Checking /private/tmp/bimax-cu-retired-20261004/mac-arm64/Bimax.app",
+        "  \u00b7 bimax:// URL scheme",
+        "  \u00b7 App Intents metadata for 1 extension(s)",
+        "  \u00b7 bundled engine",
+        "",
+        "\u2713 3 action(s) present in the built bundle.",
+        "Built \u2192 /private/tmp/bimax-cu-retired-20261004/mac-arm64/Bimax.app"
+      ]
+    },
+    "installed-package.log": {
+      "present": true,
+      "lastLines": [
+        "desktop package gate: PASS /Applications/Bimax.app",
+        "desktop package gate: PASS arm64 app executable and bundled engine",
+        "desktop package gate: PASS no Computer Use sidecar or driver SDK is packaged",
+        "desktop package gate: PASS packaged run resolves the engine from the bundle, as a worker thread, with no override"
+      ]
+    },
+    "installed-actions.log": {
+      "present": true,
+      "lastLines": [
+        "Checking /Applications/Bimax.app",
+        "  \u00b7 bimax:// URL scheme",
+        "  \u00b7 App Intents metadata for 1 extension(s)",
+        "  \u00b7 bundled engine",
+        "",
+        "\u2713 3 action(s) present in the built bundle."
+      ]
+    },
+    "installed-engine.log": {
+      "present": true,
+      "lastLines": [
+        "  (hosted as a worker thread in this process over a MessagePort \u2014 the monolith)",
+        "  ok  boot                42 bytes  (a start-up phase, on the protocol channel)",
+        "  ok  health             110 bytes  (a heartbeat, on the protocol channel (arms the hang watchdog))",
+        "  ok  pong                19 bytes  (ping)",
+        "  ok  configResult       777 bytes  (configGet)",
+        "  ok  queryResult       4311 bytes  (query (slash-command completions))",
+        "  ok  folder             126 bytes  (query '@VerifyProbe' found the project's own file)",
+        "  ok  catalogResult    39907 bytes  (catalogGet)",
+        "PASS \u2014 engine bundle answered all 7 exchanges (46973 bytes outbound)."
+      ]
+    }
+  }
+}

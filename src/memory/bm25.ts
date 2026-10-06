@@ -49,11 +49,12 @@ const STOP = new Set([
  * splits one word into fragments.
  */
 export function tokenize(text: string): string[] {
-  return text
-    .toLowerCase()
-    .replace(/[^\p{L}\p{M}\p{N}\s]+/gu, ' ')
-    .split(/\s+/)
-    .filter((w) => w.length > 1 && !STOP.has(w));
+  // Keep each whole identifier and add only its components; prose terms keep their frequency.
+  return text.replace(/[^\p{L}\p{M}\p{N}\s]+/gu, ' ').split(/\s+/).flatMap(word => {
+    const split = word.replace(/([\p{Ll}\p{N}])(\p{Lu})/gu, '$1 $2')
+      .replace(/(\p{Lu})(\p{Lu}\p{Ll})/gu, '$1 $2');
+    return (split === word ? [word] : [word, ...split.split(' ')]).map(w => w.toLowerCase());
+  }).filter(w => w.length > 1 && !STOP.has(w));
 }
 
 export interface Bm25Document {

@@ -114,9 +114,8 @@ withTooling()('reading a digital PDF', () => {
     expect(all).toContain('PV-4021-A');
     expect(all).toContain('8.2 mm');
 
-    // The writer emits a trailing page carrying only a footer page number. It has no meaningful
-    // text layer, so it is rasterized — correctly, because per-page classification is what lets a
-    // typed report with a photographed annexe get exact text for the body and OCR for the annexe.
+    // Genuine scanned pages have images instead of embedded text. Writer footers must not add
+    // a blank page; that pagination invariant is checked separately by the PDF writer sprint.
     for (const page of result.pages) {
       if (page.source === 'raster') expect(page.text).toBeUndefined();
     }
@@ -171,15 +170,17 @@ const ocrAvailable = process.platform === 'darwin';
   it('recovers the tag number and the measurement from a picture of the report', async () => {
     if (!haveTooling || !scannedPdf) return;                 // no poppler/sips on this machine
     const result = await readPdf(scannedPdf, { dpi: 150 });
-    const raster = result.pages.filter(p => p.source === 'raster' && p.imagePath);
-    expect(raster.length).toBeGreaterThan(0);                 // it really has no text layer
+    try {
+      const raster = result.pages.filter(p => p.source === 'raster' && p.imagePath);
+      expect(raster.length).toBeGreaterThan(0);                 // it really has no text layer
 
-    const { backend, pages } = await ocrPages(raster.map(p => p.imagePath!));
-    expect(backend).toBe('vision');
-    const text = pages.map(p => p.text).join('\n');
-    // The two facts an engineer would act on.
-    expect(text).toContain('PV-4021-A');
-    expect(text).toMatch(/8\.2\s*mm/);
-    expect(pages[0].confidence).toBeGreaterThan(0.5);
+      const { backend, pages } = await ocrPages(raster.map(p => p.imagePath!));
+      expect(backend).toBe('vision');
+      const text = pages.map(p => p.text).join('\n');
+      // The two facts an engineer would act on.
+      expect(text).toContain('PV-4021-A');
+      expect(text).toMatch(/8\.2\s*mm/);
+      expect(pages[0].confidence).toBeGreaterThan(0.5);
+    } finally { await result.dispose?.(); }
   }, 180_000);
 });

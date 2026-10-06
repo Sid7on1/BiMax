@@ -1,6 +1,22 @@
 # Frontend plan
 
-## Current Computer Use entry — 2026-10-02, record 65 stages 2, 3 and 6
+Current conversation policy (2026-10-05, record 69): explicit repo opening starts a fresh Bimax Thread.
+Old history resumes through conversation selection. The sidebar action is **New**; it creates an
+empty conversation in the selected folder. Recorded harness evaluation must never render as fresh
+chat/tool activity or persist in the live transcript. Credential renewal retains the selected chat.
+
+## Computer Use retired — owner decision, 2026-10-04
+
+The owner explicitly withdrew Computer Use: “roll off the bimax cu completely keep it in archive again i dont
+want that feature at all”. [66_COMPUTER_USE_RETIREMENT_RECORD.md](66_COMPUTER_USE_RETIREMENT_RECORD.md) governs the
+current boundary. The look/press/type/scroll tools, app services, preview switches, Accessibility request path,
+native driver dependency and feature proof scripts are archived outside the repository. Saved flags cannot restore
+them; stale host requests and governor COMPUTER_CONTROL requests refuse. Coding, Bimax Threads, Finder folder
+selection and on-device dictation remain. Records 55/64 still govern engine workers in the monolith. Record 65 and
+its measurements below are historical evidence, not an active rollout or authorization to reintroduce the feature.
+
+
+## Historical Computer Use entry — removed 2026-10-04
 
 The menu bar opt-ins “Let Tasks Look at Other Apps (Preview)” and “Let Tasks Use Other Apps (Preview)” are off by
 default; using requires looking. They admit tools only to new ⌘2 tasks, never project windows. The app asks for

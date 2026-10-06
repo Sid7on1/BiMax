@@ -124,3 +124,31 @@ export function isReadOnlyShellCommand(command: unknown): boolean {
   }
   return true;
 }
+
+
+/** Stricter permission question: concurrency classification alone cannot waive an approval. */
+export function isApprovalReadOnlyShellCommand(command: unknown): boolean {
+  if (!isReadOnlyShellCommand(command)) return false;
+  return splitPipeline(String(command))!.every(segment => {
+    const [program, ...args] = tokenize(segment);
+    // A project can put an arbitrary executable at /tmp/ls; never approve it by basename.
+    if (program.includes('/') && !/^\/(?:usr\/)?bin\/[^/]+$/.test(program)) return false;
+    const binary = program.split('/').pop()!;
+    if (['env', 'hostname'].includes(binary)) return args.length === 0;
+    if (binary === 'command') return args.length > 1 && ['-v', '-V'].includes(args[0]);
+    if (binary === 'date') return args.every(a => a.startsWith('+') || ['-u', '--utc', '--version', '--help'].includes(a));
+    if (binary === 'sed') return args[0] === '-n' && /^\d+(?:,\d+|,\$)?p$/.test(args[1] || '') && args.slice(2).every(a => !a.startsWith('-'));
+    if (binary === 'git') {
+      const rest = args[0] === '--no-pager' ? args.slice(1) : args;
+      return ['status', 'log', 'diff', 'show', 'rev-parse', 'ls-files', 'ls-tree', 'blame', 'describe', 'shortlog', 'cat-file'].includes(rest[0])
+        && !rest.some(a => /^--(?:output|ext-diff|textconv|exec-path)(?:=|$)/.test(a));
+    }
+    if (binary === 'npm') return ['ls', 'list', 'root', 'bin', 'why'].includes(args[0]);
+    if (binary === 'pnpm') return ['ls', 'list', 'why', 'root'].includes(args[0]);
+    if (binary === 'yarn') return ['list', 'why'].includes(args[0]);
+    if (binary === 'rg') return !args.some(a => /^--(?:pre|hostname-bin|pre-glob)(?:=|$)/.test(a));
+    if (binary === 'file') return !args.some(a => a === '--compile' || /^-[^-]*C/.test(a));
+    if (['sort', 'yq', 'uniq'].includes(binary)) return false; // output files/in-place forms need approval
+    return true;
+  });
+}

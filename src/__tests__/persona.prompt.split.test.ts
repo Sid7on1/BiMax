@@ -126,42 +126,36 @@ describe('optional prompt blocks (flaw list E40)', () => {
   });
 });
 
-describe('other apps on this Mac (record 65 stage 6)', () => {
-  // Measured 2026-10-02 in the installed app: with no word about them the model said "we are in a terminal environment,
-  // not a GUI" and scripted Music with osascript.
-  const env = (vars: Record<string, string | undefined>, run: () => void) => {
-    const saved = { look: process.env.BIMAX_COMPUTER_LOOK, use: process.env.BIMAX_COMPUTER_USE };
-    for (const [k, v] of Object.entries(vars)) { if (v === undefined) delete process.env[k]; else process.env[k] = v; }
-    try { run(); } finally {
-      if (saved.look === undefined) delete process.env.BIMAX_COMPUTER_LOOK; else process.env.BIMAX_COMPUTER_LOOK = saved.look;
-      if (saved.use === undefined) delete process.env.BIMAX_COMPUTER_USE; else process.env.BIMAX_COMPUTER_USE = saved.use;
+test('retired Computer Use flags cannot advertise tools or inject a GUI prompt', () => {
+  const flags = ['BIMAX_COMPUTER_LOOK', 'BIMAX_COMPUTER_USE', 'BIMAX_COMPUTER_PRESS'];
+  const saved = flags.map(k => process.env[k]);
+  const baseline = persona().getSystemPromptParts({});
+  try {
+    for (const k of flags) process.env[k] = '1';
+    const parts = persona().getSystemPromptParts({});
+    expect(parts).toEqual(baseline);
+    const prompt = parts.staticPrefix + parts.dynamicSuffix;
+    for (const name of ['OTHER APPS ON THIS MAC', 'LookAtAppTool', 'PressInAppTool', 'TypeInAppTool', 'ScrollInAppTool']) {
+      expect(prompt).not.toContain(name);
     }
-  };
+  } finally {
+    flags.forEach((k, i) => { if (saved[i] === undefined) delete process.env[k]; else process.env[k] = saved[i]; });
+  }
+});
 
-  test('a task that may use other apps is told so, and how, in the session segment', () => {
-    env({ BIMAX_COMPUTER_LOOK: '1', BIMAX_COMPUTER_USE: '1' }, () => {
-      const parts = persona().getSystemPromptParts({});
-      expect(parts.dynamicSuffix).toContain('### OTHER APPS ON THIS MAC');
-      expect(parts.dynamicSuffix).toContain('you are not limited to the terminal');
-      for (const tool of ['LookAtAppTool', 'PressInAppTool', 'TypeInAppTool', 'ScrollInAppTool']) expect(parts.dynamicSuffix).toContain(tool);
-      expect(parts.dynamicSuffix).toContain('Never control apps with osascript');
-      expect(parts.dynamicSuffix).toContain('"front": true');
-      expect(parts.staticPrefix).not.toContain('OTHER APPS');
-    });
-  });
 
-  test('looking only: told it can look, not act', () => {
-    env({ BIMAX_COMPUTER_LOOK: '1', BIMAX_COMPUTER_USE: undefined }, () => {
-      const suffix = persona().getSystemPromptParts({}).dynamicSuffix;
-      expect(suffix).toContain('### OTHER APPS ON THIS MAC');
-      expect(suffix).toContain('You cannot press or type in them here');
-      expect(suffix).not.toContain('PressInAppTool');
-    });
+test('bounds optional recall without truncating safety, user preferences or live verification contracts', () => {
+  const huge = 'x'.repeat(100_000);
+  const parts = (persona() as any).splitPrompt({
+    security: 'SECURITY ' + huge, userModel: 'PREFERENCES ' + huge,
+    outcome: 'OUTCOME ' + huge, completionCheck: 'CHECKS ' + huge,
+    memory: huge, exemplars: huge, selfKnowledge: huge, habits: huge,
+    journal: huge, drives: huge, calibration: huge, harnessPatches: huge,
   });
-
-  test('a task without it hears nothing about other apps', () => {
-    env({ BIMAX_COMPUTER_LOOK: undefined, BIMAX_COMPUTER_USE: '1' }, () => {
-      expect(persona().getSystemPrompt({})).not.toContain('OTHER APPS ON THIS MAC');
-    });
-  });
+  expect(parts.staticPrefix).toContain('SECURITY ' + huge);
+  expect(parts.turnContext).toContain('PREFERENCES ' + huge);
+  expect(parts.turnContext).toContain('OUTCOME ' + huge);
+  expect(parts.turnContext).toContain('CHECKS ' + huge);
+  expect(parts.turnContext.length).toBeLessThan(313_000);
+  expect(parts.turnContext).toContain('Optional context clipped');
 });

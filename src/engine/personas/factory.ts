@@ -1,4 +1,4 @@
-import { SkillLoader } from '../skills.loader';
+import { PersonaConfigLoader } from '../persona.config.loader';
 import { DynamicPersona } from './dynamic.persona';
 import { BiMaxPersona, HermesPersona, OpenCodePersona, OpenClawPersona } from './implementations';
 import { AgentPersona } from './base.persona';
@@ -6,9 +6,8 @@ import { ToolRegistry } from '../../tools/tool.registry';
 import { LlmAdapter } from '../../core/llm.adapter';
 
 /**
- * Build the full persona set (built-in brands + dynamically-loaded skills) from the shared tool
- * registry + LLM adapter. Single source of truth so both front-ends construct an identical set:
- * the in-process Ink screen (FullScreen) and the out-of-process headless session driver.
+ * Build the built-in and custom JSON personas from the shared tool registry and LLM adapter.
+ * Desktop engines and sub-agent workers construct the same persona set.
  */
 export function buildPersonas(
   toolRegistry: ToolRegistry,
@@ -21,8 +20,8 @@ export function buildPersonas(
     openclaw: new OpenClawPersona(toolRegistry, llmAdapter),
   };
 
-  const loadedSkills = SkillLoader.loadSkills();
-  for (const [id, config] of Object.entries(loadedSkills)) {
+  const loadedPersonas = PersonaConfigLoader.loadPersonas();
+  for (const [id, config] of Object.entries(loadedPersonas)) {
     personas[id] = new DynamicPersona(config, toolRegistry, llmAdapter);
   }
 

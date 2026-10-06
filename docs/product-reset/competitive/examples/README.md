@@ -5,6 +5,7 @@ normal user language first, then list the internal evidence needed to prove the 
 
 | Example | What it proves | Main rivals |
 |---|---|---|
+| [O01_FIND_AND_OPEN_OUTPUT.md](O01_FIND_AND_OPEN_OUTPUT.md) | Proposed Outputs Shelf contract: exact-file discovery/opening offline, owner/version identity and crash/replay truth; fixture and grader remain Target | Hermes Desktop, Claude Artifacts; comparison unmeasured |
 | `P01_FAST_CODE_AND_COWORK.md` | Proposed performance contract for correct coding/cowork, responsiveness, resource use and recovery; runner remains Target | Bimax baseline/candidate first; future rivals require competitive/06 |
 | `C01_DIRTY_REPO_REPAIR.md` | coding reliability without damaging user work | Claude Code, Codex, OpenCode, Hermes, Cursor |
 | `M02_BACKGROUND_MAC_ACTION.md` | native Mac work without stealing the user's foreground | ChatGPT/Codex Computer Use, Hermes |

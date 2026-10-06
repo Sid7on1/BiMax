@@ -39,9 +39,13 @@ export function useEngine() {
   const catalogPending = useRef(new Map<number, (result: EngineCatalog) => void>());
 
   useEffect(() => {
-    const batcher = new StreamCoalescer({ emit: (msg) => dispatch({ type: 'outbound', msg }) });
+    let batchThreadId: string | undefined;
+    const batcher = new StreamCoalescer({ emit: (msg) => dispatch({ type: 'outbound', msg, threadId: batchThreadId }) });
     coalescer.current = batcher;
-    const offMsg = window.bimax.onMessage((msg) => {
+    const offMsg = window.bimax.onMessage((msg, threadId) => {
+      // Read the store at delivery time: React may not have rendered the just-selected Thread yet.
+      // Check before resolving queries or buffering text, so stale replies cannot affect this view.
+      if (threadId !== store.getState().threadId) return;
       if (msg.t === 'configResult') {
         const resolve = configPending.current.get(msg.id);
         if (resolve) { configPending.current.delete(msg.id); resolve(msg.config as EngineConfig); }
@@ -62,12 +66,14 @@ export function useEngine() {
       if (msg.t === 'queryResult' && msg.id !== completionQueryId.current) return;
       // Everything the reducer consumes goes through the batcher, which merges only adjacent
       // same-kind text deltas and flushes before anything else — so arrival order is preserved.
+      batchThreadId = threadId;
       batcher.push(msg);
     });
-    const offState = window.bimax.onEngineState((s, d) => {
+    const offState = window.bimax.onEngineState((s, d, threadId) => {
+      if (threadId !== store.getState().threadId) return;
       // An engine-state change is not a display delta; the text produced before it must land first.
       batcher.flush();
-      dispatch({ type: 'engineState', state: s, detail: d });
+      dispatch({ type: 'engineState', state: s, detail: d, threadId });
     });
     const offProject = window.bimax.onProject((dir) => {
       // A different project discards the transcript, so buffered text for the old one is dropped
@@ -77,9 +83,10 @@ export function useEngine() {
     });
     const offThread = window.bimax.threads.onSelected((value) => {
       batcher.retire();
+      completionQueryId.current = -1;
       configPending.current.forEach(resolve => resolve({})); configPending.current.clear();
       catalogPending.current.forEach(resolve => resolve({ providers: [], models: [], error: 'Thread changed' })); catalogPending.current.clear();
-      dispatch({ type: 'restoreThread', state: value.state });
+      dispatch({ type: 'restoreThread', state: { ...value.state, threadId: value.id } });
     });
     window.bimax.rendererReady();
     return () => { offMsg(); offState(); offProject(); offThread(); batcher.dispose(); coalescer.current = null; };
@@ -146,11 +153,13 @@ export function useEngine() {
    */
   const ingestAttachment = useCallback((filePath: string): Promise<{ ok: boolean; chunks: number; reason: string }> => {
     const id = ++queryId.current;
+    const requestedThreadId = store.getState().threadId;
     return new Promise((resolve) => {
       // Never leave a tile spinning forever: a wedged or restarting engine resolves as a failure the
       // tile can show, rather than as silence the user has to interpret.
       const timer = setTimeout(() => { stop(); resolve({ ok: false, chunks: 0, reason: 'engine did not answer' }); }, 120_000);
-      const stop = window.bimax.onMessage((raw) => {
+      const stop = window.bimax.onMessage((raw, threadId) => {
+        if (threadId !== requestedThreadId || store.getState().threadId !== requestedThreadId) return;
         const msg = raw as { t?: string; id?: number; items?: { label?: string; value?: string; desc?: string }[] };
         if (msg?.t !== 'queryResult' || msg.id !== id) return;
         clearTimeout(timer);

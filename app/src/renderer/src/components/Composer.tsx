@@ -64,7 +64,7 @@ const TIERS = [
 ];
 
 export function Composer({
-  busy, mode, tier, snapshot, streamedChars, completions, project, draftKey = project, branch,
+  busy, mode, tier, snapshot, streamedChars, completions, project, draftKey = project, branch, threadId,
   onSubmit, onInterrupt, onControls, onCommand, onQuery, onIngest, onClearCompletions, onOpenModels, runtime,
 }: {
   busy: boolean;
@@ -73,6 +73,7 @@ export function Composer({
   /** Absolute path of the open project — only its last segment is shown. */
   project: string;
   draftKey?: string;
+  threadId?: string;
   branch: string | null;
   snapshot: UiSnapshot | null;
   streamedChars: number;
@@ -158,7 +159,8 @@ export function Composer({
 
   // Explicit task navigation resets the composer through its keyed parent. Engine-side /clear and
   // resume are also task boundaries; stale ingestion promises must not repopulate the new draft.
-  useEffect(() => window.bimax.onMessage?.(msg => {
+  useEffect(() => window.bimax.onMessage?.((msg, sourceThreadId) => {
+    if (sourceThreadId !== threadId) return;
     if (msg.t !== 'event' || (msg.name !== 'clear' && !(msg.name === 'session_restore' && available))) return;
     ingestJobs.current.clear();
     setQueued(null); setAttachments([]); setDraft(emptyDraft()); setError('');
@@ -166,7 +168,7 @@ export function Composer({
     // the person typed is theirs, and ↑ after New Task is how a similar request gets restarted.
     historyRef.current = readHistory(draftKey); histIdxRef.current = -1;
     onClearCompletions();
-  }), [onClearCompletions, available, project]);
+  }), [onClearCompletions, available, project, threadId]);
 
   useEffect(() => {
     const insert = (event: Event): void => {

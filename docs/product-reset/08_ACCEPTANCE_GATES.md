@@ -1,6 +1,140 @@
 # Acceptance gates
 
-## Computer Use admission gate (current, 2026-10-02 — record 65 stages 2, 3 and 6)
+## PDF local gate — 2026-10-06, record 74
+
+- Actual completed files retain intended page count and sequential page numbers, with no footer-only
+  page accidentally entering OCR. Text extraction preserves a final page without a form feed.
+- Empty/invalid page counts refuse; missing executables, permissions, real malformed-file errors,
+  aborts, deadlines and captured-output overflow remain distinct. Metadata interruption/overflow
+  never triggers another reader as a fallback.
+- PDF children have an internal per-child deadline and shared stdout/stderr byte cap; split UTF-8
+  survives. Stop terminates inherited process groups on this Mac and closes caller pipes. These
+  controls do not qualify escaped groups, Windows descendants or recognizer cancellation.
+- Fresh owned render directories exclude caller-owned stale images. Nonregular/empty images,
+  duplicate/out-of-range page identities and incomplete unreadable-page coverage refuse. Mixed
+  documents render only the unreadable-page envelope and preserve exact embedded text.
+- Failed/cancelled jobs clean their own directories. Successful jobs remain available through OCR,
+  then extraction/tool consumers dispose them in finally; a Stop during OCR cannot return success.
+- Real children/files, rendered pages and executable behavioral mutations qualify local results;
+  exact restoration and unrelated dirty identities are checked. Fifty focused tests and
+  twenty-six executable faults qualify these checks. Existing assertions/timeouts stay.
+
+Evidence: [record 74](74_PDF_RELIABILITY_SPRINT.md). This repairs the reproduced unnecessary-OCR
+cause of earlier PDF-layout timeouts. General native OCR, whole-document resource budgets,
+large-document memory/disk, installed/provider/full R01 and clean-Mac tooling remain Target;
+no Product-ready/Win/performance claim. Record 66 still governs Computer Use retirement.
+
+## Bimax Thread undo local gate — 2026-10-06, record 73
+
+- Every remaining backup is checked before file mutation. Missing, nonregular, oversized,
+  symlinked or detectably changing saved copies refuse; unprotected engine overwrites remain
+  explicit in the journal and history reports partial coverage.
+- Canonical project/state/backup/Bin containment detects escaped parents and missing-path
+  ancestors. Undo cannot move its own journal/backups. Leaf rename links remain supported;
+  replacement/Bin targets and saved-copy/journal leaf links refuse.
+- Canonical state aliases share one in-process undo lock; undo-back-to retains it for the
+  whole batch. Errors release it. Existing app idle-engine checks remain.
+- Replacement files are staged and checked before current versions go to the Bin. Final bytes,
+  size and mode are independently reread. Creation and move postconditions reflect actual disk
+  state; observable Bin files also verify type/bytes/mode/source absence. Observable directories
+  verify type/source absence, without claiming recursive content verification.
+- Verified indexed step receipts precede the final undo marker. Retry skips completed steps and
+  preserves later human edits; history exposes progress. False-success callbacks leave entries
+  pending. Malformed operations/step indices and duplicate IDs refuse.
+- Sixty-seven focused tests and nineteen executable assertion-caught mutants pass, with exact
+  mutation restoration hashes. Initial compiler failure is invalid, not a kill.
+
+Evidence: [record 73](73_THREAD_UNDO_RELIABILITY_SPRINT.md). Native Finder/iCloud/permission,
+crash/fsync, cross-process path swaps, historical backup integrity and full R01 remain Target;
+no atomic multi-file guarantee. EACCES/EPERM Bin sources have destination-presence-only checking.
+Known PDF-layout timeouts remain unresolved and retained. Record 66 still governs retirement.
+
+## Transaction local gate — 2026-10-06, record 72
+
+- Simultaneous tracking of one path takes one baseline, retains every declared intent and restores
+  one record. Pending tracking cannot cross commit/rollback into another transaction. Busy operations
+  report refusal; automatic rollback never claims an operation completed when it could not start.
+- Begin/tracking/recovery cannot overlap restoration. Recovery cannot run inside an open transaction.
+  A later rollback keeps earlier unresolved records; status shows every retained transaction.
+- Bytes matching the baseline do not certify permissions. External modes are kept as conflicts;
+  forced restoration and ordinary restoration independently reread bytes and mode. Failed writes,
+  read-back mismatches and symlink chmod failures retain their original baselines.
+- Baseline reservations, including unresolved recovery buffers, respect the aggregate byte budget
+  under simultaneous reads. Release after refusal/commit/restoration is observable. Short reads
+  fill completely; detected growth/path replacement and dangling symlinks remain unprotected.
+- `/tx status` reports actual protected/unprotected/pending coverage and held/reserved bytes.
+  Refused command operations are errors. Forty-four focused tests and twenty-one executable
+  assertion-caught mutants qualify these local paths; mutation restoration hashes match.
+
+Evidence: [record 72](72_TRANSACTION_RELIABILITY_SPRINT.md). Full installed R01, durable crash
+recovery, external-writer atomicity and process-wide performance remain Target/unmeasured. Initial
+broad and isolated PDF timeouts are retained and unresolved; no assertions are weakened. Record 66
+continues to govern Computer Use retirement.
+
+## Background shell local gate — 2026-10-06, record 71
+
+- A BashTool background ID is discoverable and inspectable by TasksTool; list/get/wait expose
+  real state, bounded captured output and observed exit/failure, never positive verification by
+  invocation alone. Returned output retains untrusted shell provenance and taint.
+- Targeted wait ignores unrelated completion, wakes from lifecycle changes and aborts on Stop.
+  Completion/timeout/abort dispose both subscriptions and the single deadline. Shell pause/resume/
+  stop remain exact-ID controls through existing handles and cannot overlap sibling calls.
+- Paused close races reach their real terminal state. Cancellation wakes a paused cooperative
+  process; an ignored termination escalates to the inherited process group. Terminal status
+  follows pipe close, and no closed task retains a signalling timer. Escaped groups are out of scope.
+- Split UTF-8 characters and logical lines remain intact; stdout/stderr fragments do not combine
+  into false diagnostic paths. Retention and per-line clipping remain bounded. Explicit short
+  background timeouts apply; a synchronous failed start never returns OK/exit 0.
+- Real fixtures observe cooperative handler output and absence of a resistant parent/descendant;
+  thirteen executable mutants fail assertions. Root/app builds, offline suites, protocol fixtures,
+  staged worker exchanges and unrelated dirty-file identity checks pass. Installed/full C04/R01,
+  provider quality, performance/energy and distribution remain Target/unmeasured.
+
+Evidence: [record 71](71_BACKGROUND_TASK_RELIABILITY_SPRINT.md). Record 66's Computer Use retirement
+remains the product boundary.
+
+## Fresh-chat local gate — 2026-10-05, record 69
+
+- Explicit repository opening creates an empty Bimax Thread; old history appears only after selection.
+- **New** creates another empty conversation in the current folder. Credential renewal keeps the
+  selected conversation and queued inputs even when another conversation was updated more recently.
+- Real recorded replay publishes no old tool calls into live ProtocolHost, appStore, SessionRecorder,
+  saved Thread files or the desktop renderer. Concurrent live events still arrive. Replay does not
+  consume live steering, settle checks, close metrics or mutate capability/taint state.
+- An unchanged file-tool recording replays identically without double provenance fencing.
+- Mutations must fail behavioral end-state assertions. Inspect both staged and installed code bytes,
+  package inventory, signature and worker exchanges. A disposable packaged-window journey is a bounded
+  local qualification; installed live-provider greeting, crash/reaper/R01 and clean-Mac release remain
+  unmeasured. Evidence: [record 69](69_FRESH_CHAT_AND_REPLAY_ISOLATION.md).
+
+
+## Current code-only gate — 2026-10-04, record 66
+
+- No look, press, type, scroll, native app automation service, Computer Use preview menu or Accessibility/Screen
+  Recording request path ships. The retired driver (`@trycua`/`@ubjs`) is absent inside and outside ASAR.
+- Neither saved preview settings nor inherited or explicitly supplied CU environment flags register tools or alter
+  prompts. Both quick and project engines retain their coding tools. The real container is checked with stale flags on.
+- Old `host_call` protocol frames refuse immediately without native execution or approval cards; `host_result`
+  remains an ignored compatibility frame. The governor refuses COMPUTER_CONTROL before Bimax Thread scope, rules,
+  bypass or any other shortcut. Reserved native-control MCP names remain blocked by the existing MCP boundary.
+- Known direct GUI shell commands refuse without advertising retired tools. Ordinary coding commands, browser
+  research and local-build opening by path remain. This narrow pattern guard is not a sandbox for arbitrary scripts.
+- Finder folder selection and explicit on-device dictation retain their AppleEvents/Microphone usage descriptions.
+  They confer no general app-control authority. No broad ban on those unrelated permissions is reinstated.
+- Thread IPC ownership guards from the 2026-10-04 fix remain enforced. Same-Thread restore remains supported;
+  installed race/reaper/crash journey qualification remains unresolved; fresh-open is locally qualified by record 69.
+- Grade the staged AND installed app: no CU payload/menu/tool, real engine worker exchanges, App Intents embedding,
+  signature, installed artifact hashes and successful launch. Mutations must break the retirement/ownership checks.
+  A local self-signed install is not Developer ID, notarization, clean-Mac distribution or a competitive Win.
+
+Enforcement: `src/__tests__/computer.retirement.test.ts`, `app/src/__tests__/computer.retirement.test.ts`,
+`src/__tests__/gui.automation.guard.test.ts`, real registry/prompt/port tests and
+`scripts/verify-desktop-package.mjs`. Evidence: [retirement](evidence/2026-10-04-cu-retirement/README.md) and
+[Thread ownership](evidence/2026-10-04-thread-ipc-isolation/README.md). Feature-specific positive CU tests were
+hash-verified into the external archive; stronger refusal tests replace their active admission boundary.
+
+
+## Historical Computer Use admission gate (2026-10-02 — retired by record 66)
 
 It replaces the code-only gate of 2026-09-02 below, in the same change that let Computer Use back in, look only; stage
 3 widened it by exactly one press, in the same change that added the press; stage 6 (§6h, the owner's choice on

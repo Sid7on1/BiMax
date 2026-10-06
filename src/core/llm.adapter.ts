@@ -1,3 +1,5 @@
+import { activeRunBudget, reserveRun } from './run.budget';
+import { ratesFor, tokenCost } from './model.pricing';
 import OpenAI from 'openai';
 import { Logger } from '../utils';
 import { ApiKeyManager, KeyResult } from '../credits/api.key.manager';
@@ -493,10 +495,21 @@ export class LlmAdapter implements LLMProvider {
     return kr;
   }
 
-  // Rough cost estimate at a flat $0.002 / 1K tokens. One place instead of the ~12 copies of this
-  // arithmetic (and the bare 0.002) that used to be scattered through every API method below.
-  private estCost(tokens: number): number {
-    return (tokens / 1000) * 0.002;
+  private readonly warnedPricing = new Set<string>();
+
+  private cost(kr: KeyResult, model: string, input: number, output: number, cached = 0): number {
+    const rates = ratesFor(kr.provider, model);
+    const route = `${kr.provider}:${model}`;
+    if (rates.basis?.startsWith('unpriced') && !this.warnedPricing.has(route)) {
+      this.warnedPricing.add(route);
+      engineEvents.emit('status', `Spend for ${model} is an estimate. Set BIMAX_MODEL_PRICING_JSON for your provider’s rates.`);
+    }
+    return tokenCost(rates, input, output, cached);
+  }
+
+  /** Conservative admission estimate includes the prompt, tool schemas, and requested output. */
+  private requestInputTokens(request: any): number {
+    return Buffer.byteLength(JSON.stringify({ messages: request.messages, tools: request.tools }), 'utf8') + 64;
   }
 
   /** See llm.errors.ts. Kept on the class because callers and tests ask the adapter. */
@@ -559,25 +572,32 @@ export class LlmAdapter implements LLMProvider {
   ): Promise<any> {
     const kr = await this.getKey();
     const client = this.createClient(kr);
-    const estimatedCostUsd = this.estCost(estimatedTokens);
-    if (this.budgetVeto) await this.budgetVeto.checkVeto(estimatedCostUsd);
+    const request = build(kr);
+    if (request.max_tokens === undefined && request.max_completion_tokens === undefined) request.max_tokens = this.maxTokens;
+    const inputTokens = this.requestInputTokens(request);
+    const outputTokens = Number(request.max_tokens ?? request.max_completion_tokens ?? estimatedTokens);
+    const estimatedCostUsd = this.cost(kr, request.model, inputTokens, outputTokens);
+    const reservation = reserveRun(inputTokens + outputTokens, estimatedCostUsd);
+    try { if (this.budgetVeto) await this.budgetVeto.checkVeto(estimatedCostUsd); }
+    catch (error) { reservation.settle(0, 0); throw error; }
     let keySettled = false;
+    let dailyReservationClosed = false;
     try {
-      const response = await client.chat.completions.create(build(kr), { timeout: this.requestTimeout });
+      const response = await client.chat.completions.create(request, { timeout: this.requestTimeout });
       this.apiKeyManager.reportKeyResult(kr.idx!, 200);
       keySettled = true;
       const usage = response.usage;
-      if (this.budgetVeto) {
-        const spentUsd = usage ? this.estCost(usage.prompt_tokens + usage.completion_tokens) : estimatedCostUsd;
-        await this.budgetVeto.recordSpend(spentUsd, estimatedCostUsd, this.pickModel(kr));
-      }
+      const spentUsd = usage ? this.cost(kr, request.model, Number(usage.prompt_tokens) || 0, Number(usage.completion_tokens) || 0, usage.prompt_tokens_details?.cached_tokens ?? (usage as any).cache_read_input_tokens ?? 0) : estimatedCostUsd;
+      reservation.settle(usage ? (Number(usage.prompt_tokens) || 0) + (Number(usage.completion_tokens) || 0) : undefined, spentUsd);
+      dailyReservationClosed = true;
+      if (this.budgetVeto) await this.budgetVeto.recordSpend(spentUsd, estimatedCostUsd, request.model);
       return response;
     } catch (e: any) {
-      if (this.budgetVeto) await this.budgetVeto.releaseReservation(estimatedCostUsd);
+      if (this.budgetVeto && !dailyReservationClosed) await this.budgetVeto.releaseReservation(estimatedCostUsd);
       if (!keySettled) this.apiKeyManager.reportKeyResult(kr.idx!, this.errorStatus(e), retryAfterSecs(e));
       if (opts.explainModelErrors) this.enrichModelNotFound(e, kr, opts.lite);
       throw e;
-    }
+    } finally { reservation.settle(); }
   }
 
   /** A request that asks for a JSON object when the model can promise one (`extractJson` recovers it otherwise). */
@@ -688,17 +708,21 @@ export class LlmAdapter implements LLMProvider {
     // `let`: a hedged request (openStream) can be answered first on a second key, which then owns the stream.
     let kr = await this.getKey();
     const client = this.createClient(kr);
-    const estimatedTokens = options.maxTokens || this.maxTokens || 4096;
-    const estimatedCostUsd = this.estCost(estimatedTokens);
-    if (this.budgetVeto) await this.budgetVeto.checkVeto(estimatedCostUsd);
+    let attemptedModel: string | undefined;
+    const request = this.buildChatRequest(kr, messages, options, picked => { attemptedModel = picked; });
+    const inputTokens = this.requestInputTokens(request.requestOptions);
+    const outputTokens = Number(request.requestOptions.max_tokens ?? request.requestOptions.max_completion_tokens ?? options.maxTokens ?? this.maxTokens);
+    const estimatedCostUsd = this.cost(kr, request.model, inputTokens, outputTokens);
+    const reservation = reserveRun(inputTokens + outputTokens, estimatedCostUsd);
+    try { if (this.budgetVeto) await this.budgetVeto.checkVeto(estimatedCostUsd); }
+    catch (error) { reservation.settle(0, 0); throw error; }
     // Declared outside the try so the catch can tell whether the reservation was
     // already settled by a mid-stream usage report — otherwise an error after the
     // usage chunk would release the same reservation twice (under-counting spend).
     let usageRecorded = false;
-    let attemptedModel: string | undefined;
+    let dailyReservationClosed = false;
 
     try {
-      const request = this.buildChatRequest(kr, messages, options, (picked) => { attemptedModel = picked; });
       const { model, caps } = request;
 
       // One reader per response: it turns chunks into tokens, reasoning and tool calls (chat.stream.reader.ts).
@@ -763,26 +787,32 @@ export class LlmAdapter implements LLMProvider {
         // Usage, if the stream reports it (requires stream_options on some models). Recorded once: a provider sending
         // more than one usage chunk would otherwise release the reservation repeatedly.
         if (chunk.usage && !usageRecorded) {
-          yield* this.settleStreamUsage(chunk.usage, kr, estimatedCostUsd);
+          const usage = chunk.usage;
+          const input = Math.max(0, Number(usage.prompt_tokens) || 0), output = Math.max(0, Number(usage.completion_tokens) || 0);
+          reservation.settle(input + output, this.cost(kr, request.model, input, output, usage.prompt_tokens_details?.cached_tokens ?? usage.cache_read_input_tokens ?? 0));
           usageRecorded = true;
+          dailyReservationClosed = true;
+          yield* this.settleStreamUsage(usage, kr, estimatedCostUsd, request.model);
         }
       }
 
       yield* reader.finish();
-      yield { type: 'done' };
-
       // Only fall back to the estimate if the stream never reported real usage,
       // otherwise we would double-count the spend already recorded above.
       if (this.budgetVeto && !usageRecorded) {
-        await this.budgetVeto.recordSpend(estimatedCostUsd, estimatedCostUsd, this.pickModel(kr)); // Rough fallback
+        await this.budgetVeto.recordSpend(estimatedCostUsd, estimatedCostUsd, request.model); // Conservative estimate
       }
+      dailyReservationClosed = true;
       this.apiKeyManager.reportKeyResult(kr.idx!, 200);
       this.providerBreaker.record(Outcome.Success);
+      reservation.settle();
+      yield { type: 'done' };
 
     } catch (e: any) {
       // Only release if a mid-stream usage report hasn't already settled the
       // reservation, otherwise we would release it a second time.
       if (this.budgetVeto && !usageRecorded) await this.budgetVeto.releaseReservation(estimatedCostUsd);
+      dailyReservationClosed = true;
 
       this.enrichModelNotFound(e, kr, options.lite, attemptedModel);
       // The QUICK model was just refused (NVIDIA lists ids it then 404s "for account"), and the work
@@ -809,6 +839,10 @@ export class LlmAdapter implements LLMProvider {
       // must never open the breaker. Record nothing for aborts.
       if (!isUserAbort(e, options.signal)) this.providerBreaker.record(isProviderFault(status) ? Outcome.Failure : Outcome.Success);
       yield { type: 'error', message: e.message, recoverable, kind, retryAfterSecs };
+    } finally {
+      reservation.settle();
+      // Generator cancellation can skip success/catch; close its daily reservation too.
+      if (this.budgetVeto && !dailyReservationClosed) await this.budgetVeto.recordSpend(estimatedCostUsd, estimatedCostUsd, request.model);
     }
   }
 
@@ -955,7 +989,7 @@ export class LlmAdapter implements LLMProvider {
       const hedge = await hedgedRequest<KeyResult, any>({
         first: kr,
         budgetMs: headerBudgetMs,
-        hedgeAfterMs: isLoopbackEndpoint(kr.baseURL) ? 0 : this.hedgeAfterMs,
+        hedgeAfterMs: activeRunBudget() || isLoopbackEndpoint(kr.baseURL) ? 0 : this.hedgeAfterMs,
         start: (legKey, budgetMs) => {
           const leg = new AbortController();
           const signal = options.signal ? AbortSignal.any([options.signal as AbortSignal, leg.signal]) : leg.signal;
@@ -1003,14 +1037,14 @@ export class LlmAdapter implements LLMProvider {
   }
 
   /** Record a usage chunk: perf and telemetry, the `usage` event, and the spend it settles. */
-  private async *settleStreamUsage(usage: any, kr: KeyResult, estimatedCostUsd: number): AsyncGenerator<ChatEvent> {
+  private async *settleStreamUsage(usage: any, kr: KeyResult, estimatedCostUsd: number, model: string): AsyncGenerator<ChatEvent> {
     // Coerce token counts to real numbers: several providers omit completion_tokens (or send
     // null) on mid-stream usage chunks, and `prompt + undefined` is NaN — which would poison
     // the context manager's token tracking AND the budget's currentDailySpend (NaN > cap is
     // always false, so the daily veto silently never fires again, and NaN gets persisted).
     const promptToks = Number(usage.prompt_tokens) || 0;
     const completionToks = Number(usage.completion_tokens) || 0;
-    const cacheRead = usage.cache_read_input_tokens ?? 0;
+    const cacheRead = usage.prompt_tokens_details?.cached_tokens ?? usage.cache_read_input_tokens ?? 0;
     const cacheCreate = usage.cache_creation_input_tokens ?? 0;
     // The provider told us; record it as provider-sourced usage. Rounds with no usage chunk
     // stay `unavailable` rather than being back-filled from a character count.
@@ -1021,10 +1055,10 @@ export class LlmAdapter implements LLMProvider {
       cacheCreationTokens: Number(cacheCreate) || 0,
     }));
     globalTelemetry.recordUsage(promptToks, cacheRead, cacheCreate);
-    yield { type: 'usage', prompt: promptToks, completion: completionToks };
     if (this.budgetVeto) {
-      const actualCostUsd = this.estCost(promptToks + completionToks);
-      await this.budgetVeto.recordSpend(actualCostUsd, estimatedCostUsd, this.pickModel(kr));
+      const actualCostUsd = this.cost(kr, model, promptToks, completionToks, Number(cacheRead) || 0);
+      await this.budgetVeto.recordSpend(actualCostUsd, estimatedCostUsd, model);
     }
+    yield { type: 'usage', prompt: promptToks, completion: completionToks };
   }
 }

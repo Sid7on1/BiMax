@@ -2,7 +2,7 @@ import { ToolDef, buildTool, BuiltTool } from '../tool.factory';
 import { IGovernor } from '../../core/interfaces';
 import { ToolRegistry } from '../tool.registry';
 import { LlmAdapter } from '../../core/llm.adapter';
-import { SkillLoader } from '../../engine/skills.loader';
+import { PersonaConfigLoader } from '../../engine/persona.config.loader';
 import { Logger } from '../../utils/logger';
 import { SubAgentManager, globalSubAgentManager, MAX_SUBAGENT_DEPTH } from '../../core/subagent.manager';
 import { globalSubAgentBlackboard } from '../../core/subagent.blackboard';
@@ -40,7 +40,7 @@ Use it when work can genuinely run in parallel (independent sub-tasks across dis
       properties: {
         agentType: {
           type: 'string',
-          enum: ['BiMax', 'Hermes', 'OpenCode', 'OpenClaw', ...Object.keys(SkillLoader.getAllSkills())],
+          enum: ['BiMax', 'Hermes', 'OpenCode', 'OpenClaw', ...Object.keys(PersonaConfigLoader.getAllPersonas())],
           description: 'The sub-agent persona. Default and standard is "BiMax" — a full copy of yourself with the same tools and reasoning; omit this to spawn BiMax. The others are legacy specialized personas — only use one if the task specifically calls for it.'
         },
         prompt: {

@@ -38,9 +38,12 @@ export interface ToolOutcome {
  * differs from the tool's own only when the failure memory has exhausted this action's retry budget and says so.
  */
 export function observeToolOutcome(o: ToolOutcome): string {
+  if (isReplayActive()) return o.result;
   const { call, isError, typed, durationMs, span, cwd } = o;
   const args = call.args || '{}';
   let result = o.result;
+  // Safety marking precedes every optional observer; a telemetry/store failure cannot waive it.
+  markToolTaint(call.name, args, result);
 
   // Completion checks (F3): a call that changed files makes this a task that needs a check, and makes a check that
   // passed before it stale.
@@ -76,9 +79,6 @@ export function observeToolOutcome(o: ToolOutcome): string {
     // preference/policy data, never a failure-rate sample.
     const outcome: 'ok' | 'err' | 'rejected' = outcomeLabel;
     const domain = domainOf(call.name, args);
-    // Taint (v2 D3): web/MCP output entering the conversation marks the session untrusted — the governor then denies
-    // network capability until a human clears it.
-    markToolTaint(call.name, args, result);
     let bashCmd: string | undefined;
     if (call.name === 'BashTool') {
       try { bashCmd = String(JSON.parse(args).command || '') || undefined; } catch { /* unparseable */ }

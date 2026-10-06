@@ -1,9 +1,10 @@
 import { AgentLoop } from '../core/agent.loop';
 import { Message } from '../core/llm.provider';
 import {
-  LoadedEpisode, ReplayProvider, loadEpisode, setReplayActive,
+  LoadedEpisode, ReplayProvider, loadEpisode,
 } from './episode.recorder';
 import { mindSingletonRoot } from './self.model';
+import { inReplayScope } from '../core/replay.scope';
 
 /**
  * Replay harness (BiMax v2, Phase 4 — the divergence-report consumer).
@@ -121,8 +122,7 @@ export async function replayEpisode(
   // Call 0's delta IS the full history at the first request (lastMsgCount started at 0).
   const initialMessages = ep.calls[0].newMessages.map(toMessage);
 
-  setReplayActive(true);
-  try {
+  return inReplayScope(async () => {
     const loop = new AgentLoop(provider, registry as any);
     let finalText = '';
     const gen = loop.execute(initialMessages, system, {
@@ -143,7 +143,5 @@ export async function replayEpisode(
       finalText: finalText.trim(),
       caveats,
     };
-  } finally {
-    setReplayActive(false);
-  }
+  });
 }

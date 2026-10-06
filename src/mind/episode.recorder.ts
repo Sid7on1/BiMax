@@ -6,6 +6,8 @@ import { LLMProvider, Message, ChatOptions, ChatEvent } from '../core/llm.provid
 import { mindSingletonRoot } from './self.model';
 import { getEventLedger } from './event.ledger';
 import { redactSecretsDeep } from '../security/secret.scan';
+import { isReplayActive } from '../core/replay.scope';
+export { isReplayActive } from '../core/replay.scope';
 
 /**
  * Episode bundles — the agent's black-box flight recorder (BiMax v2, Phase 4 minimal).
@@ -107,9 +109,6 @@ export function hashRequest(messages: Message[], options: ChatOptions): string {
 // habit miner, epistemic claims, event ledger) and the recorder itself must stand
 // down — a replayed episode re-observed as fresh experience would double-count
 // every outcome it already learned from.
-let replayActive = false;
-export function setReplayActive(on: boolean): void { replayActive = on; }
-export function isReplayActive(): boolean { return replayActive; }
 
 const SESSION_ID = `${process.pid}-${Date.now().toString(36)}`;
 
@@ -260,7 +259,7 @@ export class RecordingProvider implements LLMProvider {
  */
 export function startEpisodeRecording(inner: LLMProvider, root?: string): { llm: LLMProvider; id: string | null } {
   // A replayed run must not record a fresh episode of itself.
-  if (process.env.BIMAX_RECORDER === '0' || replayActive) return { llm: inner, id: null };
+  if (process.env.BIMAX_RECORDER === '0' || isReplayActive()) return { llm: inner, id: null };
   // Callers such as the counterfactual lab may provide an explicit recorder so they can own the
   // episode id and location. Wrapping it again creates two adjacent ledger anchors for one run;
   // the empty interval between them then makes the recorded-failure census read 0/0. Reuse the

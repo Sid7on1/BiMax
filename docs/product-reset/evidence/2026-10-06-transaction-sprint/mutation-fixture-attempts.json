@@ -1,0 +1,17 @@
+[
+  {
+    "mutant": "commit-capture-fence",
+    "attempt": 1,
+    "valid": false,
+    "reason": "false && this.openTx.pending lost TypeScript null narrowing in unreachable code; compiler-only failure, not counted",
+    "repair": "comparison against negative pending count leaves the mutation executable"
+  },
+  {
+    "mutant": "recovery-single-flight",
+    "attempt": 1,
+    "valid": false,
+    "reason": "fixture awaited the second blocked recovery before releasing its read gate; Jest timeout, not counted",
+    "repair": "queue both calls, release gate, then assert the second receipt; original regression assertions retained",
+    "raw_log": "mutation-invalid-recovery-first-attempt.log"
+  }
+]

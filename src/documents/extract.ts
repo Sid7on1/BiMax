@@ -331,21 +331,23 @@ async function mergeLayoutPages(file: string, byPage: Map<number, Segment>): Pro
   // Only now is rasterising justified, and only these pages are recognised.
   const wanted = new Set(needOcr);
   const result = await readPdf(file);
-  const images = result.pages.filter((p) => wanted.has(p.page) && p.imagePath);
-  if (images.length === 0) return { segments: segments.sort((a, b) => (a.locator.page ?? 0) - (b.locator.page ?? 0)) };
+  try {
+    const images = result.pages.filter((p) => wanted.has(p.page) && p.imagePath);
+    if (images.length === 0) return { segments: segments.sort((a, b) => (a.locator.page ?? 0) - (b.locator.page ?? 0)) };
 
-  const { pages: recognised, note } = await ocrOrNote(images.map((p) => p.imagePath!));
-  const byImage = new Map(recognised.map((p) => [p.imagePath, p]));
-  for (const page of images) {
-    const hit = byImage.get(page.imagePath!);
-    if (!hit || !hit.text.trim()) continue;
-    const cleaned = clean(hit.text);
-    segments.push({
-      text: cleaned, locator: { page: page.page }, via: 'ocr',
-      confidence: hit.confidence, context: leadingContext(cleaned),
-    });
-  }
-  return { segments: segments.sort((a, b) => (a.locator.page ?? 0) - (b.locator.page ?? 0)), note };
+    const { pages: recognised, note } = await ocrOrNote(images.map((p) => p.imagePath!));
+    const byImage = new Map(recognised.map((p) => [p.imagePath, p]));
+    for (const page of images) {
+      const hit = byImage.get(page.imagePath!);
+      if (!hit || !hit.text.trim()) continue;
+      const cleaned = clean(hit.text);
+      segments.push({
+        text: cleaned, locator: { page: page.page }, via: 'ocr',
+        confidence: hit.confidence, context: leadingContext(cleaned),
+      });
+    }
+    return { segments: segments.sort((a, b) => (a.locator.page ?? 0) - (b.locator.page ?? 0)), note };
+  } finally { await result.dispose?.(); }
 }
 
 async function extractPdf(file: string): Promise<{ segments: Segment[]; note?: string }> {
@@ -363,28 +365,30 @@ async function extractPdf(file: string): Promise<{ segments: Segment[]; note?: s
   // readPdf already does the right thing: embedded text layer FIRST, rasterise + OCR only the pages
   // that have none. A born-digital report costs no OCR; a scanned one is recognised page by page.
   const result = await readPdf(file);
-  const needOcr = result.pages.filter((p) => !p.text && p.imagePath);
-  const recognized = new Map<string, { text: string; confidence?: number }>();
-  let note: string | undefined;
-  if (needOcr.length) {
-    const ocr = await ocrOrNote(needOcr.map((p) => p.imagePath!));
-    note = ocr.note;
-    for (const page of ocr.pages) recognized.set(page.imagePath, { text: page.text, confidence: page.confidence });
-  }
-  const segments: Segment[] = [];
-  for (const page of result.pages) {
-    if (page.text && page.text.trim()) {
-      const cleaned = clean(page.text);
-      segments.push({ text: cleaned, locator: { page: page.page }, via: 'text-layer', context: leadingContext(cleaned) });
-      continue;
+  try {
+    const needOcr = result.pages.filter((p) => !p.text && p.imagePath);
+    const recognized = new Map<string, { text: string; confidence?: number }>();
+    let note: string | undefined;
+    if (needOcr.length) {
+      const ocr = await ocrOrNote(needOcr.map((p) => p.imagePath!));
+      note = ocr.note;
+      for (const page of ocr.pages) recognized.set(page.imagePath, { text: page.text, confidence: page.confidence });
     }
-    const hit = page.imagePath ? recognized.get(page.imagePath) : undefined;
-    if (hit && hit.text.trim()) {
-      const cleaned = clean(hit.text);
-      segments.push({ text: cleaned, locator: { page: page.page }, via: 'ocr', confidence: hit.confidence, context: leadingContext(cleaned) });
+    const segments: Segment[] = [];
+    for (const page of result.pages) {
+      if (page.text && page.text.trim()) {
+        const cleaned = clean(page.text);
+        segments.push({ text: cleaned, locator: { page: page.page }, via: 'text-layer', context: leadingContext(cleaned) });
+        continue;
+      }
+      const hit = page.imagePath ? recognized.get(page.imagePath) : undefined;
+      if (hit && hit.text.trim()) {
+        const cleaned = clean(hit.text);
+        segments.push({ text: cleaned, locator: { page: page.page }, via: 'ocr', confidence: hit.confidence, context: leadingContext(cleaned) });
+      }
     }
-  }
-  return { segments, note };
+    return { segments, note };
+  } finally { await result.dispose?.(); }
 }
 
 async function extractImage(file: string): Promise<Segment[]> {

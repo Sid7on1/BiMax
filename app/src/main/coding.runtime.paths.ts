@@ -47,15 +47,15 @@ export function buildEngineChildEnv(input: {
     BGW_FIRST_CHUNK_TIMEOUT_MS: '45000',
     ...(input.compileCacheDir ? { NODE_COMPILE_CACHE: input.compileCacheDir } : {}),
   };
-  // Looking at other apps (record 65): only this app's own decision for this engine turns it on, never an inherited value.
-  if (input.extraEnv.BIMAX_COMPUTER_LOOK === '1') env.BIMAX_COMPUTER_LOOK = '1';
-  else delete env.BIMAX_COMPUTER_LOOK;
-  // Using other apps — press and type (stage 6): the same rule, and never without looking. The stage 3 variable is
-  // retired and never passed on.
-  if (input.extraEnv.BIMAX_COMPUTER_USE === '1' && env.BIMAX_COMPUTER_LOOK === '1') env.BIMAX_COMPUTER_USE = '1';
-  else delete env.BIMAX_COMPUTER_USE;
-  delete env.BIMAX_COMPUTER_PRESS;
+  // Computer Use is retired: neither saved preferences nor injected launch flags may restore it.
   for (const variable of [
+    'BIMAX_COMPUTER_LOOK',
+    'BIMAX_COMPUTER_USE',
+    'BIMAX_COMPUTER_PRESS',
+    'BIMAX_COMPUTER_PIP',
+    'BIMAX_COMPUTER_VISIBLE',
+    'BIMAX_COMPUTER_RECORD',
+    'BIMAX_COMPUTER_APPROVALS',
     'BIMAX_MAC_CAPABILITY_PROVIDER',
     'BIMAX_CU_SERVICE_BINARY',
     'BIMAX_CU_BRIDGE_BINARY',

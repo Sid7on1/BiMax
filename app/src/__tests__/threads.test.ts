@@ -168,11 +168,38 @@ test('saving folder rules restarts an idle task on fresh settings, and never cut
   expect(f.engines.get(a)).not.toBe(first);
 });
 
-test('a project reopened in the main window returns to its own thread; a ⌘2 task in the same folder stays separate',()=> {
+test('opening a repo starts fresh while its previous chat remains selectable',()=> {
   const f=fixture();
-  const project=f.manager.create('/fixture/CN Lab','','project');
-  const task=f.manager.create('/fixture/CN Lab','list files','quick');
-  expect(f.manager.projectThread('/fixture/CN Lab')).toBe(project);
-  expect(f.manager.projectThread('/fixture/CN Lab')).not.toBe(task);
-  expect(f.manager.projectThread('/fixture/Other')).toBeUndefined();
+  const old=f.manager.openProject('/fixture/CN Lab');
+  f.manager.receive(old,{ t:'event',name:'message',args:[{ id:'old',role:'user',content:'old task',timestamp:new Date().toISOString() }] });
+  f.manager.receive(old,{ t:'event',name:'ui_snapshot',args:[{ sessions:[{ id:'old-session',current:true }] }] } as any);
+  f.manager.select(old);
+  const fresh=f.manager.openProject('/fixture/CN Lab');
+  f.manager.select(fresh); f.ready(fresh);
+  expect(fresh).not.toBe(old);
+  expect(f.manager.get(fresh).state.items).toEqual([]);
+  expect(f.manager.get(fresh).summary.sessionId).toBeUndefined();
+  expect(f.engines.get(fresh)!.sendFromRenderer).not.toHaveBeenCalled();
+  f.manager.submit(fresh,'hi');
+  expect(f.engines.get(fresh)!.sendFromRenderer).toHaveBeenLastCalledWith({ t:'input',text:'hi' });
+  expect(f.manager.get(fresh).state.items).toHaveLength(1);
+  f.manager.select(old);
+  expect(f.selected.mock.calls.at(-1)![0].state.items[0].msg.content).toBe('old task');
+});
+
+test('credentials restart the selected chat, even if another chat in the repo was updated later',()=> {
+  const f=fixture(), selected=f.manager.openProject('/fixture/repo');
+  f.ready(selected); f.manager.select(selected);
+  const newer=f.manager.create('/fixture/repo','newer task','project');
+  f.manager.get(newer).summary.updatedAt=Date.now()+1000;
+  f.manager.receive(selected,{ t:'event',name:'ui_snapshot',args:[{ sessions:[{ id:'selected-session',current:true }] }] } as any);
+  f.manager.submit(selected,'continue');
+  f.manager.submit(selected,'queued');
+  const engine=f.engines.get(selected)!;
+  expect(f.manager.openProject('/fixture/repo',{ restart:true })).toBe(selected);
+  expect(engine.dispose).toHaveBeenCalledTimes(1);
+  f.ready(selected);
+  expect(f.engines.get(selected)!.sendFromRenderer).toHaveBeenLastCalledWith({ t:'resume',id:'selected-session' });
+  f.manager.receive(selected,{ t:'event',name:'session_restore',args:[{ id:'selected-session',entries:[] }] });
+  expect(f.engines.get(selected)!.sendFromRenderer).toHaveBeenLastCalledWith({ t:'input',text:'queued' });
 });
