@@ -1,0 +1,95 @@
+[INFO] 2026-10-12T15:01:45.558Z - [MCP] Task job (fixture/build) completed; fetching result.
+[INFO] 2026-10-12T15:01:55.576Z - [MCP] Task job (fixture/build) completed; fetching result.
+FAIL src/__tests__/mcp.deadline.sprint.test.ts (16.207 s)
+  ● MCP task cancellation and whole-call deadline › bounds a hung tasks/get request
+
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+       5 |   afterEach(() => jest.useRealTimers());
+       6 |
+    >  7 |   test.each(['tasks/get', 'tasks/result'])('bounds a hung %s request', async method => {
+         |                                           ^
+       8 |     const client = { request: jest.fn(() => new Promise(() => {})) };
+       9 |     const status = method === 'tasks/result' ? 'completed' : 'working';
+      10 |     const result = awaitTaskResult(client, 'fixture', 'build', { taskId: 'job', status }, 1000);
+
+      at eachBind (node_modules/jest-each/build/index.js:54:13)
+      at src/__tests__/mcp.deadline.sprint.test.ts:7:43
+      at Object.<anonymous> (src/__tests__/mcp.deadline.sprint.test.ts:3:1)
+
+  ● MCP task cancellation and whole-call deadline › bounds a hung tasks/result request
+
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+       5 |   afterEach(() => jest.useRealTimers());
+       6 |
+    >  7 |   test.each(['tasks/get', 'tasks/result'])('bounds a hung %s request', async method => {
+         |                                           ^
+       8 |     const client = { request: jest.fn(() => new Promise(() => {})) };
+       9 |     const status = method === 'tasks/result' ? 'completed' : 'working';
+      10 |     const result = awaitTaskResult(client, 'fixture', 'build', { taskId: 'job', status }, 1000);
+
+      at eachBind (node_modules/jest-each/build/index.js:54:13)
+      at src/__tests__/mcp.deadline.sprint.test.ts:7:43
+      at Object.<anonymous> (src/__tests__/mcp.deadline.sprint.test.ts:3:1)
+
+  ● MCP task cancellation and whole-call deadline › does not start a new poll when its wait exhausts the deadline
+
+    expect(jest.fn()).not.toHaveBeenCalled()
+
+    Expected number of calls: 0
+    Received number of calls: 1
+
+    1: {"method": "tasks/get", "params": {"taskId": "job"}}, {"decode": [Function anonymous], "decodeAsync": [Function anonymous], "def": {"catchall": {"decode": [Function anonymous], "decodeAsync": [Function anonymous], "def": {"type": "unknown"}, "encode": [Function anonymous], "encodeAsync": [Function anonymous], "parse": [Function anonymous], "parseAsync": [Function anonymous], "safeDecode": [Function anonymous], "safeDecodeAsync": [Function anonymous], "safeEncode": [Function anonymous], "safeEncodeAsync": [Function anonymous], "safeParse": [Function anonymous], "safeParseAsync": [Function anonymous], "spa": [Function anonymous], "toJSONSchema": [Function anonymous], "type": "unknown"}, "shape": {}, "type": "object"}, "encode": [Function anonymous], "encodeAsync": [Function anonymous], "parse": [Function anonymous], "parseAsync": [Function anonymous], "safeDecode": [Function anonymous], "safeDecodeAsync": [Function anonymous], "safeEncode": [Function anonymous], "safeEncodeAsync": [Function anonymous], "safeParse": [Function anonymous], "safeParseAsync": [Function anonymous], "spa": [Function anonymous], "toJSONSchema": [Function anonymous], "type": "object"}
+
+      22 |     await jest.advanceTimersByTimeAsync(100);
+      23 |     await rejected;
+    > 24 |     expect(client.request).not.toHaveBeenCalled();
+         |                                ^
+      25 |   });
+      26 |
+      27 |   test('Stop during backoff settles immediately and cancels server work once', async () => {
+
+      at Object.<anonymous> (src/__tests__/mcp.deadline.sprint.test.ts:24:32)
+
+  ● MCP task cancellation and whole-call deadline › Stop during backoff settles immediately and cancels server work once
+
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      25 |   });
+      26 |
+    > 27 |   test('Stop during backoff settles immediately and cancels server work once', async () => {
+         |   ^
+      28 |     const controller = new AbortController();
+      29 |     const client = { request: jest.fn(async (_request: any) => ({})) };
+      30 |     const result = (awaitTaskResult as any)(client, 'fixture', 'build', { taskId: 'job' }, 60_000, controller.signal);
+
+      at src/__tests__/mcp.deadline.sprint.test.ts:27:3
+      at Object.<anonymous> (src/__tests__/mcp.deadline.sprint.test.ts:3:1)
+
+  ● MCP task cancellation and whole-call deadline › a completed result arriving after Stop cannot turn cancellation into success
+
+    expect(received).rejects.toThrow()
+
+    Received promise resolved instead of rejected
+    Resolved to value: {"content": [{"text": "too late", "type": "text"}]}
+
+      43 |       ? new Promise(resolve => { finish = resolve; }) : Promise.resolve({})) };
+      44 |     const result = (awaitTaskResult as any)(client, 'fixture', 'build', { taskId: 'job', status: 'completed' }, 60_000, controller.signal);
+    > 45 |     const rejected = expect(result).rejects.toThrow(/stopped/);
+         |                      ^
+      46 |     await jest.advanceTimersByTimeAsync(0);
+      47 |     controller.abort(new Error('stopped'));
+      48 |     finish({ content: [{ type: 'text', text: 'too late' }] });
+
+      at expect (node_modules/expect/build/index.js:2116:15)
+      at Object.<anonymous> (src/__tests__/mcp.deadline.sprint.test.ts:45:22)
+
+Test Suites: 1 failed, 1 total
+Tests:       5 failed, 5 total
+Snapshots:   0 total
+Time:        16.234 s
+Ran all test suites matching src/__tests__/mcp.deadline.sprint.test.ts.

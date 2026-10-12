@@ -1,0 +1,23 @@
+FAIL src/__tests__/mcp.ownership.sprint.test.ts
+  ● catalog notifications coalesce to one active read and one follow-up read
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 2
+    Received: 102
+
+      163 |   await Promise.all([first, ...burst]);
+      164 |   try {
+    > 165 |     expect(callsDuringRead).toBe(2); // initial catalog + one active refresh
+          |                             ^
+      166 |     expect(c.listTools).toHaveBeenCalledTimes(3);
+      167 |     expect(registry.getToolNames()).toEqual(['mcp__owned__latest']);
+      168 |   } finally { await manager.disconnect(spec.name, registry); }
+
+      at Object.<anonymous> (src/__tests__/mcp.ownership.sprint.test.ts:165:29)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 20 skipped, 21 total
+Snapshots:   0 total
+Time:        1.257 s, estimated 2 s
+Ran all test suites matching src/__tests__/mcp.ownership.sprint.test.ts with tests matching "notifications coalesce".

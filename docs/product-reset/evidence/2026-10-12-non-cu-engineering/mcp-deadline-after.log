@@ -1,0 +1,30 @@
+[INFO] 2026-10-12T15:02:27.583Z - [MCP] Task job (fixture/build) completed; fetching result.
+[INFO] 2026-10-12T15:02:27.589Z - [MCP] Task job (fixture/build) completed; fetching result.
+FAIL src/__tests__/mcp.deadline.sprint.test.ts
+  ● MCP task cancellation and whole-call deadline › bounds a hung tasks/get request
+
+    expect(received).toHaveLength(expected)
+
+    Expected length: 1
+    Received length: 0
+    Received array:  []
+
+      12 |     await jest.advanceTimersByTimeAsync(1000);
+      13 |     await rejected;
+    > 14 |     expect(client.request.mock.calls).toHaveLength(1);
+         |                                       ^
+      15 |     expect(jest.getTimerCount()).toBe(0);
+      16 |   });
+      17 |
+
+      at src/__tests__/mcp.deadline.sprint.test.ts:14:39
+
+[INFO] 2026-10-12T15:02:30.128Z - [MCP] Task t-9 (srv/build) completed; fetching result.
+[INFO] 2026-10-12T15:02:30.633Z - [MCP] Task t-8 (srv/q) completed; fetching result.
+[INFO] 2026-10-12T15:02:33.603Z - [MCP] Task t-4 (srv/fast) completed; fetching result.
+
+Test Suites: 1 failed, 1 passed, 2 total
+Tests:       1 failed, 13 passed, 14 total
+Snapshots:   0 total
+Time:        7.25 s, estimated 23 s
+Ran all test suites matching src/__tests__/mcp.deadline.sprint.test.ts|src/__tests__/mcp.tasks.test.ts.

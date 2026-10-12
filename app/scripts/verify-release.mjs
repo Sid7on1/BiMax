@@ -19,28 +19,14 @@
 import { existsSync, readdirSync, statSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
+import { resolveReleaseArtifact } from './release-artifact.mjs';
 
 const argv = process.argv.slice(2);
 const allowUnsigned = argv.includes('--allow-unsigned');
-const explicit = argv.includes('--app') ? argv[argv.indexOf('--app') + 1] : process.env.BIMAX_APP_PATH;
-
 const appRoot = path.resolve(import.meta.dirname, '..');
-const candidates = [explicit].filter(Boolean);
-for (const dir of [process.env.BIMAX_RELEASE_DIR, path.join(appRoot, 'release'), '/tmp/bimax-release']) {
-  if (!dir || !existsSync(dir)) continue;
-  for (const entry of readdirSync(dir)) {
-    const bundle = path.join(dir, entry, 'Bimax.app');
-    if (existsSync(bundle)) candidates.push(bundle);
-  }
-}
-candidates.push('/Applications/Bimax.app');
-
-const app = candidates.find((c) => c && existsSync(path.join(c, 'Contents', 'Info.plist')));
-if (!app) {
-  console.error('✗ No built Bimax.app to verify.');
-  console.error('  Looked in: ' + candidates.join(', '));
-  process.exit(1);
-}
+let app;
+try { app = resolveReleaseArtifact({ argv, appRoot }); }
+catch (error) { console.error(`✗ ${error.message}`); process.exit(1); }
 
 const failures = [];
 const warnings = [];

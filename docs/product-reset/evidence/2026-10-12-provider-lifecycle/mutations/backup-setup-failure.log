@@ -1,0 +1,24 @@
+FAIL src/__tests__/provider.lifecycle.sprint.test.ts
+  ● provider lifetime under delayed or uncooperative work › a synchronous backup launch failure leaves the primary eligible to win
+
+    expect(received).toMatchObject(expected)
+
+    Matcher error: received value must be a non-null object
+
+    Received has value: undefined
+
+      104 |     primary.resolve('primary response');
+      105 |     await jest.advanceTimersByTimeAsync(0);
+    > 106 |     expect(result.value).toMatchObject({ key: 'A', value: 'primary response' });
+          |                          ^
+      107 |     expect(loser).toHaveBeenCalledWith('B', expect.any(Number), failure);
+      108 |   });
+      109 |
+
+      at Object.<anonymous> (src/__tests__/provider.lifecycle.sprint.test.ts:106:26)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 16 skipped, 17 total
+Snapshots:   0 total
+Time:        1.402 s, estimated 2 s
+Ran all test suites matching src/__tests__/provider.lifecycle.sprint.test.ts with tests matching "synchronous backup launch failure".

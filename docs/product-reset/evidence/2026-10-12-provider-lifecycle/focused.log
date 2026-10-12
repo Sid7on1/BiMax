@@ -1,0 +1,61 @@
+[INFO] 2026-10-12T16:39:58.931Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:39:58.989Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:39:59.005Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:39:59.013Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:39:59.052Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+FAIL src/__tests__/provider.lifecycle.http.test.ts
+  ● real SDK header deadline closes the held request and reports a stall instead of done
+
+    expect(received).toContainEqual(expected) // deep equality
+
+    Expected value: ObjectContaining {"message": StringContaining "no response headers", "recoverable": true, "type": "error"}
+    Received array: [{"kind": "transient", "message": "Connection error.", "recoverable": true, "retryAfterSecs": undefined, "type": "error"}]
+
+      115 |     await f.closed.promise;
+      116 |     expect(f.requests).toHaveLength(1);
+    > 117 |     expect(events).toContainEqual(expect.objectContaining({ type: 'error', recoverable: true, message: expect.stringContaining('no response headers') }));
+          |                    ^
+      118 |     expect(events.some(event => event.type === 'done')).toBe(false);
+      119 |     expect(f.manager.getStates()[0].hangs).toBe(1);
+      120 |   } finally { await f.close(); }
+
+      at Object.<anonymous> (src/__tests__/provider.lifecycle.http.test.ts:117:20)
+
+[INFO] 2026-10-12T16:39:59.729Z - [ApiKeyManager] Key pool set: 2 key(s) across 1 provider(s), 40 requests/min each.
+[INFO] 2026-10-12T16:39:59.730Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s), 40 requests/min each.
+[INFO] 2026-10-12T16:39:59.730Z - [ApiKeyManager] Key pool set: 2 key(s) across 1 provider(s).
+[33m[WARN] 2026-10-12T16:39:59.764Z - [LlmAdapter] KEY #2 has not answered in 0s — sending a backup on key #1[0m
+[INFO] 2026-10-12T16:40:00.004Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[33m[WARN] 2026-10-12T16:40:00.068Z - [ApiKeyManager] KEY #1 (nvidia) hung before first token — benched 3s (strike 1)[0m
+[INFO] 2026-10-12T16:40:00.068Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:40:00.273Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:40:00.441Z - [ApiKeyManager] Key pool set: 3 key(s) across 1 provider(s), 40 requests/min each.
+[INFO] 2026-10-12T16:40:00.442Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s), 3 requests/min each.
+[INFO] 2026-10-12T16:40:00.443Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s), 4 requests/min each.
+[INFO] 2026-10-12T16:40:00.443Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s), 4 requests/min each.
+[INFO] 2026-10-12T16:40:00.444Z - [ApiKeyManager] Key pool set: 2 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:40:00.444Z - [ApiKeyManager] Key pool set: 2 key(s) across 1 provider(s).
+[33m[WARN] 2026-10-12T16:40:00.444Z - [ApiKeyManager] KEY #1 (nvidia) -> 429 cooldown 30.0s[0m
+[INFO] 2026-10-12T16:40:00.445Z - [ApiKeyManager] Key pool set: 2 key(s) across 1 provider(s), 10 requests/min each.
+[INFO] 2026-10-12T16:40:00.447Z - [ApiKeyManager] Key pool set: 2 key(s) across 1 provider(s), 1 requests/min each.
+[INFO] 2026-10-12T16:40:00.447Z - [ApiKeyManager] Key pool set: 2 key(s) across 1 provider(s), 1 requests/min each.
+[INFO] 2026-10-12T16:40:00.448Z - [ApiKeyManager] Key pool set: 2 key(s) across 1 provider(s), 1 requests/min each.
+[INFO] 2026-10-12T16:40:00.448Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s), 1 requests/min each.
+[INFO] 2026-10-12T16:40:00.450Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:40:00.458Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s), 5 requests/min each.
+[INFO] 2026-10-12T16:40:00.463Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s), 2 requests/min each.
+[33m[WARN] 2026-10-12T16:40:00.463Z - [ApiKeyManager] shared key ledger unavailable (disk full); pacing this engine alone.[0m
+[33m[WARN] 2026-10-12T16:40:00.463Z - [ApiKeyManager] shared key ledger unavailable (disk full); pacing this engine alone.[0m
+[33m[WARN] 2026-10-12T16:40:00.463Z - [ApiKeyManager] shared key ledger unavailable (disk full); pacing this engine alone.[0m
+[INFO] 2026-10-12T16:40:00.636Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s), 1 requests/min each.
+[33m[WARN] 2026-10-12T16:40:00.636Z - [LlmAdapter] All keys cooling down (rate limit / transient). Sleeping 60.0s...[0m
+[INFO] 2026-10-12T16:40:00.640Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:40:00.641Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:40:00.642Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:40:00.643Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+
+Test Suites: 1 failed, 5 passed, 6 total
+Tests:       1 failed, 57 passed, 58 total
+Snapshots:   0 total
+Time:        3.444 s
+Ran all test suites matching src/__tests__/provider.lifecycle.sprint.test.ts|src/__tests__/provider.lifecycle.http.test.ts|src/__tests__/hedged.request.test.ts|src/__tests__/chat.stream.reader.test.ts|src/__tests__/key.pool.hybrid.test.ts|src/__tests__/llm.stream.disposal.sprint.test.ts.

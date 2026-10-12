@@ -1,0 +1,22 @@
+FAIL src/__tests__/mcp.lifecycle.sprint.test.ts
+  ● a failed handshake closes the spawned process
+
+    expect(received).toThrow()
+
+    Received function did not throw
+
+      37 |     await expect(openClient({ name: 'hung-start', command: process.execPath, args: [fixture, 'hang-start', file] })).rejects.toThrow(/timed out/);
+      38 |     const pid = Number(fs.readFileSync(file, 'utf8'));
+    > 39 |     expect(() => process.kill(pid, 0)).toThrow();
+         |                                        ^
+      40 |   } finally {
+      41 |     if (old === undefined) delete process.env.BIMAX_MCP_CONNECT_TIMEOUT_MS;
+      42 |     else process.env.BIMAX_MCP_CONNECT_TIMEOUT_MS = old;
+
+      at Object.<anonymous> (src/__tests__/mcp.lifecycle.sprint.test.ts:39:40)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 4 skipped, 5 total
+Snapshots:   0 total
+Time:        2.287 s
+Ran all test suites matching src/__tests__/mcp.lifecycle.sprint.test.ts with tests matching "failed handshake".

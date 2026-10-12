@@ -1,0 +1,23 @@
+FAIL src/__tests__/mcp.ownership.sprint.test.ts
+  ● disconnect removes only tool objects owned by that connection
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: {"concurrencySafeFor": [Function concurrencySafeFor], "description": "[MCP:owned] echo", "execute": [Function execute], "isConcurrencySafe": false, "isDestructive": true, "name": "mcp__owned__echo", "outputSource": undefined, "schema": {"type": "object"}, "scopeOnly": undefined, "workflowReadOnly": false}
+    Received: undefined
+
+      302 |   registry.register(replacement);
+      303 |   await manager.disconnect(spec.name, registry);
+    > 304 |   expect(registry.getTool('mcp__owned__echo')).toBe(replacement);
+          |                                                ^
+      305 |   expect(await replacement.execute()).toBe('separate owner');
+      306 | });
+      307 |
+
+      at Object.<anonymous> (src/__tests__/mcp.ownership.sprint.test.ts:304:48)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 20 skipped, 21 total
+Snapshots:   0 total
+Time:        1.278 s, estimated 2 s
+Ran all test suites matching src/__tests__/mcp.ownership.sprint.test.ts with tests matching "only tool objects owned".

@@ -1,0 +1,22 @@
+FAIL src/__tests__/mcp.ownership.sprint.test.ts
+  ● a resource-only server connects without an unsupported tools/list request
+
+    expect(received).not.toBeNull()
+
+    Received: null
+
+      201 |   const conn = await connectAndRegister(spec, registry, governor);
+      202 |   try {
+    > 203 |     expect(conn).not.toBeNull();
+          |                      ^
+      204 |     expect(c.listTools).not.toHaveBeenCalled();
+      205 |     expect(registry.getToolNames()).toEqual(['mcp__owned__list_resources', 'mcp__owned__read_resource']);
+      206 |   } finally { await c.close(); }
+
+      at Object.<anonymous> (src/__tests__/mcp.ownership.sprint.test.ts:203:22)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 20 skipped, 21 total
+Snapshots:   0 total
+Time:        1.287 s, estimated 2 s
+Ran all test suites matching src/__tests__/mcp.ownership.sprint.test.ts with tests matching "resource-only server connects".

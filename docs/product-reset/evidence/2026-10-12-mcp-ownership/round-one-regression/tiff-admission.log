@@ -1,0 +1,23 @@
+FAIL src/__tests__/extract.tiff.sprint.test.ts
+  ● malformed TIFFs report failure without invoking an OCR backend
+
+    expect(received).toMatch(expected)
+
+    Expected pattern: /Unreadable TIFF/
+    Received string:  "extraction failed: Cannot destructure property 'pages' of '(intermediate value)' as it is undefined."
+
+      15 |       const result = await extractFile(file);
+      16 |       expect(result.ok).toBe(false);
+    > 17 |       expect(result.note).toMatch(/Unreadable TIFF/);
+         |                           ^
+      18 |       expect(ocrPages).not.toHaveBeenCalled();
+      19 |     }
+      20 |   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+
+      at Object.<anonymous> (src/__tests__/extract.tiff.sprint.test.ts:17:27)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 4 skipped, 5 total
+Snapshots:   0 total
+Time:        1.165 s
+Ran all test suites matching src/__tests__/extract.tiff.sprint.test.ts with tests matching "malformed TIFFs".

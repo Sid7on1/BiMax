@@ -1,0 +1,23 @@
+FAIL src/__tests__/provider.lifecycle.sprint.test.ts
+  ● provider lifetime under delayed or uncooperative work › Stop bounds uncooperative header promises and cancels every launched request
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: [Error: fixture Stop]
+    Received: undefined
+
+      77 |       stop.abort(reason);
+      78 |       await jest.advanceTimersByTimeAsync(0);
+    > 79 |       expect(h.result.error).toBe(reason);
+         |                              ^
+      80 |       expect(h.abortA).toHaveBeenCalledTimes(1);
+      81 |       expect(h.abortB).toHaveBeenCalledTimes(1);
+      82 |     } finally { h.primary.resolve('cleanup'); h.backup.resolve('cleanup'); await h.run.catch(() => undefined); }
+
+      at Object.<anonymous> (src/__tests__/provider.lifecycle.sprint.test.ts:79:30)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 16 skipped, 17 total
+Snapshots:   0 total
+Time:        1.352 s, estimated 2 s
+Ran all test suites matching src/__tests__/provider.lifecycle.sprint.test.ts with tests matching "Stop bounds uncooperative header".

@@ -1,0 +1,20 @@
+{
+  "fixture": "primary resolves while backup-key lookup remains pending; lookup then yields B",
+  "before": {
+    "source_sha256": "298fb54895890d8b2af99132be0453c5d3e2c77ef07774b675f94580a5fb949f",
+    "responseAvailableWhileLookupPending": false,
+    "requests": [
+      "A",
+      "B"
+    ],
+    "winner": "A"
+  },
+  "after": {
+    "source_sha256": "00a1283c1ea86208f5cfd85c872ee281e8c22fea89ca82285bb36eddde92e110",
+    "responseAvailableWhileLookupPending": true,
+    "requests": [
+      "A"
+    ],
+    "winner": "A"
+  }
+}

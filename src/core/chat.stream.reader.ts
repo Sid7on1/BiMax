@@ -193,19 +193,30 @@ export async function nextChunkWithin<T>(
   timeoutMs: number,
   onTimeout: () => Error,
   abortStream: () => void,
+  signal?: AbortSignal,
 ): Promise<IteratorResult<T>> {
+  signal?.throwIfAborted();
   const nextPromise = iterator.next();
   let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
   const timeoutPromise = new Promise<never>((_, reject) => {
     timeoutHandle = setTimeout(() => reject(onTimeout()), timeoutMs);
   });
+  let onAbort!: () => void;
+  const aborted = new Promise<never>((_, reject) => {
+    onAbort = () => reject(signal?.reason);
+    signal?.addEventListener('abort', onAbort, { once: true });
+    if (signal?.aborted) onAbort();
+  });
   try {
-    return await Promise.race([nextPromise, timeoutPromise]);
+    const result = await Promise.race([nextPromise, timeoutPromise, aborted]);
+    signal?.throwIfAborted();
+    return result;
   } catch (raceErr) {
     nextPromise.catch(() => { /* orphaned after timeout — already handled via raceErr */ });
     try { abortStream(); } catch { /* best-effort close */ }
     throw raceErr;
   } finally {
     clearTimeout(timeoutHandle);
+    signal?.removeEventListener('abort', onAbort);
   }
 }

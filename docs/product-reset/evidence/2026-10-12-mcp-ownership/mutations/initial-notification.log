@@ -1,0 +1,28 @@
+FAIL src/__tests__/mcp.ownership.sprint.test.ts
+  ● a notification during initial catalog discovery triggers a fresh follow-up
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Array [
+    -   "mcp__owned__current",
+    +   "mcp__owned__old",
+      ]
+
+      278 |   await changed(c)(); first.resolve(tools('old')); await pending; await tick();
+      279 |   try {
+    > 280 |     expect(registry.getToolNames()).toEqual(['mcp__owned__current']);
+          |                                     ^
+      281 |     expect(c.listTools).toHaveBeenCalledTimes(2);
+      282 |   } finally { await manager.disconnect(spec.name, registry); }
+      283 | });
+
+      at Object.<anonymous> (src/__tests__/mcp.ownership.sprint.test.ts:280:37)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 20 skipped, 21 total
+Snapshots:   0 total
+Time:        1.239 s, estimated 2 s
+Ran all test suites matching src/__tests__/mcp.ownership.sprint.test.ts with tests matching "notification during initial catalog".

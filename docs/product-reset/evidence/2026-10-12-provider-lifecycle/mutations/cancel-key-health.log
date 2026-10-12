@@ -1,0 +1,26 @@
+[INFO] 2026-10-12T16:43:20.845Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+FAIL src/__tests__/provider.lifecycle.sprint.test.ts
+  ● provider lifetime under delayed or uncooperative work › cancelled streaming is neutral for API key health and never requests a retry
+
+    expect(jest.fn()).not.toHaveBeenCalled()
+
+    Expected number of calls: 0
+    Received number of calls: 1
+
+    1: 0, 500, null
+
+      193 |     const events = [];
+      194 |     for await (const event of adapter.chat([], { signal: stop.signal })) events.push(event);
+    > 195 |     expect(report).not.toHaveBeenCalled();
+          |                        ^
+      196 |     expect(breaker).not.toHaveBeenCalled();
+      197 |     expect(events).toContainEqual(expect.objectContaining({ type: 'error', recoverable: false }));
+      198 |     expect(events.some(event => event.type === 'done')).toBe(false);
+
+      at Object.<anonymous> (src/__tests__/provider.lifecycle.sprint.test.ts:195:24)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 16 skipped, 17 total
+Snapshots:   0 total
+Time:        2.858 s
+Ran all test suites matching src/__tests__/provider.lifecycle.sprint.test.ts with tests matching "cancelled streaming is neutral".

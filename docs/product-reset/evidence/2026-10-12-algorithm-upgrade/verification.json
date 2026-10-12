@@ -1,0 +1,111 @@
+{
+  "schema": 1,
+  "date": "2026-10-12",
+  "scope": "Offline non-CU/non-UI component audit and four exact-result upgrades. Not full semantic review or installed product qualification.",
+  "checks": [
+    {
+      "command": "npx jest --coverage=false --maxWorkers=2",
+      "exit_code": 0,
+      "suites_passed": 444,
+      "tests_passed": 4230,
+      "existing_skipped_tests": 19,
+      "existing_skipped_suites": 1,
+      "receipt": "full-jest.log"
+    },
+    {
+      "command": "npm run test:bun",
+      "exit_code": 0,
+      "tests_passed": 133,
+      "receipt": "full-bun.log"
+    },
+    {
+      "command": "npm run test:scripts",
+      "exit_code": 0,
+      "tests_passed": 3,
+      "receipt": "node-scripts.log"
+    },
+    {
+      "command": "npm run build",
+      "exit_code": 0,
+      "receipt": "build.log"
+    },
+    {
+      "command": "npx tsc --noEmit -p app/tsconfig.json",
+      "exit_code": 0,
+      "receipt": "app-typecheck.log"
+    },
+    {
+      "command": "npx eslint <six changed production files and three tests>",
+      "exit_code": 0,
+      "errors": 0,
+      "warnings": 2,
+      "receipt": "changed-lint.log"
+    },
+    {
+      "command": "npm run lint",
+      "exit_code": 1,
+      "errors": 19,
+      "warnings": 1816,
+      "existing_errors_unchanged": true,
+      "receipt": "full-lint.log"
+    },
+    {
+      "command": "npm --prefix app run build",
+      "exit_code": 0,
+      "receipt": "app-build.log"
+    },
+    {
+      "command": "npm run build:engine",
+      "exit_code": 0,
+      "receipt": "engine-build.log"
+    },
+    {
+      "command": "npm --prefix app run verify:engine",
+      "exit_code": 0,
+      "real_messageport_exchanges": 7,
+      "outbound_bytes": 46637,
+      "receipt": "engine-verify.log"
+    },
+    {
+      "command": "python3 scripts/prove-algorithm-upgrade.py",
+      "exit_code": 0,
+      "assertion_caught_source_faults": 12,
+      "restored_clean_jest_and_bun_pass": true,
+      "receipt": "mutations.json"
+    },
+    {
+      "command": "node --expose-gc docs/product-reset/evidence/2026-10-12-algorithm-upgrade/benchmark.cjs",
+      "exit_code": 0,
+      "cases": 33,
+      "paired_repetitions_per_case": 11,
+      "discard_count": 0,
+      "receipt": "benchmark.json"
+    }
+  ],
+  "new_jest_tests": 17,
+  "new_bun_tests": 1,
+  "guidance": [
+    "README",
+    "01",
+    "05",
+    "06",
+    "08",
+    "vision/BIMAX_MAC_BUDDY_PRODUCT_VISION",
+    "12 V03/V27B",
+    "competitive README/02/04/05/06/08/examples README"
+  ],
+  "primary_sources": 27,
+  "baseline_inventory_files": 744,
+  "current_inventory_files": 746,
+  "unqualified": [
+    "Exhaustive manual semantic review",
+    "installed C01/C04/R01/R02",
+    "live models/providers",
+    "peak application RSS",
+    "energy/thermal",
+    "supported-machine matrix",
+    "release",
+    "competitive claims"
+  ],
+  "dirty_preservation": "dirty-preservation.json"
+}

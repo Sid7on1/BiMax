@@ -1,0 +1,24 @@
+FAIL src/__tests__/provider.lifecycle.sprint.test.ts
+  ● provider lifetime under delayed or uncooperative work › successful headers release their deadline, hedge timer and Stop listener
+
+    expect(received).toHaveLength(expected)
+
+    Expected length: 0
+    Received length: 1
+    Received array:  [[Function stop]]
+
+      247 |     await h.run;
+      248 |     expect(jest.getTimerCount()).toBe(0);
+    > 249 |     expect(getEventListeners(stop.signal, 'abort')).toHaveLength(0);
+          |                                                     ^
+      250 |     stop.abort();
+      251 |     expect(h.abortA).not.toHaveBeenCalled();
+      252 |   });
+
+      at Object.<anonymous> (src/__tests__/provider.lifecycle.sprint.test.ts:249:53)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 16 skipped, 17 total
+Snapshots:   0 total
+Time:        1.747 s, estimated 4 s
+Ran all test suites matching src/__tests__/provider.lifecycle.sprint.test.ts with tests matching "successful headers release".

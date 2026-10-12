@@ -5,6 +5,7 @@ import * as path from 'path';
 import { Logger } from '../utils';
 import { Mutex } from 'async-mutex';
 import { Bm25Index, tokenize } from './bm25';
+import { BoundedTopK } from '../utils/bounded.top.k';
 import { contentStems } from './sufficiency';
 import { reciprocalRankFusion } from './fusion';
 import { chunkDocument } from './chunking';
@@ -561,21 +562,19 @@ export class VectorStore {
 
       let dense: string[] = [];
       if (queryVector) {
-        const scored: { id: string; score: number }[] = [];
+        const scored = new BoundedTopK<{ id: string; score: number }>(depth, (a, b) =>
+          b.score - a.score
+          || (this.chunkOwner.get(b.id)?.lastUsedAt ?? 0) - (this.chunkOwner.get(a.id)?.lastUsedAt ?? 0)
+          || a.id.localeCompare(b.id),
+        );
         for (const doc of this.store) {
           if (!docAllowed(doc)) continue;
           for (const chunk of doc.chunks ?? []) {
             if (!chunk.embedding || chunk.space !== this.embeddings?.id) continue;
-            scored.push({ id: chunk.id, score: dot(queryVector, chunk.embedding) });
+            scored.add({ id: chunk.id, score: dot(queryVector, chunk.embedding) });
           }
         }
-        scored.sort((a, b) =>
-          b.score - a.score
-          // Ties go to what retrieval has already proved useful — a hint, never a rank change.
-          || (this.chunkOwner.get(b.id)?.lastUsedAt ?? 0) - (this.chunkOwner.get(a.id)?.lastUsedAt ?? 0)
-          || a.id.localeCompare(b.id),
-        );
-        dense = scored.slice(0, depth).map((s) => s.id);
+        dense = scored.sorted().map((s) => s.id);
       }
 
       const fused = reciprocalRankFusion({ lexical: { ids: lexical }, dense: { ids: dense } });

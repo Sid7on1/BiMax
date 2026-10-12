@@ -1,0 +1,14 @@
+
+> bimax-app@1.1.0 verify:engine
+> electron scripts/verify-engine.js
+
+verifying /Users/vishsiddharth/Bimax/app/engine/index.js
+  (hosted as a worker thread in this process over a MessagePort — the monolith)
+  ok  boot                42 bytes  (a start-up phase, on the protocol channel)
+  ok  health             109 bytes  (a heartbeat, on the protocol channel (arms the hang watchdog))
+  ok  pong                19 bytes  (ping)
+  ok  configResult       776 bytes  (configGet)
+  ok  queryResult       4311 bytes  (query (slash-command completions))
+  ok  folder             126 bytes  (query '@VerifyProbe' found the project's own file)
+  ok  catalogResult    39555 bytes  (catalogGet)
+PASS — engine bundle answered all 7 exchanges (46636 bytes outbound).

@@ -1,0 +1,24 @@
+FAIL src/__tests__/provider.lifecycle.sprint.test.ts
+  ● provider lifetime under delayed or uncooperative work › primary headers return while backup key selection is still pending, without a late backup
+
+    expect(received).toMatchObject(expected)
+
+    Matcher error: received value must be a non-null object
+
+    Received has value: undefined
+
+      49 |       h.primary.resolve('primary response');
+      50 |       await jest.advanceTimersByTimeAsync(0);
+    > 51 |       expect(h.result.value).toMatchObject({ key: 'A', value: 'primary response' });
+         |                              ^
+      52 |       h.key.resolve('B');
+      53 |       await jest.advanceTimersByTimeAsync(0);
+      54 |       expect(h.start).toHaveBeenCalledTimes(1);
+
+      at Object.<anonymous> (src/__tests__/provider.lifecycle.sprint.test.ts:51:30)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 16 skipped, 17 total
+Snapshots:   0 total
+Time:        1.519 s
+Ran all test suites matching src/__tests__/provider.lifecycle.sprint.test.ts with tests matching "primary headers return".

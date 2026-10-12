@@ -1,0 +1,23 @@
+FAIL src/__tests__/provider.lifecycle.sprint.test.ts
+  ● provider lifetime under delayed or uncooperative work › Stop during synchronous request setup still closes the returned leg
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 0
+
+      235 |       start: () => { stop.abort(new Error('synchronous Stop')); return { promise: pending.promise, abort }; } });
+      236 |     await expect(run).rejects.toBe(stop.signal.reason);
+    > 237 |     expect(abort).toHaveBeenCalledTimes(1);
+          |                   ^
+      238 |     pending.reject(new Error('late rejection'));
+      239 |     await jest.advanceTimersByTimeAsync(0);
+      240 |     expect(getEventListeners(stop.signal, 'abort')).toHaveLength(0);
+
+      at Object.<anonymous> (src/__tests__/provider.lifecycle.sprint.test.ts:237:19)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 16 skipped, 17 total
+Snapshots:   0 total
+Time:        1.687 s, estimated 2 s
+Ran all test suites matching src/__tests__/provider.lifecycle.sprint.test.ts with tests matching "Stop during synchronous request setup".

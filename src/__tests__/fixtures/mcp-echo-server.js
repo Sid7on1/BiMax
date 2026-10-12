@@ -11,6 +11,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools: [{
     name: 'echo',
     description: 'Echo back the provided text',
+    annotations: { readOnlyHint: true },
     inputSchema: { type: 'object', properties: { text: { type: 'string' } }, required: ['text'] },
   }],
 }));

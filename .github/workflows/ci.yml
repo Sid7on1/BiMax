@@ -30,6 +30,9 @@ jobs:
       - name: Install bubblewrap (Linux sandbox backend)
         run: sudo apt-get update && sudo apt-get install -y bubblewrap
       - run: npm ci
+      # Jest includes app/src, whose tests use the app's renderer dependencies.
+      - run: npm ci
+        working-directory: app
       - name: Typecheck + build
         run: npm run build
       - name: Lint (warnings allowed; errors fail)
@@ -65,6 +68,9 @@ jobs:
       # drift. They are one codebase now, so the renderer imports src/protocol/protocol.ts and
       # src/evidence/schema.ts directly and a contract change breaks the TYPECHECK below instead of
       # a drift check. Generators, gate and copies are in ~/Developer/bimax-archive (2026-09-19).
+      # The app imports engine source directly; its TypeScript/build also resolves engine
+      # dependencies from the root package. A clean checkout must install both packages.
+      - run: npm ci
       - run: npm ci
         working-directory: app
       - name: Typecheck

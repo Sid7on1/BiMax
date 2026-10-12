@@ -1,5 +1,16 @@
 # Competitive source ledger
 
+## Algorithm research and scoped local evidence — 2026-10-12, record 88
+
+[Record 88](../88_ALGORITHM_AUDIT_AND_UPGRADE.md) and its [27-source research index](../evidence/2026-10-12-algorithm-upgrade/research.json) record newly checked primary references, applicability and adoption/defer decisions. Sources describe mechanics; none proves Bimax outcomes merely through citation.
+
+- [Stanford inverted indexes](https://nlp.stanford.edu/IR-book/html/htmledition/an-example-information-retrieval-problem-1.html), [Lucene bounded collectors](https://lucene.apache.org/core/10_3_1/core/org/apache/lucene/search/TopScoreDocCollector.html), [priority queues](https://lucene.apache.org/core/10_3_1/core/org/apache/lucene/util/PriorityQueue.html): term-to-document traversal and bounded best-result selection, freshly implemented without importing upstream code.
+- [Resilience4j](https://resilience4j.readme.io/docs/circuitbreaker): circular storage and subtract-on-evict aggregates. Bimax retains exact sample timestamps and its existing finite-state/probe policy; time buckets would change cutoff behavior.
+- [Oracle access order](https://docs.oracle.com/en/java/javase/24/docs/api/java.base/java/util/LinkedHashMap.html), [ECMAScript Map](https://tc39.es/ecma262/multipage/keyed-collections.html#sec-map-objects): ordered-key storage informs the unchanged LRU policy. [V8 sort](https://v8.dev/blog/array-sort) documents adaptive stable runs and informs the explicit ordered-input tradeoff.
+- [Caffeine](https://github.com/ben-manes/caffeine/wiki/Efficiency), [HNSW](https://arxiv.org/abs/1603.09320), [Microsoft DiskANN](https://github.com/microsoft/DiskANN), [Netflix concurrency limits](https://github.com/Netflix/concurrency-limits), [Datadog DDSketch](https://www.datadoghq.com/blog/engineering/computing-accurate-percentiles-with-ddsketch/): investigated candidates, not adopted without workload/recall/memory/fairness/error evidence. Historical legal commentary on Caffeine's page is not a current legal conclusion.
+- [AWS retries/jitter](https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/), [Google overload](https://sre.google/sre-book/handling-overload/), Elastic RRF/ranking, SQLite FTS5/atomic commit/WAL, original PageRank and long-context research, Node buffering, TypeScript/Tree-sitter, SciPy/scikit-learn and HMAC references inform retain/investigate decisions; direct URLs and boundaries are in the index.
+- Frozen first-party baselines, structural manifests, exact fixtures, twelve assertion-caught source faults and every final paired timing are under `../evidence/2026-10-12-algorithm-upgrade/`. Initial accumulator regressions and the initial unqualified mutation-grader result remain recorded. No competitor code, new dependency, installed-app/model-tier qualification or competitive Win.
+
 ## Fault audit and provider pricing — checked 2026-10-04
 
 [Record 68](../68_FAULT_AUDIT_AND_REPAIR.md) distinguishes the supplied August public-tree audit from

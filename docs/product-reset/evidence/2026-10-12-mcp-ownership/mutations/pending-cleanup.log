@@ -1,0 +1,22 @@
+FAIL src/__tests__/mcp.ownership.process.test.ts
+  ● disconnect during real catalog discovery closes the process before returning
+
+    expect(received).toThrow()
+
+    Received function did not throw
+
+      26 |   try {
+      27 |     expect(await manager.disconnect('owned', registry)).toBe(true);
+    > 28 |     expect(() => process.kill(pid, 0)).toThrow();
+         |                                        ^
+      29 |     expect(await pending).toBeNull();
+      30 |     expect(manager.getPendingServers()).toEqual([]);
+      31 |     expect(manager.list()).toEqual([]);
+
+      at Object.<anonymous> (src/__tests__/mcp.ownership.process.test.ts:28:40)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 1 skipped, 2 total
+Snapshots:   0 total
+Time:        1.387 s
+Ran all test suites matching src/__tests__/mcp.ownership.process.test.ts with tests matching "real catalog discovery".

@@ -1,4 +1,5 @@
 import { Logger } from '../utils';
+import { waitWithSignal } from '../utils/request.deadline';
 import { Mutex } from 'async-mutex';
 import { KeyUsage, KeyUsageStore, RPM_WINDOW_MS, keyId, resolveKeyUsageStore } from './key.usage.ledger';
 
@@ -178,20 +179,27 @@ export class ApiKeyManager {
    */
   public async acquire(options: {
     maxWaitMs?: number;
+    signal?: AbortSignal;
     sleep?: (ms: number) => Promise<void>;
     onWait?: (waitSecs: number) => void;
   } = {}): Promise<KeyResult> {
+    options.signal?.throwIfAborted();
     const maxWaitMs = options.maxWaitMs ?? 120_000;
-    const sleep = options.sleep ?? ((ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms)));
+    const sleep = options.sleep ?? (options.signal
+      ? (ms: number) => waitWithSignal(ms, options.signal!)
+      : (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms)));
     const started = this.clock();
     let kr = await this.getNextKey();
+    options.signal?.throwIfAborted();
     while (kr.keyStr && kr.waitTimeSecs > 0 && !this.allKeysAuthDead()) {
       const remaining = maxWaitMs - (this.clock() - started);
       if (remaining <= 0) break;
       options.onWait?.(kr.waitTimeSecs);
       // Never sleep less than a beat: a slot that frees "in 0.001s" would otherwise spin the loop.
       await sleep(Math.max(50, Math.min(kr.waitTimeSecs * 1000, remaining)));
+      options.signal?.throwIfAborted();
       kr = await this.getNextKey();
+      options.signal?.throwIfAborted();
     }
     return kr;
   }

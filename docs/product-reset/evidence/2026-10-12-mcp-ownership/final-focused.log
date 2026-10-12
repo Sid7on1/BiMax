@@ -1,0 +1,119 @@
+[INFO] 2026-10-12T16:21:12.645Z - [ToolRegistry] Registered tool: mcp__lifecycle__hang (Destructive: true)
+[INFO] 2026-10-12T16:21:12.648Z - [ToolRegistry] Registered tool: mcp__lifecycle__mutate (Destructive: true)
+[INFO] 2026-10-12T16:21:12.648Z - [ToolRegistry] Registered tool: mcp__lifecycle__task (Destructive: true)
+[INFO] 2026-10-12T16:21:12.648Z - [MCP] Connected 'lifecycle' — registered 3 tool(s).
+[31m[ERROR] 2026-10-12T16:21:12.654Z - [Tool:mcp__lifecycle__mutate] ❌ MCP tool 'lifecycle/mutate' lost its connection; completion is unknown. It was not replayed. Reconnect and inspect the actual state before retrying.[0m
+[INFO] 2026-10-12T16:21:12.766Z - [ToolRegistry] Registered tool: mcp__lifecycle__hang (Destructive: true)
+[INFO] 2026-10-12T16:21:12.766Z - [ToolRegistry] Registered tool: mcp__lifecycle__mutate (Destructive: true)
+[INFO] 2026-10-12T16:21:12.766Z - [ToolRegistry] Registered tool: mcp__lifecycle__task (Destructive: true)
+[INFO] 2026-10-12T16:21:12.766Z - [MCP] Connected 'lifecycle' — registered 3 tool(s).
+[31m[ERROR] 2026-10-12T16:21:12.793Z - [Tool:mcp__lifecycle__hang] ❌ stopped[0m
+[INFO] 2026-10-12T16:21:13.013Z - [McpManager] Saved server 'seq' to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-mcpmgr-JqXH65/.bimax/mcp.json
+[INFO] 2026-10-12T16:21:13.015Z - [McpManager] Saved server 'seq' to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-mcpmgr-Y7gEpz/.bimax/mcp.json
+[INFO] 2026-10-12T16:21:13.017Z - [McpManager] Saved server 'echo' to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-mcpmgr-u5bRcX/.bimax/mcp.json
+[INFO] 2026-10-12T16:21:13.018Z - [McpManager] Saved server 'magic' to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-mcpmgr-oaW9V6/.bimax/mcp.json
+[INFO] 2026-10-12T16:21:13.025Z - [McpManager] Saved server 'seq' to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-mcpmgr-5FVyh5/.bimax/mcp.json
+[INFO] 2026-10-12T16:21:13.026Z - [McpManager] Saved server 'echo' to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-mcpmgr-TckvTK/.bimax/mcp.json
+[INFO] 2026-10-12T16:21:13.026Z - [McpManager] Saved server 'echo' to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-mcpmgr-TckvTK/.bimax/mcp.json
+[INFO] 2026-10-12T16:21:13.140Z - [ToolRegistry] Registered tool: mcp__echo__echo (Destructive: true)
+[INFO] 2026-10-12T16:21:13.140Z - [MCP] Connected 'echo' — registered 1 tool(s).
+[INFO] 2026-10-12T16:21:13.145Z - [McpManager] Saved server 'echo' to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-mcp-health-dDwV1p/.bimax/mcp.json
+[INFO] 2026-10-12T16:21:13.253Z - [ToolRegistry] Registered tool: mcp__echo__echo (Destructive: true)
+[INFO] 2026-10-12T16:21:13.253Z - [MCP] Connected 'echo' — registered 1 tool(s).
+[INFO] 2026-10-12T16:21:13.259Z - [McpManager] Saved server 'echo' to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-mcp-reconnect-YlAaJD/.bimax/mcp.json
+[INFO] 2026-10-12T16:21:13.369Z - [ToolRegistry] Registered tool: mcp__echo__echo (Destructive: true)
+[INFO] 2026-10-12T16:21:13.369Z - [MCP] Connected 'echo' — registered 1 tool(s).
+[INFO] 2026-10-12T16:21:13.369Z - [McpManager] Saved server 'echo' to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-mcp-reconnect-YlAaJD/.bimax/mcp.json
+[33m[WARN] 2026-10-12T16:21:13.411Z - [MCP:echo] node:internal/modules/cjs/loader:1247
+  throw err;
+  ^
+
+Error: Cannot find module '/no/such/file.js'
+    at Function._resolveFilename (node:internal/modules/cjs/loader:1244:15)
+    at Function._load (node:internal/modules/cjs/loader:1070:27)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:217:24)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:170:5)
+    at node:internal/main/run_main_module:36:49 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v22.13.1[0m
+[33m[WARN] 2026-10-12T16:21:13.412Z - [MCP] Failed to connect 'echo': MCP error -32000: Connection closed — server said:   requireStack: [] } Node.js v22.13.1[0m
+[INFO] 2026-10-12T16:21:13.519Z - [ToolRegistry] Registered tool: mcp__echo__echo (Destructive: true)
+[INFO] 2026-10-12T16:21:13.519Z - [MCP] Connected 'echo' — registered 1 tool(s).
+[33m[WARN] 2026-10-12T16:21:13.523Z - [MCP] 'echo' connection dead mid-call (Not connected); reconnecting to retry.[0m
+[33m[WARN] 2026-10-12T16:21:13.625Z - [ToolRegistry] Overwriting existing tool: mcp__echo__echo[0m
+[INFO] 2026-10-12T16:21:13.625Z - [ToolRegistry] Registered tool: mcp__echo__echo (Destructive: true)
+[INFO] 2026-10-12T16:21:13.625Z - [MCP] Connected 'echo' — registered 1 tool(s).
+[INFO] 2026-10-12T16:21:13.741Z - [ToolRegistry] Registered tool: mcp__echo__echo (Destructive: true)
+[INFO] 2026-10-12T16:21:13.741Z - [MCP] Connected 'echo' — registered 1 tool(s).
+[33m[WARN] 2026-10-12T16:21:13.845Z - [MCP] Watchdog: 'echo' failed its probe (Not connected); auto-reconnecting (attempt 1/3).[0m
+[33m[WARN] 2026-10-12T16:21:13.950Z - [ToolRegistry] Overwriting existing tool: mcp__echo__echo[0m
+[INFO] 2026-10-12T16:21:13.950Z - [ToolRegistry] Registered tool: mcp__echo__echo (Destructive: true)
+[INFO] 2026-10-12T16:21:13.950Z - [MCP] Connected 'echo' — registered 1 tool(s).
+[INFO] 2026-10-12T16:21:14.056Z - [McpManager] Saved server 'echo' to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-mcp-stats-RUY4en/.bimax/mcp.json
+[INFO] 2026-10-12T16:21:14.162Z - [ToolRegistry] Registered tool: mcp__echo__echo (Destructive: true)
+[INFO] 2026-10-12T16:21:14.163Z - [MCP] Connected 'echo' — registered 1 tool(s).
+[INFO] 2026-10-12T16:21:14.169Z - [McpManager] Saved server 'echo' to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-mcp-replace-oC3tkc/.bimax/mcp.json
+[INFO] 2026-10-12T16:21:14.274Z - [ToolRegistry] Registered tool: mcp__echo__echo (Destructive: true)
+[INFO] 2026-10-12T16:21:14.275Z - [MCP] Connected 'echo' — registered 1 tool(s).
+[33m[WARN] 2026-10-12T16:21:14.375Z - [ToolRegistry] Overwriting existing tool: mcp__echo__echo[0m
+[INFO] 2026-10-12T16:21:14.376Z - [ToolRegistry] Registered tool: mcp__echo__echo (Destructive: true)
+[INFO] 2026-10-12T16:21:14.376Z - [MCP] Connected 'echo' — registered 1 tool(s).
+[INFO] 2026-10-12T16:21:14.648Z - [ToolRegistry] Registered tool: mcp__echo__echo (Destructive: true)
+[INFO] 2026-10-12T16:21:14.648Z - [MCP] Connected 'echo' — registered 1 tool(s).
+[33m[WARN] 2026-10-12T16:21:14.695Z - [MCP:broken] node:internal/modules/cjs/loader:1247
+  throw err;
+  ^
+
+Error: Cannot find module '/no/such/file.js'
+    at Function._resolveFilename (node:internal/modules/cjs/loader:1244:15)
+    at Function._load (node:internal/modules/cjs/loader:1070:27)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:217:24)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:170:5)
+    at node:internal/main/run_main_module:36:49 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v22.13.1[0m
+[33m[WARN] 2026-10-12T16:21:14.696Z - [MCP] Failed to connect 'broken': MCP error -32000: Connection closed — server said:   requireStack: [] } Node.js v22.13.1[0m
+[INFO] 2026-10-12T16:21:14.798Z - [ToolRegistry] Registered tool: mcp__echo-timeout__echo (Destructive: true)
+[INFO] 2026-10-12T16:21:14.799Z - [MCP] Connected 'echo-timeout' — registered 1 tool(s).
+[31m[ERROR] 2026-10-12T16:21:15.801Z - [Tool:mcp__echo-timeout__echo] ❌ MCP tool 'echo-timeout/echo' timed out after 1000ms[0m
+[INFO] 2026-10-12T16:21:16.210Z - [ToolRegistry] Registered tool: mcp__owned__list_resources (Destructive: true)
+[INFO] 2026-10-12T16:21:16.210Z - [ToolRegistry] Registered tool: mcp__owned__read_resource (Destructive: true)
+[INFO] 2026-10-12T16:21:16.210Z - [MCP] Connected 'owned' — registered 2 tool(s).
+[31m[ERROR] 2026-10-12T16:21:16.225Z - [Tool:mcp__owned__read_resource] ❌ stopped[0m
+[INFO] 2026-10-12T16:21:16.535Z - [ToolRegistry] Registered tool: mcp__rich__roots (Destructive: true)
+[INFO] 2026-10-12T16:21:16.536Z - [ToolRegistry] Registered tool: mcp__rich__temporary (Destructive: true)
+[INFO] 2026-10-12T16:21:16.536Z - [ToolRegistry] Registered tool: mcp__rich__unlock (Destructive: true)
+[INFO] 2026-10-12T16:21:16.536Z - [ToolRegistry] Registered tool: mcp__rich__list_resources (Destructive: true)
+[INFO] 2026-10-12T16:21:16.536Z - [ToolRegistry] Registered tool: mcp__rich__read_resource (Destructive: true)
+[INFO] 2026-10-12T16:21:16.536Z - [MCP] Connected 'rich' — registered 5 tool(s).
+[33m[WARN] 2026-10-12T16:21:16.538Z - [ToolRegistry] Overwriting existing tool: mcp__rich__roots[0m
+[INFO] 2026-10-12T16:21:16.538Z - [ToolRegistry] Registered tool: mcp__rich__roots (Destructive: true)
+[INFO] 2026-10-12T16:21:16.538Z - [ToolRegistry] Registered tool: mcp__rich__secret (Destructive: true)
+[33m[WARN] 2026-10-12T16:21:16.538Z - [ToolRegistry] Overwriting existing tool: mcp__rich__unlock[0m
+[INFO] 2026-10-12T16:21:16.539Z - [ToolRegistry] Registered tool: mcp__rich__unlock (Destructive: true)
+[33m[WARN] 2026-10-12T16:21:16.539Z - [ToolRegistry] Overwriting existing tool: mcp__rich__list_resources[0m
+[INFO] 2026-10-12T16:21:16.539Z - [ToolRegistry] Registered tool: mcp__rich__list_resources (Destructive: true)
+[33m[WARN] 2026-10-12T16:21:16.539Z - [ToolRegistry] Overwriting existing tool: mcp__rich__read_resource[0m
+[INFO] 2026-10-12T16:21:16.539Z - [ToolRegistry] Registered tool: mcp__rich__read_resource (Destructive: true)
+[INFO] 2026-10-12T16:21:16.539Z - [MCP] 'rich' tool list changed — 5 tool(s) now.
+[INFO] 2026-10-12T16:21:16.682Z - [ToolRegistry] Registered tool: mcp__hosted__whoami (Destructive: true)
+[INFO] 2026-10-12T16:21:16.682Z - [MCP] Connected 'hosted' — registered 1 tool(s).
+[31m[ERROR] 2026-10-12T16:21:16.907Z - [Tool:mcp__owned__echo] ❌ MCP 'owned' connection retired.[0m
+[31m[ERROR] 2026-10-12T16:21:16.918Z - [Tool:mcp__owned__read_resource] ❌ stopped[0m
+[31m[ERROR] 2026-10-12T16:21:17.919Z - [Tool:mcp__owned__list_resources] ❌ MCP 'owned' resources/list timed out after 1000ms[0m
+[INFO] 2026-10-12T16:21:17.061Z - [MCP] Task job (fixture/build) completed; fetching result.
+[INFO] 2026-10-12T16:21:17.065Z - [MCP] Task job (fixture/build) completed; fetching result.
+
+Test Suites: 7 passed, 7 total
+Tests:       79 passed, 79 total
+Snapshots:   0 total
+Time:        9.765 s, estimated 10 s
+Ran all test suites matching src/__tests__/mcp.manager.test.ts|src/__tests__/mcp.client.test.ts|src/__tests__/mcp.allservers.test.ts|src/__tests__/mcp.lifecycle.sprint.test.ts|src/__tests__/mcp.deadline.sprint.test.ts|src/__tests__/mcp.ownership.sprint.test.ts|src/__tests__/mcp.ownership.process.test.ts.

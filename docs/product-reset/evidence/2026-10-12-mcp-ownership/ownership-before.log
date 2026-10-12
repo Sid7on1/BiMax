@@ -1,0 +1,282 @@
+[31m[ERROR] 2026-10-12T16:07:50.723Z - [Tool:mcp__owned__echo] ❌ MCP tool 'owned/echo' lost its connection; completion is unknown. It was not replayed. Reconnect and inspect the actual state before retrying.[0m
+[31m[ERROR] 2026-10-12T16:09:50.739Z - [Tool:mcp__owned__read_resource] ❌ MCP 'owned' resources/read timed out after 120000ms[0m
+FAIL src/__tests__/mcp.ownership.sprint.test.ts
+  ● disconnect cancels a pending handshake and never publishes its late tools
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      57 |   const result = await connecting;
+      58 |   try {
+    > 59 |     expect(disconnected).toBe(true);
+         |                          ^
+      60 |     expect(result).toBeNull();
+      61 |     expect(manager.list()).toEqual([]);
+      62 |     expect(registry.getToolNames()).toEqual([]);
+
+      at Object.<anonymous> (src/__tests__/mcp.ownership.sprint.test.ts:59:26)
+
+  ● the latest connect intent wins even when an older handshake finishes last
+
+    expect(received).toBeNull()
+
+    Received: {"client": {"callTool": [Function mockConstructor], "close": [Function mockConstructor], "connect": [Function mockConstructor], "getServerCapabilities": [Function getServerCapabilities], "listResourceTemplates": [Function mockConstructor], "listResources": [Function mockConstructor], "listTools": [Function mockConstructor], "ping": [Function mockConstructor], "readResource": [Function mockConstructor], "setNotificationHandler": [Function mockConstructor], "setRequestHandler": [Function mockConstructor]}, "name": "owned", "spec": {"args": undefined, "command": "/usr/local/bin/node", "name": "owned"}, "toolNames": ["mcp__owned__older"]}
+
+      76 |   const stale = await older;
+      77 |   try {
+    > 78 |     expect(stale).toBeNull();
+         |                   ^
+      79 |     expect(manager.get(spec.name)).toBe(newer);
+      80 |     expect(registry.getToolNames()).toEqual(['mcp__owned__newer']);
+      81 |     expect(slow.close).toHaveBeenCalled();
+
+      at Object.<anonymous> (src/__tests__/mcp.ownership.sprint.test.ts:78:19)
+
+  ● an obsolete connect cannot clear the newer pending marker
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 3
+    + Received  + 1
+
+    - Array [
+    -   "owned",
+    - ]
+    + Array []
+
+      93 |   const pending = manager.getPendingServers();
+      94 |   br.resolve(); await second;
+    > 95 |   try { expect(pending).toEqual(['owned']); }
+         |                         ^
+      96 |   finally { await manager.disconnect(spec.name, registry); }
+      97 | });
+      98 |
+
+      at Object.<anonymous> (src/__tests__/mcp.ownership.sprint.test.ts:95:25)
+
+  ● disconnect during replacement cleanup cannot resurrect the replacement
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "mcp__owned__fresh",
+    + ]
+
+      108 |   try {
+      109 |     expect(manager.get(spec.name)).toBeUndefined();
+    > 110 |     expect(registry.getToolNames()).toEqual([]);
+          |                                     ^
+      111 |     expect(fresh.close).toHaveBeenCalled();
+      112 |   } finally { await manager.disconnect(spec.name, registry); }
+      113 | });
+
+      at Object.<anonymous> (src/__tests__/mcp.ownership.sprint.test.ts:110:37)
+
+  ● an in-flight watchdog probe cannot reconnect a disconnected server
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 26
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "client": Object {
+    +       "callTool": [Function mockConstructor],
+    +       "close": [Function mockConstructor],
+    +       "connect": [Function mockConstructor],
+    +       "getServerCapabilities": [Function getServerCapabilities],
+    +       "listResourceTemplates": [Function mockConstructor],
+    +       "listResources": [Function mockConstructor],
+    +       "listTools": [Function mockConstructor],
+    +       "ping": [Function mockConstructor],
+    +       "readResource": [Function mockConstructor],
+    +       "setNotificationHandler": [Function mockConstructor],
+    +       "setRequestHandler": [Function mockConstructor],
+    +     },
+    +     "name": "owned",
+    +     "spec": Object {
+    +       "args": undefined,
+    +       "command": "/usr/local/bin/node",
+    +       "name": "owned",
+    +     },
+    +     "toolNames": Array [
+    +       "mcp__owned__resurrected",
+    +     ],
+    +   },
+    + ]
+
+      124 |     await manager.disconnect(spec.name, registry);
+      125 |     probe.reject(new Error('Connection closed')); await tick();
+    > 126 |     expect(manager.list()).toEqual([]);
+          |                            ^
+      127 |     expect(registry.getToolNames()).toEqual([]);
+      128 |     expect(unexpected.connect).not.toHaveBeenCalled();
+      129 |   } finally { manager.stopWatchdog(); await manager.disconnect(spec.name, registry); }
+
+      at Object.<anonymous> (src/__tests__/mcp.ownership.sprint.test.ts:126:28)
+
+  ● a retained tool reference cannot heal a deliberately disconnected server
+
+    expect(received).rejects.toThrow(expected)
+
+    Expected pattern: /retired|disconnect/i
+    Received message: "MCP tool 'owned/echo' lost its connection; completion is unknown. It was not replayed. Reconnect and inspect the actual state before retrying."
+
+          433 |               // explicitly read-only tools may replay; annotations grant no approval.
+          434 |               if (t.annotations?.readOnlyHint !== true || t.annotations?.destructiveHint === true) {
+        > 435 |                 throw new Error(`MCP tool '${spec.name}/${t.name}' lost its connection; completion is unknown. It was not replayed. Reconnect and inspect the actual state before retrying.`, { cause: e });
+              |                       ^
+          436 |               }
+          437 |               reportCapability({ id: `mcp:${spec.name}`, label: `MCP ${spec.name}`, state: 'unavailable',
+          438 |                 reason: 'The connection stopped responding during an operation.', impact: 'The operation requires a reconnect.',
+
+      at src/mcp/client.ts:435:23
+      at Object.toThrow (node_modules/expect/build/index.js:2155:20)
+      at Object.<anonymous> (src/__tests__/mcp.ownership.sprint.test.ts:139:46)
+
+  ● a late catalog refresh cannot restore tools after disconnect
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "mcp__owned__late",
+    + ]
+
+      149 |   await manager.disconnect(spec.name, registry);
+      150 |   listed.resolve(tools('late')); await refresh;
+    > 151 |   expect(registry.getToolNames()).toEqual([]);
+          |                                   ^
+      152 | });
+      153 |
+      154 | test('catalog notifications coalesce to one active read and one follow-up read', async () => {
+
+      at Object.<anonymous> (src/__tests__/mcp.ownership.sprint.test.ts:151:35)
+
+  ● catalog notifications coalesce to one active read and one follow-up read
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 2
+    Received: 102
+
+      163 |   await Promise.all([first, ...burst]);
+      164 |   try {
+    > 165 |     expect(callsDuringRead).toBe(2); // initial catalog + one active refresh
+          |                             ^
+      166 |     expect(c.listTools).toHaveBeenCalledTimes(3);
+      167 |     expect(registry.getToolNames()).toEqual(['mcp__owned__latest']);
+      168 |   } finally { await manager.disconnect(spec.name, registry); }
+
+      at Object.<anonymous> (src/__tests__/mcp.ownership.sprint.test.ts:165:29)
+
+  ● retiring an old connection cannot erase a newer registration with the same name
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Array [
+    -   "mcp__owned__echo",
+    +   "mcp__owned__zombie",
+      ]
+
+      179 |   listed.resolve(tools('zombie')); await refresh;
+      180 |   try {
+    > 181 |     expect(registry.getToolNames()).toEqual(['mcp__owned__echo']);
+          |                                     ^
+      182 |     expect(registry.getTool('mcp__owned__echo')).toBe(current);
+      183 |     expect(await current!.execute({}, {})).toBe('echo');
+      184 |     expect(fresh.callTool).toHaveBeenCalledTimes(1);
+
+      at Object.<anonymous> (src/__tests__/mcp.ownership.sprint.test.ts:181:37)
+
+  ● a real tool named read_resource is removed normally when it leaves the catalog
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "mcp__owned__read_resource",
+    + ]
+
+      190 |   const conn = await connectAndRegister(spec, registry, governor);
+      191 |   c.listTools.mockResolvedValue(tools()); await changed(c)();
+    > 192 |   expect(conn!.toolNames).toEqual([]);
+          |                           ^
+      193 |   expect(registry.getToolNames()).toEqual([]);
+      194 |   await c.close();
+      195 | });
+
+      at Object.<anonymous> (src/__tests__/mcp.ownership.sprint.test.ts:192:27)
+
+  ● a resource-only server connects without an unsupported tools/list request
+
+    expect(received).not.toBeNull()
+
+    Received: null
+
+      201 |   const conn = await connectAndRegister(spec, registry, governor);
+      202 |   try {
+    > 203 |     expect(conn).not.toBeNull();
+          |                      ^
+      204 |     expect(c.listTools).not.toHaveBeenCalled();
+      205 |     expect(registry.getToolNames()).toEqual(['mcp__owned__list_resources', 'mcp__owned__read_resource']);
+      206 |   } finally { await c.close(); }
+
+      at Object.<anonymous> (src/__tests__/mcp.ownership.sprint.test.ts:203:22)
+
+  ● Stop aborts resource reads and reaches the SDK request
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "stopped"
+    Received: "pending"
+
+      218 |   await tick(); controller.abort(new Error('stopped')); await tick();
+      219 |   try {
+    > 220 |     expect(state).toBe('stopped');
+          |                   ^
+      221 |     expect((c.readResource.mock.calls[0] as any)[1].signal.aborted).toBe(true);
+      222 |   } finally { await jest.advanceTimersByTimeAsync(120000); await result; await c.close(); }
+      223 | });
+
+      at Object.<anonymous> (src/__tests__/mcp.ownership.sprint.test.ts:220:19)
+
+  ● resource listing and optional templates share one total deadline
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "timed-out"
+    Received: "pending"
+
+      234 |     .then(() => { state = 'success'; }, () => { state = 'timed-out'; });
+      235 |   await tick(); await jest.advanceTimersByTimeAsync(1000);
+    > 236 |   try { expect(state).toBe('timed-out'); }
+          |                       ^
+      237 |   finally {
+      238 |     await jest.advanceTimersByTimeAsync(10000); await result; await c.close();
+      239 |     if (previous === undefined) delete process.env.BIMAX_MCP_CALL_TIMEOUT_MS;
+
+      at Object.<anonymous> (src/__tests__/mcp.ownership.sprint.test.ts:236:23)
+
+Test Suites: 1 failed, 1 total
+Tests:       13 failed, 13 total
+Snapshots:   0 total
+Time:        1.479 s
+Ran all test suites matching src/__tests__/mcp.ownership.sprint.test.ts.

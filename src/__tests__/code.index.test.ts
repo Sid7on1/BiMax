@@ -31,6 +31,26 @@ const axisTransport: EmbeddingTransport = async (_url, init) => {
 
 const backend = (model = 'fixture/a') => new RemoteEmbeddingBackend({ resolve: credentials, transport: axisTransport, model, dimensions: 2 });
 
+test('SQLite dense selection preserves scope, ID ties, floor and rebuilt vector spaces beyond depth', async () => {
+  const documents = Array.from({ length: 230 }, (_, i) => ({
+    id: `d-${String(i).padStart(3, '0')}`, text: `record-${i}`, tags: [i < 100 ? 'foreign' : 'owned', ...(i === 229 ? ['exclude'] : [])],
+  }));
+  const embedding = {
+    id: 'selection@2', dimensions: 2,
+    embed: async (texts: string[], role: 'query' | 'passage') => texts.map(text => role === 'query' || Number(text.split('-')[1]) !== 228 ? [1, 0] : [0.9, Math.sqrt(0.19)]),
+  };
+  const store = new SqliteCodeVectorStore(embedding, null, { storePath: path.join(tmp, 'selection.db'), maxVectors: 300 });
+  expect(store.available()).toBe(true);
+  expect(await store.storeDocuments(documents)).toBe(true);
+  const options = { mode: 'dense' as const, tags: ['owned'], excludeTags: ['exclude'], where: (tags: readonly string[]) => tags.includes('owned') };
+  const hits = await store.semanticSearch('query', 8, 0, options);
+  expect(hits.map(doc => doc.id)).toEqual(documents.slice(100, 108).map(doc => doc.id));
+  const unrelated = await store.semanticSearch('query', 300, 0, options);
+  expect(unrelated.some(doc => doc.id === 'd-228')).toBe(false);
+  const otherSpace = new SqliteCodeVectorStore({ ...embedding, id: 'new-space' }, null, { storePath: path.join(tmp, 'selection.db') });
+  expect(await otherSpace.semanticSearch('query', 8, 0, options)).toEqual([]);
+});
+
 function reranker(): RemoteReranker {
   // Pass-through order (identity): the rerank STAGE is graded by the memory eval; here it only
   // needs to not corrupt the pipeline when present.

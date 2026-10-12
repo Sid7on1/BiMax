@@ -459,12 +459,13 @@ export class LlmAdapter implements LLMProvider {
     return capabilitiesFor(undefined, model);
   }
 
-  private async getKey(): Promise<KeyResult> {
+  private async getKey(signal?: AbortSignal): Promise<KeyResult> {
     // Waits (bounded) for a key with room in its per-minute budget, re-picking on every wake so a
     // key that another engine freed — or a faster sibling — is used instead of the one that was
     // soonest when the wait began. It used to sleep once and then send on that same key.
     let lastNotice = 0;
     const kr = await this.apiKeyManager.acquire({
+      signal,
       onWait: (waitSecs) => {
         Logger.warn(`[LlmAdapter] All keys cooling down (rate limit / transient). Sleeping ${waitSecs.toFixed(1)}s...`);
         // Say so where the person is looking, at most every 5s: a turn waiting on a rate limit
@@ -693,6 +694,7 @@ export class LlmAdapter implements LLMProvider {
   });
 
   async *chat(messages: Message[], options: ChatOptions): AsyncGenerator<ChatEvent> {
+    options.signal?.throwIfAborted();
     // Shed BEFORE acquiring a key or hitting the wire: if the provider has been failing across keys,
     // yield a recoverable error so the agent loop waits out the cool-down instead of hammering.
     try {
@@ -706,7 +708,7 @@ export class LlmAdapter implements LLMProvider {
       throw e;
     }
     // `let`: a hedged request (openStream) can be answered first on a second key, which then owns the stream.
-    let kr = await this.getKey();
+    let kr = await this.getKey(options.signal);
     const client = this.createClient(kr);
     let attemptedModel: string | undefined;
     const request = this.buildChatRequest(kr, messages, options, picked => { attemptedModel = picked; });
@@ -721,6 +723,7 @@ export class LlmAdapter implements LLMProvider {
     // usage chunk would release the same reservation twice (under-counting spend).
     let usageRecorded = false;
     let dailyReservationClosed = false;
+    let closeUnfinishedStream: (() => void) | undefined;
 
     try {
       const { model, caps } = request;
@@ -745,6 +748,11 @@ export class LlmAdapter implements LLMProvider {
       const { stream, startedAt: requestStartMs } = opened;
 
       const iterator: AsyncIterator<any> = stream[Symbol.asyncIterator]();
+      closeUnfinishedStream = () => {
+        try { (stream as any)?.controller?.abort?.(); } catch { /* preserve cancellation/error */ }
+        try { Promise.resolve(iterator.return?.()).catch(() => { /* best-effort iterator disposal */ }); }
+        catch { /* a custom iterator may throw synchronously */ }
+      };
       let receivedFirstPayload = false;
       while (true) {
         // Guard against a silently stalled stream. The first chunk (time-to-first-token) gets a longer budget than later
@@ -760,8 +768,8 @@ export class LlmAdapter implements LLMProvider {
           // attribute this stall (provider-side vs DNS vs network path).
           if (!receivedFirstPayload) attributeSlowWait(kr.baseURL || 'https://integrate.api.nvidia.com/v1', Date.now() - requestStartMs, true);
           return new ProviderStallError(model, phase, chunkTimeoutMs);
-        }, () => (stream as any)?.controller?.abort?.());
-        if (result.done) break;
+        }, () => (stream as any)?.controller?.abort?.(), options.signal);
+        if (result.done) { closeUnfinishedStream = undefined; break; }
         const chunk = result.value;
         // Many OpenAI-compatible streams open with an empty role-only delta. It proves the socket is alive, but says
         // nothing about model latency. Only the first meaningful payload teaches the key picker and closes /perf's
@@ -782,7 +790,11 @@ export class LlmAdapter implements LLMProvider {
           receivedFirstPayload = true;
         }
 
-        yield* reader.read(chunk);
+        for (const event of reader.read(chunk)) {
+          options.signal?.throwIfAborted();
+          yield event;
+        }
+        options.signal?.throwIfAborted();
 
         // Usage, if the stream reports it (requires stream_options on some models). Recorded once: a provider sending
         // more than one usage chunk would otherwise release the reservation repeatedly.
@@ -796,7 +808,11 @@ export class LlmAdapter implements LLMProvider {
         }
       }
 
-      yield* reader.finish();
+      options.signal?.throwIfAborted();
+      for (const event of reader.finish()) {
+        options.signal?.throwIfAborted();
+        yield event;
+      }
       // Only fall back to the estimate if the stream never reported real usage,
       // otherwise we would double-count the spend already recorded above.
       if (this.budgetVeto && !usageRecorded) {
@@ -806,6 +822,7 @@ export class LlmAdapter implements LLMProvider {
       this.apiKeyManager.reportKeyResult(kr.idx!, 200);
       this.providerBreaker.record(Outcome.Success);
       reservation.settle();
+      options.signal?.throwIfAborted();
       yield { type: 'done' };
 
     } catch (e: any) {
@@ -814,6 +831,10 @@ export class LlmAdapter implements LLMProvider {
       if (this.budgetVeto && !usageRecorded) await this.budgetVeto.releaseReservation(estimatedCostUsd);
       dailyReservationClosed = true;
 
+      if (isUserAbort(e, options.signal)) {
+        yield { type: 'error', message: 'Request cancelled.', recoverable: false };
+        return;
+      }
       this.enrichModelNotFound(e, kr, options.lite, attemptedModel);
       // The QUICK model was just refused (NVIDIA lists ids it then 404s "for account"), and the work
       // model is a different, healthy id. `quickModel()` already routes every LATER quick call to the
@@ -840,6 +861,9 @@ export class LlmAdapter implements LLMProvider {
       if (!isUserAbort(e, options.signal)) this.providerBreaker.record(isProviderFault(status) ? Outcome.Failure : Outcome.Success);
       yield { type: 'error', message: e.message, recoverable, kind, retryAfterSecs };
     } finally {
+      // Consumers may return from this generator while it is paused at a yielded
+      // event. That bypasses both the loop and catch; release the HTTP stream here.
+      closeUnfinishedStream?.();
       reservation.settle();
       // Generator cancellation can skip success/catch; close its daily reservation too.
       if (this.budgetVeto && !dailyReservationClosed) await this.budgetVeto.recordSpend(estimatedCostUsd, estimatedCostUsd, request.model);
@@ -988,6 +1012,7 @@ export class LlmAdapter implements LLMProvider {
       const startedKey = kr;
       const hedge = await hedgedRequest<KeyResult, any>({
         first: kr,
+        signal: options.signal,
         budgetMs: headerBudgetMs,
         hedgeAfterMs: activeRunBudget() || isLoopbackEndpoint(kr.baseURL) ? 0 : this.hedgeAfterMs,
         start: (legKey, budgetMs) => {
@@ -1017,7 +1042,7 @@ export class LlmAdapter implements LLMProvider {
           // Outraced, not failed: teach the picker this key was slow without benching it — the
           // queue is per request, so the same key often answers the next one at once.
           if (error === undefined) this.apiKeyManager.reportKeyLatency(loser.idx, waitedMs);
-          else if (loser !== startedKey) this.apiKeyManager.reportKeyResult(loser.idx, classifyStreamError(error).status);
+          else if (loser !== startedKey && !isUserAbort(error, options.signal)) this.apiKeyManager.reportKeyResult(loser.idx, classifyStreamError(error).status);
         },
       });
       return hedge.key !== startedKey

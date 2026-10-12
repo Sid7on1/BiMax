@@ -392,6 +392,19 @@ async function extractPdf(file: string): Promise<{ segments: Segment[]; note?: s
 }
 
 async function extractImage(file: string): Promise<Segment[]> {
+  if (/\.tiff?$/i.test(file)) {
+    // Reject a truncated/foreign TIFF before probing or compiling a native OCR
+    // helper. Classic TIFF and BigTIFF both carry an endian marker and magic.
+    const handle = await fs.promises.open(file, 'r');
+    try {
+      const header = Buffer.alloc(8);
+      const { bytesRead } = await handle.read(header, 0, header.length, 0);
+      const magic = header.subarray(0, 4).toString('hex');
+      if (bytesRead < 8 || !['49492a00', '4d4d002a', '49492b00', '4d4d002b'].includes(magic)) {
+        throw new Error('Unreadable TIFF: missing or truncated image header.');
+      }
+    } finally { await handle.close(); }
+  }
   const { pages } = await ocrPages([file]);
   const page = pages[0];
   if (!page || !page.text.trim()) return [];

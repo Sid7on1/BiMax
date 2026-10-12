@@ -22,40 +22,15 @@
 import { existsSync, readdirSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
+import { resolveReleaseArtifact } from './release-artifact.mjs';
 
 const argv = process.argv.slice(2);
-const explicit = argv.includes('--app') ? argv[argv.indexOf('--app') + 1] : process.env.BIMAX_APP_PATH;
-
 const appRoot = path.resolve(import.meta.dirname, '..');
-const candidates = [];
-if (explicit) candidates.push(explicit);
-for (const dir of [process.env.BIMAX_RELEASE_DIR, path.join(appRoot, 'release'), '/tmp/bimax-release']) {
-  if (!dir || !existsSync(dir)) continue;
-  // electron-builder writes mac/, mac-arm64/, mac-universal/ depending on target.
-  for (const entry of readdirSync(dir)) {
-    const bundle = path.join(dir, entry, 'Bimax.app');
-    if (existsSync(bundle)) candidates.push(bundle);
-  }
-}
-candidates.push('/Applications/Bimax.app');
-
-const app = candidates.find((c) => c && existsSync(path.join(c, 'Contents', 'Info.plist')));
+let app;
+try { app = resolveReleaseArtifact({ argv, appRoot }); }
+catch (error) { console.error(`✗ ${error.message}`); process.exit(1); }
 const failures = [];
 const checked = [];
-
-if (!app) {
-  console.error('✗ No built Bimax.app to check.');
-  console.error('');
-  console.error('  Looked in: ' + candidates.join(', '));
-  console.error('');
-  console.error('  This gate inspects a real bundle on disk, because the failure it exists to catch');
-  console.error('  — an action that compiles but is never copied into the bundle — is invisible in');
-  console.error('  source. Build first (npm --prefix app run dist:mac:local), or pass --app.');
-  console.error('');
-  console.error('  It fails rather than skipping on purpose: the previous packaging guard degraded');
-  console.error('  to a skip and stayed green through three separate shipped regressions.');
-  process.exit(1);
-}
 
 const plist = path.join(app, 'Contents', 'Info.plist');
 const read = (key) => {

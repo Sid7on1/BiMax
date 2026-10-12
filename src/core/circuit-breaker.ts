@@ -149,38 +149,47 @@ const MAX_WINDOW_ENTRIES = 10_000;
  * on push/pop so `errorRate()` is O(1) instead of scanning the window on every request.
  */
 class SlidingWindow {
-  private entries: Array<{ at: number; isFailure: boolean }> = [];
+  private entries: Array<{ at: number; isFailure: boolean } | undefined> = [];
+  private head = 0;
+  private count = 0;
   private failures = 0;
 
   push(isFailure: boolean, at: number): void {
-    if (this.entries.length >= MAX_WINDOW_ENTRIES) {
-      const dropped = this.entries.shift();
-      if (dropped?.isFailure) this.failures--;
-    }
-    this.entries.push({ at, isFailure });
+    if (this.count === MAX_WINDOW_ENTRIES) this.dropOldest();
+    this.entries[(this.head + this.count) % MAX_WINDOW_ENTRIES] = { at, isFailure };
+    this.count++;
     if (isFailure) this.failures++;
   }
 
   evict(windowMs: number, now: number): void {
     const cutoff = now - windowMs;
-    while (this.entries.length > 0 && this.entries[0].at < cutoff) {
-      const dropped = this.entries.shift()!;
-      if (dropped.isFailure) this.failures--;
-    }
+    while (this.count > 0 && this.entries[this.head]!.at < cutoff) this.dropOldest();
   }
 
   errorRate(): number {
-    if (this.entries.length === 0) return 0;
-    return this.failures / this.entries.length;
+    if (this.count === 0) return 0;
+    return this.failures / this.count;
   }
 
   sampleCount(): number {
-    return this.entries.length;
+    return this.count;
   }
 
   clear(): void {
     this.entries = [];
+    this.head = 0;
+    this.count = 0;
     this.failures = 0;
+  }
+
+  /** Subtract-on-evict circular storage; release references without moving live samples. */
+  private dropOldest(): void {
+    if (this.entries[this.head]!.isFailure) this.failures--;
+    this.entries[this.head] = undefined;
+    this.head = (this.head + 1) % MAX_WINDOW_ENTRIES;
+    this.count--;
+    // Empty low-volume windows reuse index zero instead of growing a sparse array over time.
+    if (this.count === 0) this.head = 0;
   }
 }
 

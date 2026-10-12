@@ -10,9 +10,9 @@
     "dev": "tsx src/index.ts",
     "build": "tsc",
     "build:engine": "bash app/scripts/prepare-engine.sh",
-    "test": "jest --coverage && npm run test:bun",
+    "test": "jest --coverage && npm run test:bun && npm run test:scripts",
     "test:bun": "bun test src/__tests__/code.index.test.ts src/__tests__/code.index.eval.test.ts src/__tests__/code.index.large.test.ts src/__tests__/code.store.ram.ledger.test.ts src/__tests__/composer.contextual.test.ts src/__tests__/composer.corpus.test.ts src/__tests__/composer.facts.test.ts src/__tests__/composer.identifiers.test.ts src/__tests__/composer.retrieval.traps.test.ts src/__tests__/document.read.test.ts src/__tests__/local.rerank.model.test.ts src/__tests__/memory.eval.test.ts src/__tests__/memory.retrieval.test.ts src/__tests__/tool.registry.contract.test.ts",
-    "test:ci": "jest --coverage=false && npm run test:bun",
+    "test:ci": "jest --coverage=false && npm run test:bun && npm run test:scripts",
     "test:context": "bun test ./src/__tests__/context.audit.acceptance.test.ts ./src/__tests__/context.evidence.test.ts ./src/__tests__/context.continuation.test.ts ./src/__tests__/context.request.budget.test.ts ./src/__tests__/context.log.summary.test.ts ./src/__tests__/context.recall.sufficiency.test.ts ./src/__tests__/context.code.connections.test.ts ./src/__tests__/context.inspector.test.ts",
     "bench:context": "bun benchmarks/context/run.ts",
     "doctor": "bash scripts/doctor.sh",
@@ -27,7 +27,8 @@
     "gen:protocol-package": "node scripts/generate-protocol-package.mjs",
     "verify:desktop-package": "node scripts/verify-desktop-package.mjs",
     "phase8:check": "bash scripts/phase8-local-gate.sh",
-    "phase9:check": "bash scripts/phase9-local-gate.sh"
+    "phase9:check": "bash scripts/phase9-local-gate.sh",
+    "test:scripts": "node --test app/scripts/release-artifact.test.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",

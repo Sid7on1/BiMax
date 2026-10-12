@@ -1,0 +1,51 @@
+FAIL src/__tests__/provider.lifecycle.http.test.ts
+  ● Test suite failed to run
+
+    [96msrc/__tests__/provider.lifecycle.http.test.ts[0m:[93m46[0m:[93m28[0m - [91merror[0m[90m TS2339: [0mProperty 'getConfig' does not exist on type 'LlmAdapter'.
+
+    [7m46[0m   const before = f.adapter.getConfig();
+    [7m  [0m [91m                           ~~~~~~~~~[0m
+    [96msrc/__tests__/provider.lifecycle.http.test.ts[0m:[93m58[0m:[93m22[0m - [91merror[0m[90m TS2339: [0mProperty 'getConfig' does not exist on type 'LlmAdapter'.
+
+    [7m58[0m     expect(f.adapter.getConfig()).toEqual(before);
+    [7m  [0m [91m                     ~~~~~~~~~[0m
+    [96msrc/__tests__/provider.lifecycle.http.test.ts[0m:[93m74[0m:[93m22[0m - [91merror[0m[90m TS2551: [0mProperty 'getKeyStates' does not exist on type 'ApiKeyManager'. Did you mean 'getStates'?
+
+    [7m74[0m     expect(f.manager.getKeyStates()[0].total_fail).toBe(0);
+    [7m  [0m [91m                     ~~~~~~~~~~~~[0m
+
+      [96msrc/credits/api.key.manager.ts[0m:[93m352[0m:[93m10[0m
+        [7m352[0m   public getStates() {
+        [7m   [0m [96m         ~~~~~~~~~[0m
+        'getStates' is declared here.
+    [96msrc/__tests__/provider.lifecycle.http.test.ts[0m:[93m86[0m:[93m22[0m - [91merror[0m[90m TS2551: [0mProperty 'getKeyStates' does not exist on type 'ApiKeyManager'. Did you mean 'getStates'?
+
+    [7m86[0m     expect(f.manager.getKeyStates()[0].total_ok).toBe(1);
+    [7m  [0m [91m                     ~~~~~~~~~~~~[0m
+
+      [96msrc/credits/api.key.manager.ts[0m:[93m352[0m:[93m10[0m
+        [7m352[0m   public getStates() {
+        [7m   [0m [96m         ~~~~~~~~~[0m
+        'getStates' is declared here.
+    [96msrc/__tests__/provider.lifecycle.http.test.ts[0m:[93m119[0m:[93m22[0m - [91merror[0m[90m TS2551: [0mProperty 'getKeyStates' does not exist on type 'ApiKeyManager'. Did you mean 'getStates'?
+
+    [7m119[0m     expect(f.manager.getKeyStates()[0].hang_strikes).toBe(1);
+    [7m   [0m [91m                     ~~~~~~~~~~~~[0m
+
+      [96msrc/credits/api.key.manager.ts[0m:[93m352[0m:[93m10[0m
+        [7m352[0m   public getStates() {
+        [7m   [0m [96m         ~~~~~~~~~[0m
+        'getStates' is declared here.
+
+[INFO] 2026-10-12T16:38:25.338Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s), 1 requests/min each.
+[33m[WARN] 2026-10-12T16:38:25.338Z - [LlmAdapter] All keys cooling down (rate limit / transient). Sleeping 60.0s...[0m
+[INFO] 2026-10-12T16:38:25.347Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:38:25.348Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:38:25.350Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:38:25.351Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+
+Test Suites: 1 failed, 1 passed, 2 total
+Tests:       10 passed, 10 total
+Snapshots:   0 total
+Time:        2.263 s
+Ran all test suites matching src/__tests__/provider.lifecycle.http.test.ts|src/__tests__/provider.lifecycle.sprint.test.ts.

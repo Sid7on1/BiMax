@@ -1,5 +1,21 @@
 # Competitive build sequence
 
+## Algorithm adoption sequence — 2026-10-12
+
+[Record 88](../88_ALGORITHM_AUDIT_AND_UPGRADE.md) implements four bounded/exact-result upgrades and preserves the structural inventory, primary research, source faults and all paired timings. Next: manual semantic review of the remaining inventory; realistic retrieval/trace and sustained-memory fixtures; stale cache/graph revisions; installed coding/recovery journeys. ANN/cache-admission/adaptive-concurrency/quantile-sketch candidates require their stated recall, filtering, fairness, accuracy and memory gates before adoption. Microbenchmark gains do not close product latency/RSS/energy targets, and ordered-score/build regressions remain explicit. No CU/UI or feature-priority change, Product-ready status or Win is implied.
+
+## Non-CU provider lifecycle qualification — 2026-10-12, round three
+
+[Record 87](../87_PROVIDER_REQUEST_LIFETIME.md) completes a bounded provider header/key/chunk cancellation slice. Next qualification remains installed crash/resume, live provider/model tiers, remote cancellation/billing, the existing repository lint failures and clean-Mac release. Deterministic request counts do not close startup/RSS/energy targets. No feature-priority, CU/UI, Product-ready or Win change is implied.
+
+## Non-CU MCP lifecycle qualification — 2026-10-12, round two
+
+[Record 86](../86_MCP_CONNECTION_OWNERSHIP.md) completes the bounded connection/catalog/resource slice left open by record 85, with local SDK end states and mutation receipts. Next qualification remains installed crash/resume and real provider/hosted OAuth/SSE, resistant server trees, resource budgets under representative workloads, the existing lint failures and clean-Mac release checks. Fixture coalescing counts do not close startup/RSS/energy targets. No CU or UI work, feature-priority change, Product-ready status or Win is implied.
+
+## Non-CU engineering verification — 2026-10-12
+
+[Record 85](../85_NON_CU_ENGINEERING_RELIABILITY.md) implements the authorized reliability and build-tooling pass with local fixture and mutation proof. Next qualification remains real provider/hosted OAuth and installed C01/C04/R01, measured startup/indexing/resource behavior, the 19 pre-existing lint errors, and clean-Mac release checks. Existing CU work is neither changed nor requalified by this pass. No feature-priority or product-boundary change is implied.
+
 ## PDF reliability sprint — 2026-10-06, round 4
 
 [Record 74](../74_PDF_RELIABILITY_SPRINT.md): preserve prior timeout failures → trace actual

@@ -1,0 +1,90 @@
+{
+  "schema": 1,
+  "faults": [
+    {
+      "name": "bm25-empty-postings",
+      "file": "src/memory/bm25.ts",
+      "exit_code": 1,
+      "assertion_caught": true,
+      "restored_sha256": "7fbadcdb7155093fa6bf47059c528934b12f04fcb97b8e51faf7f5649e1b74da"
+    },
+    {
+      "name": "bm25-stale-rebuild",
+      "file": "src/memory/bm25.ts",
+      "exit_code": 1,
+      "assertion_caught": true,
+      "restored_sha256": "7fbadcdb7155093fa6bf47059c528934b12f04fcb97b8e51faf7f5649e1b74da"
+    },
+    {
+      "name": "bm25-wrong-idf-frequency",
+      "file": "src/memory/bm25.ts",
+      "exit_code": 1,
+      "assertion_caught": true,
+      "restored_sha256": "7fbadcdb7155093fa6bf47059c528934b12f04fcb97b8e51faf7f5649e1b74da"
+    },
+    {
+      "name": "heap-wrong-root-admission",
+      "file": "src/utils/bounded.top.k.ts",
+      "exit_code": 1,
+      "assertion_caught": true,
+      "restored_sha256": "404a42a4e24d64cf5e369c102376270abb71d0e87c96690b7955009b1e63c692"
+    },
+    {
+      "name": "heap-unstable-equal-boundary",
+      "file": "src/utils/bounded.top.k.ts",
+      "exit_code": 1,
+      "assertion_caught": true,
+      "restored_sha256": "404a42a4e24d64cf5e369c102376270abb71d0e87c96690b7955009b1e63c692"
+    },
+    {
+      "name": "breaker-wrong-cutoff",
+      "file": "src/core/circuit-breaker.ts",
+      "exit_code": 1,
+      "assertion_caught": true,
+      "restored_sha256": "74bf4708dd507c3a8801220f507e9b5d28d0c9760eb77ec227b7ba196624b74b"
+    },
+    {
+      "name": "breaker-lost-failure-subtraction",
+      "file": "src/core/circuit-breaker.ts",
+      "exit_code": 1,
+      "assertion_caught": true,
+      "restored_sha256": "74bf4708dd507c3a8801220f507e9b5d28d0c9760eb77ec227b7ba196624b74b"
+    },
+    {
+      "name": "breaker-lost-head-advance",
+      "file": "src/core/circuit-breaker.ts",
+      "exit_code": 1,
+      "assertion_caught": true,
+      "restored_sha256": "74bf4708dd507c3a8801220f507e9b5d28d0c9760eb77ec227b7ba196624b74b"
+    },
+    {
+      "name": "cache-touch-without-promotion",
+      "file": "src/memory/file-state-cache.ts",
+      "exit_code": 1,
+      "assertion_caught": true,
+      "restored_sha256": "e9346b92daedfe065bc7aebe71b43ec8af6b09f956c37095e2a1feb9ff46b767"
+    },
+    {
+      "name": "vector-scope-bypass",
+      "file": "src/memory/vector.store.ts",
+      "exit_code": 1,
+      "assertion_caught": true,
+      "restored_sha256": "e3d7c7a6b03df729188379844e883884ce76410eb24fb9d87d64feb8c8eff26a"
+    },
+    {
+      "name": "sqlite-scope-bypass",
+      "file": "src/memory/sqlite.code.store.ts",
+      "exit_code": 1,
+      "assertion_caught": true,
+      "restored_sha256": "c5dea3b698e8b41e2385dd3bd259036387bf3d6910a776327cd0064a33e38930"
+    },
+    {
+      "name": "sqlite-relative-floor-removed",
+      "file": "src/memory/sqlite.code.store.ts",
+      "exit_code": 1,
+      "assertion_caught": true,
+      "restored_sha256": "c5dea3b698e8b41e2385dd3bd259036387bf3d6910a776327cd0064a33e38930"
+    }
+  ],
+  "restored_baselines_pass": true
+}

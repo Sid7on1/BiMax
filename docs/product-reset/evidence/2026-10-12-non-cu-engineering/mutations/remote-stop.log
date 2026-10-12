@@ -1,0 +1,28 @@
+FAIL src/__tests__/mcp.deadline.sprint.test.ts
+  ● MCP task cancellation and whole-call deadline › Stop during backoff settles immediately and cancels server work once
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 3
+    + Received  + 1
+
+    - Array [
+    -   "tasks/cancel",
+    - ]
+    + Array []
+
+      33 |     await jest.advanceTimersByTimeAsync(0);
+      34 |     await rejected;
+    > 35 |     expect(client.request.mock.calls.map(call => (call[0] as any).method)).toEqual(['tasks/cancel']);
+         |                                                                            ^
+      36 |     expect(jest.getTimerCount()).toBe(0);
+      37 |   });
+      38 |
+
+      at Object.<anonymous> (src/__tests__/mcp.deadline.sprint.test.ts:35:76)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 4 skipped, 5 total
+Snapshots:   0 total
+Time:        1.044 s
+Ran all test suites matching src/__tests__/mcp.deadline.sprint.test.ts with tests matching "Stop during backoff".

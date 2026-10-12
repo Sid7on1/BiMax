@@ -1,0 +1,93 @@
+{
+  "status": "Implemented and locally verified",
+  "product": "Bimax for Mac coding engine",
+  "date": "2026-10-12",
+  "machine": {
+    "system": "Darwin",
+    "release": "27.0.0",
+    "architecture": "arm64"
+  },
+  "git_head": "808644a9c7559d4d2e06d06f73849c89ad54183d",
+  "sdk": "openai 6.42.0",
+  "model": "none; synthetic fixtures only",
+  "commands": [
+    {
+      "command": "npm run test:ci",
+      "exit_code": 0,
+      "receipt": "test-ci.log"
+    },
+    {
+      "command": "npm run build",
+      "exit_code": 0,
+      "receipt": "root-build.log"
+    },
+    {
+      "command": "npm --prefix app run typecheck",
+      "exit_code": 0,
+      "receipt": "app-typecheck.log"
+    },
+    {
+      "command": "npm --prefix app run build",
+      "exit_code": 0,
+      "receipt": "app-build.log"
+    },
+    {
+      "command": "npm run build:engine",
+      "exit_code": 0,
+      "receipt": "engine-build.log"
+    },
+    {
+      "command": "npm --prefix app run verify:engine",
+      "exit_code": 0,
+      "receipt": "engine-verify.log"
+    },
+    {
+      "command": "npm run lint",
+      "exit_code": 1,
+      "receipt": "repo-lint.log"
+    },
+    {
+      "command": "eslint changed TypeScript files",
+      "exit_code": 0,
+      "receipt": "changed-lint-final.log"
+    },
+    {
+      "command": "Jest six focused suites --runInBand --coverage=false --detectOpenHandles",
+      "exit_code": 0,
+      "receipt": "final-focused.log"
+    },
+    {
+      "command": "python3 scripts/prove-provider-lifecycle.py",
+      "exit_code": 0,
+      "receipt": "mutations.log"
+    },
+    {
+      "command": "node docs/product-reset/evidence/2026-10-12-provider-lifecycle/request-count-probe.cjs",
+      "exit_code": 0,
+      "receipt": "request-counts.json"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "receipt": null
+    }
+  ],
+  "tests": {
+    "jest_suites_passed": 443,
+    "jest_tests_passed": 4213,
+    "jest_tests_skipped_existing": 19,
+    "jest_suites_skipped_existing": 1,
+    "bun_passed": 132,
+    "node_script_passed": 3,
+    "new_tests": 22,
+    "http_end_states": 5,
+    "faults_caught": 11,
+    "focused_passed": 60
+  },
+  "limits": [
+    "No installed-app or hosted-provider/model qualification",
+    "No general latency/RSS/energy or competitive claim",
+    "19 existing repository lint errors remain",
+    "CU/UI excluded"
+  ]
+}

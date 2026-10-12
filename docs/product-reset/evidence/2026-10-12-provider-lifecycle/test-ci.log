@@ -1,0 +1,1753 @@
+
+> bimax@1.1.0 test:ci
+> jest --coverage=false && npm run test:bun && npm run test:scripts
+
+[INFO] 2026-10-12T16:43:54.755Z - [ToolRegistry] Registered tool: WriteFileTool (Destructive: false)
+[33m[WARN] 2026-10-12T16:43:54.856Z - [AgentLoop] Recovered 1 tool call(s) the model emitted as text.[0m
+[INFO] 2026-10-12T16:43:54.866Z - [ToolRegistry] Registered tool: WriteFileTool (Destructive: true)
+[INFO] 2026-10-12T16:43:54.866Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:43:54.880Z - [ToolRegistry] Registered tool: WriteFileTool (Destructive: false)
+[INFO] 2026-10-12T16:43:54.909Z - [ToolRegistry] Registered tool: ComputerTool (Destructive: false)
+[INFO] 2026-10-12T16:43:54.922Z - [ToolRegistry] Registered tool: TodoWriteTool (Destructive: false)
+[INFO] 2026-10-12T16:43:54.922Z - [ToolRegistry] Registered tool: ComputerTool (Destructive: false)
+[INFO] 2026-10-12T16:43:54.939Z - [ToolRegistry] Registered tool: WriteFileTool (Destructive: false)
+(node:47917) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[INFO] 2026-10-12T16:43:57.180Z - [MCP] Task t-9 (srv/build) completed; fetching result.
+[INFO] 2026-10-12T16:43:57.687Z - [MCP] Task t-8 (srv/q) completed; fetching result.
+[INFO] 2026-10-12T16:43:59.007Z - [ToolRegistry] Registered tool: noop (Destructive: false)
+[INFO] 2026-10-12T16:44:00.678Z - [MCP] Task t-4 (srv/fast) completed; fetching result.
+[INFO] 2026-10-12T16:44:03.136Z - [ToolRegistry] Registered tool: mcp__lifecycle__hang (Destructive: true)
+[INFO] 2026-10-12T16:44:03.137Z - [ToolRegistry] Registered tool: mcp__lifecycle__mutate (Destructive: true)
+[INFO] 2026-10-12T16:44:03.137Z - [ToolRegistry] Registered tool: mcp__lifecycle__task (Destructive: true)
+[INFO] 2026-10-12T16:44:03.137Z - [MCP] Connected 'lifecycle' — registered 3 tool(s).
+[31m[ERROR] 2026-10-12T16:44:03.143Z - [Tool:mcp__lifecycle__mutate] ❌ MCP tool 'lifecycle/mutate' lost its connection; completion is unknown. It was not replayed. Reconnect and inspect the actual state before retrying.[0m
+[INFO] 2026-10-12T16:44:03.296Z - [ToolRegistry] Registered tool: mcp__lifecycle__hang (Destructive: true)
+[INFO] 2026-10-12T16:44:03.296Z - [ToolRegistry] Registered tool: mcp__lifecycle__mutate (Destructive: true)
+[INFO] 2026-10-12T16:44:03.296Z - [ToolRegistry] Registered tool: mcp__lifecycle__task (Destructive: true)
+[INFO] 2026-10-12T16:44:03.296Z - [MCP] Connected 'lifecycle' — registered 3 tool(s).
+[31m[ERROR] 2026-10-12T16:44:03.323Z - [Tool:mcp__lifecycle__hang] ❌ stopped[0m
+[INFO] 2026-10-12T16:44:03.841Z - [ContextManager] Micro-compacted 56 old tool result(s).
+[INFO] 2026-10-12T16:44:04.076Z - [ContextManager] Micro-compacted 53 old tool result(s).
+[INFO] 2026-10-12T16:44:04.370Z - [ContextManager] Micro-compacted 49 old tool result(s).
+[INFO] 2026-10-12T16:44:04.649Z - [ContextManager] Micro-compacted 56 old tool result(s).
+[INFO] 2026-10-12T16:44:04.818Z - [ContextManager] Micro-compacted 53 old tool result(s).
+[INFO] 2026-10-12T16:44:05.105Z - [ContextManager] Micro-compacted 49 old tool result(s).
+[33m[WARN] 2026-10-12T16:44:05.248Z - [AgentLoop] Configured fallback model "known-dead-model" was rejected by the provider this session; deriving one instead.[0m
+[33m[WARN] 2026-10-12T16:44:05.264Z - [AgentLoop] Configured fallback model "meta/muse-glimmer-30b" was rejected by the provider this session; deriving one instead.[0m
+[INFO] 2026-10-12T16:44:05.416Z - [ContextManager] Micro-compacted 56 old tool result(s).
+[INFO] 2026-10-12T16:44:05.593Z - [ContextManager] Micro-compacted 53 old tool result(s).
+[INFO] 2026-10-12T16:44:05.810Z - [ContextManager] Micro-compacted 49 old tool result(s).
+[INFO] 2026-10-12T16:44:06.161Z - [ToolRegistry] Registered tool: BashTool (Destructive: true)
+[INFO] 2026-10-12T16:44:06.162Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:06.162Z - [ToolRegistry] Registered tool: WebFetchTool (Destructive: false)
+[INFO] 2026-10-12T16:44:06.162Z - [ToolRegistry] Registered tool: MemoryQueryTool (Destructive: false)
+[33m[WARN] 2026-10-12T16:44:06.182Z - Prompt block "goals" left out: [GoalManager] not initialized — call initGoalManager(projectRoot) first[0m
+[33m[WARN] 2026-10-12T16:44:06.182Z - Prompt block "outcome" left out: [OutcomeManager] not initialized — start the headless outcome runtime first.[0m
+[INFO] 2026-10-12T16:44:06.193Z - [ToolRegistry] Registered tool: BashTool (Destructive: true)
+[INFO] 2026-10-12T16:44:06.193Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:06.193Z - [ToolRegistry] Registered tool: WebFetchTool (Destructive: false)
+[INFO] 2026-10-12T16:44:06.193Z - [ToolRegistry] Registered tool: MemoryQueryTool (Destructive: false)
+[INFO] 2026-10-12T16:44:06.197Z - [ToolRegistry] Registered tool: BashTool (Destructive: true)
+[INFO] 2026-10-12T16:44:06.197Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:06.197Z - [ToolRegistry] Registered tool: WebFetchTool (Destructive: false)
+[INFO] 2026-10-12T16:44:06.197Z - [ToolRegistry] Registered tool: MemoryQueryTool (Destructive: false)
+[INFO] 2026-10-12T16:44:06.208Z - [ToolRegistry] Registered tool: BashTool (Destructive: true)
+[INFO] 2026-10-12T16:44:06.208Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:06.208Z - [ToolRegistry] Registered tool: WebFetchTool (Destructive: false)
+[INFO] 2026-10-12T16:44:06.208Z - [ToolRegistry] Registered tool: MemoryQueryTool (Destructive: false)
+[INFO] 2026-10-12T16:44:06.214Z - [ToolRegistry] Registered tool: BashTool (Destructive: true)
+[INFO] 2026-10-12T16:44:06.214Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:06.214Z - [ToolRegistry] Registered tool: WebFetchTool (Destructive: false)
+[INFO] 2026-10-12T16:44:06.214Z - [ToolRegistry] Registered tool: MemoryQueryTool (Destructive: false)
+[INFO] 2026-10-12T16:44:06.226Z - [ToolRegistry] Registered tool: BashTool (Destructive: true)
+[INFO] 2026-10-12T16:44:06.227Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:06.227Z - [ToolRegistry] Registered tool: WebFetchTool (Destructive: false)
+[INFO] 2026-10-12T16:44:06.227Z - [ToolRegistry] Registered tool: MemoryQueryTool (Destructive: false)
+[INFO] 2026-10-12T16:44:06.231Z - [ToolRegistry] Registered tool: BashTool (Destructive: true)
+[INFO] 2026-10-12T16:44:06.231Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:06.231Z - [ToolRegistry] Registered tool: WebFetchTool (Destructive: false)
+[INFO] 2026-10-12T16:44:06.231Z - [ToolRegistry] Registered tool: MemoryQueryTool (Destructive: false)
+[INFO] 2026-10-12T16:44:06.236Z - [ToolRegistry] Registered tool: BashTool (Destructive: true)
+[INFO] 2026-10-12T16:44:06.236Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:06.236Z - [ToolRegistry] Registered tool: WebFetchTool (Destructive: false)
+[INFO] 2026-10-12T16:44:06.236Z - [ToolRegistry] Registered tool: MemoryQueryTool (Destructive: false)
+[INFO] 2026-10-12T16:44:06.248Z - [ToolRegistry] Registered tool: BashTool (Destructive: true)
+[INFO] 2026-10-12T16:44:06.248Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:06.248Z - [ToolRegistry] Registered tool: WebFetchTool (Destructive: false)
+[INFO] 2026-10-12T16:44:06.249Z - [ToolRegistry] Registered tool: MemoryQueryTool (Destructive: false)
+[INFO] 2026-10-12T16:44:06.351Z - [StaticAnalyzer] Initializing TS Program for: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-atmention-7HhTbP
+[INFO] 2026-10-12T16:44:08.258Z - [StaticAnalyzer] Initializing TS Program for: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-ctxpack-qoGTxA
+[INFO] 2026-10-12T16:44:08.381Z - [StaticAnalyzer] Parsing 1 source files...
+[INFO] 2026-10-12T16:44:08.383Z - [StaticAnalyzer] Graph generation complete. Extracted 4 nodes and 3 wires.
+[INFO] 2026-10-12T16:44:08.396Z - [StaticAnalyzer] Initializing TS Program for: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-atmention-6NUIws
+[INFO] 2026-10-12T16:44:09.075Z - [ContextManager] Micro-compacted 4 old tool result(s).
+[INFO] 2026-10-12T16:44:09.092Z - [ContextManager] Micro-compacted 4 old tool result(s).
+[INFO] 2026-10-12T16:44:09.104Z - [ContextManager] Micro-compacted 4 old tool result(s).
+[INFO] 2026-10-12T16:44:09.114Z - [ContextManager] Micro-compacted 3 old tool result(s).
+[INFO] 2026-10-12T16:44:09.124Z - [ContextManager] Micro-compacted 3 old tool result(s).
+[INFO] 2026-10-12T16:44:09.132Z - [ContextManager] Micro-compacted 3 old tool result(s).
+[INFO] 2026-10-12T16:44:09.145Z - [ContextManager] Micro-compacted 3 old tool result(s).
+[INFO] 2026-10-12T16:44:09.154Z - [ContextManager] Micro-compacted 3 old tool result(s).
+[INFO] 2026-10-12T16:44:09.164Z - [ContextManager] Micro-compacted 3 old tool result(s).
+[INFO] 2026-10-12T16:44:09.176Z - [ContextManager] Micro-compacted 3 old tool result(s).
+[INFO] 2026-10-12T16:44:09.188Z - [ContextManager] Micro-compacted 3 old tool result(s).
+[INFO] 2026-10-12T16:44:09.197Z - [ContextManager] Micro-compacted 2 old tool result(s).
+[INFO] 2026-10-12T16:44:09.205Z - [ContextManager] Micro-compacted 2 old tool result(s).
+[INFO] 2026-10-12T16:44:09.211Z - [ContextManager] Micro-compacted 2 old tool result(s).
+[INFO] 2026-10-12T16:44:09.216Z - [ContextManager] Micro-compacted 2 old tool result(s).
+[INFO] 2026-10-12T16:44:09.223Z - [ContextManager] Micro-compacted 2 old tool result(s).
+[INFO] 2026-10-12T16:44:09.228Z - [ContextManager] Micro-compacted 2 old tool result(s).
+[INFO] 2026-10-12T16:44:09.236Z - [ContextManager] Micro-compacted 2 old tool result(s).
+[INFO] 2026-10-12T16:44:09.243Z - [ContextManager] Micro-compacted 2 old tool result(s).
+[INFO] 2026-10-12T16:44:09.251Z - [ContextManager] Micro-compacted 2 old tool result(s).
+[INFO] 2026-10-12T16:44:09.263Z - [ContextManager] Micro-compacted 2 old tool result(s).
+[INFO] 2026-10-12T16:44:09.274Z - [ContextManager] Micro-compacted 2 old tool result(s).
+[INFO] 2026-10-12T16:44:09.277Z - [StaticAnalyzer] Initializing TS Program for: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-readsym-hSFzTB
+[INFO] 2026-10-12T16:44:09.287Z - [ContextManager] Micro-compacted 2 old tool result(s).
+[INFO] 2026-10-12T16:44:09.291Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.295Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.302Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.307Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.316Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.321Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.328Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.349Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.360Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.366Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.377Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.391Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.397Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.402Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.415Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.425Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.440Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.457Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.462Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.468Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.490Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.495Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.501Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.511Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[33m[WARN] 2026-10-12T16:44:09.512Z - [ContextManager] Context window 50% full — approaching compaction threshold.[0m
+[INFO] 2026-10-12T16:44:09.519Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.525Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.535Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.544Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.553Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.561Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.566Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.574Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.582Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.595Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.605Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.614Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.622Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.631Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.639Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.650Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.657Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.672Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.680Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.691Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.713Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.723Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.731Z - [StaticAnalyzer] Parsing 1 source files...
+[INFO] 2026-10-12T16:44:09.732Z - [StaticAnalyzer] Graph generation complete. Extracted 4 nodes and 3 wires.
+[INFO] 2026-10-12T16:44:09.733Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.735Z - [StaticAnalyzer] Initializing TS Program for: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-atmention-M83cAf
+[INFO] 2026-10-12T16:44:09.739Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.745Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.754Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.759Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.764Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.770Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.777Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:09.891Z - [StaticAnalyzer] Parsing 1 source files...
+[INFO] 2026-10-12T16:44:09.913Z - [StaticAnalyzer] Graph generation complete. Extracted 127 nodes and 167 wires.
+[INFO] 2026-10-12T16:44:09.932Z - [StaticAnalyzer] Initializing TS Program for: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-ctxpack-zfr9Cl
+[INFO] 2026-10-12T16:44:10.544Z - [StaticAnalyzer] Parsing 1 source files...
+[INFO] 2026-10-12T16:44:10.547Z - [StaticAnalyzer] Graph generation complete. Extracted 7 nodes and 6 wires.
+[INFO] 2026-10-12T16:44:10.567Z - [StaticAnalyzer] Initializing TS Program for: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-readsym-JIzE9b
+[INFO] 2026-10-12T16:44:10.631Z - [ContextManager] Micro-compacted 69 old tool result(s).
+[INFO] 2026-10-12T16:44:10.646Z - [StaticAnalyzer] Parsing 1 source files...
+[INFO] 2026-10-12T16:44:10.647Z - [StaticAnalyzer] Graph generation complete. Extracted 4 nodes and 3 wires.
+[INFO] 2026-10-12T16:44:10.650Z - [StaticAnalyzer] Initializing TS Program for: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-atmention-qnFFKn
+[INFO] 2026-10-12T16:44:10.867Z - [StaticAnalyzer] Parsing 1 source files...
+[INFO] 2026-10-12T16:44:10.901Z - [StaticAnalyzer] Graph generation complete. Extracted 127 nodes and 167 wires.
+[INFO] 2026-10-12T16:44:10.954Z - [StaticAnalyzer] Initializing TS Program for: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-ctxpack-lge12Z
+[INFO] 2026-10-12T16:44:11.546Z - [ContextManager] Micro-compacted 32 old tool result(s).
+[INFO] 2026-10-12T16:44:11.810Z - [ContextManager] Micro-compacted 31 old tool result(s).
+[INFO] 2026-10-12T16:44:11.929Z - [StaticAnalyzer] Parsing 1 source files...
+[INFO] 2026-10-12T16:44:11.930Z - [StaticAnalyzer] Graph generation complete. Extracted 4 nodes and 3 wires.
+[INFO] 2026-10-12T16:44:12.028Z - [ContextManager] Micro-compacted 29 old tool result(s).
+[33m[WARN] 2026-10-12T16:44:12.131Z - [ContextManager] Context window 51% full — approaching compaction threshold.[0m
+[INFO] 2026-10-12T16:44:12.138Z - [StaticAnalyzer] Parsing 1 source files...
+[33m[WARN] 2026-10-12T16:44:12.138Z - [ContextManager] 71% after cheap passes — summarizing older history.[0m
+[INFO] 2026-10-12T16:44:12.138Z - [StaticAnalyzer] Graph generation complete. Extracted 7 nodes and 6 wires.
+[INFO] 2026-10-12T16:44:12.139Z - [ContextManager] Summarizing 86 older messages (epoch 1)...
+[INFO] 2026-10-12T16:44:12.143Z - [StaticAnalyzer] Initializing TS Program for: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-readsym-0joVJs
+[33m[WARN] 2026-10-12T16:44:12.198Z - [ContextManager] 71% after cheap passes — summarizing older history.[0m
+[INFO] 2026-10-12T16:44:12.199Z - [ContextManager] Summarizing 82 older messages (epoch 2)...
+[INFO] 2026-10-12T16:44:12.236Z - [StaticAnalyzer] Parsing 1 source files...
+[INFO] 2026-10-12T16:44:12.241Z - [StaticAnalyzer] Graph generation complete. Extracted 127 nodes and 167 wires.
+[INFO] 2026-10-12T16:44:12.246Z - [StaticAnalyzer] Initializing TS Program for: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-ctxpack-xnhJt1
+[33m[WARN] 2026-10-12T16:44:12.252Z - [ContextManager] 71% after cheap passes — summarizing older history.[0m
+[INFO] 2026-10-12T16:44:12.253Z - [ContextManager] Summarizing 82 older messages (epoch 3)...
+[INFO] 2026-10-12T16:44:12.590Z - [StaticAnalyzer] Parsing 1 source files...
+[INFO] 2026-10-12T16:44:12.591Z - [StaticAnalyzer] Graph generation complete. Extracted 7 nodes and 6 wires.
+[INFO] 2026-10-12T16:44:12.698Z - [StaticAnalyzer] Parsing 1 source files...
+[INFO] 2026-10-12T16:44:12.705Z - [StaticAnalyzer] Graph generation complete. Extracted 127 nodes and 167 wires.
+[INFO] 2026-10-12T16:44:12.944Z - [StaticAnalyzer] Initializing TS Program for: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-lsptool-h77Z4Y
+[INFO] 2026-10-12T16:44:13.627Z - [StaticAnalyzer] Parsing 1 source files...
+[INFO] 2026-10-12T16:44:13.628Z - [StaticAnalyzer] Graph generation complete. Extracted 3 nodes and 2 wires.
+[INFO] 2026-10-12T16:44:13.647Z - [StaticAnalyzer] Initializing TS Program for: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-lsptool-le47i6
+[INFO] 2026-10-12T16:44:14.203Z - [McpManager] Saved server 'seq' to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-mcpmgr-Wz6ZJJ/.bimax/mcp.json
+[INFO] 2026-10-12T16:44:14.206Z - [StaticAnalyzer] Parsing 1 source files...
+[INFO] 2026-10-12T16:44:14.207Z - [StaticAnalyzer] Graph generation complete. Extracted 3 nodes and 2 wires.
+[INFO] 2026-10-12T16:44:14.207Z - [McpManager] Saved server 'seq' to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-mcpmgr-4055Xf/.bimax/mcp.json
+[INFO] 2026-10-12T16:44:14.209Z - [McpManager] Saved server 'echo' to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-mcpmgr-D8jtzI/.bimax/mcp.json
+[INFO] 2026-10-12T16:44:14.210Z - [McpManager] Saved server 'magic' to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-mcpmgr-3iMcEl/.bimax/mcp.json
+[INFO] 2026-10-12T16:44:14.215Z - [McpManager] Saved server 'seq' to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-mcpmgr-VjYNYm/.bimax/mcp.json
+[INFO] 2026-10-12T16:44:14.216Z - [McpManager] Saved server 'echo' to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-mcpmgr-lHVu2V/.bimax/mcp.json
+[INFO] 2026-10-12T16:44:14.216Z - [McpManager] Saved server 'echo' to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-mcpmgr-lHVu2V/.bimax/mcp.json
+[INFO] 2026-10-12T16:44:14.379Z - [ToolRegistry] Registered tool: mcp__echo__echo (Destructive: true)
+[INFO] 2026-10-12T16:44:14.379Z - [MCP] Connected 'echo' — registered 1 tool(s).
+[INFO] 2026-10-12T16:44:14.389Z - [McpManager] Saved server 'echo' to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-mcp-health-Pa67AV/.bimax/mcp.json
+[INFO] 2026-10-12T16:44:14.546Z - [ToolRegistry] Registered tool: mcp__echo__echo (Destructive: true)
+[INFO] 2026-10-12T16:44:14.547Z - [MCP] Connected 'echo' — registered 1 tool(s).
+[INFO] 2026-10-12T16:44:14.555Z - [McpManager] Saved server 'echo' to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-mcp-reconnect-MdhFwT/.bimax/mcp.json
+[INFO] 2026-10-12T16:44:14.634Z - [ToolRegistry] Registered tool: mcp__echo__echo (Destructive: true)
+[INFO] 2026-10-12T16:44:14.634Z - [MCP] Connected 'echo' — registered 1 tool(s).
+[INFO] 2026-10-12T16:44:14.679Z - [ToolRegistry] Registered tool: mcp__echo__echo (Destructive: true)
+[INFO] 2026-10-12T16:44:14.679Z - [MCP] Connected 'echo' — registered 1 tool(s).
+[INFO] 2026-10-12T16:44:14.679Z - [McpManager] Saved server 'echo' to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-mcp-reconnect-MdhFwT/.bimax/mcp.json
+[33m[WARN] 2026-10-12T16:44:14.687Z - [MCP:broken] node:internal/modules/cjs/loader:1247
+  throw err;
+  ^
+
+Error: Cannot find module '/no/such/file.js'
+    at Function._resolveFilename (node:internal/modules/cjs/loader:1244:15)
+    at Function._load (node:internal/modules/cjs/loader:1070:27)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:217:24)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:170:5)
+    at node:internal/main/run_main_module:36:49 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v22.13.1[0m
+[33m[WARN] 2026-10-12T16:44:14.689Z - [MCP] Failed to connect 'broken': MCP error -32000: Connection closed — server said:   requireStack: [] } Node.js v22.13.1[0m
+[33m[WARN] 2026-10-12T16:44:14.725Z - [MCP:echo] node:internal/modules/cjs/loader:1247
+  throw err;
+  ^
+
+Error: Cannot find module '/no/such/file.js'
+    at Function._resolveFilename (node:internal/modules/cjs/loader:1244:15)
+    at Function._load (node:internal/modules/cjs/loader:1070:27)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:217:24)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:170:5)
+    at node:internal/main/run_main_module:36:49 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}
+
+Node.js v22.13.1[0m
+[33m[WARN] 2026-10-12T16:44:14.728Z - [MCP] Failed to connect 'echo': MCP error -32000: Connection closed — server said:   requireStack: [] } Node.js v22.13.1[0m
+[INFO] 2026-10-12T16:44:14.808Z - [ToolRegistry] Registered tool: mcp__echo-timeout__echo (Destructive: true)
+[INFO] 2026-10-12T16:44:14.808Z - [MCP] Connected 'echo-timeout' — registered 1 tool(s).
+[INFO] 2026-10-12T16:44:14.854Z - [ToolRegistry] Registered tool: mcp__echo__echo (Destructive: true)
+[INFO] 2026-10-12T16:44:14.854Z - [MCP] Connected 'echo' — registered 1 tool(s).
+[33m[WARN] 2026-10-12T16:44:14.858Z - [MCP] 'echo' connection dead mid-call (Not connected); reconnecting to retry.[0m
+[33m[WARN] 2026-10-12T16:44:14.973Z - [ToolRegistry] Overwriting existing tool: mcp__echo__echo[0m
+[INFO] 2026-10-12T16:44:14.973Z - [ToolRegistry] Registered tool: mcp__echo__echo (Destructive: true)
+[INFO] 2026-10-12T16:44:14.973Z - [MCP] Connected 'echo' — registered 1 tool(s).
+[INFO] 2026-10-12T16:44:15.090Z - [ToolRegistry] Registered tool: mcp__echo__echo (Destructive: true)
+[INFO] 2026-10-12T16:44:15.090Z - [MCP] Connected 'echo' — registered 1 tool(s).
+[33m[WARN] 2026-10-12T16:44:15.194Z - [MCP] Watchdog: 'echo' failed its probe (Not connected); auto-reconnecting (attempt 1/3).[0m
+[33m[WARN] 2026-10-12T16:44:15.317Z - [ToolRegistry] Overwriting existing tool: mcp__echo__echo[0m
+[INFO] 2026-10-12T16:44:15.317Z - [ToolRegistry] Registered tool: mcp__echo__echo (Destructive: true)
+[INFO] 2026-10-12T16:44:15.317Z - [MCP] Connected 'echo' — registered 1 tool(s).
+[INFO] 2026-10-12T16:44:15.403Z - [McpManager] Saved server 'echo' to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-mcp-stats-G21vmb/.bimax/mcp.json
+[INFO] 2026-10-12T16:44:15.517Z - [ToolRegistry] Registered tool: mcp__echo__echo (Destructive: true)
+[INFO] 2026-10-12T16:44:15.517Z - [MCP] Connected 'echo' — registered 1 tool(s).
+[INFO] 2026-10-12T16:44:15.523Z - [McpManager] Saved server 'echo' to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-mcp-replace-4sK8vp/.bimax/mcp.json
+[INFO] 2026-10-12T16:44:15.631Z - [ToolRegistry] Registered tool: mcp__echo__echo (Destructive: true)
+[INFO] 2026-10-12T16:44:15.631Z - [MCP] Connected 'echo' — registered 1 tool(s).
+[33m[WARN] 2026-10-12T16:44:15.745Z - [ToolRegistry] Overwriting existing tool: mcp__echo__echo[0m
+[INFO] 2026-10-12T16:44:15.745Z - [ToolRegistry] Registered tool: mcp__echo__echo (Destructive: true)
+[INFO] 2026-10-12T16:44:15.746Z - [MCP] Connected 'echo' — registered 1 tool(s).
+[31m[ERROR] 2026-10-12T16:44:15.810Z - [Tool:mcp__echo-timeout__echo] ❌ MCP tool 'echo-timeout/echo' timed out after 1000ms[0m
+[INFO] 2026-10-12T16:44:16.426Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s), 1 requests/min each.
+[33m[WARN] 2026-10-12T16:44:16.426Z - [LlmAdapter] All keys cooling down (rate limit / transient). Sleeping 60.0s...[0m
+[INFO] 2026-10-12T16:44:16.429Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:44:16.429Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:44:16.431Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:44:16.432Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:44:16.436Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:44:16.474Z - [StaticAnalyzer] Initializing TS Program for: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-graph-iLXHzc
+[INFO] 2026-10-12T16:44:16.978Z - [StaticAnalyzer] Parsing 1 source files...
+[INFO] 2026-10-12T16:44:16.979Z - [StaticAnalyzer] Graph generation complete. Extracted 7 nodes and 6 wires.
+[INFO] 2026-10-12T16:44:16.980Z - [StaticAnalyzer] Initializing TS Program for: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-graph-bfqZQG
+[INFO] 2026-10-12T16:44:17.049Z - [Worktree] Created /private/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-integration-ZY7Csw/.bimax/worktrees/integrat (branch bimax/sub-integrat) for subagent-integration1
+[INFO] 2026-10-12T16:44:17.301Z - [StaticAnalyzer] Initializing TS Program for: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-graphdep-SkgcXB
+[INFO] 2026-10-12T16:44:17.386Z - [Worktree] Created /private/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-integration-nuCCz1/.bimax/worktrees/integrat (branch bimax/sub-integrat) for subagent-integration2
+[INFO] 2026-10-12T16:44:17.512Z - [StaticAnalyzer] Parsing 1 source files...
+[INFO] 2026-10-12T16:44:17.513Z - [StaticAnalyzer] Graph generation complete. Extracted 7 nodes and 6 wires.
+[INFO] 2026-10-12T16:44:17.853Z - [Worktree] Created /private/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-integration-CG0i6t/.bimax/worktrees/integrat (branch bimax/sub-integrat) for subagent-integration3
+[INFO] 2026-10-12T16:44:18.041Z - [StaticAnalyzer] Parsing 1 source files...
+[INFO] 2026-10-12T16:44:18.048Z - [StaticAnalyzer] Graph generation complete. Extracted 8 nodes and 8 wires.
+[INFO] 2026-10-12T16:44:18.050Z - [StaticAnalyzer] Initializing TS Program for: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-graphdep-FntaQK
+[INFO] 2026-10-12T16:44:18.480Z - [GitAutoCommit] committed after EditFileTool
+[INFO] 2026-10-12T16:44:18.517Z - [StaticAnalyzer] Parsing 1 source files...
+[INFO] 2026-10-12T16:44:18.518Z - [StaticAnalyzer] Graph generation complete. Extracted 8 nodes and 8 wires.
+[INFO] 2026-10-12T16:44:18.666Z - [GitAutoCommit] committed after EditFileTool
+[INFO] 2026-10-12T16:44:18.816Z - [ContextManager] Summarizing 6 older messages (epoch 1)...
+[INFO] 2026-10-12T16:44:18.823Z - [GitAutoCommit] committed after EditFileTool
+[INFO] 2026-10-12T16:44:19.017Z - [GitAutoCommit] committed after MultiEditTool
+[INFO] 2026-10-12T16:44:19.835Z - [ContextManager] Capped 1 oversized tool result(s).
+(node:48611) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[INFO] 2026-10-12T16:44:19.938Z - [ContextManager] Micro-compacted 4 old tool result(s).
+[33m[WARN] 2026-10-12T16:44:19.939Z - [ContextManager] Context window 65% full — approaching compaction threshold.[0m
+[INFO] 2026-10-12T16:44:19.941Z - [ContextManager] Micro-compacted 4 old tool result(s).
+[33m[WARN] 2026-10-12T16:44:19.943Z - [ContextManager] Context window 561% full — approaching compaction threshold.[0m
+[33m[WARN] 2026-10-12T16:44:19.943Z - [ContextManager] 561% after cheap passes — summarizing older history.[0m
+[INFO] 2026-10-12T16:44:19.944Z - [ContextManager] Summarizing 5 older messages (epoch 1)...
+[33m[WARN] 2026-10-12T16:44:19.948Z - [ContextManager] Context window 808% full — approaching compaction threshold.[0m
+[33m[WARN] 2026-10-12T16:44:19.948Z - [ContextManager] 808% after cheap passes — summarizing older history.[0m
+[INFO] 2026-10-12T16:44:19.948Z - [ContextManager] Summarizing 5 older messages (epoch 1)...
+[INFO] 2026-10-12T16:44:19.956Z - [ContextManager] Summarizing 5 older messages (epoch 1)...
+[33m[WARN] 2026-10-12T16:44:19.957Z - [ContextManager] Reactive compact triggered by API error: Request too large[0m
+[33m[WARN] 2026-10-12T16:44:19.957Z - [ContextManager] Context window 68% full — approaching compaction threshold.[0m
+[33m[WARN] 2026-10-12T16:44:19.958Z - [ContextManager] 90% after cheap passes — summarizing older history.[0m
+[INFO] 2026-10-12T16:44:19.961Z - [ContextManager] Summarizing 5 older messages (epoch 1)...
+[33m[WARN] 2026-10-12T16:44:20.103Z - [SqliteCodeVectorStore] unavailable (no SQLite backend on this runtime); the code index will be empty this session.[0m
+[INFO] 2026-10-12T16:44:20.122Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:20.122Z - [Governor] Initialized Multi-Layer Permission Engine.
+[31m[ERROR] 2026-10-12T16:44:20.126Z - [Governor: Veto] File operation blocked. Target is outside the allowed workspace: /Users/vishsiddharth/Bimax/.silence-test-mVolZI/outside/bad[0m
+[31m[ERROR] 2026-10-12T16:44:20.131Z - [Governor: Veto] File operation blocked. Target is outside the allowed workspace: /Users/vishsiddharth/Bimax/.silence-test-mVolZI/outside/new/nested[0m
+[31m[ERROR] 2026-10-12T16:44:20.132Z - [Governor: Veto] File operation blocked. Target is outside the allowed workspace: /Users/vishsiddharth/Bimax/.silence-test-mVolZI/outside/bad[0m
+[31m[ERROR] 2026-10-12T16:44:20.133Z - [Governor: Veto] File operation blocked. Target is outside the allowed workspace: /Users/vishsiddharth/Bimax/.silence-test-mVolZI/outside/new/nested[0m
+[INFO] 2026-10-12T16:44:20.134Z - [Governor] ⚠️ Bypassed completely for task: FILE_WRITE
+[INFO] 2026-10-12T16:44:20.140Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:20.140Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:20.140Z - [Governor] ⚠️ Bypassed completely for task: FILE_WRITE
+[INFO] 2026-10-12T16:44:20.154Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:20.154Z - [Governor] Initialized Multi-Layer Permission Engine.
+[33m[WARN] 2026-10-12T16:44:20.287Z - [MCP] Failed to connect 'proof': spawn /Users/vishsiddharth/Bimax/.silence-test-fLttV9/missing-command ENOENT[0m
+[INFO] 2026-10-12T16:44:20.438Z - [ToolRegistry] Registered tool: mcp__proof__echo (Destructive: true)
+[INFO] 2026-10-12T16:44:20.439Z - [MCP] Connected 'proof' — registered 1 tool(s).
+[INFO] 2026-10-12T16:44:20.464Z - [VectorStore] Loaded 0 memories from disk.
+[INFO] 2026-10-12T16:44:20.642Z - [ToolRegistry] Registered tool: BashTool (Destructive: true)
+[INFO] 2026-10-12T16:44:20.642Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.642Z - [ToolRegistry] Registered tool: WriteFileTool (Destructive: true)
+[INFO] 2026-10-12T16:44:20.642Z - [ToolRegistry] Registered tool: EditFileTool (Destructive: true)
+[INFO] 2026-10-12T16:44:20.642Z - [ToolRegistry] Registered tool: MultiEditTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.645Z - [ToolRegistry] Registered tool: DeleteTool (Destructive: true)
+[INFO] 2026-10-12T16:44:20.645Z - [ToolRegistry] Registered tool: CreateDirectoryTool (Destructive: true)
+[INFO] 2026-10-12T16:44:20.645Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.645Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.645Z - [ToolRegistry] Registered tool: TodoWriteTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.645Z - [ToolRegistry] Registered tool: WebFetchTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.645Z - [ToolRegistry] Registered tool: ChangeDirectoryTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.662Z - [ToolRegistry] Registered tool: BashTool (Destructive: true)
+[INFO] 2026-10-12T16:44:20.663Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.663Z - [ToolRegistry] Registered tool: WriteFileTool (Destructive: true)
+[INFO] 2026-10-12T16:44:20.663Z - [ToolRegistry] Registered tool: EditFileTool (Destructive: true)
+[INFO] 2026-10-12T16:44:20.663Z - [ToolRegistry] Registered tool: MultiEditTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.663Z - [ToolRegistry] Registered tool: DeleteTool (Destructive: true)
+[INFO] 2026-10-12T16:44:20.663Z - [ToolRegistry] Registered tool: CreateDirectoryTool (Destructive: true)
+[INFO] 2026-10-12T16:44:20.664Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.664Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.664Z - [ToolRegistry] Registered tool: TodoWriteTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.664Z - [ToolRegistry] Registered tool: WebFetchTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.664Z - [ToolRegistry] Registered tool: ChangeDirectoryTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.667Z - [ToolRegistry] Registered tool: BashTool (Destructive: true)
+[INFO] 2026-10-12T16:44:20.667Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.667Z - [ToolRegistry] Registered tool: WriteFileTool (Destructive: true)
+[INFO] 2026-10-12T16:44:20.667Z - [ToolRegistry] Registered tool: EditFileTool (Destructive: true)
+[INFO] 2026-10-12T16:44:20.667Z - [ToolRegistry] Registered tool: MultiEditTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.667Z - [ToolRegistry] Registered tool: DeleteTool (Destructive: true)
+[INFO] 2026-10-12T16:44:20.667Z - [ToolRegistry] Registered tool: CreateDirectoryTool (Destructive: true)
+[INFO] 2026-10-12T16:44:20.667Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.667Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.667Z - [ToolRegistry] Registered tool: TodoWriteTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.668Z - [ToolRegistry] Registered tool: WebFetchTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.668Z - [ToolRegistry] Registered tool: ChangeDirectoryTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.680Z - [ToolRegistry] Registered tool: BashTool (Destructive: true)
+[INFO] 2026-10-12T16:44:20.680Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.680Z - [ToolRegistry] Registered tool: WriteFileTool (Destructive: true)
+[INFO] 2026-10-12T16:44:20.680Z - [ToolRegistry] Registered tool: EditFileTool (Destructive: true)
+[INFO] 2026-10-12T16:44:20.680Z - [ToolRegistry] Registered tool: MultiEditTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.680Z - [ToolRegistry] Registered tool: DeleteTool (Destructive: true)
+[INFO] 2026-10-12T16:44:20.680Z - [ToolRegistry] Registered tool: CreateDirectoryTool (Destructive: true)
+[INFO] 2026-10-12T16:44:20.680Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.680Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.680Z - [ToolRegistry] Registered tool: TodoWriteTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.680Z - [ToolRegistry] Registered tool: WebFetchTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.680Z - [ToolRegistry] Registered tool: ChangeDirectoryTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.776Z - [SubAgentManager] Spawning worker for task t-hang (Agent: test)
+(node:50716) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[INFO] 2026-10-12T16:44:20.791Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:20.800Z - [VectorStore] search "why do my letters arrive wrong" — lexical+dense
+[INFO] 2026-10-12T16:44:20.803Z - [VectorStore] Loaded 1 memories from disk.
+[INFO] 2026-10-12T16:44:20.804Z - [VectorStore] search "why do my letters arrive wrong" — lexical
+(node:47916) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[33m[WARN] 2026-10-12T16:44:20.874Z - Prompt block "goals" left out: [GoalManager] not initialized — call initGoalManager(projectRoot) first[0m
+[33m[WARN] 2026-10-12T16:44:20.874Z - Prompt block "outcome" left out: [OutcomeManager] not initialized — start the headless outcome runtime first.[0m
+[INFO] 2026-10-12T16:44:20.881Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:20.886Z - [VectorStore] search "why does the permission coach " — lexical
+[INFO] 2026-10-12T16:44:20.887Z - [VectorStore] search "why does the permission coach " — lexical
+[INFO] 2026-10-12T16:44:20.888Z - [VectorStore] search "why does the permission coach " — lexical
+[INFO] 2026-10-12T16:44:20.889Z - [ToolRegistry] Registered tool: NativeHost (Destructive: false)
+[INFO] 2026-10-12T16:44:20.889Z - [ToolRegistry] Registered tool: AskUserTool (Destructive: false)
+[INFO] 2026-10-12T16:44:20.889Z - [ToolRegistry] Registered tool: BashTool (Destructive: false)
+[33m[WARN] 2026-10-12T16:44:21.071Z - [HarnessLab] Quarantined corrupt experiment file cx-deadbeef0000.json (Expected property name or '}' in JSON at position 2 (line 1 column 3)).[0m
+[31m[ERROR] 2026-10-12T16:44:21.087Z - [SubAgentManager] Worker for task t-hang timed out after 300ms. Terminating.[0m
+[INFO] 2026-10-12T16:44:21.105Z - [SubAgentManager] Spawning worker for task t-ok (Agent: test)
+[INFO] 2026-10-12T16:44:21.138Z - [HarnessTuner] New STAGED patch: ProbeTool × no_match (13 failures in window) — awaiting counterfactual lab verdict.
+[INFO] 2026-10-12T16:44:21.145Z - [HarnessLab] Patch hp-mv5hfb4i-0 (ProbeTool × no_match) activated — experiment cx-d3f1baf799aa passed.
+[INFO] 2026-10-12T16:44:21.162Z - [HarnessTuner] New STAGED patch: ProbeTool × no_match (4 failures in window) — awaiting counterfactual lab verdict.
+[INFO] 2026-10-12T16:44:21.180Z - [SubAgentManager] Spawning worker for task t-clobber (Agent: test)
+[INFO] 2026-10-12T16:44:21.198Z - [HarnessLab] Patch hp-mv5hfb55-0 (ProbeTool × no_match) activated — experiment cx-0457902ac218 passed.
+[INFO] 2026-10-12T16:44:21.227Z - [HarnessTuner] New STAGED patch: ProbeTool × no_match (13 failures in window) — awaiting counterfactual lab verdict.
+[INFO] 2026-10-12T16:44:21.233Z - [HarnessLab] Patch hp-mv5hfb6z-0 (ProbeTool × no_match) activated — experiment cx-d3f1baf799aa passed.
+[INFO] 2026-10-12T16:44:21.237Z - [HarnessTuner] New STAGED patch: ProbeTool × no_match (4 failures in window) — awaiting counterfactual lab verdict.
+[INFO] 2026-10-12T16:44:21.241Z - [HarnessTuner] New STAGED patch: ProbeTool × timeout (4 failures in window) — awaiting counterfactual lab verdict.
+[INFO] 2026-10-12T16:44:21.277Z - [HarnessLab] Patch hp-fat vetoed — prompt_cost: candidate block adds 865 chars (~216 tokens) per request (cap 700)
+[31m[ERROR] 2026-10-12T16:44:21.383Z - [SubAgentManager] Worker for task t-clobber timed out after 200ms. Terminating.[0m
+[INFO] 2026-10-12T16:44:21.538Z - [SubAgentManager] Spawning worker for task t-relay (Agent: Hermes)
+[INFO] 2026-10-12T16:44:21.557Z - [ContextManager] Summarizing 7 older messages (epoch 1)...
+[INFO] 2026-10-12T16:44:21.558Z - [ContextManager] Summarizing 20 older messages (epoch 2)...
+[INFO] 2026-10-12T16:44:21.560Z - [ContextManager] Summarizing 20 older messages (epoch 3)...
+[INFO] 2026-10-12T16:44:21.561Z - [ContextManager] Summarizing 20 older messages (epoch 1)...
+[INFO] 2026-10-12T16:44:21.563Z - [ApiKeyManager] Key pool set: 2 key(s) across 1 provider(s), 40 requests/min each.
+[INFO] 2026-10-12T16:44:21.564Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s), 40 requests/min each.
+[INFO] 2026-10-12T16:44:21.564Z - [ApiKeyManager] Key pool set: 2 key(s) across 1 provider(s).
+[33m[WARN] 2026-10-12T16:44:21.597Z - [LlmAdapter] KEY #2 has not answered in 0s — sending a backup on key #1[0m
+[INFO] 2026-10-12T16:44:21.678Z - [Worktree] Created /private/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-recovery-wt-yB0jtr/.bimax/worktrees/recovery (branch bimax/sub-recovery) for subagent-recovery1
+[INFO] 2026-10-12T16:44:21.679Z - [SubAgentManager] Spawning worker for task subagent-replacement (Agent: BiMax)
+[INFO] 2026-10-12T16:44:21.869Z - [SubAgentManager] subagent-replacement: Worktree kept — the sub-agent made changes in /private/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-recovery-wt-yB0jtr/.bimax/worktrees/recovery on branch bimax/sub-recovery. Review and merge (or discard with `git worktree remove --force /private/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-recovery-wt-yB0jtr/.bimax/worktrees/recovery`).
+[INFO] 2026-10-12T16:44:21.885Z - [SubAgentManager] Spawning worker for task t-bundle (Agent: test)
+[INFO] 2026-10-12T16:44:22.041Z - [ToolRegistry] Registered tool: BashTool (Destructive: true)
+[INFO] 2026-10-12T16:44:22.042Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:22.042Z - [ToolRegistry] Registered tool: WebFetchTool (Destructive: false)
+[33m[WARN] 2026-10-12T16:44:22.057Z - Prompt block "goals" left out: [GoalManager] not initialized — call initGoalManager(projectRoot) first[0m
+[33m[WARN] 2026-10-12T16:44:22.057Z - Prompt block "outcome" left out: [OutcomeManager] not initialized — start the headless outcome runtime first.[0m
+[INFO] 2026-10-12T16:44:22.222Z - [ToolRegistry] Registered tool: BashTool (Destructive: true)
+[33m[WARN] 2026-10-12T16:44:22.347Z - [SqliteCodeVectorStore] unavailable (Error: no such module: fts5); the code index will be empty this session.[0m
+[33m[WARN] 2026-10-12T16:44:22.351Z - [SqliteCodeVectorStore] unavailable (Error: no such module: fts5); the code index will be empty this session.[0m
+[33m[WARN] 2026-10-12T16:44:22.355Z - [SqliteCodeVectorStore] unavailable (Error: no such module: fts5); the code index will be empty this session.[0m
+[33m[WARN] 2026-10-12T16:44:22.366Z - [SqliteCodeVectorStore] unavailable (Error: no such module: fts5); the code index will be empty this session.[0m
+[33m[WARN] 2026-10-12T16:44:22.370Z - [SqliteCodeVectorStore] unavailable (Error: no such module: fts5); the code index will be empty this session.[0m
+[INFO] 2026-10-12T16:44:22.412Z - [ToolRegistry] Registered tool: BashTool (Destructive: true)
+[INFO] 2026-10-12T16:44:22.599Z - [ToolRegistry] Registered tool: BashTool (Destructive: true)
+[INFO] 2026-10-12T16:44:22.689Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:22.695Z - [VectorStore] Merged near-duplicate of 'a' (1 chunk(s)).
+[INFO] 2026-10-12T16:44:22.699Z - [VectorStore] search "permission coach polling" — lexical
+[INFO] 2026-10-12T16:44:22.702Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:22.703Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:22.705Z - [VectorStore] search "permission" — lexical
+[INFO] 2026-10-12T16:44:22.709Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:22.711Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:22.715Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:22.717Z - [VectorStore] Merged near-duplicate of 'old' (1 chunk(s)).
+[INFO] 2026-10-12T16:44:22.720Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:22.722Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:22.724Z - [VectorStore] search "AXError -25208 background pres" — lexical
+[INFO] 2026-10-12T16:44:22.728Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:22.730Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:22.732Z - [VectorStore] search "the build after edits" — lexical
+[INFO] 2026-10-12T16:44:22.733Z - [VectorStore] search "the build after edits" — lexical
+[INFO] 2026-10-12T16:44:22.735Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:22.737Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:22.746Z - [VectorStore] search "AXError -25208" — lexical
+[INFO] 2026-10-12T16:44:22.752Z - [ToolRegistry] Registered tool: mcp__rich__roots (Destructive: true)
+[INFO] 2026-10-12T16:44:22.752Z - [ToolRegistry] Registered tool: mcp__rich__temporary (Destructive: true)
+[INFO] 2026-10-12T16:44:22.752Z - [ToolRegistry] Registered tool: mcp__rich__unlock (Destructive: true)
+[INFO] 2026-10-12T16:44:22.752Z - [ToolRegistry] Registered tool: mcp__rich__list_resources (Destructive: true)
+[INFO] 2026-10-12T16:44:22.752Z - [ToolRegistry] Registered tool: mcp__rich__read_resource (Destructive: true)
+[INFO] 2026-10-12T16:44:22.752Z - [MCP] Connected 'rich' — registered 5 tool(s).
+[33m[WARN] 2026-10-12T16:44:22.756Z - [ToolRegistry] Overwriting existing tool: mcp__rich__roots[0m
+[INFO] 2026-10-12T16:44:22.756Z - [ToolRegistry] Registered tool: mcp__rich__roots (Destructive: true)
+[INFO] 2026-10-12T16:44:22.756Z - [ToolRegistry] Registered tool: mcp__rich__secret (Destructive: true)
+[33m[WARN] 2026-10-12T16:44:22.756Z - [ToolRegistry] Overwriting existing tool: mcp__rich__unlock[0m
+[INFO] 2026-10-12T16:44:22.756Z - [ToolRegistry] Registered tool: mcp__rich__unlock (Destructive: true)
+[33m[WARN] 2026-10-12T16:44:22.756Z - [ToolRegistry] Overwriting existing tool: mcp__rich__list_resources[0m
+[INFO] 2026-10-12T16:44:22.756Z - [ToolRegistry] Registered tool: mcp__rich__list_resources (Destructive: true)
+[33m[WARN] 2026-10-12T16:44:22.756Z - [ToolRegistry] Overwriting existing tool: mcp__rich__read_resource[0m
+[INFO] 2026-10-12T16:44:22.756Z - [ToolRegistry] Registered tool: mcp__rich__read_resource (Destructive: true)
+[INFO] 2026-10-12T16:44:22.756Z - [MCP] 'rich' tool list changed — 5 tool(s) now.
+[INFO] 2026-10-12T16:44:22.921Z - [ToolRegistry] Registered tool: mcp__hosted__whoami (Destructive: true)
+[INFO] 2026-10-12T16:44:22.921Z - [MCP] Connected 'hosted' — registered 1 tool(s).
+[INFO] 2026-10-12T16:44:23.001Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:23.003Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:23.011Z - [VectorStore] search "FIRST_RECENCY_SENTINEL" — lexical
+[INFO] 2026-10-12T16:44:23.017Z - [VectorStore] search "SECOND_RECENCY_SENTINEL" — lexical
+[INFO] 2026-10-12T16:44:23.271Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:23.272Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[port.host] disposed with 12 message(s) (1546 bytes) never written.
+[port.host] disposed with 4 message(s) (774 bytes) never written.
+[INFO] 2026-10-12T16:44:23.475Z - [Workspace] Detected fresh clone: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-ws-319dc0/fresh-find — awaiting registration decision.
+[INFO] 2026-10-12T16:44:23.507Z - [Workspace] Detected fresh clone: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-ws-wAI4UI/by-url — awaiting registration decision.
+[INFO] 2026-10-12T16:44:23.926Z - [TX] Opened transaction TX-EMPTY
+[INFO] 2026-10-12T16:44:23.936Z - [TX] Opened transaction TX-NEW
+[INFO] 2026-10-12T16:44:23.942Z - [TX] Opened transaction TX-PLAIN
+[INFO] 2026-10-12T16:44:23.947Z - [TX] Opened transaction TX-HUMAN
+[INFO] 2026-10-12T16:44:23.955Z - [TX] Opened transaction TX-RECREATE
+[INFO] 2026-10-12T16:44:23.958Z - [TX] Opened transaction TX-TWICE
+[INFO] 2026-10-12T16:44:23.978Z - [TX] Opened transaction TX-FORCE
+[INFO] 2026-10-12T16:44:23.979Z - [ToolRegistry] Registered tool: AskUserTool (Destructive: false)
+[INFO] 2026-10-12T16:44:23.983Z - [TX] Opened transaction TX-LOCKED
+[33m[WARN] 2026-10-12T16:44:23.983Z - [TX] TX-LOCKED: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-tx-LxIOJ2/locked.txt is NOT protected — EACCES: EACCES: permission denied, open '/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-tx-LxIOJ2/locked.txt'[0m
+[INFO] 2026-10-12T16:44:23.985Z - [TX] Opened transaction TX-DIR
+[33m[WARN] 2026-10-12T16:44:23.985Z - [TX] TX-DIR: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-tx-ZYwFLI/a-directory is NOT protected — not a regular file (directory)[0m
+[INFO] 2026-10-12T16:44:23.991Z - [TX] Opened transaction TX-HUGE
+[33m[WARN] 2026-10-12T16:44:23.994Z - [TX] TX-HUGE: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-tx-hNQNVK/huge.txt is NOT protected — too large to snapshot (4096 bytes > 1024 byte limit)[0m
+[INFO] 2026-10-12T16:44:24.007Z - [TX] Opened transaction TX-COMMIT
+[33m[WARN] 2026-10-12T16:44:24.008Z - [TX] TX-COMMIT: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-tx-p0ZDzu/commit-dir is NOT protected — not a regular file (directory)[0m
+[INFO] 2026-10-12T16:44:24.008Z - [TX] Committed TX-COMMIT (1 file(s))
+[INFO] 2026-10-12T16:44:24.012Z - [TX] Opened transaction TX-FAIL
+[31m[ERROR] 2026-10-12T16:44:24.014Z - [TX] Rollback failed for /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-tx-uW0XO7/unwritable.txt: EACCES: permission denied, open '/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-tx-uW0XO7/.unwritable.txt.bimax-tx-68427f050a33'[0m
+[INFO] 2026-10-12T16:44:24.023Z - [TX] Opened transaction TX-BINARY
+[INFO] 2026-10-12T16:44:24.025Z - [ToolRegistry] Registered tool: mcp__owned__list_resources (Destructive: true)
+[INFO] 2026-10-12T16:44:24.025Z - [ToolRegistry] Registered tool: mcp__owned__read_resource (Destructive: true)
+[INFO] 2026-10-12T16:44:24.025Z - [MCP] Connected 'owned' — registered 2 tool(s).
+[INFO] 2026-10-12T16:44:24.033Z - [ToolRegistry] Registered tool: AskUserTool (Destructive: false)
+[INFO] 2026-10-12T16:44:24.034Z - [TX] Opened transaction TX-MODE
+[INFO] 2026-10-12T16:44:24.037Z - [TX] Opened transaction TX-LINK
+[INFO] 2026-10-12T16:44:24.039Z - [TX] Opened transaction TX-UNDECLARED
+[33m[WARN] 2026-10-12T16:44:24.039Z - [TX] TX-UNDECLARED: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-tx-Y7pMVs/undeclared.txt was tracked without a declared write. Rollback cannot tell this transaction's own change from an external one, so it will keep whatever is on disk.[0m
+[31m[ERROR] 2026-10-12T16:44:24.042Z - [Tool:mcp__owned__read_resource] ❌ stopped[0m
+[INFO] 2026-10-12T16:44:24.044Z - [TX] Opened transaction TX-UNDECLARED-FORCE
+[33m[WARN] 2026-10-12T16:44:24.045Z - [TX] TX-UNDECLARED-FORCE: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-tx-9d9Cs0/undeclared-forced.txt was tracked without a declared write. Rollback cannot tell this transaction's own change from an external one, so it will keep whatever is on disk.[0m
+[INFO] 2026-10-12T16:44:24.048Z - [TX] Opened transaction TX-CLOSED
+[31m[ERROR] 2026-10-12T16:44:24.048Z - [Tool:AskUserTool] ❌ Question cancelled with this turn.[0m
+[INFO] 2026-10-12T16:44:24.053Z - [ToolRegistry] Registered tool: NativeHost (Destructive: true)
+[INFO] 2026-10-12T16:44:24.054Z - [TX] Opened transaction TX-TOOL-EDIT
+[INFO] 2026-10-12T16:44:24.066Z - [ToolRegistry] Registered tool: NativeHost (Destructive: true)
+[INFO] 2026-10-12T16:44:24.066Z - [ToolRegistry] Registered tool: LaterTool (Destructive: true)
+[INFO] 2026-10-12T16:44:24.077Z - [ToolRegistry] Registered tool: BashTool (Destructive: true)
+[INFO] 2026-10-12T16:44:24.077Z - [ToolRegistry] Registered tool: NativeHost (Destructive: true)
+[INFO] 2026-10-12T16:44:24.089Z - [TX] Opened transaction TX-TOOL-WRITE
+[INFO] 2026-10-12T16:44:24.089Z - [ToolRegistry] Registered tool: NativeHost (Destructive: true)
+[INFO] 2026-10-12T16:44:24.093Z - [TX] Opened transaction TX-TOOL-DELETE
+[INFO] 2026-10-12T16:44:24.097Z - [TX] Opened transaction TX-TOOL-MULTI
+[INFO] 2026-10-12T16:44:24.384Z - [ToolRegistry] Registered tool: mcp__bimax-mac__mac_control (Destructive: true)
+[INFO] 2026-10-12T16:44:24.430Z - [ToolRegistry] Registered tool: mcp__bimax-mac__mac_control (Destructive: true)
+[INFO] 2026-10-12T16:44:24.446Z - [ToolRegistry] Registered tool: mcp__bimax-mac__mac_control (Destructive: true)
+[33m[WARN] 2026-10-12T16:44:24.464Z - [AgentLoop] Operation ended after preparatory capability calls only.[0m
+[INFO] 2026-10-12T16:44:24.465Z - [ToolRegistry] Registered tool: mcp__bimax-mac__mac_control (Destructive: true)
+[INFO] 2026-10-12T16:44:24.478Z - [ToolRegistry] Registered tool: mcp__bimax-mac__mac_control (Destructive: true)
+(node:51456) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[INFO] 2026-10-12T16:44:24.561Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[33m[WARN] 2026-10-12T16:44:24.625Z - [ApiKeyManager] KEY #1 (nvidia) hung before first token — benched 3s (strike 1)[0m
+[INFO] 2026-10-12T16:44:24.626Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:44:24.753Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:44:24.771Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:44:24.776Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:44:24.782Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:44:24.822Z - [Headroom] native compression saved ~13140 tokens (model unknown)
+[INFO] 2026-10-12T16:44:24.826Z - [ContextManager] Micro-compacted 24 old tool result(s).
+[33m[WARN] 2026-10-12T16:44:24.827Z - [ContextManager] Context window 69% full — approaching compaction threshold.[0m
+[INFO] 2026-10-12T16:44:24.827Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[33m[WARN] 2026-10-12T16:44:24.849Z - [ContextManager] Context window 51% full — approaching compaction threshold.[0m
+[INFO] 2026-10-12T16:44:24.853Z - [ContextManager] Summarizing 10 older messages (epoch 1)...
+[INFO] 2026-10-12T16:44:24.854Z - [ContextManager] Restored 1 recently-read file(s) post-compact (2 not restored — not verified unchanged on disk).
+[INFO] 2026-10-12T16:44:24.892Z - [ContextManager] Capped 1 oversized tool result(s).
+[INFO] 2026-10-12T16:44:24.901Z - [Headroom] native compression saved ~2380 tokens (model unknown)
+[INFO] 2026-10-12T16:44:24.901Z - [ContextManager] Micro-compacted 5 old tool result(s).
+[33m[WARN] 2026-10-12T16:44:24.902Z - [ContextManager] Context window 243% full — approaching compaction threshold.[0m
+[33m[WARN] 2026-10-12T16:44:24.902Z - [ContextManager] 243% after cheap passes — summarizing older history.[0m
+[INFO] 2026-10-12T16:44:24.902Z - [ContextManager] Summarizing 9 older messages (epoch 1)...
+[INFO] 2026-10-12T16:44:24.904Z - [ContextManager] Restored 0 recently-read file(s) post-compact (3 not restored — not verified unchanged on disk).
+[33m[WARN] 2026-10-12T16:44:24.905Z - [ContextManager] Reactive compact triggered by API error: maximum context length exceeded[0m
+[INFO] 2026-10-12T16:44:24.910Z - [Headroom] native compression saved ~1352 tokens (model unknown)
+[INFO] 2026-10-12T16:44:24.913Z - [ContextManager] Micro-compacted 3 old tool result(s).
+[33m[WARN] 2026-10-12T16:44:24.915Z - [ApiKeyManager] KEY #1 (nvidia) hung before first token — benched 3s (strike 1)[0m
+[INFO] 2026-10-12T16:44:25.099Z - [ToolRegistry] Registered tool: DeckTool (Destructive: false)
+[33m[WARN] 2026-10-12T16:44:25.121Z - [AgentLoop] Repaired malformed DeckTool argument JSON before execution.[0m
+[INFO] 2026-10-12T16:44:25.141Z - [ToolRegistry] Registered tool: DeckTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.160Z - [ToolRegistry] Registered tool: DeckTool (Destructive: false)
+[33m[WARN] 2026-10-12T16:44:25.177Z - [LoopGuard] Soft loop: generic_repeat on "DeckTool" (3×)[0m
+[INFO] 2026-10-12T16:44:25.178Z - [ToolRegistry] Registered tool: TestRun (Destructive: false)
+[33m[WARN] 2026-10-12T16:44:25.192Z - [LoopGuard] Soft loop: generic_repeat on "TestRun" (3×)[0m
+[INFO] 2026-10-12T16:44:25.298Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.298Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.299Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.316Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.316Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.316Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.322Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.322Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.322Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.330Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.330Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.330Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.335Z - [Workspace] Collapsed duplicate repo entry (same checkout via another path): /private/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-wsheal-TApvif/primary
+[INFO] 2026-10-12T16:44:25.346Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.347Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.347Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.357Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.357Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.357Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.364Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.364Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.364Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.370Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.370Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.370Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.382Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.382Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.382Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.391Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.391Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.391Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[33m[WARN] 2026-10-12T16:44:25.397Z - [Tool:ReadFileTool] ⛔ blocked by hook: revoked[0m
+[INFO] 2026-10-12T16:44:25.399Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.399Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.399Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.407Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.407Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.408Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.418Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.419Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.419Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[33m[WARN] 2026-10-12T16:44:25.422Z - [ToolRegistry] Overwriting existing tool: ReadFileTool[0m
+[INFO] 2026-10-12T16:44:25.422Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.425Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.425Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.425Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.434Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.434Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.434Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.439Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.439Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.439Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.444Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.444Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.444Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.452Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.452Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.452Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.474Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.474Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.474Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.476Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.476Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.476Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.478Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.478Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.478Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.482Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.482Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.482Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.489Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.490Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.490Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.514Z - [ToolRegistry] Registered tool: RepeatAuditTool (Destructive: false)
+[33m[WARN] 2026-10-12T16:44:25.538Z - [LoopGuard] Soft loop: generic_repeat on "RepeatAuditTool" (3×)[0m
+[INFO] 2026-10-12T16:44:25.569Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:25.569Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:25.583Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:25.583Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:25.584Z - [Governor] Added persistent allow rule for OS_COMMAND
+[INFO] 2026-10-12T16:44:25.584Z - [Governor] ✅ Veto cleared. Task approved.
+[INFO] 2026-10-12T16:44:25.598Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:25.599Z - [VectorStore] search "auth cookie" — lexical
+[INFO] 2026-10-12T16:44:25.600Z - [VectorStore] search "auth cookie" — lexical
+[INFO] 2026-10-12T16:44:25.601Z - [VectorStore] Loaded 1 memories from disk.
+[INFO] 2026-10-12T16:44:25.601Z - [VectorStore] search "replacement" — lexical
+[INFO] 2026-10-12T16:44:25.685Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:25.685Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:25.686Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:25.686Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:25.688Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:25.688Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:25.689Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:25.689Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:25.690Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:25.691Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:25.691Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:25.692Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:25.694Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:25.695Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:25.697Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:25.698Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:25.700Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:25.700Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:25.701Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:25.701Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:25.701Z - [ToolRegistry] Registered tool: BashTool (Destructive: true)
+[INFO] 2026-10-12T16:44:25.713Z - [Governor] Auto-approved safe read command: cat README.md
+[33m[WARN] 2026-10-12T16:44:25.716Z - [AgentLoop] Reply was only the fragment "stopped"; asking the model once more.[0m
+[INFO] 2026-10-12T16:44:25.718Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:25.718Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:25.718Z - [ToolRegistry] Registered tool: BashTool (Destructive: true)
+[INFO] 2026-10-12T16:44:25.726Z - [Governor] Auto-approved safe read command: cat README.md
+[INFO] 2026-10-12T16:44:25.729Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[33m[WARN] 2026-10-12T16:44:25.730Z - [AgentLoop] Reply was only the fragment "stopped"; asking the model once more.[0m
+[INFO] 2026-10-12T16:44:25.735Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:25.736Z - [VectorStore] Loaded 1 memories from disk.
+[INFO] 2026-10-12T16:44:25.736Z - [VectorStore] search "external replacement" — lexical
+[INFO] 2026-10-12T16:44:25.741Z - [ContextManager] Micro-compacted 4 old tool result(s).
+[INFO] 2026-10-12T16:44:25.744Z - [VectorStore] Memorized 1 document(s) (2 chunk(s)).
+[INFO] 2026-10-12T16:44:25.746Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:25.753Z - [VectorStore] search "What is the orchid launch pass" — lexical
+[INFO] 2026-10-12T16:44:25.756Z - [VectorStore] search "What is the orchid launch pass" — lexical
+[INFO] 2026-10-12T16:44:25.757Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:25.759Z - [VectorStore] search "orchid" — lexical
+[INFO] 2026-10-12T16:44:25.762Z - [VectorStore] Memorized 1 document(s) (8 chunk(s)).
+[INFO] 2026-10-12T16:44:25.765Z - [VectorStore] search "What is the orchid launch pass" — lexical
+[INFO] 2026-10-12T16:44:25.776Z - [Headroom] native compression saved ~1728 tokens (model unknown)
+[INFO] 2026-10-12T16:44:25.778Z - [ContextManager] Summarizing 5 older messages (epoch 1)...
+[INFO] 2026-10-12T16:44:25.778Z - [ContextManager] Restored 1 recently-read file(s) post-compact.
+[INFO] 2026-10-12T16:44:25.780Z - [ContextManager] Summarizing 5 older messages (epoch 2)...
+[INFO] 2026-10-12T16:44:25.780Z - [ContextManager] Restored 0 recently-read file(s) post-compact (1 not restored — not verified unchanged on disk).
+[31m[ERROR] 2026-10-12T16:44:25.830Z - [Tool:BashTool] ❌ Bash execution failed: Command blocked: this is a sandboxed autonomous episode, but no OS sandbox backend is available on this platform (need sandbox-exec on macOS or bwrap on Linux). Bash is disabled for the episode; set BIMAX_SANDBOX_FLOOR_SOFT=1 to explicitly allow unsandboxed autonomous commands.[0m
+[INFO] 2026-10-12T16:44:26.262Z - [TX] Opened transaction SAME
+[INFO] 2026-10-12T16:44:26.265Z - [TX] Opened transaction FIRST
+[INFO] 2026-10-12T16:44:26.265Z - [TX] Committed FIRST (1 file(s))
+[INFO] 2026-10-12T16:44:26.266Z - [TX] Opened transaction CAPTURE
+[INFO] 2026-10-12T16:44:26.267Z - [TX] Committed CAPTURE (1 file(s))
+[INFO] 2026-10-12T16:44:26.268Z - [TX] Opened transaction BUSY
+[INFO] 2026-10-12T16:44:26.270Z - [TX] Opened transaction AUTO
+[INFO] 2026-10-12T16:44:26.271Z - [TX] Committed AUTO (1 file(s))
+[INFO] 2026-10-12T16:44:26.272Z - [TX] Opened transaction CONFLICT
+[INFO] 2026-10-12T16:44:26.273Z - [TX] Opened transaction LATER
+[INFO] 2026-10-12T16:44:26.277Z - [TX] Opened transaction OLD
+[INFO] 2026-10-12T16:44:26.279Z - [TX] Opened transaction NEW
+[INFO] 2026-10-12T16:44:26.281Z - [TX] Committed NEW (1 file(s))
+[INFO] 2026-10-12T16:44:26.294Z - [TX] Opened transaction MODE
+[INFO] 2026-10-12T16:44:26.300Z - [TX] Opened transaction FORCED-MODE
+[INFO] 2026-10-12T16:44:26.310Z - [TX] Opened transaction FORCE-VERIFY
+[31m[ERROR] 2026-10-12T16:44:26.310Z - [TX] Rollback failed for /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-tx-sprint-gGjXwi/force: read-back mismatch after restoring /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-tx-sprint-gGjXwi/force[0m
+[INFO] 2026-10-12T16:44:26.317Z - [TX] Opened transaction BUDGET
+[33m[WARN] 2026-10-12T16:44:26.317Z - [TX] BUDGET: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-tx-sprint-lxesv8/b is NOT protected — snapshot memory budget exhausted (4 held + 4 bytes > 4 byte aggregate limit)[0m
+[INFO] 2026-10-12T16:44:26.325Z - [TX] Opened transaction RETAIN
+[INFO] 2026-10-12T16:44:26.327Z - [TX] Opened transaction NEXT
+[33m[WARN] 2026-10-12T16:44:26.328Z - [TX] NEXT: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-tx-sprint-LJ1ZBb/next is NOT protected — snapshot memory budget exhausted (4 held + 4 bytes > 4 byte aggregate limit)[0m
+[INFO] 2026-10-12T16:44:26.328Z - [TX] Committed NEXT (1 file(s))
+[INFO] 2026-10-12T16:44:26.334Z - [TX] Opened transaction FREE
+[INFO] 2026-10-12T16:44:26.335Z - [TX] Committed FREE (1 file(s))
+[INFO] 2026-10-12T16:44:26.336Z - [TX] Opened transaction FIRST
+[INFO] 2026-10-12T16:44:26.337Z - [TX] Opened transaction SECOND
+[INFO] 2026-10-12T16:44:26.341Z - [TX] Opened transaction SHORT
+[INFO] 2026-10-12T16:44:26.345Z - [TX] Opened transaction GROW
+[33m[WARN] 2026-10-12T16:44:26.345Z - [TX] GROW: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-tx-sprint-Y1V0Ho/growing is NOT protected — file changed during snapshot capture; no stable baseline was captured[0m
+[INFO] 2026-10-12T16:44:26.345Z - [TX] Committed GROW (1 file(s))
+[INFO] 2026-10-12T16:44:26.348Z - [TX] Opened transaction REPLACE
+[33m[WARN] 2026-10-12T16:44:26.349Z - [TX] REPLACE: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-tx-sprint-7Er1Cj/replaced is NOT protected — file changed during snapshot capture; no stable baseline was captured[0m
+[INFO] 2026-10-12T16:44:26.350Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:44:26.356Z - [TX] Committed REPLACE (1 file(s))
+[INFO] 2026-10-12T16:44:26.361Z - [TX] Opened transaction DANGLING
+[33m[WARN] 2026-10-12T16:44:26.361Z - [TX] DANGLING: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-tx-sprint-QPuPjZ/dangling is NOT protected — ENOENT: ENOENT: no such file or directory, open '/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-tx-sprint-QPuPjZ/dangling'[0m
+[INFO] 2026-10-12T16:44:26.364Z - [TX] Opened transaction VERIFY-MODE
+[31m[ERROR] 2026-10-12T16:44:26.365Z - [TX] Rollback failed for /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-tx-sprint-2YTxlY/verify-mode: read-back mismatch after restoring /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-tx-sprint-2YTxlY/verify-mode[0m
+[INFO] 2026-10-12T16:44:26.366Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:44:26.368Z - [SubAgentManager] Spawning worker for task audit-budget-worker (Agent: BiMax)
+[INFO] 2026-10-12T16:44:26.370Z - [TX] Opened transaction CHMOD
+[31m[ERROR] 2026-10-12T16:44:26.371Z - [TX] Rollback failed for /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-tx-sprint-BNSRAI/link: injected chmod failure[0m
+[INFO] 2026-10-12T16:44:26.394Z - [TX] Opened transaction ZERO
+[INFO] 2026-10-12T16:44:26.395Z - [TX] Committed ZERO (2 file(s))
+[INFO] 2026-10-12T16:44:26.398Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+Preparing worktree (new branch 'bimax/night-test')
+[33m[WARN] 2026-10-12T16:44:27.195Z - Prompt block "goals" left out: [GoalManager] not initialized — call initGoalManager(projectRoot) first[0m
+[33m[WARN] 2026-10-12T16:44:27.196Z - Prompt block "outcome" left out: [OutcomeManager] not initialized — start the headless outcome runtime first.[0m
+[INFO] 2026-10-12T16:44:27.200Z - [SpawnSubagentTool] Sub-agent subagent-918b0d47-1239-4924-8293-ae24c67d4e80 finished successfully.
+[INFO] 2026-10-12T16:44:27.202Z - [SpawnSubagentTool] Sub-agent subagent-99f8aa4b-4628-4e82-b758-87d63069354f finished successfully.
+[INFO] 2026-10-12T16:44:27.512Z - [BashAnalyzer] tree-sitter-bash loaded — AST command analysis active.
+fatal: not a git repository (or any of the parent directories): .git
+fatal: not a git repository (or any of the parent directories): .git
+fatal: not a git repository (or any of the parent directories): .git
+[INFO] 2026-10-12T16:44:28.148Z - [Decomposer] Initiating robust decomposition for: "build something"
+[INFO] 2026-10-12T16:44:28.149Z - [Decomposer] LLM Attempt 1/3...
+[INFO] 2026-10-12T16:44:28.152Z - [Decomposer] ✅ Schema validated successfully. Generated 2 DAG nodes.
+[INFO] 2026-10-12T16:44:28.154Z - [Decomposer] Initiating robust decomposition for: "build something"
+[INFO] 2026-10-12T16:44:28.154Z - [Decomposer] LLM Attempt 1/3...
+[INFO] 2026-10-12T16:44:28.154Z - [Decomposer] ✅ Schema validated successfully. Generated 2 DAG nodes.
+[INFO] 2026-10-12T16:44:28.156Z - [Decomposer] Initiating robust decomposition for: "build something"
+[INFO] 2026-10-12T16:44:28.156Z - [Decomposer] LLM Attempt 1/3...
+[33m[WARN] 2026-10-12T16:44:28.157Z - [Decomposer] ⚠ Validation Failed on attempt 1. Injecting auto-correction.[0m
+[INFO] 2026-10-12T16:44:28.157Z - [Decomposer] LLM Attempt 2/3...
+[INFO] 2026-10-12T16:44:28.157Z - [Decomposer] ✅ Schema validated successfully. Generated 2 DAG nodes.
+[INFO] 2026-10-12T16:44:28.158Z - [Decomposer] Initiating robust decomposition for: "loop"
+[INFO] 2026-10-12T16:44:28.159Z - [Decomposer] LLM Attempt 1/2...
+[33m[WARN] 2026-10-12T16:44:28.160Z - [Decomposer] ⚠ Validation Failed on attempt 1. Injecting auto-correction.[0m
+[INFO] 2026-10-12T16:44:28.160Z - [Decomposer] LLM Attempt 2/2...
+[33m[WARN] 2026-10-12T16:44:28.162Z - [Decomposer] ⚠ Validation Failed on attempt 2. Injecting auto-correction.[0m
+[INFO] 2026-10-12T16:44:28.174Z - [Decomposer] Initiating robust decomposition for: "build"
+[INFO] 2026-10-12T16:44:28.175Z - [Decomposer] LLM Attempt 1/2...
+[33m[WARN] 2026-10-12T16:44:28.175Z - [Decomposer] ⚠ Validation Failed on attempt 1. Injecting auto-correction.[0m
+[INFO] 2026-10-12T16:44:28.175Z - [Decomposer] LLM Attempt 2/2...
+[33m[WARN] 2026-10-12T16:44:28.175Z - [Decomposer] ⚠ Validation Failed on attempt 2. Injecting auto-correction.[0m
+[INFO] 2026-10-12T16:44:29.638Z - [ToolRegistry] Registered tool: FirstTool (Destructive: true)
+[INFO] 2026-10-12T16:44:29.641Z - [ToolRegistry] Registered tool: SecondTool (Destructive: true)
+[INFO] 2026-10-12T16:44:29.897Z - [ContextManager] Micro-compacted 4 old tool result(s).
+[33m[WARN] 2026-10-12T16:44:29.953Z - [ContextManager] Reactive compact triggered by API error: Request Entity Too Large[0m
+[INFO] 2026-10-12T16:44:30.004Z - [ToolRegistry] Registered tool: noop (Destructive: false)
+[INFO] 2026-10-12T16:44:30.005Z - [ContextManager] Micro-compacted 4 old tool result(s).
+[INFO] 2026-10-12T16:44:30.040Z - [ContextManager] Micro-compacted 1 old tool result(s).
+[INFO] 2026-10-12T16:44:30.055Z - [ContextManager] Micro-compacted 4 old tool result(s).
+[33m[WARN] 2026-10-12T16:44:30.076Z - [ContextManager] Reactive compact triggered by API error: Request Entity Too Large[0m
+[31m[ERROR] 2026-10-12T16:44:30.229Z - [Tool:mcp__owned__echo] ❌ MCP 'owned' connection retired.[0m
+[31m[ERROR] 2026-10-12T16:44:30.279Z - [Tool:mcp__owned__read_resource] ❌ stopped[0m
+[31m[ERROR] 2026-10-12T16:44:31.282Z - [Tool:mcp__owned__list_resources] ❌ MCP 'owned' resources/list timed out after 1000ms[0m
+[INFO] 2026-10-12T16:44:30.312Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:30.595Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:30.602Z - [ToolRegistry] Registered tool: DocumentTool (Destructive: true)
+[INFO] 2026-10-12T16:44:30.606Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:30.623Z - [ToolRegistry] Registered tool: FixtureTool (Destructive: true)
+[INFO] 2026-10-12T16:44:30.684Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.685Z - [ToolRegistry] Registered tool: BashTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.685Z - [ToolRegistry] Registered tool: ScoutTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.685Z - [ToolRegistry] Registered tool: mcp__github__create (Destructive: false)
+[INFO] 2026-10-12T16:44:30.685Z - [ToolRegistry] Registered tool: ToolSearchTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.687Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.687Z - [ToolRegistry] Registered tool: BashTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.687Z - [ToolRegistry] Registered tool: ScoutTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.687Z - [ToolRegistry] Registered tool: mcp__github__create (Destructive: false)
+[INFO] 2026-10-12T16:44:30.687Z - [ToolRegistry] Registered tool: ToolSearchTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.688Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.688Z - [ToolRegistry] Registered tool: BashTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.688Z - [ToolRegistry] Registered tool: ScoutTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.688Z - [ToolRegistry] Registered tool: mcp__github__create (Destructive: false)
+[INFO] 2026-10-12T16:44:30.688Z - [ToolRegistry] Registered tool: ToolSearchTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.688Z - [ToolRegistry] Registered tool: SymbolEditTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.688Z - [ToolRegistry] Registered tool: RelatedTestsTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.688Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.688Z - [ToolRegistry] Registered tool: BashTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.689Z - [ToolRegistry] Registered tool: ScoutTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.689Z - [ToolRegistry] Registered tool: mcp__github__create (Destructive: false)
+[INFO] 2026-10-12T16:44:30.689Z - [ToolRegistry] Registered tool: ToolSearchTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.689Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.689Z - [ToolRegistry] Registered tool: BashTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.689Z - [ToolRegistry] Registered tool: ScoutTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.689Z - [ToolRegistry] Registered tool: mcp__github__create (Destructive: false)
+[INFO] 2026-10-12T16:44:30.689Z - [ToolRegistry] Registered tool: ToolSearchTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.690Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.690Z - [ToolRegistry] Registered tool: BashTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.690Z - [ToolRegistry] Registered tool: ScoutTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.690Z - [ToolRegistry] Registered tool: mcp__github__create (Destructive: false)
+[INFO] 2026-10-12T16:44:30.690Z - [ToolRegistry] Registered tool: ToolSearchTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.691Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.691Z - [ToolRegistry] Registered tool: BashTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.691Z - [ToolRegistry] Registered tool: ScoutTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.691Z - [ToolRegistry] Registered tool: mcp__github__create (Destructive: false)
+[INFO] 2026-10-12T16:44:30.691Z - [ToolRegistry] Registered tool: ToolSearchTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.693Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.693Z - [ToolRegistry] Registered tool: BashTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.693Z - [ToolRegistry] Registered tool: ScoutTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.693Z - [ToolRegistry] Registered tool: mcp__github__create (Destructive: false)
+[INFO] 2026-10-12T16:44:30.693Z - [ToolRegistry] Registered tool: ToolSearchTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.694Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.694Z - [ToolRegistry] Registered tool: BashTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.694Z - [ToolRegistry] Registered tool: ScoutTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.694Z - [ToolRegistry] Registered tool: mcp__github__create (Destructive: false)
+[INFO] 2026-10-12T16:44:30.694Z - [ToolRegistry] Registered tool: ToolSearchTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.694Z - [ToolRegistry] Registered tool: ScoutTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.694Z - [ToolRegistry] Registered tool: CrawlerTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.694Z - [ToolRegistry] Registered tool: DockerTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.695Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.695Z - [ToolRegistry] Registered tool: BashTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.695Z - [ToolRegistry] Registered tool: ScoutTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.695Z - [ToolRegistry] Registered tool: mcp__github__create (Destructive: false)
+[INFO] 2026-10-12T16:44:30.695Z - [ToolRegistry] Registered tool: ToolSearchTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.695Z - [ToolRegistry] Registered tool: ScoutTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.696Z - [ToolRegistry] Registered tool: DockerTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.696Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.696Z - [ToolRegistry] Registered tool: BashTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.696Z - [ToolRegistry] Registered tool: ScoutTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.697Z - [ToolRegistry] Registered tool: mcp__github__create (Destructive: false)
+[INFO] 2026-10-12T16:44:30.697Z - [ToolRegistry] Registered tool: ToolSearchTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.698Z - [ToolRegistry] Registered tool: ScoutTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.699Z - [ToolRegistry] Registered tool: ScoutTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.701Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.701Z - [ToolRegistry] Registered tool: GraphQueryTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.702Z - [ToolRegistry] Registered tool: GraphContextTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.702Z - [ToolRegistry] Registered tool: ToolSearchTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.706Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.706Z - [ToolRegistry] Registered tool: GraphQueryTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.706Z - [ToolRegistry] Registered tool: GraphContextTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.706Z - [ToolRegistry] Registered tool: ToolSearchTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.707Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.708Z - [ToolRegistry] Registered tool: GraphQueryTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.708Z - [ToolRegistry] Registered tool: GraphContextTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.708Z - [ToolRegistry] Registered tool: ToolSearchTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.709Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.709Z - [ToolRegistry] Registered tool: EditFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.709Z - [ToolRegistry] Registered tool: MultiEditTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.710Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.710Z - [ToolRegistry] Registered tool: EditFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.710Z - [ToolRegistry] Registered tool: MultiEditTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.710Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.710Z - [ToolRegistry] Registered tool: EditFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:30.710Z - [ToolRegistry] Registered tool: MultiEditTool (Destructive: false)
+[33m[WARN] 2026-10-12T16:44:30.861Z - [LlmAdapter] Provider rejected model "moonshotai/kimi-k3" as unavailable; excluding it from selection this session.[0m
+[INFO] 2026-10-12T16:44:30.967Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:44:30.972Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:44:30.973Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:44:30.974Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[33m[WARN] 2026-10-12T16:44:30.974Z - [LlmAdapter] Provider rejected model "mistralai/mistral-7b-instruct-v0.3" as unavailable; excluding it from selection this session.[0m
+[INFO] 2026-10-12T16:44:30.978Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[33m[WARN] 2026-10-12T16:44:30.978Z - [LlmAdapter] Provider rejected model "dead/model" as unavailable; excluding it from selection this session.[0m
+[33m[WARN] 2026-10-12T16:44:31.671Z - [LlmAdapter] quick model "dead/quick-model" is not served by the provider; switched to "mistralai/mistral-7b-instruct-v0.3".[0m
+[33m[WARN] 2026-10-12T16:44:31.672Z - [LlmAdapter] vision model "dead/vision-model" is not served by the provider; switched to "moonshotai/kimi-k3".[0m
+[33m[WARN] 2026-10-12T16:44:31.674Z - [LlmAdapter] work model "dead/work" is not served by the provider; switched to "moonshotai/kimi-k3".[0m
+[33m[WARN] 2026-10-12T16:44:31.674Z - [LlmAdapter] quick model "dead/quick" is not served by the provider; switched to "mistralai/mistral-7b-instruct-v0.3".[0m
+[33m[WARN] 2026-10-12T16:44:31.674Z - [LlmAdapter] vision model "dead/vision" is not served by the provider; switched to "moonshotai/kimi-k3".[0m
+[33m[WARN] 2026-10-12T16:44:31.680Z - [LlmAdapter] work model "dead/work" is not served by the provider, but no curated replacement is available; leaving it pinned.[0m
+[33m[WARN] 2026-10-12T16:44:31.681Z - [LlmAdapter] work model "dead/work" is not served by the provider, but no curated replacement is available; leaving it pinned.[0m
+[33m[WARN] 2026-10-12T16:44:31.681Z - [LlmAdapter] quick model "dead/quick" is not served by the provider; no curated replacement, so quick answers with the work model this session.[0m
+[33m[WARN] 2026-10-12T16:44:31.681Z - [LlmAdapter] vision model "dead/vision" is not served by the provider; no curated replacement, so vision answers with the work model this session.[0m
+[33m[WARN] 2026-10-12T16:44:31.682Z - [LlmAdapter] quick model "mistralai/mistral-7b-instruct-v0.3" is not served by the provider; switched to "claude-sonnet-5".[0m
+[33m[WARN] 2026-10-12T16:44:31.684Z - [LlmAdapter] Provider rejected model "01-ai/yi-large" as unavailable; excluding it from selection this session.[0m
+[33m[WARN] 2026-10-12T16:44:31.684Z - [LlmAdapter] work model "01-ai/yi-large" was rejected by the provider at call time; switched to "moonshotai/kimi-k3".[0m
+[33m[WARN] 2026-10-12T16:44:31.686Z - [LlmAdapter] work model "dead/work" is not served by the provider; switched to "moonshotai/kimi-k3".[0m
+[INFO] 2026-10-12T16:44:31.946Z - [ContextManager] Summarizing 10 older messages (epoch 1)...
+[INFO] 2026-10-12T16:44:31.950Z - [ContextManager] Summarizing 20 older messages (epoch 2)...
+[INFO] 2026-10-12T16:44:31.951Z - [ContextManager] Summarizing 20 older messages (epoch 3)...
+[INFO] 2026-10-12T16:44:31.952Z - [ContextManager] Summarizing 20 older messages (epoch 4)...
+[INFO] 2026-10-12T16:44:31.953Z - [ContextManager] Summarizing 20 older messages (epoch 5)...
+[INFO] 2026-10-12T16:44:31.953Z - [ContextManager] Summarizing 20 older messages (epoch 6)...
+[INFO] 2026-10-12T16:44:31.954Z - [ContextManager] Summarizing 20 older messages (epoch 7)...
+[INFO] 2026-10-12T16:44:31.955Z - [ContextManager] Summarizing 20 older messages (epoch 8)...
+[INFO] 2026-10-12T16:44:31.956Z - [ContextManager] Summarizing 20 older messages (epoch 9)...
+[INFO] 2026-10-12T16:44:31.956Z - [ContextManager] Summarizing 20 older messages (epoch 10)...
+[33m[WARN] 2026-10-12T16:44:31.959Z - [ContextManager] Snipped 61 old message(s) (runaway history guard).[0m
+[33m[WARN] 2026-10-12T16:44:31.961Z - [ContextManager] Reactive compact triggered by API error: Request too large[0m
+[INFO] 2026-10-12T16:44:32.007Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.007Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.007Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.024Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.024Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.024Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.038Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.038Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.038Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.041Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.041Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.041Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.043Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.043Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.043Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.045Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.045Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.045Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.047Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.047Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.047Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.053Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.053Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.054Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.061Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.062Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.062Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.066Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.067Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.067Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[33m[WARN] 2026-10-12T16:44:32.067Z - [Tool:ReadFileTool] ⛔ blocked by hook: protected fixture[0m
+[INFO] 2026-10-12T16:44:32.072Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.072Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.072Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.075Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.075Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.075Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.076Z - [ToolRegistry] Registered tool: ProbeTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.079Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.079Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.079Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.080Z - [ToolRegistry] Registered tool: ProbeTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.089Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.089Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.089Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.089Z - [ToolRegistry] Registered tool: ProbeTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.091Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.092Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.092Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.096Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.096Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.096Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.108Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.108Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.108Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.112Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.112Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.112Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.114Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.114Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.114Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.117Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.117Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.117Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.118Z - [ToolRegistry] Registered tool: ProbeTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.122Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.122Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.123Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.123Z - [ToolRegistry] Registered tool: ToolWorkflowTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.134Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.134Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.135Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.135Z - [ToolRegistry] Registered tool: OtherTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.146Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.146Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.146Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.155Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.155Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.155Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.156Z - [ToolRegistry] Registered tool: ProbeTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.432Z - [ToolRegistry] Registered tool: EchoTool (Destructive: false)
+[33m[WARN] 2026-10-12T16:44:32.433Z - [LlmAdapter] work model "stepfun-ai/step-3.7-flash" is not served by the provider; switched to "moonshotai/kimi-k3".[0m
+[33m[WARN] 2026-10-12T16:44:32.434Z - [LlmAdapter] work model "mistralai/mistral-7b-instruct-v0.3" was rejected by the provider at call time; switched to "moonshotai/kimi-k3".[0m
+[33m[WARN] 2026-10-12T16:44:32.445Z - [LlmAdapter] Provider rejected model "mistralai/mistral-7b-instruct-v0.3" as unavailable; excluding it from selection this session.[0m
+[INFO] 2026-10-12T16:44:32.596Z - [ToolRegistry] Registered tool: noop (Destructive: false)
+[INFO] 2026-10-12T16:44:32.619Z - [ToolRegistry] Registered tool: noop (Destructive: false)
+[INFO] 2026-10-12T16:44:32.623Z - [ToolRegistry] Registered tool: noop (Destructive: false)
+[INFO] 2026-10-12T16:44:32.712Z - [ToolRegistry] Registered tool: CompletionCheckTool (Destructive: false)
+[31m[ERROR] 2026-10-12T16:44:32.721Z - [Tool:CompletionCheckTool] ❌ The check was not set: check 1 needs kind "command" with a command, or kind "file"/"json" with a path.[0m
+[INFO] 2026-10-12T16:44:32.742Z - [ToolRegistry] Registered tool: WriteFileTool (Destructive: true)
+[INFO] 2026-10-12T16:44:32.743Z - [ToolRegistry] Registered tool: BashTool (Destructive: true)
+[INFO] 2026-10-12T16:44:32.743Z - [ToolRegistry] Registered tool: CompletionCheckTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.797Z - [ToolRegistry] Registered tool: WriteFileTool (Destructive: true)
+[INFO] 2026-10-12T16:44:32.797Z - [ToolRegistry] Registered tool: BashTool (Destructive: true)
+[INFO] 2026-10-12T16:44:32.797Z - [ToolRegistry] Registered tool: CompletionCheckTool (Destructive: false)
+[INFO] 2026-10-12T16:44:32.826Z - [ToolRegistry] Registered tool: WriteFileTool (Destructive: true)
+[INFO] 2026-10-12T16:44:32.826Z - [ToolRegistry] Registered tool: BashTool (Destructive: true)
+[INFO] 2026-10-12T16:44:32.826Z - [ToolRegistry] Registered tool: CompletionCheckTool (Destructive: false)
+[INFO] 2026-10-12T16:44:33.064Z - [ToolRegistry] Registered tool: WebFetchTool (Destructive: false)
+[INFO] 2026-10-12T16:44:33.065Z - [ToolRegistry] Registered tool: EchoTool (Destructive: false)
+(node:47916) ExperimentalWarning: globSync is an experimental feature and might change at any time
+[INFO] 2026-10-12T16:44:33.476Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:44:33.477Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[33m[WARN] 2026-10-12T16:44:33.477Z - [ApiKeyManager] KEY #1 (?) hung before first token — benched 3s (strike 1)[0m
+[INFO] 2026-10-12T16:44:33.725Z - [MCP] Task job (fixture/build) completed; fetching result.
+[INFO] 2026-10-12T16:44:33.735Z - [MCP] Task job (fixture/build) completed; fetching result.
+[31m[ERROR] 2026-10-12T16:44:33.747Z - [Tool:BashTool] ❌ Command interrupted: sleep 10[0m
+[INFO] 2026-10-12T16:44:33.920Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:44:33.921Z - [ContextManager] Summarizing 5 older messages (epoch 1)...
+[INFO] 2026-10-12T16:44:33.925Z - [ContextManager] Restored 1 recently-read file(s) post-compact.
+[INFO] 2026-10-12T16:44:33.928Z - [ContextManager] Summarizing 5 older messages (epoch 1)...
+[INFO] 2026-10-12T16:44:33.929Z - [ContextManager] Restored 0 recently-read file(s) post-compact (1 not restored — not verified unchanged on disk).
+[INFO] 2026-10-12T16:44:33.942Z - [VectorStore] Memorized 1 document(s) (8 chunk(s)).
+[INFO] 2026-10-12T16:44:33.947Z - [VectorStore] search "What is the orchid launch pass" — lexical
+[INFO] 2026-10-12T16:44:33.949Z - [ContextManager] Summarizing 5 older messages (epoch 1)...
+[INFO] 2026-10-12T16:44:33.949Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:33.951Z - [VectorStore] search "why does the permission coach " — lexical
+[INFO] 2026-10-12T16:44:33.952Z - [VectorStore] search "why does the permission coach " — lexical
+[INFO] 2026-10-12T16:44:33.952Z - [ContextManager] Summarizing 6 older messages (epoch 1)...
+[INFO] 2026-10-12T16:44:33.953Z - [VectorStore] search "why does the permission coach " — lexical
+[33m[WARN] 2026-10-12T16:44:34.023Z - [ContextManager] Reactive compact triggered by API error: Request Entity Too Large[0m
+[33m[WARN] 2026-10-12T16:44:34.024Z - [ContextManager] Reactive compact triggered by API error: opaque provider text[0m
+[33m[WARN] 2026-10-12T16:44:34.024Z - [ContextManager] Reactive compact triggered by API error: input is too large for this model[0m
+[INFO] 2026-10-12T16:44:34.199Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:34.205Z - [ContextManager] Summarizing 16 older messages (epoch 1)...
+[INFO] 2026-10-12T16:44:34.249Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:34.261Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:44:34.262Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[33m[WARN] 2026-10-12T16:44:34.262Z - [ContextManager] Context window 98% full — approaching compaction threshold.[0m
+[33m[WARN] 2026-10-12T16:44:34.262Z - [ContextManager] 98% after cheap passes — summarizing older history.[0m
+[INFO] 2026-10-12T16:44:34.264Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:34.292Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:34.305Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:34.309Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:34.312Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:34.316Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:34.321Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:34.368Z - [HarnessTuner] New active patch: EditFileTool × no_match (4 failures in window).
+[INFO] 2026-10-12T16:44:34.386Z - [HarnessTuner] New active patch: BashTool × timeout (5 failures in window).
+[INFO] 2026-10-12T16:44:34.399Z - [TreeSitter] Indexed 1 file(s) across .py.
+[INFO] 2026-10-12T16:44:34.404Z - [TreeSitter] Indexed 1 file(s) across .py.
+[INFO] 2026-10-12T16:44:34.408Z - [TreeSitter] Indexed 1 file(s) across .py.
+[INFO] 2026-10-12T16:44:34.414Z - [TreeSitter] Indexed 1 file(s) across .py.
+[INFO] 2026-10-12T16:44:34.420Z - [TreeSitter] Indexed 1 file(s) across .py.
+[INFO] 2026-10-12T16:44:34.430Z - [TreeSitter] Indexed 1 file(s) across .py.
+[INFO] 2026-10-12T16:44:34.443Z - [HarnessTuner] New active patch: EditFileTool × no_match (4 failures in window).
+[INFO] 2026-10-12T16:44:34.445Z - [HarnessTuner] Retired patch hp-mv5hfle3-0 — no improvement (100% failures since vs 100% baseline)
+[INFO] 2026-10-12T16:44:34.449Z - [HarnessTuner] New active patch: EditFileTool × no_match (4 failures in window).
+[INFO] 2026-10-12T16:44:34.460Z - [HarnessTuner] New active patch: BashTool × timeout (4 failures in window).
+[INFO] 2026-10-12T16:44:34.466Z - [HarnessTuner] New active patch: BashTool × timeout (4 failures in window).
+[INFO] 2026-10-12T16:44:34.472Z - [HarnessTuner] New STAGED patch: EditFileTool × no_match (4 failures in window) — awaiting counterfactual lab verdict.
+[INFO] 2026-10-12T16:44:34.479Z - [HarnessTuner] New STAGED patch: EditFileTool × no_match (4 failures in window) — awaiting counterfactual lab verdict.
+[33m[WARN] 2026-10-12T16:44:34.529Z - [AgentLoop] Reply was only the fragment "Thead"; asking the model once more.[0m
+[33m[WARN] 2026-10-12T16:44:34.555Z - [AgentLoop] Reply was only the fragment "Thead"; asking the model once more.[0m
+[INFO] 2026-10-12T16:44:34.569Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:34.570Z - [Governor] ✅ Veto cleared. Task approved.
+[INFO] 2026-10-12T16:44:34.572Z - [Governor] Initialized Multi-Layer Permission Engine.
+[31m[ERROR] 2026-10-12T16:44:34.573Z - [Governor: Veto] File operation blocked. Target is outside the allowed workspace: /private/etc/passwd[0m
+[INFO] 2026-10-12T16:44:34.588Z - [Governor] Initialized Multi-Layer Permission Engine.
+[31m[ERROR] 2026-10-12T16:44:34.590Z - [Governor: Veto] File operation blocked. Extension is forbidden: .pem[0m
+[INFO] 2026-10-12T16:44:34.593Z - [Governor] Initialized Multi-Layer Permission Engine.
+[31m[ERROR] 2026-10-12T16:44:34.593Z - [Governor: Veto] File operation blocked. Target is outside the allowed workspace: /Users/vishsiddharth/Bimax-evil/x.txt[0m
+[INFO] 2026-10-12T16:44:34.596Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:34.597Z - [Governor] ✅ Veto cleared. Task approved.
+[INFO] 2026-10-12T16:44:34.601Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:34.602Z - [Governor] Budget updated: $4.50 / $5.00
+[31m[ERROR] 2026-10-12T16:44:34.603Z - [Governor: Veto] API call blocked. Exceeds daily limit of $5[0m
+[31m[ERROR] 2026-10-12T16:44:34.603Z - [Governor] 🚨 SEVERE VIOLATION DETECTED. BROADCASTING EMERGENCY HALT. 🚨[0m
+[INFO] 2026-10-12T16:44:34.609Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:34.610Z - [Governor] Budget updated: $3.00 / $5.00
+[INFO] 2026-10-12T16:44:34.611Z - [Governor] Budget updated: $4.20 / $5.00
+[INFO] 2026-10-12T16:44:34.611Z - [Governor] Budget updated: $4.40 / $5.00
+[INFO] 2026-10-12T16:44:34.613Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:34.614Z - [Governor] Budget updated: $4.90 / $5.00
+[INFO] 2026-10-12T16:44:34.617Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:34.617Z - [Governor] ✅ Veto cleared. Task approved.
+[INFO] 2026-10-12T16:44:34.617Z - [Governor] ✅ Veto cleared. Task approved.
+[INFO] 2026-10-12T16:44:34.619Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:34.668Z - [Headroom] native compression saved ~3630 tokens (model unknown)
+[INFO] 2026-10-12T16:44:34.670Z - [ContextManager] Micro-compacted 4 old tool result(s).
+[INFO] 2026-10-12T16:44:34.862Z - [ToolRegistry] Registered tool: WriteFileTool (Destructive: false)
+[33m[WARN] 2026-10-12T16:44:34.893Z - [AgentLoop] Recovered 1 tool call(s) the model emitted as text.[0m
+[INFO] 2026-10-12T16:44:34.991Z - [ContextManager] Summarizing 45 older messages (epoch 1)...
+[INFO] 2026-10-12T16:44:34.993Z - [ContextManager] Summarizing 20 older messages (epoch 2)...
+[INFO] 2026-10-12T16:44:34.994Z - [ContextManager] Summarizing 20 older messages (epoch 3)...
+[33m[WARN] 2026-10-12T16:44:35.088Z - [ContextManager] Reactive compact triggered by API error: This model maximum context length is 8000 tokens[0m
+[31m[ERROR] 2026-10-12T16:44:35.137Z - [Tool:BashTool] ❌ Bash execution failed: Background task tk-mv5hflxd-8 failed to start: injected spawn failure. Retry with /tasks retry tk-mv5hflxd-8.[0m
+[INFO] 2026-10-12T16:44:35.144Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:35.146Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:35.147Z - [VectorStore] search "the build is failing" — lexical+dense
+[INFO] 2026-10-12T16:44:35.149Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:35.149Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:35.150Z - [VectorStore] search "the build is failing" — lexical
+[INFO] 2026-10-12T16:44:35.156Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:35.157Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:35.158Z - [VectorStore] search "-25208" — lexical+dense
+[INFO] 2026-10-12T16:44:35.159Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:35.160Z - [VectorStore] search "permission drag" — lexical
+[INFO] 2026-10-12T16:44:35.161Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:35.163Z - [VectorStore] Loaded 1 memories from disk.
+[INFO] 2026-10-12T16:44:35.163Z - [VectorStore] search "anything" — lexical
+[INFO] 2026-10-12T16:44:35.165Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:35.169Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:35.172Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:35.708Z - [SqliteGraphStore] Graph saved to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-graphdb-cILmpU/.breakglass/graph/graph.db (2 nodes, 1 edges, one transaction).
+[INFO] 2026-10-12T16:44:35.709Z - [SqliteGraphStore] Graph loaded from /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-graphdb-cILmpU/.breakglass/graph/graph.db. Nodes: 2, Edges: 1
+[INFO] 2026-10-12T16:44:35.713Z - [SqliteGraphStore] Graph saved to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-graphdb-D8IGlD/.breakglass/graph/graph.db (2 nodes, 0 edges, one transaction).
+[INFO] 2026-10-12T16:44:35.727Z - [SqliteGraphStore] Graph saved to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-graphdb-xCP4eY/.breakglass/graph/graph.db (1 nodes, 0 edges, one transaction).
+[INFO] 2026-10-12T16:44:35.728Z - [SqliteGraphStore] Imported legacy playground.json (1 nodes) into /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-graphdb-xCP4eY/.breakglass/graph/graph.db.
+[INFO] 2026-10-12T16:44:35.728Z - [SqliteGraphStore] Graph loaded from /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-graphdb-xCP4eY/.breakglass/graph/graph.db. Nodes: 1, Edges: 0
+[INFO] 2026-10-12T16:44:35.736Z - [SqliteGraphStore] Graph saved to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-graphdb-Jmgp9d/.breakglass/graph/graph.db (1 nodes, 0 edges, one transaction).
+[INFO] 2026-10-12T16:44:35.737Z - [SqliteGraphStore] Graph loaded from /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-graphdb-Jmgp9d/.breakglass/graph/graph.db. Nodes: 1, Edges: 0
+[33m[WARN] 2026-10-12T16:44:35.902Z - [Tool:BashTool] ⛔ block: Bash(cat /Users/dev/.ssh/id_ed25519) proposed to read the credential store /Users/dev/.ssh/id_ed25519 [BMX-A-CREDENTIAL-READ][0m
+[33m[WARN] 2026-10-12T16:44:35.906Z - [Tool:BashTool] ⛔ block: Bash(cat /Users/dev/.ssh/id_ed25519) proposed to read the credential store /Users/dev/.ssh/id_ed25519 [BMX-A-CREDENTIAL-READ][0m
+[33m[WARN] 2026-10-12T16:44:35.920Z - [Tool:BashTool] ⛔ block: Bash(csrutil disable) proposed running csrutil, which changes macOS security state [BMX-A-SECURITY-SETTING][0m
+[31m[ERROR] 2026-10-12T16:44:35.930Z - [Tool:WriteFileTool] ❌ disk full[0m
+[31m[ERROR] 2026-10-12T16:44:36.042Z - [Tool:WakeTool] ❌ Wake-ups are delivered by the Bimax app, and this engine is not running in it, so nothing would wake the task.[0m
+[31m[ERROR] 2026-10-12T16:44:36.061Z - [Tool:WakeTool] ❌ A wake can be at most 7 days ahead.[0m
+[31m[ERROR] 2026-10-12T16:44:36.061Z - [Tool:WakeTool] ❌ That time has already passed.[0m
+[31m[ERROR] 2026-10-12T16:44:36.062Z - [Tool:WakeTool] ❌ Give a time as "HH:MM" or an ISO date-time, or minutes from now.[0m
+[31m[ERROR] 2026-10-12T16:44:36.066Z - [Tool:WakeTool] ❌ /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-wake-nJ7AD3/missing is not a folder.[0m
+[31m[ERROR] 2026-10-12T16:44:36.077Z - [Tool:WakeTool] ❌ This folder is not a git repository with a commit, so there is no CI run to wait for.[0m
+[31m[ERROR] 2026-10-12T16:44:36.078Z - [Tool:WakeTool] ❌ CI results come from GitHub, and the GitHub CLI (gh) is not signed in — run `gh auth login`.[0m
+[31m[ERROR] 2026-10-12T16:44:36.083Z - [Tool:WakeTool] ❌ Give the question the user should answer.[0m
+[31m[ERROR] 2026-10-12T16:44:36.084Z - [Tool:WakeTool] ❌ Give a reason: what the task should do when it is woken.[0m
+[INFO] 2026-10-12T16:44:36.115Z - [ToolRegistry] Registered tool: WakeTool (Destructive: false)
+[INFO] 2026-10-12T16:44:37.894Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:37.898Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:37.907Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:37.910Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:37.916Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:37.919Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:37.970Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:37.970Z - [Governor] Initialized Multi-Layer Permission Engine.
+[31m[ERROR] 2026-10-12T16:44:38.461Z - [Tool:TasksTool] ❌ This operation was aborted[0m
+[33m[WARN] 2026-10-12T16:44:39.440Z - [SkillService] /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-skill-w1ExKt/.bimax/skills/broken/SKILL.md has no description — skipping.[0m
+[33m[WARN] 2026-10-12T16:44:40.372Z - [Tool:mcp__files__read_file] ⛔ block: mcp:files/read_file proposed to read the credential store /Users/dev/.ssh/id_ed25519 [BMX-A-CREDENTIAL-READ][0m
+[INFO] 2026-10-12T16:44:40.450Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:40.453Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:40.469Z - [Governor] Auto-approved safe read command: ls -la
+[33m[WARN] 2026-10-12T16:44:40.515Z - [TaskMetrics] disk append disabled for this session: ENOTDIR: not a directory, mkdir '/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-blocker-48611-1791823480515/metrics'[0m
+[33m[WARN] 2026-10-12T16:44:40.516Z - [Hooks] PreToolUse hook for AnyTool errored (ignored): boom[0m
+[33m[WARN] 2026-10-12T16:44:40.518Z - [Tool:DangerTool] ⛔ blocked by hook: policy[0m
+[INFO] 2026-10-12T16:44:40.581Z - [TX] Opened transaction TX-CA33CA
+[33m[WARN] 2026-10-12T16:44:40.585Z - [TX] TX-CA33CA: /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-tx-command-bzbNSk/second is NOT protected — snapshot memory budget exhausted (4 held + 4 bytes > 4 byte aggregate limit)[0m
+[INFO] 2026-10-12T16:44:40.586Z - [TX] Committed TX-CA33CA (2 file(s))
+[INFO] 2026-10-12T16:44:40.594Z - [TX] Opened transaction TX-54107B
+[INFO] 2026-10-12T16:44:40.594Z - [TX] Committed TX-54107B (1 file(s))
+[INFO] 2026-10-12T16:44:40.596Z - [TX] Opened transaction ONE
+[INFO] 2026-10-12T16:44:40.601Z - [TX] Opened transaction TWO
+[INFO] 2026-10-12T16:44:40.670Z - [ApiKeyManager] Key pool set: 3 key(s) across 1 provider(s), 40 requests/min each.
+[INFO] 2026-10-12T16:44:40.685Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s), 3 requests/min each.
+[INFO] 2026-10-12T16:44:40.690Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s), 4 requests/min each.
+[INFO] 2026-10-12T16:44:40.690Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s), 4 requests/min each.
+[INFO] 2026-10-12T16:44:40.693Z - [ApiKeyManager] Key pool set: 2 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:44:40.693Z - [ApiKeyManager] Key pool set: 2 key(s) across 1 provider(s).
+[33m[WARN] 2026-10-12T16:44:40.694Z - [ApiKeyManager] KEY #1 (nvidia) -> 429 cooldown 30.0s[0m
+[INFO] 2026-10-12T16:44:40.700Z - [ApiKeyManager] Key pool set: 2 key(s) across 1 provider(s), 10 requests/min each.
+[INFO] 2026-10-12T16:44:40.704Z - [ApiKeyManager] Key pool set: 2 key(s) across 1 provider(s), 1 requests/min each.
+[INFO] 2026-10-12T16:44:40.708Z - [ApiKeyManager] Key pool set: 2 key(s) across 1 provider(s), 1 requests/min each.
+[INFO] 2026-10-12T16:44:40.708Z - [ApiKeyManager] Key pool set: 2 key(s) across 1 provider(s), 1 requests/min each.
+[INFO] 2026-10-12T16:44:40.711Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s), 1 requests/min each.
+[INFO] 2026-10-12T16:44:40.714Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:44:40.735Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s), 5 requests/min each.
+[INFO] 2026-10-12T16:44:40.776Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s), 2 requests/min each.
+[33m[WARN] 2026-10-12T16:44:40.777Z - [ApiKeyManager] shared key ledger unavailable (disk full); pacing this engine alone.[0m
+[33m[WARN] 2026-10-12T16:44:40.778Z - [ApiKeyManager] shared key ledger unavailable (disk full); pacing this engine alone.[0m
+[33m[WARN] 2026-10-12T16:44:40.778Z - [ApiKeyManager] shared key ledger unavailable (disk full); pacing this engine alone.[0m
+[31m[ERROR] 2026-10-12T16:44:40.804Z - [Tool:FolderStatusTool] ❌ ../elsewhere/a.pdf is not inside this task's folder.[0m
+[31m[ERROR] 2026-10-12T16:44:40.805Z - [Tool:FolderStatusTool] ❌ /private/var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bimax-outcome-2QYSYz is not inside this task's folder.[0m
+[31m[ERROR] 2026-10-12T16:44:40.806Z - [Tool:FolderStatusTool] ❌ The state of a.pdf must be "ready" or "needs-you".[0m
+[31m[ERROR] 2026-10-12T16:44:40.807Z - [Tool:FolderStatusTool] ❌ Say what the person must do about a.pdf: give a `reason`.[0m
+[31m[ERROR] 2026-10-12T16:44:40.808Z - [Tool:FolderStatusTool] ❌ Every item needs a `path`.[0m
+[31m[ERROR] 2026-10-12T16:44:40.809Z - [Tool:FolderStatusTool] ❌ Give `items`: one entry per file, each with `path` and `state`.[0m
+[31m[ERROR] 2026-10-12T16:44:40.810Z - [Tool:FolderStatusTool] ❌ Report at most 200 files at a time.[0m
+[31m[ERROR] 2026-10-12T16:44:40.811Z - [Tool:FolderStatusTool] ❌ This folder has no outcome set, so there is nothing to report against. The person sets one from the ⌘2 bar’s ⋯ menu.[0m
+[INFO] 2026-10-12T16:44:40.814Z - [ToolRegistry] Registered tool: FolderStatusTool (Destructive: false)
+[INFO] 2026-10-12T16:44:40.882Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:40.889Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:40.891Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:40.897Z - [VectorStore] search "What is the guest wifi passwor" — lexical
+[INFO] 2026-10-12T16:44:40.901Z - [VectorStore] search "What request timeout did we se" — lexical
+[INFO] 2026-10-12T16:44:40.905Z - [VectorStore] search "Where do guests sign in at the" — lexical
+[INFO] 2026-10-12T16:44:40.908Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:40.910Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:40.932Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:40.933Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:40.935Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:40.951Z - [VectorStore] search "What is the guest wifi passwor" — lexical+dense
+[INFO] 2026-10-12T16:44:40.956Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:40.957Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:40.966Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:40.973Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:40.975Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:40.975Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:40.977Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:40.978Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:40.979Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:40.979Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:40.982Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:40.982Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:40.983Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:40.984Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:41.012Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:41.013Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:41.014Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:41.014Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:41.018Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:41.020Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:41.022Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:44:41.022Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:44:41.294Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:41.297Z - [VectorStore] search "why does the permission coach " — lexical
+[INFO] 2026-10-12T16:44:41.299Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:44:41.301Z - [VectorStore] search "zzzz qqqq vvvv nonsense tokens" — lexical
+[INFO] 2026-10-12T16:44:41.305Z - [VectorStore] Memorized 1 document(s) (19 chunk(s)).
+[INFO] 2026-10-12T16:44:41.308Z - [VectorStore] search "tell me about the permission" — lexical
+[INFO] 2026-10-12T16:44:41.736Z - [SqliteGraphStore] Graph saved to /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-graphstore-YublRD/.breakglass/graph/graph.db (2 nodes, 1 edges, one transaction).
+[INFO] 2026-10-12T16:44:41.737Z - [SqliteGraphStore] Graph loaded from /var/folders/_m/bbwv6gw15h55zxyx89r4g7fm0000gn/T/bgw-graphstore-YublRD/.breakglass/graph/graph.db. Nodes: 2, Edges: 1
+[INFO] 2026-10-12T16:44:41.743Z - [ToolRegistry] Registered tool: InternalHostTool (Destructive: true)
+[31m[ERROR] 2026-10-12T16:44:42.010Z - [Tool:OrganizePlanTool] ❌ The plan has problems: a.pdf → ../outside/a.pdf leaves the task folder; missing.pdf is not a file here; b.pdf is moved twice; every move needs `from` and `to`; keep/c.pdf already exists.[0m
+[31m[ERROR] 2026-10-12T16:44:42.013Z - [Tool:OrganizePlanTool] ❌ The plan has problems: two files would become z/A.PDF.[0m
+[31m[ERROR] 2026-10-12T16:44:42.014Z - [Tool:OrganizePlanTool] ❌ Nothing in the plan changes where a file is.[0m
+[31m[ERROR] 2026-10-12T16:44:42.015Z - [Tool:OrganizePlanTool] ❌ Give `moves`: one entry per file, each with `from` and `to`.[0m
+[31m[ERROR] 2026-10-12T16:44:42.015Z - [Tool:OrganizePlanTool] ❌ A plan needs the Bimax app to show it, and this engine is not running in it. Move the files directly.[0m
+[INFO] 2026-10-12T16:44:42.505Z - [ApiKeyManager] Key pool set: 3 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:44:42.509Z - [ApiKeyManager] Key pool set: 3 key(s) across 1 provider(s).
+[33m[WARN] 2026-10-12T16:44:42.509Z - [ApiKeyManager] KEY #1 (openai #1) -> 429 cooldown 2.0s[0m
+[INFO] 2026-10-12T16:44:42.510Z - [ApiKeyManager] Key pool set: 3 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:44:42.512Z - [ApiKeyManager] Key pool set: 3 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:44:42.522Z - [ApiKeyManager] Key pool set: 3 key(s) across 1 provider(s).
+[33m[WARN] 2026-10-12T16:44:42.522Z - [ApiKeyManager] KEY #1 (openai #1) -> 429 cooldown 2.0s[0m
+[INFO] 2026-10-12T16:44:42.523Z - [ApiKeyManager] Key pool set: 2 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:44:42.524Z - [ApiKeyManager] Key pool set: 3 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:44:42.524Z - [ApiKeyManager] Key pool set: 0 key(s) across 0 provider(s).
+[INFO] 2026-10-12T16:44:42.525Z - [ApiKeyManager] Key pool set: 2 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:44:42.527Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:44:42.529Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:44:42.533Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[33m[WARN] 2026-10-12T16:44:42.533Z - [ApiKeyManager] KEY #1 (?) -> 429 cooldown 2.0s[0m
+[33m[WARN] 2026-10-12T16:44:42.533Z - [ApiKeyManager] KEY #1 (?) -> 429 cooldown 4.0s[0m
+[INFO] 2026-10-12T16:44:43.162Z - [ToolRegistry] Registered tool: DocumentTool (Destructive: false)
+[INFO] 2026-10-12T16:44:43.162Z - [ToolRegistry] Registered tool: WriteFileTool (Destructive: false)
+[INFO] 2026-10-12T16:44:43.162Z - [ToolRegistry] Registered tool: NotACoreTool (Destructive: false)
+
+Test Suites: 1 skipped, 443 passed, 443 of 444 total
+Tests:       19 skipped, 4213 passed, 4232 total
+Snapshots:   0 total
+Time:        54.819 s
+Ran all test suites.
+
+> bimax@1.1.0 test:bun
+> bun test ./src/__tests__/code.index.test.ts ./src/__tests__/code.index.eval.test.ts ./src/__tests__/code.index.large.test.ts ./src/__tests__/code.store.ram.ledger.test.ts ./src/__tests__/composer.contextual.test.ts ./src/__tests__/composer.corpus.test.ts ./src/__tests__/composer.facts.test.ts ./src/__tests__/composer.identifiers.test.ts ./src/__tests__/composer.retrieval.traps.test.ts ./src/__tests__/document.read.test.ts ./src/__tests__/local.rerank.model.test.ts ./src/__tests__/memory.eval.test.ts ./src/__tests__/memory.retrieval.test.ts ./src/__tests__/tool.registry.contract.test.ts
+
+bun test v1.3.14 (0d9b296a)
+
+src/__tests__/code.index.test.ts:
+(pass) chunkSource > chunks begin at declarations and carry the contextual header [3.98ms]
+(pass) chunkSource > headers can be switched off (the A/B position) [0.19ms]
+(pass) chunkSource > consecutive chunks overlap so a seam never eats a declaration [1.32ms]
+[INFO] 2026-10-12T16:44:44.966Z - [CodeIndex] 1 file(s) indexed, 0 removed, 0 pending.
+(pass) CodeIndex sync > a fresh nested store path indexes on first launch and survives restart [60.21ms]
+[33m[WARN] 2026-10-12T16:44:44.986Z - [SqliteCodeVectorStore] 1-chunk ceiling would be exceeded; storing nothing new.[0m
+[INFO] 2026-10-12T16:44:44.986Z - [CodeIndex] 0 file(s) indexed, 0 removed, 2 pending.
+[INFO] 2026-10-12T16:44:44.992Z - [CodeIndex] 2 file(s) indexed, 0 removed, 0 pending.
+(pass) CodeIndex sync > a refused capacity write remains pending instead of poisoning the manifest [14.03ms]
+[INFO] 2026-10-12T16:44:45.011Z - [CodeIndex] 60 file(s) indexed, 0 removed, 0 pending.
+(pass) CodeIndex sync > commits in slices and yields, so timer-driven liveness survives a big batch [27.97ms]
+[INFO] 2026-10-12T16:44:45.028Z - [CodeIndex] 1 file(s) indexed, 0 removed, 0 pending.
+[33m[WARN] 2026-10-12T16:44:45.033Z - [SqliteCodeVectorStore] 0 MB disk ceiling would be exceeded; storing nothing new.[0m
+[INFO] 2026-10-12T16:44:45.033Z - [CodeIndex] 0 file(s) indexed, 0 removed, 1 pending.
+(pass) CodeIndex sync > a slice that fails to store leaves its files pending and keeps the old rows [13.44ms]
+[INFO] 2026-10-12T16:44:45.050Z - [CodeIndex] 2 file(s) indexed, 0 removed, 0 pending.
+[INFO] 2026-10-12T16:44:45.061Z - [CodeIndex] 1 file(s) indexed, 0 removed, 0 pending.
+[INFO] 2026-10-12T16:44:45.066Z - [CodeIndex] 0 file(s) indexed, 1 removed, 0 pending.
+(pass) CodeIndex sync > indexes, then re-indexes only what changed, then forgets deletions [33.24ms]
+[INFO] 2026-10-12T16:44:45.076Z - [CodeIndex] 5 file(s) indexed, 0 removed, 0 pending.
+(pass) CodeIndex sync > one embedding batch for a whole sync (not one HTTP call per file) [9.73ms]
+[INFO] 2026-10-12T16:44:45.084Z - [CodeIndex] 2 file(s) indexed, 0 removed, 0 pending.
+(pass) CodeIndex sync > similar files are NOT merged (dedup is off for code) [16.82ms]
+[INFO] 2026-10-12T16:44:45.101Z - [CodeIndex] 2 file(s) indexed, 0 removed, 0 pending.
+(pass) CodeIndex sync > semantic search finds intent phrasings with no shared token, pathPrefix scopes [8.51ms]
+[INFO] 2026-10-12T16:44:45.109Z - [CodeIndex] 1 file(s) indexed, 0 removed, 0 pending.
+(pass) CodeIndex sync > keyless lexical search returns an exact identifier inside a long chunk [7.82ms]
+(pass) SQLite embedding-space integrity > changing the embedding model backfills every chunk into the active space [4.55ms]
+(pass) SQLite embedding-space integrity > dense-only search abstains when every cosine is below the configured floor [2.01ms]
+[INFO] 2026-10-12T16:44:45.125Z - [CodeIndex] 1 file(s) indexed, 0 removed, 0 pending.
+(pass) graph expansion and retrieval modes > the HitExpander attaches structural neighbours to the top hits, and survives failure [10.12ms]
+[INFO] 2026-10-12T16:44:45.134Z - [CodeIndex] 1 file(s) indexed, 0 removed, 0 pending.
+(pass) graph expansion and retrieval modes > mode: lexical makes zero embedding calls; dense skips BM25; hybrid runs both [9.12ms]
+
+src/__tests__/code.index.eval.test.ts:
+[INFO] 2026-10-12T16:44:47.883Z - [CodeIndex] 438 file(s) indexed, 0 removed, 0 pending.
+[INFO] 2026-10-12T16:44:50.724Z - [CodeIndex] 438 file(s) indexed, 0 removed, 0 pending.
+[INFO] 2026-10-12T16:44:53.698Z - [CodeIndex] 438 file(s) indexed, 0 removed, 0 pending.
+[INFO] 2026-10-12T16:44:56.522Z - [CodeIndex] 438 file(s) indexed, 0 removed, 0 pending.
+[INFO] 2026-10-12T16:44:59.409Z - [CodeIndex] 438 file(s) indexed, 0 removed, 0 pending.
+
+  code recall@3 / MRR over src/ (28 intent queries, 5507 chunks)
+    grep-class (literal)   0.54 / 0.393
+    BM25 lexical           0.64 / 0.542
+    dense only             0.29 / 0.268
+    hybrid + headers       0.64 / 0.518
+    hybrid, no headers     0.61 / 0.506
+    shipped (+rerank)      0.71 / 0.601
+    shipped, no headers    0.64 / 0.548
+    hybrid on the 10 BM25-missed queries: 0.00
+
+(pass) code retrieval, measured on this repository > reports every retrieval position and prevents the shipped pipeline regressing below lexical search [19893.24ms]
+
+src/__tests__/code.index.large.test.ts:
+[INFO] 2026-10-12T16:45:05.060Z - [CodeIndex] 2 file(s) indexed, 0 removed, 0 pending.
+(pass) in a git project, files .gitignore excludes are not indexed; untracked source still is [29.94ms]
+[33m[WARN] 2026-10-12T16:45:05.070Z - [CodeIndex] 5 indexable source files exceed the 3 ceiling; indexing the 3 most recently changed. Raise BIMAX_CODE_INDEX_MAX_FILES to cover more, or open a narrower folder.[0m
+[INFO] 2026-10-12T16:45:05.072Z - [CodeIndex] 3 file(s) indexed, 0 removed, 0 pending.
+(pass) a project over the ceiling indexes its most recently changed files and says coverage is partial [10.45ms]
+[INFO] 2026-10-12T16:45:05.080Z - [CodeIndex] 1 file(s) indexed, 0 removed, 0 pending.
+(pass) a project under the ceiling reports full coverage [7.79ms]
+[33m[WARN] 2026-10-12T16:45:05.088Z - [CodeIndex] 4 indexable source files exceed the 3 ceiling; indexing the 3 most recently changed. Raise BIMAX_CODE_INDEX_MAX_FILES to cover more, or open a narrower folder.[0m
+[INFO] 2026-10-12T16:45:05.088Z - [CodeIndex] 3 file(s) indexed, 0 removed, 0 pending.
+(pass) coverage returns to full once the project shrinks back under the ceiling [16.60ms]
+
+src/__tests__/code.store.ram.ledger.test.ts:
+[INFO] 2026-10-12T16:45:05.298Z - [VectorStore] Memorized 4000 document(s) (4000 chunk(s)).
+
+  RAM ledger over 4000 chunks (heap-used deltas):
+    JSON store      27.1 MB resident
+    SQLite store    -15.1 MB resident
+    SQLite tag map  0.29 MB (the only per-doc state)
+    index on disk   8.4 MB
+
+[INFO] 2026-10-12T16:45:06.666Z - [VectorStore] search "fn377" — lexical+dense
+(pass) RAM ledger: JSON vs SQLite code store > SQLite holds a fraction of the heap, and no chunk text or vector is resident [1576.39ms]
+(pass) RAM ledger: JSON vs SQLite code store > quantized vectors keep ranking order (int8 is ranking-safe) [4.24ms]
+
+src/__tests__/composer.contextual.test.ts:
+(pass) a spreadsheet keeps its column names on every chunk > extracts the header row as the segment context [235.53ms]
+(pass) a spreadsheet keeps its column names on every chunk > carries the column names into chunks far below the header [38.78ms]
+(pass) a spreadsheet keeps its column names on every chunk > MUTANT — without carried context, a later chunk names no columns at all [21.63ms]
+(pass) a repetitive form keeps its subject on every chunk > takes the opening line as context when it reads like a heading [0.36ms]
+(pass) a repetitive form keeps its subject on every chunk > does not repeat a whole paragraph of prose on every chunk [0.25ms]
+(pass) a repetitive form keeps its subject on every chunk > retrieves a measurement by the equipment named only in the heading [9.33ms]
+(pass) a repetitive form keeps its subject on every chunk > does not make the first chunk say its own title twice [3.31ms]
+
+src/__tests__/composer.corpus.test.ts:
+(pass) extraction reads what an engineer actually has > reads plain text, markdown, code and JSON through one path [1.41ms]
+(pass) extraction reads what an engineer actually has > reads a file with an extension nobody has heard of, when its bytes are text [0.36ms]
+(pass) extraction reads what an engineer actually has > refuses a binary rather than indexing its garbage [0.44ms]
+(pass) extraction reads what an engineer actually has > refuses known-opaque formats without reading them [0.50ms]
+(pass) extraction reads what an engineer actually has > reports an empty file as a reason, not a crash [0.37ms]
+(pass) extraction reads what an engineer actually has > returns a reason for a missing file instead of throwing [0.27ms]
+(pass) extraction reads what an engineer actually has > reads a spreadsheet as rows, one segment per sheet, with the sheet as the locator [4.65ms]
+(pass) extraction reads what an engineer actually has > detects UTF-16 text, which Windows-authored plant logs routinely are [0.25ms]
+(pass) extraction reads what an engineer actually has > MUTANT — a NUL-only binary check would admit a mostly-control-byte file [0.25ms]
+(pass) a retrieved passage can name its source > prefixes every stored passage with a citation header [3.42ms]
+(pass) a retrieved passage can name its source > keeps page/sheet locators out of the wrong passage [0.18ms]
+(pass) a retrieved passage can name its source > separates session from library, and searches both by default [3.88ms]
+(pass) a retrieved passage can name its source > clearing the session leaves the library standing [5.34ms]
+(pass) a retrieved passage can name its source > promotes a session document into the library without re-reading it as a new document [3.15ms]
+(pass) a bad file never costs the good ones > ingests what it can and reports what it could not, with reasons [2.96ms]
+(pass) a bad file never costs the good ones > re-ingesting unchanged bytes is a no-op, not a duplicate [2.72ms]
+(pass) a bad file never costs the good ones > an edited file is re-ingested, because its bytes changed [3.00ms]
+(pass) a bad file never costs the good ones > survives a corrupt manifest instead of serving wrong citations from it [3.21ms]
+
+src/__tests__/composer.facts.test.ts:
+(pass) reading a table header > takes the unit only when the header states one [0.65ms]
+(pass) reading a table header > normalises a property so the same column is one property however it was written [0.27ms]
+(pass) facts come from structure, not from proximity > extracts one fact per numeric cell, keyed to the row’s identifier [0.56ms]
+(pass) facts come from structure, not from proximity > records the row’s date when the row states one [0.25ms]
+(pass) facts come from structure, not from proximity > ignores a row with no identifier — there is no subject to assert about [0.17ms]
+(pass) facts come from structure, not from proximity > ignores a sheet whose first row is data, because it has no property names [0.19ms]
+(pass) facts come from structure, not from proximity > reads a single prose line that states subject, property and value together [0.20ms]
+(pass) facts come from structure, not from proximity > MUTANT — does NOT pair an identifier with a number from a different line [0.17ms]
+(pass) numeric comparison — what retrieval cannot do > filters by threshold, which no text index can express [5.03ms]
+(pass) numeric comparison — what retrieval cannot do > narrows to one equipment tag [2.54ms]
+(pass) numeric comparison — what retrieval cannot do > reports the subjects and properties it actually holds, so the model discovers rather than guesses [1.71ms]
+(pass) numeric comparison — what retrieval cannot do > removing a document removes its facts, so a cleared corpus cannot answer from it [1.84ms]
+(pass) end to end: a question flat retrieval cannot answer > answers a threshold question from an ingested spreadsheet, with citations [11.99ms]
+
+src/__tests__/composer.identifiers.test.ts:
+(pass) what counts as an identifier > recognises the shapes a plant actually uses [0.25ms]
+(pass) what counts as an identifier > is case-insensitive, because nobody types tags consistently [0.14ms]
+(pass) what counts as an identifier > does not treat ordinary hyphenated words as tags [0.14ms]
+(pass) what counts as an identifier > deduplicates repeated mentions [0.14ms]
+(pass) a named tag restricts the answer to that equipment > never returns the other vessel above the one that was asked for [3.28ms]
+(pass) a named tag restricts the answer to that equipment > MUTANT — without the filter, the wrong vessel is a legitimate top hit [3.69ms]
+(pass) a named tag restricts the answer to that equipment > finds the tag through a carried context line, not only where it is written [3.84ms]
+(pass) a filter that matches nothing must fall back, never go silent > ignores an identifier the corpus does not contain [2.48ms]
+(pass) a filter that matches nothing must fall back, never go silent > ignores a standards number mentioned in passing [2.25ms]
+(pass) a filter that matches nothing must fall back, never go silent > falls back when the tag exists but only outside the requested corpus [2.76ms]
+
+src/__tests__/composer.retrieval.traps.test.ts:
+(pass) trap 1 — near-duplicate merging would file a passage under the wrong source > the Composer store is configured so two near-identical pages stay two documents [3.49ms]
+[INFO] 2026-10-12T16:45:07.088Z - [VectorStore] Merged near-duplicate of 'doc:course-1' (1 chunk(s)).
+[INFO] 2026-10-12T16:45:07.088Z - [VectorStore] Memorized 1 document(s) (2 chunk(s)).
+[INFO] 2026-10-12T16:45:07.088Z - [VectorStore] search "measured minimum thickness" — lexical
+(pass) trap 1 — near-duplicate merging would file a passage under the wrong source > MUTANT — with the memory store’s dedup ON, the second page is swallowed by the first [4.05ms]
+(pass) trap 1 — near-duplicate merging would file a passage under the wrong source > the Composer store is sized for documents, not for hand-written notes [0.15ms]
+(pass) trap 2 — a length-biased relevance floor rejects the passages worth retrieving > scores a passage that exactly answers the query far below the memory default [0.18ms]
+(pass) trap 2 — a length-biased relevance floor rejects the passages worth retrieving > retrieves a real passage that the memory default would have dropped [2.35ms]
+[INFO] 2026-10-12T16:45:07.094Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:07.095Z - [VectorStore] search "measured minimum thickness" — lexical
+[INFO] 2026-10-12T16:45:07.095Z - [VectorStore] search "measured minimum thickness" — lexical
+(pass) trap 2 — a length-biased relevance floor rejects the passages worth retrieving > MUTANT — the JSON store applies the floor and returns nothing; the Composer store does not [3.02ms]
+(pass) trap 2 — a length-biased relevance floor rejects the passages worth retrieving > longer passages are not penalised relative to short ones [3.17ms]
+
+src/__tests__/document.read.test.ts:
+(pass) hasTextLayer — the scanned-versus-digital discriminator > accepts a page with real prose [0.36ms]
+(pass) hasTextLayer — the scanned-versus-digital discriminator > rejects the stray punctuation a scanned page carries instead of text [0.02ms]
+(pass) hasTextLayer — the scanned-versus-digital discriminator > rejects a page with a few stray characters
+(pass) pageNumberOf — ordering rendered pages > reads the number, not the filename, so inconsistent zero-padding cannot reorder pages [0.09ms]
+(pass) reading a digital PDF > counts its pages [21.36ms]
+(pass) reading a digital PDF > reads every page that has content EXACTLY, never through OCR [52.17ms]
+(pass) reading a digital PDF > honours a page range [17.09ms]
+(pass) reading a digital PDF > rasterizes on demand and names pages in order [57.87ms]
+(pass) reading a digital PDF > refuses a file that is not there [0.86ms]
+(pass) OCR backend selection > picks nothing, and says what to install, when no backend exists [0.80ms]
+(pass) OCR backend selection > prefers the first available backend [0.07ms]
+(pass) OCR backend selection > never selects Vision off macOS [0.11ms]
+(pass) end-to-end: a scanned page becomes text > recovers the tag number and the measurement from a picture of the report [36432.36ms]
+
+src/__tests__/local.rerank.model.test.ts:
+(pass) the real model puts the passage that answers first, among passages that share its words [418.26ms]
+(pass) the tokenizer matches Hugging Face on the real vocabulary [8.71ms]
+
+src/__tests__/memory.eval.test.ts:
+[INFO] 2026-10-12T16:45:44.710Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.711Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.712Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.712Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.713Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.713Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.714Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.714Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.715Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.717Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.717Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.718Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.718Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.719Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.720Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.721Z - [VectorStore] search "AXError -25208" — lexical
+[INFO] 2026-10-12T16:45:44.721Z - [VectorStore] search "maxWorkers 50%" — lexical
+[INFO] 2026-10-12T16:45:44.721Z - [VectorStore] search "llama-3.2-nv-embedqa-1b-v2" — lexical
+[INFO] 2026-10-12T16:45:44.721Z - [VectorStore] search "safeStorage decrypt" — lexical
+[INFO] 2026-10-12T16:45:44.722Z - [VectorStore] search "I enabled the permission but i" — lexical
+[INFO] 2026-10-12T16:45:44.722Z - [VectorStore] search "the dialog just appears instea" — lexical
+[INFO] 2026-10-12T16:45:44.722Z - [VectorStore] search "why does the middle area snap " — lexical
+[INFO] 2026-10-12T16:45:44.722Z - [VectorStore] search "my previous chats are missing " — lexical
+[INFO] 2026-10-12T16:45:44.724Z - [VectorStore] search "why do I need to grant access " — lexical
+[INFO] 2026-10-12T16:45:44.724Z - [VectorStore] search "text is difficult to read over" — lexical
+[INFO] 2026-10-12T16:45:44.724Z - [VectorStore] search "the native helper does not bec" — lexical
+[INFO] 2026-10-12T16:45:44.724Z - [VectorStore] search "the desktop app broke because " — lexical
+[INFO] 2026-10-12T16:45:44.724Z - [VectorStore] search "every test passes but the feat" — lexical
+[INFO] 2026-10-12T16:45:44.724Z - [VectorStore] search "search behaved oddly after I c" — lexical
+[INFO] 2026-10-12T16:45:44.724Z - [VectorStore] search "older entries only match by ke" — lexical
+[INFO] 2026-10-12T16:45:44.725Z - [VectorStore] Loaded 15 memories from disk.
+[INFO] 2026-10-12T16:45:44.725Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.726Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.727Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.728Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.728Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.729Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.729Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.730Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.731Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.731Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.732Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.733Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.733Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.734Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.735Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.736Z - [VectorStore] search "AXError -25208" — lexical+dense
+[INFO] 2026-10-12T16:45:44.736Z - [VectorStore] search "maxWorkers 50%" — lexical+dense
+[INFO] 2026-10-12T16:45:44.736Z - [VectorStore] search "llama-3.2-nv-embedqa-1b-v2" — lexical+dense
+[INFO] 2026-10-12T16:45:44.736Z - [VectorStore] search "safeStorage decrypt" — lexical+dense
+[INFO] 2026-10-12T16:45:44.736Z - [VectorStore] search "I enabled the permission but i" — lexical+dense
+[INFO] 2026-10-12T16:45:44.736Z - [VectorStore] search "the dialog just appears instea" — lexical+dense
+[INFO] 2026-10-12T16:45:44.736Z - [VectorStore] search "why does the middle area snap " — lexical+dense
+[INFO] 2026-10-12T16:45:44.736Z - [VectorStore] search "my previous chats are missing " — lexical+dense
+[INFO] 2026-10-12T16:45:44.736Z - [VectorStore] search "why do I need to grant access " — lexical+dense
+[INFO] 2026-10-12T16:45:44.737Z - [VectorStore] search "text is difficult to read over" — lexical+dense
+[INFO] 2026-10-12T16:45:44.737Z - [VectorStore] search "the native helper does not bec" — lexical+dense
+[INFO] 2026-10-12T16:45:44.737Z - [VectorStore] search "the desktop app broke because " — lexical+dense
+[INFO] 2026-10-12T16:45:44.737Z - [VectorStore] search "every test passes but the feat" — lexical+dense
+[INFO] 2026-10-12T16:45:44.737Z - [VectorStore] search "search behaved oddly after I c" — lexical+dense
+[INFO] 2026-10-12T16:45:44.737Z - [VectorStore] search "older entries only match by ke" — lexical+dense
+[INFO] 2026-10-12T16:45:44.737Z - [VectorStore] Loaded 15 memories from disk.
+[INFO] 2026-10-12T16:45:44.738Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.738Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.739Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.740Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.741Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.742Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.742Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.743Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.743Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.744Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.745Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.745Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.746Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.746Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.747Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.748Z - [VectorStore] search "AXError -25208" — lexical+dense+rerank
+[INFO] 2026-10-12T16:45:44.749Z - [VectorStore] search "maxWorkers 50%" — lexical+dense+rerank
+[INFO] 2026-10-12T16:45:44.749Z - [VectorStore] search "llama-3.2-nv-embedqa-1b-v2" — lexical+dense+rerank
+[INFO] 2026-10-12T16:45:44.750Z - [VectorStore] search "safeStorage decrypt" — lexical+dense+rerank
+[INFO] 2026-10-12T16:45:44.750Z - [VectorStore] search "I enabled the permission but i" — lexical+dense+rerank
+[INFO] 2026-10-12T16:45:44.751Z - [VectorStore] search "the dialog just appears instea" — lexical+dense+rerank
+[INFO] 2026-10-12T16:45:44.751Z - [VectorStore] search "why does the middle area snap " — lexical+dense+rerank
+[INFO] 2026-10-12T16:45:44.752Z - [VectorStore] search "my previous chats are missing " — lexical+dense+rerank
+[INFO] 2026-10-12T16:45:44.752Z - [VectorStore] search "why do I need to grant access " — lexical+dense+rerank
+[INFO] 2026-10-12T16:45:44.753Z - [VectorStore] search "text is difficult to read over" — lexical+dense+rerank
+[INFO] 2026-10-12T16:45:44.753Z - [VectorStore] search "the native helper does not bec" — lexical+dense+rerank
+[INFO] 2026-10-12T16:45:44.753Z - [VectorStore] search "the desktop app broke because " — lexical+dense+rerank
+[INFO] 2026-10-12T16:45:44.753Z - [VectorStore] search "every test passes but the feat" — lexical+dense+rerank
+[INFO] 2026-10-12T16:45:44.754Z - [VectorStore] search "search behaved oddly after I c" — lexical+dense+rerank
+[INFO] 2026-10-12T16:45:44.754Z - [VectorStore] search "older entries only match by ke" — lexical+dense+rerank
+
+  recall@3 / MRR
+    lexical only     0.80 / 0.733
+    + dense (hybrid) 1.00 / 0.844
+    + rerank         1.00 / 0.900
+
+(pass) retrieval quality, measured > each stage earns its place on a labelled set [48.17ms]
+[INFO] 2026-10-12T16:45:44.755Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.756Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.756Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.757Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.757Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.758Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.758Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.760Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.760Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.760Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.761Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.761Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.762Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.763Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.763Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.764Z - [VectorStore] Loaded 15 memories from disk.
+[INFO] 2026-10-12T16:45:44.765Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.766Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.767Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.768Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.768Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.769Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.770Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.771Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.772Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.772Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.773Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.774Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.775Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.779Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.780Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.781Z - [VectorStore] Loaded 15 memories from disk.
+[INFO] 2026-10-12T16:45:44.781Z - [VectorStore] search "I enabled the permission but i" — lexical
+[INFO] 2026-10-12T16:45:44.781Z - [VectorStore] search "the dialog just appears instea" — lexical
+[INFO] 2026-10-12T16:45:44.781Z - [VectorStore] search "why does the middle area snap " — lexical
+[INFO] 2026-10-12T16:45:44.782Z - [VectorStore] search "my previous chats are missing " — lexical
+[INFO] 2026-10-12T16:45:44.782Z - [VectorStore] search "why do I need to grant access " — lexical
+[INFO] 2026-10-12T16:45:44.782Z - [VectorStore] search "text is difficult to read over" — lexical
+[INFO] 2026-10-12T16:45:44.782Z - [VectorStore] search "the native helper does not bec" — lexical
+[INFO] 2026-10-12T16:45:44.783Z - [VectorStore] search "the desktop app broke because " — lexical
+[INFO] 2026-10-12T16:45:44.783Z - [VectorStore] search "every test passes but the feat" — lexical
+[INFO] 2026-10-12T16:45:44.783Z - [VectorStore] search "search behaved oddly after I c" — lexical
+[INFO] 2026-10-12T16:45:44.783Z - [VectorStore] search "older entries only match by ke" — lexical
+[INFO] 2026-10-12T16:45:44.783Z - [VectorStore] search "I enabled the permission but i" — lexical+dense
+[INFO] 2026-10-12T16:45:44.783Z - [VectorStore] search "the dialog just appears instea" — lexical+dense
+[INFO] 2026-10-12T16:45:44.783Z - [VectorStore] search "why does the middle area snap " — lexical+dense
+[INFO] 2026-10-12T16:45:44.784Z - [VectorStore] search "my previous chats are missing " — lexical+dense
+[INFO] 2026-10-12T16:45:44.784Z - [VectorStore] search "why do I need to grant access " — lexical+dense
+[INFO] 2026-10-12T16:45:44.784Z - [VectorStore] search "text is difficult to read over" — lexical+dense
+[INFO] 2026-10-12T16:45:44.784Z - [VectorStore] search "the native helper does not bec" — lexical+dense
+[INFO] 2026-10-12T16:45:44.784Z - [VectorStore] search "the desktop app broke because " — lexical+dense
+[INFO] 2026-10-12T16:45:44.784Z - [VectorStore] search "every test passes but the feat" — lexical+dense
+[INFO] 2026-10-12T16:45:44.784Z - [VectorStore] search "search behaved oddly after I c" — lexical+dense
+[INFO] 2026-10-12T16:45:44.785Z - [VectorStore] search "older entries only match by ke" — lexical+dense
+(pass) retrieval quality, measured > the baseline is real — lexical alone cannot answer the paraphrase cases [29.79ms]
+[INFO] 2026-10-12T16:45:44.785Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.786Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.786Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.787Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.787Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.787Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.788Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.789Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.790Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.790Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.791Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.791Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.792Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.793Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.793Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.794Z - [VectorStore] search "AXError -25208" — lexical+dense+rerank
+(pass) retrieval quality, measured > exact identifiers still rank first with every stage on [9.72ms]
+(pass) chunking > a long document becomes several chunks, a short one stays whole [0.78ms]
+(pass) chunking > a fenced code block is never split [0.30ms]
+(pass) chunking > consecutive chunks overlap, so a fact on a seam survives [0.23ms]
+(pass) chunking > overlap is taken at a word boundary, never mid-word [0.23ms]
+(pass) chunking > ids are stable, so re-chunking unchanged text is a no-op [0.18ms]
+(pass) reranking > a provider failure keeps the fused order rather than inventing one [0.74ms]
+(pass) reranking > a 422 latches off — that endpoint shape is not going to start working [0.33ms]
+(pass) reranking > each endpoint gets ITS OWN dialect — the wrong shape is a 422 that reads like a model error [1.16ms]
+(pass) reranking > an out-of-range index is refused rather than silently dropped [0.37ms]
+[INFO] 2026-10-12T16:45:44.801Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.802Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+[INFO] 2026-10-12T16:45:44.806Z - [VectorStore] search "AXError -25208" — lexical
+[INFO] 2026-10-12T16:45:44.806Z - [VectorStore] Memorized 1 document(s) (1 chunk(s)).
+(pass) eviction > keeps what is used, not what is newest [7.45ms]
+
+src/__tests__/memory.retrieval.test.ts:
+(pass) BM25 ranking > a rare term outranks a common one [0.08ms]
+(pass) BM25 ranking > term frequency saturates instead of scaling linearly [0.05ms]
+(pass) BM25 ranking > IDF never goes negative, so a ubiquitous term cannot penalise a document [0.03ms]
+(pass) BM25 ranking > length normalisation stops a long document winning by being long [0.06ms]
+(pass) BM25 ranking > digits survive tokenisation [0.31ms]
+(pass) BM25 ranking > an empty or stopword-only query returns nothing rather than everything [0.10ms]
+(pass) reciprocal rank fusion > agreement between two retrievers beats one retriever’s enthusiasm [0.06ms]
+(pass) reciprocal rank fusion > a missing list degrades to the other list’s exact order [0.05ms]
+(pass) reciprocal rank fusion > scores are rank-derived, so an outlier score cannot rescale the ranking [0.03ms]
+(pass) reciprocal rank fusion > ties break deterministically [0.07ms]
+(pass) reciprocal rank fusion > ranks are reported, so a surprising order can be explained [0.02ms]
+(pass) embedding backend > a query and a passage are sent with different input_type [0.48ms]
+(pass) embedding backend > truncate is END, because the provider default NONE is an error [0.09ms]
+(pass) embedding backend > vectors come back unit length, so cosine is a dot product [0.07ms]
+(pass) embedding backend > out-of-order responses are re-ordered by index [0.09ms]
+(pass) embedding backend > oversized inputs are split into batches, not rejected [0.10ms]
+(pass) embedding backend > no key returns null — never a fabricated vector [0.10ms]
+(pass) embedding backend > a 404 latches off; a 429 does not [0.10ms]
+(pass) embedding backend > the space id changes with the model or the dimensions [0.04ms]
+(pass) embedding backend > normalize leaves a zero vector alone rather than producing NaN [0.03ms]
+
+src/__tests__/tool.registry.contract.test.ts:
+[INFO] 2026-10-12T16:45:45.241Z - [ApiKeyManager] Key pool set: 0 key(s) across 0 provider(s).
+[INFO] 2026-10-12T16:45:45.243Z - [Governor] Loaded physical budget: $0.00 / $5.00
+[INFO] 2026-10-12T16:45:45.243Z - [Governor] Initialized Multi-Layer Permission Engine.
+[INFO] 2026-10-12T16:45:45.676Z - [SqliteGraphStore] Graph loaded from /Users/vishsiddharth/Bimax/.breakglass/graph/graph.db. Nodes: 53994, Edges: 112857
+[INFO] 2026-10-12T16:45:45.677Z - [ToolRegistry] Registered tool: ReadFileTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.677Z - [ToolRegistry] Registered tool: ReadDocumentTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.677Z - [ToolRegistry] Registered tool: WriteFileTool (Destructive: true)
+[INFO] 2026-10-12T16:45:45.677Z - [ToolRegistry] Registered tool: EditFileTool (Destructive: true)
+[INFO] 2026-10-12T16:45:45.677Z - [ToolRegistry] Registered tool: MultiEditTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.677Z - [ToolRegistry] Registered tool: SymbolEditTool (Destructive: true)
+[INFO] 2026-10-12T16:45:45.677Z - [ToolRegistry] Registered tool: RelatedTestsTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.677Z - [ToolRegistry] Registered tool: DeleteTool (Destructive: true)
+[INFO] 2026-10-12T16:45:45.677Z - [ToolRegistry] Registered tool: CreateDirectoryTool (Destructive: true)
+[INFO] 2026-10-12T16:45:45.677Z - [ToolRegistry] Registered tool: BashTool (Destructive: true)
+[INFO] 2026-10-12T16:45:45.677Z - [ToolRegistry] Registered tool: GrepTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.677Z - [ToolRegistry] Registered tool: GlobTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.678Z - [ToolRegistry] Registered tool: TodoWriteTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.678Z - [ToolRegistry] Registered tool: OutcomeTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.678Z - [ToolRegistry] Registered tool: CompletionCheckTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.678Z - [ToolRegistry] Registered tool: WakeTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.678Z - [ToolRegistry] Registered tool: WebFetchTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.678Z - [ToolRegistry] Registered tool: ChangeDirectoryTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.678Z - [ToolRegistry] Registered tool: GraphQueryTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.678Z - [ToolRegistry] Registered tool: GraphContextTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.678Z - [ToolRegistry] Registered tool: MemoryQueryTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.681Z - [ToolRegistry] Registered tool: ComposerSearchTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.681Z - [ToolRegistry] Registered tool: ComposerIngestTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.681Z - [ToolRegistry] Registered tool: FactQueryTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.681Z - [ToolRegistry] Registered tool: SocketQueryTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.739Z - [ToolRegistry] Registered tool: CodeSearchTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.739Z - [ToolRegistry] Registered tool: RememberTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.739Z - [ToolRegistry] Registered tool: SpawnSubagentTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.740Z - [ToolRegistry] Registered tool: TasksTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.740Z - [ToolRegistry] Registered tool: NotebookEditTool (Destructive: true)
+[INFO] 2026-10-12T16:45:45.740Z - [ToolRegistry] Registered tool: DocumentTool (Destructive: true)
+[INFO] 2026-10-12T16:45:45.740Z - [ToolRegistry] Registered tool: RegisterAgentTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.740Z - [ToolRegistry] Registered tool: AskUserTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.740Z - [ToolRegistry] Registered tool: GitTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.740Z - [ToolRegistry] Registered tool: LspQueryTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.740Z - [ToolRegistry] Registered tool: FreeContextTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.741Z - [ToolRegistry] Registered tool: ContextArchiveTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.741Z - [ToolRegistry] Registered tool: GoalsTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.741Z - [ToolRegistry] Registered tool: WorkspaceTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.741Z - [ToolRegistry] Registered tool: PlanTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.741Z - [ToolRegistry] Registered tool: ScoutTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.741Z - [ToolRegistry] Registered tool: ModeTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.741Z - [ToolRegistry] Registered tool: SkillTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.741Z - [ToolRegistry] Registered tool: SkillInstallTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.742Z - [ToolRegistry] Registered tool: SkillAuthorTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.742Z - [ToolRegistry] Registered tool: McpManageTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.742Z - [ToolRegistry] Registered tool: ModelManageTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.742Z - [ToolRegistry] Registered tool: ToolSearchTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.742Z - [ToolRegistry] Registered tool: ToolWorkflowTool (Destructive: false)
+[INFO] 2026-10-12T16:45:45.742Z - [ToolRegistry] Registered tool: WebSearchTool (Destructive: false)
+(pass) the real model registry has coding tools and no Computer Use, even with old flags enabled [0.03ms]
+(pass) the registry is not empty — a container that registers nothing would pass every check below
+(pass) every tool has a usable name and description [0.05ms]
+(pass) every schema is an object schema whose required fields actually exist [0.10ms]
+(pass) a multi-action tool always enumerates its actions [0.02ms]
+(pass) undescribed parameters may shrink, never grow [0.12ms]
+
+ 132 pass
+ 0 fail
+ 327 expect() calls
+Ran 132 tests across 14 files. [61.05s]
+
+> bimax@1.1.0 test:scripts
+> node --test app/scripts/release-artifact.test.mjs
+
+TAP version 13
+# Subtest: release checks select the exact artifact and refuse stale substitutes
+ok 1 - release checks select the exact artifact and refuse stale substitutes
+  ---
+  duration_ms: 4.352209
+  ...
+# Subtest: check-app-actions.mjs fails before checking another app when --app is invalid
+ok 2 - check-app-actions.mjs fails before checking another app when --app is invalid
+  ---
+  duration_ms: 45.369208
+  ...
+# Subtest: verify-release.mjs fails before checking another app when --app is invalid
+ok 3 - verify-release.mjs fails before checking another app when --app is invalid
+  ---
+  duration_ms: 44.285791
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 154.817625

@@ -1,5 +1,21 @@
 # Bimax product reset
 
+## Algorithm audit and exact-result upgrades — 2026-10-12, record 88
+
+[Record 88](88_ALGORITHM_AUDIT_AND_UPGRADE.md) inventories 744 first-party source files, records 38 family decisions and 27 primary references, and implements inverted BM25 postings, bounded dense top-k heaps, circular breaker windows and access-ordered file caching. Exact fixtures, twelve source faults and paired component timings qualify this slice; regressions and memory tradeoffs are retained. Exhaustive manual function review, installed task latency, quality/resource/energy qualification and any competitive claim remain Target. CU/UI implementation is outside scope.
+
+## Non-CU provider request lifetime — 2026-10-12, record 87
+
+[Record 87](87_PROVIDER_REQUEST_LIFETIME.md) bounds header races and backup-key discovery with one deadline, interrupts API-slot/chunk waits on Stop, suppresses remaining buffered tool calls after cancellation, and keeps cancellation neutral for key/provider health. Twenty-two new local tests include five real SDK/loopback HTTP end states; eleven source faults are assertion-caught. No CU/UI change, hosted-model qualification, app installation or latency/RSS claim. Full installed/provider/release journeys remain Target.
+
+## Non-CU connection ownership — 2026-10-12, record 86
+
+[Record 86](86_MCP_CONNECTION_OWNERSHIP.md) fences pending/replaced MCP connections, delayed catalog/probe replies and stopped watchdog sweeps; coalesces catalog changes; preserves exact registry ownership; and gives resource-only servers deadline/Stop-aware adapters. Local qualification: 4,191 Jest / 132 Bun / three script tests, 79 focused tests, eleven new and seven rechecked assertion-caught source faults, builds/typechecks and seven staged engine exchanges. Fixture catalog reads fall from 102 to three; no latency/RSS claim. The same 19 pre-existing lint errors remain. CU/UI, the installed app and unrelated dirty work are preserved; installed/provider/release journeys remain Target.
+
+## Non-CU engineering reliability — 2026-10-12, record 85
+
+[Record 85](85_NON_CU_ENGINEERING_RELIABILITY.md) repairs unfinished provider stream disposal, MCP startup/stderr/deadline/cancellation and uncertain write replay, malformed TIFF admission, and exact release-artifact selection. CI installs both dependency trees. Locally verified: 4,168 Jest / 132 Bun / three script tests, seven assertion-caught source faults, builds/typechecks and seven staged engine exchanges. Diagnostic retention is bounded at 64 KiB; no latency/RSS/energy claim. Nineteen pre-existing lint errors remain. CU source/UI and the installed app are unchanged; full installed/provider/release journeys remain Target.
+
 ## PDF reliability — 2026-10-06, round 4
 
 [Record 74](74_PDF_RELIABILITY_SPRINT.md) repairs footer-induced extra pages and missing page

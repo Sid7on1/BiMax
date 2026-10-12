@@ -55,6 +55,24 @@ const ANGLES = {
   [UNRELATED]: Math.PI,     // opposite side of the space
 };
 
+test('dense bounded selection preserves pre-depth scope, recency ties and foreign-space rejection', async () => {
+  const storePath = path.join(tmp, 'selection-fixture.json');
+  const docs = Array.from({ length: 220 }, (_, i) => ({
+    id: `d-${String(i).padStart(3, '0')}`,
+    metadata: { content: `record-${i}`, tags: [i < 100 ? 'foreign' : 'owned', ...(i === 219 ? ['exclude'] : [])] },
+    lastUsedAt: i % 5,
+    chunks: [{ id: `c-${String(i).padStart(3, '0')}`, text: `record-${i}`, embedding: [1, 0], space: i === 218 ? 'foreign-space' : 'selection@2' }],
+  }));
+  fs.writeFileSync(storePath, JSON.stringify(docs));
+  const backend: EmbeddingBackend = { id: 'selection@2', dimensions: 2, embed: async texts => texts.map(() => [1, 0]) };
+  const store = new VectorStore(backend, null, { storePath, maxVectors: 300, dedup: false });
+  const expected = docs.filter(doc => doc.metadata.tags.includes('owned') && !doc.metadata.tags.includes('exclude') && doc.chunks[0].space === backend.id)
+    .sort((a, b) => b.lastUsedAt - a.lastUsedAt || a.chunks[0].id.localeCompare(b.chunks[0].id)).slice(0, 8).map(doc => doc.id);
+  const hits = await store.semanticSearch('query', 8, 0, { mode: 'dense', tags: ['owned'], excludeTags: ['exclude'], where: tags => tags.includes('owned') });
+  expect(hits.map(doc => doc.id)).toEqual(expected);
+  expect(store.lastSearchMode().dense).toBe(true);
+});
+
 describe('hybrid retrieval', () => {
   test('finds a paraphrase that shares no words with the query', async () => {
     // The capability this whole change exists to add, and the one the previous store could not

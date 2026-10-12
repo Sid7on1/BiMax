@@ -22,12 +22,11 @@
  * The textbook IDF, `log((N - df + 0.5) / (df + 0.5))`, goes **negative** for any term appearing in
  * more than half the documents — at which point containing the query's own word actively *lowers* a
  * document's score, which is indefensible and produces rankings that look random on small corpora.
- * Small corpora are exactly this store's case (a few hundred memories), where a term can easily be
- * in most of them. The `+1` inside the log floors IDF at zero: a ubiquitous term contributes
- * nothing rather than doing harm.
+ * The `+1` inside the log keeps IDF positive, including for a ubiquitous term. Parameters and
+ * tokenization stay unchanged when the query traversal uses inverted postings (record 88).
  */
 
-/** Free parameters. These are the values the literature settled on; they are not arbitrary. */
+/** Existing ranking parameters; changing them requires a relevance evaluation. */
 export const BM25_K1 = 1.2;
 export const BM25_B = 0.75;
 
@@ -64,8 +63,12 @@ export interface Bm25Document {
 
 interface IndexedDocument {
   id: string;
-  termFrequency: Map<string, number>;
   length: number;
+}
+
+interface Posting {
+  document: number;
+  frequency: number;
 }
 
 export interface Bm25Hit {
@@ -75,8 +78,8 @@ export interface Bm25Hit {
 
 export class Bm25Index {
   private documents: IndexedDocument[] = [];
-  /** How many documents contain each term. The denominator of IDF. */
-  private documentFrequency = new Map<string, number>();
+  /** Each term points only to the documents containing it; one posting per document. */
+  private postings = new Map<string, Posting[]>();
   private averageLength = 0;
 
   constructor(documents: Bm25Document[] = []) {
@@ -86,24 +89,25 @@ export class Bm25Index {
   /**
    * Rebuild from scratch.
    *
-   * Not incremental, deliberately: IDF is a property of the whole corpus, so adding one document
-   * changes the score of every other. An "incremental" index that skipped that would drift away
-   * from correct ranking silently, and this corpus is small enough (hundreds) that a full rebuild
-   * is microseconds.
+   * Replace the corpus and all its statistics together. IDF and average length are computed from
+   * the current corpus; no old postings survive a rebuild. Incremental updates are not exposed.
    */
   build(documents: Bm25Document[]): void {
     this.documents = [];
-    this.documentFrequency = new Map();
+    this.postings = new Map();
 
     let totalLength = 0;
     for (const document of documents) {
       const tokens = tokenize(document.text);
       const termFrequency = new Map<string, number>();
       for (const token of tokens) termFrequency.set(token, (termFrequency.get(token) ?? 0) + 1);
-      for (const term of termFrequency.keys()) {
-        this.documentFrequency.set(term, (this.documentFrequency.get(term) ?? 0) + 1);
+      const documentIndex = this.documents.length;
+      for (const [term, frequency] of termFrequency) {
+        let list = this.postings.get(term);
+        if (!list) this.postings.set(term, list = []);
+        list.push({ document: documentIndex, frequency });
       }
-      this.documents.push({ id: document.id, termFrequency, length: tokens.length });
+      this.documents.push({ id: document.id, length: tokens.length });
       totalLength += tokens.length;
     }
     this.averageLength = this.documents.length ? totalLength / this.documents.length : 0;
@@ -113,11 +117,11 @@ export class Bm25Index {
     return this.documents.length;
   }
 
-  /** Floored at 0 — see the header. A term in every document is uninformative, not harmful. */
+  /** Positive Lucene-style IDF, including when every document contains the term. */
   idf(term: string): number {
     const n = this.documents.length;
     if (!n) return 0;
-    const df = this.documentFrequency.get(term) ?? 0;
+    const df = this.postings.get(term)?.length ?? 0;
     return Math.log(1 + (n - df + 0.5) / (df + 0.5));
   }
 
@@ -129,25 +133,39 @@ export class Bm25Index {
 
     // Query term frequency matters: asking for "clip clip clip" should not triple the weight of a
     // term the user typed once by accident of phrasing. Terms are therefore de-duplicated.
-    const unique = [...new Set(terms)];
-    const idf = new Map(unique.map((term) => [term, this.idf(term)]));
-
-    const hits: Bm25Hit[] = [];
-    for (const document of this.documents) {
-      let score = 0;
-      for (const term of unique) {
-        const tf = document.termFrequency.get(term);
-        if (!tf) continue;
-        const weight = idf.get(term) ?? 0;
-        if (weight <= 0) continue;
+    const unique = [...new Set(terms)].filter(term => this.postings.has(term));
+    if (!unique.length) return [];
+    // A single term needs no accumulator or union. This also avoids extra storage for ubiquitous
+    // terms; postings already follow document order, preserving stable ties for duplicate IDs.
+    if (unique.length === 1) {
+      const weight = this.idf(unique[0]);
+      const hits = this.postings.get(unique[0])!.map(posting => {
+        const document = this.documents[posting.document];
+        const tf = posting.frequency;
+        const denominator = tf + BM25_K1 * (1 - BM25_B + BM25_B * (document.length / this.averageLength));
+        return { id: document.id, score: weight * ((tf * (BM25_K1 + 1)) / denominator) };
+      });
+      return hits.sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
+    }
+    // Dense numeric accumulators avoid Map/tuple overhead on common terms. Only matched ordinals
+    // are sorted; the O(N) zeroed buffer costs eight bytes per document for a matching query.
+    const scores = new Float64Array(this.documents.length);
+    const matched: number[] = [];
+    // Keep query-term order so each document's floating-point additions match the full scan.
+    for (const term of unique) {
+      const weight = this.idf(term);
+      if (weight <= 0) continue;
+      for (const posting of this.postings.get(term) ?? []) {
+        const document = this.documents[posting.document];
+        const tf = posting.frequency;
         // Saturating term frequency, normalized by how long this document is relative to the corpus.
         const denominator = tf + BM25_K1 * (1 - BM25_B + BM25_B * (document.length / this.averageLength));
-        score += weight * ((tf * (BM25_K1 + 1)) / denominator);
+        if (scores[posting.document] === 0) matched.push(posting.document);
+        scores[posting.document] += weight * ((tf * (BM25_K1 + 1)) / denominator);
       }
-      if (score > 0) hits.push({ id: document.id, score });
     }
-
-    hits.sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
-    return hits;
+    // Ordinal tie-breaking also preserves stable input order when callers supply duplicate IDs.
+    return matched.sort((a, b) => scores[b] - scores[a] || this.documents[a].id.localeCompare(this.documents[b].id) || a - b)
+      .map(document => ({ id: this.documents[document].id, score: scores[document] }));
   }
 }

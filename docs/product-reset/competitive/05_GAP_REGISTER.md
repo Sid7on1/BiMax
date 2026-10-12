@@ -1,5 +1,21 @@
 # Bimax gap register
 
+## Algorithm inventory and first implementation pass — 2026-10-12
+
+[Record 88](../88_ALGORITHM_AUDIT_AND_UPGRADE.md): **Implemented** four exact-result data-structure changes: inverted BM25 query traversal, bounded dense score heaps, circular exact-time breaker samples and access-ordered file-cache storage. Structural coverage is 744 baseline first-party files / 10,494 JS/TS function bodies, with 38 scoped family decisions and 27 primary references; this does **not** claim exhaustive semantic review. **Measured** paired local component timings preserve output equality and include common-term/build and ordered-score regressions. Twelve source faults fail assertions. HNSW/DiskANN, W-TinyLFU, Gradient2 and DDSketch remain **Target experiments**, requiring workload, correctness/quality and resource evidence. Full installed C01/C04/R01/R02, peak application RSS/energy and release remain unmeasured. CU/UI are untouched; the 19 existing lint errors remain.
+
+## Non-CU provider request lifetime — 2026-10-12, round three
+
+[Record 87](../87_PROVIDER_REQUEST_LIFETIME.md): **Implemented and locally verified** shared header deadlines, prompt primary completion during delayed backup selection, Stop-aware key acquisition/chunk reads, per-event cancellation fences, and neutral key/provider health on cancellation. Twenty-two added tests, five real SDK/local HTTP end states and eleven rejected source faults qualify this component slice. Full installed C01/C04/R01, live provider/model tiers, remote billing/cancellation, performance and release remain **Target/unmeasured**. CU/UI are untouched.
+
+## Non-CU MCP ownership — 2026-10-12, round two
+
+[Record 86](../86_MCP_CONNECTION_OWNERSHIP.md): **Implemented and locally verified** pending/replacement cancellation, owned tool disposal, stale catalog/health/watchdog fences, shared read-only healing, coalesced capability-driven catalog discovery and resource deadline/Stop propagation. Real local SDK fixtures prove cooperative process cleanup, resource-only read-back and cancellation receipt. Fixture operation counts, 23 new tests and eleven new source faults are scoped there. Full installed C01/C04/R01, hosted OAuth/SSE compatibility, hostile/resistant servers, measured latency/RSS/energy and distribution remain **Target/unmeasured**. CU/UI are unchanged; whole-repository lint retains 19 existing errors.
+
+## Non-CU engineering reliability — 2026-10-12
+
+[Record 85](../85_NON_CU_ENGINEERING_RELIABILITY.md): **Implemented and locally verified** provider-stream disposal; bounded early MCP stderr draining; whole-call deadlines, Stop and best-effort task cancellation; no uncertain replay for unannotated/destructive tools; malformed TIFF admission; shared exact artifact selection; and both dependency trees in CI. Local retention counts, fixture end states, seven source faults and validation limits are recorded there. Full installed C01/C04/R01, live providers/OAuth, general MCP lifecycle races, RSS/latency/energy and distribution remain **Target/unmeasured**. Whole-repository lint still has 19 pre-existing errors. CU source and visual design are deliberately outside this work.
+
 ## PDF production and reading — 2026-10-06, round 4
 
 [Record 74](../74_PDF_RELIABILITY_SPRINT.md): **Implemented and locally verified.** Footers no

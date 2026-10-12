@@ -53,7 +53,7 @@ export function hashFileBytes(bytes: Uint8Array): string {
  */
 export class FileStateCache {
   private cache = new Map<string, CacheEntry>();
-  private lruOrder: string[] = [];
+  // Map insertion order is the access order: touch removes and reinserts the same entry.
 
   /** Get file mtime in ms. Returns null if stat fails. */
   async getMtime(absPath: string): Promise<number | null> {
@@ -92,7 +92,6 @@ export class FileStateCache {
     if (entry.mtime !== currentMtime || (entry.stamp && currentStamp && entry.stamp !== currentStamp)) {
       // File changed on disk (or may have: its ctime moved) — evict this entry
       this.cache.delete(key);
-      this.lruOrder = this.lruOrder.filter(k => k !== key);
       return null;
     }
     this.touchLru(key);
@@ -131,7 +130,6 @@ export class FileStateCache {
     for (const key of [...this.cache.keys()]) {
       if (key.startsWith(absPath + SEP)) {
         this.cache.delete(key);
-        this.lruOrder = this.lruOrder.filter(k => k !== key);
       }
     }
   }
@@ -164,7 +162,7 @@ export class FileStateCache {
     const result: Array<{ path: string; content: string; mtime: number; fileHash?: string; offset: number; limit: number; complete: boolean }> = [];
     const seen = new Set<string>();
 
-    for (const key of [...this.lruOrder].reverse()) {
+    for (const key of [...this.cache.keys()].reverse()) {
       const entry = this.cache.get(key);
       if (!entry || entry.evictedByModel) continue;
       if (now - entry.cachedAt > maxAgeMs) continue;
@@ -188,14 +186,16 @@ export class FileStateCache {
   }
 
   private touchLru(key: string): void {
-    this.lruOrder = this.lruOrder.filter(k => k !== key);
-    this.lruOrder.push(key);
+    const entry = this.cache.get(key);
+    if (!entry) return;
+    this.cache.delete(key);
+    this.cache.set(key, entry);
   }
 
   private evictIfNeeded(): void {
     while (this.cache.size > MAX_ENTRIES) {
-      const oldest = this.lruOrder.shift();
-      if (oldest) this.cache.delete(oldest);
+      const oldest = this.cache.keys().next().value;
+      if (oldest !== undefined) this.cache.delete(oldest);
     }
   }
 }

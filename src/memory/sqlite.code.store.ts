@@ -36,6 +36,7 @@ import { openSqlite, type SqliteDB } from '../core/sqlite';
 import { Logger } from '../utils';
 import { tokenize } from './bm25';
 import { reciprocalRankFusion } from './fusion';
+import { BoundedTopK } from '../utils/bounded.top.k';
 import { type SearchMode, type SearchOptions } from './vector.store';
 import type { VectorDocument } from './vector.store';
 import type { EmbeddingBackend } from './embeddings';
@@ -294,8 +295,8 @@ export class SqliteCodeVectorStore {
       }
     }
 
-    // Dense half: streamed scan, nothing materialized. int8 rows dequantize into a reused
-    // scratch buffer; scores collect as (id, score) pairs and sort once at the end.
+    // Dense half: exact streamed int8 scan, retaining only the best `depth` scores in a heap.
+    // Vector scoring remains linear; score selection uses O(depth) retained candidates.
     let denseIds: string[] = [];
     if (queryVector) {
       const space = this.embeddings!.id;
@@ -304,7 +305,8 @@ export class SqliteCodeVectorStore {
       } else {
         this.queryScratch.set(queryVector);
       }
-      const scored: { id: string; score: number }[] = [];
+      const scored = new BoundedTopK<{ id: string; score: number }>(depth,
+        (a, b) => b.score - a.score || a.id.localeCompare(b.id));
       const stmt = this.db.prepare('SELECT chunk_id, scale, vec FROM embs WHERE space = ?');
       for (const row of stmt.iterate(space)) {
         const id = String(row.chunk_id);
@@ -319,13 +321,13 @@ export class SqliteCodeVectorStore {
           // confident garbage, not an error.
           dot += this.queryScratch[i] * ((blob[i] - 127) * scale);
         }
-        scored.push({ id, score: dot });
+        scored.add({ id, score: dot });
       }
-      scored.sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
+      const best = scored.sorted();
       // Absolute abstention rejects unrelated spaces; the relative window prevents a long tail of
       // weak-but-positive vectors from receiving the same RRF vote as the query's true neighbours.
-      const denseFloor = Math.max(this.minDenseScore, (scored[0]?.score ?? 0) - 0.05);
-      denseIds = scored.filter((s) => s.score >= denseFloor).slice(0, depth).map((s) => s.id);
+      const denseFloor = Math.max(this.minDenseScore, (best[0]?.score ?? 0) - 0.05);
+      denseIds = best.filter((s) => s.score >= denseFloor).map((s) => s.id);
     }
 
     // Source search gives exact lexical evidence a modest prior. Dense still owns tokenless queries

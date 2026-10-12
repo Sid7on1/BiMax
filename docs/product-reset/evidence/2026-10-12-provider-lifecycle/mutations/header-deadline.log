@@ -1,0 +1,24 @@
+FAIL src/__tests__/provider.lifecycle.sprint.test.ts
+  ● provider lifetime under delayed or uncooperative work › hedging disabled still bounds an uncooperative header request
+
+    expect(received).toMatchObject(expected)
+
+    Matcher error: received value must be a non-null object
+
+    Received has value: undefined
+
+      206 |     const result = observed(run);
+      207 |     await jest.advanceTimersByTimeAsync(31);
+    > 208 |     expect(result.error).toMatchObject({ name: 'APIConnectionTimeoutError' });
+          |                          ^
+      209 |     expect(abort).toHaveBeenCalledTimes(1);
+      210 |     expect(jest.getTimerCount()).toBe(0);
+      211 |     pending.resolve('late answer');
+
+      at Object.<anonymous> (src/__tests__/provider.lifecycle.sprint.test.ts:208:26)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 16 skipped, 17 total
+Snapshots:   0 total
+Time:        1.548 s, estimated 2 s
+Ran all test suites matching src/__tests__/provider.lifecycle.sprint.test.ts with tests matching "hedging disabled still bounds".

@@ -1,0 +1,192 @@
+[INFO] 2026-10-12T16:35:39.618Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s), 1 requests/min each.
+[33m[WARN] 2026-10-12T16:35:39.618Z - [LlmAdapter] All keys cooling down (rate limit / transient). Sleeping 60.0s...[0m
+[INFO] 2026-10-12T16:35:39.624Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:35:39.625Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:35:39.626Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+[INFO] 2026-10-12T16:35:39.627Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+FAIL src/__tests__/provider.lifecycle.sprint.test.ts
+  ● provider lifetime under delayed or uncooperative work › primary headers return while backup key selection is still pending, without a late backup
+
+    expect(received).toMatchObject(expected)
+
+    Matcher error: received value must be a non-null object
+
+    Received has value: undefined
+
+      47 |       h.primary.resolve('primary response');
+      48 |       await jest.advanceTimersByTimeAsync(0);
+    > 49 |       expect(h.result.value).toMatchObject({ key: 'A', value: 'primary response' });
+         |                              ^
+      50 |       h.key.resolve('B');
+      51 |       await jest.advanceTimersByTimeAsync(0);
+      52 |       expect(h.start).toHaveBeenCalledTimes(1);
+
+      at Object.<anonymous> (src/__tests__/provider.lifecycle.sprint.test.ts:49:30)
+
+  ● provider lifetime under delayed or uncooperative work › header deadline bounds delayed key lookup and refuses a backup after expiry
+
+    expect(received).toMatchObject(expected)
+
+    Matcher error: received value must be a non-null object
+
+    Received has value: undefined
+
+      58 |     try {
+      59 |       await jest.advanceTimersByTimeAsync(60);
+    > 60 |       expect(h.result.error).toMatchObject({ name: 'APIConnectionTimeoutError' });
+         |                              ^
+      61 |       expect(h.abortA).toHaveBeenCalledTimes(1);
+      62 |       h.key.resolve('B');
+      63 |       await jest.advanceTimersByTimeAsync(0);
+
+      at Object.<anonymous> (src/__tests__/provider.lifecycle.sprint.test.ts:60:30)
+
+  ● provider lifetime under delayed or uncooperative work › Stop bounds uncooperative header promises and cancels every launched request
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: [Error: fixture Stop]
+    Received: undefined
+
+      75 |       stop.abort(reason);
+      76 |       await jest.advanceTimersByTimeAsync(0);
+    > 77 |       expect(h.result.error).toBe(reason);
+         |                              ^
+      78 |       expect(h.abortA).toHaveBeenCalledTimes(1);
+      79 |       expect(h.abortB).toHaveBeenCalledTimes(1);
+      80 |     } finally { h.primary.resolve('cleanup'); h.backup.resolve('cleanup'); await h.run.catch(() => undefined); }
+
+      at Object.<anonymous> (src/__tests__/provider.lifecycle.sprint.test.ts:77:30)
+
+  ● provider lifetime under delayed or uncooperative work › an already stopped header request never dispatches
+
+    expect(jest.fn()).not.toHaveBeenCalled()
+
+    Expected number of calls: 0
+    Received number of calls: 1
+
+    1: "A", 100
+
+      87 |     try {
+      88 |       await jest.advanceTimersByTimeAsync(0);
+    > 89 |       expect(h.start).not.toHaveBeenCalled();
+         |                           ^
+      90 |       expect(h.result.error).toBe(stop.signal.reason);
+      91 |     } finally { h.primary.resolve('cleanup'); h.key.resolve(null); await h.run.catch(() => undefined); }
+      92 |   });
+
+      at Object.<anonymous> (src/__tests__/provider.lifecycle.sprint.test.ts:89:27)
+
+  ● provider lifetime under delayed or uncooperative work › a synchronous backup launch failure leaves the primary eligible to win
+
+    expect(received).toMatchObject(expected)
+
+    Matcher error: received value must be a non-null object
+
+    Received has value: undefined
+
+      102 |     primary.resolve('primary response');
+      103 |     await jest.advanceTimersByTimeAsync(0);
+    > 104 |     expect(result.value).toMatchObject({ key: 'A', value: 'primary response' });
+          |                          ^
+      105 |     expect(loser).toHaveBeenCalledWith('B', expect.any(Number), failure);
+      106 |   });
+      107 |
+
+      at Object.<anonymous> (src/__tests__/provider.lifecycle.sprint.test.ts:104:26)
+
+  ● provider lifetime under delayed or uncooperative work › Stop interrupts rate-limit waiting without acquiring another slot or sending HTTP
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      121 |       stop.abort(new Error('stop during cooldown'));
+      122 |       await jest.advanceTimersByTimeAsync(0);
+    > 123 |       expect(result.settled).toBe(true);
+          |                              ^
+      124 |       expect(create).not.toHaveBeenCalled();
+      125 |       await jest.advanceTimersByTimeAsync(120_000);
+      126 |       expect(pick).toHaveBeenCalledTimes(1);
+
+      at Object.<anonymous> (src/__tests__/provider.lifecycle.sprint.test.ts:123:30)
+
+  ● provider lifetime under delayed or uncooperative work › an already stopped chat does not reserve an API slot
+
+    expect(jest.fn()).not.toHaveBeenCalled()
+
+    Expected number of calls: 0
+    Received number of calls: 1
+
+    1: called with 0 arguments
+
+      138 |     await chat.next().catch(() => undefined);
+      139 |     await chat.return(undefined);
+    > 140 |     expect(pick).not.toHaveBeenCalled();
+          |                      ^
+      141 |     expect(create).not.toHaveBeenCalled();
+      142 |   });
+      143 |
+
+      at Object.<anonymous> (src/__tests__/provider.lifecycle.sprint.test.ts:140:22)
+
+  ● provider lifetime under delayed or uncooperative work › Stop interrupts an uncooperative chunk read and disposes the stream
+
+    expect(received).toMatchObject(expected)
+
+    Matcher error: received value must be a non-null object
+
+    Received has value: undefined
+
+      158 |       stop.abort(new Error('Stop at chunk read'));
+      159 |       await jest.advanceTimersByTimeAsync(0);
+    > 160 |       expect(result.value).toMatchObject({ value: { type: 'error', recoverable: false } });
+          |                            ^
+      161 |     } finally { pending.resolve({ done: true, value: undefined }); await next; await chat.return(undefined); }
+      162 |     expect(abort).toHaveBeenCalled();
+      163 |     expect(close).toHaveBeenCalledTimes(1);
+
+      at Object.<anonymous> (src/__tests__/provider.lifecycle.sprint.test.ts:160:28)
+
+  ● provider lifetime under delayed or uncooperative work › Stop before buffered tool finalization emits neither an executable call nor done
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      177 |     const rest = [];
+      178 |     for await (const event of chat) rest.push(event);
+    > 179 |     expect(rest.some(event => event.type === 'tool_call' || event.type === 'done')).toBe(false);
+          |                                                                                     ^
+      180 |     expect(rest).toContainEqual(expect.objectContaining({ type: 'error', recoverable: false }));
+      181 |   });
+      182 |
+
+      at Object.<anonymous> (src/__tests__/provider.lifecycle.sprint.test.ts:179:85)
+
+  ● provider lifetime under delayed or uncooperative work › cancelled streaming is neutral for API key health and never requests a retry
+
+    expect(jest.fn()).not.toHaveBeenCalled()
+
+    Expected number of calls: 0
+    Received number of calls: 1
+
+    1: 0, 500, null
+
+      191 |     const events = [];
+      192 |     for await (const event of adapter.chat([], { signal: stop.signal })) events.push(event);
+    > 193 |     expect(report).not.toHaveBeenCalled();
+          |                        ^
+      194 |     expect(breaker).not.toHaveBeenCalled();
+      195 |     expect(events).toContainEqual(expect.objectContaining({ type: 'error', recoverable: false }));
+      196 |     expect(events.some(event => event.type === 'done')).toBe(false);
+
+      at Object.<anonymous> (src/__tests__/provider.lifecycle.sprint.test.ts:193:24)
+
+Test Suites: 1 failed, 1 total
+Tests:       10 failed, 10 total
+Snapshots:   0 total
+Time:        1.81 s
+Ran all test suites matching src/__tests__/provider.lifecycle.sprint.test.ts.

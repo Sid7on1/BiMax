@@ -1,0 +1,24 @@
+[INFO] 2026-10-12T16:43:26.412Z - [ApiKeyManager] Key pool set: 1 key(s) across 1 provider(s).
+FAIL src/__tests__/provider.lifecycle.sprint.test.ts
+  ● provider lifetime under delayed or uncooperative work › Stop between finalized tool calls suppresses every remaining executable call
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      288 |     const rest = [];
+      289 |     for await (const event of chat) rest.push(event);
+    > 290 |     expect(rest.some(event => event.type === 'tool_call' || event.type === 'done')).toBe(false);
+          |                                                                                     ^
+      291 |     expect(rest).toContainEqual(expect.objectContaining({ type: 'error', recoverable: false }));
+      292 |   });
+      293 |
+
+      at Object.<anonymous> (src/__tests__/provider.lifecycle.sprint.test.ts:290:85)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 16 skipped, 17 total
+Snapshots:   0 total
+Time:        3.799 s
+Ran all test suites matching src/__tests__/provider.lifecycle.sprint.test.ts with tests matching "Stop between finalized tool calls".

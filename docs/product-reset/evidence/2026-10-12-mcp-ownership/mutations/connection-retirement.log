@@ -1,0 +1,28 @@
+FAIL src/__tests__/mcp.ownership.sprint.test.ts
+  ● a late catalog refresh cannot restore tools after disconnect
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "mcp__owned__late",
+    + ]
+
+      149 |   await manager.disconnect(spec.name, registry);
+      150 |   listed.resolve(tools('late')); await refresh;
+    > 151 |   expect(registry.getToolNames()).toEqual([]);
+          |                                   ^
+      152 | });
+      153 |
+      154 | test('catalog notifications coalesce to one active read and one follow-up read', async () => {
+
+      at Object.<anonymous> (src/__tests__/mcp.ownership.sprint.test.ts:151:35)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 20 skipped, 21 total
+Snapshots:   0 total
+Time:        1.252 s, estimated 2 s
+Ran all test suites matching src/__tests__/mcp.ownership.sprint.test.ts with tests matching "late catalog refresh".

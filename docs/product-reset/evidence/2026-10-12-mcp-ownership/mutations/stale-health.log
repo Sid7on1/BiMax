@@ -1,0 +1,22 @@
+FAIL src/__tests__/mcp.ownership.sprint.test.ts
+  ● a stale health failure cannot mark the replacement connection unhealthy
+
+    expect(received).toBeNull()
+
+    Received: "old server is dead"
+
+      330 |   probe.reject(new Error('old server is dead')); await diagnostic;
+      331 |   try {
+    > 332 |     expect(manager.lastErrorFor(spec.name)).toBeNull();
+          |                                             ^
+      333 |     expect(manager.health('/tmp/bimax-owned-health-no-config')[0].state).toBe('connected');
+      334 |   } finally { await manager.disconnect(spec.name, registry); }
+      335 | });
+
+      at Object.<anonymous> (src/__tests__/mcp.ownership.sprint.test.ts:332:45)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 20 skipped, 21 total
+Snapshots:   0 total
+Time:        1.24 s, estimated 2 s
+Ran all test suites matching src/__tests__/mcp.ownership.sprint.test.ts with tests matching "stale health failure".
