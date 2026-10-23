@@ -62,9 +62,19 @@ export function getHeadroomReport(): HeadroomReport {
   return { totalSaved: saved, totalBefore: before, totalAfter: after, compressions: count, ratio: before > 0 ? after / before : 1, engine: _lastEngine, byModel };
 }
 
+/**
+ * A terminal escape sequence. The ESC byte is REQUIRED.
+ *
+ * It used to be optional (`\u001b?`), which made this pattern match any `[`, digits, then a
+ * letter — ordinary text, in other words. It silently ate the first character of every markdown
+ * link (`[Read the docs](…)` → `ead the docs](…)`), every checkbox (`[x]` → `]`) and every
+ * variable array index (`a[i]` → `a]`), inside tool results the model then reasoned against. It
+ * only fired above the 70% compaction threshold, so it corrupted long sessions and left short
+ * ones alone, which is the hardest version of this bug to notice.
+ */
 // eslint-disable-next-line no-control-regex
-const ANSI = /?\[[0-9;]*[A-Za-z]/g;
-const ERROR_LINE = /\b(error|err|fail(ed|ure)?|exception|traceback|panic|fatal|warn(ing)?|denied|refused|timeout|cannot|unable)\b/i;
+const ANSI = /\u001b\[[0-9;]*[A-Za-z]/g;
+export const ERROR_LINE = /\b(error|err|fail(ed|ure)?|exception|traceback|panic|fatal|warn(ing)?|denied|refused|timeout|cannot|unable)\b/i;
 
 /** Normalize a line so log lines that differ only by numbers/timestamps/hashes collapse together. */
 function signature(line: string): string {
@@ -73,6 +83,65 @@ function signature(line: string): string {
     .replace(/\d+/g, '#')                     // numbers/timestamps
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+/** A hash-like id: 7 to 40 hex digits with at least one letter. A plain seven-digit count is a number, not an id. */
+const HASH_ID = /\b(?=[0-9a-f]*[a-f])[0-9a-f]{7,40}\b/gi;
+
+/**
+ * The numbers in a line, in order, signed where a minus sign starts the number (not a date's `2026-09-14`), skipping
+ * hash-like ids. Dropping every 7-to-40-digit integer as an id and every sign lost a 9,000,000 outlier outright and
+ * reported `-900` among `-100`s as "ranged 100–900" (audit 51, U10).
+ */
+function numbersIn(line: string): number[] {
+  return (line.replace(HASH_ID, '#').match(/(?<![\w.])-?\d+(?:\.\d+)?(?:e[+-]?\d+)?|\d+(?:\.\d+)?/gi) ?? []).map(Number);
+}
+
+/**
+ * The spread of every number that varies across a run of similar lines, as `min–max`, in the order
+ * the numbers appear. Collapsing a run to one representative line used to drop every other value,
+ * including the one worth seeing (a 900 ms spike among 100 ms lines, record 47 A08), so the elision
+ * marker carries the ranges. Empty when nothing varies or the lines' numbers do not line up.
+ */
+function numberRanges(run: string[]): string[] {
+  const rows = run.map(numbersIn);
+  if (!rows.length) return [];
+  const width = rows[0].length;
+  if (!width || rows.some((row) => row.length !== width)) return [];
+  const ranges: string[] = [];
+  for (let k = 0; k < width; k++) {
+    let min = Infinity;
+    let max = -Infinity;
+    for (const row of rows) {
+      if (row[k] < min) min = row[k];
+      if (row[k] > max) max = row[k];
+    }
+    if (min !== max) ranges.push(`${min}–${max}`);
+  }
+  return ranges;
+}
+
+/**
+ * The rows holding each varying number's minimum and maximum, so the collapsed run keeps the actual extreme lines,
+ * not only their values. At most `limit`, first columns first. Empty when the lines' numbers do not line up.
+ */
+function extremeRows(run: string[], limit = 4): number[] {
+  const rows = run.map(numbersIn);
+  const width = rows[0]?.length ?? 0;
+  if (!width || rows.some((row) => row.length !== width)) return [];
+  const picked = new Set<number>();
+  for (let k = 0; k < width && picked.size < limit; k++) {
+    let min = 0;
+    let max = 0;
+    rows.forEach((row, r) => {
+      if (row[k] < rows[min][k]) min = r;
+      if (row[k] > rows[max][k]) max = r;
+    });
+    if (rows[min][k] === rows[max][k]) continue;
+    picked.add(min);
+    if (picked.size < limit) picked.add(max);
+  }
+  return [...picked];
 }
 
 /**
@@ -106,8 +175,12 @@ export function compressText(text: string): string {
     while (j < lines.length && !ERROR_LINE.test(lines[j]) && signature(lines[j]) === sig) j++;
     const run = j - i;
     if (run >= 4) {
-      out.push(lines[i]);                                  // keep one representative
-      out.push(`… (×${run - 1} more similar lines elided) …`);
+      const block = lines.slice(i, j);
+      // Keep one representative and the lines holding each varying number's extremes, in their original order.
+      const kept = [...new Set([0, ...extremeRows(block)])].sort((a, b) => a - b);
+      for (const k of kept) out.push(block[k]);
+      const ranges = numberRanges(block);
+      out.push(`… (×${run - kept.length} more similar lines elided${ranges.length ? `; numbers ranged ${ranges.join(', ')}` : ''}) …`);
       i = j;
     } else {
       out.push(line);

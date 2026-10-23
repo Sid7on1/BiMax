@@ -7,6 +7,7 @@ import { SemanticAugmenter } from './semantic.augmenter';
 import { GraphStore } from './graph.store';
 import { SqliteGraphStore } from './sqlite.graph.store';
 import { Logger } from '../utils';
+import { publishFileGraph } from './file.graph';
 
 export class CodebaseIndexer {
   public enabled: boolean = true;
@@ -136,6 +137,23 @@ export class CodebaseIndexer {
     }
     const store = this.graphStore;
     const { changed, deleted } = store.staleFiles(this.projectRoot);
+    // Hash rows only know old paths. Config discovery also finds new/renamed TS/JS
+    // files without constructing a Program or reparsing the unchanged majority.
+    const known = store.recordedFiles();
+    const pending = new Set(changed);
+    try {
+      const candidates = [...this.analyzer.getProjectFiles(),
+        ...new TreeSitterAnalyzer(this.projectRoot, store, this.excludePatterns).getProjectFiles()];
+      for (const abs of candidates) {
+        const rel = path.relative(this.projectRoot, abs);
+        if (!known.has(rel) && !pending.has(rel)) {
+          changed.push(rel);
+          pending.add(rel);
+        }
+      }
+    } catch (e: any) {
+      Logger.warn(`[CodebaseIndexer] source discovery failed: ${e.message}`);
+    }
     if (changed.length === 0 && deleted.length === 0) return { supported: true, changed: 0, deleted: 0, full: false };
 
     const threshold = opts?.fullThreshold ?? 200;
@@ -145,25 +163,41 @@ export class CodebaseIndexer {
       return { supported: true, changed: changed.length, deleted: deleted.length, full: true };
     }
 
-    for (const rel of deleted) store.removeFileNodes(rel);
-    const tsLike = /\.(ts|tsx|js|jsx|mjs|cjs)$/i;
+    // Keep deletion baselines until the graph commit succeeds. A crash/failure before
+    // that commit must leave enough evidence to prune the old persisted nodes again.
+    for (const rel of deleted) store.removeFileNodes(rel, true);
+    const tsLike = /\.(?:[cm]?[jt]s|[jt]sx)$/i;
+    const refreshed: string[] = [];
+    const parsedStates = new Map<string, NonNullable<ReturnType<typeof store.captureFileState>>>();
+    // Capture all identities before constructing the shared Program; later files must
+    // never certify newer disk bytes against an older compiler snapshot.
+    const inputStates = new Map(changed.map(rel => [rel, store.captureFileState(this.projectRoot, rel)]));
+    let snapshot: ReturnType<StaticAnalyzer['createProgram']> | undefined;
+    try { if (changed.some(rel => tsLike.test(rel))) snapshot = this.analyzer.createProgram(); }
+    catch (e: any) { Logger.warn(`[CodebaseIndexer] compiler snapshot unavailable: ${e.message}`); }
     for (const rel of changed) {
       const abs = path.isAbsolute(rel) ? rel : path.join(this.projectRoot, rel);
       try {
+        const state = inputStates.get(rel);
+        if (!state) throw new Error('Source unavailable or changed while reading.');
         if (tsLike.test(rel)) {
-          this.analyzer.analyzeSingleFile(abs);
+          if (!snapshot) throw new Error('Compiler snapshot unavailable.');
+          this.analyzer.analyzeSingleFile(abs, snapshot);
         } else {
-          store.removeFileNodes(rel);
-          const tsa = new TreeSitterAnalyzer(this.projectRoot, this.graphStore, this.excludePatterns);
-          await tsa.analyzeSingleFile(abs);
+          const replacement = new GraphStore(':memory:');
+          const tsa = new TreeSitterAnalyzer(this.projectRoot, replacement, this.excludePatterns);
+          if (!await tsa.analyzeSingleFile(abs)) throw new Error('No parser or grammar available for source.');
+          publishFileGraph(store, rel, replacement.getGraph());
         }
+        refreshed.push(rel);
+        parsedStates.set(rel, state);
       } catch (e: any) {
         Logger.warn(`[CodebaseIndexer] incremental re-parse of ${rel} failed: ${e.message}`);
       }
     }
     await this.graphStore.saveToDisk();
-    store.recordFileHashes(this.projectRoot, changed);
-    Logger.info(`[CodebaseIndexer] Incremental refresh: ${changed.length} file(s) re-parsed, ${deleted.length} pruned.`);
+    store.recordFileHashes(this.projectRoot, refreshed, parsedStates, deleted);
+    Logger.info(`[CodebaseIndexer] Incremental refresh: ${refreshed.length} file(s) re-parsed, ${deleted.length} pruned, ${changed.length - refreshed.length} parse failures pending.`);
     return { supported: true, changed: changed.length, deleted: deleted.length, full: false };
   }
 

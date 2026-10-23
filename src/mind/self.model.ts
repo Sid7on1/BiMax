@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
@@ -115,7 +116,7 @@ const ALTERNATIVES: Record<string, string> = {
 export function currentModelKey(): string {
   try {
     // Lazy require avoids a config→mind→config cycle and tolerates config not loaded yet.
-    const { getConfig } = require('../cli/config');
+    const { getConfig } = require('../engine/config');
     const id = String(getConfig().model || '');
     if (!id) return '-';
     return id.split('/').pop()!.slice(0, 40);
@@ -146,6 +147,26 @@ export function classifyOutcome(result: string, isError: boolean): 'ok' | 'err' 
   if (/^\s*(Error|Tool Error|Failed|❌|✗)/i.test(head)) return 'err';
   if (/\b(syntax check failed|no match found|not found in file|blocked by governor|governor blocked|edit shield|command failed|ENOENT|EACCES)\b/i.test(head)) return 'err';
   return 'ok';
+}
+
+/**
+ * The single rule for labelling a tool call, used by every observer that learns from one.
+ *
+ * A typed outcome is ground truth ONLY when the tool itself declared it. `confidence: 'low'` marks
+ * the factory's own guess at legacy "Error: …" prose (tool.factory.ts wraps it as errorClass
+ * 'unknown'), and preferring that guess over {@link classifyOutcome} is how a "rejected by user"
+ * coming back from an unswept or MCP tool got filed as an agent failure — while the identical
+ * rejection from a swept tool was correctly preference data. Low confidence means "ask the
+ * classifier", which is the only reason the classifier was kept.
+ */
+export function labelOutcome(
+  typed: { status: 'ok' | 'error' | 'rejected' | 'blocked'; confidence?: 'high' | 'low' } | undefined,
+  result: string,
+  isError: boolean,
+): 'ok' | 'err' | 'rejected' {
+  const declared = typed && typed.confidence !== 'low' ? typed : undefined;
+  if (!declared) return classifyOutcome(result, isError);
+  return declared.status === 'ok' ? 'ok' : declared.status === 'error' ? 'err' : 'rejected';
 }
 
 /**
@@ -186,7 +207,7 @@ export class SelfModel {
   private saveTimer: NodeJS.Timeout | null = null;
 
   constructor(projectRoot: string = process.cwd()) {
-    this.filePath = path.join(projectRoot, '.bimax', 'self-model.json');
+    this.filePath = path.join(stateDir('.bimax', projectRoot), 'self-model.json');
   }
 
   /** Synchronous lazy load — prompt building is sync, so the model must be too. */

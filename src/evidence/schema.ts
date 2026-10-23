@@ -167,7 +167,7 @@ export function emptyBoundary(overrides: Partial<Omit<TaskBoundary, 'allowSecuri
   };
 }
 
-export type ApprovalMode = 'interactive' | 'plan' | 'auto' | 'strict' | 'bypass';
+export type ApprovalMode = 'interactive' | 'plan' | 'auto' | 'strict' | 'bypass' | 'unattended';
 
 export interface TaskIntent {
   schema: EvidenceSchema;

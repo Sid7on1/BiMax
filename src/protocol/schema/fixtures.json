@@ -57,20 +57,24 @@
         "version": "1.1.0",
         "buildCommit": "01234567"
       },
-      "protocolVersion": "3.1.0",
+      "protocolVersion": "3.8.0",
       "protocolMajor": 3,
       "minCompatibleMajor": 2,
       "maxCompatibleMajor": 3,
       "features": [
+        "rich-presentation",
         "approvals",
         "boot",
+        "catalog",
         "config",
         "controls",
         "health",
         "interrupt",
         "resume",
         "review-snapshot",
-        "outcome-snapshot"
+        "outcome-snapshot",
+        "host-call",
+        "turn-tool-scope"
       ]
     },
     {
@@ -107,9 +111,9 @@
       "t": "configResult",
       "id": 5,
       "config": {
-        "model": "stepfun-ai/step-3.7-flash",
+        "model": "moonshotai/kimi-k3",
         "notificationBell": false,
-        "temperature": 0.7,
+        "temperature": 1,
         "contextMode": "smart"
       }
     },
@@ -127,6 +131,106 @@
       "eventLoopDelayMs": 4,
       "activeTurn": true,
       "phase": "ready"
+    },
+    {
+      "t": "catalogResult",
+      "id": 8,
+      "providers": [
+        {
+          "name": "openai-compatible",
+          "label": "OpenAI-compatible",
+          "baseURL": "https://api.example.invalid/v1",
+          "apiKeyEnv": "BGW_API_KEY",
+          "hasKey": true,
+          "keyHint": "…4242",
+          "keyCount": 2,
+          "active": true
+        }
+      ],
+      "models": [
+        {
+          "id": "moonshotai/kimi-k3",
+          "label": "Kimi K3",
+          "desc": "native multimodal coding agent",
+          "tier": "coding",
+          "recommendedFor": [
+            "coding",
+            "vision"
+          ],
+          "tags": [
+            "coding",
+            "vision",
+            "agentic"
+          ],
+          "parameters": "2.8T · 104B active",
+          "releaseDate": "2026-08-20",
+          "served": true,
+          "curated": true,
+          "capabilities": {
+            "visionInput": false,
+            "reasoningEffortKnob": true,
+            "thinking": false,
+            "structuredOutputs": true,
+            "parallelToolCalls": true,
+            "contextWindow": 131072
+          }
+        },
+        {
+          "id": "curated/unverified-vision",
+          "label": "Unverified Vision",
+          "desc": "curated but not served by this endpoint",
+          "tier": "vision",
+          "served": false,
+          "curated": true,
+          "avoidAutoSelect": true
+        }
+      ]
+    },
+    {
+      "t": "host_call",
+      "id": 12,
+      "capability": "look",
+      "op": "look",
+      "args": {
+        "app": "Notes",
+        "query": "groceries"
+      }
+    },
+    {
+      "t": "host_call",
+      "id": 14,
+      "capability": "press",
+      "op": "press",
+      "args": {
+        "app": "BimaxCuFixture",
+        "control": "Fixture Button",
+        "role": "AXButton"
+      }
+    },
+    {
+      "t": "host_call",
+      "id": 15,
+      "capability": "type",
+      "op": "type",
+      "args": {
+        "app": "BimaxCuFixture",
+        "field": "alpha beta gamma",
+        "role": "AXTextField",
+        "text": "hello"
+      }
+    },
+    {
+      "t": "host_call",
+      "id": 16,
+      "capability": "scroll",
+      "op": "scroll",
+      "args": {
+        "app": "Music",
+        "control": "Charts",
+        "role": "AXButton",
+        "direction": "down",
+        "pages": 1
+      }
     }
   ],
   "inbound": [
@@ -136,11 +240,66 @@
       "value": "Yes"
     },
     {
+      "t": "host_result",
+      "id": 12,
+      "ok": true,
+      "value": {
+        "text": "AXWindow \"Notes\"\n  AXTextArea \"groceries: eggs, milk\""
+      }
+    },
+    {
+      "t": "host_result",
+      "id": 13,
+      "ok": false,
+      "error": "The user did not let this task look at Notes.",
+      "value": {
+        "code": "denied"
+      }
+    },
+    {
+      "t": "host_result",
+      "id": 14,
+      "ok": false,
+      "error": "Pressed, but nothing in the window changed.",
+      "value": {
+        "code": "no_effect"
+      }
+    },
+    {
+      "t": "host_result",
+      "id": 15,
+      "ok": true,
+      "value": {
+        "text": "Typed into “alpha beta gamma” in BimaxCuFixture. The box now reads exactly: “hello”."
+      }
+    },
+    {
+      "t": "host_result",
+      "id": 16,
+      "ok": false,
+      "error": "Scrolled down at “Charts”, but nothing moved.",
+      "value": {
+        "code": "no_effect"
+      }
+    },
+    {
       "t": "input",
-      "text": "refactor the auth module"
+      "text": "refactor the auth module",
+      "displayText": "Refactor auth",
+      "toolScope": {
+        "names": [
+          "ReadFileTool",
+          "AskUserTool"
+        ],
+        "required": "ReadFileTool"
+      }
     },
     {
       "t": "interrupt"
+    },
+    {
+      "t": "steer",
+      "text": "also update the README"
     },
     {
       "t": "query",
@@ -177,6 +336,18 @@
       "mode": "code",
       "tier": "heavy",
       "autonomy": "ask"
+    },
+    {
+      "t": "catalogGet",
+      "id": 8,
+      "refresh": true
+    },
+    {
+      "t": "providerSet",
+      "id": 9,
+      "name": "openai-compatible",
+      "baseURL": "https://api.example.invalid/v1",
+      "apiKey": "fixture-not-a-real-key"
     }
   ],
   "uiSnapshot": {
@@ -293,6 +464,27 @@
         "canResume": false,
         "canCancel": true
       }
-    ]
+    ],
+    "composer": {
+      "session": 2,
+      "library": 5,
+      "passages": 340,
+      "facts": 88,
+      "lastIngest": {
+        "ingested": 2,
+        "chunks": 46,
+        "skipped": [
+          {
+            "name": "scan-blurred.tiff",
+            "reason": "no readable text"
+          }
+        ]
+      }
+    },
+    "approvals": {
+      "askBeforeEdits": true,
+      "readOnly": false,
+      "unattended": false
+    }
   }
 }

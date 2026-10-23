@@ -4,6 +4,8 @@ import * as fs from 'fs';
 import { minimatch } from 'minimatch';
 import { IGraphStore, GraphNode, GraphEdge, NodeType, EdgeType } from './models';
 import { Logger } from '../utils';
+import { GraphStore } from './graph.store';
+import { publishFileGraph } from './file.graph';
 
 export interface IStaticAnalyzer {
   analyzeProject(): void;
@@ -11,7 +13,6 @@ export interface IStaticAnalyzer {
 }
 
 export class StaticAnalyzer implements IStaticAnalyzer {
-  private typeChecker!: ts.TypeChecker;
   private excludeMatchers: ((filePath: string) => boolean)[] = [];
 
   constructor(
@@ -36,19 +37,30 @@ export class StaticAnalyzer implements IStaticAnalyzer {
     this.projectRoot = newRoot;
   }
 
+  /** Config discovery only: no Program, type checker or AST extraction for unchanged files. */
+  public getProjectFiles(): string[] {
+    const configPath = ts.findConfigFile(this.projectRoot, ts.sys.fileExists, 'tsconfig.json');
+    if (!configPath) return [];
+    const config = ts.readConfigFile(configPath, ts.sys.readFile);
+    if (config.error) throw new Error(ts.flattenDiagnosticMessageText(config.error.messageText, '\n'));
+    return ts.parseJsonConfigFileContent(config.config, ts.sys, this.projectRoot).fileNames
+      .filter(file => !/\.d\.[cm]?ts$/i.test(file) && !this.isExcluded(file));
+  }
+
+  /** One compiler snapshot may serve a bounded batch; each refresh constructs a fresh one. */
+  public createProgram(): ts.Program {
+    const configPath = ts.findConfigFile(this.projectRoot, ts.sys.fileExists, 'tsconfig.json');
+    if (!configPath) throw new Error(`Could not find a valid tsconfig.json at ${this.projectRoot}.`);
+    const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
+    if (configFile.error) throw new Error(ts.flattenDiagnosticMessageText(configFile.error.messageText, '\n'));
+    const parsedConfig = ts.parseJsonConfigFileContent(configFile.config, ts.sys, this.projectRoot);
+    return ts.createProgram(parsedConfig.fileNames, parsedConfig.options);
+  }
+
   public analyzeProject(): void {
     Logger.info(`[StaticAnalyzer] Initializing TS Program for: ${this.projectRoot}`);
-    
-    const configPath = ts.findConfigFile(this.projectRoot, ts.sys.fileExists, 'tsconfig.json');
-    if (!configPath) {
-      throw new Error(`Could not find a valid 'tsconfig.json' at ${this.projectRoot}.`);
-    }
-
-    const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
-    const parsedConfig = ts.parseJsonConfigFileContent(configFile.config, ts.sys, this.projectRoot);
-
-    const program = ts.createProgram(parsedConfig.fileNames, parsedConfig.options);
-    this.typeChecker = program.getTypeChecker();
+    const program = this.createProgram();
+    const typeChecker = program.getTypeChecker();
 
     const sourceFiles = program.getSourceFiles()
       .filter(sf => !sf.isDeclarationFile)
@@ -63,7 +75,7 @@ export class StaticAnalyzer implements IStaticAnalyzer {
 
     // Pass 2: Extract Edges (Imports, Calls)
     for (const sourceFile of sourceFiles) {
-      this.extractEdges(sourceFile);
+      this.extractEdges(sourceFile, typeChecker);
     }
 
     const nodesCount = this.store.getGraph().nodes.size;
@@ -71,40 +83,22 @@ export class StaticAnalyzer implements IStaticAnalyzer {
     Logger.info(`[StaticAnalyzer] Graph generation complete. Extracted ${nodesCount} nodes and ${edgesCount} wires.`);
   }
 
-  public analyzeSingleFile(absolutePath: string) {
+  public analyzeSingleFile(absolutePath: string, snapshot?: ts.Program) {
     const relPath = this.getRelativePath(absolutePath);
-    const fileNodeId = `file:${relPath}`;
-
-    // 1. Remove old nodes and edges associated with this file
-    const oldGraph = this.store.getGraph();
-    const nodesToRemove = new Set<string>();
-    
-    for (const [id, node] of oldGraph.nodes.entries()) {
-      if (id.includes(`:${relPath}`) || id === fileNodeId) {
-        nodesToRemove.add(id);
-      }
-    }
-
-    nodesToRemove.forEach(id => this.store.removeNode(id));
-    
-    // 2. Parse the single file
-    const configPath = ts.findConfigFile(this.projectRoot, ts.sys.fileExists, 'tsconfig.json');
-    if (!configPath) throw new Error("No tsconfig.json");
-    
-    const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
-    const parsedConfig = ts.parseJsonConfigFileContent(configFile.config, ts.sys, this.projectRoot);
-    const program = ts.createProgram(parsedConfig.fileNames, parsedConfig.options);
-    this.typeChecker = program.getTypeChecker();
+    // Prepare the replacement before publishing; failed parsing preserves the last good graph.
+    const program = snapshot ?? this.createProgram();
+    const typeChecker = program.getTypeChecker();
     
     const sourceFile = program.getSourceFile(absolutePath);
     if (!sourceFile) {
-      Logger.warn(`[StaticAnalyzer] Could not find source file in TS Program: ${absolutePath}`);
-      return;
+      throw new Error(`Could not find source file in TS Program: ${absolutePath}`);
     }
 
-    // 3. Extract and add directly to store
-    this.extractNodes(sourceFile);
-    this.extractEdges(sourceFile);
+    const replacement = new GraphStore(':memory:');
+    const extractor = new StaticAnalyzer(this.projectRoot, replacement);
+    extractor.extractNodes(sourceFile);
+    extractor.extractEdges(sourceFile, typeChecker);
+    publishFileGraph(this.store, relPath, replacement.getGraph());
 
     Logger.info(`[StaticAnalyzer] Hot-reloaded AST for ${relPath}`);
   }
@@ -129,8 +123,11 @@ export class StaticAnalyzer implements IStaticAnalyzer {
   private locOf(node: ts.Node, sourceFile: ts.SourceFile): { startLine: number; endLine: number; signature: string } {
     const start = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
     const end = sourceFile.getLineAndCharacterOfPosition(node.getEnd());
-    const firstLine = node.getText(sourceFile).split('\n')[0].trim();
-    const signature = firstLine.length > 200 ? firstLine.slice(0, 197) + '...' : firstLine;
+    const declaration = node.getText(sourceFile);
+    const firstLine = declaration.split('\n', 1)[0].trim();
+    let signature = firstLine.length > 200 ? firstLine.slice(0, 197) + '...' : firstLine;
+    // Detach the <=200 UTF-16 units from large bodies; sliced strings can retain source text.
+    if (declaration.length > 4096) signature = Buffer.from(signature, 'utf16le').toString('utf16le');
     return { startLine: start.line + 1, endLine: end.line + 1, signature };
   }
 
@@ -260,7 +257,8 @@ export class StaticAnalyzer implements IStaticAnalyzer {
     return defaultId;
   }
 
-  private extractEdges(sourceFile: ts.SourceFile) {
+  // A checker owns compiler state; keep it scoped to extraction, never the long-lived analyzer.
+  private extractEdges(sourceFile: ts.SourceFile, typeChecker: ts.TypeChecker) {
     const relPath = this.getRelativePath(sourceFile.fileName);
     const fileNodeId = `file:${relPath}`;
 
@@ -295,7 +293,7 @@ export class StaticAnalyzer implements IStaticAnalyzer {
 
       // Detect Function Calls
       if (ts.isCallExpression(node)) {
-        const signature = this.typeChecker.getResolvedSignature(node);
+        const signature = typeChecker.getResolvedSignature(node);
         
         // --- Runtime Event Graph: Detect eventBus.emit and eventBus.on ---
         if (ts.isPropertyAccessExpression(node.expression)) {
@@ -347,7 +345,7 @@ export class StaticAnalyzer implements IStaticAnalyzer {
 
       // Detect Variable Usage
       if (ts.isIdentifier(node)) {
-        const symbol = this.typeChecker.getSymbolAtLocation(node);
+        const symbol = typeChecker.getSymbolAtLocation(node);
         if (symbol && symbol.valueDeclaration) {
           const decl = symbol.valueDeclaration;
           if (ts.isVariableDeclaration(decl) && ts.isIdentifier(decl.name)) {

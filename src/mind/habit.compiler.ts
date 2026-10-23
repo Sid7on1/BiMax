@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import { mindSingletonRoot } from './self.model';
@@ -67,8 +68,8 @@ export class HabitMiner {
   private saveTimer: NodeJS.Timeout | null = null;
 
   constructor(projectRoot: string = process.cwd()) {
-    this.filePath = path.join(projectRoot, '.bimax', 'habits.json');
-    this.habitsDir = path.join(projectRoot, '.bimax', 'habits');
+    this.filePath = path.join(stateDir('.bimax', projectRoot), 'habits.json');
+    this.habitsDir = path.join(stateDir('.bimax', projectRoot), 'habits');
   }
 
   private load(): void {
@@ -182,7 +183,7 @@ export class HabitMiner {
       if (!win.every((e, j) => e.t === steps[j])) continue;
       if (!win.every(e => e.cmd)) continue; // recorded before command capture existed
       const cmds = win.map(e => e.cmd!);
-      const key = cmds.join(' ');
+      const key = cmds.join('\u0000');
       const t = tuples.get(key);
       if (t) t.count++; else tuples.set(key, { cmds, count: 1 });
     }

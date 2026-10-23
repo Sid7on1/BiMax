@@ -1,7 +1,8 @@
+import { capabilitySnapshot, capabilityMessage } from '../core/capability.status';
 import { EventEmitter } from 'events';
 import {
-  Outbound, Inbound, ReplyMsg, MenuSelectMsg, CompletionItem, CatalogResultMsg,
-  FORWARDED_EVENTS, PROMPT_EVENT, DIFF_PROMPT_EVENT, INPUT_PROMPT_EVENT,
+  Outbound, Inbound, ReplyMsg, MenuSelectMsg, CompletionItem, CatalogResultMsg, HostCapability, JsonValue, TurnToolScope,
+  FORWARDED_EVENTS, PROMPT_EVENT, DIFF_PROMPT_EVENT, INPUT_PROMPT_EVENT, HOST_CALL_EVENT,
   PROTOCOL_FEATURES, PROTOCOL_MAX_COMPATIBLE_MAJOR, PROTOCOL_MIN_COMPATIBLE_MAJOR,
   PROTOCOL_SEMVER, PROTOCOL_VERSION, sanitizeArgs,
 } from './protocol';
@@ -9,9 +10,11 @@ import { markReady, loadPersistedTimelines } from '../telemetry/perf';
 
 export interface HostHandlers {
   /** A submitted prompt line (user turn or slash command) arrived from the front-end. */
-  onInput?: (text: string) => void;
+  onInput?: (text: string, toolScope?: TurnToolScope, displayText?: string) => void;
   /** The front-end asked to cancel the in-flight turn. */
   onInterrupt?: () => void;
+  /** Words for the running turn, taken at its next step (F7). */
+  onSteer?: (text: string) => void;
   /** The front-end asked for autocomplete candidates for the current input. */
   onQuery?: (text: string) => CompletionItem[] | Promise<CompletionItem[]>;
   /** The front-end picked an option in a menu the engine emitted — run that menu's onSelect. */
@@ -34,7 +37,7 @@ export interface HostHandlers {
 }
 
 /**
- * Engine-side endpoint of the UI protocol. It bridges the in-process `cliEvents` emitter +
+ * Engine-side endpoint of the UI protocol. It bridges the in-process `engineEvents` emitter +
  * GlobalPrompter approval round-trip to an out-of-process front-end, transport-agnostically:
  * you give it a `write` sink (stdout, a socket, a test buffer) and feed it inbound lines.
  *
@@ -46,6 +49,9 @@ export interface HostHandlers {
  * Nothing here touches Ink: attaching the host adds listeners; the in-process appStore bridge in
  * events.ts keeps working untouched, so the two front-ends are interchangeable, not exclusive.
  */
+/** What a host call resolves with: the app's value, or why it did not (or could not) answer. */
+export interface HostCallResult { ok: boolean; value?: JsonValue; error?: string }
+
 export class ProtocolHost {
   private emitter: EventEmitter | null = null;
   private listeners: Array<{ event: string; fn: (...a: any[]) => void }> = [];
@@ -90,11 +96,13 @@ export class ProtocolHost {
     };
 
     // veto_prompt(question, options, resolve, isAsk?) — the one event carrying a callback.
-    const promptFn = (question: string, options: string[], resolve: (a: string) => void, isAsk?: boolean, isMultiSelect?: boolean) => {
+    // `body`: an approval card's detail (tools/thread.changes.ts approvalCard) — every affected item, whether it
+    // can be undone, and the command itself.
+    const promptFn = (question: string, options: string[], resolve: (a: string) => void, isAsk?: boolean, isMultiSelect?: boolean, body?: string) => {
       const id = this.nextRequestId++;
       this.pending.set(id, resolve);
       announcePending(id, 'prompt', question, isAsk);
-      this.write({ t: 'request', id, kind: 'prompt', question, options: options || [], isAsk: !!isAsk, isMulti: !!isMultiSelect });
+      this.write({ t: 'request', id, kind: 'prompt', question, options: options || [], isAsk: !!isAsk, isMulti: !!isMultiSelect, ...(body ? { body } : {}) });
     };
     emitter.on(PROMPT_EVENT, promptFn);
     this.listeners.push({ event: PROMPT_EVENT, fn: promptFn });
@@ -123,6 +131,13 @@ export class ProtocolHost {
     emitter.on(INPUT_PROMPT_EVENT, inputFn);
     this.listeners.push({ event: INPUT_PROMPT_EVENT, fn: inputFn });
 
+    // Compatibility tombstone: retired calls fail immediately and never reach the app.
+    const hostCallFn = (capability: HostCapability, op: string, args: JsonValue, resolve: (r: HostCallResult) => void) => {
+      resolve({ ok: false, error: 'Computer Use has been removed from Bimax.' });
+    };
+    emitter.on(HOST_CALL_EVENT, hostCallFn);
+    this.listeners.push({ event: HOST_CALL_EVENT, fn: hostCallFn });
+
     markReady(); // engine wired + handshake sent — the cold-start clock stops here (/perf)
     loadPersistedTimelines(); // seed /perf so it can explain prior turns after a restart/crash
     this.write({
@@ -138,6 +153,9 @@ export class ProtocolHost {
       features: [...PROTOCOL_FEATURES],
     });
     this.write({ t: 'ready', protocol: PROTOCOL_VERSION });
+    for (const status of capabilitySnapshot().filter(s => s.state !== 'ready')) {
+      this.write({ t: 'event', name: 'message', args: sanitizeArgs([capabilityMessage(status)]) });
+    }
   }
 
   /** Route one decoded inbound message. Unknown / stale messages are ignored, never thrown. */
@@ -149,8 +167,16 @@ export class ProtocolHost {
         if (resolve) { this.pending.delete(id); this.announceResolved(id, value); resolve(value); }
         return; // a reply with no pending id is a late/duplicate answer — drop it
       }
+      case 'host_result': {
+        return; // Compatibility tombstone: no active capability or pending calls remain.
+      }
       case 'input':
-        this.handlers.onInput?.(msg.text);
+        // A forced clear ends the task that is running, like Stop, before the clear itself is dispatched.
+        if (/^\/clear\s+force(?:\s|$)/i.test(String(msg.text ?? '').trim())) {
+          this.handlers.onInterrupt?.();
+          this.cancelPending();
+        }
+        this.handlers.onInput?.(msg.text, msg.toolScope, msg.displayText);
         return;
       case 'menuSelect': {
         const { id, value } = msg as MenuSelectMsg;
@@ -159,6 +185,10 @@ export class ProtocolHost {
       }
       case 'interrupt':
         this.handlers.onInterrupt?.();
+        this.cancelPending();
+        return;
+      case 'steer':
+        this.handlers.onSteer?.(String((msg as { text?: unknown }).text ?? ''));
         return;
       case 'ping':
         // Answered synchronously from the ingest path — no engine work is awaited, so a pong only
@@ -243,6 +273,19 @@ export class ProtocolHost {
         t: 'catalogResult', id, providers: [], models: [],
         error: String(e?.message || e || 'The catalogue could not be read.'),
       }));
+  }
+
+  /**
+   * Resolve every unanswered prompt as interrupted. Stop and a forced clear end the task that asked, so a late
+   * "Approve" must not reach it (record 49); a reply that arrives afterwards finds nothing pending and is ignored.
+   */
+  private cancelPending(): void {
+    const pending = [...this.pending.entries()];
+    this.pending.clear();
+    for (const [id, resolve] of pending) {
+      this.announceResolved(id, '', true);
+      try { resolve(''); } catch { /* ignore */ }
+    }
   }
 
   /** Number of approval requests still awaiting an answer (for diagnostics / tests). */

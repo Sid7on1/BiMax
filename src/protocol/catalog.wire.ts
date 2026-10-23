@@ -4,7 +4,7 @@ import type { CatalogModelEntry, CatalogResultMsg, ProviderEntry } from './proto
  * The provider + model catalogue behind protocol `catalogGet` / `providerSet`.
  *
  * Why this exists as a wire message rather than a static list in the front-end: a model id is only
- * meaningful against a provider. The curated catalogue in cli/models.ts is a *recommendation*,
+ * meaningful against a provider. The curated catalogue in engine/models.ts is a *recommendation*,
  * while the provider's `/models` endpoint is what will actually be accepted, and the two disagree
  * constantly (NVIDIA lists ids it then 404s; a rotated catalogue silently orphans a saved pin).
  * A picker built from either one alone is wrong in a way the user cannot see, so both cross the
@@ -21,8 +21,15 @@ export interface CatalogDeps {
   activeProvider: () => { name: string };
   /** Curated recommendations. */
   catalog: () => Array<{
-    label: string; value: string; desc: string;
-    tier: 'coding' | 'vision' | 'lite' | 'other'; avoidAutoSelect?: boolean;
+    label: string;
+    value: string;
+    desc: string;
+    tier: 'coding' | 'vision' | 'lite' | 'other';
+    avoidAutoSelect?: boolean;
+    recommendedFor?: Array<'coding' | 'vision' | 'lite'>;
+    tags?: string[];
+    parameters?: string;
+    releaseDate?: string;
   }>;
   /** Ids the ACTIVE provider currently serves. Rejects/throws when offline or unkeyed. */
   listServed: (refresh: boolean) => Promise<string[]>;
@@ -49,7 +56,10 @@ const PROVIDER_LABEL: Record<string, string> = {
  * tell what the engine loaded.
  */
 function describeKeys(raw: string | undefined): { hasKey: boolean; keyCount: number; keyHint?: string } {
-  const keys = String(raw || '').split(',').map(k => k.trim()).filter(Boolean);
+  const keys = String(raw || '')
+    .split(',')
+    .map((k) => k.trim())
+    .filter(Boolean);
   if (keys.length === 0) return { hasKey: false, keyCount: 0 };
   const last = keys[keys.length - 1];
   // A 4-character tail identifies a key to the person who owns it and to nobody else. Short keys
@@ -80,7 +90,11 @@ export function buildProviderEntries(deps: CatalogDeps): ProviderEntry[] {
  *   - served but NOT curated → appended, `curated: false`. These are real, selectable ids we have
  *     no measurement for; the front-end presents them as unvetted rather than recommended.
  */
-export function buildModelEntries(deps: CatalogDeps, servedIds: string[], provider: string | null): CatalogModelEntry[] {
+export function buildModelEntries(
+  deps: CatalogDeps,
+  servedIds: string[],
+  provider: string | null,
+): CatalogModelEntry[] {
   const served = new Set(servedIds);
   const curated = deps.catalog();
   const seen = new Set<string>();
@@ -96,7 +110,9 @@ export function buildModelEntries(deps: CatalogDeps, servedIds: string[], provid
         parallelToolCalls: !!caps.parallelToolCalls,
         contextWindow: Number(caps.contextWindow) || 0,
       };
-    } catch { return undefined; }
+    } catch {
+      return undefined;
+    }
   };
 
   const rows: CatalogModelEntry[] = curated.map((entry) => {
@@ -106,6 +122,10 @@ export function buildModelEntries(deps: CatalogDeps, servedIds: string[], provid
       label: entry.label,
       desc: entry.desc,
       tier: entry.tier,
+      ...(entry.recommendedFor ? { recommendedFor: entry.recommendedFor } : {}),
+      ...(entry.tags ? { tags: entry.tags } : {}),
+      ...(entry.parameters ? { parameters: entry.parameters } : {}),
+      ...(entry.releaseDate ? { releaseDate: entry.releaseDate } : {}),
       // With no live list at all (offline / no key), "not served" would be a lie about every model.
       // Report served:false only when we genuinely have a list to have been absent from.
       served: served.size === 0 ? false : served.has(entry.value),
@@ -141,7 +161,7 @@ export async function buildCatalog(deps: CatalogDeps, id: number, refresh = fals
   try {
     servedIds = (await deps.listServed(refresh)) || [];
     if (servedIds.length === 0) {
-      const hasKey = providers.find(p => p.active)?.hasKey;
+      const hasKey = providers.find((p) => p.active)?.hasKey;
       error = hasKey
         ? 'This provider returned no model list. The curated models below are unverified against it.'
         : 'No API key is set for this provider, so its model list could not be read.';

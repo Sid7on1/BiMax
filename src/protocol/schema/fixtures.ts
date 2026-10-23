@@ -1,6 +1,11 @@
 import {
-  Outbound, Inbound, PROTOCOL_FEATURES, PROTOCOL_MAX_COMPATIBLE_MAJOR,
-  PROTOCOL_MIN_COMPATIBLE_MAJOR, PROTOCOL_SEMVER, PROTOCOL_VERSION,
+  Outbound,
+  Inbound,
+  PROTOCOL_FEATURES,
+  PROTOCOL_MAX_COMPATIBLE_MAJOR,
+  PROTOCOL_MIN_COMPATIBLE_MAJOR,
+  PROTOCOL_SEMVER,
+  PROTOCOL_VERSION,
 } from '../protocol';
 import type { UiSnapshot } from '../ui.snapshot';
 
@@ -20,8 +25,25 @@ import type { UiSnapshot } from '../ui.snapshot';
 
 export const OUTBOUND_FIXTURES: Outbound[] = [
   { t: 'event', name: 'message', args: [{ role: 'assistant', content: 'hello', level: 'info' }] },
-  { t: 'request', id: 7, kind: 'prompt', question: 'Run `npm test`?', options: ['Yes', 'No', 'Always Allow'], isAsk: false, isMulti: false },
-  { t: 'request', id: 8, kind: 'diff', question: 'Apply this edit?', options: ['Yes', 'No'], isAsk: false, isMulti: false, body: '--- a/x.ts\n+++ b/x.ts\n@@ -1 +1 @@\n-old\n+new' },
+  {
+    t: 'request',
+    id: 7,
+    kind: 'prompt',
+    question: 'Run `npm test`?',
+    options: ['Yes', 'No', 'Always Allow'],
+    isAsk: false,
+    isMulti: false,
+  },
+  {
+    t: 'request',
+    id: 8,
+    kind: 'diff',
+    question: 'Apply this edit?',
+    options: ['Yes', 'No'],
+    isAsk: false,
+    isMulti: false,
+    body: '--- a/x.ts\n+++ b/x.ts\n@@ -1 +1 @@\n-old\n+new',
+  },
   { t: 'request', id: 9, kind: 'input', question: 'Branch name:', options: [], isAsk: true, isMulti: false },
   { t: 'ready', protocol: PROTOCOL_VERSION },
   {
@@ -34,14 +56,27 @@ export const OUTBOUND_FIXTURES: Outbound[] = [
     features: [...PROTOCOL_FEATURES],
   },
   {
-    t: 'queryResult', id: 3, items: [
-      { value: '/git', label: '/git', desc: 'Git helpers', kind: 'command', disabled: true, disabledReason: 'repo not initialized' },
+    t: 'queryResult',
+    id: 3,
+    items: [
+      {
+        value: '/git',
+        label: '/git',
+        desc: 'Git helpers',
+        kind: 'command',
+        disabled: true,
+        disabledReason: 'repo not initialized',
+      },
       { value: '@handlePayment', label: 'handlePayment', desc: 'src/pay.ts', kind: 'symbol' },
       { value: '@./src/', label: './src/', desc: 'directory', kind: 'path' },
     ],
   },
   { t: 'pong', id: 42 },
-  { t: 'configResult', id: 5, config: { model: 'stepfun-ai/step-3.7-flash', notificationBell: false, temperature: 0.7, contextMode: 'smart' } },
+  {
+    t: 'configResult',
+    id: 5,
+    config: { model: 'moonshotai/kimi-k3', notificationBell: false, temperature: 1, contextMode: 'smart' },
+  },
   { t: 'boot', phase: 'loading_graph', detail: 'sqlite graph store', pid: 4242 },
   { t: 'health', uptimeMs: 61234, rssMb: 312, heapMb: 148, eventLoopDelayMs: 4, activeTurn: true, phase: 'ready' },
   // v3 additive (2026-08-10). `served: false` on a curated entry is the "unverified" case the
@@ -51,31 +86,64 @@ export const OUTBOUND_FIXTURES: Outbound[] = [
     id: 8,
     providers: [
       {
-        name: 'openai-compatible', label: 'OpenAI-compatible', baseURL: 'https://api.example.invalid/v1',
-        apiKeyEnv: 'BGW_API_KEY', hasKey: true, keyHint: '…4242', keyCount: 2, active: true,
+        name: 'openai-compatible',
+        label: 'OpenAI-compatible',
+        baseURL: 'https://api.example.invalid/v1',
+        apiKeyEnv: 'BGW_API_KEY',
+        hasKey: true,
+        keyHint: '…4242',
+        keyCount: 2,
+        active: true,
       },
     ],
     models: [
       {
-        id: 'stepfun-ai/step-3.7-flash', label: 'Step 3.7 Flash', desc: 'fast coding model',
-        tier: 'coding', served: true, curated: true,
+        id: 'moonshotai/kimi-k3',
+        label: 'Kimi K3',
+        desc: 'native multimodal coding agent',
+        tier: 'coding',
+        recommendedFor: ['coding', 'vision'],
+        tags: ['coding', 'vision', 'agentic'],
+        parameters: '2.8T · 104B active',
+        releaseDate: '2026-08-20',
+        served: true,
+        curated: true,
         capabilities: {
-          visionInput: false, reasoningEffortKnob: true, thinking: false,
-          structuredOutputs: true, parallelToolCalls: true, contextWindow: 131072,
+          visionInput: false,
+          reasoningEffortKnob: true,
+          thinking: false,
+          structuredOutputs: true,
+          parallelToolCalls: true,
+          contextWindow: 131072,
         },
       },
       {
-        id: 'curated/unverified-vision', label: 'Unverified Vision', desc: 'curated but not served by this endpoint',
-        tier: 'vision', served: false, curated: true, avoidAutoSelect: true,
+        id: 'curated/unverified-vision',
+        label: 'Unverified Vision',
+        desc: 'curated but not served by this endpoint',
+        tier: 'vision',
+        served: false,
+        curated: true,
+        avoidAutoSelect: true,
       },
     ],
   },
+  { t: 'host_call', id: 12, capability: 'look', op: 'look', args: { app: 'Notes', query: 'groceries' } },
+  { t: 'host_call', id: 14, capability: 'press', op: 'press', args: { app: 'BimaxCuFixture', control: 'Fixture Button', role: 'AXButton' } },
+  { t: 'host_call', id: 15, capability: 'type', op: 'type', args: { app: 'BimaxCuFixture', field: 'alpha beta gamma', role: 'AXTextField', text: 'hello' } },
+  { t: 'host_call', id: 16, capability: 'scroll', op: 'scroll', args: { app: 'Music', control: 'Charts', role: 'AXButton', direction: 'down', pages: 1 } },
 ];
 
 export const INBOUND_FIXTURES: Inbound[] = [
   { t: 'reply', id: 7, value: 'Yes' },
-  { t: 'input', text: 'refactor the auth module' },
+  { t: 'host_result', id: 12, ok: true, value: { text: 'AXWindow "Notes"\n  AXTextArea "groceries: eggs, milk"' } },
+  { t: 'host_result', id: 13, ok: false, error: 'The user did not let this task look at Notes.', value: { code: 'denied' } },
+  { t: 'host_result', id: 14, ok: false, error: 'Pressed, but nothing in the window changed.', value: { code: 'no_effect' } },
+  { t: 'host_result', id: 15, ok: true, value: { text: 'Typed into “alpha beta gamma” in BimaxCuFixture. The box now reads exactly: “hello”.' } },
+  { t: 'host_result', id: 16, ok: false, error: 'Scrolled down at “Charts”, but nothing moved.', value: { code: 'no_effect' } },
+  { t: 'input', text: 'refactor the auth module', displayText: 'Refactor auth', toolScope: { names: ['ReadFileTool', 'AskUserTool'], required: 'ReadFileTool' } },
   { t: 'interrupt' },
+  { t: 'steer', text: 'also update the README' },
   { t: 'query', id: 3, text: '/g' },
   { t: 'menuSelect', id: 'model-menu', value: 'claude-fable-5' },
   { t: 'ping', id: 42 },
@@ -86,13 +154,46 @@ export const INBOUND_FIXTURES: Inbound[] = [
   // v3 additive (2026-08-10). `apiKey` is write-only and never echoed back; the value here is an
   // obvious placeholder so this committed fixture can never be mistaken for a real credential.
   { t: 'catalogGet', id: 8, refresh: true },
-  { t: 'providerSet', id: 9, name: 'openai-compatible', baseURL: 'https://api.example.invalid/v1', apiKey: 'fixture-not-a-real-key' },
+  {
+    t: 'providerSet',
+    id: 9,
+    name: 'openai-compatible',
+    baseURL: 'https://api.example.invalid/v1',
+    apiKey: 'fixture-not-a-real-key',
+  },
 ];
 
 // Compile-time exhaustiveness: adding a new message variant without a fixture makes
 // these records fail to type-check — the contract cannot silently under-cover.
-export const OUTBOUND_KINDS: Record<Outbound['t'], true> = { event: true, request: true, ready: true, hello: true, queryResult: true, pong: true, configResult: true, catalogResult: true, boot: true, health: true };
-export const INBOUND_KINDS: Record<Inbound['t'], true> = { reply: true, input: true, interrupt: true, query: true, menuSelect: true, ping: true, configGet: true, configSet: true, catalogGet: true, providerSet: true, resume: true, controls: true };
+export const OUTBOUND_KINDS: Record<Outbound['t'], true> = {
+  event: true,
+  request: true,
+  ready: true,
+  hello: true,
+  queryResult: true,
+  pong: true,
+  configResult: true,
+  catalogResult: true,
+  boot: true,
+  health: true,
+  host_call: true,
+};
+export const INBOUND_KINDS: Record<Inbound['t'], true> = {
+  reply: true,
+  input: true,
+  interrupt: true,
+  steer: true,
+  query: true,
+  menuSelect: true,
+  ping: true,
+  configGet: true,
+  configSet: true,
+  catalogGet: true,
+  providerSet: true,
+  resume: true,
+  controls: true,
+  host_result: true,
+};
 
 /**
  * Semantic parity fixture for the ui_snapshot payload (which rides event args and therefore
@@ -104,32 +205,76 @@ export const UI_SNAPSHOT_FIXTURE: Required<UiSnapshot> = {
   models: { coding: 'model-a', lite: 'model-b', vision: 'model-c' },
   goalCount: 1,
   mind: {
-    weakSpots: 1, driveDeviations: 1, habits: 1,
+    weakSpots: 1,
+    driveDeviations: 1,
+    habits: 1,
     weak: [{ tool: 'BashTool', domain: 'shell', failRate: 0.4, pWeak: 0.9, n: 12, advice: 'verify first' }],
     drives: [{ label: 'type errors', value: '3', ok: false, spark: [1, 0, 1] }],
     habitNames: ['read-then-edit'],
     ledger: { resolved: 3, open: 1, expired: 1, coveragePct: 75, overconfident: 0 },
   },
-  graph: { nodeCount: 10, fileCount: 4, aiGraphBuilt: true, modules: [{ name: 'core', criticality: 'high' }], engine: 'native' },
+  graph: {
+    nodeCount: 10,
+    fileCount: 4,
+    aiGraphBuilt: true,
+    modules: [{ name: 'core', criticality: 'high' }],
+    engine: 'native',
+  },
   contextWindow: 128000,
   tokensBaseline: 9000,
   compressionSaved: 1200,
   workspace: { count: 2, names: ['repo-a', 'repo-b'], writable: 1 },
-  sessions: [{ id: 's1', title: 'fix auth', startedAt: '2026-07-22T00:00:00Z', messageCount: 8, cwd: '/w', current: true }],
+  sessions: [
+    { id: 's1', title: 'fix auth', startedAt: '2026-07-22T00:00:00Z', messageCount: 8, cwd: '/w', current: true },
+  ],
   checkpoints: [{ id: 'c1', label: 'before refactor', ts: 1753142400000, auto: false }],
   git: { branch: 'main', dirty: 2, ahead: 1, behind: 0 },
   tools: { registered: 40, ready: 25, deferred: 12, discovered: 3, mcp: 5, graphReady: true },
-  tasks: [{
-    id: 't1', kind: 'shell', title: 'npm test', state: 'running', elapsedMs: 4200,
-    attention: false, pinned: true, lastEvent: 'output', progress: 0.5,
-    canPause: true, canResume: false, canCancel: true,
-  }],
+  tasks: [
+    {
+      id: 't1',
+      kind: 'shell',
+      title: 'npm test',
+      state: 'running',
+      elapsedMs: 4200,
+      attention: false,
+      pinned: true,
+      lastEvent: 'output',
+      progress: 0.5,
+      canPause: true,
+      canResume: false,
+      canCancel: true,
+    },
+  ],
+  composer: {
+    session: 2,
+    library: 5,
+    passages: 340,
+    facts: 88,
+    lastIngest: {
+      ingested: 2,
+      chunks: 46,
+      // Populated on purpose: "what could not be read" is the field a front-end is most likely to
+      // drop, and the one whose absence lets a user act as though every dropped file was read.
+      skipped: [{ name: 'scan-blurred.tiff', reason: 'no readable text' }],
+    },
+  },
+  // Diff approval on, neither plan mode nor bypass: the composer's pill reads "Ask me first".
+  approvals: { askBeforeEdits: true, readOnly: false, unattended: false },
 };
 
 /** The committed artifact both sides test against. Regenerate with `npm run gen:protocol`. */
 export function fixturesJson(): string {
-  return JSON.stringify(
-    { protocolVersion: PROTOCOL_VERSION, outbound: OUTBOUND_FIXTURES, inbound: INBOUND_FIXTURES, uiSnapshot: UI_SNAPSHOT_FIXTURE },
-    null, 2,
-  ) + '\n';
+  return (
+    JSON.stringify(
+      {
+        protocolVersion: PROTOCOL_VERSION,
+        outbound: OUTBOUND_FIXTURES,
+        inbound: INBOUND_FIXTURES,
+        uiSnapshot: UI_SNAPSHOT_FIXTURE,
+      },
+      null,
+      2,
+    ) + '\n'
+  );
 }

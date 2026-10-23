@@ -1,9 +1,37 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Logger } from '../utils';
 
+/** Explicit override from .breakglass/policy.json, which outranks the environment. */
+let maxDailySpendOverrideUsd: number | undefined;
+
 export const SafetyPolicy = {
-  maxDailySpendUsd: parseFloat(process.env.MAX_DAILY_SPEND || '5.00'),
+  /**
+   * Read LAZILY, never snapshotted at import.
+   *
+   * `parseFloat(process.env.MAX_DAILY_SPEND)` as an initializer runs when this module is first
+   * imported — and imports are hoisted, so it ran BEFORE `loadGlobalEnv()` at index.ts:20 had read
+   * ~/.breakglass/.env. The variable was therefore always undefined and the cap always $5.00, which
+   * made the veto's own advice ("raise it via MAX_DAILY_SPEND") impossible to follow through the
+   * documented file. Measured 2026-08-18: MAX_DAILY_SPEND=1000000 in .env, engine started after the
+   * write, and the governor still loaded "$5.07 / $5.00" and vetoed.
+   *
+   * Same hazard provider.ts:21 already guards against by name. A getter costs one parse per read
+   * and cannot be defeated by import order.
+   */
+  get maxDailySpendUsd(): number {
+    if (maxDailySpendOverrideUsd !== undefined) return maxDailySpendOverrideUsd;
+    // Settings (N6) before the environment: it is the value the user can see and change.
+    const configured = configuredSpend('spendDailyCapUsd');
+    if (configured !== undefined) return configured;
+    const parsed = parseFloat(process.env.MAX_DAILY_SPEND || '');
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : 5.00;
+  },
+  /** policy.json still overrides the environment; the setter keeps that path working. */
+  set maxDailySpendUsd(value: number) {
+    maxDailySpendOverrideUsd = value;
+  },
   allowedWorkspace: process.env.WORKSPACE_ROOT || process.cwd(),
   forbiddenExtensions: ['.env', '.pem', '.key', '.p12'],
   forbiddenPaths: ['/etc', '/system', '/var', '/root', '/.ssh', '/proc'],
@@ -13,7 +41,15 @@ export const SafetyPolicy = {
   forbiddenRegex: [/id_rsa/i]
 };
 
-const POLICY_FILE = path.join(process.cwd(), '.breakglass/policy.json');
+const POLICY_FILE = path.join(stateDir('.breakglass'), 'policy.json');
+
+/** A spending limit set in Settings (N6), or undefined when none is. Lazy: config imports much of the engine. */
+export function configuredSpend(key: 'spendDailyCapUsd' | 'spendTaskShareUsd'): number | undefined {
+  try {
+    const value = (require('../engine/config') as typeof import('../engine/config')).getConfig()[key];
+    return typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : undefined;
+  } catch { return undefined; }
+}
 
 let policyWatcher: fs.FSWatcher | null = null;
 

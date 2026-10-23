@@ -23,7 +23,7 @@ export interface ContextPack {
   entries: ContextPackEntry[];
   text: string;        // assembled, ready to inject into the prompt
   tokenEstimate: number;
-  truncated: boolean;  // true if some neighbor signatures were dropped to fit the budget
+  truncated: boolean;  // true if anything was cut to fit the budget: neighbor signatures or the target body
 }
 
 export interface PlanContextOptions {
@@ -111,28 +111,78 @@ export async function planContext(
   const rankedCallers = callers.filter(rankNeighbor).sort((a, b) => critRank(b) - critRank(a));
   const rankedCallees = callees.filter(rankNeighbor).sort((a, b) => critRank(b) - critRank(a));
 
-  // Fill the remaining budget with neighbor signatures (callers before callees), dropping
-  // the rest once we'd blow the cap.
-  let tokenEstimate = estimateTokens(targetText);
-  let truncated = false;
+  // Every budget check below measures the RENDERED pack, headers and notes included. Counting only
+  // entry texts let a 100-token pack come back at ~1,800 tokens marked not truncated (record 47, A05):
+  // the target body went in whole, and the headers were never counted.
+  const packTokens = (candidate: ContextPackEntry[], neighborsOmitted: boolean, bodyCut: boolean) =>
+    estimateTokens(renderPack(targetNode, candidate, neighborsOmitted, bodyCut));
+  const hasNeighbors = rankedCallers.length + rankedCallees.length > 0;
+
+  // The target comes first. If its whole body cannot fit, keep the leading lines that do and say where
+  // the rest is; if not even the headers fit, say so rather than return an oversized pack.
+  let bodyCut = false;
+  if (packTokens(entries, hasNeighbors, false) > maxTokens) {
+    const cut = cutBody(targetNode, targetText, maxTokens, (text) =>
+      packTokens([{ ...entries[0], text }], hasNeighbors, true));
+    if (cut === null) {
+      const floor = packTokens([{ ...entries[0], text: bodyNote(targetNode, maxTokens, 0, 1) }], hasNeighbors, true);
+      return { error: `The context pack for "${targetNode.name}" cannot fit in ${maxTokens} tokens: its headers alone need about ${floor}. Raise maxTokens.` };
+    }
+    entries[0] = { ...entries[0], text: cut };
+    bodyCut = true;
+  }
+
+  // Fill what is left with neighbor signatures (callers before callees). Each is checked as if the
+  // omission note were already there, so adding the note afterwards cannot break the budget.
+  let neighborsOmitted = bodyCut && hasNeighbors;
   const addNeighbors = (nodes: GraphNode[], role: 'caller' | 'callee') => {
     for (const n of nodes) {
-      const line = signatureLine(n);
-      const cost = estimateTokens(line);
-      if (tokenEstimate + cost > maxTokens) { truncated = true; continue; }
-      tokenEstimate += cost;
-      entries.push({ nodeId: n.id, role, text: line });
+      entries.push({ nodeId: n.id, role, text: signatureLine(n) });
+      if (packTokens(entries, true, bodyCut) > maxTokens) {
+        entries.pop();
+        neighborsOmitted = true;
+      }
     }
   };
-  addNeighbors(rankedCallers, 'caller');
-  addNeighbors(rankedCallees, 'callee');
+  if (!bodyCut) {
+    addNeighbors(rankedCallers, 'caller');
+    addNeighbors(rankedCallees, 'callee');
+  }
 
-  const text = renderPack(targetNode, entries, truncated);
-  // Re-estimate on the fully-rendered text so the reported figure matches what's injected.
-  return { targetId: targetNode.id, entries, text, tokenEstimate: estimateTokens(text), truncated };
+  const text = renderPack(targetNode, entries, neighborsOmitted, bodyCut);
+  return { targetId: targetNode.id, entries, text, tokenEstimate: estimateTokens(text), truncated: neighborsOmitted || bodyCut };
 }
 
-function renderPack(targetNode: GraphNode, entries: ContextPackEntry[], truncated: boolean): string {
+/**
+ * The longest leading slice of `body`, ending in a note that says where the rest is, whose pack still
+ * fits. Null when not even the note fits. `measure` renders the candidate pack and counts its tokens.
+ */
+function cutBody(node: GraphNode, body: string, maxTokens: number, measure: (text: string) => number): string | null {
+  const lines = body.split('\n');
+  const candidate = (kept: number) => [...lines.slice(0, kept), bodyNote(node, maxTokens, kept, lines.length)].join('\n');
+  if (measure(candidate(0)) > maxTokens) return null;
+  // Keeping every line is the whole body, which did not fit, so search 0..lines-1.
+  let lo = 0;
+  let hi = lines.length - 1;
+  while (lo < hi) {
+    const mid = Math.ceil((lo + hi) / 2);
+    if (measure(candidate(mid)) <= maxTokens) lo = mid;
+    else hi = mid - 1;
+  }
+  return candidate(lo);
+}
+
+/** The last line of a cut target body: how much was left out, and where to read it. */
+function bodyNote(node: GraphNode, maxTokens: number, kept: number, total: number): string {
+  const exact = !!node.filePath && node.startLine != null && node.endLine != null
+    && node.endLine - node.startLine + 1 === total;
+  const where = exact
+    ? `read ${node.filePath} lines ${node.startLine! + kept}-${node.endLine} for the rest`
+    : `read the full source of ${node.name} for the rest`;
+  return `// … ${total - kept} of ${total} lines omitted to fit the ${maxTokens}-token budget — ${where}`;
+}
+
+function renderPack(targetNode: GraphNode, entries: ContextPackEntry[], neighborsOmitted: boolean, bodyCut: boolean): string {
   const out: string[] = [];
   const targetEntry = entries.find(e => e.role === 'target')!;
   const crit = targetNode.criticality ? ` [${targetNode.criticality}${targetNode.riskScore != null ? ` risk=${targetNode.riskScore}` : ''}]` : '';
@@ -143,7 +193,7 @@ function renderPack(targetNode: GraphNode, entries: ContextPackEntry[], truncate
   out.push(`===== CONTEXT PACK: ${targetNode.type} ${targetNode.name}${crit} =====`);
   out.push(`// ${loc}`);
   out.push('');
-  out.push('--- TARGET (full source) ---');
+  out.push(bodyCut ? '--- TARGET (source cut to fit the token budget) ---' : '--- TARGET (full source) ---');
   out.push(targetEntry.text);
 
   const callers = entries.filter(e => e.role === 'caller');
@@ -160,7 +210,7 @@ function renderPack(targetNode: GraphNode, entries: ContextPackEntry[], truncate
     for (const c of callees) out.push(`// ${c.text}`);
   }
 
-  if (truncated) {
+  if (neighborsOmitted) {
     out.push('');
     out.push('// (some neighbors omitted to fit the token budget — query GraphQueryTool for more)');
   }

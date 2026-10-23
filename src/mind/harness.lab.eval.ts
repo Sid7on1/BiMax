@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import { loadEpisode } from './episode.recorder';
@@ -17,7 +18,7 @@ import {
  * effects: both arms of every pair go through replayEpisode, whose LLM responses come
  * from the recording (ReplayProvider) and whose "tools" only re-serve recorded result
  * strings — no real tool, shell, network, or model call can occur, and the learning
- * observers stand down (setReplayActive). Recorded content is treated as untrusted data
+ * observers stand down inside an async-local replay scope. Recorded content is treated as untrusted data
  * to be measured, never as instructions to execute.
  *
  * What a pair honestly measures (all labeled 'measured' in the gate evidence):
@@ -80,7 +81,7 @@ export function selectCohort(
     limit: criteria?.limit ?? LAB_GATES.DEFAULT_COHORT_LIMIT,
     minCalls: criteria?.minCalls ?? LAB_GATES.MIN_EPISODE_CALLS,
   };
-  const dir = path.join(root, '.bimax', 'episodes');
+  const dir = path.join(stateDir('.bimax', root), 'episodes');
   let files: string[] = [];
   try { files = fs.readdirSync(dir).filter(f => f.endsWith('.jsonl')).sort(); } catch { /* no episodes yet */ }
 

@@ -97,29 +97,38 @@ export class ImpactEngine implements IImpactEngine {
   private traverse(startNodeId: string, maxDepth: number, direction: 'forward' | 'reverse'): GraphNode[] {
     const visited = new Set<string>();
     const result: GraphNode[] = [];
-    const queue: { id: string, depth: number }[] = [{ id: startNodeId, depth: 0 }];
-
+    let queue = [startNodeId];
+    let head = 0;
+    let layerEnd = 1;
+    let depth = 0;
     visited.add(startNodeId);
 
-    while (queue.length > 0) {
-      const current = queue.shift()!;
-      if (current.depth >= maxDepth) continue;
-
-      const edges = direction === 'forward' 
-        ? this.store.getEdgesFrom(current.id)
-        : this.store.getEdgesTo(current.id);
-
+    // Keep FIFO/depth order without front shifts or per-node depth objects. Clear
+    // consumed IDs and compact only when at least half the array has been consumed:
+    // copied IDs are amortized linear, and queue slots stay O(live frontier + 1024).
+    while (head < queue.length) {
+      if (depth >= maxDepth) break;
+      const current = queue[head];
+      queue[head++] = '';
+      const edges = direction === 'forward'
+        ? this.store.getEdgesFrom(current)
+        : this.store.getEdgesTo(current);
       for (const edge of edges) {
         const nextId = direction === 'forward' ? edge.targetId : edge.sourceId;
-
         if (!visited.has(nextId)) {
           visited.add(nextId);
           const nextNode = this.store.getNode(nextId);
           if (nextNode) {
             result.push(nextNode);
-            queue.push({ id: nextId, depth: current.depth + 1 });
+            queue.push(nextId);
           }
         }
+      }
+      if (head === layerEnd) { depth++; layerEnd = queue.length; }
+      if (head >= 1024 && head * 2 >= queue.length) {
+        queue = queue.slice(head);
+        layerEnd -= head;
+        head = 0;
       }
     }
 

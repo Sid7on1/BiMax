@@ -1,5 +1,6 @@
 import { Logger } from '../utils/logger';
-import { cliEvents } from '../cli/events';
+import { engineEvents } from '../engine/events';
+import { waitWithSignal, withRequestDeadline } from '../utils/request.deadline';
 
 /**
  * MCP Tasks extension support (spec 2025-11-25, carried into the 2026-07-28 RC): a server may
@@ -40,8 +41,6 @@ export function extractTaskRef(res: any): TaskRef | null {
   return null;
 }
 
-const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
-
 /**
  * Poll a task to a terminal state and return its result payload (the same shape a synchronous
  * tools/call would have returned). Throws on failure/cancellation/timeout — the caller's normal
@@ -53,41 +52,77 @@ export async function awaitTaskResult(
   toolName: string,
   ref: TaskRef,
   timeoutMs: number,
+  signal?: AbortSignal,
 ): Promise<any> {
-  const deadline = Date.now() + timeoutMs;
   let delay = 500;
   let status = ref.status || 'working';
   let statusMessage = '';
-
-  while (!TERMINAL.has(status)) {
-    if (status === 'input_required') {
-      // Server-side elicitation mid-task — nothing an autonomous poll can answer.
-      throw new Error(
-        `MCP task ${ref.taskId} (${serverName}/${toolName}) needs additional input (status: input_required)` +
-        `${statusMessage ? ` — ${statusMessage}` : ''}. Re-run the tool with the missing information supplied up front.`
-      );
-    }
-    if (Date.now() >= deadline) {
-      throw new Error(`MCP task ${ref.taskId} (${serverName}/${toolName}) did not finish within ${Math.round(timeoutMs / 1000)}s (last status: ${status}).`);
-    }
-    await sleep(Math.min(delay, Math.max(0, deadline - Date.now())));
-    delay = Math.min(delay * 1.5, 5000);
-
-    const got = await client.request({ method: 'tasks/get', params: { taskId: ref.taskId } }, PASSTHROUGH);
-    const t = got?.task ?? got ?? {};
-    status = String(t.status || 'working');
-    statusMessage = typeof t.statusMessage === 'string' ? t.statusMessage : '';
+  const timeoutError = () =>
+    new Error(
+      `MCP task ${ref.taskId} (${serverName}/${toolName}) did not finish within ${Math.round(timeoutMs / 1000)}s (last status: ${status}).`,
+    );
+  // Stop is also sent to the server, once and without waiting for an acknowledgement.
+  // A cancelled local wait cannot establish that a remote side effect was undone.
+  const cancelRemote = () => {
     try {
-      cliEvents.emit('status', `MCP task ${serverName}/${toolName}: ${status}${statusMessage ? ` — ${statusMessage.slice(0, 80)}` : ''}`);
-    } catch { /* UI is best-effort */ }
-  }
+      Promise.resolve(
+        client.request({ method: 'tasks/cancel', params: { taskId: ref.taskId } }, PASSTHROUGH, { timeout: 1000 }),
+      ).catch(() => {
+        /* cancellation is best-effort */
+      });
+    } catch {
+      /* a closed transport cannot acknowledge cancellation */
+    }
+  };
+  signal?.addEventListener('abort', cancelRemote, { once: true });
+  if (signal?.aborted) cancelRemote();
+  try {
+    return await withRequestDeadline(timeoutMs, signal, timeoutError, async (requestSignal, remainingMs) => {
+      const request = (method: string) =>
+        client.request({ method, params: { taskId: ref.taskId } }, PASSTHROUGH, {
+          signal: requestSignal,
+          timeout: remainingMs(),
+        });
+      while (!TERMINAL.has(status)) {
+        if (status === 'input_required') {
+          // Server-side elicitation mid-task — nothing an autonomous poll can answer.
+          throw new Error(
+            `MCP task ${ref.taskId} (${serverName}/${toolName}) needs additional input (status: input_required)` +
+              `${statusMessage ? ` — ${statusMessage}` : ''}. Re-run the tool with the missing information supplied up front.`,
+          );
+        }
+        await waitWithSignal(Math.min(delay, remainingMs()), requestSignal);
+        remainingMs();
+        delay = Math.min(delay * 1.5, 5000);
 
-  if (status !== 'completed') {
-    throw new Error(`MCP task ${ref.taskId} (${serverName}/${toolName}) ended ${status}${statusMessage ? `: ${statusMessage}` : ''}.`);
-  }
+        const got = await request('tasks/get');
+        remainingMs();
+        const t = got?.task ?? got ?? {};
+        status = String(t.status || 'working');
+        statusMessage = typeof t.statusMessage === 'string' ? t.statusMessage : '';
+        try {
+          engineEvents.emit(
+            'status',
+            `MCP task ${serverName}/${toolName}: ${status}${statusMessage ? ` — ${statusMessage.slice(0, 80)}` : ''}`,
+          );
+        } catch {
+          /* UI is best-effort */
+        }
+      }
 
-  Logger.info(`[MCP] Task ${ref.taskId} (${serverName}/${toolName}) completed; fetching result.`);
-  const result = await client.request({ method: 'tasks/result', params: { taskId: ref.taskId } }, PASSTHROUGH);
-  // Some servers nest the tool result under `result`, some return it directly.
-  return result?.result ?? result;
+      if (status !== 'completed') {
+        throw new Error(
+          `MCP task ${ref.taskId} (${serverName}/${toolName}) ended ${status}${statusMessage ? `: ${statusMessage}` : ''}.`,
+        );
+      }
+
+      Logger.info(`[MCP] Task ${ref.taskId} (${serverName}/${toolName}) completed; fetching result.`);
+      const result = await request('tasks/result');
+      remainingMs();
+      // Some servers nest the tool result under `result`, some return it directly.
+      return result?.result ?? result;
+    });
+  } finally {
+    signal?.removeEventListener('abort', cancelRemote);
+  }
 }

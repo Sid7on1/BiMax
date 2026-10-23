@@ -1,4 +1,23 @@
-#!/usr/bin/env node
+// The Bimax engine's one and only entry point.
+//
+// THERE IS NO CLI ANY MORE. This file used to be two front doors in one: the engine the desktop
+// boots, and a `commander` program with flags (-p print mode, --acp, `bimax mcp`, terminal themes)
+// left over from the Go/Bubble Tea TUI that was archived on 2026-09-06. The TUI was the CLI; once it
+// left, the flags were parsing arguments no front-end ever passed, and print mode, the ACP agent and
+// the MCP graph server were reachable only through them. All of it now lives in
+// ~/Developer/bimax-archive at its repo path, cmp-verified, not deleted.
+//
+// What boots this module, and nothing else does:
+//   • the desktop app — a worker thread inside the app's process, handed a MessagePort to speak on (the monolith,
+//     record 64). Since M4 (2026-09-30) that is the only way: the separate engine process that spoke NDJSON on
+//     stdin/stdout is gone, and an engine started without the app's port stops at once and says why.
+//   • itself — a one-shot sub-agent carrying BIMAX_SUBAGENT_CONFIG.
+// Every mode is chosen by ENVIRONMENT, never by argv, so there is no argument surface to drift.
+
+// FIRST, before any other module runs: an engine hosted as a worker thread in the app's process (the monolith,
+// record 64) gets a working folder of its own. Does nothing on the main thread (a sub-agent re-exec, a test).
+import './engine/worker.folder';
+
 // Buffer boot logs so they don't fight the front-end for stdout during boot
 const bootLogs: string[] = [];
 const originalConsoleLog = console.log;
@@ -15,120 +34,116 @@ function startBootCapture() {
 startBootCapture();
 
 import * as fs from 'fs';
+import * as path from 'path';
 import dotenv from 'dotenv';
-import { loadGlobalEnv } from './cli/env.loader';
+import { stateDir } from './utils/state.dir';
+import { redactSecrets } from './security/secret.scan';
+import { loadGlobalEnv } from './engine/env.loader';
 loadGlobalEnv();
 dotenv.config();
-import { Command } from 'commander';
+// The egress perimeter goes up the instant the environment is readable and before any other module
+// gets a chance to open a socket. It is what makes "nothing leaves the premises" a property of the
+// process rather than a promise about sixteen call sites. See security/egress.perimeter.ts.
+import { installEgressPerimeter } from './security/egress.perimeter';
+installEgressPerimeter();
 import { createContainer } from './core/container';
-import { readPackageVersion } from './core/self.update';
-import { resolveTheme } from './cli/themes';
-import { loadConfig, getConfig } from './cli/config';
-import { setCustomRoutingRules } from './cli/agentRouter';
-import { cliEvents } from './cli/events';
+import { loadConfig } from './engine/config';
+import { setCustomRoutingRules } from './engine/agentRouter';
+import { engineEvents } from './engine/events';
 import { setGlobalPatternStore, GenomePatternStore } from './genome/pattern.store';
 import { setGlobalRecipeLoader, RecipeLoader } from './recipes/recipe.loader';
-import { setBlueprintEngine, BlueprintEngine } from './blueprints/blueprint.engine';
-import { setBlueprintCompiler, BlueprintCompiler } from './blueprints/blueprint.compiler';
-import { setTrainMonitor, TrainMonitor } from './training/train.monitor';
-import { setTrainLauncher, TrainLauncher } from './training/train.launcher';
 import { setContextManagerGraphStore } from './memory/context.manager';
 
-const program = new Command();
+// Sovereign mode is resolved BEFORE the container boots, so the very first request any subsystem
+// makes is already governed. Resolving it later would leave a window in which a start-up probe
+// (an update check, a telemetry handshake) leaves the premises before the mode is on — and a
+// window is exactly what an air-gap claim cannot have. It reads BIMAX_SOVEREIGN /
+// BIMAX_SOVEREIGN_ALLOW, which is where it always resolved from — the old --sovereign flags only
+// ever set the same two values one layer higher up.
+{
+  const { isSovereign, sovereignAllowlist } = require('./security/sovereign');
+  if (isSovereign()) {
+    const { ledgerPath } = require('./security/egress.ledger');
+    const allow = sovereignAllowlist();
+    // Printed, not logged: an operator who asked for air-gap mode must be able to SEE that it took
+    // effect, and the boot-log buffer is replayed too late to serve as confirmation.
+    originalConsoleLog(
+      `\n  SOVEREIGN MODE — external egress fails closed.\n` +
+      `  Local: loopback + private LAN${allow.length ? ` + allowlist (${allow.join(', ')})` : ' (no allowlist)'}\n` +
+      `  Shell: network denied at the kernel; refused outright where the OS cannot enforce it\n` +
+      `  Ledger: ${ledgerPath()}   ·   /sovereign report for the audit trail\n`
+    );
+  }
+}
 
-program
-  .name('bimax')
-  .description('BiMax — Autonomous AI agent for your terminal')
-  .version(readPackageVersion())
-  .argument('[prompt]', 'Prompt to run in non-interactive mode')
-  .option('-p, --print', 'Non-interactive mode: print response and exit')
-  .option('-m, --model <model>', 'Model override (e.g. gpt-4, claude-opus)')
-  .option('-t, --theme <theme>', 'Color theme: dark, light, dark-ansi, light-ansi, dark-daltonized, light-daltonized, auto', 'auto')
-  .option('-a, --agent <agent>', 'Agent persona: bimax, hermes, opencode, openclaw', 'bimax')
-  .option('-v, --verbose', 'Verbose output')
-  .option('-o, --output-format <format>', 'Output format: text, json, stream-json', 'text')
-  .option('-y, --yes', 'Skip all permission prompts')
-  .option('--print-with-tools', 'Include tool call output in print mode')
-  .option('--acp', 'Run as an Agent Client Protocol agent over stdio (embed in Zed/editors)')
-  // Checked below as `cliFlags.headless`, and routed to by bin/bimax.js, but never registered here —
-  // so `bimax --headless` died in the argument parser ("unknown option") and only BIMAX_HEADLESS=1
-  // worked. The flag the launcher documents has to exist.
-  .option('--headless', 'Run the engine over the NDJSON stdio protocol for an embedded front-end')
-  .option('--dangerously-skip-permissions', 'Skip all permission prompts');
-
-program.parse(process.argv);
-
-const cliFlags = program.opts();
-const prompt = program.args[0];
-
-// Boot log capture moved to top of file
-
-function replayBootLogs() {
-  // Give the front-end a moment to attach before replaying buffered boot logs as events
-  setTimeout(() => {
-    for (const msg of bootLogs) {
-      cliEvents.emit('log', { id: 0, level: 'info', text: msg, timestamp: new Date() });
-    }
-    bootLogs.length = 0;
-  }, 100);
+// A crash note goes to Bimax's own log folder, scrubbed of keys. It used to be written to the working directory —
+// the person's project folder — as `fatal-crash.log`, where nothing read it and it could land in their git status.
+function writeCrashLog(msg: string): void {
+  try {
+    const dir = path.join(stateDir('.breakglass'), 'logs');
+    fs.mkdirSync(dir, { recursive: true });
+    fs.appendFileSync(path.join(dir, 'fatal-crash.log'), new Date().toISOString() + ' ' + redactSecrets(msg) + '\n');
+  } catch { /* the process is exiting either way; the message still reaches stderr below */ }
 }
 
 // 4. Graceful Boot Error Handling (API-006)
 process.on('uncaughtException', (err) => {
-  // A broken pipe means our reader (the Go TUI) closed stdout/stderr — i.e. it exited. That's a normal
-  // shutdown, not a crash: leave quietly with no scary fatal-crash.log or CRITICAL CRASH banner.
+  // A broken pipe means our reader — the desktop — closed stdout/stderr, i.e. it exited. That's a
+  // normal shutdown, not a crash: leave quietly with no scary fatal-crash.log or CRITICAL CRASH banner.
   if ((err as NodeJS.ErrnoException).code === 'EPIPE') { process.exit(0); }
 
   const msg = `[FATAL] Uncaught Exception: ${err.message}\n${err.stack}`;
-  fs.appendFileSync('fatal-crash.log', new Date().toISOString() + ' ' + msg + '\n');
+  writeCrashLog(msg);
 
   if (bootLogs.length > 0) {
     originalConsoleError(msg);
   } else {
-    cliEvents.emit('message', { id: `crash-${Date.now()}`, role: 'assistant', content: `❌ **CRITICAL CRASH:** ${err.message}`, timestamp: new Date() });
+    engineEvents.emit('message', { id: `crash-${Date.now()}`, role: 'assistant', content: `❌ **CRITICAL CRASH:** ${err.message}`, timestamp: new Date() });
   }
   process.exit(1);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
   const msg = `[FATAL] Unhandled Rejection at: ${promise}, reason: ${reason}`;
-  fs.appendFileSync('fatal-crash.log', new Date().toISOString() + ' ' + msg + '\n');
+  writeCrashLog(msg);
   if (bootLogs.length > 0) {
     originalConsoleError(msg);
   } else {
-    cliEvents.emit('message', { id: `crash-${Date.now()}`, role: 'assistant', content: `❌ **UNHANDLED REJECTION:** ${reason}`, timestamp: new Date() });
+    engineEvents.emit('message', { id: `crash-${Date.now()}`, role: 'assistant', content: `❌ **UNHANDLED REJECTION:** ${reason}`, timestamp: new Date() });
   }
 });
 
 async function main() {
-  // Sub-agent SUBPROCESS mode: the bun-compiled binary re-execs itself with BIMAX_SUBAGENT_CONFIG to
-  // run a sub-agent (worker_threads can't carry their deps inside a bun --compile binary; a full
-  // re-exec can). Intercept before ANY engine boot — this process is a one-shot worker, not the CLI.
+  // Sub-agent SUBPROCESS mode: the engine re-execs itself with BIMAX_SUBAGENT_CONFIG to run a
+  // sub-agent (worker_threads can't carry their deps inside a bundled engine; a full re-exec can).
+  // Intercept before ANY engine boot — this process is a one-shot worker, not a front-end's engine.
   if (process.env.BIMAX_SUBAGENT_CONFIG) {
-    const { runAsSubprocess } = await import('./cli/worker.entry');
+    const { runAsSubprocess } = await import('./engine/worker.entry');
     await runAsSubprocess();
     return;
   }
 
-  // `bimax mcp` — serve the project's code graph over MCP stdio (A4). Must intercept before
-  // any other boot so "mcp" isn't treated as a prompt, and before normal logging starts.
-  if (program.args[0] === 'mcp') {
-    const { runGraphMcpStdioServer } = await import('./mcp/server');
-    await runGraphMcpStdioServer(process.cwd());
-    return;
+  // The engine speaks only over the port the app hands its worker (record 64, M4). Checked before config, storage or
+  // indexing start: an engine started any other way stops having read no config and opened no store. (Loading the
+  // modules above may already have created the empty `.breakglass/logs` folder — measured, nothing else.)
+  const { engineWorkerPort } = await import('./protocol/port.host');
+  const port = engineWorkerPort();
+  if (!port) {
+    originalConsoleError('[bimax] The engine runs only as a worker thread inside the Bimax app, which hands it a port to '
+      + 'speak on (record 64). It was started without one, so it is stopping. To run it by hand, use '
+      + '`npx electron app/scripts/verify-engine.js`.');
+    process.exit(2);
   }
 
-  // Honor the front-end's working directory BEFORE anything reads config or the graph. In dev the Go
-  // TUI launches the engine with its CWD set to the repo (so `tsx src/index.ts` resolves), but the
-  // user's actual PROJECT is wherever they ran the TUI — passed as BIMAX_CWD. This must run before
-  // loadConfig(), or the project config (`<cwd>/.breakglass/config.json`) is read from the engine's
-  // repo and cached — e.g. the repo's pinned llama model would override the user's minimax default.
+  // Honor the front-end's working directory BEFORE anything reads config or the graph. The engine's
+  // own cwd is wherever it was spawned; the user's actual PROJECT is passed as BIMAX_CWD. This must
+  // run before loadConfig(), or the project config (`<cwd>/.breakglass/config.json`) is read from
+  // the wrong directory and cached — e.g. a repo's pinned model overriding the user's default.
   if (process.env.BIMAX_CWD) {
     try { process.chdir(process.env.BIMAX_CWD); } catch { /* keep current cwd on failure */ }
   }
 
-  // Supervised launches (the desktop) see real startup phases on stdout instead of silence until
-  // `ready`. No-ops outside headless mode (boot.status gates on BIMAX_HEADLESS).
+  // Supervised launches see real startup phases on stdout instead of silence until `ready`.
   const { reportBootPhase } = await import('./protocol/boot.status');
   reportBootPhase('booting');
 
@@ -138,75 +153,23 @@ async function main() {
     setCustomRoutingRules(config.customRoutingRules);
   }
 
-  const effectiveAgent = cliFlags.agent || config.defaultAgent;
-  const effectiveModel = cliFlags.model || config.model;
-  const effectiveVerbose = cliFlags.verbose || config.verbose;
-  const effectiveTheme = resolveTheme(cliFlags.theme === 'auto' ? config.theme : cliFlags.theme);
-  const effectiveSkipPerms = cliFlags.dangerouslySkipPermissions || cliFlags.yes || config.dangerouslySkipPermissions;
-
   const container = await createContainer(config);
-  const { toolRegistry, llmAdapter, governor, codebaseIndexer, taskPipeline, graphStore } = container;
-  governor.mode = effectiveSkipPerms ? 'bypass' : 'interactive';
+  const { governor, graphStore } = container;
+  // A night shift (FL5) runs unattended: set by the Bimax app for that task only, in its isolated checkout.
+  governor.mode = config.dangerouslySkipPermissions ? 'bypass' : process.env.BIMAX_UNATTENDED === '1' ? 'unattended' : 'interactive';
 
   // Wire genome pattern store, recipe loader, and graph store for context injection
   setGlobalPatternStore(new GenomePatternStore(process.cwd()));
   setGlobalRecipeLoader(new RecipeLoader(process.cwd()));
-  setBlueprintEngine(new BlueprintEngine(process.cwd()));
-  setBlueprintCompiler(new BlueprintCompiler(process.cwd()));
-  setTrainMonitor(new TrainMonitor(process.cwd()));
-  setTrainLauncher(new TrainLauncher(process.cwd()));
   if (graphStore) setContextManagerGraphStore(graphStore);
 
-  if (prompt && cliFlags.print) {
-    const { executePrintMode } = await import('./cli/print');
-    await executePrintMode(prompt, {
-      agent: effectiveAgent,
-      model: effectiveModel,
-      theme: effectiveTheme,
-      verbose: effectiveVerbose,
-      outputFormat: cliFlags.outputFormat,
-      ...container,
-    });
-    process.exit(0);
-  }
-
-  // ACP mode — run as an Agent Client Protocol agent over stdio, so an editor (Zed and other ACP
-  // clients) can embed the full Bimax engine. Speaks newline-delimited JSON-RPC instead of Bimax's
-  // own NDJSON protocol. Checked before headless so `--acp` wins if both are somehow set.
-  if (process.env.BIMAX_ACP === '1' || cliFlags.acp) {
-    const { startAcpAgent } = await import('./protocol/acp/entry');
-    await startAcpAgent(container, config);
-    process.exit(0);
-  }
-
-  // Headless mode — drive the engine over an NDJSON stdio protocol. This is the process the
-  // out-of-process front-end (the Go / Bubble Tea TUI) spawns, forked after the container is
-  // wired. This is the only interactive path; there is no in-process UI below (see §below).
-  if (process.env.BIMAX_HEADLESS === '1' || cliFlags.headless) {
-    // The interface import below evaluates the whole command/persona tree — on a cold page cache
-    // (compiled binary, memory-pressured host) that is the longest silent stretch of boot. Report
-    // it so the front-end shows progress instead of appearing hung between the container and ready.
-    reportBootPhase('loading_interface');
-    const { startHeadless } = await import('./protocol/headless.entry');
-    await startHeadless(container, config);
-    process.exit(0);
-  }
-
-  // Restore console — no Ink to fight for stdout anymore.
-  console.log = originalConsoleLog;
-  console.warn = originalConsoleWarn;
-  console.error = originalConsoleError;
-
-  // The interactive TUI is now the `bimax` binary (Go / Bubble Tea), which spawns this engine
-  // headless (BIMAX_HEADLESS=1) and drives it over the NDJSON stdio protocol. The old in-process
-  // Ink frontend has been retired (archived under ~/Desktop/ink-bimax). Reaching here means the
-  // engine was launched directly without a front-end, so there's nothing to render.
-  originalConsoleError(
-    'BiMax engine started with no front-end.\n' +
-    '  • Interactive use:   run the `bimax` binary (the Go/Bubble Tea TUI).\n' +
-    '  • One-shot use:      bimax -p "<prompt>"\n' +
-    '  • Embed a front-end: spawn this with BIMAX_HEADLESS=1 and speak the stdio protocol.',
-  );
+  // The import below evaluates the whole command/persona tree — on a cold page cache that is the longest silent
+  // stretch of boot, so report it or the front-end shows a hang between the container and `ready`.
+  reportBootPhase('loading_interface');
+  const { startHeadless } = await import('./protocol/headless.entry');
+  // One entry file, one boot, one place a fix lands: a second entry for a second host is how desktop.runtime.ts and
+  // the two env builders once drifted, with the copy nobody ran quietly losing features the other had.
+  await startHeadless(container, config, { port });
   process.exit(0);
 }
 

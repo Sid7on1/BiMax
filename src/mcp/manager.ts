@@ -1,3 +1,4 @@
+import { reportCapability } from '../core/capability.status';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
@@ -5,8 +6,9 @@ import { ToolRegistry } from '../tools/tool.registry';
 import { IGovernor } from '../core/interfaces';
 import { Logger } from '../utils/logger';
 import { McpServerSpec, loadHostCapabilityServers, loadMcpServers, normalizeArgs, missingPathArgs } from './config';
-import { connectAndRegister, ConnectedMcp } from './client';
-import { cliEvents } from '../cli/events';
+import { connectAndRegister, ConnectedMcp, OpenOptions } from './client';
+import { forgetSignIn } from './oauth';
+import { engineEvents } from '../engine/events';
 import { codebaseMemorySpec } from './builtin/codebaseMemory';
 import { withTimeout } from '../utils/withTimeout';
 import { serverCallSummary } from './stats';
@@ -36,8 +38,8 @@ export interface McpHealth {
  * redundant tools on the model and spawn a second engine process). Power users can opt into the raw
  * tools with BIMAX_CODEMEM_RAW_TOOLS=1.
  */
-async function builtinServers(): Promise<McpServerSpec[]> {
-  const out: McpServerSpec[] = loadHostCapabilityServers();
+async function optionalBuiltinServers(): Promise<McpServerSpec[]> {
+  const out: McpServerSpec[] = [];
   if (process.env.BIMAX_CODEMEM_RAW_TOOLS === '1') {
     try {
       const cbm = await codebaseMemorySpec();
@@ -60,7 +62,9 @@ export class McpManager {
   private connections: Map<string, ConnectedMcp> = new Map();
   /** Server names currently in the middle of a connect attempt. Used by ToolSearchTool to warn the
    *  model that a missing MCP tool might appear once the server finishes connecting. */
-  private pending: Set<string> = new Set();
+  private pending = new Map<string, AbortController>();
+  private pendingFinished = new WeakMap<AbortController, Promise<void>>();
+  private heals = new Map<string, Promise<ConnectedMcp | null>>();
   /** The reason the most recent connect attempt failed (for surfacing to the user/agent). */
   public lastError: string | null = null;
   /** Failure state is tracked per server so one bad connector cannot hide another one's cause. */
@@ -78,49 +82,116 @@ export class McpManager {
   }
 
   /** Connect one server and retain the connection. Returns the live connection or null. */
+  private reportConnection(name: string, ready: boolean): void {
+    reportCapability({ id: `mcp:${name}`, label: `MCP ${name}`, state: ready ? 'ready' : 'unavailable',
+      reason: ready ? 'The connection answered successfully.' : 'The configured connection failed.',
+      impact: ready ? '' : 'Its tools may be unavailable.', action: ready ? '' : 'Check the server or use /mcp reconnect.' });
+  }
+
   public async connectSpec(
     spec: McpServerSpec,
     registry: ToolRegistry,
     governor: IGovernor,
+    options: OpenOptions = {},
   ): Promise<ConnectedMcp | null> {
     this.lastError = null;
-    this.pending.add(spec.name);
+    this.pending.get(spec.name)?.abort(new Error('Superseded MCP connection attempt.'));
+    const attempt = new AbortController();
+    let finish!: () => void;
+    this.pendingFinished.set(attempt, new Promise<void>(resolve => { finish = resolve; }));
+    this.pending.set(spec.name, attempt);
+    const cancel = () => attempt.abort(options.signal?.reason);
+    options.signal?.addEventListener('abort', cancel, { once: true });
+    if (options.signal?.aborted) cancel();
     let failure: string | null = null;
+    let owned: ConnectedMcp | null = null;
     try {
       const conn = await connectAndRegister(cleanSpec(spec), registry, governor, (msg) => {
         failure = msg;
-        this.lastError = msg;
       }, async () => {
-        // Self-heal hook for a dead transport mid-call: reconnect with the SAME spec (not a config
-        // lookup — built-ins/tests aren't in any file) and hand back the fresh client so the
-        // in-flight call can retry once on it.
-        const fresh = await this.connectSpec(spec, registry, governor);
-        return fresh?.client ?? null;
-      });
+        if (!owned) return null;
+        return (await this.healConnection(owned, registry, governor))?.client ?? null;
+      }, { ...options, signal: attempt.signal });
+      if (attempt.signal.aborted || this.pending.get(spec.name) !== attempt) {
+        await conn?.dispose?.();
+        return null;
+      }
       if (!conn) {
-        this.errors.set(spec.name, failure || 'Connection failed without an error message.');
+        this.lastError = failure || 'Connection failed without an error message.';
+        this.errors.set(spec.name, this.lastError);
+        this.reportConnection(spec.name, false);
         return null;
       }
 
-      // A live reconfigure must not leak the old process or leave tools that the replacement no
-      // longer exposes. Common tool names have already been replaced in the registry by the new
-      // connection, so unregister only stale names before closing the previous client.
       const previous = this.connections.get(conn.name);
-      if (previous && previous !== conn) {
-        const currentNames = new Set(conn.toolNames);
-        for (const oldName of previous.toolNames) {
-          if (!currentNames.has(oldName)) registry.unregister(oldName);
-        }
-        try { await previous.client?.close?.(); } catch { /* best-effort */ }
-      }
-
+      owned = conn;
+      // Publish ownership before awaiting old transport cleanup. Disconnect/replacement now
+      // sees the new connection and can retire it, even if the old close takes a long time.
       this.connections.set(conn.name, conn);
+      this.pending.delete(spec.name);
       if (spec.eager) registry.markDiscovered(conn.toolNames);
       this.errors.delete(spec.name);
-      return conn;
+      this.reportConnection(spec.name, true);
+      if (previous && previous !== conn) await this.disposeConnection(previous, registry);
+      return this.connections.get(conn.name) === conn ? conn : null;
+    } catch (error) {
+      if (!attempt.signal.aborted) this.reportConnection(spec.name, false);
+      throw error;
     } finally {
-      this.pending.delete(spec.name);
+      if (this.pending.get(spec.name) === attempt) this.pending.delete(spec.name);
+      options.signal?.removeEventListener('abort', cancel);
+      finish();
     }
+  }
+
+  private async disposeConnection(conn: ConnectedMcp, registry?: ToolRegistry): Promise<void> {
+    if (conn.dispose) {
+      await conn.dispose();
+      return;
+    }
+    // Compatibility for embedding/test connections that do not supply owned disposal.
+    if (registry) for (const name of conn.toolNames) registry.unregister(name);
+    try { await conn.client?.close?.(); } catch { /* best-effort */ }
+  }
+
+  private healConnection(conn: ConnectedMcp, registry: ToolRegistry, governor: IGovernor): Promise<ConnectedMcp | null> {
+    if (this.connections.get(conn.name) !== conn) return Promise.resolve(null);
+    const healing = this.heals.get(conn.name);
+    if (healing) return healing;
+    // A manual replacement has precedence over an automatic retry of the old specification.
+    if (this.pending.has(conn.name)) return Promise.resolve(null);
+    const next = this.connectSpec(conn.spec, registry, governor).finally(() => {
+      if (this.heals.get(conn.name) === next) this.heals.delete(conn.name);
+    });
+    this.heals.set(conn.name, next);
+    return next;
+  }
+
+  /**
+   * Connect embedding-host capabilities before the headless protocol reports ready.
+   *
+   * This generic compatibility seam is for embedding integrations. Bimax CU uses a transferred
+   * internal MessagePort instead; it has no MCP connection or environment descriptor.
+   */
+  public async connectHostCapabilities(
+    registry: ToolRegistry,
+    governor: IGovernor,
+  ): Promise<number> {
+    const specs = loadHostCapabilityServers();
+    const results = await Promise.allSettled(specs.map(async (spec) => {
+      if (spec.disabled) return false;
+      const connection = await this.connectSpec(spec, registry, governor);
+      if (connection) {
+        engineEvents.emit('status', `Host capability '${spec.name}' connected — ${connection.toolNames.length} tool(s)`);
+        return true;
+      }
+      const why = this.lastErrorFor(spec.name);
+      if (why) engineEvents.emit('status', `Host capability '${spec.name}' failed: ${why}`);
+      return false;
+    }));
+    const connected = results.filter(result => result.status === 'fulfilled' && result.value).length;
+    if (connected > 0) engineEvents.emit('mcp_changed');
+    return connected;
   }
 
   /**
@@ -130,16 +201,27 @@ export class McpManager {
    */
   public async connectAll(registry: ToolRegistry, governor: IGovernor, projectRoot?: string): Promise<number> {
     const byName = new Map<string, McpServerSpec>();
-    // Built-in engines first, so user config of the same name can override them.
-    for (const s of await builtinServers()) byName.set(s.name, s);
-    for (const s of loadMcpServers(os.homedir())) byName.set(s.name, s);
+    // Host capabilities are reserved by the embedding app. A project MCP config must never replace
+    // `bimax-mac` with a same-named third-party process after the trusted provider connected.
+    const host = loadHostCapabilityServers();
+    const reservedHostNames = new Set(host.map(spec => spec.name));
+    for (const s of host) byName.set(s.name, s);
+    for (const s of await optionalBuiltinServers()) byName.set(s.name, s);
+    for (const s of loadMcpServers(os.homedir())) {
+      if (!reservedHostNames.has(s.name)) byName.set(s.name, s);
+    }
     if (projectRoot && projectRoot !== os.homedir()) {
-      for (const s of loadMcpServers(projectRoot)) byName.set(s.name, s);
+      for (const s of loadMcpServers(projectRoot)) {
+        if (!reservedHostNames.has(s.name)) byName.set(s.name, s);
+      }
     }
     // Connect all servers IN PARALLEL — boot used to pay the sum of every server's handshake
     // (npx cold-starts routinely take seconds each); now it pays only the slowest one. Each
     // connectSpec tracks its own pending/error state, so concurrency is safe here.
     const results = await Promise.allSettled(Array.from(byName.values()).map(async (spec) => {
+      // The critical host provider was connected synchronously before protocol readiness. Do not
+      // restart it when the delayed optional-MCP sweep begins.
+      if (spec.eager && this.connections.has(spec.name)) return true;
       // Skip servers the user turned off — they stay in config until re-enabled.
       if (spec.disabled) {
         Logger.info(`[MCP] Skipping disabled server '${spec.name}'.`);
@@ -148,21 +230,22 @@ export class McpManager {
       // Skip servers whose path args don't exist — they would just fail and slow the others.
       const missing = missingPathArgs(normalizeArgs(spec.args));
       if (missing.length) {
+        this.reportConnection(spec.name, false);
         Logger.warn(`[MCP] Skipping '${spec.name}': path(s) do not exist: ${missing.join(', ')}`);
-        cliEvents.emit('status', `MCP '${spec.name}' skipped — missing path(s): ${missing.join(', ')}`);
+        engineEvents.emit('status', `MCP '${spec.name}' skipped — missing path(s): ${missing.join(', ')}`);
         return false;
       }
       const c = await this.connectSpec(spec, registry, governor);
       if (c) {
-        cliEvents.emit('status', `MCP '${spec.name}' connected — ${c.toolNames.length} tool(s)`);
+        engineEvents.emit('status', `MCP '${spec.name}' connected — ${c.toolNames.length} tool(s)`);
         return true;
       }
       const why = this.lastErrorFor(spec.name);
-      if (why) cliEvents.emit('status', `MCP '${spec.name}' failed: ${why}`);
+      if (why) engineEvents.emit('status', `MCP '${spec.name}' failed: ${why}`);
       return false;
     }));
     const n = results.filter(r => r.status === 'fulfilled' && r.value).length;
-    if (n > 0) cliEvents.emit('mcp_changed');
+    if (n > 0) engineEvents.emit('mcp_changed');
     return n;
   }
 
@@ -177,7 +260,7 @@ export class McpManager {
     fs.mkdirSync(path.dirname(file), { recursive: true });
     fs.writeFileSync(file, JSON.stringify({ servers: specs }, null, 2), 'utf8');
     if (!enabled) await this.disconnect(name, registry);
-    cliEvents.emit('mcp_changed');
+    engineEvents.emit('mcp_changed');
     return true;
   }
 
@@ -188,7 +271,7 @@ export class McpManager {
 
   /** Server names still connecting — used by ToolSearchTool to warn the model of pending tools. */
   public getPendingServers(): string[] {
-    return Array.from(this.pending);
+    return Array.from(this.pending.keys());
   }
 
   public list(): ConnectedMcp[] {
@@ -209,7 +292,7 @@ export class McpManager {
     const specs = loadMcpServers(this.configRoot(cwd));
     const byName = new Map(specs.map(spec => [spec.name, spec]));
     // Include a live connector even if its config was removed or changed out-of-band.
-    for (const conn of this.connections.values()) {
+    for (const conn of this.list()) {
       if (!byName.has(conn.name)) byName.set(conn.name, { name: conn.name, command: 'live' });
     }
 
@@ -240,15 +323,19 @@ export class McpManager {
 
   /** Actively probe connected servers. This is intentionally read-only and bounded. */
   public async diagnose(cwd?: string): Promise<McpHealth[]> {
-    for (const conn of this.connections.values()) {
+    for (const conn of this.list()) {
       try {
         const probe = typeof conn.client?.ping === 'function'
           ? conn.client.ping()
           : conn.client.listTools();
         await withTimeout(Promise.resolve(probe), 5000, `MCP '${conn.name}' health check`);
+        if (this.connections.get(conn.name) !== conn) continue;
         this.errors.delete(conn.name);
+        this.reportConnection(conn.name, true);
       } catch (e: any) {
+        if (this.connections.get(conn.name) !== conn) continue;
         this.errors.set(conn.name, e?.message || String(e));
+        this.reportConnection(conn.name, false);
       }
     }
     return this.health(cwd);
@@ -278,6 +365,29 @@ export class McpManager {
     return this.connectSpec(spec, registry, governor);
   }
 
+  /**
+   * Sign in to a hosted server (OAuth) and connect it. Opens the browser — only ever from an
+   * explicit request; automatic connects fail with a "needs you to sign in" message instead.
+   */
+  public async login(name: string, registry: ToolRegistry, governor: IGovernor, cwd?: string): Promise<ConnectedMcp | null> {
+    const spec = loadMcpServers(this.configRoot(cwd)).find(s => s.name === name) ?? this.connections.get(name)?.spec;
+    const refuse = (msg: string) => { this.lastError = msg; this.errors.set(name, msg); return null; };
+    if (!spec) return refuse(`No MCP server named '${name}' is configured.`);
+    if (!spec.url) return refuse(`MCP '${name}' runs on this Mac, so it has no sign-in. Give it its keys in its "env" instead.`);
+    this.healFailures.delete(name);
+    return this.connectSpec(spec, registry, governor, { interactiveSignIn: true });
+  }
+
+  /** Forget a hosted server's sign-in and disconnect it. */
+  public async logout(name: string, registry?: ToolRegistry, cwd?: string): Promise<boolean> {
+    const spec = loadMcpServers(this.configRoot(cwd)).find(s => s.name === name) ?? this.connections.get(name)?.spec;
+    if (!spec?.url) return false;
+    forgetSignIn(spec.url);
+    await this.disconnect(name, registry);
+    this.errors.set(name, `Signed out. Run /mcp login ${name} to sign in again.`);
+    return true;
+  }
+
   /** Live tool names contributed by all connected servers. */
   public toolNames(): string[] {
     return this.list().flatMap(c => c.toolNames);
@@ -286,6 +396,7 @@ export class McpManager {
   // --- Watchdog: background self-healing -----------------------------------------------------
 
   private watchdog: ReturnType<typeof setInterval> | null = null;
+  private watchdogGeneration = 0;
   /** Consecutive failed heal attempts per server — after 3 the watchdog stops trying (manual /mcp reconnect resets it). */
   private healFailures: Map<string, number> = new Map();
   private static readonly MAX_HEAL_ATTEMPTS = 3;
@@ -298,31 +409,38 @@ export class McpManager {
    */
   public startWatchdog(registry: ToolRegistry, governor: IGovernor, intervalMs = 60000): void {
     if (this.watchdog || process.env.BIMAX_MCP_WATCHDOG === '0') return;
+    const generation = ++this.watchdogGeneration;
+    const current = () => this.watchdogGeneration === generation && this.watchdog !== null;
     let sweeping = false; // a slow sweep must not overlap the next tick
     this.watchdog = setInterval(async () => {
       if (sweeping) return;
       sweeping = true;
       try {
         for (const conn of this.list()) {
+          if (!current()) break;
           try {
             const probe = typeof conn.client?.ping === 'function' ? conn.client.ping() : conn.client.listTools();
             await withTimeout(Promise.resolve(probe), 5000, `MCP '${conn.name}' watchdog probe`);
+            if (this.connections.get(conn.name) !== conn || !current()) continue;
             this.healFailures.delete(conn.name);
+            this.reportConnection(conn.name, true);
           } catch (probeErr: any) {
+            if (this.connections.get(conn.name) !== conn || !current()) continue;
+            this.reportConnection(conn.name, false);
             const attempts = this.healFailures.get(conn.name) ?? 0;
             if (attempts >= McpManager.MAX_HEAL_ATTEMPTS) continue; // gave up — manual reconnect resets
             this.errors.set(conn.name, probeErr?.message || String(probeErr));
             Logger.warn(`[MCP] Watchdog: '${conn.name}' failed its probe (${probeErr?.message}); auto-reconnecting (attempt ${attempts + 1}/${McpManager.MAX_HEAL_ATTEMPTS}).`);
             // Reconnect with the connection's own spec — config-file lookup would miss built-ins.
-            const fresh = await this.connectSpec(conn.spec, registry, governor);
-            if (fresh) {
+            const fresh = await this.healConnection(conn, registry, governor);
+            if (fresh && current()) {
               this.healFailures.delete(conn.name);
-              cliEvents.emit('status', `MCP '${conn.name}' auto-healed — ${fresh.toolNames.length} tool(s) back.`);
-              cliEvents.emit('mcp_changed');
-            } else {
+              engineEvents.emit('status', `MCP '${conn.name}' auto-healed — ${fresh.toolNames.length} tool(s) back.`);
+              engineEvents.emit('mcp_changed');
+            } else if (this.connections.get(conn.name) === conn && current()) {
               this.healFailures.set(conn.name, attempts + 1);
               if (attempts + 1 >= McpManager.MAX_HEAL_ATTEMPTS) {
-                cliEvents.emit('status', `MCP '${conn.name}' is down (${McpManager.MAX_HEAL_ATTEMPTS} heal attempts failed) — run /mcp doctor.`);
+                engineEvents.emit('status', `MCP '${conn.name}' is down (${McpManager.MAX_HEAL_ATTEMPTS} heal attempts failed) — run /mcp doctor.`);
               }
             }
           }
@@ -335,18 +453,21 @@ export class McpManager {
   }
 
   public stopWatchdog(): void {
+    this.watchdogGeneration++;
     if (this.watchdog) { clearInterval(this.watchdog); this.watchdog = null; }
   }
 
   /** Disconnect a server, drop its tools from the registry, and forget the connection. */
   public async disconnect(name: string, registry?: ToolRegistry): Promise<boolean> {
-    const conn = this.connections.get(name);
-    if (!conn) return false;
-    try { await conn.client?.close?.(); } catch { /* best-effort */ }
-    if (registry) for (const t of conn.toolNames) registry.unregister(t);
-    this.connections.delete(name);
+    const attempt = this.pending.get(name);
     this.pending.delete(name);
-    return true;
+    attempt?.abort(new Error(`MCP '${name}' disconnected.`));
+    const conn = this.connections.get(name);
+    this.connections.delete(name);
+    this.healFailures.delete(name);
+    if (conn) await this.disposeConnection(conn, registry);
+    if (attempt) await this.pendingFinished.get(attempt);
+    return !!conn || !!attempt;
   }
 
   /** Persist a server into `.bimax/mcp.json` (normalized `{ servers: [...] }` shape). Global by default. */

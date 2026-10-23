@@ -1,11 +1,12 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as crypto from 'crypto';
 import { EventEmitter } from 'events';
 
-// Lightweight event bus for goals — avoids importing the full cliEvents (which imports React)
+// Lightweight event bus for goals — avoids importing the full engineEvents (which imports React)
 // in a module that is also imported by the container (Node-only context). Consumers bridge
-// these to cliEvents.on('goals_changed') in the UI layer.
+// these to engineEvents.on('goals_changed') in the UI layer.
 export const goalEvents = new EventEmitter();
 
 export type GoalStatus = 'active' | 'completed' | 'abandoned';
@@ -45,7 +46,7 @@ export class GoalManager {
   private goalsPath: string;
 
   constructor(projectRoot: string) {
-    this.goalsPath = path.join(projectRoot, '.bimax', 'goals.json');
+    this.goalsPath = path.join(stateDir('.bimax', projectRoot), 'goals.json');
   }
 
   async init(): Promise<void> {

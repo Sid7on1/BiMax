@@ -1,19 +1,19 @@
-import { cliEvents, MessageEntry } from '../cli/events';
-import { AgentPersona } from '../cli/personas/base.persona';
-import { routeQuery } from '../cli/agentRouter';
-import { expandAtMentions, expandFileAtMentions } from '../cli/atMention';
-import { globalCommandRegistry } from '../cli/commands/registry';
-import { decideTier, Tier, isConversational } from '../cli/model.router';
+import { engineEvents, MessageEntry } from '../engine/events';
+import { AgentPersona } from '../engine/personas/base.persona';
+import { routeQuery } from '../engine/agentRouter';
+import { expandAtMentions, expandFileAtMentions } from '../engine/atMention';
+import { globalCommandRegistry } from '../engine/commands/registry';
+import { decideTier, Tier, isConversational } from '../engine/model.router';
 import { getEpistemicLedger } from '../mind/epistemic.ledger';
 import {
   recordTurn, beginTurnTimeline, markRouted, markAssembled, markFirstVisibleToken, endTurnTimeline,
 } from '../telemetry/perf';
 import { IGraphStore } from '../graph/models';
-import { getSessionRecorder } from '../cli/session.recorder';
-// The real saveConfig, not deps.saveConfig: healing must pass origin:'runtime' so the volatility
-// guard drops the write when the model came from BGW_MODEL (a test/benchmark session), and the
-// injected dep does not carry that option.
-import { saveConfig } from '../cli/config';
+import { getSessionRecorder } from '../engine/session.recorder';
+import { clearSteer, drainSteer, pushSteer } from '../core/steering';
+import { attachedPictures, MAX_PICTURE_BYTES, MAX_TURN_PICTURES } from '../core/multimodal';
+import * as path from 'path';
+import type { TurnToolScope } from './protocol';
 
 /**
  * Confidence-in-margin (turn-end form): from the epistemic-ledger delta across a turn, decide what
@@ -38,6 +38,19 @@ export function ledgerTurnSummary(
   return null;
 }
 
+/**
+ * Menu labels are DATA, not presentation. Commands historically wrote terminal decoration into the
+ * label itself — "[ Start Indexing ]", "[ Cancel ]" — which the desktop app renders verbatim into a
+ * button, so a GUI card looked like a TUI prompt. Strip the wrapper once at the protocol boundary:
+ * a front-end that wants brackets can add them, one that doesn't cannot remove them. (The TUI draws
+ * its own "❯ " cursor and colour, and the brackets were eating 4 of its 24-char label budget.)
+ */
+function undecorate(opt: any): any {
+  if (!opt || typeof opt.label !== 'string') return opt;
+  const label = opt.label.trim().replace(/^\[\s*(.*?)\s*\]$/, '$1').trim();
+  return label === opt.label ? opt : { ...opt, label };
+}
+
 export interface HeadlessDeps {
   personas: Record<string, AgentPersona>;
   options: any;           // the same `options` bag FullScreen receives (governor, llmAdapter, toolRegistry, …)
@@ -49,12 +62,15 @@ export interface HeadlessDeps {
 /**
  * Drives a BiMax session with no UI — the headless counterpart to FullScreen's handleSubmit.
  * Same engine entrypoints (agent router → persona.execute, globalCommandRegistry.execute,
- * @-mention expansion), but every UI effect is replaced by a `cliEvents` emit the ProtocolHost
+ * @-mention expansion), but every UI effect is replaced by a `engineEvents` emit the ProtocolHost
  * forwards over the wire. Deliberately leaner than handleSubmit: it omits Ink-only concerns
  * (autocomplete, paste chips, tier-routing UI, vision) — those belong to the front-end.
  */
 export class HeadlessSession {
   private busy = false;
+  private turnFinished: Promise<void> = Promise.resolve();
+  private finishTurn: (() => void) | null = null;
+  private clearing: Promise<void> | null = null;
   // Aborts the in-flight turn when the front-end sends an interrupt. Non-null only while a turn runs.
   private turnAbort: AbortController | null = null;
   // Manual model-tier pin (the /tier command / Ctrl+T). null = automatic routing. Mirrors the
@@ -69,10 +85,10 @@ export class HeadlessSession {
   constructor(private deps: HeadlessDeps) {
     // /tier auto|lite|heavy emits set_tier; apply the pin and reflect it in the footer, exactly as
     // FullScreen.handleSetTier does for Ink. (set_tier is also forwarded to the front-end verbatim.)
-    cliEvents.on('set_tier', (t: 'auto' | 'lite' | 'heavy') => {
+    engineEvents.on('set_tier', (t: 'auto' | 'lite' | 'heavy') => {
       this.pinnedTier = t === 'auto' ? null : t;
-      cliEvents.emit('model_tier', { tier: this.pinnedTier ?? 'lite', pinned: this.pinnedTier });
-      cliEvents.emit('status', this.pinnedTier === null
+      engineEvents.emit('model_tier', { tier: this.pinnedTier ?? 'lite', pinned: this.pinnedTier });
+      engineEvents.emit('status', this.pinnedTier === null
         ? 'Routing → auto (lite decides, escalates as needed)'
         : `Routing pinned → ${this.pinnedTier} model`);
     });
@@ -84,17 +100,45 @@ export class HeadlessSession {
   }
 
   /** A submitted line: a slash command or a user turn. */
-  async dispatch(text: string): Promise<void> {
+  async dispatch(text: string, toolScope?: TurnToolScope, displayText?: string): Promise<void> {
     const query = (text || '').trim();
     if (!query) return;
+    if (toolScope) {
+      // A scoped task is never interpreted as an app command, a greeting or persona-switch syntax.
+      await this.runTurn(query, { toolScope, displayText });
+      return;
+    }
+    if (/^\/clear\s+force(?:\s|$)/i.test(query)) {
+      if (!this.clearing) {
+        this.interrupt();
+        this.clearing = this.turnFinished.then(() => this.runCommand(query));
+      }
+      try { await this.clearing; } finally { this.clearing = null; }
+      return;
+    }
+    if (this.clearing) await this.clearing;
     if (query.startsWith('/')) { await this.runCommand(query); return; }
-    await this.runTurn(query);
+    await this.runTurn(query, { displayText });
+  }
+
+  /**
+   * Words for the running turn (backlog F7), taken by the agent loop at its next step. With no turn running — or for
+   * a slash command — they are an ordinary input.
+   */
+  steer(text: string): void {
+    const trimmed = (text || '').trim();
+    if (!trimmed) return;
+    if (!this.busy || trimmed.startsWith('/')) { void this.dispatch(trimmed); return; }
+    pushSteer(trimmed);
+    engineEvents.emit('steer_queued', { text: trimmed });
+    engineEvents.emit('status', 'Your message reaches the running task at its next step.');
   }
 
   /** Engine-owned continuation turn. It uses the coordinator without fabricating user chat. */
   async dispatchAutonomous(text: string): Promise<'completed' | 'busy' | 'failed' | 'interrupted'> {
     const query = (text || '').trim();
     if (!query || query.startsWith('/')) return 'failed';
+    if (this.clearing) return 'busy';
     return this.runTurn(query, { autonomous: true });
   }
 
@@ -104,16 +148,18 @@ export class HeadlessSession {
    */
   interrupt(): void {
     if (!this.busy || !this.turnAbort) return;
+    clearSteer();
     this.turnAbort.abort();
-    cliEvents.emit('status', 'Interrupting…');
+    engineEvents.emit('status', 'Interrupting…');
   }
 
-  private async runTurn(query: string, opts: { autonomous?: boolean } = {}): Promise<'completed' | 'busy' | 'failed' | 'interrupted'> {
+  private async runTurn(query: string, opts: { autonomous?: boolean; toolScope?: TurnToolScope; displayText?: string } = {}): Promise<'completed' | 'busy' | 'failed' | 'interrupted'> {
     if (this.busy) {
-      if (!opts.autonomous) cliEvents.emit('status', 'Busy — finish the current turn before sending another.');
+      if (!opts.autonomous) engineEvents.emit('status', 'Busy — finish the current turn before sending another.');
       return 'busy';
     }
     this.busy = true;
+    this.turnFinished = new Promise(resolve => { this.finishTurn = resolve; });
     this.turnAbort = new AbortController();
     const turnStart = Date.now();
     // A fresh user instruction legitimizes repetition — failure-memory counters reset so the
@@ -123,19 +169,19 @@ export class HeadlessSession {
     // Lightweight conversation lane (P0-3): greetings/acks/simple meta questions bypass the full
     // harness entirely. A manual heavy pin or an engine wake keeps the full path. The decision is
     // local (no model call), so a "hi" never pays for routing, graph, memory, or verification.
-    const conversational = !opts.autonomous && this.pinnedTier !== 'heavy'
+    const conversational = !opts.toolScope && !opts.autonomous && this.pinnedTier !== 'heavy'
       && isConversational(query);
     const model = this.deps.options.llmAdapter?.userModel || this.deps.options.llmAdapter?.defaultModel;
     beginTurnTimeline(conversational ? 'lite' : 'full', model);
     // Snapshot the epistemic ledger so we can report THIS turn's verification posture at the end:
     // claims open on edits and resolve when a build/test run names the touched files.
     const beforeLedger = (() => { try { return getEpistemicLedger().stats(); } catch { return null; } })();
-    if (!opts.autonomous) cliEvents.emit('message', this.msg('user', query));
+    if (!opts.autonomous) engineEvents.emit('message', this.msg('user', opts.displayText ?? query));
     // Show activity IMMEDIATELY — @-mention expansion below can take a moment, during which the
     // front-end would otherwise sit silent after the user's message. (Routing itself is local now.)
-    cliEvents.emit('spinner_state', 'thinking', 'Thinking…');
+    engineEvents.emit('spinner_state', 'thinking', 'Thinking…');
 
-    const active = (conversational || opts.autonomous)
+    const active = (conversational || opts.autonomous || opts.toolScope)
       ? this.deps.personas.bimax
       : (this.deps.personas[routeQuery(query)] || this.deps.personas.bimax);
     const before = active.messages.length;
@@ -143,7 +189,7 @@ export class HeadlessSession {
     let streamed = '';
     const onToken = (token: string) => {
       if (firstTokenMs === 0) { firstTokenMs = Date.now() - turnStart; markFirstVisibleToken(); }
-      totalChars += token.length; streamed += token; cliEvents.emit('stream_token', token);
+      totalChars += token.length; streamed += token; engineEvents.emit('stream_token', token);
     };
 
     let result: 'completed' | 'failed' | 'interrupted' = 'failed';
@@ -151,12 +197,13 @@ export class HeadlessSession {
       if (conversational) {
         // The lite lane: no routing, no @-mention expansion, no tools. Fall back to the full harness
         // if the conversational completion errors (a keyless/cold provider shouldn't lose the turn).
-        cliEvents.emit('model_tier', { tier: 'lite', pinned: this.pinnedTier });
+        engineEvents.emit('model_tier', { tier: 'lite', pinned: this.pinnedTier });
         markRouted();
         markAssembled();
         try {
           await active.converse(query, onToken, { useLite: true, signal: this.turnAbort.signal });
-        } catch {
+        } catch (error) {
+          if (this.turnAbort.signal.aborted) throw error;
           streamed = ''; // discard any partial lite output; the full harness re-runs the turn cleanly
           // forceHeavy: the lite lane just failed, and the router would send this same trivial query
           // straight back to the same lite model. Retrying the thing that just broke is not a
@@ -164,42 +211,45 @@ export class HeadlessSession {
           await this.runFullHarness(active, query, !!opts.autonomous, onToken, true);
         }
       } else {
-        await this.runFullHarness(active, query, !!opts.autonomous, onToken);
+        await this.runFullHarness(active, query, !!opts.autonomous, onToken, false, opts.toolScope);
       }
 
       // Prefer the streamed text; fall back to the message-slice only if nothing streamed.
       const content = this.cleanTurnText(streamed) || this.collectTurnText(active, before);
-      if (content) cliEvents.emit('message', this.msg('assistant', content));
+      if (content) engineEvents.emit('message', this.msg('assistant', content));
       // A turn that ends with NOTHING is the worst failure mode there is: the UI returns to Ready and
       // the user cannot tell whether the agent ignored them, crashed, or is still working. Every path
       // that produces no text and no error must still say something actionable.
       else if (!this.turnAbort.signal.aborted) {
-        cliEvents.emit('message', this.msg('system',
+        engineEvents.emit('message', this.msg('system',
           '⚠ The model returned an empty response. Check /model — the configured model may not be served by your provider — or retry.', 'error'));
       }
-      cliEvents.emit('cost_update', totalChars);
+      engineEvents.emit('cost_update', totalChars);
       // Whatever partial work streamed before the interrupt is kept; tell the user it stopped early.
-      if (this.turnAbort.signal.aborted) cliEvents.emit('message', this.msg('system', '⏹ Turn interrupted.'));
+      if (this.turnAbort.signal.aborted) engineEvents.emit('message', this.msg('system', '⏹ Turn interrupted.'));
       result = this.turnAbort.signal.aborted ? 'interrupted' : 'completed';
     } catch (e: any) {
       const detail = e?.message ?? String(e);
       // A governor veto (budget cap, denied permission, plan mode) otherwise looked like a silent
       // "no response" — only a dim log line. Surface it as a visible system message with the fix.
       if (e?.name === 'GovernorVetoError' || /budget|veto|plan mode/i.test(detail)) {
-        cliEvents.emit('message', this.msg('system', `⚠ ${detail}`, 'error'));
+        engineEvents.emit('message', this.msg('system', `⚠ ${detail}`, 'error'));
       } else if (/No API keys configured/i.test(detail)) {
         // First-run / dismissed onboarding: a keyless turn must say so in the transcript, not die
         // into the hidden log view. Name the exact next step.
-        cliEvents.emit('message', this.msg('system', '⚠ No API key configured — run /keys to add one (or set NVIDIA_API_KEY in ~/.breakglass/.env).', 'error'));
+        const strictKimiK3 = /kimi-k3/i.test(String(process.env.BIMAX_DESKTOP_STRICT_MODEL || ''));
+        engineEvents.emit('message', this.msg('system', strictKimiK3
+          ? '⚠ Kimi K3 needs an NVIDIA provider key. Open Bimax Settings → Models → Providers and add or select NVIDIA.'
+          : '⚠ No API key configured — run /keys to add one for the selected provider.', 'error'));
       } else if (/rejected the API key|unauthorized/i.test(detail)) {
         // Auth-dead pool (expired key): the adapter fails fast now; make the failure actionable.
-        cliEvents.emit('message', this.msg('system', `⚠ ${detail}`, 'error'));
+        engineEvents.emit('message', this.msg('system', `⚠ ${detail}`, 'error'));
       } else if (/is not served by provider|model.{0,20}(not found|not available|does not exist)/i.test(detail)) {
         // A stale model pin. The adapter already writes the actionable form of this ("run /model to
         // pick an id <provider> serves"), but it only reached the hidden log view, so the turn looked
         // like an unexplained silence. This is THE failure the user actually hits after a provider
         // rotates its catalog — it belongs in the transcript.
-        cliEvents.emit('message', this.msg('system', `⚠ ${detail}`, 'error'));
+        engineEvents.emit('message', this.msg('system', `⚠ ${detail}`, 'error'));
         // Startup healing trusts /models, which can list an id the provider then 404s. THIS is the
         // moment we learn the truth, so re-heal now that the adapter has marked the id unservable.
         // The turn is not replayed: it may already have run tools, and re-running those to recover
@@ -208,15 +258,15 @@ export class HeadlessSession {
       } else {
         // Anything else still ends the turn with no reply. Surface a short form rather than leaving
         // the transcript blank; the full text stays in the log line emitted below.
-        cliEvents.emit('message', this.msg('system', `⚠ Turn failed: ${detail}`, 'error'));
+        engineEvents.emit('message', this.msg('system', `⚠ Turn failed: ${detail}`, 'error'));
       }
-      cliEvents.emit('log', { id: Date.now(), level: 'error', text: `Agent error: ${detail}`, timestamp: new Date() });
+      engineEvents.emit('log', { id: Date.now(), level: 'error', text: `Agent error: ${detail}`, timestamp: new Date() });
     } finally {
       this.busy = false;
       this.turnAbort = null;
-      recordTurn({ firstTokenMs, totalMs: Date.now() - turnStart, tokens: totalChars });
+      recordTurn({ firstTokenMs, totalMs: Date.now() - turnStart, streamedChars: totalChars });
       endTurnTimeline(); // close the phase timeline (persists the secret-free record for /perf)
-      cliEvents.emit('thinking_clear');
+      engineEvents.emit('thinking_clear');
       // Confidence-in-margin (turn-end form): report whether this turn's edits were checked. The
       // ledger delta tells us how many claims opened (edits) vs resolved (a build/test run named the
       // touched files) during the turn. Silent when the turn changed nothing — it only speaks to
@@ -224,10 +274,16 @@ export class HeadlessSession {
       if (beforeLedger) {
         try {
           const sum = ledgerTurnSummary(beforeLedger, getEpistemicLedger().stats());
-          if (sum) cliEvents.emit('message', this.msg('system', sum.text, sum.level));
+          if (sum) engineEvents.emit('message', this.msg('system', sum.text, sum.level));
         } catch { /* ledger best-effort */ }
       }
-      cliEvents.emit('spinner_state', 'idle', 'Ready');
+      // Steering the turn never took — it arrived after the loop's last step, or the turn never ran the loop — goes back
+      // to the front-end, which queues it as the next message, before idle settles this turn (F7).
+      const unused = drainSteer();
+      if (unused.length) engineEvents.emit('steer_unused', { texts: unused });
+      engineEvents.emit('spinner_state', 'idle', 'Ready');
+      this.finishTurn?.();
+      this.finishTurn = null;
     }
     return result;
   }
@@ -250,18 +306,17 @@ export class HeadlessSession {
       if (typeof adapter?.healModels !== 'function') return;
       const healed = await adapter.healModels() as Array<{ slot: string; from: string; to: string }>;
       if (!healed.length) return;
-      const SLOT_KEY: Record<string, string> = { work: 'model', quick: 'liteModel', vision: 'visionModel' };
-      const patch: Record<string, string> = {};
-      for (const h of healed) patch[SLOT_KEY[h.slot]] = h.to;
-      try { saveConfig(patch as any, { origin: 'runtime' }); } catch { /* persistence optional */ }
-      const lines = healed.map(h => `  • ${h.slot}: "${h.from}" → "${h.to}"`);
-      cliEvents.emit('message', this.msg('system',
+      // Session-scoped, like the boot healer: recover the turn without rewriting the model the
+      // user chose. See the note in headless.entry.ts — persisting this is what made an explicit
+      // pick silently revert to the top-ranked candidate on every later launch.
+      const lines = healed.map(h => `  • ${h.slot}: "${h.from}" → ${h.to ? `"${h.to}"` : 'the Work model'}`);
+      engineEvents.emit('message', this.msg('system',
         `Switched to a model your provider actually serves — send that again:\n${lines.join('\n')}`, 'info'));
-      cliEvents.emit('config_changed');
+      engineEvents.emit('config_changed');
     } catch { /* self-repair is best-effort */ }
   }
 
-  private async runFullHarness(active: AgentPersona, query: string, autonomous: boolean, onToken: (t: string) => void, forceHeavy = false): Promise<void> {
+  private async runFullHarness(active: AgentPersona, query: string, autonomous: boolean, onToken: (t: string) => void, forceHeavy = false, toolScope?: TurnToolScope): Promise<void> {
     // Routing is local and deterministic (no model call) — it resolves in ~0ms. Kicked off before
     // @-mention expansion purely so the decision is ready the moment expansion completes.
     const tierPromise = decideTier(this.deps.options.llmAdapter, query, this.pinnedTier)
@@ -276,13 +331,23 @@ export class HeadlessSession {
       const decision = await tierPromise;
       const tier = forceHeavy ? 'heavy' as const : decision.tier;
       useLite = tier === 'lite';
-      cliEvents.emit('model_tier', { tier, pinned: this.pinnedTier });
+      engineEvents.emit('model_tier', { tier, pinned: this.pinnedTier });
     } catch { /* routing is best-effort; fall back to lite (or heavy when forced) */ }
     markRouted();
 
-    cliEvents.emit('spinner_state', 'thinking', 'Thinking…');
+    // Pictures the person attached (N5) go to the model as images; one that cannot be sent is named, never dropped silently.
+    const pictures = attachedPictures(query);
+    if (pictures.skipped.length) {
+      engineEvents.emit('message', this.msg('system',
+        `Not sent as a picture (missing, not an image, over ${MAX_PICTURE_BYTES / 1024 / 1024} MB, or more than ${MAX_TURN_PICTURES}): ${pictures.skipped.map((p) => path.basename(p)).join(', ')}`, 'warn'));
+    }
+
+    engineEvents.emit('spinner_state', 'thinking', 'Thinking…');
     markAssembled();
     await active.execute(agentQuery, onToken, {
+      toolNames: toolScope?.names,
+      requireTool: toolScope?.required,
+      images: pictures.paths,
       maxIterations: this.deps.options.maxToolIterations,
       planMode: this.deps.options.governor?.mode === 'plan',
       useLite,
@@ -301,7 +366,7 @@ export class HeadlessSession {
       graphStore: this.deps.graphStore,
       saveConfig: this.deps.saveConfig ?? (() => {}),
       addSystemMessage: (level: string, msg: string) =>
-        cliEvents.emit('message', this.msg('system', msg, level)),
+        engineEvents.emit('message', this.msg('system', msg, level)),
       // Menus / prompts are forwarded as messages carrying a uiComponent + payload; the front-end
       // renders them and replies via the protocol's menuSelect / reply channel.
       setActiveMenu: (menu: any) => this.emitMenu(menu),
@@ -311,7 +376,7 @@ export class HeadlessSession {
       // masked by contract. setActivePrompt(null) is the Ink "dismiss" — a no-op over the wire.
       setActivePrompt: (prompt: any) => {
         if (!prompt || !prompt.title) return;
-        cliEvents.emit('input_prompt', prompt.title, (val: string) => prompt.onResolve?.(val), { masked: !!prompt.isMasked });
+        engineEvents.emit('input_prompt', prompt.title, (val: string) => prompt.onResolve?.(val), { masked: !!prompt.isMasked });
       },
       executeCommand: (cmd: string) => { void this.dispatch(cmd); },
       // Contract: receives LLM-ready Message[] (already through messageEntriesToLLM — raw UI
@@ -319,8 +384,14 @@ export class HeadlessSession {
       restoreMessages: (msgs: any[]): boolean => {
         // Refuse to swap the history array while a turn is running — the agent loop is mutating it,
         // and replacing it mid-flight corrupts the conversation. Same guard as runTurn().
-        if (this.busy) { cliEvents.emit('status', 'Busy — finish the current turn before loading a session.'); return false; }
+        if (this.busy) { engineEvents.emit('status', 'Busy — finish the current turn before loading a session.'); return false; }
         const active = this.deps.personas.bimax;
+        if (Array.isArray(msgs)) {
+          for (const persona of new Set(Object.values(this.deps.personas))) {
+            persona.messages = [];
+            try { persona.resetContextSession?.(); } catch { /* best-effort */ }
+          }
+        }
         if (active && Array.isArray(msgs)) {
           active.messages = msgs.slice() as any;
           // Explicit session boundary (/clear, session load/resume): the session-scoped
@@ -331,6 +402,10 @@ export class HeadlessSession {
       },
       // Return the live conversation so /cost, /save, /sessions et al. work (was stubbed to [], which
       // made those commands silently show nothing).
+      contextReport: (): string | null => {
+        const active = this.deps.personas.bimax as { contextReport?: () => string } | undefined;
+        return typeof active?.contextReport === 'function' ? active.contextReport() : null;
+      },
       getMessages: () => {
         const active = this.deps.personas.bimax;
         return active && Array.isArray(active.messages) ? active.messages : [];
@@ -340,17 +415,17 @@ export class HeadlessSession {
     try {
       const result = await globalCommandRegistry.execute(query, context);
       if (!result) return;
-      if (result.type === 'message') cliEvents.emit('message', this.msg('system', result.content, result.level));
+      if (result.type === 'message') engineEvents.emit('message', this.msg('system', result.content, result.level));
       else if (result.type === 'menu') this.emitMenu(result);
       else if (result.type === 'prompt') {
         // Free-form text prompt: bridge its onResolve callback through the request/reply channel.
         const r: any = result;
-        cliEvents.emit('input_prompt', r.title, (val: string) => r.onResolve?.(val), { masked: !!r.isMasked });
+        engineEvents.emit('input_prompt', r.title, (val: string) => r.onResolve?.(val), { masked: !!r.isMasked });
       } else if (result.type === 'redirect') void this.dispatch(result.command);
-      else if (result.type === 'dashboard') cliEvents.emit('message', this.uiMsg(result.uiComponent, result.payload));
+      else if (result.type === 'dashboard') engineEvents.emit('message', this.uiMsg(result.uiComponent, result.payload));
     } catch (err: any) {
       if (!String(err?.message).includes('Unknown command')) {
-        cliEvents.emit('message', this.msg('system', err?.message ?? String(err), 'error'));
+        engineEvents.emit('message', this.msg('system', err?.message ?? String(err), 'error'));
       }
     }
   }
@@ -368,13 +443,20 @@ export class HeadlessSession {
       const oldest = this.menus.keys().next().value;
       if (oldest) this.menus.delete(oldest);
     }
-    cliEvents.emit('message', this.uiMsg('menu', {
+    // The MessageEntry carries the SAME id as the registry key. A front-end that replies with the
+    // message's id (the desktop app does; the TUI reads payload.id) then hits the real entry — with
+    // two different ids, every `onSelect` menu fell through to `dispatch(value)` and options whose
+    // value is not a command (a model id, a rule index, `__custom__`) silently did nothing.
+    engineEvents.emit('message', {
+      ...this.uiMsg('menu', {
+        id,
+        title: menu.title,
+        subtitle: menu.subtitle,
+        options: (menu.options || []).map(undecorate),
+        initialIndex: menu.initialIndex,
+      }),
       id,
-      title: menu.title,
-      subtitle: menu.subtitle,
-      options: menu.options,
-      initialIndex: menu.initialIndex,
-    }));
+    });
   }
 
   /** Run a menu option's onSelect (or dispatch its value as a command if the menu had none). */
@@ -384,7 +466,7 @@ export class HeadlessSession {
       const opt = entry.options.find((o: any) => o?.value === value) ?? { value, label: value };
       this.menus.delete(id);
       try { entry.onSelect(opt); } catch (e: any) {
-        cliEvents.emit('message', this.msg('system', `Menu action failed: ${e?.message ?? e}`, 'error'));
+        engineEvents.emit('message', this.msg('system', `Menu action failed: ${e?.message ?? e}`, 'error'));
       }
       return;
     }

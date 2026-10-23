@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
@@ -240,7 +241,7 @@ export class HarnessLabStore {
   constructor(private root: string) {}
 
   dir(): string {
-    return path.join(this.root, '.bimax', 'harness-lab');
+    return path.join(stateDir('.bimax', this.root), 'harness-lab');
   }
 
   private fileFor(id: string): string {

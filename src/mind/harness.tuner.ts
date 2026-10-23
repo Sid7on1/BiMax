@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import { getEventLedger } from './event.ledger';
@@ -90,7 +91,7 @@ export class HarnessTuner {
 
   constructor(root: string) {
     this.rootDir = root;
-    this.file = path.join(root, '.bimax', 'harness-patches.json');
+    this.file = path.join(stateDir('.bimax', root), 'harness-patches.json');
   }
 
   /** The counterfactual experiment store this tuner's patches are gated by. */

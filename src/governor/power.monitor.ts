@@ -1,7 +1,7 @@
 import { execFile } from 'child_process';
 import * as fs from 'fs';
 import { promisify } from 'util';
-import { cliEvents } from '../cli/events';
+import { engineEvents } from '../engine/events';
 import { MAX_CONCURRENT_SUBAGENTS } from '../core/subagent.capacity';
 
 const execFileAsync = promisify(execFile);
@@ -143,7 +143,7 @@ export interface PowerMonitorOptions {
   /** Cache TTL / background poll cadence, ms. */
   pollMs?: number;
   thresholds?: PowerThresholds;
-  /** Announce throttle transitions on cliEvents. Off in tests. */
+  /** Announce throttle transitions on engineEvents. Off in tests. */
   announce?: boolean;
 }
 
@@ -302,14 +302,14 @@ export class PowerMonitor {
     this.lastLevel = level;
     if (!this.announce) return;
     // Refresh any ui_snapshot-driven footer chip immediately on a throttle transition.
-    cliEvents.emit('power_changed');
+    engineEvents.emit('power_changed');
     if (level === 'soft') {
       const a = this.advice();
       const text = `🔋 Power-aware backoff engaged — ${a.reason}. Limiting parallel sub-agents to ${a.maxConcurrentSubagents} and slowing the loop.`;
-      cliEvents.emit('log', { id: Date.now(), level: 'warn', text, timestamp: new Date() });
-      cliEvents.emit('status', 'Power-aware backoff active');
+      engineEvents.emit('log', { id: Date.now(), level: 'warn', text, timestamp: new Date() });
+      engineEvents.emit('status', 'Power-aware backoff active');
     } else if (prev === 'soft') {
-      cliEvents.emit('log', { id: Date.now(), level: 'info', text: '🔌 Power restored — full concurrency resumed.', timestamp: new Date() });
+      engineEvents.emit('log', { id: Date.now(), level: 'info', text: '🔌 Power restored — full concurrency resumed.', timestamp: new Date() });
     }
   }
 }

@@ -34,6 +34,8 @@ export interface GraphData {
 }
 
 export interface IGraphStore {
+  /** Monotonic local mutation revision, when supported by the store. */
+  getRevision?(): number;
   setGraph(graph: GraphData): void;
   getGraph(): GraphData;
   getNode(id: string): GraphNode | undefined;

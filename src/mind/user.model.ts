@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import { mindSingletonRoot } from './self.model';
@@ -111,7 +112,7 @@ export class UserModel {
   private activeLastTurn: string[] = [];
 
   constructor(projectRoot: string = process.cwd()) {
-    this.filePath = path.join(projectRoot, '.bimax', 'user-model.json');
+    this.filePath = path.join(stateDir('.bimax', projectRoot), 'user-model.json');
   }
 
   private load(): void {

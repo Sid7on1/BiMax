@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { EventEmitter } from 'events';
@@ -101,7 +102,7 @@ export class PlanManager {
   private dir: string;
 
   constructor(projectRoot: string) {
-    this.dir = path.join(projectRoot, '.bimax', 'plans');
+    this.dir = path.join(stateDir('.bimax', projectRoot), 'plans');
   }
 
   async save(plan: Plan): Promise<void> {

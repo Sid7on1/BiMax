@@ -1,12 +1,21 @@
 import { LLMProvider, Message } from '../core/llm.provider';
 import { contentToText, isScreenshotObservationMessage } from '../core/multimodal';
-import { encode } from 'gpt-tokenizer';
 import { Logger } from '../utils/logger';
 import { fileStateCache } from './file-state-cache';
+import { RECALL_PREFIX } from './recall';
+import { archiveOutput } from '../context/output.archive';
+import { ContextEvidence, evidenceSpan, fileEvidence, fileVersion, versionOfText } from '../context/evidence';
+import { CONTINUATION_PREFIX, ContinuationState, isContinuationMessage } from '../context/continuation';
+import { MESSAGE_FRAMING_TOKENS, countTokens, type RequestRecord } from '../context/request.budget';
+import { carriedSummary, summarizeLog } from '../context/log.summary';
 import { IGraphStore } from '../graph/models';
 import { crossRepoMapSync } from '../graph/cross.repo';
 import { compressBacklog, proxyCompress, recordCompression, looksLikeCode } from './headroom.compress';
-import { cliEvents } from '../cli/events';
+import { engineEvents } from '../engine/events';
+import { latestHumanRequest, retainRecentHistory } from '../context/history';
+import { withRequestDeadline } from '../utils/request.deadline';
+import { types } from 'node:util';
+
 
 export type ContextMode = 'smart' | 'full';
 
@@ -27,6 +36,16 @@ export type ContextMode = 'smart' | 'full';
 // Module-level graph store reference injected by the container at startup.
 // When set, checkAndCompact() injects a compact RepoMap outline at the capToolResults layer.
 let _graphStore: IGraphStore | null = null;
+/** The note compaction appends to a tool result it compressed; the raw output's archive handle follows it. */
+const RAW_OUTPUT_NOTE = 'compressed to save context; the raw output is archived as';
+
+/** The raw output's archive handle in a tool result compaction compressed, or null. */
+function rawHandleIn(content: string): string | null {
+  const at = content.lastIndexOf(`[${RAW_OUTPUT_NOTE} archive:`);
+  if (at < 0) return null;
+  return /^archive:[0-9a-f]{32}/.exec(content.slice(at + RAW_OUTPUT_NOTE.length + 2))?.[0] ?? null;
+}
+
 export function setContextManagerGraphStore(store: IGraphStore): void { _graphStore = store; }
 /** The boot-wired native graph store, for code that needs a RepoMap outside the compaction loop. */
 export function getContextManagerGraphStore(): IGraphStore | null { return _graphStore; }
@@ -76,6 +95,65 @@ export function injectRepoMap(messages: Message[], outline: string): Message[] {
   ];
 }
 
+/**
+ * Serialize the backlog for the summarizer, bounded to `limitChars`.
+ *
+ * Whole messages are kept from BOTH ends and the middle is elided, because the two ends are the
+ * two things the five-section summary is actually asking for: the oldest messages carry the goal
+ * and the original constraints, the newest carry what was just done and what is next. A plain
+ * head- or tail-truncation loses one of them outright, and cutting mid-message hands the model a
+ * severed JSON object to reason about.
+ *
+ * Under the limit this is exactly `JSON.stringify(messages)`, byte for byte.
+ */
+function serializeSummaryMessage(message: { role: string; content: unknown }, limitChars: number): string | null {
+  // JSON quoting cannot shorten a primitive string. Skip copies of a provably unselectable
+  // plain record, but preserve native behavior for hooks, accessors, proxies and nested values.
+  if (message && typeof message === 'object' && !types.isProxy(message)) {
+    const content = Object.getOwnPropertyDescriptor(message, 'content');
+    if (content?.enumerable && 'value' in content && typeof content.value === 'string'
+      && content.value.length > limitChars) {
+      const prototype = Object.getPrototypeOf(message);
+      if ((prototype === Object.prototype || prototype === null) && !('toJSON' in message)) {
+        const fields = Object.values(Object.getOwnPropertyDescriptors(message));
+        if (fields.every(field => 'value' in field && (field.value === null
+          || ['string', 'number', 'boolean', 'undefined'].includes(typeof field.value)))) return null;
+      }
+    }
+  }
+  return JSON.stringify(message);
+}
+
+export function boundSummaryInput(messages: { role: string; content: unknown }[], limitChars: number): string {
+  if (!Number.isFinite(limitChars) || limitChars < 2) throw new RangeError('Summary input budget must hold a JSON array.');
+  limitChars = Math.floor(limitChars);
+  const encoded = messages.map(m => serializeSummaryMessage(m, limitChars));
+  const wholeLength = 2 + encoded.reduce((n, text) => n + (text?.length ?? limitChars + 1), 0) + Math.max(0, encoded.length - 1);
+  if (wholeLength <= limitChars) return `[${encoded.join(',')}]`;
+
+  const markerFor = (dropped: number): string => JSON.stringify({ role: 'system', content: `[${dropped} message(s) omitted from this summarization input — consult the continuation state or archive for retained evidence]` });
+  // Reserve the actual largest marker, including commas. Tiny budgets still return valid bounded JSON.
+  let remaining = limitChars - 2 - markerFor(encoded.length).length;
+  if (remaining < 0) return '[]';
+  const head: string[] = [], tail: string[] = [];
+  let headChars = 0, tailChars = 0, lo = 0, hi = encoded.length - 1;
+  let headBlocked = false, tailBlocked = false;
+  while (lo <= hi && !(headBlocked && tailBlocked)) {
+    const takeHead = !headBlocked && (tailBlocked || headChars <= tailChars);
+    const text = encoded[takeHead ? lo : hi];
+    const cost = text === null ? Number.POSITIVE_INFINITY : text.length + 1;
+    if (text === null || cost > remaining) {
+      if (takeHead) headBlocked = true; else tailBlocked = true;
+      continue;
+    }
+    remaining -= cost;
+    if (takeHead) { head.push(text); lo++; headChars += cost; }
+    else { tail.push(text); hi--; tailChars += cost; }
+  }
+  const dropped = encoded.length - head.length - tail.length;
+  return `[${[...head, markerFor(dropped), ...tail.reverse()].join(',')}]`;
+}
+
 export class ContextManager {
   private readonly MAX_TOKENS: number;
   private readonly COMPACT_THRESHOLD = 0.7; // summarize when reaching 70% of the window
@@ -86,9 +164,35 @@ export class ContextManager {
   // Cheap-pass tuning. Deliberately conservative so multi-step tasks keep the context they need.
   private readonly TOOL_RESULT_MAX_CHARS = 16000; // cap on a single tool result
   private readonly KEEP_RECENT_TOOL_RESULTS = 6;  // most recent tool outputs left fully intact
+  private readonly MIN_ARCHIVED_RESULT_CHARS = 512; // shorter cleared results get the short stub, unarchived
   private readonly SNIP_TRIGGER_MESSAGES = 100;   // only guard against truly runaway histories
   private readonly SNIP_KEEP_TAIL = 60;
+  // Snip is the LAST resort, so it sits above COMPACT_THRESHOLD: summarizing gets first refusal and
+  // snip only runs when that did not shrink the window enough. Both are fractions of the window, so
+  // neither is a pinned token count.
+  private readonly SNIP_PRESSURE = 0.85;
+  // The degenerate shape the message-count guard was actually written for: thousands of tiny
+  // messages that never accumulate tokens but do cost per-request overhead.
+  private readonly SNIP_HARD_MESSAGES = 1200;
+  /**
+   * What compact() may hand the summarizer, in characters (~24k tokens at 4 chars/token).
+   *
+   * The summarizer runs on the LITE model, and the input it was being given was the whole backlog
+   * — which, by construction, is ~70% of the MAIN model's window. Pairing a 200k main model with a
+   * 32k lite model is an ordinary, supported configuration, and it made every compaction on a long
+   * session fail. This is deliberately sized for the smallest model anyone would sensibly route
+   * `lite` to rather than for the main window, because the main window says nothing about it.
+   */
+  private readonly SUMMARY_INPUT_CHARS = 96_000;
   private readonly RESTORE_BUDGET_CHARS = 40_000; // total post-compact file re-injection budget (~10k tok)
+
+  /**
+   * What this session showed the model and where it came from (record 50 step 5): recalled memory, restored files and
+   * archived tool output. A span goes stale when the source it was taken from changes.
+   */
+  readonly evidence = new ContextEvidence();
+  /** What compaction removed that a long task must keep: the user's words, commands run, the assistant's claims. */
+  readonly continuation = new ContinuationState();
 
   // Real-usage overhead calibration (C4): our estimate only sees `messages`, but the request also
   // carries the system prompt + tool schemas (10-30k tokens the estimate is blind to). The provider's
@@ -108,6 +212,12 @@ export class ContextManager {
     '[TurnContext]',
     '[ContextManager]',
     '[Older messages aggressively compacted',
+    // Recalled memory is evidence for the turn it was retrieved for. Kept durable, a recalled fact
+    // outlived its freshness and could never be refreshed (record 47, A04); AgentLoop forgets the
+    // session's recalls when compaction drops one, so a question still in play recalls again.
+    RECALL_PREFIX,
+    // Re-rendered from ContextManager.continuation into every compacted window; an old copy is never kept.
+    CONTINUATION_PREFIX,
   ];
 
   private isTransientSystem(m: Message): boolean {
@@ -154,7 +264,8 @@ export class ContextManager {
    * still recovers on a 413). In SMART mode it applies the cheap passes always, then summarizes
    * only if still over the token threshold.
    */
-  async checkAndCompact(messages: Message[], mode: ContextMode = 'smart'): Promise<Message[]> {
+  async checkAndCompact(messages: Message[], mode: ContextMode = 'smart', signal?: AbortSignal): Promise<Message[]> {
+    signal?.throwIfAborted();
     if (mode === 'full') {
       // Even with no compaction, record what we're sending so updateTokens can calibrate overhead.
       this.lastSentEstimate = this.estimateTokens(messages);
@@ -175,7 +286,7 @@ export class ContextManager {
     if (process.env.BIMAX_DISABLE_COMPRESSION !== '1' && pressureRatio >= this.COMPACT_THRESHOLD) {
       // Which model the saving is attributed to (for the per-model /headroom report).
       let model = 'unknown';
-      try { const c = require('../cli/config').getConfig(); model = c.model || c.liteModel || 'unknown'; } catch { /* config optional */ }
+      try { const c = require('../engine/config').getConfig(); model = c.model || c.liteModel || 'unknown'; } catch { /* config optional */ }
 
       let saved = 0;
       let usedProxy = false;
@@ -209,11 +320,12 @@ export class ContextManager {
         saved = stats.saved;
         if (saved > 0) recordCompression(model, stats.compressedBefore, stats.compressedAfter, 'native');
       }
+      msgs = this.keepRawOutput(messages, msgs);
       if (saved > 0) {
         Logger.info(`[Headroom] ${usedProxy ? 'Kompress proxy' : 'native'} compression saved ~${saved} tokens (model ${model})`);
         // Token-meter refresh only. This must NOT be 'graph_changed' — the TUI renders that as
         // "code graph updated", which is a lie for a context-token refresh.
-        try { cliEvents.emit('context_changed'); } catch { /* best-effort */ }
+        try { engineEvents.emit('context_changed'); } catch { /* best-effort */ }
       }
     }
 
@@ -236,7 +348,8 @@ export class ContextManager {
     // that made long sessions slow and expensive. Near the tail, only the last few messages are
     // uncached; everything earlier stays a byte-stable, cacheable prefix. (Within one agent-loop
     // turn the position is stable too — tool rounds append after it.)
-    if (_graphStore) {
+    if (process.env.BIMAX_REPO_MAP === '0') msgs = injectRepoMap(msgs, '');
+    if (_graphStore && process.env.BIMAX_REPO_MAP !== '0') {
       try {
         // Cross-repo (PR3): merges every indexed repo in a multi-repo workspace into one map; with a
         // single repo it returns exactly the old single-repo outline. Sync — never blocks on disk.
@@ -264,10 +377,11 @@ export class ContextManager {
 
     if (ratio > this.COMPACT_THRESHOLD) {
       Logger.warn(`[ContextManager] ${Math.round(ratio * 100)}% after cheap passes — summarizing older history.`);
-      msgs = await this.compact(msgs);
+      msgs = await this.compact(msgs, signal);
     }
     // What we're actually sending this round — updateTokens diffs the provider's real usage
     // against this to keep the overhead calibration current.
+    signal?.throwIfAborted();
     this.lastSentEstimate = this.estimateTokens(msgs);
     return msgs;
   }
@@ -282,6 +396,27 @@ export class ContextManager {
    * explicit, whole-result mechanisms (micro-compact stubs of OLD results, FreeContextTool), never
    * via silent mid-content truncation.
    */
+  /**
+   * Compression is lossy — order, individual samples and ANSI are gone — and it ran before any archive existed, so a
+   * compressed result could later be cleared with only its compressed form saved, or none at all (audit 51, U11). Each
+   * tool result compression changed is archived raw first and carries that handle; a result that would not stay
+   * shorter with the note, or whose raw form cannot be saved, keeps its compressed form as before.
+   */
+  private keepRawOutput(before: Message[], after: Message[]): Message[] {
+    if (before.length !== after.length) return after;
+    return after.map((m, i) => {
+      const raw = before[i]?.content;
+      if (m.role !== 'tool' || typeof raw !== 'string' || typeof m.content !== 'string' || m.content === raw) return m;
+      if (raw.length < this.MIN_ARCHIVED_RESULT_CHARS || rawHandleIn(m.content)) return m;
+      const handle = this.archive(raw);
+      if (!handle) return m;
+      // A log keeps its shape: the line count and first failures of the raw output lead the compressed form (step 6d).
+      const summary = carriedSummary(m.content) ? null : summarizeLog(raw);
+      const content = `${summary ? `${summary}\n` : ''}${m.content}\n[${RAW_OUTPUT_NOTE} ${handle} (ContextArchiveTool)]`;
+      return content.length < raw.length ? { ...m, content } : m;
+    });
+  }
+
   private capToolResults(messages: Message[]): Message[] {
     const max = this.TOOL_RESULT_MAX_CHARS;
     let trimmed = 0;
@@ -292,7 +427,12 @@ export class ContextManager {
       const head = m.content.slice(0, Math.floor(max * 0.7));
       const tail = m.content.slice(-Math.floor(max * 0.2));
       const elided = m.content.length - head.length - tail.length;
-      return { ...m, content: `${head}\n\n… [${elided} chars elided to save context] …\n\n${tail}` };
+      // The whole result is archived first, so the cut middle stays recoverable instead of silently lost. A result
+      // compression already archived raw keeps that handle: the raw output is the better original.
+      const archived = rawHandleIn(m.content) ?? this.archive(m.content);
+      const where = archived ? `; the full result is archived as ${archived} (ContextArchiveTool)` : '';
+      const summary = carriedSummary(m.content) ? null : summarizeLog(m.content);
+      return { ...m, content: `${summary ? `${summary}\n` : ''}${head}\n\n… [${elided} chars elided to save context${where}] …\n\n${tail}` };
     });
     if (trimmed) Logger.info(`[ContextManager] Capped ${trimmed} oversized tool result(s).`);
     return out;
@@ -303,6 +443,23 @@ export class ContextManager {
    * KEEP_RECENT_TOOL_RESULTS intact. No LLM call. The tool message itself (and its tool_call_id)
    * is preserved so tool_use/tool_result pairing never breaks — only its body becomes a stub.
    */
+  /** Archive a tool result before it leaves the prompt, record it as evidence, and return its handle (null if unsaved). */
+  private archive(text: string): string | null {
+    const archived = archiveOutput(text);
+    if (!archived) return null;
+    this.evidence.admit(evidenceSpan({
+      sourceId: `tool-output:${archived.id}`,
+      sourceVersion: `sha256:${archived.sha256}`,
+      locator: { kind: 'tool-output', handle: archived.handle },
+      rawHandle: archived.handle,
+      text: text.slice(0, 280),
+      scope: {},
+      derivedFrom: [],
+      kind: 'observation',
+    }));
+    return archived.handle;
+  }
+
   private microCompact(messages: Message[]): Message[] {
     const toolIdx = messages.map((m, i) => (m.role === 'tool' ? i : -1)).filter(i => i >= 0);
     if (toolIdx.length <= this.KEEP_RECENT_TOOL_RESULTS) return messages;
@@ -317,26 +474,36 @@ export class ContextManager {
       // resolvable reference — the file path when the read header carries one — so the model re-reads
       // real content instead of reasoning over a half-cut ghost.
       //
-      // It is deliberately NOT called lossless, and the stub must not promise verbatim restoration.
       // A re-read returns the file as it is NOW, and the agent edits files: read foo.ts → evict →
-      // edit foo.ts → "re-read to restore it verbatim" would handed back different bytes while the
-      // model believed it had recovered the original. Resolvable is the honest claim; identical is
-      // not one we can make.
+      // edit foo.ts → a re-read hands back different bytes. So the stub never promises that re-reading
+      // gets the original back.
       //
-      // Content-addressing (hash at eviction, verify at re-read) is what would earn the stronger
-      // word, and it is not done here on purpose: this function cannot see the re-read, which
-      // happens later inside the file tool, so a digest recorded here would be an unverified number
-      // nothing ever checks. Do the plumbing or keep the claim narrow — do not just add the hash.
+      // What it can offer is the plumbing this comment once asked for instead of a bare hash: the cleared
+      // text is archived under its content hash before the stub replaces it, and ContextArchiveTool checks
+      // that hash on every read. The handle returns the earlier output, labelled as earlier; a re-read
+      // returns the current file (record 50 step 5). When the archive cannot be written, the stub says
+      // nothing about one.
+      // A stub with a handle runs to about 130 characters, so a result shorter than MIN_ARCHIVED_RESULT_CHARS
+      // keeps the short stub instead: archiving it would make micro-compaction grow the context it shrinks.
+      const archived = typeof m.content === 'string' && (rawHandleIn(m.content)
+        ?? (m.content.length >= this.MIN_ARCHIVED_RESULT_CHARS ? this.archive(m.content) : null));
+      const saved = archived ? ` The cleared output is archived as ${archived} (ContextArchiveTool).` : '';
       if (typeof m.content === 'string' && looksLikeCode(m.content)) {
         const file = m.content.match(/^FILE\s+(.+?):/m)?.[1];
         return {
           ...m,
           content: file
-            ? `[tool result cleared to save context — code from ${file}; re-read it for the current contents, which may have changed since]`
-            : '[tool result cleared to save context — code output; re-run the tool for a current result, which may differ from the cleared one]',
+            ? `[tool result cleared to save context — code from ${file}; re-read it for the current contents, which may have changed since.${saved}]`
+            : `[tool result cleared to save context — code output; re-run the tool for a current result, which may differ from the cleared one.${saved}]`,
         };
       }
-      return { ...m, content: '[tool result cleared to save context]' };
+      const stub = archived
+        ? `[tool result cleared to save context — archived as ${archived}; read it back with ContextArchiveTool]`
+        : '[tool result cleared to save context]';
+      // A cleared log keeps its one-line summary, when the stub stays well under what it replaces (step 6d).
+      const summary = archived && typeof m.content === 'string' ? carriedSummary(m.content) ?? summarizeLog(m.content) : null;
+      const withSummary = summary ? `${stub}\n${summary}` : stub;
+      return { ...m, content: typeof m.content === 'string' && withSummary.length * 2 <= m.content.length ? withSummary : stub };
     });
     if (cleared) Logger.info(`[ContextManager] Micro-compacted ${cleared} old tool result(s).`);
     return out;
@@ -362,44 +529,45 @@ export class ContextManager {
    * never letting the kept window begin on an orphaned tool result.
    */
   private snip(messages: Message[]): Message[] {
+    this.adoptCarriedContinuation(messages);
     const nonSystem = messages.filter(m => m.role !== 'system');
     if (nonSystem.length <= this.SNIP_TRIGGER_MESSAGES) return messages;
 
-    const system = messages.filter(m => m.role === 'system');
-    const tail = this.dropLeadingOrphanToolMessages(nonSystem.slice(-this.SNIP_KEEP_TAIL));
+    // A message count is not token pressure, and snipping on the count alone made this blunt guard
+    // the ONLY control on every long session. Measured over 150 realistic rounds: the session
+    // finished at the SAME 52,143 tokens whether the window was 32k, 128k, 200k or 1M — 5.2% of a
+    // 1M window — because snip fired five times on the count while every token-driven layer below
+    // its threshold stayed asleep. capToolResults never capped, microCompact never stubbed, and
+    // compact() — the one pass that writes the goal/progress/decisions note — was never called
+    // once. What the user sees is ~41 messages disappearing every ~20 rounds and the model losing
+    // the thread, on a window that was three-quarters empty.
+    //
+    // So the count only nominates a session; pressure decides. Below SNIP_PRESSURE the ladder that
+    // is designed to preserve meaning (cap → stub → summarize) gets first refusal, and snip goes
+    // back to being what its name says: the last resort when summarizing did not shrink enough.
+    // SNIP_HARD_MESSAGES still catches the degenerate case this guard was written for — thousands
+    // of tiny messages that never accumulate tokens but do blow up per-request overhead.
+    const pressure = this.effectiveTokens(messages) / this.MAX_TOKENS;
+    if (pressure < this.SNIP_PRESSURE && nonSystem.length <= this.SNIP_HARD_MESSAGES) return messages;
+
+    const tail = retainRecentHistory(nonSystem, this.SNIP_KEEP_TAIL);
+    this.compactionEpoch++;
+    this.continuation.absorb(nonSystem.filter(m => !tail.includes(m)), (text) => this.archive(text));
+    const system = messages.filter(m => m.role === 'system' && !isContinuationMessage(m));
     Logger.warn(`[ContextManager] Snipped ${nonSystem.length - tail.length} old message(s) (runaway history guard).`);
-    return [...system, ...tail];
+    return [...system, ...this.continuationMessages(), ...tail];
   }
 
-  /**
-   * A `tool` message is only valid immediately after the assistant `tool_calls` that produced it.
-   * When a window starts partway through a tool exchange, the leading `tool` messages are orphaned
-   * and the API rejects the request — so drop them until the window begins on a user/assistant turn.
-   */
-  private dropLeadingOrphanToolMessages(messages: Message[]): Message[] {
-    let start = 0;
-    while (start < messages.length && messages[start].role === 'tool') start++;
-    return messages.slice(start);
-  }
-
-  // Per-message token counts, keyed by message identity. The compaction passes preserve object
-  // identity for every message they don't touch, and a message's content never mutates in place —
-  // so across a long session only the handful of NEW/rewritten messages are ever re-tokenized.
-  // (The old implementation re-encoded the ENTIRE conversation with gpt-tokenizer on every single
-  // turn — an O(session) CPU spike per turn that grew with the thing it was supposed to manage.)
-  private tokenCache = new WeakMap<object, { content: unknown; tokens: number }>();
+  // Identity avoids re-tokenizing unchanged strings. Mutable content parts are compared as rendered text.
+  private tokenCache = new WeakMap<object, { text: string; reasoning: unknown; tokens: number }>();
 
   private countMessageTokens(m: Message): number {
     const key = m as unknown as object;
+    const text = contentToText(m.content);
     const hit = this.tokenCache.get(key);
-    if (hit && hit.content === m.content) return hit.tokens;
-    let tokens: number;
-    try {
-      tokens = encode(contentToText(m.content)).length;
-    } catch {
-      tokens = Math.ceil(String(contentToText(m.content) ?? '').length / 4);
-    }
-    this.tokenCache.set(key, { content: m.content, tokens });
+    if (hit && hit.text === text && hit.reasoning === m.reasoning_content) return hit.tokens;
+    const tokens = countTokens(`${text}${m.reasoning_content || ''}`);
+    this.tokenCache.set(key, { text, reasoning: m.reasoning_content, tokens });
     return tokens;
   }
 
@@ -411,7 +579,9 @@ export class ContextManager {
   }
 
   /** Layer 4 — summarize older messages into a single system note (the one LLM-backed pass). */
-  async compact(messages: Message[]): Promise<Message[]> {
+  async compact(messages: Message[], signal?: AbortSignal): Promise<Message[]> {
+    signal?.throwIfAborted();
+    this.adoptCarriedContinuation(messages);
     // Keep only DURABLE system messages (C2). Transients are either superseded by this compact
     // (the previous summary — folded into the new summarization input below — and the previous
     // file restorations) or regenerated fresh next turn (RepoMap, TurnContext, pressure nudges).
@@ -423,9 +593,7 @@ export class ContextManager {
 
     // Preserve the last 15 messages. Trim any leading orphan tool results so the window can't
     // begin with a `tool` message whose parent assistant tool_calls was cut.
-    const recentMessages = this.dropLeadingOrphanToolMessages(
-      messages.filter(m => m.role !== 'system').slice(-15)
-    );
+    const recentMessages = retainRecentHistory(messages, 15);
 
     const olderMessages = messages.filter(m =>
       m.role !== 'system' && !recentMessages.includes(m)
@@ -451,6 +619,9 @@ export class ContextManager {
     // into the NEW summary instead of being silently dropped with the transient strip above.
     const olderForSummary = [
       ...priorSummaries.map(m => ({ role: 'system' as const, content: contentToText(m.content) })),
+      // The active request stays verbatim in the main window, but the summarizer also needs its
+      // goal: it may otherwise see only tool activity or a summary of a previous request.
+      ...(latestHumanRequest(messages) ? [{ role: 'user' as const, content: contentToText(latestHumanRequest(messages)!.content) }] : []),
       ...olderMessages.map(m => ({ ...m, content: contentToText(m.content) })),
     ];
 
@@ -476,21 +647,29 @@ Comma-separated list of files created, modified, or important to the task.`,
       },
       {
         role: 'user',
-        content: `Summarize these messages into the five sections above:\n${JSON.stringify(olderForSummary)}`,
+        content: `Summarize these messages into the five sections above:\n${boundSummaryInput(olderForSummary, this.SUMMARY_INPUT_CHARS)}`,
       },
     ];
 
     let summaryText = '';
     try {
-      // Summarization is cheap aux work — route it to the lite model when one is configured.
-      const generator = this.llm.chat(summaryPrompt, { lite: true });
-      for await (const event of generator) {
-        if (event.type === 'token') summaryText += event.text;
-      }
+      summaryText = await this.collectSummary(summaryPrompt, signal);
     } catch (e: any) {
-      Logger.error(`[ContextManager] Failed to summarize context: ${e.message}`);
-      summaryText = '[Older conversation history dropped due to context limits]';
+      signal?.throwIfAborted();
+      const overflowed = /too long|too large|maximum context|context length|context window/i.test(String(e?.message ?? ''))
+        || e?.code === 'context_length_exceeded' || e?.code === 'prompt_too_long' || e?.status === 413;
+      if (overflowed) {
+        Logger.warn('[ContextManager] Summarizer rejected the input — retrying at a quarter of the budget.');
+        try {
+          const retry: Message[] = [summaryPrompt[0], { role: 'user', content: `Summarize these messages into the five sections above:\n${boundSummaryInput(olderForSummary, Math.floor(this.SUMMARY_INPUT_CHARS / 4))}` }];
+          summaryText = await this.collectSummary(retry, signal);
+        } catch (retryError: any) {
+          signal?.throwIfAborted();
+          Logger.error(`[ContextManager] Reduced summary failed: ${retryError.message}`);
+        }
+      } else Logger.error(`[ContextManager] Failed to summarize context: ${e.message}`);
     }
+    signal?.throwIfAborted();
 
     // If another compact() call ran while we were awaiting the LLM, our result is stale —
     // return original messages unchanged so the later epoch's result takes precedence.
@@ -503,6 +682,9 @@ Comma-separated list of files created, modified, or important to the task.`,
       role: 'system',
       content: `[Previous Context Summary]\n${summaryText}`,
     };
+    // The summary is a narrative a summarizer may get wrong or leave empty, so it is not the only record: the
+    // continuation state keeps what these messages said, word for word (record 50 step 6).
+    // Continuation and evidence publish together only after asynchronous restoration validates this epoch.
 
     // Post-compact file restoration: re-inject recently-read files as synthetic attachments
     // so the model doesn't need to re-read files it was actively working with. Bounded by a TOTAL
@@ -512,16 +694,28 @@ Comma-separated list of files created, modified, or important to the task.`,
     const recentReads = fileStateCache.getRecentReads();
     const fileAttachments: Message[] = [];
     let restoreUsed = 0, restoreSkipped = 0, restoreStale = 0;
+    const sourceVersions: Array<{ id: string; version: string | null }> = [];
+    const restoredEvidence: ReturnType<typeof fileEvidence>[] = [];
     for (const f of recentReads) {
       if (restoreUsed + f.content.length > this.RESTORE_BUDGET_CHARS) { restoreSkipped++; continue; }
-      // Re-stat before restoring: cached content whose file was edited externally (or deleted)
-      // since the read must NEVER be re-injected as current — that silently feeds the model a
-      // stale version of the file it is about to modify.
+      // Cached content whose file was edited externally (or deleted) since the read must NEVER be
+      // re-injected as current — that silently feeds the model a stale version of the file it is about
+      // to modify. "Verified unchanged on disk" is a claim about bytes, and a matching mtime is not
+      // proof: a rewrite that put the old mtime back was restored as current (record 47, A01). So the
+      // file is read now and compared with the hash taken when it was cached; a read cached without a
+      // hash is verified only when it was the complete file, by comparing the text itself. A preview of
+      // a large file has neither, so it is never restored as the file. The comparison runs through the
+      // session's evidence, so an earlier restoration of a file that has since changed goes stale too.
+      const claimed = f.fileHash ? `sha256:${f.fileHash}` : f.complete ? versionOfText(f.content) : null;
+      const current = await fileVersion(f.path, signal);
+      signal?.throwIfAborted();
+      sourceVersions.push({ id: `file:${f.path}`, version: current });
+      let mtimeHolds = false;
       try {
         // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const stat = (require('fs') as typeof import('fs')).statSync(f.path);
-        if (stat.mtimeMs !== f.mtime) { restoreStale++; continue; }
-      } catch { restoreStale++; continue; } // deleted/unreadable — do not restore
+        mtimeHolds = (require('fs') as typeof import('fs')).statSync(f.path).mtimeMs === f.mtime;
+      } catch { /* deleted/unreadable — do not restore */ }
+      if (!claimed || !mtimeHolds || current !== claimed) { restoreStale++; continue; }
       restoreUsed += f.content.length;
       // A partial read is labeled as exactly that — never presented as the complete file.
       const scope = f.complete
@@ -531,19 +725,223 @@ Comma-separated list of files created, modified, or important to the task.`,
         role: 'system' as const,
         content: `[Post-Compact Restoration — ${f.path} — ${scope}, verified unchanged on disk]\n${f.content}`,
       });
+      restoredEvidence.push(fileEvidence(f.path, f.content, claimed, { partial: !f.complete }));
     }
 
     if (fileAttachments.length > 0 || restoreSkipped > 0 || restoreStale > 0) {
-      Logger.info(`[ContextManager] Restored ${fileAttachments.length} recently-read file(s) post-compact${restoreSkipped ? ` (${restoreSkipped} skipped — over the ${this.RESTORE_BUDGET_CHARS}-char budget)` : ''}${restoreStale ? ` (${restoreStale} not restored — changed on disk since the cached read)` : ''}.`);
+      Logger.info(`[ContextManager] Restored ${fileAttachments.length} recently-read file(s) post-compact${restoreSkipped ? ` (${restoreSkipped} skipped — over the ${this.RESTORE_BUDGET_CHARS}-char budget)` : ''}${restoreStale ? ` (${restoreStale} not restored — not verified unchanged on disk)` : ''}.`);
     }
 
-    const compacted = [...systemMessages, summaryMsg, ...fileAttachments, ...recentMessages];
+    signal?.throwIfAborted();
+    if (this.compactionEpoch !== myEpoch) return messages;
+    if (!summaryText.trim()) {
+      const saved = this.archive(JSON.stringify(olderForSummary));
+      const prior = priorSummaries.map(m => contentToText(m.content)).join('\n');
+      summaryText = `${prior ? `${prior}\n` : ''}[Context summary unavailable; ${saved ? `earlier conversation archived as ${saved} (ContextArchiveTool)` : 'only the bounded continuation evidence is retained'}]`;
+      summaryMsg.content = `[Previous Context Summary]\n${summaryText}`;
+    }
+    this.continuation.absorb(olderMessages, (text) => this.archive(text));
+    for (const source of sourceVersions) this.evidence.sourceChanged(source.id, source.version);
+    this.evidence.admitAll(restoredEvidence);
+
+    const compacted = [...systemMessages, summaryMsg, ...this.continuationMessages(), ...fileAttachments, ...recentMessages];
     this.currentTokens = this.estimateTokens(compacted);
     return compacted;
   }
 
+  /** Aux requests have a whole-operation deadline; late tokens never publish into live context. */
+  private async collectSummary(messages: Message[], parent?: AbortSignal): Promise<string> {
+    return withRequestDeadline(180_000, parent, () => new Error('Context summary deadline exceeded.'), async (signal) => {
+      let text = '';
+      for await (const event of this.llm.chat(messages, { lite: true, signal })) {
+        signal.throwIfAborted();
+        if (event.type === 'error') {
+          const error = new Error(event.message) as Error & { code?: string };
+          if (event.kind === 'context') error.code = 'context_length_exceeded';
+          throw error;
+        }
+        if (event.type === 'truncated') throw new Error('Context summary was truncated.');
+        if (event.type === 'token') {
+          text += event.text;
+          if (text.length > 32_000) throw new Error('Context summary exceeded its output bound.');
+        }
+      }
+      signal.throwIfAborted();
+      if (!text.trim()) throw new Error('Context summary was empty.');
+      return text;
+    });
+  }
+
+  /**
+   * A manager rebuilt mid-task — the persona makes a new one when the context window changes, as on a model switch —
+   * takes over the continuation state its predecessor left in the window, before anything strips that block (step 8).
+   */
+  private adoptCarriedContinuation(messages: Message[]): void {
+    if (!this.continuation.isEmpty()) return;
+    const carried = messages.find((m) => isContinuationMessage(m));
+    if (carried && typeof carried.content === 'string') this.continuation.adopt(carried.content);
+  }
+
+  /** The continuation state as one system message, or nothing while it is empty. */
+  private continuationMessages(maxChars?: number): Message[] {
+    const text = this.continuation.render((saved) => this.archive(saved), maxChars);
+    return text ? [{ role: 'system', content: text }] : [];
+  }
+
+  /** The model's context window this manager budgets for, in tokens. */
+  get contextWindow(): number {
+    return this.MAX_TOKENS;
+  }
+
+  /** The last request's budget: what it held, what gave way, whether it was sent. Null before the first request. */
+  lastRequest: RequestRecord | null = null;
+
+  recordRequest(record: RequestRecord): void {
+    this.lastRequest = record;
+  }
+
+  private toolCallTokens = new WeakMap<object, {
+    calls: Array<{ id: string; type: string; name: string; args: string; extra: string | undefined }>;
+    tokens: number;
+  }>();
+
+  /** Tokens the messages take in a request: their content, the tool calls they carry, and each message's framing. */
+  requestTokens(messages: Message[]): number {
+    let total = 0;
+    for (const m of messages) {
+      total += this.countMessageTokens(m) + MESSAGE_FRAMING_TOKENS;
+      const calls = (m as { tool_calls?: unknown[] }).tool_calls;
+      if (calls?.length) {
+        const key = calls as unknown as object;
+        let hit = this.toolCallTokens.get(key);
+        // Arguments are immutable strings, even when their enclosing call mutates. Comparing
+        // protocol fields avoids copying/tokenizing large unchanged arguments on every pressure
+        // check. Opaque provider metadata can be nested, so compare its serialized value too.
+        const snapshot = (m.tool_calls ?? []).map(call => ({
+          id: call.id, type: call.type, name: call.function.name, args: call.function.arguments,
+          extra: call.extra_content === undefined ? undefined : JSON.stringify(call.extra_content),
+        }));
+        const unchanged = hit && hit.calls.length === snapshot.length && snapshot.every((call, i) => {
+          const prior = hit!.calls[i];
+          return prior.id === call.id && prior.type === call.type && prior.name === call.name
+            && prior.args === call.args && prior.extra === call.extra;
+        });
+        if (!unchanged) {
+          hit = { calls: snapshot, tokens: countTokens(JSON.stringify(calls)) };
+          this.toolCallTokens.set(key, hit);
+        }
+        total += hit!.tokens;
+      }
+    }
+    return total;
+  }
+
+  /**
+   * Fit `messages` into `budget` request tokens at the request boundary (record 50 step 6c), cheapest loss first:
+   * blocks that are rebuilt anyway (the repo map, restored files, nudges), then old tool results, then a summary of
+   * older turns, then the oldest turns themselves, and last the length of the continuation state. Everything that
+   * leaves goes through the continuation state, and the latest user message never leaves. The caller checks whether
+   * the result fits and refuses to send it when it does not.
+   */
+  async fitWithin(messages: Message[], budget: number, signal?: AbortSignal): Promise<{ messages: Message[]; tokens: number; steps: string[] }> {
+    this.adoptCarriedContinuation(messages);
+    signal?.throwIfAborted();
+    const steps: string[] = [];
+    let out = messages;
+    const fits = (): boolean => this.requestTokens(out) <= budget;
+    if (!fits()) {
+      const kept = out.filter((m) => !this.isRebuiltLater(m));
+      if (kept.length !== out.length) { out = kept; steps.push('removed the repo map and restored files, which are rebuilt later'); }
+    }
+    if (!fits()) {
+      const drained = this.reactiveDrain(out);
+      if (drained.changed) { out = drained.messages; steps.push('cleared old tool results'); }
+    }
+    if (!fits()) {
+      const compacted = await this.compact(out, signal);
+      if (compacted !== out && this.requestTokens(compacted) < this.requestTokens(out)) { out = compacted; steps.push('summarized older turns'); }
+    }
+    if (!fits()) {
+      const trimmed = this.moveOldestTurnsOut(out, budget);
+      if (trimmed !== out) { out = trimmed; steps.push('moved the oldest turns into the continuation state'); }
+    }
+    if (!fits()) {
+      const shortened = this.shortenContinuation(out, budget);
+      if (shortened !== out) { out = shortened; steps.push('shortened the continuation state, archiving the rest'); }
+    }
+    signal?.throwIfAborted();
+    return { messages: out, tokens: this.requestTokens(out), steps };
+  }
+
+  private isRebuiltLater(m: Message): boolean {
+    if (typeof m.content !== 'string') return false;
+    const content = m.content;
+    if (content.startsWith('[RepoMap]')) return m.role === 'system' || m.role === 'user';
+    return m.role === 'system' && ['[Post-Compact Restoration', '[TurnContext]', '[ContextManager]'].some((prefix) => content.startsWith(prefix));
+  }
+
+  /** Drop whole turns from the front, a call with its results, until the request fits or the latest user message is next. */
+  private moveOldestTurnsOut(messages: Message[], budget: number): Message[] {
+    const system = messages.filter((m) => m.role === 'system' && !isContinuationMessage(m));
+    let tail = messages.filter((m) => m.role !== 'system');
+    const latestUser = latestHumanRequest(tail);
+    let current = messages;
+    while (tail.length && this.requestTokens(current) > budget) {
+      let cut = 1;
+      while (cut < tail.length && tail[cut].role === 'tool') cut++;
+      const leaving = tail.slice(0, cut);
+      if (latestUser && leaving.includes(latestUser)) break;
+      this.continuation.absorb(leaving, (text) => this.archive(text));
+      tail = tail.slice(cut);
+      current = [...system, ...this.continuationMessages(), ...tail];
+    }
+    return current;
+  }
+
+  /** Re-render the continuation state short enough for the request to fit, when it is what stands in the way. */
+  private shortenContinuation(messages: Message[], budget: number): Message[] {
+    const at = messages.findIndex((m) => isContinuationMessage(m));
+    if (at < 0) return messages;
+    const over = this.requestTokens(messages) - budget;
+    const blockTokens = this.requestTokens([messages[at]]);
+    const [shortened] = this.continuationMessages(Math.max(0, (blockTokens - over) * 3));
+    if (!shortened || shortened.content === messages[at].content) return messages;
+    const out = [...messages];
+    out[at] = shortened;
+    return out;
+  }
+
+  /**
+   * The residency ledger (record 47 §3.5): ids of the admitted, current evidence spans whose text is in `messages` — a
+   * recall block and the memories it was built from, a restored file, a tool output named by its archive handle.
+   */
+  residentEvidence(messages: Message[]): string[] {
+    const contents = messages.map((m) => (typeof m.content === 'string' ? m.content : contentToText(m.content)));
+    const exact = new Set(contents);
+    const handles = new Set<string>();
+    for (const content of contents) for (const handle of content.match(/archive:[0-9a-f]{32}/g) ?? []) handles.add(handle);
+    const resident = new Set<string>();
+    for (const span of this.evidence.all()) {
+      if (this.evidence.isStale(span.id)) continue;
+      const locator = span.locator;
+      const present = (span.rawHandle !== undefined && handles.has(span.rawHandle) && span.text.length > 0 && contents.some(content => content.includes(span.text)))
+        || (locator.kind === 'derived' && exact.has(span.text))
+        || (locator.kind === 'file' && contents.some((content) => content.startsWith(`[Post-Compact Restoration — ${locator.path} —`) && span.text.length > 0 && content.includes(span.text)));
+      if (!present) continue;
+      resident.add(span.id);
+      for (const dep of span.derivedFrom) {
+        if (!dep.sourceId.startsWith('span:')) continue;
+        const source = this.evidence.get(dep.sourceId.slice('span:'.length));
+        if (source && !this.evidence.isStale(source.id) && source.text.length > 0
+          && contents.some(content => content.includes(source.text))) resident.add(source.id);
+      }
+    }
+    return [...resident];
+  }
+
   /** Reactive recovery: fires when the API rejects a request as too long. Cuts the window hard. */
   async reactiveCompact(messages: Message[], error: any): Promise<Message[]> {
+    this.adoptCarriedContinuation(messages);
     // Match everything classifyStreamError treats as a context overflow (413s, "too large",
     // provider codes), not just two message spellings — a mismatch here meant the agent loop
     // decided "compact and retry" but this guard rethrew, killing the turn instead.
@@ -554,6 +952,7 @@ Comma-separated list of files created, modified, or important to the task.`,
       error?.status === 413;
     if (isContextOverflow) {
       Logger.warn(`[ContextManager] Reactive compact triggered by API error: ${error.message}`);
+      this.compactionEpoch++;
       this.currentTokens = this.MAX_TOKENS; // force it
       // Same transient strip as compact() (C6) — an overflow caused by accreted summaries/
       // restorations must actually SHRINK here, or the retry 413s again and the turn dies.
@@ -562,12 +961,12 @@ Comma-separated list of files created, modified, or important to the task.`,
       const durableSystem = messages.filter(m => m.role === 'system' && !this.isTransientSystem(m));
       const lastSummary = [...messages].reverse().find(m =>
         this.isTransientSystem(m) && (m.content as string).startsWith('[Previous Context Summary]'));
-      const recentMessages = this.dropLeadingOrphanToolMessages(
-        messages.filter(m => m.role !== 'system').slice(-5)
-      );
+      const recentMessages = retainRecentHistory(messages, 5);
+      this.continuation.absorb(messages.filter(m => m.role !== 'system' && !recentMessages.includes(m)), (text) => this.archive(text));
       return [
         ...durableSystem,
         ...(lastSummary ? [lastSummary] : []),
+        ...this.continuationMessages(),
         { role: 'system', content: '[Older messages aggressively compacted due to API context limits]' } as Message,
         ...recentMessages,
       ];

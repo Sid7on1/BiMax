@@ -10,7 +10,7 @@
  *   genuinely changed, so the front-end's read-back compared its own request against its own
  *   request and reported "applied" every time. But `LlmAdapter` caches the model slots at boot
  *   (`userModel` / `defaultModel`), and nothing here ever told it. Every other write path —
- *   `/model` (cli/commands/meta.ts), `/config set` (cli/commands/builtins.ts), ModelTool — follows
+ *   `/model` (engine/commands/meta.ts), `/config set` (engine/commands/builtins.ts), ModelTool — follows
  *   its save with an `applyConfig`. This one did not, so the desktop's model picker changed the
  *   file, said it worked, and every request kept going to the model loaded at startup.
  *
@@ -22,7 +22,7 @@
  */
 
 /**
- * The allowlisted, JSON-safe subset of `CliConfig` a front-end may read and write directly.
+ * The allowlisted, JSON-safe subset of `EngineConfig` a front-end may read and write directly.
  * Sensitive / engine-internal keys (API keys, workspaceRoot, dangerouslySkipPermissions,
  * onboarding flags) stay OFF the wire on purpose.
  */
@@ -30,9 +30,11 @@ export const CONFIG_WIRE_KEYS = [
   'model', 'liteModel', 'visionModel', 'fallbackModel', 'subagentModel',
   'provider', 'providerBaseURL',
   'temperature', 'topP', 'maxTokens', 'timeout',
-  'reasoningEffort', 'maxThinkingTokens',
+  // `maxThinkingTokens` is off the wire: nothing sends it (engine/config.ts), so a front-end that can
+  // write it can only offer a control that does nothing.
+  'reasoningEffort',
   'contextMode', 'contextWindowTokens', 'parallelToolCalls',
-  'maxToolIterations', 'maxSubAgents',
+  'maxToolIterations', 'maxSubAgents', 'taskCheckRetries', 'taskMaxMinutes', 'spendDailyCapUsd', 'spendTaskShareUsd',
   'autoResumeAgents',
   'notificationBell', 'verbose', 'reducedMotion', 'theme',
   'autoIndex', 'gitAutoCommit', 'autoVerify', 'sandboxBash',
@@ -60,6 +62,11 @@ export interface ConfigWireDeps {
   getConfig: () => Record<string, any>;
   saveConfig: (updates: Record<string, any>) => Promise<unknown>;
   llmAdapter?: ConfigWireAdapter | null;
+  /**
+   * Applies a saved patch to the engine's live switches beyond the adapter — the agent gates
+   * (engine/gate.flags.ts). Without it a Settings toggle saved the file and changed nothing.
+   */
+  applyLive?: (patch: Record<string, any>) => void;
   /** Notifies attached front-ends + re-snapshots. Called only when something actually changed. */
   onChanged?: () => void;
 }
@@ -101,6 +108,8 @@ export function createConfigWire(deps: ConfigWireDeps): ConfigWire {
       try { deps.llmAdapter?.applyConfig?.(adapterPatch); }
       catch { /* the saved config still applies on next boot; never fail the write over this */ }
     }
+    try { deps.applyLive?.(safe); }
+    catch { /* the saved config still applies on next boot; never fail the write over this */ }
 
     deps.onChanged?.();
     return read();

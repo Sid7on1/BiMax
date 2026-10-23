@@ -1,11 +1,22 @@
+import { grantMcpUi, revokeMcpUi } from './ui.grants';
+import { mcpPresentation } from './presentation';
+import { outcomeError, outcomeOk } from '../tools/outcome';
+import { reportCapability } from '../core/capability.status';
 import { ToolRegistry } from '../tools/tool.registry';
 import { buildTool, BuiltTool } from '../tools/tool.factory';
 import { IGovernor } from '../core/interfaces';
 import { Logger } from '../utils/logger';
-import { withTimeout } from '../utils/withTimeout'; // shared, leak-safe — a hung server never blocks boot/add
+import { withRequestDeadline } from '../utils/request.deadline';
+import { McpStderrTail } from './stderr';
+import { McpToolCatalog } from './tool.catalog';
+import { buildMcpResourceTools } from './resources';
+import * as path from 'path';
+import { pathToFileURL } from 'url';
 import { recordMcpCall } from './stats';
-import { McpServerSpec } from './config';
+import { McpServerSpec, expandSpecVars } from './config';
 import { extractTaskRef, awaitTaskResult } from './tasks';
+import { FileOAuthProvider, McpSignInRequired, openInBrowser, waitForAuthorizationCode } from './oauth';
+import { engineEvents } from '../engine/events';
 
 // The MCP SDK ships package "exports" maps that our classic TS moduleResolution can't follow
 // for types; the dual-published CJS build resolves fine at runtime, so we require() it at the
@@ -15,6 +26,8 @@ const { Client } = require('@modelcontextprotocol/sdk/client/index.js');
 const { StdioClientTransport } = require('@modelcontextprotocol/sdk/client/stdio.js');
 const { StreamableHTTPClientTransport } = require('@modelcontextprotocol/sdk/client/streamableHttp.js');
 const { SSEClientTransport } = require('@modelcontextprotocol/sdk/client/sse.js');
+const { UnauthorizedError } = require('@modelcontextprotocol/sdk/client/auth.js');
+const { ListRootsRequestSchema, ToolListChangedNotificationSchema } = require('@modelcontextprotocol/sdk/types.js');
 /* eslint-enable @typescript-eslint/no-require-imports */
 
 // Baseline env a spawned server needs to function as a process — nothing secret in it.
@@ -36,9 +49,62 @@ export function mcpChildEnv(spec: McpServerSpec): Record<string, string> {
   }
   const out: Record<string, string> = {};
   for (const k of MCP_ENV_BASELINE) {
+    if (spec.forceScrubEnv && (k === 'NODE_OPTIONS' || k === 'NODE_PATH')) continue;
     if (process.env[k] !== undefined) out[k] = process.env[k]!;
   }
   return { ...out, ...(spec.env || {}) };
+}
+
+export interface OpenOptions {
+  /** Cancels this connection attempt, including catalog discovery. */
+  signal?: AbortSignal;
+  /**
+   * Complete an OAuth sign-in in the browser when the server asks for one. Off for every automatic
+   * connect (boot, watchdog, self-heal): a sign-in then fails with McpSignInRequired instead of a
+   * browser window appearing out of nowhere. On only for an explicit `/mcp login`.
+   */
+  interactiveSignIn?: boolean;
+  /** The folder offered to servers that ask for MCP roots. Defaults to the workspace. */
+  root?: string;
+}
+
+/**
+ * A client that answers `roots/list` with the workspace folder. Filesystem-style servers scope
+ * themselves to the client's roots when it offers them; with `capabilities: {}` they fell back to
+ * command-line paths, which a pasted config from a README usually leaves as placeholders.
+ */
+function newClient(root: string): any {
+  const client = new Client({ name: 'bimax', version: '1.0.0' }, { capabilities: { roots: { listChanged: false } } });
+  client.setRequestHandler(ListRootsRequestSchema, async () => ({
+    roots: [{ uri: pathToFileURL(root).href, name: path.basename(root) || root }],
+  }));
+  return client;
+}
+
+/** SDK initialize failure and our cleanup can close concurrently; both must await one close. */
+function ownTransportClose(transport: any): any {
+  const close = transport.close.bind(transport);
+  let closing: Promise<void> | undefined;
+  transport.close = () => closing ??= Promise.resolve().then(close);
+  return transport;
+}
+
+/**
+ * How long a server may take to answer the handshake. A launcher that downloads the server first
+ * (`npx -y`, `uvx`, `docker run`) routinely takes longer than 30s on its first run, which failed
+ * the server on exactly the machine that had just added it.
+ */
+export function connectTimeoutMs(spec: McpServerSpec, env: NodeJS.ProcessEnv = process.env): number {
+  const configured = Number(env.BIMAX_MCP_CONNECT_TIMEOUT_MS);
+  if (Number.isFinite(configured) && configured >= 1000) return Math.min(configured, 10 * 60_000);
+  const launcher = path.basename(String(spec.command || ''));
+  if (!spec.url && /^(npx|uvx|uv|bunx|pnpx|pnpm|pipx|docker|podman|deno)$/.test(launcher)) return 90_000;
+  return 30_000;
+}
+
+function isUnauthorized(e: any): boolean {
+  return e instanceof UnauthorizedError || e?.name === 'UnauthorizedError' || e?.code === 401 || e?.status === 401
+    || /\b401\b|unauthori[sz]ed/i.test(String(e?.message || ''));
 }
 
 /**
@@ -46,69 +112,132 @@ export function mcpChildEnv(spec: McpServerSpec): Record<string, string> {
  * connect to a URL — trying Streamable HTTP first, then falling back to SSE (older hosted
  * servers only speak SSE). Returns a connected client or throws.
  */
-export async function openClient(spec: McpServerSpec): Promise<any> {
-  const client = new Client({ name: 'bimax', version: '1.0.0' }, { capabilities: {} });
-
-  if (spec.url) {
-    const url = new URL(spec.url);
-    const headers = spec.headers || undefined;
-    const reqInit = headers ? { requestInit: { headers } } : undefined;
-    // Honor an explicit transport choice; otherwise prefer HTTP and fall back to SSE.
-    if (spec.type === 'sse') {
-      await withTimeout(client.connect(new SSEClientTransport(url, reqInit)), 30000, `MCP '${spec.name}' (SSE)`);
-      return client;
-    }
-    try {
-      await withTimeout(client.connect(new StreamableHTTPClientTransport(url, reqInit)), 30000, `MCP '${spec.name}' (HTTP)`);
-      return client;
-    } catch (httpErr: any) {
-      Logger.warn(`[MCP] '${spec.name}' HTTP transport failed (${httpErr.message}); trying SSE.`);
-      try { await client.close?.(); } catch { /* failed transports are best-effort cleanup */ }
-      const sseClient = new Client({ name: 'bimax', version: '1.0.0' }, { capabilities: {} });
-      await withTimeout(sseClient.connect(new SSEClientTransport(url, reqInit)), 30000, `MCP '${spec.name}' (SSE)`);
-      return sseClient;
-    }
+export async function openClient(rawSpec: McpServerSpec, options: OpenOptions = {}): Promise<any> {
+  options.signal?.throwIfAborted();
+  const { spec, missing } = expandSpecVars(rawSpec);
+  if (missing.length) {
+    throw new Error(`MCP '${spec.name}' needs ${missing.join(', ')}, which ${missing.length > 1 ? 'are' : 'is'} not set. ` +
+      `Add ${missing.length > 1 ? 'them' : 'it'} to ~/.breakglass/.env (or the server's "env"), then run /mcp reconnect ${spec.name}.`);
   }
+  const root = options.root || process.env.WORKSPACE_ROOT || process.cwd();
+  const timeoutMs = connectTimeoutMs(spec);
 
+  if (spec.url) return openRemote(spec, root, timeoutMs, options.interactiveSignIn === true, options.signal);
+
+  const client = newClient(root);
   // `stderr: 'pipe'` is critical: the SDK default is 'inherit', which dumps the child server's
   // stderr straight into our Ink TUI (corrupting the display). Piping keeps it off the terminal,
   // and we drain it into the logger — and into the failure reason when a server exits on startup.
-  const transport = new StdioClientTransport({
+  const transport = ownTransportClose(new StdioClientTransport({
     command: spec.command,
     args: spec.args || [],
     // Scrubbed: baseline + declared env only — a server missing a key should have it
     // declared in its spec (or set BIMAX_MCP_ENV_INHERIT=1 to accept the legacy leak).
     env: mcpChildEnv(spec),
     stderr: 'pipe',
+  }));
+
+  const stderrTail = new McpStderrTail();
+  // The SDK exposes its pipe before start(). Draining only after the handshake can
+  // deadlock a launcher that fills stderr before it sends its initialize response.
+  transport.stderr?.on('data', (data: Buffer) => {
+    const text = stderrTail.append(data);
+    if (text) Logger.warn(`[MCP:${spec.name}] ${text.slice(-4096).trim()}`);
   });
 
-  const stderrChunks: string[] = [];
-  const drainStderr = () => {
-    try {
-      const s: any = (transport as any).stderr;
-      if (s && typeof s.on === 'function') {
-        s.on('data', (d: Buffer) => {
-          const text = d.toString();
-          stderrChunks.push(text);
-          Logger.warn(`[MCP:${spec.name}] ${text.trim()}`);
-        });
-      }
-    } catch { /* best-effort */ }
-  };
-
   try {
-    await withTimeout(client.connect(transport), 30000, `MCP '${spec.name}' (stdio)`);
-    drainStderr(); // keep future stderr out of the terminal and in the log
+    await withRequestDeadline(timeoutMs, options.signal,
+      () => new Error(`MCP '${spec.name}' (stdio) timed out after ${timeoutMs}ms`),
+      (signal, remainingMs) => client.connect(transport, { signal, timeout: remainingMs() }));
     return client;
   } catch (e: any) {
-    drainStderr();
-    await new Promise(r => setTimeout(r, 50)); // let buffered stderr flush
-    const detail = stderrChunks.join('').trim();
+    // openClient has not returned yet, so connectAndRegister cannot own cleanup.
+    // Close here even when the handshake timed out after spawning a child.
+    try { await client.close(); } catch { /* preserve the startup failure */ }
+    const detail = stderrTail.text().trim();
     if (detail) {
       const lastLines = detail.split('\n').filter(Boolean).slice(-3).join(' ');
       throw new Error(`${e?.message || e} — server said: ${lastLines}`, { cause: e });
     }
     throw e;
+  }
+}
+
+async function openRemote(spec: McpServerSpec, root: string, timeoutMs: number, interactive: boolean, signal?: AbortSignal): Promise<any> {
+  const url = new URL(spec.url!);
+  const headers = spec.headers || undefined;
+  // A server configured with its own Authorization header uses that token; OAuth is for the rest.
+  const staticAuth = !!headers && Object.keys(headers).some(k => k.toLowerCase() === 'authorization');
+  let authorizationUrl: URL | null = null;
+  const provider = staticAuth ? undefined : new FileOAuthProvider(url.href, (u) => { authorizationUrl = u; });
+  const transportOptions = { ...(headers ? { requestInit: { headers } } : {}), ...(provider ? { authProvider: provider } : {}) };
+  const makeTransport = (kind: 'http' | 'sse') => ownTransportClose(kind === 'sse'
+    ? new SSEClientTransport(url, transportOptions)
+    : new StreamableHTTPClientTransport(url, transportOptions));
+
+  const attempt = async (kind: 'http' | 'sse') => {
+    const client = newClient(root);
+    const transport = makeTransport(kind);
+    try {
+      await withRequestDeadline(timeoutMs, signal,
+        () => new Error(`MCP '${spec.name}' (${kind === 'sse' ? 'SSE' : 'HTTP'}) timed out after ${timeoutMs}ms`),
+        (requestSignal, remainingMs) => client.connect(transport, { signal: requestSignal, timeout: remainingMs() }));
+      return client;
+    } catch (e: any) {
+      try { await client.close?.(); } catch { /* failed transports are best-effort cleanup */ }
+      signal?.throwIfAborted();
+      if (provider && isUnauthorized(e)) {
+        if (!interactive || !authorizationUrl) throw new McpSignInRequired(spec.name);
+        return signInThenConnect(kind, transport);
+      }
+      throw e;
+    }
+  };
+
+  // The browser round trip for an explicit login. The listener is already up (see below); the SDK
+  // has registered the client, stored the PKCE verifier and produced the authorization URL.
+  let listener: ReturnType<typeof waitForAuthorizationCode> | null = null;
+  const signInThenConnect = async (kind: 'http' | 'sse', transport: any) => {
+    engineEvents.emit('status', `MCP '${spec.name}': finish signing in in your browser…`);
+    const code = await withRequestDeadline(5 * 60_000, signal,
+      () => new Error('MCP sign-in timed out after 5 minutes.'), async requestSignal => {
+        await openInBrowser(authorizationUrl!);
+        requestSignal.throwIfAborted();
+        return listener!.code;
+      });
+    await withRequestDeadline(timeoutMs, signal,
+      () => new Error(`MCP '${spec.name}' authentication timed out after ${timeoutMs}ms`),
+      () => transport.finishAuth(code));
+    const client = newClient(root);
+    try {
+      await withRequestDeadline(timeoutMs, signal,
+        () => new Error(`MCP '${spec.name}' (after sign-in) timed out after ${timeoutMs}ms`),
+        (requestSignal, remainingMs) => client.connect(makeTransport(kind), { signal: requestSignal, timeout: remainingMs() }));
+    } catch (error) {
+      try { await client.close(); } catch { /* preserve the startup error */ }
+      throw error;
+    }
+    engineEvents.emit('status', `MCP '${spec.name}': signed in.`);
+    return client;
+  };
+
+  try {
+    if (interactive && provider) {
+      listener = waitForAuthorizationCode(() => provider.expectedState());
+      await listener.ready;
+    }
+    if (spec.type === 'sse') return await attempt('sse');
+    try {
+      return await attempt('http');
+    } catch (httpErr: any) {
+      signal?.throwIfAborted();
+      // A sign-in need is not a transport mismatch: falling back to SSE would only hide it.
+      if (httpErr instanceof McpSignInRequired || isUnauthorized(httpErr)) throw httpErr;
+      Logger.warn(`[MCP] '${spec.name}' HTTP transport failed (${httpErr.message}); trying SSE.`);
+      return await attempt('sse');
+    }
+  } finally {
+    listener?.close();
   }
 }
 
@@ -160,14 +289,18 @@ export interface ConnectedMcp {
   /** The exact spec this connection was opened with — lets the watchdog/healer reconnect a server
    *  that isn't in any config file (built-ins, tests) without a config round-trip. */
   spec: McpServerSpec;
+  /** Retire tools synchronously, then close the transport. Safe to call repeatedly. */
+  dispose?: () => Promise<void>;
 }
 
 /** List every page and return a stable order, as required by the MCP tools contract. */
-export async function listAllMcpTools(client: any, maxPages = 32, maxTools = 2048): Promise<any[]> {
+export async function listAllMcpTools(client: any, maxPages = 32, maxTools = 2048,
+  requestOptions?: () => { signal: AbortSignal; timeout: number }): Promise<any[]> {
   const tools: any[] = [];
   let cursor: string | undefined;
   for (let page = 0; page < maxPages; page++) {
-    const listed = await client.listTools(cursor ? { cursor } : undefined);
+    const params = cursor ? { cursor } : undefined;
+    const listed = await (requestOptions ? client.listTools(params, requestOptions()) : client.listTools(params));
     if (Array.isArray(listed?.tools)) tools.push(...listed.tools);
     if (tools.length > maxTools) throw new Error(`MCP tool catalog exceeds ${maxTools} entries`);
     const next = typeof listed?.nextCursor === 'string' && listed.nextCursor ? listed.nextCursor : undefined;
@@ -236,10 +369,26 @@ export function isDeadConnectionError(e: any): boolean {
 
 /**
  * A healer the manager injects: given a server name, try to bring it back and return the FRESH
- * client (or null). Lets a tool call survive a crashed/expired server transparently: reconnect
- * once, retry the call on the new client — no recursion (the retry is a direct client call).
+ * client (or null). Only an explicitly read-only tool may retry after a lost response;
+ * unannotated or destructive operations retain unknown completion without replay.
  */
 export type McpHealer = (serverName: string) => Promise<any | null>;
+
+/**
+ * Acting on the host computer is outside the code-only Bimax product boundary, even when an
+ * arbitrary MCP server advertises the old tool name under a different server id.
+ *
+ * This and `approvalHandledByMotionProvider` below are the two live re-entry points for Bimax
+ * Motion: `grep -rn Motion src/` finds every seam the archived provider has to meet. The
+ * IDENTIFIERS carry the product's own vocabulary; the STRINGS deliberately do not. `mac_control`,
+ * `computer_control`, `computer` and the `bimax-mac` server id are what the provider in
+ * ~/Developer/bimax-archive actually registers over MCP, so renaming them here would not rename
+ * anything — it would only stop this gate recognising the thing it exists to refuse. They change
+ * when the provider changes, on the same commit, and not before.
+ */
+export function isDisabledMotionToolName(name: string): boolean {
+  return /^(?:mac_control|computer_control|computer)$/i.test(String(name || '').trim());
+}
 
 /**
  * Bimax for Mac owns approval for its single native Computer Use entrypoint.
@@ -250,8 +399,20 @@ export type McpHealer = (serverName: string) => Promise<any | null>;
  * one task ask "Run mac_control?" before every observation and click. That was duplicate consent,
  * not an additional safety boundary. Keep every other MCP tool fail-closed.
  */
-export function approvalHandledByAppOwnedProvider(serverName: string, toolName: string): boolean {
+export function approvalHandledByMotionProvider(serverName: string, toolName: string): boolean {
   return serverName === 'bimax-mac' && toolName === 'mac_control';
+}
+
+export function mcpToolCallRequest(
+  _serverName: string,
+  toolName: string,
+  args: Record<string, unknown>,
+): Record<string, unknown> {
+  // This used to attach a signed `_meta.bimaxTrustedPlan` envelope for the app-owned `mac_control`
+  // entrypoint. Bimax is a code-only agentic IDE (see archive/computer-use/): no Computer Use
+  // provider is ever registered, and `isDisabledMotionToolName` above refuses `mac_control`
+  // at registration, so the envelope had no reachable consumer. Keep the request shape plain.
+  return { name: toolName, arguments: args };
 }
 
 /**
@@ -266,89 +427,190 @@ export async function connectAndRegister(
   governor: IGovernor,
   onError?: (message: string) => void,
   healer?: McpHealer,
+  options: OpenOptions = {},
 ): Promise<ConnectedMcp | null> {
   let client: any;
-  const registered = new Map<string, BuiltTool | undefined>();
-  try {
-    client = await openClient(spec);
+  const catalog = new McpToolCatalog(registry);
+  const lifetime = new AbortController();
+  let catalogClosed = false;
+  let closing: Promise<void> | undefined;
+  const closeClient = (): Promise<void> => {
+    if (!client) return Promise.resolve();
+    return closing ??= Promise.resolve().then(() => client.close()).catch(() => { /* best-effort */ });
+  };
+  const dispose = (): Promise<void> => {
+    revokeMcpUi(lifetime);
+    lifetime.abort(new Error(`MCP '${spec.name}' connection retired.`));
+    catalog.clear();
+    options.signal?.removeEventListener('abort', cancel);
+    return closeClient();
+  };
+  const cancel = () => { void dispose(); };
+  options.signal?.addEventListener('abort', cancel, { once: true });
+  if (options.signal?.aborted) cancel();
+  const signalFor = (context: any): AbortSignal => {
+    lifetime.signal.throwIfAborted();
+    return context?.signal ? AbortSignal.any([lifetime.signal, context.signal]) : lifetime.signal;
+  };
 
-    const listed = await listAllMcpTools(client);
-    const toolNames: string[] = [];
-    for (const t of listed) {
-      const toolName = `mcp__${spec.name}__${t.name}`;
-      registered.set(toolName, registry.getTool(toolName));
-      registry.register(buildTool({
-        name: toolName,
-        description: `[MCP:${spec.name}] ${t.description || t.name}`,
-        schema: t.inputSchema || { type: 'object', properties: {} },
-        isDestructive: true, // external tools are fail-closed under the Governor
-        approvalHandledInternally: approvalHandledByAppOwnedProvider(spec.name, String(t.name || '')),
-        execute: async (args: any) => {
-          // Weak models routinely emit numbers/booleans as strings ("1", "true"). MCP servers
-          // validate strictly (zod) and reject those, so coerce each arg to its declared schema
-          // type first. Native tools tolerate strings already; MCP is where strict validation bites.
-          const coerced = coerceArgsToSchema(args || {}, t.inputSchema);
-          const configuredTimeout = Number(process.env.BIMAX_MCP_CALL_TIMEOUT_MS || 120000);
-          const timeoutMs = Number.isFinite(configuredTimeout)
-            ? Math.min(Math.max(configuredTimeout, 1000), 10 * 60 * 1000)
-            : 120000;
-          const started = Date.now();
-          try {
-            let res: any;
+  const buildMcpTool = (t: any): BuiltTool | null => {
+    if (isDisabledMotionToolName(String(t.name || ''))) {
+      Logger.warn(`[MCP] Skipping disabled Computer Use tool '${spec.name}/${t.name}'.`);
+      return null;
+    }
+    const toolName = `mcp__${spec.name}__${t.name}`;
+    const built: BuiltTool = buildTool({
+      name: toolName,
+      description: `[MCP:${spec.name}] ${t.description || t.name}`,
+      schema: t.inputSchema || { type: 'object', properties: {} },
+      isDestructive: true, // external tools are fail-closed under the Governor
+      approvalHandledInternally: approvalHandledByMotionProvider(spec.name, String(t.name || '')),
+      execute: async (args: any, context?: any) => {
+        lifetime.signal.throwIfAborted();
+        // Weak models routinely emit numbers/booleans as strings ("1", "true"). MCP servers
+        // validate strictly (zod) and reject those, so coerce each arg to its declared schema
+        // type first. Native tools tolerate strings already; MCP is where strict validation bites.
+        const coerced = coerceArgsToSchema(args || {}, t.inputSchema);
+        const timeoutMs = callTimeoutMs();
+        const started = Date.now();
+        try {
+          let callClient = client;
+          const call = mcpToolCallRequest(spec.name, String(t.name || ''), coerced);
+          // A read-only heal replaces and retires this connection while the original call
+          // transfers to the fresh client. Keep the caller's Stop signal across that transfer.
+          const res = await withRequestDeadline(timeoutMs, context?.signal,
+            () => new Error(`MCP tool '${spec.name}/${t.name}' timed out after ${timeoutMs}ms`), async (signal, remainingMs) => {
+            let result: any;
             try {
-              res = await withTimeout<any>(
-                client.callTool({ name: t.name, arguments: coerced }),
-                timeoutMs,
-                `MCP tool '${spec.name}/${t.name}'`,
-              );
+              result = await callClient.callTool(call, undefined, { signal, timeout: remainingMs() });
             } catch (e: any) {
               // Self-heal: a crashed/expired server shows up as a dead transport, not a tool error.
               // Reconnect once and retry on the fresh client — the retry is a direct client call
               // (never back through the registry), so a still-dead server can't recurse.
+              signal.throwIfAborted();
               if (!healer || !isDeadConnectionError(e)) throw e;
+              // A broken reply does not establish whether the server acted. Only
+              // explicitly read-only tools may replay; annotations grant no approval.
+              if (t.annotations?.readOnlyHint !== true || t.annotations?.destructiveHint === true) {
+                throw new Error(`MCP tool '${spec.name}/${t.name}' lost its connection; completion is unknown. It was not replayed. Reconnect and inspect the actual state before retrying.`, { cause: e });
+              }
+              reportCapability({ id: `mcp:${spec.name}`, label: `MCP ${spec.name}`, state: 'unavailable',
+                reason: 'The connection stopped responding during an operation.', impact: 'The operation requires a reconnect.',
+                action: 'Bimax is attempting its bounded reconnect.' });
               Logger.warn(`[MCP] '${spec.name}' connection dead mid-call (${e?.message}); reconnecting to retry.`);
               const fresh = await healer(spec.name);
+              remainingMs();
               if (!fresh) throw e;
-              res = await withTimeout<any>(
-                fresh.callTool({ name: t.name, arguments: coerced }),
-                timeoutMs,
-                `MCP tool '${spec.name}/${t.name}' (after reconnect)`,
-              );
+              callClient = fresh;
+              result = await callClient.callTool(call, undefined, { signal, timeout: remainingMs() });
             }
             // MCP Tasks extension: a task-shaped response means the server accepted the work
             // and is running it asynchronously — poll it to completion (within the remaining
             // call budget) and substitute the real result, so the agent never sees the stub.
-            const taskRef = extractTaskRef(res);
+            remainingMs();
+            const taskRef = extractTaskRef(result);
             if (taskRef) {
-              const remaining = Math.max(1000, timeoutMs - (Date.now() - started));
-              res = await awaitTaskResult(client, spec.name, t.name, taskRef, remaining);
+              result = await awaitTaskResult(callClient, spec.name, t.name, taskRef, remainingMs(), signal);
             }
-            const text = contentToString(res);
-            recordMcpCall(spec.name, t.name, Date.now() - started, res?.isError ? text : undefined);
-            return res?.isError ? `MCP tool ${t.name} reported an error: ${text}` : text;
-          } catch (e: any) {
-            recordMcpCall(spec.name, t.name, Date.now() - started, e?.message || String(e));
-            throw e;
-          }
-        },
-      }, governor));
-      toolNames.push(toolName);
-    }
+            remainingMs();
+            return result;
+          });
+          const text = contentToString(res);
+          recordMcpCall(spec.name, t.name, Date.now() - started, res?.isError ? text : undefined);
+          const outcome = res?.isError ? outcomeError('unknown', `MCP tool ${t.name} reported an error: ${text}`) : outcomeOk(text);
+          outcome.presentation = mcpPresentation(spec.name, t, args, res).map(part => part.kind !== 'mcp-app' ? part : grantMcpUi(part, {
+            owner: lifetime, alive: () => !lifetime.signal.aborted && !catalogClosed && registry.getTool(toolName) === built,
+            read: async () => {
+              const response: any = await withRequestDeadline(10_000, lifetime.signal, () => new Error('Tool UI resource timed out.'), (signal, remaining) => client.readResource({uri:part.resourceUri},{signal,timeout:remaining()}));
+              const resource = response?.contents?.find((c:any) => c.uri===part.resourceUri && typeof c.text==='string' && c.mimeType?.startsWith('text/html'));
+              if (!resource || Buffer.byteLength(resource.text)>192*1024) throw new Error('Tool UI must be a bundled HTML resource of at most 192 KiB.');
+              return {html:resource.text,input:part.input,result:part.result};
+            },
+            call: async (name, input, signal) => {
+              if (name!==t.name || t._meta?.ui?.visibility && !t._meta.ui.visibility.includes('app')) throw new Error('This tool is not available to its UI.');
+              let outcome: any;
+              const text = await built.execute(input,{signal,reportOutcome:(value:any)=>{outcome=value;}});
+              return {content:[{type:'text',text:String(text)}],...(outcome?.presentation?.find((p:any)=>p.kind==='data') ? {structuredContent:outcome.presentation.find((p:any)=>p.kind==='data').value} : {}),isError:outcome?.status!=='ok'};
+            },
+          }));
+          return outcome;
+        } catch (e: any) {
+          recordMcpCall(spec.name, t.name, Date.now() - started, e?.message || String(e));
+          throw e;
+        }
+      },
+    }, governor);
+    return built;
+  };
 
-    Logger.info(`[MCP] Connected '${spec.name}' — registered ${toolNames.length} tool(s).`);
-    return { name: spec.name, client, toolNames, spec };
+  try {
+    client = await openClient(spec, { ...options, signal: lifetime.signal });
+    lifetime.signal.throwIfAborted();
+    // Transport loss stops catalog writes; it does not revoke read-only self-healing.
+    const onclose = client.onclose;
+    client.onclose = () => { catalogClosed = true; onclose?.(); };
+    const caps = typeof client.getServerCapabilities === 'function' ? client.getServerCapabilities() : null;
+    const resources = caps?.resources ? buildMcpResourceTools(client, spec.name, governor, callTimeoutMs, signalFor) : [];
+    const readCatalog = async (): Promise<BuiltTool[]> => {
+      const timeoutMs = connectTimeoutMs(spec);
+      const listed = caps?.tools ? await withRequestDeadline(timeoutMs, lifetime.signal,
+        () => new Error(`MCP '${spec.name}' tool catalog timed out after ${timeoutMs}ms`),
+        (signal, remainingMs) => listAllMcpTools(client, 32, 2048, () => ({ signal, timeout: remainingMs() }))) : [];
+      lifetime.signal.throwIfAborted();
+      if (catalogClosed) throw new Error(`MCP '${spec.name}' connection closed during catalog discovery.`);
+      return [...listed.map(buildMcpTool).filter((tool): tool is BuiltTool => tool !== null), ...resources];
+    };
+
+    // Install before the initial read, so changes during discovery schedule a follow-up.
+    // Notifications arriving during a read coalesce to one dirty bit, never parallel reads.
+    let dirty = false;
+    let initializing = true;
+    let refreshing: Promise<void> | undefined;
+    const refresh = (): Promise<void> => {
+      dirty = true;
+      if (initializing || catalogClosed || lifetime.signal.aborted) return Promise.resolve();
+      if (refreshing) return refreshing;
+      refreshing = (async () => {
+        while (dirty && !catalogClosed && !lifetime.signal.aborted) {
+          dirty = false;
+          try {
+            const next = await readCatalog();
+            lifetime.signal.throwIfAborted();
+            catalog.replace(next);
+            if (spec.eager) registry.markDiscovered(catalog.names);
+            Logger.info(`[MCP] '${spec.name}' tool list changed — ${catalog.names.length} tool(s) now.`);
+            engineEvents.emit('mcp_changed');
+          } catch (e: any) {
+            if (!lifetime.signal.aborted && !catalogClosed) {
+              Logger.warn(`[MCP] '${spec.name}' tool list changed but could not be re-read: ${e?.message || e}`);
+            }
+          }
+        }
+      })().finally(() => { refreshing = undefined; });
+      return refreshing;
+    };
+    if (caps?.tools?.listChanged) client.setNotificationHandler(ToolListChangedNotificationSchema, refresh);
+    catalog.replace(await readCatalog());
+    initializing = false;
+    if (dirty) void refresh();
+    Logger.info(`[MCP] Connected '${spec.name}' — registered ${catalog.names.length} tool(s).`);
+    return { name: spec.name, client, toolNames: catalog.names, spec, dispose };
   } catch (e: any) {
-    // A failed handshake/list/register must leave neither a child process nor half-registered tools.
-    try { await client?.close?.(); } catch { /* best-effort */ }
-    for (const [name, previous] of registered) {
-      if (previous) registry.register(previous);
-      else registry.unregister(name);
-    }
+    await dispose();
     const msg = e?.message || String(e);
-    Logger.warn(`[MCP] Failed to connect '${spec.name}': ${msg}`);
-    onError?.(msg);
+    if (!options.signal?.aborted) {
+      Logger.warn(`[MCP] Failed to connect '${spec.name}': ${msg}`);
+      onError?.(msg);
+    }
     return null;
   }
+}
+
+function callTimeoutMs(): number {
+  const configuredTimeout = Number(process.env.BIMAX_MCP_CALL_TIMEOUT_MS || 120000);
+  return Number.isFinite(configuredTimeout)
+    ? Math.min(Math.max(configuredTimeout, 1000), 10 * 60 * 1000)
+    : 120000;
 }
 
 /** Connect every configured server and register its tools. Returns the live connections. */

@@ -1,6 +1,6 @@
 // BiMax UI protocol — the wire contract between the engine (Node) and the out-of-process
 // front-end (the Go / Bubble Tea TUI in tui/). It exists so the engine's UI seam — the
-// `cliEvents` emitter (src/cli/events.ts) + the GlobalPrompter approval round-trip — can be
+// `engineEvents` emitter (src/engine/events.ts) + the GlobalPrompter approval round-trip — can be
 // driven over a pipe instead of in-process, WITHOUT touching engine logic. This is the sole
 // interactive path; it activates in headless mode, which the TUI always spawns.
 //
@@ -21,14 +21,25 @@
 // Additive, so the major stays 3 and the `catalog` feature flag gates it.
 export const PROTOCOL_VERSION = 3;
 /** Semantic wire release. Major compatibility remains available to v2 clients. */
-export const PROTOCOL_SEMVER = '3.2.0';
+export const PROTOCOL_SEMVER = '3.8.0';
 export const PROTOCOL_MIN_COMPATIBLE_MAJOR = 2;
 export const PROTOCOL_MAX_COMPATIBLE_MAJOR = 3;
 
 /** Negotiated features. Clients must hide/degrade features that are not advertised. */
 export const PROTOCOL_FEATURES = [
-  'approvals', 'boot', 'catalog', 'config', 'controls', 'health', 'interrupt', 'resume',
-  'review-snapshot', 'outcome-snapshot',
+  'rich-presentation',
+  'approvals',
+  'boot',
+  'catalog',
+  'config',
+  'controls',
+  'health',
+  'interrupt',
+  'resume',
+  'review-snapshot',
+  'outcome-snapshot',
+  'host-call',
+  'turn-tool-scope',
 ] as const;
 
 // A JSON-safe value. The codec guarantees only these cross the wire (sanitizeArgs strips the rest).
@@ -36,8 +47,12 @@ export type JsonValue = string | number | boolean | null | JsonValue[] | { [k: s
 
 // --- Outbound: engine → front-end ----------------------------------------------------------
 
-/** A forwarded `cliEvents` emit. `name` is the event, `args` its (sanitized) payload. */
-export interface EventMsg { t: 'event'; name: string; args: JsonValue[]; }
+/** A forwarded `engineEvents` emit. `name` is the event, `args` its (sanitized) payload. */
+export interface EventMsg {
+  t: 'event';
+  name: string;
+  args: JsonValue[];
+}
 
 /**
  * An approval / ask-user request that needs an answer before the engine can continue. This is
@@ -50,14 +65,34 @@ export interface RequestMsg {
   kind: 'prompt' | 'diff' | 'input'; // option-select | diff-approval | free-form text
   question: string;
   options: string[];
-  isAsk?: boolean;  // true for the AskUser tool (free-form) vs a governor yes/no/always veto
+  isAsk?: boolean; // true for the AskUser tool (free-form) vs a governor yes/no/always veto
   isMulti?: boolean; // true for multi-select checklists
-  body?: string;    // for kind:'diff', the unified diff to render before the choices
+  body?: string; // for kind:'diff', the unified diff to render before the choices
   masked?: boolean; // for kind:'input': the answer is a secret — render it as bullets, never echo
 }
 
+/**
+ * The engine asks the app that hosts it to do something only the app may do (record 65): look at an app's window
+ * (stage 2), press one control in it (stage 3), type into one box (stage 6, 3.5.0) or scroll it (3.6.0), for a Bimax
+ * Thread the user let do so. The app answers with a {@link HostResultMsg} of the same `id`. It travels on the engine's own channel, never a
+ * socket or an environment token, so nothing the engine runs (a shell command) can make the call. The app decides —
+ * grant, scope, whether a step needs the person's card, what the result may contain; the engine only asks.
+ */
+export type HostCapability = 'look' | 'press' | 'type' | 'scroll';
+
+export interface HostCallMsg {
+  t: 'host_call';
+  id: number;
+  capability: HostCapability;
+  op: string;
+  args: JsonValue;
+}
+
 /** Handshake — sent once when the host attaches, so the front-end can version-check. */
-export interface ReadyMsg { t: 'ready'; protocol: number; }
+export interface ReadyMsg {
+  t: 'ready';
+  protocol: number;
+}
 
 /**
  * Rich, additive handshake sent immediately before `ready`.
@@ -79,27 +114,39 @@ export interface HelloMsg {
 export interface CompletionItem {
   value: string; // the text to insert (e.g. "/git", "@handlePayment", "@./src/")
   label: string; // display label
-  desc: string;  // short description / category
+  desc: string; // short description / category
   kind: 'command' | 'symbol' | 'path';
   disabled?: boolean;
   disabledReason?: string;
 }
 
 /** Completions for a {@link QueryMsg}, correlated by `id` so stale results can be dropped. */
-export interface QueryResultMsg { t: 'queryResult'; id: number; items: CompletionItem[]; }
+export interface QueryResultMsg {
+  t: 'queryResult';
+  id: number;
+  items: CompletionItem[];
+}
 
 /** Liveness answer to a {@link PingMsg} — echoes `id` so the front-end can match it. */
-export interface PongMsg { t: 'pong'; id: number; }
+export interface PongMsg {
+  t: 'pong';
+  id: number;
+}
 
 /**
  * The engine's settings, answering a {@link ConfigGetMsg} or {@link ConfigSetMsg} — only the
- * allowlisted, JSON-safe subset of CliConfig crosses the wire (headless.entry owns the list).
+ * allowlisted, JSON-safe subset of EngineConfig crosses the wire (headless.entry owns the list).
  */
-export interface ConfigResultMsg { t: 'configResult'; id: number; config: { [k: string]: JsonValue }; }
+export interface ConfigResultMsg {
+  t: 'configResult';
+  id: number;
+  config: { [k: string]: JsonValue };
+}
 
 /**
- * Startup progress. Emitted on stdout BEFORE the protocol host attaches (boot.status.ts writes it
- * directly), so a supervising front-end can show real phases instead of an indefinite spinner.
+ * Startup progress. Emitted BEFORE the protocol host attaches (boot.status.ts writes it directly — on
+ * stdout, or on the worker's port when the engine is a worker thread in the app), so a supervising
+ * front-end can show real phases instead of an indefinite spinner.
  * Phases arrive in order; `ready` (the handshake) supersedes them all.
  */
 export interface BootMsg {
@@ -113,6 +160,9 @@ export interface BootMsg {
  * Periodic liveness heartbeat, emitted every few seconds once the engine is interactive. A stalled
  * stream of these means the event loop is wedged (or the process is gone) — the supervising
  * front-end distinguishes that from legitimate long work via `activeTurn`.
+ *
+ * When the engine is a worker thread in the app (record 64), `uptimeMs` and `rssMb` describe the
+ * whole app process, which is all Node reports inside a worker; `heapMb` is the engine's own isolate.
  */
 export interface HealthMsg {
   t: 'health';
@@ -120,7 +170,7 @@ export interface HealthMsg {
   rssMb: number;
   heapMb: number;
   eventLoopDelayMs: number; // p99 event-loop delay since the last heartbeat
-  activeTurn: boolean;      // a user turn is executing (long work is expected)
+  activeTurn: boolean; // a user turn is executing (long work is expected)
   phase: 'ready';
 }
 
@@ -163,6 +213,12 @@ export interface CatalogModelEntry {
   desc: string;
   /** 'coding' = Work, 'lite' = Quick, 'vision' = Vision, 'other' = needs its own key. */
   tier: 'coding' | 'vision' | 'lite' | 'other';
+  /** Curated slot recommendations. A model may appear in more than one slot. */
+  recommendedFor?: Array<'coding' | 'vision' | 'lite'>;
+  tags?: string[];
+  parameters?: string;
+  /** ISO release date from a curated first-party model card. */
+  releaseDate?: string;
   served: boolean;
   curated: boolean;
   avoidAutoSelect?: boolean;
@@ -191,52 +247,116 @@ export interface CatalogResultMsg {
   error?: string;
 }
 
-export type Outbound = EventMsg | RequestMsg | ReadyMsg | HelloMsg | QueryResultMsg | PongMsg | ConfigResultMsg | CatalogResultMsg | BootMsg | HealthMsg;
+export type Outbound =
+  | EventMsg
+  | RequestMsg
+  | ReadyMsg
+  | HelloMsg
+  | QueryResultMsg
+  | PongMsg
+  | ConfigResultMsg
+  | CatalogResultMsg
+  | BootMsg
+  | HealthMsg
+  | HostCallMsg;
 
 // --- Inbound: front-end → engine -----------------------------------------------------------
 
+/** The app's answer to a {@link HostCallMsg}, correlated by `id`. `error` is shown to the model as the tool's result. */
+export interface HostResultMsg {
+  t: 'host_result';
+  id: number;
+  ok: boolean;
+  value?: JsonValue;
+  error?: string;
+}
+
 /** The answer to a {@link RequestMsg}, correlated by `id`. */
-export interface ReplyMsg { t: 'reply'; id: number; value: string; }
+export interface ReplyMsg {
+  t: 'reply';
+  id: number;
+  value: string;
+}
 
 /** A submitted prompt line — a user turn OR a slash command (engine decides, as handleSubmit does). */
-export interface InputMsg { t: 'input'; text: string; }
+/** Host-selected per-turn tool boundary. It cannot install a tool or create host authority. */
+export interface TurnToolScope { names: string[]; required?: string }
+export interface InputMsg {
+  t: 'input';
+  text: string;
+  toolScope?: TurnToolScope;
+  /** User-visible words, without host context added to text. */
+  displayText?: string;
+}
 
 /** Cancel the in-flight turn (Ctrl-C / Esc in the front-end). */
-export interface InterruptMsg { t: 'interrupt'; }
+export interface InterruptMsg {
+  t: 'interrupt';
+}
+
+/**
+ * Words for the running turn (backlog F7): taken at its next step rather than after it ends. Sent when the task is
+ * idle, it is an ordinary input.
+ */
+export interface SteerMsg {
+  t: 'steer';
+  text: string;
+}
 
 /** Ask the engine for autocomplete candidates for the current input `text`. */
-export interface QueryMsg { t: 'query'; id: number; text: string; }
+export interface QueryMsg {
+  t: 'query';
+  id: number;
+  text: string;
+}
 
 /**
  * The user picked an option in an interactive menu. `id` correlates to the menu the engine emitted;
  * `value` is the chosen option's value. The engine runs that menu's `onSelect` (which can't cross the
  * wire as a callback) — falling back to dispatching `value` as a command for menus that have none.
  */
-export interface MenuSelectMsg { t: 'menuSelect'; id: string; value: string; }
+export interface MenuSelectMsg {
+  t: 'menuSelect';
+  id: string;
+  value: string;
+}
 
 /**
  * Liveness probe from the front-end. Answered immediately with a {@link PongMsg} — if the answer
  * doesn't come back, the engine's event loop is wedged (or the process is a zombie) and the
  * front-end can tell the user instead of showing a spinner forever.
  */
-export interface PingMsg { t: 'ping'; id: number; }
+export interface PingMsg {
+  t: 'ping';
+  id: number;
+}
 
 /** Read the engine's settings (allowlisted subset) — answered with a {@link ConfigResultMsg}. */
-export interface ConfigGetMsg { t: 'configGet'; id: number; }
+export interface ConfigGetMsg {
+  t: 'configGet';
+  id: number;
+}
 
 /**
  * Write settings: `patch` merges into the engine config (allowlisted keys only; unknown keys are
  * dropped, never errors). Answered with the post-write {@link ConfigResultMsg} and followed by a
  * `config_changed` event so every attached front-end (and ui_snapshot) refreshes.
  */
-export interface ConfigSetMsg { t: 'configSet'; id: number; patch: { [k: string]: JsonValue }; }
+export interface ConfigSetMsg {
+  t: 'configSet';
+  id: number;
+  patch: { [k: string]: JsonValue };
+}
 
 /**
  * Resume a saved session by id — the typed equivalent of the user running /resume. Lets a
  * graphical front-end's recovery flow restore a thread without synthesizing slash-command text.
  * Ignored (never an error) when the id doesn't resolve to a saved session.
  */
-export interface ResumeMsg { t: 'resume'; id: string; }
+export interface ResumeMsg {
+  t: 'resume';
+  id: string;
+}
 
 /**
  * Atomically apply shell controls. A graphical front-end must not synthesize several independent
@@ -257,7 +377,11 @@ export interface ControlsMsg {
  * session cache. Costs a request, so the front-end should only set it on an explicit user action
  * (opening the picker, pressing refresh, after saving a key).
  */
-export interface CatalogGetMsg { t: 'catalogGet'; id: number; refresh?: boolean; }
+export interface CatalogGetMsg {
+  t: 'catalogGet';
+  id: number;
+  refresh?: boolean;
+}
 
 /**
  * Switch the active provider, optionally saving a key for it first.
@@ -278,24 +402,72 @@ export interface ProviderSetMsg {
   apiKey?: string;
 }
 
-export type Inbound = ReplyMsg | InputMsg | InterruptMsg | QueryMsg | MenuSelectMsg | PingMsg | ConfigGetMsg | ConfigSetMsg | CatalogGetMsg | ProviderSetMsg | ResumeMsg | ControlsMsg;
+export type Inbound =
+  | ReplyMsg
+  | InputMsg
+  | InterruptMsg
+  | SteerMsg
+  | QueryMsg
+  | MenuSelectMsg
+  | PingMsg
+  | ConfigGetMsg
+  | ConfigSetMsg
+  | CatalogGetMsg
+  | ProviderSetMsg
+  | ResumeMsg
+  | ControlsMsg
+  | HostResultMsg;
 
 // --- Event vocabulary ----------------------------------------------------------------------
 
 // The serializable engine→UI signals forwarded verbatim (kept in sync with the contract block at
-// the bottom of src/cli/events.ts). `veto_prompt` is intentionally absent — it carries a callback
+// the bottom of src/engine/events.ts). `veto_prompt` is intentionally absent — it carries a callback
 // and is translated to a RequestMsg by the host instead.
 export const FORWARDED_EVENTS: readonly string[] = [
-  'log', 'message', 'tool_call', 'tool_call_result',
-  'spinner_state', 'status', 'mode_change', 'model_tier', 'set_tier',
-  'cost_update', 'todo_update', 'subagent_update', 'thinking', 'thinking_clear',
-  'config_changed', 'graph_changed', 'cwd_changed', 'mcp_changed',
-  'rerun_onboarding', 'shutdown', 'loop_detected', 'goals_changed',
+  'log',
+  'message',
+  'tool_call',
+  'tool_call_result',
+  'spinner_state',
+  'status',
+  'mode_change',
+  'model_tier',
+  'set_tier',
+  'cost_update',
+  'todo_update',
+  // F3: a task's completion checks and their last result (outcome/completion.check.ts).
+  'completion_check',
+  // F5: a run stopped at its time limit, so the front-end does not report it as done or as stopped by the user.
+  'turn_limit',
+  // F4: a task asks to be resumed by an event, or cancels that; the app keeps and delivers wakes.
+  'wake_request',
+  'wake_cancel',
+  // FL1 part 2: which files in a folder with an outcome are ready, and which need the person.
+  'folder_status',
+  // FL2: a plan of moves, shown as a preview the person rearranges and applies.
+  'organize_plan',
+  // F7: steering words were taken by the running turn ('steered'), or held for its next step ('steer_queued').
+  'steer_queued',
+  'steered',
+  'steer_unused',
+  'subagent_update',
+  'thinking',
+  'thinking_clear',
+  'config_changed',
+  'graph_changed',
+  'cwd_changed',
+  'mcp_changed',
+  'rerun_onboarding',
+  'shutdown',
+  'loop_detected',
+  'goals_changed',
   // /clear wipes the front-end transcript (the engine has no in-process UI to intercept it).
   'clear',
   // True resume: `{ id, entries }` — the saved thread's transcript (messages + tool lines) so a
   // graphical front-end can rebuild its scrollback, not just inject invisible context.
   'session_restore',
+  // A resume that could not happen: `{ id, reason }`, so a front-end waiting on that id says so instead of waiting forever.
+  'session_restore_failed',
   // Review domain: the current thread's derived review snapshot (plan, approvals, attributed
   // changes, verification runs, checkpoint state). Always a FULL snapshot — a reconnecting
   // front-end is correct again on the next emit.
@@ -305,6 +477,7 @@ export const FORWARDED_EVENTS: readonly string[] = [
   'outcome_update',
   // The driver re-emits each reply token here so the out-of-process front-end can render the stream.
   'stream_token',
+  'engine_notice',
   // Footer state read from engine singletons; snapshotted for the out-of-process front-end.
   'ui_snapshot',
 ];
@@ -313,6 +486,8 @@ export const FORWARDED_EVENTS: readonly string[] = [
 export const PROMPT_EVENT = 'veto_prompt';
 export const DIFF_PROMPT_EVENT = 'diff_prompt';
 export const INPUT_PROMPT_EVENT = 'input_prompt';
+/** `host_call(capability, op, args, resolve)` — the host turns it into a {@link HostCallMsg}; `resolve` gets the result. */
+export const HOST_CALL_EVENT = 'host_call';
 
 // React element brand — so a `message` event carrying a JSX `content`/`payload` doesn't blow up
 // JSON.stringify; we replace it with a placeholder the front-end can render generically.
@@ -332,7 +507,7 @@ export function sanitizeArgs(args: any[]): JsonValue[] {
     }
     return value;
   };
-  return args.map(a => {
+  return args.map((a) => {
     // Fast path: primitives are already JSON-safe, so skip the stringify→parse clone. This runs
     // once per streamed token (the hottest event on the wire) — avoiding two JSON passes per token
     // is the cheapest real win here; the final encode() stringifies the whole message exactly once.
@@ -342,7 +517,16 @@ export function sanitizeArgs(args: any[]): JsonValue[] {
     if (t === 'bigint') return (a as bigint).toString();
     if (t === 'function') return null;
     // Objects/arrays: clone through JSON to drop functions, mark React elements, ISO-ify Dates.
-    try { return JSON.parse(JSON.stringify(a, replacer)); }
-    catch { return null; }
+    try {
+      return JSON.parse(JSON.stringify(a, replacer));
+    } catch {
+      return null;
+    }
   });
 }
+
+// Whether changes are verified — the same verdict the engine's review lifecycle uses, for the window's end-of-run
+// summary (UI fix list item 41). The module imports nothing, as everything behind this door must
+// (app/src/__tests__/module.boundaries.test.ts).
+export { requiresBuildVerification, verificationState, verificationCovers } from '../review/review.verdict';
+export type { VerificationState, VerdictChange, VerdictRun } from '../review/review.verdict';
