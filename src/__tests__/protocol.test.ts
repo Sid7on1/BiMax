@@ -1,37 +1,13 @@
 import { EventEmitter } from 'events';
-import { encode, LineDecoder } from '../protocol/codec';
 import { ProtocolHost } from '../protocol/host';
 import {
   Outbound, Inbound, sanitizeArgs, PROTOCOL_VERSION, PROTOCOL_SEMVER,
   PROTOCOL_MIN_COMPATIBLE_MAJOR, PROTOCOL_MAX_COMPATIBLE_MAJOR,
 } from '../protocol/protocol';
 
-// The protocol is the keystone of the hybrid TUI split: it lets the unchanged Node engine drive
-// an out-of-process front-end. These tests pin the wire framing and the engine-side host's two
-// jobs — forwarding events out, and turning the GlobalPrompter callback into a request/reply.
-
-describe('codec — NDJSON framing', () => {
-  it('round-trips a message', () => {
-    const dec = new LineDecoder<Outbound>();
-    const [msg] = dec.push(encode({ t: 'ready', protocol: 1 }));
-    expect(msg).toEqual({ t: 'ready', protocol: 1 });
-  });
-
-  it('reassembles a message split across chunks and splits coalesced ones', () => {
-    const dec = new LineDecoder<any>();
-    expect(dec.push('{"t":"input",')).toEqual([]);          // partial line buffered
-    const out = dec.push('"text":"hi"}\n{"t":"interrupt"}\n'); // completion + a second message
-    expect(out).toEqual([{ t: 'input', text: 'hi' }, { t: 'interrupt' }]);
-  });
-
-  it('skips malformed lines via onError instead of throwing', () => {
-    const bad: string[] = [];
-    const dec = new LineDecoder<any>((line) => bad.push(line));
-    const out = dec.push('not json\n{"t":"interrupt"}\n');
-    expect(out).toEqual([{ t: 'interrupt' }]);
-    expect(bad).toEqual(['not json']);
-  });
-});
+// The protocol lets the engine drive a front-end it does not share code with. These tests pin the engine-side host's
+// two jobs — forwarding events out, and turning the GlobalPrompter callback into a request/reply. (The NDJSON codec
+// tests left with the codec in record 64's M4; the engine speaks over a MessagePort, see port.host.test.ts.)
 
 describe('sanitizeArgs', () => {
   it('nulls out functions and marks React elements, keeping JSON-safe data', () => {
@@ -74,7 +50,7 @@ describe('ProtocolHost', () => {
     expect(sent[1]).toEqual({ t: 'ready', protocol: PROTOCOL_VERSION });
   });
 
-  it('forwards a cliEvents emit as an event message with sanitized args', () => {
+  it('forwards a engineEvents emit as an event message with sanitized args', () => {
     emitter.emit('status', 'Indexing…');
     expect(sent).toContainEqual({ t: 'event', name: 'status', args: ['Indexing…'] });
   });
@@ -169,5 +145,30 @@ describe('ProtocolHost', () => {
     expect(emitter.listenerCount('status')).toBe(1);
     host.detach();
     expect(emitter.listenerCount('status')).toBe(0);
+  });
+});
+
+
+describe('pending approvals at a task boundary', () => {
+  it.each([{ t: 'interrupt' }, { t: 'input', text: '/clear force' }])('cancels requests for %j and ignores late approval', (message) => {
+    const emitter = new EventEmitter();
+    const resolve = jest.fn();
+    const resolved = jest.fn();
+    const interrupt = jest.fn();
+    const wire: Outbound[] = [];
+    const host = new ProtocolHost(msg => wire.push(msg), { onInterrupt: interrupt });
+    host.attach(emitter);
+    emitter.on('request_resolved', resolved);
+    try {
+      emitter.emit('veto_prompt', 'Write file?', ['Approve', 'Reject'], resolve);
+      const request = wire.find(msg => msg.t === 'request') as any;
+      host.ingest(message as Inbound);
+      expect(interrupt).toHaveBeenCalledTimes(1);
+      expect(resolve).toHaveBeenCalledWith('');
+      expect(host.pendingCount()).toBe(0);
+      expect(resolved).toHaveBeenCalledWith(expect.objectContaining({ interrupted: true }));
+      host.ingest({ t: 'reply', id: request.id, value: 'Approve' });
+      expect(resolve).toHaveBeenCalledTimes(1);
+    } finally { host.detach(); }
   });
 });

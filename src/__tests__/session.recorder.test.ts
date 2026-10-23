@@ -1,10 +1,10 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { SessionRecorder } from '../cli/session.recorder';
-import { messageEntriesToLLM } from '../cli/session';
+import { SessionRecorder } from '../engine/session.recorder';
+import { messageEntriesToLLM } from '../engine/session';
 import { endSessionMeta, flushSessionMeta, listSessionMeta, getCurrentSessionId } from '../db/session.meta';
-import { MessageEntry, ToolCallEntry } from '../cli/events';
+import { MessageEntry, ToolCallEntry } from '../engine/events';
 
 /**
  * The session recorder is the single producer behind every session surface (/sessions, /resume,

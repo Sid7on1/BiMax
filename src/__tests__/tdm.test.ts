@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { TestDependencyMap, relatedByConvention, testStem, isTestPath, importReachable } from '../substrate/tdm';
+import { TestDependencyMap, relatedByConvention, testStem, isTestPath, importReachable } from '../mind/tdm';
 import { EpistemicLedger } from '../mind/epistemic.ledger';
 
 describe('TDM (v2 §3.4) — the check ↔ file map behind evidence attribution', () => {

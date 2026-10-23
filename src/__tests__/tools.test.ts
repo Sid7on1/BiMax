@@ -356,3 +356,15 @@ describe('Degenerate AskUserTool guard', () => {
     expect(detectDegenerateAsk("The folder 'math' already exists. What should I do?", ['Overwrite', 'Cancel', 'Tell me what else to do'])).toBeNull();
   });
 });
+
+
+it('does not write when cancellation arrives during approval', async () => {
+  const controller = new AbortController();
+  const approval = { approveTaskExecution: jest.fn(async () => { controller.abort(); }) } as unknown as IGovernor;
+  const tool = createWriteFileTool(approval);
+  const target = path.join(dir, 'cancelled.txt');
+  await expect(tool.execute({ path: target, content: 'must not land' }, {
+    cwd: dir, signal: controller.signal,
+  })).rejects.toThrow();
+  await expect(fs.stat(target)).rejects.toMatchObject({ code: 'ENOENT' });
+});

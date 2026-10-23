@@ -15,7 +15,7 @@ describe('openSqlite adapter', () => {
     expect(sqliteFlavor()).toBe('node'); // jest runs on Node ≥22 → node:sqlite
   });
 
-  it('exec/prepare/get/all/run round-trip and survive reopen', () => {
+  it('exec/prepare/get/all/run/iterate round-trip and survive reopen', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'bgw-sqlite-'));
     const dbPath = path.join(dir, 'x.db');
     try {
@@ -26,6 +26,7 @@ describe('openSqlite adapter', () => {
       db.prepare('INSERT INTO kv (k, v) VALUES (?, ?)').run('b', '2');
       expect(db.prepare('SELECT v FROM kv WHERE k = ?').get('a').v).toBe('1');
       expect(db.prepare('SELECT COUNT(*) AS n FROM kv').get().n).toBe(2);
+      expect([...db.prepare('SELECT k FROM kv ORDER BY k').iterate()].map((r) => r.k)).toEqual(['a', 'b']);
       db.close();
 
       // "Restart": a brand-new handle on the same file must see the committed rows.

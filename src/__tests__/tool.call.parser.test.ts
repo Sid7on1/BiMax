@@ -1,3 +1,4 @@
+import { cleanToolName } from '../core/tool.call.parser';
 import { extractTextToolCalls } from '../core/tool.call.parser';
 
 // Pretend BashTool and ReadFileTool are registered; nothing else is.
@@ -95,4 +96,13 @@ describe('extractTextToolCalls — safety: never touches non-tool JSON', () => {
     const r = extractTextToolCalls('I would use BashTool for that.', isRegistered);
     expect(r.toolCalls).toHaveLength(0);
   });
+});
+
+
+test('a harmony token glued to a tool name is stripped, so the call runs under its real name (backlog Q1)', () => {
+  expect(cleanToolName('AskUserTool<|channel|>commentary')).toBe('AskUserTool');
+  expect(cleanToolName('functions.ReadFileTool')).toBe('ReadFileTool');
+  expect(cleanToolName('ReadFileTool')).toBe('ReadFileTool');
+  const { toolCalls } = extractTextToolCalls('{"name":"ReadFileTool<|channel|>commentary","arguments":{"path":"a.ts"}}', (name) => name === 'ReadFileTool');
+  expect(toolCalls.map((call) => call.name)).toEqual(['ReadFileTool']);
 });
