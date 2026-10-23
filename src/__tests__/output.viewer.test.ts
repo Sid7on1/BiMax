@@ -1,7 +1,7 @@
-import '../cli/commands/output';
-import { globalCommandRegistry } from '../cli/commands/registry';
-import { recordToolCall, getRecentToolCalls, clearToolHistory } from '../cli/toolHistory';
-import type { ToolCallEntry } from '../cli/events';
+import '../engine/commands/output';
+import { globalCommandRegistry } from '../engine/commands/registry';
+import { recordToolCall, getRecentToolCalls, clearToolHistory } from '../engine/toolHistory';
+import type { ToolCallEntry } from '../engine/events';
 
 function getCmd(name: string): any {
   return (globalCommandRegistry as any).commands.get(name);

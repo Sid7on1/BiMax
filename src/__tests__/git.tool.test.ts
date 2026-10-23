@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { execFileSync } from 'child_process';
+import { execFileSync, execSync } from 'child_process';
 import { createGitTool } from '../tools/implementations/git.tool';
 import { setGitAutoCommitEnabled, gitAutoCommitHook } from '../tools/git.autocommit';
 import { IGovernor } from '../core/interfaces';
@@ -70,6 +70,39 @@ describe('gitAutoCommitHook (B1)', () => {
     setGitAutoCommitEnabled(false);
     await gitAutoCommitHook('EditFileTool', { path: 'f.txt' }, 'Edited f.txt', { cwd: dir });
     expect(lastLog(dir)).not.toContain('bimax auto');
+  });
+
+  it('commits only the file the edit wrote, never the user\'s other uncommitted work', async () => {
+    // It was `git add -A`: whatever the user was halfway through went into a "bimax auto" commit.
+    fs.writeFileSync(path.join(dir, 'f.txt'), 'x\n');
+    fs.writeFileSync(path.join(dir, 'mine.txt'), 'my own work in progress\n');
+    setGitAutoCommitEnabled(true);
+    await gitAutoCommitHook('EditFileTool', { path: 'f.txt' }, 'Edited f.txt (1 replacement)', { cwd: dir });
+    expect(lastLog(dir)).toContain('bimax auto: EditFileTool f.txt');
+    const committed = execSync('git show --name-only --format= HEAD', { cwd: dir }).toString().split('\n').filter(Boolean);
+    expect(committed).toEqual(['f.txt']);
+    // Untouched: not committed, and not even staged — the user's index is theirs.
+    expect(execSync('git status --porcelain', { cwd: dir }).toString()).toContain('?? mine.txt');
+  });
+
+  it('leaves what the user had already staged staged, not committed', async () => {
+    fs.writeFileSync(path.join(dir, 'staged.txt'), 'ready for my own commit\n');
+    execSync('git add staged.txt', { cwd: dir });
+    fs.writeFileSync(path.join(dir, 'f.txt'), 'x\n');
+    setGitAutoCommitEnabled(true);
+    await gitAutoCommitHook('EditFileTool', { path: 'f.txt' }, 'Edited f.txt', { cwd: dir });
+    const committed = execSync('git show --name-only --format= HEAD', { cwd: dir }).toString().split('\n').filter(Boolean);
+    expect(committed).toEqual(['f.txt']);
+    expect(execSync('git status --porcelain', { cwd: dir }).toString()).toContain('A  staged.txt');
+  });
+
+  it('commits every file a multi-file edit wrote', async () => {
+    fs.writeFileSync(path.join(dir, 'a.txt'), 'a\n');
+    fs.writeFileSync(path.join(dir, 'b.txt'), 'b\n');
+    setGitAutoCommitEnabled(true);
+    await gitAutoCommitHook('MultiEditTool', { edits: [{ path: 'a.txt' }, { path: 'b.txt' }, { path: 'a.txt' }] }, 'Applied 3 edits', { cwd: dir });
+    const committed = execSync('git show --name-only --format= HEAD', { cwd: dir }).toString().split('\n').filter(Boolean).sort();
+    expect(committed).toEqual(['a.txt', 'b.txt']);
   });
 
   it('skips when the edit result indicates failure', async () => {

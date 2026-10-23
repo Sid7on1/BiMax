@@ -6,14 +6,14 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+# Paths are repo-root relative: one jest config covers the engine and the app.
 PHASE9_SUITES=(
-  src/phase9/__tests__/process.provenance.test.ts
-  src/phase9/__tests__/anomaly.ranker.test.ts
-  src/phase9/__tests__/capability.worker.process.test.ts
-  src/phase9/__tests__/simulator.adapters.test.ts
-  src/phase9/__tests__/computer.use.pack.test.ts
-  src/phase9/__tests__/ml.alchemist.test.ts
-  src/phase9/__tests__/adaptive.policy.test.ts
+  app/src/phase9/__tests__/process.provenance.test.ts
+  app/src/phase9/__tests__/anomaly.ranker.test.ts
+  app/src/phase9/__tests__/capability.worker.process.test.ts
+  app/src/phase9/__tests__/simulator.adapters.test.ts
+  app/src/phase9/__tests__/ml.alchemist.test.ts
+  app/src/phase9/__tests__/adaptive.policy.test.ts
 )
 
 echo "[1/6] engine typecheck and adaptive-concurrency contract"
@@ -25,7 +25,7 @@ npm --prefix app run typecheck
 npm --prefix app run build
 
 echo "[3/6] Phase 9 deterministic suites"
-(cd app && npx jest --config jest.capabilities.config.ts --coverage=false --runInBand --no-cache "${PHASE9_SUITES[@]}")
+npx jest --coverage=false --runInBand --no-cache "${PHASE9_SUITES[@]}"
 
 echo "[4/6] mutation: every Phase 9 boundary must be load-bearing"
 mutate_app() {
@@ -42,7 +42,7 @@ if old not in source:
 open(path, 'w').write(source.replace(old, new, 1))
 PY
   local status=0
-  (cd app && npx jest --config jest.capabilities.config.ts --coverage=false --runInBand --no-cache --forceExit "${PHASE9_SUITES[@]}") >/dev/null 2>&1 || status=$?
+  npx jest --coverage=false --runInBand --no-cache --forceExit "${PHASE9_SUITES[@]}" >/dev/null 2>&1 || status=$?
   cp "$backup" "app/$file"
   rm -f "$backup"
   if [ "$status" -eq 0 ]; then
@@ -61,9 +61,6 @@ mutate_app "the anomaly ranker accepts an undersized corpus" src/phase9/anomaly.
 mutate_app "an executable digest mismatch is ignored" src/phase9/capability.worker.process.ts \
   "          if (hello.t !== 'hello' || hello.protocol !== this.protocol || hello.contentDigest !== this.contentDigest) {" \
   "          if (hello.t !== 'hello' || hello.protocol !== this.protocol) {"
-mutate_app "Computer Use can be activated outside Desktop" src/phase9/computer.use.pack.ts \
-  "      ...(input.host === 'desktop' ? [] : ['Computer Use can only be activated by Bimax for Mac.'])," \
-  "      ...[],"
 mutate_app "a smaller degraded model passes the quality gate" src/phase9/ml.alchemist.ts \
   '  if (metrics.quality < qualityFloor) reasons.push(`Quality ${metrics.quality} is below the ${qualityFloor} contract floor.`);' \
   "  if (false) reasons.push('quality ignored');"

@@ -28,6 +28,24 @@ afterAll(() => {
 describe('AgentLoop — fallback model chain', () => {
   afterEach(() => {
     delete process.env.BIMAX_FALLBACK_MODEL;
+    delete process.env.BIMAX_DESKTOP_STRICT_MODEL;
+  });
+
+  it('never retries or fails over when Desktop locks the exact model', async () => {
+    process.env.BIMAX_DESKTOP_STRICT_MODEL = 'stepfun-ai/step-3.7-flash';
+    process.env.BIMAX_FALLBACK_MODEL = 'backup-model';
+    const { llm, applied } = makeFailoverLlm({ type: 'error', message: 'stream stalled', recoverable: true, kind: 'transient' });
+    let calls = 0;
+    const original = (llm as any).chat.bind(llm);
+    (llm as any).chat = async function* (...args: any[]) { calls++; yield* original(...args); };
+
+    const loop = new AgentLoop(llm, new ToolRegistry(), null as any);
+    let out = '';
+    for await (const token of loop.execute([{ role: 'user', content: 'go' }], 'sys', { maxIterations: 10 })) out += token;
+
+    expect(calls).toBe(1);
+    expect(applied).toEqual([]);
+    expect(out).toContain('provider returned an error');
   });
 
   // An LLM whose chat() fails until applyConfig() switches the model, then succeeds.
@@ -51,6 +69,62 @@ describe('AgentLoop — fallback model chain', () => {
     };
     return { llm: llm as unknown as LLMProvider, applied };
   }
+
+  it('a lite-routed turn fails over its QUICK model, not just the work model (measured live 2026-09-28)', async () => {
+    process.env.BIMAX_FALLBACK_MODEL = 'backup-model';
+    const applied: any[] = [];
+    let quick = 'stalled-quick';
+    const models: string[] = [];
+    const llm = {
+      userModel: 'stalled-quick',
+      liteModel: 'stalled-quick',
+      applyConfig(cfg: any) {
+        applied.push(cfg);
+        if (cfg.model) (llm as any).userModel = cfg.model;
+        if (cfg.liteModel) { quick = cfg.liteModel; (llm as any).liteModel = cfg.liteModel; }
+      },
+      async *chat(_m: any, opts: any): AsyncGenerator<ChatEvent> {
+        const model = opts?.lite ? quick : (llm as any).userModel;
+        models.push(model);
+        if (model === 'stalled-quick') {
+          yield { type: 'error', message: 'stream stalled', recoverable: true, kind: 'transient', retryAfterSecs: 0 };
+        } else {
+          yield { type: 'token', text: `Answered on ${model}.` };
+          yield { type: 'done' };
+        }
+      },
+    };
+    const loop = new AgentLoop(llm as unknown as LLMProvider, new ToolRegistry(), null as any);
+    let out = '';
+    for await (const t of loop.execute([{ role: 'user', content: 'go' }], 'sys', { maxIterations: 10, useLite: true } as any)) out += t;
+    expect(applied).toContainEqual({ model: 'backup-model', liteModel: 'backup-model' });
+    expect(models[models.length - 1]).toBe('backup-model');
+    expect(out).toContain('Answered on backup-model.');
+  });
+
+  it('when only the quick model fails, the healthy work model can be its fallback', async () => {
+    process.env.BIMAX_FALLBACK_MODEL = 'healthy-work';
+    let quick = 'stalled-quick';
+    const llm = {
+      userModel: 'healthy-work',
+      liteModel: 'stalled-quick',
+      applyConfig(cfg: any) { if (cfg.liteModel) quick = cfg.liteModel; if (cfg.model) (llm as any).userModel = cfg.model; },
+      async *chat(_m: any, opts: any): AsyncGenerator<ChatEvent> {
+        const model = opts?.lite ? quick : (llm as any).userModel;
+        if (model === 'stalled-quick') {
+          yield { type: 'error', message: 'stream stalled', recoverable: true, kind: 'transient', retryAfterSecs: 0 };
+        } else {
+          yield { type: 'token', text: `Answered on ${model}.` };
+          yield { type: 'done' };
+        }
+      },
+    };
+    const loop = new AgentLoop(llm as unknown as LLMProvider, new ToolRegistry(), null as any);
+    let out = '';
+    for await (const t of loop.execute([{ role: 'user', content: 'go' }], 'sys', { maxIterations: 10, useLite: true } as any)) out += t;
+    // The fallback equals the WORK model, which is fine: it is not the model that failed.
+    expect(out).toContain('Answered on healthy-work.');
+  });
 
   it('fails over after the transient budget is exhausted and completes on the fallback', async () => {
     process.env.BIMAX_FALLBACK_MODEL = 'backup-model';
@@ -124,9 +198,14 @@ describe('AgentLoop — fallback model chain', () => {
       expect(applied.map(a => a.model)).not.toContain('known-dead-model');
     });
 
-    it('skips a fallback the catalog bars from automatic selection', async () => {
+    it('HONORS a configured fallback the catalog bars from automatic selection', async () => {
+      // This asserted the opposite until 2026-09-02, and the assertion was the bug. `avoidAutoSelect`
+      // gates the models the machine may pick BY ITSELF; BIMAX_FALLBACK_MODEL is a value the user
+      // set. Letting the flag override it discarded a configured `nemotron-3.5-lightning-30b-a3b`
+      // (6.7s, calls tools) for carrying the note "task probe pending", and derived a replacement
+      // the provider does not serve — turning a working fallback into a dead turn.
       // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const { MODEL_CATALOG } = require('../cli/models') as typeof import('../cli/models');
+      const { MODEL_CATALOG } = require('../engine/models') as typeof import('../engine/models');
       const avoided = MODEL_CATALOG.find(m => m.avoidAutoSelect)!.value;
       process.env.BIMAX_FALLBACK_MODEL = avoided;
       const { llm, applied } = makeFailoverLlm(hardFail);
@@ -135,16 +214,21 @@ describe('AgentLoop — fallback model chain', () => {
       const loop = new AgentLoop(llm, new ToolRegistry(), null as any);
       for await (const _ of loop.execute([{ role: 'user', content: 'go' }], 'sys', { maxIterations: 10 })) { /* drain */ }
 
-      expect(applied.map(a => a.model)).not.toContain(avoided);
+      expect(applied.map(a => a.model)).toContain(avoided);
     });
 
-    it('derives a served model when the configured fallback is unusable', async () => {
+    it('derives a served model when the configured fallback is disqualified BY EVIDENCE', async () => {
+      // The other half of the split: once the provider has actually rejected the configured value,
+      // it is disqualified and derivation takes over — and derivation DOES respect the catalogue
+      // bar, so it must not land on the avoided model even though the provider serves it.
       // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const { MODEL_CATALOG } = require('../cli/models') as typeof import('../cli/models');
+      const { MODEL_CATALOG, autoSelectCandidates } = require('../engine/models') as typeof import('../engine/models');
       const avoided = MODEL_CATALOG.find(m => m.avoidAutoSelect)!.value;
-      const good = MODEL_CATALOG.find(m => m.tier === 'coding' && !m.avoidAutoSelect)!.value;
+      // Ask the policy which model it would pick, rather than restating the rule with a different one.
+      const good = autoSelectCandidates('coding', MODEL_CATALOG.map(m => m.value))[0];
       process.env.BIMAX_FALLBACK_MODEL = avoided;
       const { llm, applied } = makeFailoverLlm(hardFail);
+      (llm as any).isUnservable = (id: string) => id === avoided;
       (llm as any).listProviderModels = async () => [avoided, good];
 
       const loop = new AgentLoop(llm, new ToolRegistry(), null as any);

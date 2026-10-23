@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { readIdeSelection, formatSelectionBlock } from '../cli/ideSelection';
+import { readIdeSelection, formatSelectionBlock } from '../engine/ideSelection';
 
 // The IDE selection bridge is BiMax's portable, dependency-free answer to OpenCode's Zed-SQLite
 // read: an editor writes the selected range to a handoff and `@selection` injects it. These

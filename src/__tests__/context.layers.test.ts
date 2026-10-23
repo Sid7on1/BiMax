@@ -102,7 +102,7 @@ describe('ContextManager — layered passes (smart vs full)', () => {
     const tools = out.filter(m => m.role === 'tool');
     expect(tools).toHaveLength(10); // none dropped — pairing preserved
     // First 4 cleared, last 6 kept.
-    expect(tools.slice(0, 4).every(t => t.content === '[tool result cleared to save context]')).toBe(true);
+    expect(tools.slice(0, 4).every(t => String(t.content).startsWith('[tool result cleared to save context'))).toBe(true);
     expect(tools.slice(-6).map(t => t.content)).toEqual(
       ['result-4', 'result-5', 'result-6', 'result-7', 'result-8', 'result-9'],
     );
@@ -274,4 +274,17 @@ describe('ContextManager — compaction hygiene (no transient accumulation)', ()
     const second = await cm.checkAndCompact([...messages], 'smart');
     expect(second.some(m => contentToText(m.content).includes('OVERHEAD-SUMMARY'))).toBe(true);
   });
+});
+
+
+it('RepoMap opt-out removes a stale map and stops refresh for the actual context pass', async () => {
+  const previous = process.env.BIMAX_REPO_MAP; process.env.BIMAX_REPO_MAP = '0';
+  try {
+    const manager = new ContextManager(noopLlm, 128000);
+    const out = await manager.checkAndCompact([
+      { role: 'system', content: '[RepoMap] old outline' }, { role: 'user', content: 'fix auth' },
+    ]);
+    expect(out.some(m => contentToText(m.content).startsWith('[RepoMap]'))).toBe(false);
+    expect(out.some(m => m.content === 'fix auth')).toBe(true);
+  } finally { if (previous === undefined) delete process.env.BIMAX_REPO_MAP; else process.env.BIMAX_REPO_MAP = previous; }
 });

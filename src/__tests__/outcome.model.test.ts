@@ -83,7 +83,7 @@ describe('OutcomeManager persistence and review integration', () => {
       id: 'tests', description: 'Tests pass', verification: 'build_test',
     }]);
     manager.setTasks([{ id: 'implementation', title: 'Implement runtime', status: 'completed' }]);
-    manager.onBuildEvidence({ command: 'npm test', ok: true });
+    manager.onBuildEvidence({ command: 'npm test', ok: true, repoWide: true });
     expect(manager.snapshot()).toMatchObject({ canComplete: true, passed: 1, required: 1 });
 
     manager.onMutation();

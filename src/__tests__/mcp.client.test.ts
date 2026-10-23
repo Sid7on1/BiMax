@@ -2,7 +2,12 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { loadMcpServers } from '../mcp/config';
-import { approvalHandledByAppOwnedProvider, listAllMcpTools, registerMcpTools } from '../mcp/client';
+import {
+  approvalHandledByMotionProvider,
+  listAllMcpTools,
+  mcpToolCallRequest,
+  registerMcpTools,
+} from '../mcp/client';
 import { ToolRegistry } from '../tools/tool.registry';
 import { IGovernor } from '../core/interfaces';
 
@@ -85,9 +90,16 @@ describe('registerMcpTools (A3, integration)', () => {
 
 describe('host-provider catalog contract', () => {
   test('only the app-owned Mac entrypoint skips the duplicate generic governor prompt', () => {
-    expect(approvalHandledByAppOwnedProvider('bimax-mac', 'mac_control')).toBe(true);
-    expect(approvalHandledByAppOwnedProvider('bimax-mac', 'other_tool')).toBe(false);
-    expect(approvalHandledByAppOwnedProvider('third-party', 'mac_control')).toBe(false);
+    expect(approvalHandledByMotionProvider('bimax-mac', 'mac_control')).toBe(true);
+    expect(approvalHandledByMotionProvider('bimax-mac', 'other_tool')).toBe(false);
+    expect(approvalHandledByMotionProvider('third-party', 'mac_control')).toBe(false);
+  });
+
+  test('a tool call request carries no Computer Use plan envelope', () => {
+    // The signed `_meta.bimaxTrustedPlan` envelope went with the code-only reset — see
+    // archive/computer-use/. A request is now name + arguments and nothing else.
+    expect(mcpToolCallRequest('bimax-mac', 'mac_control', { action: 'open' }))
+      .toEqual({ name: 'mac_control', arguments: { action: 'open' } });
   });
 
   test('collects every page and returns a deterministic tool order', async () => {

@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import * as loader from '../cli/env.loader';
+import * as loader from '../engine/env.loader';
 
 // These tests drive the real secrets loader against a throwaway directory (via BIMAX_BREAKGLASS_DIR)
 // so they exercise the exact migration path a fresh/legacy install hits — no mocking of fs. POSIX

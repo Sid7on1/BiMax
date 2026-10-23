@@ -142,3 +142,62 @@ describe('AgentLoop — scoped pure-reasoning output escalation', () => {
     )).toBe(true);
   });
 });
+
+describe('AgentLoop — provider-required reasoning replay', () => {
+  beforeEach(() => { process.env.BIMAX_RECORDER = '0'; });
+  afterEach(() => { delete process.env.BIMAX_RECORDER; jest.restoreAllMocks(); });
+
+  function registryWithNoop(): ToolRegistry {
+    const registry = new ToolRegistry();
+    registry.register({
+      name: 'noop', description: 'No-op tool', schema: {}, isDestructive: false,
+      isConcurrencySafe: true, execute: async () => 'tool completed',
+    } as any);
+    return registry;
+  }
+
+  it('replays Kimi-style reasoning_content with the assistant tool-call message', async () => {
+    const calls: Message[][] = [];
+    const llm: LLMProvider = {
+      async *chat(messages: Message[]): AsyncGenerator<ChatEvent> {
+        calls.push(messages.map((message) => ({ ...message })));
+        if (calls.length === 1) {
+          yield { type: 'thinking', text: 'provider reasoning', replay: true };
+          yield { type: 'tool_call', id: 'tool-1', name: 'noop', args: '{}' };
+        } else {
+          yield { type: 'token', text: 'Finished.' };
+        }
+        yield { type: 'done' };
+      },
+    };
+
+    await run(new AgentLoop(llm, registryWithNoop(), null as any));
+
+    const replayed = calls[1].find((message) => message.role === 'assistant' && message.tool_calls?.length);
+    expect(replayed).toEqual(expect.objectContaining({
+      reasoning_content: 'provider reasoning',
+      tool_calls: [expect.objectContaining({ id: 'tool-1' })],
+    }));
+  });
+
+  it('does not persist ordinary hidden thinking when replay is not required', async () => {
+    const calls: Message[][] = [];
+    const llm: LLMProvider = {
+      async *chat(messages: Message[]): AsyncGenerator<ChatEvent> {
+        calls.push(messages.map((message) => ({ ...message })));
+        if (calls.length === 1) {
+          yield { type: 'thinking', text: 'private reasoning' };
+          yield { type: 'tool_call', id: 'tool-1', name: 'noop', args: '{}' };
+        } else {
+          yield { type: 'token', text: 'Finished.' };
+        }
+        yield { type: 'done' };
+      },
+    };
+
+    await run(new AgentLoop(llm, registryWithNoop(), null as any));
+
+    const replayed = calls[1].find((message) => message.role === 'assistant' && message.tool_calls?.length);
+    expect(replayed?.reasoning_content).toBeUndefined();
+  });
+});

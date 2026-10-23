@@ -2,7 +2,7 @@ import { execFileSync } from 'child_process';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { getGitStatus, isGitRepo, gitLog, gitDiff } from '../cli/git';
+import { getGitStatus, isGitRepo, gitLog, gitDiff } from '../engine/git';
 
 // A non-repository launch must be a supported, QUIET state — no `fatal: not a git repository`
 // spilling to stderr. We both assert the in-process contract (null / false, never throws) AND spawn

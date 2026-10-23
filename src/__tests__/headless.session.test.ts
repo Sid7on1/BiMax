@@ -1,6 +1,7 @@
-import { cliEvents } from '../cli/events';
+import { engineEvents } from '../engine/events';
 import { HeadlessSession } from '../protocol/headless.session';
-import '../cli/commands/meta';
+import '../engine/commands/meta';
+import { globalCommandRegistry } from '../engine/commands/registry';
 
 // The headless session must honor /tier identically to Ink's FullScreen: a set_tier event pins the
 // model tier and reflects it in the footer via a model_tier emit. (Routing itself is exercised at
@@ -12,12 +13,12 @@ describe('HeadlessSession — set_tier routing parity', () => {
 
     const seen: any[] = [];
     const onTier = (p: any) => seen.push(p);
-    cliEvents.on('model_tier', onTier);
+    engineEvents.on('model_tier', onTier);
     try {
-      cliEvents.emit('set_tier', 'heavy');
-      cliEvents.emit('set_tier', 'auto');
+      engineEvents.emit('set_tier', 'heavy');
+      engineEvents.emit('set_tier', 'auto');
     } finally {
-      cliEvents.off('model_tier', onTier);
+      engineEvents.off('model_tier', onTier);
     }
 
     expect(seen).toEqual([
@@ -41,11 +42,11 @@ describe('HeadlessSession — set_tier routing parity', () => {
     });
     const messages: any[] = [];
     const onMessage = (message: any) => messages.push(message);
-    cliEvents.on('message', onMessage);
+    engineEvents.on('message', onMessage);
     try {
       await expect(session.dispatchAutonomous('Implement the next outcome step.')).resolves.toBe('completed');
     } finally {
-      cliEvents.off('message', onMessage);
+      engineEvents.off('message', onMessage);
     }
     expect(execute).toHaveBeenCalledTimes(1);
     expect(messages.some(message => message.role === 'user')).toBe(false);
@@ -83,4 +84,128 @@ describe('HeadlessSession — set_tier routing parity', () => {
     await turn;
     expect(execute).toHaveBeenCalledTimes(1);
   });
+});
+
+// A menu crosses the wire as a MessageEntry whose payload carries the id the engine keyed its
+// registry on. Both ids used to differ (`ui-…` on the entry, `menu-N` in the registry), so a
+// front-end replying with the message id matched nothing: `selectMenu` fell through to
+// "dispatch the value as a command", and every option whose value is NOT a command (a model id,
+// a rule index, `__custom__`) silently did nothing.
+describe('HeadlessSession — menu id + label contract', () => {
+  function emitAndCapture(menu: any): { entry: any; session: HeadlessSession } {
+    const session = new HeadlessSession({ personas: {}, options: {}, graphStore: {} as any });
+    const seen: any[] = [];
+    const onMessage = (m: any) => { if (m.uiComponent === 'menu') seen.push(m); };
+    engineEvents.on('message', onMessage);
+    try {
+      (session as any).emitMenu(menu);
+    } finally {
+      engineEvents.off('message', onMessage);
+    }
+    return { entry: seen[0], session };
+  }
+
+  it('emits one id on both the message and its payload, and that id runs onSelect', () => {
+    const onSelect = jest.fn();
+    const { entry, session } = emitAndCapture({
+      title: 'Pick a model',
+      options: [{ label: 'Fast', value: 'vendor/fast-model' }],
+      onSelect,
+    });
+
+    expect(entry.payload.id).toBe(entry.id);
+
+    // Replying with the MESSAGE id (what the desktop renderer has) must reach the real handler.
+    session.selectMenu(entry.id, 'vendor/fast-model');
+    expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ value: 'vendor/fast-model' }));
+  });
+
+  it('strips terminal bracket decoration from option labels but never from values', () => {
+    const { entry } = emitAndCapture({
+      title: 'Codebase Map',
+      options: [
+        { label: '[ Start Indexing ]', value: '/index force' },
+        { label: 'Skip', value: '' },
+      ],
+    });
+    expect(entry.payload.options.map((o: any) => o.label)).toEqual(['Start Indexing', 'Skip']);
+    expect(entry.payload.options[0].value).toBe('/index force');
+  });
+});
+
+
+describe('HeadlessSession — clear drains the previous turn', () => {
+  it('clears every persona after cancellation settles before admitting the next input', async () => {
+    let started!: () => void;
+    const ready = new Promise<void>(resolve => { started = resolve; });
+    let release!: () => void;
+    const drain = new Promise<void>(resolve => { release = resolve; });
+    let oldSignal!: AbortSignal;
+    const persona: any = { messages: [{ role: 'user', content: 'old task' }], resetContextSession: jest.fn() };
+    persona.execute = jest.fn(async (prompt: string, onToken: any, options: any) => {
+      if (prompt === 'perform the old coding task') {
+        oldSignal = options.signal;
+        started();
+        await drain;
+        persona.messages.push({ role: 'assistant', content: 'late old result' });
+        onToken('late old result');
+      } else {
+        expect(persona.messages).toEqual([]);
+        onToken('new result');
+      }
+    });
+    const other: any = { messages: [{ role: 'assistant', content: 'other old task' }], resetContextSession: jest.fn() };
+    const session = new HeadlessSession({ personas: { bimax: persona, other }, options: {
+      llmAdapter: { userModel: 'model', liteModel: 'model' }, governor: { mode: 'default' },
+    }, graphStore: {} as any });
+    const events: string[] = [];
+    const onClear = () => events.push('clear');
+    const onToken = (token: string) => events.push(token);
+    engineEvents.on('clear', onClear);
+    engineEvents.on('stream_token', onToken);
+    try {
+      const old = session.dispatch('perform the old coding task');
+      await ready;
+      const clear = session.dispatch('/clear force');
+      const next = session.dispatch('perform the new coding task');
+      expect(oldSignal.aborted).toBe(true);
+      expect(events).toEqual([]);
+      release();
+      await Promise.all([old, clear, next]);
+      expect(events).toEqual(['late old result', 'clear', 'new result']);
+      expect(other.messages).toEqual([]);
+      expect(persona.execute).toHaveBeenCalledTimes(2);
+      expect(other.resetContextSession).toHaveBeenCalled();
+    } finally {
+      engineEvents.off('clear', onClear);
+      engineEvents.off('stream_token', onToken);
+    }
+  });
+});
+
+
+it('does not announce or emit clear when history replacement is refused', async () => {
+  const onClear = jest.fn();
+  engineEvents.on('clear', onClear);
+  try {
+    const result = await globalCommandRegistry.execute('/clear force', {
+      restoreMessages: () => false,
+    } as any);
+    expect(onClear).not.toHaveBeenCalled();
+    expect(result).toMatchObject({ type: 'message', level: 'info' });
+    expect((result as any).content).toContain('still busy');
+  } finally { engineEvents.off('clear', onClear); }
+});
+
+test('a host-scoped hello uses the full persona with exactly that scope and separate visible words', async () => {
+ const execute=jest.fn(async (_prompt:string,token:(s:string)=>void)=>{token('Observed fixture.');return '';});
+ const converse=jest.fn(),persona={messages:[],execute,converse} as any;
+ const session=new HeadlessSession({personas:{bimax:persona},options:{llmAdapter:{userModel:'same',liteModel:'same'},maxToolIterations:5},graphStore:{} as any});
+ const messages:any[]=[],listener=(m:any)=>messages.push(m);engineEvents.on('message',listener);
+ try {await session.dispatch('hello',{names:['NativeHost','AskUserTool'],required:'NativeHost'},'@CU hello · Fixture');}
+ finally {engineEvents.off('message',listener);}
+ expect(converse).not.toHaveBeenCalled();expect(execute).toHaveBeenCalledTimes(1);
+ expect(execute.mock.calls[0][0]).toBe('hello');
+ expect((execute.mock.calls[0] as any[])[2]).toMatchObject({toolNames:['NativeHost','AskUserTool'],requireTool:'NativeHost'});
+ expect(messages.find(m=>m.role==='user').content).toBe('@CU hello · Fixture');
 });

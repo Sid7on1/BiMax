@@ -1,7 +1,7 @@
 // Import the full command set the app loads at startup, so this test reflects what the `/`
 // autocomplete + Ctrl+G palette actually offer.
-import '../cli/commands';
-import { globalCommandRegistry, isHiddenCommand } from '../cli/commands/registry';
+import '../engine/commands';
+import { globalCommandRegistry, isHiddenCommand } from '../engine/commands/registry';
 
 // The Ctrl+K command palette derives its options from the live registry — the single source of
 // truth — so it can never drift from the commands that actually exist (the bug the old hardcoded
@@ -54,7 +54,15 @@ describe('CommandRegistry.getPaletteOptions — curated palette', () => {
     // (+1 in 2026-07: /setup — the guided provider→key→model wizard belongs on the surface.)
     // (+1 in 2026-07: /computer — the browser/desktop computer-use capability hub is a primary verb.)
     // (+1 in 2026-07: /tasks — background task workspaces (cancel/pause/retry) are a primary verb.)
-    expect(opts.length).toBeLessThanOrEqual(29);
+    // (+1 in 2026-09: /sovereign — air-gap mode is the product's headline claim and the surface an
+    //  operator checks before doing confidential work, so it is a primary verb. /route ships beside
+    //  it but is a routing DIAGNOSTIC, so it is demoted with the other routing internals.)
+    // (-3 in 2026-09: /retrieval, /trace and /sidecars demoted. The surface had drifted to 33
+    //  against this ceiling. All three are diagnostic readouts — "prove semantic search is live",
+    //  "recent trace spans + export locations", "optional Python-backed capabilities" — so they go
+    //  on exactly the rule that demoted /route. /evidence and /compliance were the other candidates
+    //  and were deliberately kept: those are things a user should find by browsing.)
+    expect(opts.length).toBeLessThanOrEqual(30);
     const values = opts.map(o => o.value);
     // Demoted clusters must NOT be on the browsable surface (they live in the HUD / a primary verb).
     for (const hidden of ['/self', '/tier', '/undo', '/checkpoint', '/edit', '/write', '/resume', '/output', '/index-ai']) {

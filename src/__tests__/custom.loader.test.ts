@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { parseCommandFile, substituteArgs, loadCustomCommands } from '../cli/commands/custom.loader';
-import { globalCommandRegistry } from '../cli/commands/registry';
+import { parseCommandFile, substituteArgs, loadCustomCommands } from '../engine/commands/custom.loader';
+import { globalCommandRegistry } from '../engine/commands/registry';
 
 // A1 — user-defined slash commands from .bimax/commands/*.md.
 describe('parseCommandFile (A1, pure)', () => {

@@ -80,7 +80,7 @@ describe('delegated assignment validation', () => {
     expect(manager.snapshot()).toMatchObject({ canComplete: false, openTasks: 1 });
     expect(() => manager.validateTask('build')).toThrow(/no fresh trusted parent verification/i);
 
-    manager.onBuildEvidence({ command: 'npm test', ok: true });
+    manager.onBuildEvidence({ command: 'npm test', ok: true, repoWide: true });
     manager.validateTask('build');
     expect(manager.task('build')).toMatchObject({ status: 'verified', owner: 'agent-1' });
     expect(manager.snapshot()).toMatchObject({ canComplete: true, openTasks: 0 });

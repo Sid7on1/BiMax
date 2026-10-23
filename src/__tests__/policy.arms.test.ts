@@ -109,4 +109,44 @@ describe('policy arms (v2 §4.4) — propensity logging + self-normalized IPS', 
     expect(row.vShow).toBe(1);
     expect(row.lift).toBeNull(); // no hidden observations yet — no counterfactual claim
   });
+
+  describe('the holdout defaults to off', () => {
+    it('shows every active arm deterministically, at propensity 1, without drawing randomness', () => {
+      let draws = 0;
+      const arms = new PolicyArms(dir, { rng: () => { draws++; return 0; } }); // rng would hold out at any positive rate
+      expect(arms.holdoutRate()).toBe(0);
+      expect(arms.decide('habits', ledger)).toEqual({ show: true, propensity: 1 });
+      expect(draws).toBe(0); // nothing to draw when showing is deterministic
+      expect(ledger.byType('policy_active')[0].payload).toMatchObject({ arm: 'habits', shown: true, propensity: 1 });
+    });
+
+    it('still lets a shadow arm withhold its block', () => {
+      const arms = new PolicyArms(dir);
+      arms.setStatus('drives', 'shadow');
+      expect(arms.decide('drives', ledger)).toEqual({ show: false, propensity: 0 });
+    });
+
+    it('reports no lift rather than inventing one, since nothing is ever hidden', () => {
+      const arms = new PolicyArms(dir);
+      const samples = [1, 1, 0].map(reward => ({ shown: true, propensity: 1, reward }));
+      const { vShow, vHide, lift } = arms.ipsEstimate(samples);
+      expect(vShow).toBeCloseTo(2 / 3);
+      expect(vHide).toBeNull();   // never observed — not zero, not assumed
+      expect(lift).toBeNull();
+      // A deterministic policy is not a randomized experiment, and the CI must say so —
+      // first because one side was never observed, and then on the propensity itself.
+      expect(arms.holdoutComparison(samples).reason).toMatch(/Both randomized arms require observations/);
+      expect(arms.holdoutComparison([...samples, { shown: false, propensity: 1, reward: 1 }]).reason)
+        .toMatch(/propensity in \(0,1\)/);
+    });
+
+    it('is re-enabled by BIMAX_POLICY_HOLDOUT or an explicit option', () => {
+      process.env.BIMAX_POLICY_HOLDOUT = '0.25';
+      try {
+        expect(new PolicyArms(dir).holdoutRate()).toBe(0.25);
+        expect(new PolicyArms(dir, { holdout: 0.4 }).holdoutRate()).toBe(0.4); // the option still wins
+      } finally { delete process.env.BIMAX_POLICY_HOLDOUT; }
+      expect(new PolicyArms(dir).holdoutRate()).toBe(0);
+    });
+  });
 });

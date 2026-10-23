@@ -12,17 +12,27 @@ import * as os from 'os';
 let dir: string;
 let cfgPath: string;
 
-const ENV_KEYS = ['BGW_MODEL', 'BGW_LITE_MODEL', 'BGW_VISION_MODEL', 'BGW_REASONING_EFFORT', 'BIMAX_BREAKGLASS_DIR'];
+const ENV_KEYS = [
+  'BGW_MODEL',
+  'BGW_LITE_MODEL',
+  'BGW_VISION_MODEL',
+  'BGW_REASONING_EFFORT',
+  'BIMAX_DESKTOP_STRICT_MODEL',
+  'BIMAX_BREAKGLASS_DIR',
+];
 const savedEnv: Record<string, string | undefined> = {};
 
 function freshConfigModule() {
   jest.resetModules();
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  return require('../cli/config') as typeof import('../cli/config');
+  return require('../engine/config') as typeof import('../engine/config');
 }
 
 beforeEach(async () => {
-  for (const k of ENV_KEYS) { savedEnv[k] = process.env[k]; delete process.env[k]; }
+  for (const k of ENV_KEYS) {
+    savedEnv[k] = process.env[k];
+    delete process.env[k];
+  }
   dir = await fs.mkdtemp(path.join(os.tmpdir(), 'bimax-config-'));
   cfgPath = path.join(dir, 'config.json');
   process.env.BIMAX_BREAKGLASS_DIR = dir;
@@ -30,13 +40,18 @@ beforeEach(async () => {
 
 afterEach(async () => {
   for (const k of ENV_KEYS) {
-    if (savedEnv[k] === undefined) delete process.env[k]; else process.env[k] = savedEnv[k];
+    if (savedEnv[k] === undefined) delete process.env[k];
+    else process.env[k] = savedEnv[k];
   }
   await fs.rm(dir, { recursive: true, force: true }).catch(() => {});
 });
 
 async function disk(): Promise<any> {
-  try { return JSON.parse(await fs.readFile(cfgPath, 'utf-8')); } catch { return null; }
+  try {
+    return JSON.parse(await fs.readFile(cfgPath, 'utf-8'));
+  } catch {
+    return null;
+  }
 }
 
 describe('config scopes — precedence and provenance', () => {
@@ -121,11 +136,14 @@ describe('config scopes — the contamination class', () => {
 describe('config scopes — file integrity', () => {
   it('MALFORMED EXISTING CONFIG is preserved (not silently destroyed) and defaults apply', async () => {
     await fs.writeFile(cfgPath, '{"model": "user/persisted-mo…TRUNCATED');
-    const { loadConfig } = freshConfigModule();
+    const { loadConfig, DEFAULTS } = freshConfigModule();
     const cfg = await loadConfig();
-    expect(cfg.model).toBe('mistralai/mistral-nemotron'); // default — corrupt scope is empty
+    // Against DEFAULTS, not a hardcoded id: the default model is a measured choice that changes
+    // (see the rationale in config.ts), and this test's subject is "corrupt scope → defaults",
+    // not which model happens to be the default today.
+    expect(cfg.model).toBe(DEFAULTS.model);
     const entries = await fs.readdir(dir);
-    expect(entries.some(f => f.startsWith('config.json.corrupt-'))).toBe(true); // evidence kept
+    expect(entries.some((f) => f.startsWith('config.json.corrupt-'))).toBe(true); // evidence kept
   });
 
   it('CRASH DURING WRITE cannot half-write config.json (atomic tmp+rename)', async () => {
@@ -139,17 +157,13 @@ describe('config scopes — file integrity', () => {
     expect(d.model).toBe('before');
     expect(d.theme).toBe('dark');
     const entries = await fs.readdir(dir);
-    expect(entries.filter(f => f.includes('.tmp-'))).toHaveLength(0);
+    expect(entries.filter((f) => f.includes('.tmp-'))).toHaveLength(0);
   });
 
   it('CONCURRENT WRITERS each land a complete file (no interleaved corruption)', async () => {
     const { loadConfig, saveConfig } = freshConfigModule();
     await loadConfig();
-    await Promise.all([
-      saveConfig({ theme: 'dark' }),
-      saveConfig({ verbose: true }),
-      saveConfig({ maxTokens: 2048 }),
-    ]);
+    await Promise.all([saveConfig({ theme: 'dark' }), saveConfig({ verbose: true }), saveConfig({ maxTokens: 2048 })]);
     const d = await disk();
     expect(d).not.toBeNull(); // whatever the merge order, the file parses
   });
@@ -177,11 +191,64 @@ describe('config scopes — file integrity', () => {
 });
 
 describe('config scopes — deprecated/legacy value migration', () => {
+  it('keeps every model route unified and read-only in Desktop strict mode', async () => {
+    await fs.writeFile(
+      cfgPath,
+      JSON.stringify({
+        model: 'terminal/model',
+        liteModel: 'terminal/lite',
+        visionModel: 'terminal/vision',
+        fallbackModel: 'terminal/fallback',
+        subagentModel: 'terminal/subagent',
+      }),
+    );
+    process.env.BIMAX_DESKTOP_STRICT_MODEL = 'stepfun-ai/step-3.7-flash';
+    const { loadConfig, saveConfig } = freshConfigModule();
+
+    const cfg = await loadConfig();
+    expect(cfg).toMatchObject({
+      model: 'stepfun-ai/step-3.7-flash',
+      liteModel: 'stepfun-ai/step-3.7-flash',
+      visionModel: 'stepfun-ai/step-3.7-flash',
+      subagentModel: 'stepfun-ai/step-3.7-flash',
+      fallbackModel: '',
+    });
+    await saveConfig({ model: 'other/model', fallbackModel: 'other/fallback', theme: 'dark' });
+    expect(await disk()).toMatchObject({ model: 'terminal/model', fallbackModel: 'terminal/fallback', theme: 'dark' });
+    expect((await loadConfig()).model).toBe('stepfun-ai/step-3.7-flash');
+  });
+
   it('a reasoning model copied into the lite slot splits back apart in memory only', async () => {
-    await fs.writeFile(cfgPath, JSON.stringify({ model: 'stepfun-ai/step-3.7-flash', liteModel: 'stepfun-ai/step-3.7-flash' }));
+    await fs.writeFile(
+      cfgPath,
+      JSON.stringify({
+        provider: 'stepfun',
+        model: 'stepfun-ai/step-3.7-flash',
+        liteModel: 'stepfun-ai/step-3.7-flash',
+        visionModel: 'stepfun-ai/step-3.7-flash',
+      }),
+    );
     const { loadConfig } = freshConfigModule();
     const cfg = await loadConfig();
-    expect(cfg.liteModel).not.toBe('stepfun-ai/step-3.7-flash'); // in-memory migration
+    expect(cfg).toMatchObject({
+      provider: 'nvidia',
+      model: 'moonshotai/kimi-k3',
+      liteModel: 'mistralai/mistral-7b-instruct-v0.3',
+      visionModel: 'moonshotai/kimi-k3',
+    });
     expect((await disk()).liteModel).toBe('stepfun-ai/step-3.7-flash'); // disk untouched until the user saves
+  });
+
+  it('a reasoning model the user put in both slots stays theirs, never a model they did not choose', async () => {
+    // Measured 2026-09-13: this exact config was swapped in memory to mistral-7b-instruct-v0.3, which
+    // NVIDIA 404s for the account, so every greeting and short question failed.
+    await fs.writeFile(
+      cfgPath,
+      JSON.stringify({ model: 'nvidia/nemotron-3.5-lightning-30b-a3b', liteModel: 'nvidia/nemotron-3.5-lightning-30b-a3b' }),
+    );
+    const { loadConfig } = freshConfigModule();
+    const cfg = await loadConfig();
+    expect(cfg.model).toBe('nvidia/nemotron-3.5-lightning-30b-a3b');
+    expect(cfg.liteModel).toBe('nvidia/nemotron-3.5-lightning-30b-a3b');
   });
 });

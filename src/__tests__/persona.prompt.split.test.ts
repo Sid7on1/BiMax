@@ -1,8 +1,8 @@
 import { IGovernor } from '../core/interfaces';
 import { ToolRegistry } from '../tools/tool.registry';
 import { LlmAdapter } from '../core/llm.adapter';
-import { BiMaxPersona } from '../cli/personas/implementations';
-import { AgentPersona } from '../cli/personas/base.persona';
+import { BiMaxPersona } from '../engine/personas/implementations';
+import { AgentPersona } from '../engine/personas/base.persona';
 import { createBashTool } from '../tools/implementations/bash.tool';
 import { createReadFileTool } from '../tools/implementations/file.tool';
 import { createWebFetchTool } from '../tools/implementations/webfetch.tool';
@@ -69,4 +69,93 @@ describe('injectTurnContext', () => {
     AgentPersona.injectTurnContext(messages, '');
     expect(messages).toEqual([{ role: 'user', content: 'task' }]);
   });
+});
+
+describe('optional prompt blocks (flaw list E40)', () => {
+  afterEach(() => jest.restoreAllMocks());
+
+  test('a block that throws is left out, the prompt still builds, and the failure is logged once', () => {
+    const { Logger } = require('../utils/logger');
+    const warn = jest.spyOn(Logger, 'warn').mockImplementation(() => {});
+    jest.spyOn(require('../mind/harness.tuner'), 'getHarnessTuner').mockImplementation(() => { throw new Error('tuner store unreadable'); });
+    const p = persona();
+    const first = p.getSystemPromptParts({ memory: 'm' });
+    p.getSystemPromptParts({ memory: 'm' });
+    expect(first.turnContext).toContain('m');
+    const lines = warn.mock.calls.map(([line]) => String(line)).filter((line) => line.includes('harnessPatches'));
+    expect(lines).toEqual(['Prompt block "harnessPatches" left out: tuner store unreadable']);
+  });
+
+  test('each of the thirteen optional blocks reaches the prompt — the journal included, dropped since PR4', () => {
+    const block = (name: string) => ({ getPromptBlock: () => `<<${name}>>`, getSystemPromptBlock: () => `<<${name}>>`, contextBlock: () => `<<${name}>>`, promptBlock: () => `<<${name}>>` });
+    jest.spyOn(require('../mind/policy.arms'), 'getPolicyArms').mockReturnValue({ decide: () => ({ show: true }) });
+    jest.spyOn(require('../memory/goal.manager'), 'getGoalManager').mockReturnValue(block('goals'));
+    jest.spyOn(require('../core/workspace.manager'), 'tryGetWorkspace').mockReturnValue(block('workspace'));
+    jest.spyOn(require('../tools/implementations/todo.tool'), 'getTodoPromptBlock').mockReturnValue('<<todos>>');
+    jest.spyOn(require('../outcome/outcome.manager'), 'getOutcomeManager').mockReturnValue(block('outcome'));
+    jest.spyOn(require('../outcome/completion.check'), 'getCompletionChecks').mockReturnValue(block('completionCheck'));
+    jest.spyOn(require('../engine/agentMode'), 'agentModePromptSection').mockReturnValue('<<agentMode>>');
+    jest.spyOn(require('../mind/self.model'), 'getSelfModel').mockReturnValue(block('selfKnowledge'));
+    jest.spyOn(require('../mind/habit.compiler'), 'getHabitMiner').mockReturnValue(block('habits'));
+    jest.spyOn(require('../mind/user.model'), 'getUserModel').mockReturnValue(block('userModel'));
+    jest.spyOn(require('../mind/daily.journal'), 'journalPreloadBlock').mockReturnValue('<<journal>>');
+    jest.spyOn(require('../mind/drives.engine'), 'getDrivesEngine').mockReturnValue(block('drives'));
+    jest.spyOn(require('../mind/epistemic.ledger'), 'getEpistemicLedger').mockReturnValue(block('calibration'));
+    jest.spyOn(require('../mind/harness.tuner'), 'getHarnessTuner').mockReturnValue(block('harnessPatches'));
+    const parts = persona().getSystemPromptParts({});
+    const prompt = [parts.staticPrefix, parts.dynamicSuffix, parts.turnContext].join('\n');
+    const names = ['goals', 'workspace', 'todos', 'outcome', 'completionCheck', 'agentMode', 'selfKnowledge', 'habits',
+      'userModel', 'journal', 'drives', 'calibration', 'harnessPatches'];
+    expect(names.filter((name) => !prompt.includes(`<<${name}>>`))).toEqual([]);
+    expect(parts.turnContext).toContain('<<journal>>');
+  });
+
+  test('every section the persona builds is placed in one of the three segments', () => {
+    const fs = require('fs') as typeof import('fs');
+    const source = fs.readFileSync(require.resolve('../engine/personas/base.persona'), 'utf8');
+    const built = new Set<string>([
+      ...[...source.matchAll(/sections\.(\w+)\s*\+?=/g)].map((m) => m[1]!),
+      ...[...source.matchAll(/^\s*\['(\w+)', \(\) =>/gm)].map((m) => m[1]!),
+      ...[...source.matchAll(/^ {6}(\w+): `###/gm)].map((m) => m[1]!),
+    ]);
+    expect(built.size).toBeGreaterThan(25);
+    const sections = Object.fromEntries([...built].map((key) => [key, `<<${key}>>`]));
+    const parts = (persona() as any).splitPrompt(sections);
+    const joined = [parts.staticPrefix, parts.dynamicSuffix, parts.turnContext].join('\n');
+    expect([...built].filter((key) => !joined.includes(`<<${key}>>`))).toEqual([]);
+  });
+});
+
+test('retired Computer Use flags cannot advertise tools or inject a GUI prompt', () => {
+  const flags = ['BIMAX_COMPUTER_LOOK', 'BIMAX_COMPUTER_USE', 'BIMAX_COMPUTER_PRESS'];
+  const saved = flags.map(k => process.env[k]);
+  const baseline = persona().getSystemPromptParts({});
+  try {
+    for (const k of flags) process.env[k] = '1';
+    const parts = persona().getSystemPromptParts({});
+    expect(parts).toEqual(baseline);
+    const prompt = parts.staticPrefix + parts.dynamicSuffix;
+    for (const name of ['OTHER APPS ON THIS MAC', 'LookAtAppTool', 'PressInAppTool', 'TypeInAppTool', 'ScrollInAppTool']) {
+      expect(prompt).not.toContain(name);
+    }
+  } finally {
+    flags.forEach((k, i) => { if (saved[i] === undefined) delete process.env[k]; else process.env[k] = saved[i]; });
+  }
+});
+
+
+test('bounds optional recall without truncating safety, user preferences or live verification contracts', () => {
+  const huge = 'x'.repeat(100_000);
+  const parts = (persona() as any).splitPrompt({
+    security: 'SECURITY ' + huge, userModel: 'PREFERENCES ' + huge,
+    outcome: 'OUTCOME ' + huge, completionCheck: 'CHECKS ' + huge,
+    memory: huge, exemplars: huge, selfKnowledge: huge, habits: huge,
+    journal: huge, drives: huge, calibration: huge, harnessPatches: huge,
+  });
+  expect(parts.staticPrefix).toContain('SECURITY ' + huge);
+  expect(parts.turnContext).toContain('PREFERENCES ' + huge);
+  expect(parts.turnContext).toContain('OUTCOME ' + huge);
+  expect(parts.turnContext).toContain('CHECKS ' + huge);
+  expect(parts.turnContext.length).toBeLessThan(313_000);
+  expect(parts.turnContext).toContain('Optional context clipped');
 });

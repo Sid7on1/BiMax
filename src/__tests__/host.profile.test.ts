@@ -1,6 +1,15 @@
 import { HOST_CAPABILITIES_ENV, loadHostCapabilityServers } from '../mcp/config';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 describe('embedding-host capability contract', () => {
+  it('connects host capabilities before the engine can report protocol readiness', () => {
+    const container = fs.readFileSync(path.join(__dirname, '..', 'core', 'container.ts'), 'utf8');
+    const readyBoundary = container.indexOf("reportBootPhase('loading_tools', 'background services scheduled')");
+    const hostConnect = container.indexOf('await globalMcpManager.connectHostCapabilities');
+    expect(hostConnect).toBeGreaterThan(0);
+    expect(hostConnect).toBeLessThan(readyBoundary);
+  });
   test('accepts only a bounded local stdio provider and forces the safe lifecycle policy', () => {
     const servers = loadHostCapabilityServers(JSON.stringify({
       servers: [{ name: 'host-tools', command: '/opt/bimax/provider', args: ['--stdio'], env: { MODE: 'safe' } }],

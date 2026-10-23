@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { parseAtMentions, expandAtMentions, suggestAtSymbols } from '../cli/atMention';
+import { parseAtMentions, expandAtMentions, suggestAtSymbols } from '../engine/atMention';
 import { StaticAnalyzer } from '../graph/static.analyzer';
 import { GraphStore } from '../graph/graph.store';
 

@@ -1,15 +1,15 @@
 import { IGovernor } from '../core/interfaces';
 import { ToolRegistry } from '../tools/tool.registry';
 import { LlmAdapter } from '../core/llm.adapter';
-import { BiMaxPersona } from '../cli/personas/implementations';
+import { BiMaxPersona } from '../engine/personas/implementations';
 import { createBashTool } from '../tools/implementations/bash.tool';
 import { createReadFileTool } from '../tools/implementations/file.tool';
 import { createWebFetchTool } from '../tools/implementations/webfetch.tool';
-import { globalCommandRegistry } from '../cli/commands/registry';
-import '../cli/commands/meta'; // registers /context
+import { globalCommandRegistry } from '../engine/commands/registry';
+import '../engine/commands/meta'; // registers /context
 
 // Force a known context mode regardless of the user's real config file.
-jest.mock('../cli/config', () => ({ getConfig: () => ({ contextMode: 'smart' }) }));
+jest.mock('../engine/config', () => ({ getConfig: () => ({ contextMode: 'smart' }) }));
 
 const governor = { approveTaskExecution: jest.fn().mockResolvedValue(undefined), mode: 'interactive' } as unknown as IGovernor;
 const llm = {} as unknown as LlmAdapter;

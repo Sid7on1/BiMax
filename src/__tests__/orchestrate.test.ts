@@ -1,6 +1,6 @@
-import '../cli/commands/orchestrate';
-import { globalCommandRegistry } from '../cli/commands/registry';
-import { addCustomRule, setCustomRoutingRules } from '../cli/agentRouter';
+import '../engine/commands/orchestrate';
+import { globalCommandRegistry } from '../engine/commands/registry';
+import { addCustomRule, setCustomRoutingRules } from '../engine/agentRouter';
 
 function getCmd(name: string): any {
   return (globalCommandRegistry as any).commands.get(name);

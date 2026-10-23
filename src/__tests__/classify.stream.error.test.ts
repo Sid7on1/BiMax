@@ -1,4 +1,4 @@
-import { classifyStreamError } from '../core/llm.adapter';
+import { classifyStreamError, normalizeProviderErrorResponse } from '../core/llm.adapter';
 
 /**
  * The agent loop relies on this classification to decide whether a streaming error is
@@ -57,5 +57,30 @@ describe('classifyStreamError', () => {
       .toMatchObject({ recoverable: false });
     expect(classifyStreamError({ status: 400, message: 'invalid request: unknown field' }))
       .toMatchObject({ recoverable: false });
+  });
+});
+
+describe('normalizeProviderErrorResponse', () => {
+  it('preserves NVIDIA RFC 7807 details that the OpenAI SDK otherwise reports as no body', async () => {
+    const response = new Response(JSON.stringify({
+      type: 'about:blank',
+      title: 'Gone',
+      status: 410,
+      detail: "The model 'stepfun-ai/step-3.7-flash' has reached its end of life.",
+    }), { status: 410, headers: { 'content-type': 'application/problem+json' } });
+
+    const normalized = await normalizeProviderErrorResponse(response);
+
+    expect(normalized.status).toBe(410);
+    expect(await normalized.json()).toEqual({ error: {
+      message: "The model 'stepfun-ai/step-3.7-flash' has reached its end of life.",
+      type: 'gone',
+      code: 'model_gone',
+    } });
+  });
+
+  it('does not rewrite successful responses', async () => {
+    const response = new Response('{"ok":true}', { status: 200, headers: { 'content-type': 'application/json' } });
+    expect(await normalizeProviderErrorResponse(response)).toBe(response);
   });
 });

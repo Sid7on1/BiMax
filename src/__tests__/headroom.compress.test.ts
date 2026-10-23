@@ -22,7 +22,7 @@ describe('compressText', () => {
   });
 
   it('strips ANSI escape codes', () => {
-    const colored = '[31mred[0m plain';
+    const colored = '\u001b[31mred\u001b[0m plain';
     expect(compressText(colored)).toBe('red plain');
   });
 

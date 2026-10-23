@@ -1,6 +1,6 @@
 import { LlmAdapter } from '../core/llm.adapter';
 import { ApiKeyManager } from '../credits/api.key.manager';
-import { heuristicTier } from '../cli/model.router';
+import { heuristicTier } from '../engine/model.router';
 
 // The "NIM is slow" saga, root-caused: local DNS/socket failures were billed to the API key
 // (cooldowns, hang benches) and the router dumped substantial prompts on the quick lane whenever

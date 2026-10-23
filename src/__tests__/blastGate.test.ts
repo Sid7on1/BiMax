@@ -7,7 +7,7 @@ import {
   setBlastGateEnabled,
   registerBlastConfirmer,
   registerBlastGraphStore,
-} from '../cli/blastGate';
+} from '../engine/blastGate';
 import { GraphStore } from '../graph/graph.store';
 import { GraphNode } from '../graph/models';
 import { createEditFileTool } from '../tools/implementations/edit.tool';

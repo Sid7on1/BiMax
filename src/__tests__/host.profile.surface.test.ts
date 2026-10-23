@@ -9,8 +9,8 @@ describe('Terminal product surface', () => {
 
   test('does not register a native-control slash command', () => {
     jest.isolateModules(() => {
-      require('../cli/commands');
-      const { globalCommandRegistry } = require('../cli/commands/registry') as typeof import('../cli/commands/registry');
+      require('../engine/commands');
+      const { globalCommandRegistry } = require('../engine/commands/registry') as typeof import('../engine/commands/registry');
       expect(globalCommandRegistry.getAllCommands().map(command => command.name)).not.toContain('/computer');
     });
   });

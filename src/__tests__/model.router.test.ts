@@ -1,4 +1,4 @@
-import { heuristicTier, localTier, decideTier, isConversational } from '../cli/model.router';
+import { heuristicTier, localTier, decideTier, isConversational } from '../engine/model.router';
 
 describe('model.router — heuristicTier', () => {
   it('short-circuits obvious chat/acks to lite (no LLM)', () => {

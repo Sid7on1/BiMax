@@ -1,7 +1,7 @@
-import '../cli/commands/meta';
-import '../cli/commands/builtins';
-import '../cli/commands/session';
-import { globalCommandRegistry } from '../cli/commands/registry';
+import '../engine/commands/meta';
+import '../engine/commands/builtins';
+import '../engine/commands/session';
+import { globalCommandRegistry } from '../engine/commands/registry';
 
 // Regression tests for the slash-menu fixes: /model must apply the model live (adapter +
 // config), and /config must be a hub whose options are runnable slash commands.

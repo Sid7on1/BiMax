@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { EpistemicLedger } from '../mind/epistemic.ledger';
-import { reliabilityTrack, renderCalibration } from '../cli/commands/calibration';
+import { reliabilityTrack, renderCalibration } from '../engine/commands/calibration';
 
 const mk = () => new EpistemicLedger(fs.mkdtempSync(path.join(os.tmpdir(), 'bgw-calcmd-')));
 

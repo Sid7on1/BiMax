@@ -1,7 +1,7 @@
 import { IGovernor } from '../core/interfaces';
 import { ToolRegistry } from '../tools/tool.registry';
 import { LlmAdapter } from '../core/llm.adapter';
-import { HermesPersona, OpenCodePersona, OpenClawPersona, BiMaxPersona } from '../cli/personas/implementations';
+import { HermesPersona, OpenCodePersona, OpenClawPersona, BiMaxPersona } from '../engine/personas/implementations';
 import { createBashTool } from '../tools/implementations/bash.tool';
 import { createReadFileTool, createWriteFileTool, createDeleteTool, createMakeDirTool } from '../tools/implementations/file.tool';
 import { createEditFileTool } from '../tools/implementations/edit.tool';

@@ -1,5 +1,5 @@
 import { LlmAdapter } from '../core/llm.adapter';
-import { MODEL_CATALOG } from '../cli/models';
+import { MODEL_CATALOG, autoSelectCandidates } from '../engine/models';
 
 // Regression suite for the silent-no-reply bug: a config pinned to models the provider no longer
 // serves. Healing only the WORK slot left the QUICK slot pointing at a dead model, and because a
@@ -15,10 +15,50 @@ function adapterServing(ids: string[]): LlmAdapter {
   return a;
 }
 
-const pickable = (tier: 'coding' | 'lite' | 'vision') =>
-  MODEL_CATALOG.find(m => m.tier === tier && !m.avoidAutoSelect)!.value;
+/**
+ * A model the healer would actually pick for `slot`.
+ *
+ * This used to re-derive the rule as `m.tier === slot && !m.avoidAutoSelect`, which is NOT the
+ * policy under test: slot membership is `recommendedFor`, not `tier` — Kimi K3 is `tier:'coding'`
+ * and serves the Vision slot through `recommendedFor: ['coding','vision']`. With no catalogue row
+ * whose *primary* tier is vision and which is auto-selectable, the old helper returned `undefined`
+ * and five tests died on `Cannot read properties of undefined` — reading as a broken vision slot
+ * when auto-selection was working correctly the whole time. Ask the policy instead of restating it.
+ */
+const pickable = (slot: 'coding' | 'lite' | 'vision') => {
+  const id = autoSelectCandidates(slot, MODEL_CATALOG.map(m => m.value))[0];
+  if (!id) throw new Error(`catalogue offers no auto-selectable model for the ${slot} slot`);
+  return id;
+};
+
+/** A catalogue model barred from automatic selection, for the "served but unfit" cases. */
+const avoided = (slot: 'coding' | 'lite' | 'vision') => {
+  const auto = new Set(autoSelectCandidates(slot, MODEL_CATALOG.map(m => m.value)));
+  const id = MODEL_CATALOG.find(m => m.tier === slot && !auto.has(m.value))?.value;
+  if (!id) throw new Error(`catalogue offers no avoid-auto-select model for the ${slot} slot`);
+  return id;
+};
 
 describe('LlmAdapter.healModels', () => {
+  it('never heals or replaces an intentional Desktop strict model', async () => {
+    const previous = process.env.BIMAX_DESKTOP_STRICT_MODEL;
+    process.env.BIMAX_DESKTOP_STRICT_MODEL = 'stepfun-ai/step-3.7-flash';
+    try {
+      const a = adapterServing(SERVED(pickable('coding')));
+      a.applyConfig({ model: 'another/model', liteModel: 'another/lite', visionModel: 'another/vision' });
+
+      expect(await a.healModels()).toEqual([]);
+      expect(a.readEffective()).toMatchObject({
+        model: 'stepfun-ai/step-3.7-flash',
+        liteModel: 'stepfun-ai/step-3.7-flash',
+        visionModel: 'stepfun-ai/step-3.7-flash',
+      });
+    } finally {
+      if (previous === undefined) delete process.env.BIMAX_DESKTOP_STRICT_MODEL;
+      else process.env.BIMAX_DESKTOP_STRICT_MODEL = previous;
+    }
+  });
+
   it('heals the quick and vision slots, not just the work model', () => {
     // THE bug. The work model is fine, so the old healer reported "nothing wrong" and returned —
     // while every greeting kept routing to an unserved quick model and answering with silence.
@@ -60,23 +100,43 @@ describe('LlmAdapter.healModels', () => {
     const a = adapterServing(avoided);
     a.applyConfig({ model: 'dead/work', liteModel: 'dead/quick', visionModel: 'dead/vision' });
 
-    expect(await a.healModels()).toEqual([]);
+    // Nothing it may pick is served. The work pin stays for the user to change; the optional Quick
+    // and Vision slots are cleared so they answer with the work model instead of failing each
+    // session on a dead id — never re-pointed at an avoided model.
+    expect(await a.healModels()).toEqual([
+      { slot: 'quick', from: 'dead/quick', to: '' },
+      { slot: 'vision', from: 'dead/vision', to: '' },
+    ]);
+    expect(a.userModel).toBe('dead/work');
     for (const id of [a.userModel, a.liteModel, a.visionModel]) expect(avoided).not.toContain(id);
   });
 
-  it('heals a slot pinned to a served-but-unfit model', async () => {
-    // THE computer-use break. The vision slot was pinned to a model the provider happily lists and
-    // serves, but which 400s on every tools+image request — i.e. on every computer-use step. Being
-    // "served" was enough to make the old check call the slot healthy, so it never got fixed.
-    const unfit = MODEL_CATALOG.find(m => m.tier === 'vision' && m.avoidAutoSelect)!.value;
-    const good = MODEL_CATALOG.find(m => m.tier === 'vision' && !m.avoidAutoSelect)!.value;
-    const a = adapterServing(SERVED(unfit, good, pickable('coding')));
-    a.applyConfig({ model: pickable('coding'), visionModel: unfit });
-
+  it('clears a dead Quick pin after a provider switch, so quick calls use the work model', async () => {
+    // Switching to a provider that serves only the work model: the Quick slot still names the old
+    // provider's id. Pinned, the first quick call of every session failed on it.
+    const a = adapterServing(SERVED('claude-sonnet-5'));
+    a.applyConfig({ model: 'claude-sonnet-5', liteModel: 'mistralai/mistral-7b-instruct-v0.3' });
     const healed = await a.healModels();
+    expect(healed).toContainEqual({ slot: 'quick', from: 'mistralai/mistral-7b-instruct-v0.3', to: expect.any(String) });
+    expect(a.liteModel === '' || a.liteModel === 'claude-sonnet-5').toBe(true);
+  });
 
-    expect(healed.map(h => h.slot)).toEqual(['vision']);
-    expect(a.visionModel).toBe(good);
+  it('leaves a served pin alone when the only complaint is avoidAutoSelect', async () => {
+    // This asserted the OPPOSITE until 2026-09-02, and that assertion was the bug. `avoidAutoSelect`
+    // is a catalogue OPINION about automatic picking, not evidence that a model cannot serve a turn.
+    // Letting it evict an incumbent measurably replaced two WORKING models (answered in 4.0s/6.7s,
+    // called tools) with two BROKEN ones (90s timeout; HTTP 404) — because the working pair carried
+    // the flag and the broken pair did not. Result: zero tool calls on every turn.
+    //
+    // Eviction now requires real evidence, and the two kinds it accepts each have their own test
+    // ("not served by the provider" above, "rejected at call time" below). This test exists to keep
+    // the third, invalid reason from coming back.
+    const avoidedVision = avoided('vision');
+    const a = adapterServing(SERVED(avoidedVision, pickable('vision'), pickable('coding')));
+    a.applyConfig({ model: pickable('coding'), visionModel: avoidedVision });
+
+    expect(await a.healModels()).toEqual([]);
+    expect(a.visionModel).toBe(avoidedVision);
   });
 
   it('heals a slot the provider rejected at call time even though /models lists it', async () => {
