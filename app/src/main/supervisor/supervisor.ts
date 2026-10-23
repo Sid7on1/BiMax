@@ -2,7 +2,7 @@ import {
   CapabilityPlan, CrashKind, CrashRecord, EnginePhase, HeartbeatInfo, MemoryInfo, ProfileId,
   SupervisorStatus,
 } from './types';
-import { bootProgress, isStartupPhase, phaseMessage, transition } from './machine';
+import { bootProgress, isLivePhase, isStartupPhase, phaseMessage, transition } from './machine';
 import {
   CrashEvent, DEFAULT_POLICY, PolicyConfig, classifyExit, decideRestart,
 } from './policy';
@@ -10,7 +10,7 @@ import { degradedCapabilities, minProfile, planCapabilities } from './resources'
 import { CrashJournal } from './journal';
 import {
   CLIENT_MAX_COMPATIBLE_MAJOR, CLIENT_MIN_COMPATIBLE_MAJOR, supportsProtocolMajor,
-} from '../../shared/protocol.compat.gen';
+} from '../../shared/protocol.compat';
 
 /**
  * EngineSupervisor — the authoritative engine lifecycle for the desktop app. Starts, monitors,
@@ -38,7 +38,9 @@ export interface EngineHandle {
   pid?: number;
   /** Human-readable launch command for the crash journal (no env, no secrets). */
   command: string;
-  write(line: string): void;
+  /** Deliver one protocol message. Each transport encodes it as it needs: an NDJSON line for a process, the object
+   *  itself over the monolith's MessagePort (record 64, M3). */
+  send(msg: Record<string, unknown>): void;
   endStdin(): void;
   kill(signal: 'SIGTERM' | 'SIGKILL'): void;
 }
@@ -85,6 +87,13 @@ export const DEFAULT_TIMEOUTS: SupervisorTimeouts = {
   killEscalationMs: 3_000,
 };
 
+/**
+ * A watchdog tick that arrives this many intervals late means the main process itself was
+ * suspended (system sleep, App Nap), not that the engine hung. Five 2s ticks is 10s: far beyond
+ * timer jitter on a loaded 8 GB machine, and still well inside the 20s idle heartbeat deadline.
+ */
+const SUSPEND_GAP_TICKS = 5;
+
 // ---------------------------------------------------------------------------------------------
 // Renderer-originated inputs (validated — the renderer is not trusted)
 
@@ -117,7 +126,7 @@ export function parseRecoveryAction(raw: unknown): RecoveryAction | null {
  * Protocol messages that are safe to hold and replay once a (re)started engine is ready: pure
  * reads with no side effects. Everything else — inputs, approval replies, menu selections, config
  * writes, interrupts — would duplicate or misdirect a mutation if replayed against a different
- * engine process, so it is rejected loudly instead of queued.
+ * engine, so it is rejected loudly instead of queued.
  */
 const SAFE_REPLAY = new Set(['ping', 'query', 'configGet']);
 const MAX_QUEUE = 32;
@@ -163,6 +172,7 @@ export class EngineSupervisor {
   private interruptedSessionId: string | null = null;
 
   private watchdogTimer: unknown = null;
+  private lastTickAt: number | null = null;
   private restartTimer: unknown = null;
   private restartAt = 0;
   private killTimers = new Set<unknown>();
@@ -229,20 +239,39 @@ export class EngineSupervisor {
     this.terminateChild(this.child);
   }
 
-  /** App quit: stop everything and make sure no timer can relaunch the engine afterwards. */
-  dispose(): void {
+  /** Resolvers waiting for a disposed child's exit, by its generation. */
+  private exitWaiters = new Map<number, (confirmed: boolean) => void>();
+
+  /**
+   * App quit or a thread's Stop: stop everything and make sure no timer can relaunch the engine afterwards.
+   *
+   * Resolves true once the process has exited, and false if it still had not by the time SIGKILL should have ended it,
+   * so a caller can hold a folder until the old writer is really gone without waiting forever (backlog F11, T04).
+   */
+  dispose(): Promise<boolean> {
     this.disposed = true;
     this.cancelScheduledRestart();
     this.stopWatchdog();
     for (const t of this.killTimers) this.deps.clearTimeout(t);
     this.killTimers.clear();
     const child = this.child;
+    const gen = this.childGen;
     // Supersede first: the exit event of the dying child must not run recovery logic.
     this.supersedeChild();
-    if (child) {
-      try { child.endStdin(); } catch { /* gone */ }
-      try { child.kill('SIGTERM'); } catch { /* gone */ }
-    }
+    if (!child) return Promise.resolve(true);
+    try { child.endStdin(); } catch { /* gone */ }
+    try { child.kill('SIGTERM'); } catch { /* gone */ }
+    return new Promise((resolve) => {
+      let settled = false;
+      const settle = (confirmed: boolean): void => {
+        if (settled) return;
+        settled = true;
+        this.exitWaiters.delete(gen);
+        resolve(confirmed);
+      };
+      this.exitWaiters.set(gen, settle);
+      this.deps.setTimeout(() => settle(false), this.timeouts.killEscalationMs + 2000);
+    });
   }
 
   /** A validated renderer recovery action. Returns false when the payload was malformed. */
@@ -275,7 +304,7 @@ export class EngineSupervisor {
   /**
    * A protocol message from the renderer. Delivered when the engine is interactive; queued when
    * it's merely a safe-to-replay read; rejected (with a visible notice) otherwise — an unsafe
-   * message must never be silently replayed into a different engine process.
+   * message must never be silently replayed into a different engine.
    */
   sendFromRenderer(raw: unknown): void {
     if (!raw || typeof raw !== 'object' || typeof (raw as Record<string, unknown>).t !== 'string') {
@@ -287,6 +316,12 @@ export class EngineSupervisor {
       this.writeToChild(raw);
       return;
     }
+    // A correlated request — one the renderer is holding a promise open on — must never be met
+    // with silence. Queuing is honest only while an engine is actually on its way; from a terminal
+    // phase nothing will ever drain the queue, and the front-end is left to time out and report
+    // the only thing IT can see ("the engine did not answer… check the provider key") while the
+    // supervisor already knows the real reason and knows the key is not it.
+    if (!this.answerIsComing() && this.answerUndeliverable(raw, t)) return;
     if (isSafeToReplay(raw)) {
       this.queue.push(raw);
       if (this.queue.length > MAX_QUEUE) this.queue.shift();
@@ -294,6 +329,37 @@ export class EngineSupervisor {
     }
     if (t === 'interrupt') return; // nothing to interrupt — dropping is the correct semantics
     this.deps.onNotice('warn', `Engine is not ready (${this.phase}) — "${t}" was not delivered. Retry once the engine is back.`);
+  }
+
+  /** True while a child is alive or a (re)start is in flight — i.e. a queued read still has a reader. */
+  private answerIsComing(): boolean {
+    return isLivePhase(this.phase) || this.phase === 'restarting';
+  }
+
+  /**
+   * Answer a correlated request the engine will not receive, using the phase as the reason.
+   * Returns false for kinds that carry no reply contract, which keep the queue/notice path.
+   *
+   * Reads only. A mutation (`configSet`) is deliberately absent: "not delivered" and "delivered
+   * and rejected" are different facts about the user's config, and only the notice path can say
+   * the first without implying the second.
+   */
+  private answerUndeliverable(raw: unknown, t: string): boolean {
+    const id = (raw as Record<string, unknown>).id;
+    if (typeof id !== 'number') return false;
+    const because = `${phaseMessage(this.phase)}. This request never reached it — `
+      + 'your provider key and endpoint were not involved.';
+    if (t === 'catalogGet' || t === 'providerSet') {
+      this.deps.onMessage({ t: 'catalogResult', id, providers: [], models: [], error: because });
+      return true;
+    }
+    if (t === 'configGet') {
+      // `configResult` carries no error field, so this says only what its shape can say: no
+      // config. The catalogue reply above is what actually names the cause on screen.
+      this.deps.onMessage({ t: 'configResult', id, config: {} });
+      return true;
+    }
+    return false;
   }
 
   /** Resume a saved session: immediately when ready, otherwise after the next successful start. */
@@ -464,9 +530,10 @@ export class EngineSupervisor {
   }
 
   private onChildExit(gen: number, code: number | null, signal: string | null): void {
+    this.exitWaiters.get(gen)?.(true);
     if (gen !== this.childGen) {
       // Superseded child finished dying (project switch / manual restart) — evidence only.
-      this.deps.onNotice('info', `Previous engine process exited (${signal ?? `code ${code ?? '?'}`}).`);
+      this.deps.onNotice('info', `Previous engine exited (${signal ?? `code ${code ?? '?'}`}).`);
       return;
     }
     this.handleDeath(gen, code, signal, false);
@@ -566,6 +633,7 @@ export class EngineSupervisor {
 
   private startWatchdog(): void {
     this.stopWatchdog();
+    this.lastTickAt = this.deps.now();
     this.watchdogTimer = this.deps.setInterval(() => this.tick(), this.timeouts.watchdogTickMs);
   }
 
@@ -578,8 +646,23 @@ export class EngineSupervisor {
 
   /** One watchdog evaluation. Public-ish for tests (deterministic, clock-injected). */
   tick(): void {
-    if (!this.child || this.watchdogVerdict) return;
     const now = this.deps.now();
+    const sinceLastTick = this.lastTickAt === null ? 0 : now - this.lastTickAt;
+    this.lastTickAt = now;
+    if (!this.child || this.watchdogVerdict) return;
+
+    // This timer did not run for many of its own intervals, so the MAIN process was suspended —
+    // the Mac slept (a background DarkWake is when this first runs again) or App Nap held the
+    // timer. The engine was frozen for exactly as long, so its silence proves nothing about a
+    // wedge. Before this check, every lid-close ended in "stopped responding": the first tick
+    // after wake saw a heartbeat minutes old and killed an idle engine, and the restart policy
+    // then counted that as a resource crash and started the next engine with capabilities shed.
+    // Re-arm both clocks from now; a truly wedged engine still misses the fresh deadline.
+    if (sinceLastTick > this.timeouts.watchdogTickMs * SUSPEND_GAP_TICKS) {
+      if (this.heartbeat) this.heartbeat = { ...this.heartbeat, at: now };
+      this.spawnedAt += sinceLastTick;
+      return;
+    }
 
     if (isStartupPhase(this.phase)) {
       if (now - this.spawnedAt > this.timeouts.startupTimeoutMs) {
@@ -639,7 +722,7 @@ export class EngineSupervisor {
 
   private writeToChild(msg: unknown): void {
     if (!this.child) return;
-    try { this.child.write(JSON.stringify(msg) + '\n'); } catch { /* exit event will handle it */ }
+    try { this.child.send(msg as Record<string, unknown>); } catch { /* exit event will handle it */ }
   }
 
   private flushQueue(): void {

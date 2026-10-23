@@ -1,0 +1,90 @@
+{
+ "source": "github.com/gitleaks/gitleaks cmd/generate/config/rules/*.go at b58d3f1 (MIT, Copyright (c) 2019 Zachary Rice). Literal fixtures only; gitleaks also generates random positives at test time.",
+ "positives": {
+  "AWS": [],
+  "GCPAPIKey": [],
+  "GitHubPat": [],
+  "GitlabPat": [],
+  "PrivateKey": [
+   "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDAC4AWkdwKYSd8\nKs14IReLcYgADhoXk56ZzXI=\n-----END PRIVATE KEY-----",
+   "-----BEGIN RSA PRIVATE KEY-----\nMIIEpQIBAAKCAQEAn6/O8li+SX4m98LLYt/PKSzEmQ++ZBD7Loh9P13f4yQ92EF3\nyxR5MsXFu9PRsrYQA7/4UTPHiC4y2sAVCBg4C2yyBpUEtMQjyCESi6Y=\n-----END RSA PRIVATE KEY-----\n",
+   "-----BEGIN PGP PRIVATE KEY BLOCK-----\nlQWGBGSVV4YBDAClvRnxezIRy2Yv7SFlzC0iFiRF/O/jePSw+XYhvcrTaqSYTGic\n=8xQN\n-----END PGP PRIVATE KEY BLOCK-----"
+  ],
+  "SlackWebHookUrl": [
+   "http://hooks.slack.com/services/T024TTTTT/BBB72BBL/AZAAA9u0pA4ad666eMgbi555",
+   "https://hooks.slack.com/services/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",
+   "https://hooks.slack.com/workflows/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",
+   "http://hooks.slack.com/workflows/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"
+  ],
+  "SlackBotToken": [],
+  "HuggingFaceAccessToken": [],
+  "GitHubOauth": [],
+  "GitHubApp": []
+ },
+ "negatives": {
+  "AWS": [
+   "key = AKIAXXXXXXXXXXXXXXXX",
+   "aws_access_key: AKIAIOSFODNN7EXAMPLE",
+   "msgstr \"N\u00e4yt\u00e4 asiakirjamallikansio.\"",
+   "TODAYINASIAASACKOFRICEFELLOVER"
+  ],
+  "GCPAPIKey": [
+   "GWw4hjABFzZCGiRpmlDyDdo87Jn9BN9THUA47muVRNunLxsa82tMAdvmrhOqNkRKiYMEAFbTJAIzaTesb6Tscfcni8vIpWZqNCXFDFslJtVSvFDq",
+   "AIzaTesb6Tscfcni8vIpWZqNCXFDFslJtVSvFDqabcd123",
+   "apiKey: \"AIzaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"",
+   "AIZASYCO2CXRMC9ELSKLHLHRMBSWDEVEDZTLO2O",
+   "AIzaSyabcdefghijklmnopqrstuvwxyz1234567",
+   "AIzaSyAnLA7NfeLquW1tJFpx_eQCxoX-oo6YyIs",
+   "AIzaSyCkEhVjf3pduRDt6d1yKOMitrUEke8agEM",
+   "AIzaSyDMAScliyLx7F0NPDEJi1QmyCgHIAODrlU",
+   "AIzaSyD3asb-2pEZVqMkmL6M9N6nHZRR_znhrh0",
+   "AIzayDNSXIbFmlXbIE6mCzDLQAqITYefhixbX4A",
+   "AIzaSyAdOS2zB6NCsk1pCdZ4-P6GBdi_UUPwX7c",
+   "AIzaSyASWm6HmTMdYWpgMnjRBjxcQ9CKctWmLd4",
+   "AIzaSyANUvH9H9BsUccjsu2pCmEkOPjjaXeDQgY",
+   "AIzaSyA5_iVawFQ8ABuTZNUdcwERLJv_a_p4wtM",
+   "AIzaSyA4UrcGxgwQFTfaI3no3t7Lt1sjmdnP5sQ",
+   "AIzaSyDSb51JiIcB6OJpwwMicseKRhhrOq1cS7g",
+   "AIzaSyBF2RrAIm4a0mO64EShQfqfd2AFnzAvvuU",
+   "AIzaSyBcE-OOIbhjyR83gm4r2MFCu4MJmprNXsw",
+   "AIzaSyB8qGxt4ec15vitgn44duC5ucxaOi4FmqE",
+   "AIzaSyA8vmApnrHNFE0bApF4hoZ11srVL_n0nvY"
+  ],
+  "GitHubPat": [
+   "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  ],
+  "GitlabPat": [
+   "glpat-XXXXXXXXXXX-XXXXXXXX"
+  ],
+  "PrivateKey": [
+   "-----BEGIN PRIVATE KEY-----\nanything\n-----END PRIVATE KEY-----",
+   "-----BEGIN OPENSSH PRIVATE KEY----------END OPENSSH PRIVATE KEY-----"
+  ],
+  "SlackWebHookUrl": [],
+  "SlackBotToken": [
+   "xoxb-xxxxxxxxx-xxxxxxxxxx-xxxxxxxxxxxx",
+   "xoxb-xxx",
+   "xoxb-12345-abcd234",
+   "xoxb-xoxb-my-bot-token"
+  ],
+  "HuggingFaceAccessToken": [
+   "- (id)hf_requiredCharacteristicTypesForDisplayMetadata;",
+   "amazon.de#@#div[data-cel-widget=\"desktop-rhf_SponsoredProductsRemoteRHFSearchEXPSubsK2ClickPagination\"]",
+   "                            _kHMSymptomhf_generatedByHomeAppForDebuggingPurposesKey,",
+   "    #define OSCHF_DebugGetExpectedAverageCrystalAmplitude NOROM_OSCHF_DebugGetExpectedAverageCrystalAmplitude",
+   "  M_UINT       (ServingCellPriorityParametersDescription_t,  H_PRIO,  2, &hf_servingcellpriorityparametersdescription_h_prio),",
+   "+HWI-ST565_0092:4:1101:5508:5860#ACTTGA/1\n\t\tbb_eeeeegfgffhiiiiiiiiiiihiiiiicgafhf_eefghihhiiiifhifhhdhifhiiiihifdgdhggf\\bbceceedbcd\n\t\t@HWI-ST565_0092:4:1101:7621:5770#ACTTGA/1",
+   "y{}x|~|}\u007f\u007f{~}}~|\u007f\u007f~}||\ufffd~|\ufffd\u007f{\ufffd\ufffd|\u007f\u007f{}\u007f{|~z{}{{|{||{|}|{}{~|y}vjoePbUBJ7&;\"\u001a;  <\u001f\u001f;\u001f :\u001f\u001f;\u001f\u001e?!!;\u001e\u001e<\u001f\u001f7%$IACa_ecghbfbaebejhahfbhf_ddbficghbgfbhhcghdghfhigiifhhehhdggcgfchf_fgcei^[[.40&54\"56\u001f66 6",
+   "                    change_dir(cwd)\n\t\tsubdirs = glob.glob('HF_CAASIMULIAComputeServicesBuildTime.HF*.Linux64')\n\t\tif len(subdirs) == 1:",
+   "        os.environ.get(\"HF_AUTH_TOKEN\",\n\t\t\"hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"),",
+   "# HuggingFace API Token https://huggingface.co/settings/tokens\n\t\tHUGGINGFACE_API_TOKEN=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx,"
+  ],
+  "GitHubOauth": [
+   "gho_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  ],
+  "GitHubApp": [
+   "ghu_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   "ghs_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  ]
+ }
+}

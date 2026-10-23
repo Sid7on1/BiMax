@@ -17,6 +17,51 @@ import os from 'node:os';
 export interface AppSettings {
   lastProject?: string;
   recentProjects?: string[];
+  /** Where the ⌘2 bar was last dragged to (its top-left, in screen coordinates). */
+  quickBar?: { x: number; y: number };
+  /** The model new ⌘2 tasks start with; absent means Bimax's own. */
+  quickModel?: string;
+  /** How long turns have taken with each model on this Mac, for the model menu (thread.models.ts). */
+  modelTimes?: Record<string, { avgMs: number; turns: number }>;
+  /** Each folder's rules, keyed by its real path (folder.rules.ts) — kept here, never in the folder. */
+  folderRules?: Record<string, { text: string; protect: string[] }>;
+  /** Repeating ⌘2 tasks (schedules.ts). */
+  schedules?: import('./schedules').Schedule[];
+  /** ⌘2 tasks that run when files arrive in a folder (folder.triggers.ts). */
+  folderTriggers?: import('./folder.triggers').FolderTrigger[];
+  /** The global shortcut that opens the ⌘2 bar, one of quick.shortcut.ts's choices; absent means ⌘2. */
+  quickShortcut?: string;
+  /**
+   * The most one Bimax Thread may spend in a day, in USD (backlog F5). Absent means a Thread is
+   * bounded only by the Mac's daily cap (`MAX_DAILY_SPEND`, default $5) — which is now genuinely
+   * Mac-wide rather than per-folder, see spendLedgerEnvironment in thread.environment.ts.
+   *
+   * The point of a per-Thread share is unattended work: without it, one overnight task that loops
+   * can spend the whole day's budget before any other Thread gets a turn.
+   */
+  perTaskSpendUsd?: number;
+  /** Talk mode's voice, an installed voice's id; absent means the best one installed (voice.settings.ts, backlog N7). */
+  talkVoice?: string;
+  /** Talk mode's speaking speed, one of voice.settings.ts SPEECH_RATES; absent means normal. */
+  talkRate?: number;
+  /** Talk anywhere's global shortcut, one of push.talk.ts PUSH_TALK_CHOICES; absent means off (backlog N8). */
+  pushTalkShortcut?: string;
+  /** How a spoken request's answer comes back: read out loud (default) or as a notification. */
+  pushTalkAnswer?: 'voice' | 'notification';
+  /** Say out loud when a task finishes while it is not on screen (spoken.updates.ts, backlog N9); off when absent. */
+  speakUpdates?: boolean;
+  /** God's Land (docs/product-reset/gods-land): Bimax in the notch. On when absent; the menu bar item turns it off. */
+  notchDeck?: boolean;
+  /** God's Land stage 5: keep a clipboard history in the notch. Off when absent — it is only ever turned on by the person. */
+  clipboardHistory?: boolean;
+  /** God's Land stage 7: how often each one-tap conversion was used, per file type (`family:action`), for the learned order. */
+  transmuteCounts?: Record<string, number>;
+  /** God's Land stage 8: remember what was done with files through the notch (recall.ts). On when absent. */
+  notchRecall?: boolean;
+  /** Talk mode keeps listening while Bimax speaks, so the person can interrupt by talking (FL10). Off when absent. */
+  talkBargeIn?: boolean;
+  /** Folders with an outcome, keyed by real path (folder.outcomes.ts, backlog FL1 part 2). */
+  folderOutcomes?: Record<string, import('./folder.outcomes').FolderOutcome>;
 }
 
 const MAX_RECENTS = 8;
@@ -28,6 +73,10 @@ function settingsPath(): string {
 export function loadSettings(): AppSettings {
   try {
     const raw = JSON.parse(readFileSync(settingsPath(), 'utf8'));
+    if (raw && typeof raw === 'object') {
+      // Retire only these preview switches; preserve conversations and all other preferences.
+      for (const key of ['computerLook', 'computerPress', 'computerUse']) delete raw[key];
+    }
     return raw && typeof raw === 'object' ? (raw as AppSettings) : {};
   } catch {
     return {}; // first run / unreadable — defaults
@@ -60,13 +109,21 @@ export function isRealProject(dir: string | undefined | null): boolean {
 }
 
 /**
- * The project to open on launch: an explicit env override wins, else the last valid saved project,
- * else null (→ the renderer shows the project-first welcome). Both candidates are validated, so a
- * stale/deleted saved path or a $HOME value can never boot the engine in the wrong place.
+ * The project to open on launch.
+ *
+ * Only an EXPLICIT instruction opens a project automatically: `$BIMAX_CWD`, or launching from a
+ * folder. The last-used project is deliberately NOT reopened — a coding session is scoped to a
+ * repository, and silently resuming the previous one means the app starts doing work in a project
+ * the user may not have meant to be in, with no moment at which they chose it. Reopening was also
+ * indistinguishable from "the app ignored me": there was no way to get to the picker except by
+ * closing a project you never asked to open.
+ *
+ * `null` sends the renderer to the project-first welcome, where the recents list makes returning to
+ * yesterday's repository one click — chosen rather than assumed.
  */
 export function pickInitialProject(saved: string | undefined, envCwd: string | undefined = process.env.BIMAX_CWD): string | null {
   if (isRealProject(envCwd)) return path.resolve(envCwd!);
-  if (isRealProject(saved)) return path.resolve(saved!);
+  void saved; // kept in settings for the recents list; never auto-opened
   return null;
 }
 

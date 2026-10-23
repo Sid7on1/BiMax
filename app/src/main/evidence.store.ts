@@ -1,7 +1,7 @@
 // The Desktop evidence store — Phase 8, owner section 28.
 //
 // The engine owns its own ledger (`src/evidence/ledger.ts`); Desktop owns this one. They share the
-// vocabulary in `app/src/shared/evidence.gen.ts` and nothing else, which is the whole point of §9's
+// vocabulary in `app/src/shared/evidence.schema.ts` and nothing else, which is the whole point of §9's
 // process architecture: "the renderer receives typed findings and approvals, not raw native handles,
 // unrestricted paths, audit tokens, secrets, or network payloads."
 //
@@ -15,14 +15,14 @@
 //      data on disk is a lie. `deleteTask` and `deleteAll` remove records and record the eviction,
 //      so the timeline shows that data is gone rather than pretending it never existed.
 //   3. **Bounded, with the bound visible.** Retention classes expire, capacity evicts, and both
-//      leave an eviction note the Trust Center renders as an evidence gap.
+//      leave an eviction note rendered as an evidence gap.
 //
 // Electron-free: no `electron` import, so the whole store is testable in a plain Node process.
 
 import { createHash } from 'node:crypto';
 import {
   EvidenceRecord, Retention, canonicalJson, validate,
-} from '../shared/evidence.gen';
+} from '../shared/evidence.schema';
 
 export interface EvictionNote {
   at: number;
@@ -123,17 +123,17 @@ export class DesktopEvidenceStore {
     return this.drop(expired.map(r => r.id), 'retention');
   }
 
-  /** The Trust Center's per-task delete control. */
+  /** Per-task delete control. */
   deleteTask(taskIntentId: string): number {
     return this.drop(this.forTask(taskIntentId).map(r => r.id), 'user-deletion');
   }
 
-  /** The Trust Center's "delete every observation" control. */
+  /** The "delete every observation" control. */
   deleteObservations(): number {
     return this.drop(this.all().filter(r => r.kind === 'Observation').map(r => r.id), 'user-deletion');
   }
 
-  /** The Trust Center's "delete everything" control. */
+  /** The "delete everything" control. */
   deleteAll(): number {
     return this.drop([...this.order], 'user-deletion');
   }

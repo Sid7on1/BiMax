@@ -1,25 +1,187 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer, webUtils } from 'electron';
 import type { WindowChromeState } from '../shared/window.chrome';
+import type { ComputerRoute, ComputerTargets, ComputerRunState, ComputerControl } from '../shared/computer';
 
 /**
  * The renderer's only door to the engine. Mirrors the NDJSON protocol 1:1 — `send` takes a
  * protocol Inbound message, `onMessage` yields protocol Outbound messages (src/protocol/protocol.ts
  * in the engine repo; mirrored types live in renderer/src/protocol.ts).
  */
+let activeThreadId: string | null = null;
+ipcRenderer.on('threads:selected', (_event, value) => { activeThreadId = value.id; });
+function subscribe(channel: string, cb: (value: any) => void): () => void {
+  const listener = (_event: unknown, value: any) => cb(value);
+  ipcRenderer.on(channel, listener);
+  return () => ipcRenderer.removeListener(channel, listener);
+}
+/** What Settings → Voice shows: the installed voices worth offering, the saved choice, and the speeds. */
+export interface VoiceSettingsView {
+  voices: Array<{ id: string; name: string; language: string; quality: 'default' | 'enhanced' | 'premium' }>;
+  automatic: string; chosen: string; rate: number; rates: readonly number[]; onlyBasic: boolean;
+  /** Say out loud when a task finishes (backlog N9). */
+  speakUpdates: boolean;
+  /** Talk mode listens while Bimax speaks, to be interrupted by talking (FL10). */
+  bargeIn: boolean;
+}
+/** The Organize preview (main/organize.plan.ts, backlog FL2). */
+export interface OrganizeView {
+  id: string; title: string; root: string; total: number; byYou: number; conflicts: string[];
+  /** A revision's files the person placed by hand since the last plan, kept out unless included (FL3). */
+  kept: Array<{ from: string; to: string }>;
+  tree: Array<{ folder: string; files: Array<{ name: string; from: string; group: string; byYou: boolean }> }>;
+}
 const api = {
-  send: (msg: unknown): void => ipcRenderer.send('engine:send', msg),
-  onMessage: (cb: (msg: unknown) => void): (() => void) => {
-    const h = (_e: unknown, msg: unknown): void => cb(msg);
+  outputs: {
+    cancelPreview:(owner:string):Promise<boolean>=>ipcRenderer.invoke('outputs:preview-cancel',owner),
+    app: (owner:string,grant:string,bounds:import('../shared/outputs').PreviewBounds):Promise<string|null> => ipcRenderer.invoke('outputs:app-start',owner,grant,bounds),
+    list: (): Promise<import('../shared/outputs').OutputRecord[]> => ipcRenderer.invoke('outputs:list'),
+    read: (id: string, version?: string): Promise<import('../shared/outputs').OutputDocument | null> => ipcRenderer.invoke('outputs:read', id, version),
+    save: (owner: string, input: import('../shared/outputs').OutputInput): Promise<import('../shared/outputs').OutputDocument | null> => ipcRenderer.invoke('outputs:save', owner, input),
+    export: (id: string, version: string): Promise<boolean> => ipcRenderer.invoke('outputs:export', id, version),
+    onChanged: (cb: () => void) => subscribe('outputs:changed', cb),
+    preview: (owner: string, id: string, version: string, bounds: import('../shared/outputs').PreviewBounds): Promise<string | null> => ipcRenderer.invoke('outputs:preview-start', owner, id, version, bounds),
+    resize: (owner: string, token: string, bounds: import('../shared/outputs').PreviewBounds): Promise<boolean> => ipcRenderer.invoke('outputs:preview-resize', owner, token, bounds),
+    stop: (owner: string, token: string): Promise<boolean> => ipcRenderer.invoke('outputs:preview-stop', owner, token),
+    onPreview: (cb: (event: import('../shared/outputs').PreviewEvent) => void) => subscribe('outputs:preview-event', cb),
+  },
+  computer: {
+    state: (threadId: string): Promise<ComputerRunState | null> => ipcRenderer.invoke('computer:state', threadId),
+    onState: (cb: (event: { id: string; state: ComputerRunState }) => void): (() => void) => subscribe('computer:state', cb),
+    control: (threadId: string, revision: string, action: ComputerControl, candidate?: number): Promise<boolean> => ipcRenderer.invoke('computer:control', threadId, revision, action, candidate),
+    save: (threadId: string, revision: string, name: string): Promise<boolean> => ipcRenderer.invoke('computer:save', threadId, revision, name),
+    recipes: (threadId?: string): Promise<Array<{ name: string; text: string }>> => ipcRenderer.invoke('computer:recipes', threadId),
+    targets: (threadId?: string, pid?: number): Promise<ComputerTargets> => ipcRenderer.invoke('computer:targets', threadId, pid),
+    cancelTargets: (threadId?: string): Promise<boolean> => ipcRenderer.invoke('computer:cancel-targets', threadId),
+    submit: (threadId: string, text: string, engineText: string, route: ComputerRoute): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('computer:submit', threadId, text, engineText, route),
+  },
+  // Dictation (main/voice.ts): events arrive only in the window that started it.
+  voice: {
+    available: () => ipcRenderer.invoke('voice:available'),
+    start: (options?: { context?: string[] }) => ipcRenderer.invoke('voice:start', options ?? {}),
+    stop: () => ipcRenderer.send('voice:stop'),
+    cancel: () => ipcRenderer.send('voice:cancel'),
+    onEvent: (cb: (event: any) => void) => subscribe('voice:event', cb),
+    // Settings → Voice (main/voice.settings.ts, backlog N7).
+    voices: (): Promise<VoiceSettingsView | null> => ipcRenderer.invoke('voice:voices'),
+    choose: (voiceId: string, rate: number): Promise<boolean> => ipcRenderer.invoke('voice:choose', voiceId, rate),
+    preview: (voiceId: string, rate: number): Promise<boolean> => ipcRenderer.invoke('voice:preview', voiceId, rate),
+    speakUpdates: (on: boolean): Promise<boolean> => ipcRenderer.invoke('voice:speak-updates', on),
+    bargeIn: (on: boolean): Promise<boolean> => ipcRenderer.invoke('voice:barge-in', on),
+  },
+  organize: {
+    current: (): Promise<OrganizeView | null> => ipcRenderer.invoke('organize:current'),
+    onPlan: (cb: (view: OrganizeView | null) => void) => subscribe('organize:plan', cb),
+    move: (from: string, folder: string): Promise<{ view: OrganizeView; offer: { group: string; count: number; folder: string } | null } | null> => ipcRenderer.invoke('organize:move', from, folder),
+    moveGroup: (group: string, folder: string): Promise<OrganizeView | null> => ipcRenderer.invoke('organize:move-group', group, folder),
+    keep: (from: string): Promise<OrganizeView | null> => ipcRenderer.invoke('organize:keep', from),
+    include: (from: string): Promise<OrganizeView | null> => ipcRenderer.invoke('organize:include', from),
+    apply: (): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('organize:apply'),
+    cancel: (): Promise<boolean> => ipcRenderer.invoke('organize:cancel'),
+  },
+  // Talk mode (main/talk.session.ts): a spoken conversation with the ⌘2 bar's task.
+  talk: {
+    start: () => ipcRenderer.invoke('talk:start'),
+    end: () => ipcRenderer.send('talk:end'),
+    interrupt: () => ipcRenderer.send('talk:interrupt'),
+    current: () => ipcRenderer.invoke('talk:current'),
+    onState: (cb: (view: any) => void) => subscribe('talk:state', cb),
+  },
+  threads: {
+    list: () => ipcRenderer.invoke('threads:list'),
+    onList: (cb: (value: any) => void) => subscribe('threads:list', cb),
+    onSelected: (cb: (value: any) => void) => subscribe('threads:selected', cb),
+    create: () => ipcRenderer.invoke('threads:new'),
+    select: (id: string) => ipcRenderer.invoke('threads:select', id),
+    start: (id: string) => ipcRenderer.invoke('threads:start', id),
+    stop: (id: string) => ipcRenderer.invoke('threads:stop', id),
+    link: (a: string, b: string, enabled: boolean) => ipcRenderer.invoke('threads:link', a, b, enabled),
+    context: () => ipcRenderer.invoke('threads:context'),
+    onContext: (cb: (value: any) => void) => subscribe('threads:context', cb),
+    // N10: a correction offers to become one of the folder's rules; `teach` saves it, as edited.
+    onTeachOffer: (cb: (offer: { root: string; rule: string; samples: string[] }) => void) => subscribe('threads:teach-offer', cb),
+    teach: (rule: string): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('threads:teach', rule),
+    pickFolder: () => ipcRenderer.invoke('threads:pick-folder'),
+    // The welcome screen: choose a folder and open the ⌘2 bar on it (backlog N14).
+    startInFolder: () => ipcRenderer.invoke('threads:start-in-folder'),
+    quickSubmit: (prompt: string, options?: { attachments?: unknown[]; root?: string; route?: ComputerRoute; threadId?: string }) => ipcRenderer.invoke('threads:quick-submit', prompt, options),
+    hide: () => ipcRenderer.send('threads:hide'),
+    approvals: () => ipcRenderer.invoke('threads:approvals'),
+    onApprovals: (cb: (value: any) => void) => subscribe('threads:approvals', cb),
+    reply: (id: string, requestId: number, value: string, token: string) => ipcRenderer.invoke('threads:reply', id, requestId, value, token),
+    // Rename, search, archive, restore and move threads to the Bin (main/thread.manager.ts, backlog N11).
+    rename: (id: string, title: string) => ipcRenderer.invoke('threads:rename', id, title),
+    search: (query: string) => ipcRenderer.invoke('threads:search', query),
+    archived: () => ipcRenderer.invoke('threads:archived'),
+    archive: (id: string) => ipcRenderer.invoke('threads:archive', id),
+    unarchive: (id: string) => ipcRenderer.invoke('threads:unarchive', id),
+    moveToBin: (id: string, archived: boolean) => ipcRenderer.invoke('threads:bin', id, archived),
+    undoBin: (id: string) => ipcRenderer.invoke('threads:undo-bin', id),
+    // The ⌘2 bar: its own thread, its own message stream, and its size.
+    quickCurrent: () => ipcRenderer.invoke('threads:quick-current'),
+    onQuickThread: (cb: (value: any) => void) => subscribe('threads:quick-thread', cb),
+    onQuickMsg: (cb: (value: any) => void) => subscribe('threads:quick-msg', cb),
+    quickReset: () => ipcRenderer.send('threads:quick-reset'),
+    quickInterrupt: () => ipcRenderer.send('threads:quick-interrupt'),
+    quickResize: (height: number) => ipcRenderer.send('threads:quick-resize', height),
+    quickOpen: () => ipcRenderer.send('threads:quick-open'),
+    // How many messages the bar's task has queued and why it waits, and cancelling them (backlog N12).
+    onQuickActivity: (cb: (value: any) => void) => subscribe('threads:quick-activity', cb),
+    /** The ⌘2 bar just opened (the welcome screen's lesson listens for it). */
+    onQuickShown: (cb: () => void) => subscribe('threads:quick-shown', cb),
+    cancelQueued: (id: string) => ipcRenderer.invoke('threads:cancel-queued', id),
+    setPriority: (id: string, priority: 'high' | 'normal' | 'low') => ipcRenderer.invoke('threads:priority', id, priority),
+    cancelWakes: (id: string) => ipcRenderer.invoke('threads:cancel-wakes', id),
+    exportMenu: (id: string) => ipcRenderer.send('threads:export-menu', id),
+    // Undo the newest change a thread made to files (main/thread.undo.ts).
+    undoInfo: (id: string) => ipcRenderer.invoke('threads:undo-info', id),
+    undo: (id: string) => ipcRenderer.invoke('threads:undo', id),
+    // FL4: the change history, with how each change can be undone, and selective undo.
+    // FL7: a bookmark on a task, and "where was I?" when coming back to it.
+    bookmark: (id: string, note: string | null): Promise<boolean> => ipcRenderer.invoke('threads:bookmark-set', id, note),
+    where: (id: string): Promise<{ note: string; at: number; since: string[]; open: string[] } | null> => ipcRenderer.invoke('threads:where', id),
+    history: (id: string): Promise<{ entries: Array<{ id: string; title: string; at: number; reversibility: 'full' | 'partial'; inPlace: boolean | null; dependents: number; editedSince: string[] }>; commands: Array<{ title: string; at: number }> } | null> => ipcRenderer.invoke('threads:history', id),
+    undoChange: (id: string, changeId: string): Promise<{ ok: boolean; message?: string; error?: string }> => ipcRenderer.invoke('threads:undo-change', id, changeId),
+    undoBackTo: (id: string, changeId: string): Promise<{ ok: boolean; message?: string; error?: string }> => ipcRenderer.invoke('threads:undo-back-to', id, changeId),
+    // Files dropped on the bar, paths in answers, and stepping through recent bar tasks.
+    pathForFile: (file: File): string => webUtils.getPathForFile(file),
+    /** N5: drag out a screenshot, or keep a pasted image, as a picture for the task to look at (null when cancelled). */
+    screenshot: () => ipcRenderer.invoke('threads:screenshot'),
+    pastePicture: (name: string, bytes: Uint8Array) => ipcRenderer.invoke('threads:paste-picture', name, bytes),
+    openPath: (raw: string, mode: 'preview' | 'reveal') => ipcRenderer.invoke('threads:open-path', raw, mode),
+    quickSwitch: (direction: 'older' | 'newer') => ipcRenderer.invoke('threads:quick-switch', direction),
+    // The task's model: choose it, or answer again with another (main/thread.models.ts).
+    modelMenu: (mode: 'switch' | 'retry') => ipcRenderer.send('threads:model-menu', mode),
+    // ⋯ in the bar: repeat this task on a schedule, or edit this folder's rules (main/schedules.ts, main/folder.rules.ts).
+    moreMenu: () => ipcRenderer.send('threads:more-menu'),
+    onOpenRules: (cb: (value: any) => void) => subscribe('threads:open-rules', cb),
+    // FL1 part 2: a folder's outcome — what it should be ready for — and its queue.
+    onOpenOutcome: (cb: () => void) => subscribe('threads:open-outcome', cb),
+    // FL5: a night shift — isolated checkout, budget, morning time.
+    onOpenNight: (cb: (value: { root: string; goal: string; cap: number }) => void) => subscribe('threads:open-night', cb),
+    // FL6: save a task that worked as a skill.
+    onOpenSkill: (cb: (draft: { name: string; description: string; inputs: string[]; steps: string[]; checks: string[]; samples: string[] }) => void) => subscribe('threads:open-skill', cb),
+    skillSave: (name: string, description: string): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('threads:skill-save', name, description),
+    nightStart: (goal: string, budget: number, until: string): Promise<{ ok: boolean; error?: string; note?: string }> => ipcRenderer.invoke('threads:night-start', goal, budget, until),
+    outcomeGet: (): Promise<{ root: string; goal: string; queue: { ready: string[]; needsYou: Array<{ path: string; reason: string }> } | null } | null> => ipcRenderer.invoke('threads:outcome-get'),
+    outcomeSet: (goal: string, checkNow: boolean): Promise<{ ok: boolean; error?: string }> => ipcRenderer.invoke('threads:outcome-set', goal, checkNow),
+    outcomeClear: (): Promise<boolean> => ipcRenderer.invoke('threads:outcome-clear'),
+    rulesGet: () => ipcRenderer.invoke('threads:rules-get'),
+    rulesSet: (rules: { text: string; protect: string[] }) => ipcRenderer.invoke('threads:rules-set', rules),
+    rulesPick: () => ipcRenderer.invoke('threads:rules-pick'),
+  },
+  send: (msg: unknown): void => ipcRenderer.send('engine:send', msg, activeThreadId),
+  onMessage: (cb: (msg: unknown, threadId?: string) => void): (() => void) => {
+    const h = (_e: unknown, msg: unknown, threadId?: string): void => cb(msg, threadId);
     ipcRenderer.on('engine:msg', h);
     return () => ipcRenderer.removeListener('engine:msg', h);
   },
-  onEngineState: (cb: (state: string, detail: string) => void): (() => void) => {
-    const h = (_e: unknown, state: string, detail: string): void => cb(state, detail);
+  onEngineState: (cb: (state: string, detail: string, threadId?: string) => void): (() => void) => {
+    const h = (_e: unknown, state: string, detail: string, threadId?: string): void => cb(state, detail, threadId);
     ipcRenderer.on('engine:state', h);
     return () => ipcRenderer.removeListener('engine:state', h);
   },
-  onProject: (cb: (dir: string) => void): (() => void) => {
-    const h = (_e: unknown, dir: string): void => cb(dir);
+  onProject: (cb: (dir: string, generation: number) => void): (() => void) => {
+    const h = (_e: unknown, dir: string, generation: number): void => cb(dir, generation);
     ipcRenderer.on('app:project', h);
     return () => ipcRenderer.removeListener('app:project', h);
   },
@@ -36,7 +198,19 @@ const api = {
       ipcRenderer.invoke('supervisor:action', action),
     crashHistory: (): Promise<unknown[]> => ipcRenderer.invoke('supervisor:crash-history'),
     diagnostics: (): Promise<string> => ipcRenderer.invoke('supervisor:diagnostics'),
+    engineLog: (): Promise<string> => ipcRenderer.invoke('supervisor:engine-log'),
   },
+  /**
+   * Copy buttons write through the app (main 'clipboard:write-text'): the page's own clipboard API needs a permission
+   * the app refuses to every page. True when the text is on the clipboard.
+   */
+  clipboard: {
+    writeText: (text: string): Promise<boolean> => ipcRenderer.invoke('clipboard:write-text', text),
+  },
+  /** A menu-bar command for the page (main/app.menu.ts): the same actions the keyboard map runs. */
+  onMenuCommand: (cb: (command: string) => void): (() => void) => subscribe('menu:command', cb),
+  /** A system sound: "Sound when a task finishes" (quick settings), played by main with shell.beep(). */
+  beep: (): void => ipcRenderer.send('app:beep'),
   /** Tells main which appearance is showing, so the native vibrancy material matches it. */
   setAppearance: (appearance: 'auto' | 'moonlight' | 'starlight'): void =>
     ipcRenderer.send('app:appearance', appearance),
@@ -52,11 +226,38 @@ const api = {
   },
   pickFolder: (): Promise<string | null> => ipcRenderer.invoke('app:pick-folder'),
   pickFiles: (): Promise<string[]> => ipcRenderer.invoke('app:pick-files'),
+  /**
+   * The absolute path of a dropped File.
+   *
+   * `File.path` was removed in Electron 32, so a drag-and-drop in the renderer yields a File object
+   * with no way back to disk. `webUtils.getPathForFile` is the replacement and it is main-world
+   * only, which is why it has to be bridged here rather than called from the composer. Without it a
+   * dropped inspection report cannot be located, let alone ingested.
+   */
+  pathForFile: (file: File): string => {
+    try { return webUtils.getPathForFile(file); } catch { return ''; }
+  },
+  /**
+   * Write pasted clipboard content to a temporary file and return its path.
+   *
+   * Pasting is the other half of `pathForFile`: a file copied in Finder arrives with a real path,
+   * but a screenshot or a pasted log has none, so without this the composer can only accept
+   * context that already exists on disk. Main validates the name and the size; the renderer
+   * chooses neither the directory nor the eventual location.
+   */
+  stashPaste: (name: string, bytes: Uint8Array): Promise<string> =>
+    ipcRenderer.invoke('app:stash-paste', name, bytes),
   restartEngine: (): Promise<string> => ipcRenderer.invoke('engine:restart'),
   providers: {
+    /** What this machine can run locally, and what is merely downloaded. */
+    localModels: (): Promise<unknown> => ipcRenderer.invoke('models:local'),
     credentialStatus: (): Promise<unknown[]> => ipcRenderer.invoke('providers:credential-status'),
-    configure: (input: { name: string; apiKey?: string; baseURL?: string }): Promise<unknown> =>
+    /** Select a provider; `apiKey` ADDS one or more keys (newline/comma separated) to its pool. */
+    configure: (input: { name: string; apiKey?: string; baseURL?: string; rpm?: number }): Promise<unknown> =>
       ipcRenderer.invoke('providers:configure', input),
+    /** Remove one key from a provider's pool, by its position in the status `keyHints`. */
+    removeKey: (input: { name: string; index: number }): Promise<unknown> =>
+      ipcRenderer.invoke('providers:remove-key', input),
   },
   getProject: (): Promise<string> => ipcRenderer.invoke('app:get-project'),
   recentProjects: (): Promise<string[]> => ipcRenderer.invoke('app:recent-projects'),
@@ -84,41 +285,34 @@ const api = {
     diff: (file: string, untracked: boolean): Promise<string> => ipcRenderer.invoke('git:diff', file, untracked),
     branches: (): Promise<unknown> => ipcRenderer.invoke('git:branches'),
     log: (n: number): Promise<unknown> => ipcRenderer.invoke('git:log', n),
+    // GitHub lane: remote/branch/ahead-behind, and the three verbs the user drives by clicking.
+    remote: (): Promise<unknown> => ipcRenderer.invoke('git:remote'),
+    fetch: (): Promise<{ ok: boolean; output: string }> => ipcRenderer.invoke('git:fetch'),
+    pull: (): Promise<{ ok: boolean; output: string }> => ipcRenderer.invoke('git:pull'),
+    push: (setUpstream: boolean): Promise<{ ok: boolean; output: string }> =>
+      ipcRenderer.invoke('git:push', setUpstream),
   },
   files: {
     list: (rel: string): Promise<unknown> => ipcRenderer.invoke('files:list', rel),
     read: (rel: string): Promise<unknown> => ipcRenderer.invoke('files:read', rel),
     reveal: (rel: string): Promise<void> => ipcRenderer.invoke('files:reveal', rel),
+    search: (query: string): Promise<{ hits: { rel: string; name: string; dir: boolean }[]; truncated: boolean }> =>
+      ipcRenderer.invoke('files:search', query),
     write: (rel: string, content: string): Promise<void> => ipcRenderer.invoke('files:write', rel, content),
-    onChanged: (cb: () => void): (() => void) => {
-      const h = (): void => cb();
+    /** Closing a tab with unsaved edits: the native Save / Don't Save / Cancel sheet. */
+    confirmClose: (rel: string): Promise<'save' | 'discard' | 'cancel'> => ipcRenderer.invoke('files:confirm-close', rel),
+    /** A file tab's native right-click menu; resolves with the command chosen, or null. */
+    tabMenu: (hasOthers: boolean, hasRight: boolean): Promise<'close' | 'others' | 'right' | 'all' | 'mention' | 'reveal' | null> =>
+      ipcRenderer.invoke('files:tab-menu', hasOthers, hasRight),
+    onChanged: (cb: (generation: number) => void): (() => void) => {
+      const h = (_e: unknown, generation: number): void => cb(generation);
       ipcRenderer.on('files:changed', h);
       return () => ipcRenderer.removeListener('files:changed', h);
     },
   },
   sessionsMeta: (): Promise<unknown> => ipcRenderer.invoke('sessions:meta'),
-  // User takeover of the Mac. Main owns the latch (main/takeover.ts); this is the user's only
-  // door to it, and the capability provider's read-only mirror is a separate loopback channel the
-  // renderer never sees.
-  takeover: {
-    get: (): Promise<unknown> => ipcRenderer.invoke('takeover:get'),
-    set: (request: { paused: boolean; reason?: string }): Promise<unknown> =>
-      ipcRenderer.invoke('takeover:set', request),
-    onState: (cb: (state: unknown) => void): (() => void) => {
-      const h = (_e: unknown, state: unknown): void => cb(state);
-      ipcRenderer.on('takeover:state', h);
-      return () => ipcRenderer.removeListener('takeover:state', h);
-    },
-  },
-  // Trust diagnostics: build identity, macOS permission state, and which executables this run
-  // resolved. Read-only and non-prompting — see main/trust.ts.
-  trustReport: (): Promise<unknown> => ipcRenderer.invoke('trust:report'),
-  manualAlpha: {
-    status: (): Promise<unknown> => ipcRenderer.invoke('trust:manual-alpha-status'),
-    approve: (codeDirectoryHash: string): Promise<unknown> =>
-      ipcRenderer.invoke('trust:approve-manual-alpha', codeDirectoryHash),
-    revoke: (): Promise<unknown> => ipcRenderer.invoke('trust:revoke-manual-alpha'),
-  },
+  /** Export or share a saved session: a native menu at the pointer (main/thread.export.ts, backlog N4). */
+  sessionExportMenu: (id: string): void => ipcRenderer.send('sessions:export-menu', id),
   // Contextual evidence (Phase 8, owner section 28). Read-only from the renderer's side: it can ask
   // for a derived timeline and it can ask main to delete records, but it can never inject one.
   evidence: {
@@ -131,28 +325,6 @@ const api = {
   },
   exportDiagnostics: (): Promise<'saved' | 'cancelled' | 'failed'> =>
     ipcRenderer.invoke('trust:export-diagnostics'),
-  // Takes the user to the macOS switch. Bimax never grants a permission itself.
-  openPermissionSettings: (which: 'accessibility' | 'screenRecording'): Promise<boolean> =>
-    ipcRenderer.invoke('trust:open-permission-settings', which),
-  /**
-   * The drag coach. `startCoach` opens the pane and, for add-by-drag panes, floats a compact
-   * draggable app bundle over it. `setInteractive` is retained as a compatibility no-op;
-   * `dragBundle` begins the real native file drag.
-   */
-  permissionCoach: {
-    start: (which: 'accessibility' | 'screenRecording' | 'fullDisk' | 'microphone'): Promise<boolean> =>
-      ipcRenderer.invoke('permissions:start-coach', which),
-    startService: (which: 'accessibility' | 'screenRecording'): Promise<boolean> =>
-      ipcRenderer.invoke('permissions:start-service-coach', which),
-    stop: (): Promise<boolean> => ipcRenderer.invoke('permissions:stop-coach'),
-    setInteractive: (interactive: boolean): void =>
-      ipcRenderer.send('permissions:coach-interactive', interactive),
-    dragBundle: (): void => ipcRenderer.send('permissions:drag-bundle'),
-    bundlePath: (): Promise<string> => ipcRenderer.invoke('permissions:bundle-path'),
-    probe: (): Promise<unknown> => ipcRenderer.invoke('permissions:probe'),
-    relaunch: (): Promise<boolean> => ipcRenderer.invoke('permissions:relaunch'),
-    requestMicrophone: (): Promise<boolean> => ipcRenderer.invoke('permissions:request-microphone'),
-  },
   pty: {
     create: (cols: number, rows: number): Promise<number> => ipcRenderer.invoke('pty:create', cols, rows),
     input: (id: number, data: string): void => ipcRenderer.send('pty:input', id, data),

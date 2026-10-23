@@ -1,41 +1,39 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Group, Panel, Separator } from 'react-resizable-panels';
+import type { ComputerRoute } from '../../shared/computer';
+import { CapabilityBanner } from './components/CapabilityBanner';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { Group, Panel, Separator, type GroupImperativeHandle } from 'react-resizable-panels';
+import { followFlight, settleCollapse } from './pane.flight';
+import { prefersReducedMotion } from './components/ui/motion';
+import { createHoverIntent } from './hover.intent';
+import { applyMotionPreference } from './motion.preference';
 import { useEngine } from './useEngine';
 import { useSupervisor } from './useSupervisor';
 import { useGit } from './useGit';
-import { useTakeover } from './useTakeover';
-import { useTrust } from './useTrust';
 import { useWindowChrome } from './useWindowChrome';
 import { MorphRegion } from './components/ui/morph/MorphRegion';
-import { useIntentSeed } from './components/ui/morph/use-seed';
-import { TitleBar } from './components/TitleBar';
+import { CanvasChrome } from './components/TitleBar';
 import { TaskSidebar } from './components/TaskSidebar';
 import { Inspector } from './components/Inspector';
-import { TerminalDrawer } from './components/TerminalDrawer';
 import { EngineStatusBanner } from './components/EngineStatusBanner';
 import { CommandPalette } from './components/CommandPalette';
 import { Transcript } from './components/Transcript';
 import { Composer } from './components/Composer';
+import { clearDraft } from './composer.model';
 import { RequestModal } from './components/RequestModal';
 import { SettingsDialog } from './components/SettingsDialog';
-import { PermissionsDialog } from './components/PermissionsDialog';
 import { WorkspaceSheet, type WorkspaceSheetTab } from './components/WorkspaceSheet';
-import { EditorPane } from './components/EditorPane';
+import { dropEditorBuffer, saveEditorBuffer, openEditorSearch } from './components/EditorPane';
+import { closeTabs, cycleTab, neighbourAfterClose } from './workbench.tabs';
 import { HomeView } from './components/HomeView';
 import { ProjectWelcome } from './components/ProjectWelcome';
 import { GalleryView } from './components/GalleryView';
 import { MachineHealthDialog } from './components/MachineHealthDialog';
 import { ModelDialog } from './components/ModelDialog';
 import { Appearance, applyAppearance, savedAppearance } from './appearance';
-import { deriveMacSession } from './mac.session.model';
-import { deriveBrowserSession } from './browser.session.model';
-import { inspectorTabs, resolveActiveTab, type InspectorTabId } from './inspector.model';
+import { inspectorTabs, resolveWorkbenchTab, type InspectorTabId, type WorkbenchTab } from './inspector.model';
 import { buildFinalReceipt } from './final.receipt.model';
-import { needsTrustCenterBeforeRun, type TaskLane } from './lane.inference';
+import { runSummary } from './run.summary.model';
 import { usePhase9 } from './usePhase9';
-import { computerUseModelReadiness } from './computer.use.model';
-import { buildComputerUseExecutionPrompt } from './computer.use.prompt';
-import { isRoutineAppOwnedMacPrompt } from './mac.approval.model';
 
 /**
  * Bimax for Mac — one calm task workspace.
@@ -52,13 +50,11 @@ import { isRoutineAppOwnedMacPrompt } from './mac.approval.model';
 
 export function App(): React.ReactElement {
   const {
-    state, submit, interrupt, setControls, sendCommand, query, reply, menuSelect,
+    state, store, submit, interrupt, setControls, sendCommand, query, ingestAttachment, reply, menuSelect,
     clearCompletions, configGet, configSet, catalogGet,
   } = useEngine();
   const { status: supervisorStatus, act: supervisorAct } = useSupervisor();
   const { status: gitStatus, refresh: refreshGit } = useGit(state.project);
-  const { takeover, pause, resume } = useTakeover();
-  const { report: trustReport, refresh: refreshTrust } = useTrust();
   const phase9 = usePhase9(state.project);
   // Publishes `:root[data-chrome]`. Read for the side effect: the glass surfaces are pure CSS.
   useWindowChrome();
@@ -75,88 +71,102 @@ export function App(): React.ReactElement {
   const [sidebarPinned, setSidebarPinned] = useState(true);
   const [sidebarPeek, setSidebarPeek] = useState(false);
   const sidebarOpen = sidebarPinned || sidebarPeek;
+  /*
+    The peek closes a beat AFTER the pointer leaves, and any enter in between cancels it: the toggle,
+    the gap and the panel are one hover region (hover.intent.ts, fix list item 15). Every change to the
+    peek goes through this — setting the state around it would leave the intent believing a closed
+    panel is still open, and the next hover would then do nothing.
+  */
+  const peekIntent = useMemo(() => createHoverIntent(setSidebarPeek), []);
+  useEffect(() => () => peekIntent.dispose(), [peekIntent]);
+  const togglePinned = useCallback(() => { setSidebarPinned((v) => !v); peekIntent.close(); }, [peekIntent]);
   const [inspectorOpen, setInspectorOpen] = useState(false);
   /**
-   * Both bars collapse into the control that closed them, and a panel torn out of the layout on the
-   * click cannot animate anything. So each bar has a second flag that LAGS its intent: the panel
-   * stays in the layout for as long as the collapse takes, and `MorphRegion` reports back when the
-   * flight is done. `…Pinned/Open` is what the user asked for; `…Mounted` is what is on screen.
+   * Both bars collapse back into their own edge, and a panel torn out of the layout on the click
+   * cannot animate anything. So each bar has a second flag that LAGS its intent: the panel stays in
+   * the layout for as long as the collapse takes, and `MorphRegion` reports back when the flight is
+   * done. `…Pinned/Open` is what the user asked for; `…Mounted` is what is on screen.
    */
   const [sidebarMounted, setSidebarMounted] = useState(true);
   const [inspectorMounted, setInspectorMounted] = useState(false);
   useEffect(() => { if (sidebarPinned) setSidebarMounted(true); }, [sidebarPinned]);
   useEffect(() => { if (inspectorOpen) setInspectorMounted(true); }, [inspectorOpen]);
+  // A collapsing pane's width follows its shell, and the layout is handed back only once the pane has
+  // left it — so the conversation moves with the edge rather than after it. See pane.flight.ts.
+  const groupEl = useRef<HTMLDivElement | null>(null);
+  const groupRef = useRef<GroupImperativeHandle | null>(null);
+  useLayoutEffect(() => { if (!sidebarMounted) settleCollapse(groupEl.current, groupRef.current, 'sidebar'); }, [sidebarMounted]);
+  useLayoutEffect(() => { if (!inspectorMounted) settleCollapse(groupEl.current, groupRef.current, 'inspector'); }, [inspectorMounted]);
   /**
-   * The bars' origins.
-   *
-   * Neither can hold a ref to its trigger: the sidebar is opened from the title bar, the inspector
-   * from the composer, a lane chip, the dock, ⌘J and — this is the case that decides the design —
-   * by the engine itself, when a task first produces evidence. Threading a rect down from five
-   * unrelated components would mean the title bar owning a piece of the sidebar's animation, and
-   * the sixth caller silently losing it.
-   *
-   * So both read the intent tracker, which answers the same question by observation and returns
-   * *nothing* when no press can explain the surface (Prompt 2 §45). An inspector that opens by
-   * itself materialises where it is; one the user opened grows out of what they pressed.
+   * The workbench tab the user asked for: a lane or an open file, one type (`inspector.model.ts`).
+   * This replaced a `requestedTab: InspectorTabId | null` that had to be NULLED to reveal the
+   * editor — a second, invisible meaning for "no lane chosen" that made opening a file from the
+   * Files lane look like a dead click.
    */
-  const sidebarSeed = useIntentSeed();
-  const inspectorSeed = useIntentSeed();
-  const [requestedTab, setRequestedTab] = useState<InspectorTabId | null>(null);
-  const [terminalOpen, setTerminalOpen] = useState(false);
+  const [requestedTab, setRequestedTab] = useState<WorkbenchTab | null>(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [trustOpen, setTrustOpen] = useState(false);
   const [workspaceSheet, setWorkspaceSheet] = useState<WorkspaceSheetTab | null>(null);
-  /**
-   * A Control Mac request the user made before Bimax could operate the Mac.
-   *
-   * `04_FRONTEND_PLAN.md`: "Code tasks enter immediately. The first Control Mac task opens a short
-   * contextual Trust Center… and returns to the waiting task." The instruction is held here, not
-   * discarded and not sent — sending it would make the model discover the permission problem for
-   * itself, which is how the old build produced a confusing half-run.
-   */
-  const [waitingMacTask, setWaitingMacTask] = useState<string | null>(null);
   const [appearance, setAppearance] = useState<Appearance>(savedAppearance);
   const [view, setView] = useState<'chat' | 'gallery'>('chat');
   const [openFiles, setOpenFiles] = useState<string[]>([]);
+  /** The last file the workbench showed. Only the Files tree reads it, to mark where you are. */
   const [activeFile, setActiveFile] = useState<string | null>(null);
+  /** Unsaved files. It lives here because the tab strip draws the dot and the editor causes it. */
+  const [dirtyFiles, setDirtyFiles] = useState<ReadonlySet<string>>(() => new Set());
+  /**
+   * The workbench filling the window between the sidebar and the right edge (owner, 2026-09-30: "it must touch the left
+   * panel, occupy the complete middle panel"). The value is the flex share the panel takes while it does — everything
+   * the sidebar is not — and null when it is not enlarged. See `toggleWide`.
+   */
+  const [wideGrow, setWideGrow] = useState<number | null>(null);
+  const wide = wideGrow !== null;
   const [machineHealthOpen, setMachineHealthOpen] = useState(false);
   const [modelsOpen, setModelsOpen] = useState(false);
-  const [modelPurpose, setModelPurpose] = useState<'general' | 'computer-use'>('general');
-  const macTaskConsentRef = useRef({ active: false, started: false });
+  const [composerRevision, setComposerRevision] = useState(0);
+  useEffect(()=>{
+    if(settingsOpen || modelsOpen || paletteOpen || machineHealthOpen || workspaceSheet || !inspectorOpen || view!=='chat') window.dispatchEvent(new Event('bimax:stop-preview'));
+  },[settingsOpen,modelsOpen,paletteOpen,machineHealthOpen,workspaceSheet,inspectorOpen,view]);
 
-  /**
-   * Submit one explicitly selected Control Mac turn. The packaged engine predates the native
-   * provider's internal-approval marker, so it emits a duplicate generic MCP prompt before every
-   * call. The renderer answers only that exact prompt while this turn is active; all provider
-   * policy, sensitive-surface blocks, takeover and taint prompts remain intact.
-   */
-  const submitMacTask = useCallback((text: string) => {
-    macTaskConsentRef.current = { active: true, started: false };
-    submit(text, buildComputerUseExecutionPrompt(text));
-  }, [submit]);
-
-  useEffect(() => {
-    const consent = macTaskConsentRef.current;
-    if (!consent.active) return;
-    if (busy) consent.started = true;
-    else if (consent.started) macTaskConsentRef.current = { active: false, started: false };
-  }, [busy]);
-
-  const routineMacRequest = isRoutineAppOwnedMacPrompt(
-    state.request,
-    macTaskConsentRef.current.active,
-  );
-
-  useEffect(() => {
-    if (!routineMacRequest || !state.request) return;
-    reply(state.request.id, 'Yes');
-  }, [reply, routineMacRequest, state.request]);
 
   useEffect(() => {
     window.bimax.setAppearance(appearance);
     return applyAppearance(appearance);
   }, [appearance]);
+
+  /**
+   * The two settings the PAGE acts on, read whenever an engine is ready: Reduce motion (styles.css
+   * answers `data-reduce-motion`) and the sound when a turn finishes. Both were saved and never read
+   * (fix list items 5 and 17). Refreshed when the Settings window closes, where either may change.
+   */
+  const [turnSound, setTurnSound] = useState(false);
+  /** The sidebar's quick switches read and write the same config the Settings window does. */
+  const quickSettings = useMemo(() => ({
+    get: configGet,
+    set: async (patch: Parameters<typeof configSet>[0]) => {
+      const next = await configSet(patch);
+      if (typeof next.notificationBell === 'boolean') setTurnSound(next.notificationBell);
+      return next;
+    },
+  }), [configGet, configSet]);
+  const engineReady = supervisorStatus?.phase === 'ready' || supervisorStatus?.phase === 'degraded';
+  useEffect(() => {
+    if (!engineReady || settingsOpen) return undefined;
+    let live = true;
+    void configGet().then((config) => {
+      if (!live) return;
+      if (typeof config.reducedMotion === 'boolean') applyMotionPreference(config.reducedMotion);
+      setTurnSound(config.notificationBell === true);
+    }).catch(() => undefined);
+    return () => { live = false; };
+  }, [engineReady, settingsOpen, configGet]);
+  // "Sound when a task finishes": only while Bimax is in the background — a sound for a reply you are
+  // watching arrive is noise.
+  const wasBusy = useRef(false);
+  useEffect(() => {
+    if (wasBusy.current && !busy && turnSound && !document.hasFocus()) window.bimax.beep?.();
+    wasBusy.current = busy;
+  }, [busy, turnSound]);
 
   // --- Evidence lanes, derived from the protocol the task already produced --------------------
 
@@ -164,117 +174,207 @@ export function App(): React.ReactElement {
     () => state.items.flatMap((item) => (item.kind === 'tool' ? [item.call] : [])),
     [state.items],
   );
-  // One clock read per render, shared by every freshness calculation — an evidence age that
-  // disagreed with itself across two panels would be worse than no age at all.
-  const mac = useMemo(
-    () => deriveMacSession(toolCalls, { paused: takeover.paused, reason: takeover.reason }, Date.now()),
-    [toolCalls, takeover.paused, takeover.reason],
-  );
-  const browser = useMemo(() => deriveBrowserSession(toolCalls), [toolCalls]);
-  const receipt = useMemo(() => buildFinalReceipt({ review: state.review, mac }), [state.review, mac]);
+  const receipt = useMemo(() => buildFinalReceipt({ review: state.review }), [state.review]);
+  // What the latest run did, once it has finished — the line the conversation ends on (UI fix list item 41).
+  const runEnd = useMemo(() => runSummary(state.items, state.review, busy), [state.items, state.review, busy]);
 
   const hasProject = state.project.length > 0;
+
+  // Remote position drives the GitHub lane's badge (ahead) and attention dot (behind). Read on
+  // project change and whenever git status moves, which is already the app's "something happened
+  // in the repo" signal — no extra polling loop.
+  const [remote, setRemote] = useState<{ isRepo: boolean; ahead: number; behind: number } | null>(null);
+  useEffect(() => {
+    if (!hasProject) { setRemote(null); return undefined; }
+    let live = true;
+    // Optional-call on purpose: a renderer paired with an older preload (dev reload, partial
+    // install) would otherwise throw inside an effect and white-screen the entire app over a
+    // missing side-panel badge. The lane degrades to "not a repo" instead.
+    const read = window.bimax.git?.remote?.();
+    if (!read) { setRemote(null); return undefined; }
+    void read
+      .then((r: unknown) => { if (live) setRemote(r as { isRepo: boolean; ahead: number; behind: number } | null); })
+      .catch(() => { if (live) setRemote(null); });
+    return () => { live = false; };
+  }, [hasProject, state.project, gitStatus]);
 
   const tabs = useMemo(() => inspectorTabs({
     review: state.review,
     gitStatus,
-    mac,
-    subagents: state.subagents,
     hasProject,
-    browserUrl: browser.currentUrl,
-    runtimeAvailable: phase9.runtime !== null,
-    processCount: phase9.processes.length,
-    environmentAvailable: phase9.environment !== null,
-    environmentToolCount: phase9.environment?.tools.filter((tool) => tool.state === 'ready').length,
-    alchemistAvailable: phase9.alchemist !== null,
-    alchemistBackendCount: phase9.alchemist?.backends.filter((backend) => backend.state === 'ready').length,
-  }), [
-    state.review, gitStatus, mac, state.subagents, hasProject, browser.currentUrl,
-    phase9.runtime, phase9.processes.length, phase9.environment, phase9.alchemist,
-  ]);
-  const activeTab = resolveActiveTab(tabs, requestedTab);
+    outputsEnabled: !!window.bimax.outputs,
+    isRepo: remote?.isRepo === true,
+    ahead: remote?.ahead ?? 0,
+    behind: remote?.behind ?? 0,
+  }), [state.review, gitStatus, hasProject, remote]);
+  const [outputSelection, setOutputSelection] = React.useState<{id:string;version?:string;grant?:string;nonce:number;owner?:string|null}|null>(null);
+  const activeTab = resolveWorkbenchTab(tabs, requestedTab, openFiles);
+
+  React.useEffect(() => {
+    const open = (event: Event) => {
+      const detail = (event as CustomEvent).detail;
+      if (!detail || typeof detail.id !== 'string') return;
+      setOutputSelection({id:detail.id,version:detail.version,nonce:Date.now(),owner:state.threadId});
+      setRequestedTab({kind:'lane',id:'outputs'}); setInspectorOpen(true);
+    };
+    const app = (event:Event) => { const part=(event as CustomEvent).detail; if(part?.kind!=='mcp-app' || typeof part.id!=='string') return; setOutputSelection({id:'',grant:part.id,nonce:Date.now(),owner:state.threadId});setRequestedTab({kind:'lane',id:'outputs'});setInspectorOpen(true); };
+    const keep = async (event: Event) => {
+      const detail = (event as CustomEvent).detail;
+      if (!state.threadId || !window.bimax.outputs || typeof detail?.content !== 'string') { detail?.complete?.('Choose a conversation before keeping an output.');return; }
+      const owner = state.threadId;
+      try {
+        const formats: Record<string,import('../../shared/outputs').OutputFormat> = { html:'html',jsx:'react',tsx:'react',mermaid:'mermaid',markdown:'markdown',md:'markdown',vega:'vega-lite','vega-lite':'vega-lite' };
+        const result = await window.bimax.outputs.save(owner,{key:typeof detail.key==='string' ? detail.key : crypto.randomUUID(),title:`Saved ${detail.language || 'code'} output`,format:formats[detail.language] || 'code',content:detail.content,language:detail.language || undefined});
+        if (!result)throw new Error('Output was not saved.');
+        detail.complete?.();open(new CustomEvent('bimax:open-output',{detail:{id:result.record.id,version:result.version.id}}));
+      } catch (error) { detail.complete?.(String(error)); }
+    };
+    window.addEventListener('bimax:open-mcp-app',app); window.addEventListener('bimax:open-output',open); window.addEventListener('bimax:keep-output',keep);
+    return () => { window.removeEventListener('bimax:open-mcp-app',app); window.removeEventListener('bimax:open-output',open); window.removeEventListener('bimax:keep-output',keep); };
+  }, [state.threadId]);
 
   // --- Shell actions --------------------------------------------------------------------------
 
-  /**
-   * Run an instruction, or hold it behind the contextual Trust Center when it needs the Mac and the
-   * Mac is not available yet. A code task is never held.
-   */
-  const submitTask = useCallback((text: string, lane: TaskLane = 'code') => {
-    if (lane !== 'mac') {
-      submit(text);
-      return;
-    }
-    setWaitingMacTask(text);
-    void Promise.all([configGet(), catalogGet(false)]).then(([config, catalog]) => {
-      if (!computerUseModelReadiness(config, catalog).ready) {
-        setModelPurpose('computer-use');
-        setModelsOpen(true);
-        return;
-      }
-      if (needsTrustCenterBeforeRun('mac', trustReport?.computerUse ?? null)) {
-        setTrustOpen(true);
-        return;
-      }
-      submitMacTask(text);
-      setWaitingMacTask(null);
-    });
-  }, [catalogGet, configGet, submit, submitMacTask, trustReport]);
-
-  /**
-   * Leaving the Trust Center: re-read the report, and release the waiting task only if Bimax can
-   * now actually operate the Mac. If the user declined, the task stays waiting and visible rather
-   * than being run into a refusal.
-   */
-  const closeTrust = useCallback(() => {
-    setTrustOpen(false);
-    if (!waitingMacTask) return;
-    void Promise.all([refreshTrust(), configGet()]).then(([value]) => {
-      if (!value?.computerUse.available) return;
-      submitMacTask(waitingMacTask);
-      setWaitingMacTask(null);
-    });
-  }, [waitingMacTask, refreshTrust, configGet, submitMacTask]);
+  const submitTask = useCallback((text: string, engineText?: string, route?: ComputerRoute) => submit(text, engineText, route), [submit]);
 
   const openInspector = useCallback((tab: InspectorTabId) => {
-    setRequestedTab(tab);
+    setRequestedTab({ kind: 'lane', id: tab });
     setInspectorOpen(true);
+  }, []);
+
+  /** One entry point for the strip: selecting a tab is the only state the panel has. */
+  const selectTab = useCallback((tab: WorkbenchTab) => {
+    setRequestedTab(tab);
+    if (tab.kind === 'file') setActiveFile(tab.path);
   }, []);
 
   const openFile = useCallback((rel: string) => {
     setOpenFiles((files) => (files.includes(rel) ? files : [...files, rel]));
     setActiveFile(rel);
+    setRequestedTab({ kind: 'file', path: rel });
     setInspectorOpen(true);
   }, []);
 
   const closeFile = useCallback((rel: string) => {
+    // The strip owns closing now, so it owns the parked undo history that went with the tab.
+    dropEditorBuffer(rel);
+    setDirtyFiles((set) => {
+      if (!set.has(rel)) return set;
+      const next = new Set(set);
+      next.delete(rel);
+      return next;
+    });
     setOpenFiles((files) => {
       const next = files.filter((path) => path !== rel);
-      setActiveFile((current) => (current === rel ? next[next.length - 1] ?? null : current));
+      // The tab that slides under the pointer — right, or left at the end (`workbench.tabs.ts`).
+      const neighbour = neighbourAfterClose(files, rel);
+      setActiveFile((current) => (current === rel ? neighbour : current));
+      // Closing the tab you are looking at lands on its neighbour, and closing the last one lands
+      // on the file tree rather than on whatever lane happens to want attention.
+      setRequestedTab((current) => {
+        if (current?.kind !== 'file' || current.path !== rel) return current;
+        return neighbour ? { kind: 'file', path: neighbour } : { kind: 'lane', id: 'files' };
+      });
       return next;
     });
   }, []);
 
+  const markDirty = useCallback((rel: string, dirty: boolean) => {
+    setDirtyFiles((set) => {
+      if (set.has(rel) === dirty) return set;
+      const next = new Set(set);
+      if (dirty) next.add(rel); else next.delete(rel);
+      return next;
+    });
+  }, []);
+
+  /** The latest unsaved set, for `closeFiles`, whose questions outlive the render that asked them. */
+  const dirtyRef = useRef(dirtyFiles);
+  dirtyRef.current = dirtyFiles;
+
+  /**
+   * Close tabs the way the user asked to — a tab's ✕, its menu, ⌘W (UI fix list item 8). An unsaved
+   * file is shown and asked about first, on the Mac's own Save / Don't Save / Cancel sheet, and Cancel
+   * stops the whole command, as in any Mac app's Close All. `closeFile` stays the no-questions close
+   * for a file the editor cannot show at all.
+   */
+  const closeFiles = useCallback((paths: string[]) => closeTabs(paths, {
+    isDirty: (path) => dirtyRef.current.has(path),
+    show: (path) => selectTab({ kind: 'file', path }),
+    // No sheet to ask with (an older preload) is no answer, and no answer is Cancel: never discard work silently.
+    ask: (path) => window.bimax.files.confirmClose?.(path) ?? Promise.resolve('cancel' as const),
+    save: saveEditorBuffer,
+    close: closeFile,
+  }), [closeFile, selectTab]);
+
+  /**
+   * ⌘W and ⌃Tab read the workbench as it is NOW, through a ref, so `runCommand` — which the menu bar
+   * subscribes to — does not change identity on every render.
+   */
+  const tabKeys = useRef({ closeTab: (): void => {}, cycle: (_delta: 1 | -1): boolean => false });
+  tabKeys.current = {
+    // ⌘W closes the file tab in front of you, as in any tabbed app; with none in front, the window.
+    closeTab: () => {
+      if (inspectorOpen && activeTab?.kind === 'file') void closeFiles([activeTab.path]);
+      else window.close();
+    },
+    cycle: (delta) => {
+      const inFiles = activeTab?.kind === 'file' || (activeTab?.kind === 'lane' && activeTab.id === 'files');
+      if (!inspectorOpen || !inFiles) return false;
+      const next = cycleTab(openFiles, activeTab?.kind === 'file' ? activeTab.path : null, delta);
+      if (next === null) return false;
+      selectTab({ kind: 'file', path: next });
+      return true;
+    },
+  };
+
+  /**
+   * Enlarge the workbench over the conversation, and give it back.
+   *
+   * It used to widen only as far as the layout allowed — the task column's `minSize` is 34% and the
+   * panel's `maxSize` 65% — which the owner read as "it just moves the panel a little wider". Now the
+   * conversation column is taken OUT of the flow in CSS (`[data-inspector-wide]` in styles.css) rather
+   * than through the panel library: its layout validation would clamp the column back to 34%, and
+   * changing `minSize` re-registers the panel (see pane.flight.ts). The column stays mounted — a draft,
+   * the scroll position and a running task are untouched — and the library's own layout is never
+   * changed, so giving the width back is exact: the attribute goes and the inline sizes resume.
+   *
+   * The panel's share is 100 minus the sidebar's, so the sidebar keeps its width to the pixel.
+   */
+  const toggleWide = useCallback(() => {
+    const sidebar = groupRef.current?.getLayout().sidebar ?? 0;
+    setWideGrow((grow) => (grow === null ? Math.max(1, 100 - sidebar) : null));
+  }, []);
+  // Hiding the panel ends it. Before paint, so the collapse flight never starts with the conversation
+  // still held at zero width (the two overrides would leave a hole where the panel was).
+  useLayoutEffect(() => { if (!inspectorOpen) setWideGrow(null); }, [inspectorOpen]);
+
   /** Start a fresh task. One definition, because the sidebar, the palette and ⌘N must agree. */
   const newTask = useCallback(() => {
-    sendCommand('/clear force');
+    // A new thread is a new engine in the same folder; the thread it replaces keeps running (see thread.manager.ts).
+    clearDraft(`${state.project}#${state.threadId ?? ''}`);
+    setComposerRevision(value => value + 1);
+    void window.bimax.threads.create();
     setView('chat');
-  }, [sendCommand]);
+  }, [state.project, state.threadId]);
 
   const resumeSession = useCallback((id: string) => {
+    clearDraft(`${state.project}#${state.threadId ?? ''}`);
+    setComposerRevision(value => value + 1);
     window.bimax.send({ t: 'resume', id });
     setView('chat');
-  }, []);
+  }, [state.project, state.threadId]);
 
   // New project → the open files and every evidence lane belonged to the old one.
   useEffect(() => {
     setOpenFiles([]);
     setActiveFile(null);
+    setDirtyFiles(new Set());
     setRequestedTab(null);
     setInspectorOpen(false);
-    setTerminalOpen(false);
+    setWideGrow(null);
     setView('chat');
-  }, [state.project]);
+  }, [state.project, state.threadId]);
 
   /**
    * The inspector reveals itself the first time this task has evidence, and again whenever a lane
@@ -283,7 +383,9 @@ export function App(): React.ReactElement {
    * it, and the plan's calm-workspace goal argues against a pane that keeps springing back after
    * the user closes it.
    */
-  const utilityLanes = new Set<InspectorTabId>(['files', 'runtime', 'environment', 'alchemist']);
+  // Files and Terminal are places you go on purpose; Review and GitHub are where evidence lands.
+  // Only the latter may reveal the panel on their own.
+  const utilityLanes = new Set<InspectorTabId>(['files', 'terminal']);
   const evidenceLanes = tabs.filter((tab) => tab.available && !utilityLanes.has(tab.id));
   const evidenceKey = evidenceLanes.length > 0 ? 'has-evidence' : '';
   const attentionKey = evidenceLanes.filter((tab) => tab.attention).map((tab) => tab.id).join(',');
@@ -299,38 +401,76 @@ export function App(): React.ReactElement {
    * quality bar in `04_FRONTEND_PLAN.md` and Apple's Split views guidance that a hidden pane needs
    * more than one way back.
    */
+  /*
+    One action per command, run by the keyboard map below AND by the menu bar (main/app.menu.ts, fix
+    list item 19). The menu shows these keys without taking them, so each key has one handler, and a
+    menu click runs exactly what the key runs.
+  */
+  const runCommand = useCallback((command: string): boolean => {
+    switch (command) {
+      case 'new-thread': newTask(); return true;
+      case 'toggle-sidebar': togglePinned(); return true;
+      case 'toggle-panel': setInspectorOpen((v) => !v); return true;
+      case 'command-palette': setPaletteOpen((v) => !v); return true;
+      case 'open-project': void window.bimax.pickFolder(); return true;
+      case 'terminal': openInspector('terminal'); return true;
+      case 'settings': setSettingsOpen(true); return true;
+      case 'app-health': setMachineHealthOpen(true); return true;
+      case 'review': openInspector('review'); return true;
+      case 'github': openInspector('github'); return true;
+      case 'files': openInspector('files'); return true;
+      case 'map': setWorkspaceSheet('map'); return true;
+      case 'memory': setWorkspaceSheet('memory'); return true;
+      case 'chats': setView('gallery'); return true;
+      case 'toggle-wide': setInspectorOpen(true); toggleWide(); return true;
+      case 'focus-composer': setView('chat'); setWideGrow(null); requestAnimationFrame(() => document.querySelector<HTMLTextAreaElement>('[data-bimax-composer]')?.focus()); return true;
+      case 'stop-task': if (!busy) return false; interrupt(); return true;
+      case 'models': setModelsOpen(true); return true;
+      case 'moonlight': setAppearance('moonlight'); return true;
+      case 'starlight': setAppearance('starlight'); return true;
+      case 'appearance-auto': setAppearance('auto'); return true;
+      case 'quick-bar': window.bimax.threads.quickOpen(); return true;
+      case 'find-file': return inspectorOpen && activeTab?.kind === 'file' && openEditorSearch();
+      case 'close-file': if (!inspectorOpen || activeTab?.kind !== 'file') return false; void closeFiles([activeTab.path]); return true;
+      case 'next-file': return tabKeys.current.cycle(1);
+      case 'previous-file': return tabKeys.current.cycle(-1);
+      case 'refresh-git': refreshGit(); return true;
+      case 'close-tab': tabKeys.current.closeTab(); return true;
+      default: return false;
+    }
+  }, [newTask, togglePinned, openInspector, toggleWide, busy, interrupt, inspectorOpen, activeTab, closeFiles, refreshGit]);
+  useEffect(() => window.bimax.onMenuCommand?.((command) => { runCommand(command); }), [runCommand]);
+
   useEffect(() => {
+    const KEYS: Record<string, string> = {
+      n: 'new-thread', b: 'toggle-sidebar', j: 'toggle-panel', k: 'command-palette', o: 'open-project', t: 'terminal',
+      w: 'close-tab',
+    };
     const handler = (event: KeyboardEvent): void => {
       const mod = event.metaKey || event.ctrlKey;
       const key = event.key.toLowerCase();
-      if (mod && event.shiftKey && key === 't') { event.preventDefault(); setTrustOpen((v) => !v); return; }
-      if (mod && event.shiftKey && key === 'p') {
+      if (mod && KEYS[key]) { event.preventDefault(); runCommand(KEYS[key]); return; }
+      // ⌃Tab / ⌃⇧Tab step through the file tabs, as in a browser — only while they are on screen.
+      if (event.ctrlKey && !event.metaKey && event.key === 'Tab' && tabKeys.current.cycle(event.shiftKey ? -1 : 1)) {
         event.preventDefault();
-        if (mac.active) (takeover.paused ? resume() : pause('You took control from Bimax'));
         return;
       }
-      if (mod && key === 'n') { event.preventDefault(); newTask(); return; }
-      if (mod && key === 'b') { event.preventDefault(); setSidebarPinned((v) => !v); setSidebarPeek(false); return; }
-      if (mod && key === 'j') { event.preventDefault(); setInspectorOpen((v) => !v); return; }
-      if (mod && key === 'k') { event.preventDefault(); setPaletteOpen((v) => !v); return; }
-      if (mod && key === 'o') { event.preventDefault(); void window.bimax.pickFolder(); return; }
-      if (mod && key === 't') { event.preventDefault(); setTerminalOpen((v) => !v); return; }
       if (mod && key === 'e' && openFiles.length > 0) {
         event.preventDefault();
+        // ⌘E is "back to what I was editing", so it has to REQUEST the file: with the lanes and
+        // the files in one strip, merely opening the panel would show whichever lane was last
+        // selected.
+        setRequestedTab({ kind: 'file', path: activeFile ?? openFiles[openFiles.length - 1] });
         setInspectorOpen(true);
         return;
       }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [openFiles.length, mac.active, takeover.paused, pause, resume, newTask]);
+  }, [openFiles, activeFile, runCommand]);
 
-  const showHome = view === 'chat' && state.items.length === 0 && !state.streaming && !state.thinking;
-  const showEditor = inspectorOpen && openFiles.length > 0 && activeFile !== null && requestedTab === null;
+  const showHome = view === 'chat' && state.items.length === 0 && !state.hasActiveStream;
   const latestProblem = [...state.diagnostics].reverse().find((entry) => entry.level !== 'info');
-  // The app-owned report is the authority on whether Bimax can operate the Mac; a blocked runtime
-  // state is a symptom, not the fact.
-  const computerUseBlocked = trustReport ? !trustReport.computerUse.available : mac.state === 'blocked';
 
   /**
    * One sidebar, rendered in two places: inside the layout when pinned, and as an overlay when
@@ -342,47 +482,42 @@ export function App(): React.ReactElement {
       onNewTask={newTask}
       onOpenPalette={() => setPaletteOpen(true)}
       onResume={resumeSession}
-      onOpenTrust={() => setTrustOpen(true)}
       onOpenInspector={openInspector}
       onOpenSettings={() => setSettingsOpen(true)}
-      onOpenMachineHealth={() => setMachineHealthOpen(true)}
-      computerUseBlocked={computerUseBlocked}
+      quickSettings={quickSettings}
+      sidebarOpen={sidebarOpen}
+      onToggleSidebar={togglePinned}
+      peek={!sidebarPinned && sidebarPeek}
+      appearance={appearance}
+      onAppearance={setAppearance}
     />
   );
 
   return (
     // The theme class lives on <html> (appearance.ts) so portalled dialogs inherit it too.
     <div className="flex h-screen flex-col">
-      <TitleBar
-        project={state.project}
-        protocolMismatch={state.protocolMismatch}
-        gitStatus={gitStatus}
-        sidebarOpen={sidebarOpen}
-        inspectorOpen={inspectorOpen}
-        onToggleSidebar={() => { setSidebarPinned((v) => !v); setSidebarPeek(false); }}
-        onPeekSidebar={() => setSidebarPeek(true)}
-        onToggleInspector={() => setInspectorOpen((v) => !v)}
-        onOpenChanges={() => openInspector('code')}
-        onOpenTrust={() => setTrustOpen(true)}
-        appearance={appearance}
-        onAppearance={setAppearance}
-      />
-
       {hasProject && state.engine.state !== 'exited' && latestProblem?.level === 'error' && (
         <div className="app-surface flex shrink-0 items-center gap-2 border-b border-amber/25 px-4 py-1.5 text-[12px] text-amber">
           <span className="min-w-0 flex-1 truncate">
             {latestProblem.text.replace(/engine/gi, 'Bimax').replace(/supervisor/gi, 'app')}
           </span>
           <button
-            onClick={() => setTrustOpen(true)}
+            onClick={() => setSettingsOpen(true)}
             className="cursor-pointer rounded-md px-2 py-1 text-[11px] font-medium hover:bg-amber/10 focus-visible:outline-2 focus-visible:outline-ember"
           >
-            Open Trust Center
+            Open support
           </button>
         </div>
       )}
 
-      <div className="relative min-h-0 flex-1">
+      <div
+        className="relative min-h-0 flex-1"
+        data-inspector-wide={wide ? '' : undefined}
+        /* With no sidebar holding the window's corner, the enlarged panel's top row takes the traffic lights'
+           gutter and becomes the drag area — the conversation's chrome, which did both, is out of the flow. */
+        data-edge-free={wide && !(hasProject && sidebarMounted && sidebarPinned) ? '' : undefined}
+        style={wide ? ({ '--inspector-wide-grow': String(wideGrow) } as React.CSSProperties) : undefined}
+      >
         {/*
           Peek: an overlay, not a layout panel. Pointing at the toggle must not reflow the
           transcript, and leaving the panel must put it away again — the two halves of the hover
@@ -390,35 +525,64 @@ export function App(): React.ReactElement {
         */}
         {hasProject && !sidebarPinned && sidebarPeek && (
           <div
-            onMouseLeave={() => setSidebarPeek(false)}
+            onMouseEnter={peekIntent.enter}
+            onMouseLeave={() => peekIntent.leave()}
             /* `calm`, not the house bounce: a peek fires on a passing cursor, and anything springy
-               reads as twitchy at that frequency. See the peek-in keyframe's note. */
-            className="animate-[peek-in_var(--dur-snappy)_var(--ease-snappy)] absolute inset-y-0 left-0 z-30 w-[248px] border-r border-line shadow-2xl"
+               reads as twitchy at that frequency. See the peek-in keyframe's note.
+               `sidebar-peek`: over the conversation the panel is a floating surface, and its glass
+               takes the floating density (styles.css, fix list item 14). */
+            className="sidebar-peek animate-[peek-in_var(--dur-snappy)_var(--ease-snappy)] absolute inset-y-0 left-0 z-30 w-[248px] shadow-2xl"
           >
             {sidebarNode}
           </div>
         )}
-        <Group orientation="horizontal" className="h-full">
+        <Group orientation="horizontal" className="h-full" elementRef={groupEl} groupRef={groupRef}>
           {hasProject && sidebarMounted && (
             <>
               <Panel id="sidebar" defaultSize="18%" minSize="190px" maxSize="30%">
+                {/* No `seed`: a persistent bar is a structural width transition and grows from its
+                    own edge (Prompt 2 §75). See `MorphRegion`'s header for why the intent tracker
+                    was the wrong origin here even though it answers the question correctly. */}
                 <MorphRegion
                   open={sidebarPinned}
-                  seed={sidebarSeed}
                   kind="sidebar"
+                  onFrame={(frame) => followFlight(groupEl.current, groupRef.current, 'sidebar', frame, prefersReducedMotion())}
                   onCollapsed={() => setSidebarMounted(false)}
                 >
-                  <div className="h-full" onMouseLeave={() => setSidebarPeek(false)}>
+                  <div className="h-full" onMouseLeave={peekIntent.close}>
                     {sidebarNode}
                   </div>
                 </MorphRegion>
               </Panel>
-              <Separator className="w-px bg-line hover:bg-ember/50 data-[separator-active]:bg-ember" />
+              {/* Carries the canvas tint, and `bg-transparent` is WRONG here even though it sounds right:
+                  the window itself is transparent, so a 1px column that paints nothing is a 1px hole
+                  straight through to the wallpaper — measured as a 60-luminance spike between two
+                  surfaces sitting at 30, i.e. the bright line at the join. It has to paint the
+                  material, not decline to paint. It still shows the accent once you reach for it. */}
+              <Separator className="w-px bg-[var(--app-veil)] transition-colors hover:bg-ember/40 data-[separator-active]:bg-ember/70" />
             </>
           )}
 
           <Panel id="task" minSize="34%">
             <div className="app-surface flex h-full flex-col">
+              {/* The chrome sits ON this surface, not on a bar above it. The pane therefore paints
+                  from y=0 and the controls float in its first 44pt. See TitleBar.tsx's header. */}
+              <CanvasChrome
+                project={state.project}
+                protocolMismatch={state.protocolMismatch}
+                /* Layout, not intent: with no project there is no sidebar to hold the corner,
+                   however "open" it nominally is, and the traffic lights then belong to this row. */
+                sidebarHoldsEdge={hasProject && sidebarMounted && sidebarPinned}
+                onToggleSidebar={togglePinned}
+                onPeekSidebar={peekIntent.enter}
+                onPeekLeave={() => peekIntent.leave()}
+                /* The one control that opens the right panel, at the top right — where the panel
+                   is. It used to be in the sidebar's footer, bottom left. */
+                onOutputs={() => openInspector('outputs')}
+                inspectorOpen={inspectorOpen}
+                onToggleInspector={() => setInspectorOpen((v) => !v)}
+              />
+              <CapabilityBanner notices={Object.values(state.capabilities)} />
               {!hasProject ? (
                 <ProjectWelcome />
               ) : view === 'gallery' ? (
@@ -429,30 +593,8 @@ export function App(): React.ReactElement {
                     <EngineStatusBanner
                       status={supervisorStatus}
                       onAction={supervisorAct}
-                      onOpenSupport={() => setTrustOpen(true)}
+                      onOpenSupport={() => setSettingsOpen(true)}
                     />
-                  )}
-                  {waitingMacTask && (
-                    <div
-                      className="flex shrink-0 items-center gap-2 border-b border-amber/25 bg-amber/8 px-6 py-2 text-[12px] text-amber"
-                      role="status"
-                    >
-                      <span className="min-w-0 flex-1 truncate">
-                        Waiting to run “{waitingMacTask}” — Bimax needs your permission to operate your Mac first.
-                      </span>
-                      <button
-                        onClick={() => setTrustOpen(true)}
-                        className="shrink-0 cursor-pointer rounded-md px-2 py-1 text-[11px] font-medium hover:bg-amber/10 focus-visible:outline-2 focus-visible:outline-ember"
-                      >
-                        Review permissions
-                      </button>
-                      <button
-                        onClick={() => setWaitingMacTask(null)}
-                        className="shrink-0 cursor-pointer rounded-md px-2 py-1 text-[11px] text-amber/80 hover:bg-amber/10 focus-visible:outline-2 focus-visible:outline-ember"
-                      >
-                        Discard
-                      </button>
-                    </div>
                   )}
                   {showHome ? (
                     <HomeView
@@ -464,14 +606,16 @@ export function App(): React.ReactElement {
                   ) : (
                     <Transcript
                       items={state.items}
-                      streaming={state.streaming}
-                      thinking={state.thinking}
-                      busy={busy}
+                      store={store}
                       onMenuSelect={menuSelect}
+                      summary={runEnd}
+                      onReview={() => openInspector('review')}
                     />
                   )}
-                  <TerminalDrawer open={terminalOpen} project={state.project} onClose={() => setTerminalOpen(false)} />
                   <Composer
+                    key={`${state.threadId}:${composerRevision}`}
+                    draftKey={`${state.project}#${state.threadId ?? ''}`}
+                    threadId={state.threadId}
                     busy={busy}
                     mode={state.mode}
                     tier={state.tier}
@@ -485,8 +629,9 @@ export function App(): React.ReactElement {
                     onControls={setControls}
                     onCommand={sendCommand}
                     onQuery={query}
+                    onIngest={ingestAttachment}
                     onClearCompletions={clearCompletions}
-                    onOpenModels={() => { setModelPurpose('general'); setModelsOpen(true); }}
+                    onOpenModels={() => setModelsOpen(true)}
                     runtime={supervisorStatus}
                   />
                 </>
@@ -494,52 +639,56 @@ export function App(): React.ReactElement {
             </div>
           </Panel>
 
-          {hasProject && inspectorMounted && (
+          {(hasProject || activeTab?.kind === 'lane' && activeTab.id === 'outputs') && inspectorMounted && (
             <>
-              <Separator className="w-px bg-line hover:bg-ember/50 data-[separator-active]:bg-ember" />
-              {showEditor ? (
-                <Panel id="editor" className="app-surface" defaultSize="46%" minSize="320px" maxSize="65%">
-                  <EditorPane
-                    open={openFiles}
-                    active={activeFile}
+              {/* Carries the canvas tint, and `bg-transparent` is WRONG here even though it sounds right:
+                  the window itself is transparent, so a 1px column that paints nothing is a 1px hole
+                  straight through to the wallpaper — measured as a 60-luminance spike between two
+                  surfaces sitting at 30, i.e. the bright line at the join. It has to paint the
+                  material, not decline to paint. It still shows the accent once you reach for it. */}
+              <Separator className="w-px bg-[var(--app-veil)] transition-colors hover:bg-ember/40 data-[separator-active]:bg-ember/70" />
+              {/* ONE panel, always `id="inspector"`. It used to be two — `editor` when a file was
+                  showing, `inspector` otherwise — which is why `pane.flight.ts` and the
+                  `[data-flight-…]` rules in styles.css each had to name both ids: the collapse
+                  animation keys off the panel element, and a second id is a second thing to keep in
+                  step with no test holding them together. Merging the chrome removed that pair. */}
+              <Panel id="inspector" defaultSize="34%" minSize="320px" maxSize="65%">
+                {/* NO `pane-surface` on this Panel. `Inspector` renders `.evidence-studio`, which
+                    already paints `--pane-veil`, and two translucent layers of the same veil
+                    STACK: 0.68 over 0.68 is 1 - 0.32² = 90% opaque. That is exactly why this one
+                    panel still looked solid while the canvas beside it showed the wallpaper.
+                    One surface, one paint. */}
+                <MorphRegion
+                  open={inspectorOpen}
+                  kind="inspector"
+                  onFrame={(frame) => followFlight(groupEl.current, groupRef.current, 'inspector', frame, prefersReducedMotion())}
+                  onCollapsed={() => setInspectorMounted(false)}
+                >
+                  <Inspector
+                    threadId={state.threadId}
+                    outputSelection={outputSelection?.owner===state.threadId ? outputSelection : null}
+                    tabs={tabs}
+                    active={activeTab}
+                    onTab={selectTab}
+                    onClose={() => setInspectorOpen(false)}
+                    review={state.review}
+                    gitStatus={gitStatus}
+                    checkpoints={state.snapshot?.checkpoints}
+                    onRefreshGit={refreshGit}
+                    onCommand={sendCommand}
                     project={state.project}
-                    onSelect={setActiveFile}
-                    onClose={closeFile}
-                    onBackToPanels={() => setRequestedTab('files')}
+                    onOpenFile={openFile}
+                    lastFile={activeFile}
+                    openFiles={openFiles}
+                    dirtyFiles={dirtyFiles}
+                    onCloseFile={closeFile}
+                    onCloseFiles={(paths) => { void closeFiles(paths); }}
+                    onDirty={markDirty}
+                    wide={wide}
+                    onToggleWide={toggleWide}
                   />
-                </Panel>
-              ) : (
-                <Panel id="inspector" className="app-surface" defaultSize="34%" minSize="300px" maxSize="56%">
-                  <MorphRegion
-                    open={inspectorOpen}
-                    seed={inspectorSeed}
-                    kind="inspector"
-                    onCollapsed={() => setInspectorMounted(false)}
-                  >
-                    <Inspector
-                      tabs={tabs}
-                      active={activeTab}
-                      onTab={openInspector}
-                      onClose={() => setInspectorOpen(false)}
-                      review={state.review}
-                      gitStatus={gitStatus}
-                      checkpoints={state.snapshot?.checkpoints}
-                      onRefreshGit={refreshGit}
-                      onCommand={sendCommand}
-                      project={state.project}
-                      onOpenFile={openFile}
-                      mac={mac}
-                      onPause={() => pause('You took control from Bimax')}
-                      onResume={resume}
-                      browser={browser}
-                      receipt={receipt}
-                      subagents={state.subagents}
-                      todos={state.todos}
-                      phase9={phase9}
-                    />
-                  </MorphRegion>
-                </Panel>
-              )}
+                </MorphRegion>
+              </Panel>
             </>
           )}
         </Group>
@@ -549,35 +698,25 @@ export function App(): React.ReactElement {
         <CommandPalette
           open={paletteOpen}
           onClose={() => { setPaletteOpen(false); clearCompletions(); }}
-          onOpenInspector={openInspector}
-          onOpenTerminal={() => setTerminalOpen(true)}
-          onOpenTrust={() => setTrustOpen(true)}
-          onOpenWorkspace={setWorkspaceSheet}
-          onOpenSettings={() => setSettingsOpen(true)}
-          onNewTask={newTask}
-          onOpenGallery={() => setView('gallery')}
+          onCommand={runCommand}
+          available={{ busy, editor: inspectorOpen && activeTab?.kind === 'file',
+            files: inspectorOpen && (activeTab?.kind === 'file' || (activeTab?.kind === 'lane' && activeTab.id === 'files')) && openFiles.length > 0 }}
         />
       )}
 
       {hasProject && (
         <SettingsDialog
+          notices={Object.values(state.notices ?? {})}
           open={settingsOpen}
           onClose={() => setSettingsOpen(false)}
-          onOpenHealth={() => { setSettingsOpen(false); setTrustOpen(true); }}
-          onOpenModels={() => { setSettingsOpen(false); setModelPurpose('general'); setModelsOpen(true); }}
+          onOpenHealth={() => { setSettingsOpen(false); setMachineHealthOpen(true); }}
+          onOpenModels={() => { setSettingsOpen(false); setModelsOpen(true); }}
           onOpenInspector={(tab) => { setSettingsOpen(false); openInspector(tab); }}
           phase9={phase9}
           configGet={configGet}
           configSet={configSet}
         />
       )}
-
-      {/*
-        closeTrust, not a bare setState: a Control Mac task held back for permissions is released
-        here, and only if the Mac is genuinely available now. Dropping that would leave the user's
-        instruction waiting forever with no visible reason.
-      */}
-      <PermissionsDialog open={trustOpen} onClose={closeTrust} />
 
       <WorkspaceSheet
         open={workspaceSheet !== null}
@@ -588,33 +727,28 @@ export function App(): React.ReactElement {
         onCommand={sendCommand}
       />
 
-      {state.request && !routineMacRequest && <RequestModal req={state.request} onReply={reply} />}
+      {state.request && <RequestModal req={state.request} onReply={reply} />}
 
       <ModelDialog
         open={modelsOpen}
         onClose={() => setModelsOpen(false)}
-        purpose={modelPurpose}
-        onComputerUseReady={() => {
-          setModelsOpen(false);
-          if (!waitingMacTask) return;
-          if (needsTrustCenterBeforeRun('mac', trustReport?.computerUse ?? null)) {
-            setTrustOpen(true);
-            return;
-          }
-          void configGet().then(() => {
-            submitMacTask(waitingMacTask);
-            setWaitingMacTask(null);
-          });
-        }}
         configGet={configGet}
         configSet={configSet}
         catalogGet={catalogGet}
       />
 
+      {/*
+        `phase9`, not `trustReport={null}`. The dialog used to take a TrustReport and was always
+        handed null, so it fell through to hardcoded placeholder hardware on every open. The
+        TrustReport channel it was waiting for does not exist — `global.d.ts` declares
+        `trust.trustReport()` but no main-process handler was ever written for it, and the type
+        still describes the Computer Use components that were archived. `phase9` is the feed that
+        is genuinely live here, and this component already sits inside its 30-second refresh.
+      */}
       <MachineHealthDialog
         open={machineHealthOpen}
         onOpenChange={setMachineHealthOpen}
-        trustReport={trustReport}
+        phase9={phase9}
       />
     </div>
   );

@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { supportsProtocolMajor } from '../shared/protocol.compat.gen';
+import { supportsProtocolMajor } from '../shared/protocol.compat';
 
 const repo = path.resolve(__dirname, '..', '..', '..');
 const read = (file: string) => fs.readFileSync(path.join(repo, file), 'utf8');
@@ -33,32 +33,38 @@ describe('Phase 3 versioned client protocol', () => {
   });
 });
 
-describe('Phase 3 engine release and Desktop consumption boundary', () => {
-  test('Terminal release publishes per-chip engines, manifest, checksums, schema, and fixtures', () => {
-    const release = read('release.sh');
-    const workflow = read('.github/workflows/release.yml');
-    expect(release).toContain('bimax-engine-${os}-${arch}');
-    expect(release).toContain('generate-engine-manifest.mjs');
-    for (const asset of ['bimax-engine-darwin-arm64', 'bimax-engine-darwin-x64', 'bimax-engine-manifest.json', 'ENGINE_SHA256SUMS', 'bimax-client-protocol-v']) {
-      expect(workflow).toContain(asset);
-    }
-  });
+describe('Desktop builds and ships its own engine', () => {
+  // This suite used to assert the OPPOSITE: that prepare-engine.sh never mentions `bun build` or
+  // src/index.ts, and that app/engine.lock.json pins an immutable manifest digest to download. That
+  // was the right guard while the engine was a separately published product with its own release
+  // and version. It is not any more — the terminal product went to the archive on 2026-09-06, the
+  // v1.1.0 release the lock pinned was never actually published, and this suite's own comment
+  // already recorded that engine publishing had "NO PIPELINE AND NO GUARD".
+  //
+  // The lock also pinned protocol 3.1.0 while the engine has been emitting 3.2.0, so the one fact
+  // it asserted about the engine was stale as well. The lock and resolver are in
+  // ~/Developer/bimax-archive. What replaces them is a build, and these are its terms.
 
-  test('Desktop pins an immutable manifest and never compiles Terminal engine source', () => {
-    const lock = JSON.parse(read('app/engine.lock.json'));
-    expect(lock.manifestSha256).toMatch(/^[a-f0-9]{64}$/);
-    expect(lock.protocol).toEqual({ version: '3.1.0', minCompatibleMajor: 2, maxCompatibleMajor: 3 });
+  test('the engine is built from this repo, not downloaded from a release', () => {
     const prepare = read('app/scripts/prepare-engine.sh');
-    const resolver = read('app/scripts/resolve-engine-artifact.mjs');
-    expect(prepare + resolver).not.toMatch(/bun build|src\/index\.ts|dist\/index\.js|npx tsx/);
-    expect(resolver).toContain('BIMAX_ENGINE_LOCAL_OVERRIDE');
-    expect(resolver).toContain('BIMAX_ENGINE_ARTIFACT_DIR');
-    expect(resolver).toContain('digest mismatch');
-    expect(resolver).toContain('size mismatch');
+    expect(prepare).toMatch(/bun build/);
+    expect(prepare).toMatch(/src\/index\.ts/);
+    // No network, no pinned digest, no version to drift: nothing to fetch means nothing to verify.
+    expect(prepare).not.toMatch(/fetch|curl|https:\/\/github\.com|manifestSha256/);
+    expect(fs.existsSync(path.join(repo, 'app/engine.lock.json'))).toBe(false);
+    expect(fs.existsSync(path.join(repo, 'app/scripts/resolve-engine-artifact.mjs'))).toBe(false);
   });
 
-  test('release builds explicitly forbid the contributor override', () => {
-    expect(read('app/scripts/resolve-engine-artifact.mjs')).toContain("BIMAX_RELEASE_BUILD === '1'");
-    expect(read('app/package.json')).toContain('BIMAX_RELEASE_BUILD=1');
+  test('a packaged app resolves its engine from its own bundle and refuses a development fallback', () => {
+    const engine = read('app/src/main/engine.ts');
+    expect(engine).toMatch(/process\.resourcesPath, 'engine', 'index\.js'/);
+    expect(engine).toMatch(/PackagedRuntimeError/);
+    expect(engine).toMatch(/refusing a development fallback/);
+  });
+
+  test('the shipped engine bundle is what electron-builder packs', () => {
+    const builder = read('app/electron-builder.yml');
+    expect(builder).toMatch(/extraResources:/);
+    expect(builder).toMatch(/from: engine/);
   });
 });

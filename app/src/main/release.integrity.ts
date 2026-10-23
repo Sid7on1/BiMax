@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 
 /** Measured release facts. No value is inferred from a bundle name or from app.isPackaged. */
-export type SignatureKind = 'developer-id' | 'apple-development' | 'ad-hoc' | 'unsigned' | 'unknown';
+export type SignatureKind = 'developer-id' | 'apple-development' | 'local-development' | 'ad-hoc' | 'unsigned' | 'unknown';
 export type NotarizationState = 'accepted' | 'rejected' | 'unknown';
 
 export interface CodeSignatureReport {
@@ -39,6 +39,7 @@ export function parseSignatureAssessment(codesign: CommandResult, spctl: Command
   else if (/^Signature=adhoc$/m.test(signingText) || /flags=.*adhoc/i.test(signingText)) kind = 'ad-hoc';
   else if (authority?.startsWith('Developer ID Application:')) kind = 'developer-id';
   else if (authority?.startsWith('Apple Development:')) kind = 'apple-development';
+  else if (codesign.ok && authority) kind = 'local-development';
 
   const gatekeeper = spctl.ok
     ? 'accepted'

@@ -4,8 +4,13 @@ import type { RecoveryActionName, SupervisorStatus } from '../global';
 
 /**
  * Human-facing recovery notice. Startup is intentionally silent: opening a project should feel
- * like opening a workspace, not watching infrastructure boot. Technical detail lives in the
- * Trust Center.
+ * like opening a workspace, not watching infrastructure boot. Technical detail lives in Settings.
+ *
+ * This renders for a CRASH only. `degraded` is deliberately silent: it means the supervisor shed
+ * an optional capability (codebase memory, drives boot) because the machine is low on free memory
+ * — the documented adaptive path, not a fault. On an 8GB Mac that state is effectively permanent,
+ * so surfacing it put a warning banner above every session for a system that was working exactly
+ * as designed. Nothing is broken and there is no action to take, so there is nothing to say.
  *
  * This component was written during Phase 2 but never rendered by anything — a crashed engine
  * simply produced a task surface that had stopped responding, with no statement and no way back.
@@ -19,40 +24,31 @@ export function EngineStatusBanner({
   onOpenSupport: () => void;
 }): React.ReactElement | null {
   const failed = status.phase === 'exited' || status.phase === 'failed';
-  const reduced = status.phase === 'degraded';
 
-  if (!failed && !reduced) return null;
+  if (!failed) return null;
 
   return (
     <section
       aria-label="Bimax status"
       aria-live="polite"
-      className={`shrink-0 border-b px-4 py-2.5 ${failed ? 'border-rust/25 bg-rust/8' : 'border-amber/20 bg-amber/7'}`}
+      className="shrink-0 border-b border-rust/25 bg-rust/8 px-4 py-2.5"
     >
       <div className="flex min-w-0 flex-wrap items-center gap-3">
-        <span className={`flex size-7 shrink-0 items-center justify-center rounded-lg ${failed ? 'bg-rust/12 text-rust' : 'bg-amber/12 text-amber'}`}>
+        <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-rust/12 text-rust">
           <AlertTriangle size={14} />
         </span>
         <div className="min-w-[220px] flex-1">
-          <div className={`text-[12.5px] font-medium ${failed ? 'text-rust' : 'text-amber'}`}>
-            {failed ? 'Bimax hit a problem' : 'A few workspace features are unavailable'}
-          </div>
-          <div className="mt-0.5 text-[11px] text-dim">
-            {failed ? 'Your work is safe. Try again to continue.' : 'You can keep working while Bimax uses a lighter setup.'}
-          </div>
+          <div className="text-[12.5px] font-medium text-rust">Bimax hit a problem</div>
+          <div className="mt-0.5 text-[11px] text-dim">Your work is safe. Try again to continue.</div>
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
-          {failed && (
-            <>
-              <NoticeButton icon={<RefreshCcw size={12} />} label="Try again" primary onClick={() => onAction('retry')} />
-              <NoticeButton icon={<ShieldCheck size={12} />} label="Start safely" onClick={() => onAction('restartSafe')} />
-              {status.interruptedSessionId && (
-                <NoticeButton icon={<RotateCcw size={12} />} label="Restore last task" onClick={() => onAction('restartSafe', status.interruptedSessionId)} />
-              )}
-            </>
+          <NoticeButton icon={<RefreshCcw size={12} />} label="Try again" primary onClick={() => onAction('retry')} />
+          <NoticeButton icon={<ShieldCheck size={12} />} label="Start safely" onClick={() => onAction('restartSafe')} />
+          {status.interruptedSessionId && (
+            <NoticeButton icon={<RotateCcw size={12} />} label="Restore last task" onClick={() => onAction('restartSafe', status.interruptedSessionId)} />
           )}
           <button onClick={onOpenSupport} className="flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1.5 text-[11px] text-dim hover:bg-hover hover:text-ink focus-visible:outline-2 focus-visible:outline-ember">
-            Trust Center <ArrowRight size={11} />
+            Open settings <ArrowRight size={11} />
           </button>
         </div>
       </div>
