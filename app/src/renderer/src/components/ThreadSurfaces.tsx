@@ -1,0 +1,1030 @@
+import React, { useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { ArrowUp, AudioLines, Bookmark, Camera, Check, ChevronRight, Cpu, ExternalLink, FileText, Folder, Globe, History, Image as ImageIcon, MoreHorizontal, PenLine, Plus, RotateCcw, Search, Shield, Square, Undo2, X } from 'lucide-react';
+import { QUICK_BAR_MAX_HEIGHT_SHARE, type QuickAttachment, type QuickContext, type QuickThread, type ThreadApproval } from '../../../shared/threads';
+import { engineReducer, initialEngineState, type TranscriptItem } from '../engine.state';
+import type { Outbound, RequestMsg, ToolCallEntry } from '../protocol';
+import { DiffView, Markdown } from '../markdown';
+import { applyAppearance, savedAppearance } from '../appearance';
+import { cn } from '../lib/cn';
+import { ThinkingIndicator } from './ThinkingIndicator';
+import { StreamCoalescer } from '../stream.coalescer';
+import { MicButton } from './MicButton';
+import { TaskViewCard, taskView } from './TaskViews';
+import { useDictation } from '../useDictation';
+import { BASIC_VOICE_TIP, talkIsStatus, talkLine, useTalk } from '../useTalk';
+import { approvalShortcut, denyOption } from '../approval.keys';
+import { PathLinkContext } from '../path.links';
+import { loadHistory, remember, stepHistory } from '../quick.history';
+import { shouldSubmitQuickPrompt } from '../quick.submit';
+import { subscribeQuickBootstrap } from '../quick.bootstrap';
+import { ComputerRunControls } from './ComputerRunControls';
+import { ComputerUseOptions } from './ComputerUseOptions';
+import { computerRequest, computerCompletion, type ComputerMode } from '../../../shared/computer';
+import { toolDisplayName, computerUseActivity } from '../tool.display';
+
+/**
+ * The two floating surfaces of Bimax Threads: the ⌘2 bar and the approval popup.
+ *
+ * Both are frameless, transparent panels whose glass is native (main/index.ts `auxiliaryWindow`), so the page
+ * paints no background — only a light tint, a rim and the content. The header and footer move the window;
+ * every control opts out of the drag region.
+ */
+
+/** A folder's own name is what a person recognises; the full path stays in the tooltip. */
+const folderName = (root: string | null | undefined): string => root?.split('/').filter(Boolean).pop() ?? 'Choose a folder';
+
+/** How much the bar grows at a time while a reply is being written: about two lines of body text. */
+const GROW_STEP_PX = 44;
+/** How long text may stop arriving mid-turn before the bar shows that the turn is still working. */
+const STALL_MS = 900;
+/** A turn's length for the footer: seconds, then minutes and seconds. */
+const formatDuration = (ms: number): string => (ms < 60_000 ? `${Math.max(1, Math.round(ms / 1000))}s` : `${Math.floor(ms / 60_000)}m ${Math.round((ms % 60_000) / 1000)}s`);
+
+export function useSurface(kind: 'quick' | 'approval' | 'organize'): 'native' | 'vibrancy' {
+  const glass = new URLSearchParams(location.search).get('glass') === 'native' ? 'native' : 'vibrancy';
+  useLayoutEffect(() => {
+    document.documentElement.classList.add('aux-surface', `aux-${kind}`);
+    return applyAppearance(savedAppearance());
+  }, [kind]);
+  return glass;
+}
+
+/**
+ * The ⌘2 bar. A single glass pill — like Spotlight — until a task produces output, then it grows downward into
+ * the task's conversation: the thinking row, the steps it takes, the streamed answer, and any question or
+ * permission the task needs, answered inline. Follow-ups continue the same thread; "New" starts another.
+ */
+export function ThreadQuickBar(): React.ReactElement {
+  const glass = useSurface('quick');
+  const [context, setContext] = useState<QuickContext>({ root: null, source: 'Reading Finder…' });
+  const [thread, setThread] = useState<Omit<QuickThread, 'state'> | null>(null);
+  // How many messages the task has queued, and why it waits when it is not working (backlog N12).
+  const [activity, setActivity] = useState<{ queued: number; notice: string | null }>({ queued: 0, notice: null });
+  const [state, dispatch] = useReducer(engineReducer, initialEngineState);
+  const [prompt, setPrompt] = useState('');
+  const [error, setError] = useState('');
+  const [sending, setSending] = useState(false);
+  const [cuMode, setCuMode] = useState<ComputerMode>('do');
+  const cuRequest = computerRequest(prompt.trimStart());
+  const submitPending = useRef(false);
+  const quickOwner = useRef<string | null>(null);
+  const promptRef = useRef(prompt); promptRef.current = prompt;
+  quickOwner.current = thread?.id ?? null;
+  useEffect(() => { setCuMode('do'); }, [thread?.id, context.root]);
+  useEffect(() => { if (cuRequest === null) setCuMode('do'); }, [cuRequest === null]);
+  // N10: a correction's offer to become one of the folder's rules, until saved or dismissed.
+  const [teach, setTeach] = useState<{ root: string; rule: string; samples: string[] } | null>(null);
+  // What the task gets as context: what was open when ⌘2 was pressed, plus anything dropped on the bar.
+  const [attachments, setAttachments] = useState<QuickAttachment[]>([]);
+  const [dropping, setDropping] = useState(false);
+  const attachRow = useRef<HTMLDivElement>(null);
+  // ↑ / ↓ through earlier prompts (quick.history.ts); what was being typed is kept while stepping.
+  const history = useRef<string[]>(loadHistory());
+  const historyCursor = useRef<number | null>(null);
+  const draft = useRef('');
+  // Dictation: the mic, or hold right ⌥; words land at the cursor as they are heard (useDictation.ts).
+  const dictation = useDictation({
+    get: () => ({ text: input.current?.value ?? '', caret: input.current?.selectionStart ?? input.current?.value.length ?? 0 }),
+    set: (text, caret) => { setPrompt(text); requestAnimationFrame(() => input.current?.setSelectionRange(caret, caret)); },
+    context: () => (root ? [folderName(root)] : []),
+  });
+  useEffect(() => { if (dictation.error) setError(dictation.error); }, [dictation.error]);
+  // Talk mode: a spoken conversation with this task — it listens, answers out loud, and listens again (useTalk.ts).
+  const talk = useTalk();
+  const talking = talk.active;
+  useEffect(() => { if (talk.error) setError(talk.error); }, [talk.error]);
+  const talkVoice = talking && talk.view.voice ? `Voice: ${talk.view.voice.name}${talk.view.voice.quality === 'default' ? ' (basic)' : ''}` : '';
+  // This folder's rules, while they are being edited (⋯ → Rules for …); null when the editor is closed.
+  const [rules, setRules] = useState<{ root: string; text: string; protect: string[] } | null>(null);
+  // FL7: leaving a bookmark, and "where was I?" when a bookmarked task comes back into the bar.
+  const [marking, setMarking] = useState<string | null>(null);
+  const [where, setWhere] = useState<{ note: string; at: number; since: string[]; open: string[] } | null>(null);
+  useEffect(() => {
+    setWhere(null);
+    if (!thread) return;
+    let live = true;
+    void window.bimax.threads.where(thread.id).then((value) => { if (live && value && Date.now() - value.at > 5 * 60_000) setWhere(value); });
+    return () => { live = false; };
+  }, [thread?.id]);
+  // FL6: the "Save as a Skill" card.
+  const [skill, setSkill] = useState<{ name: string; description: string; inputs: string[]; steps: string[]; checks: string[]; samples: string[] } | null>(null);
+  useEffect(() => window.bimax.threads.onOpenSkill(setSkill), []);
+  // FL5: the night shift card.
+  const [night, setNight] = useState<{ root: string; goal: string; cap: number; budget: string; until: string } | null>(null);
+  useEffect(() => window.bimax.threads.onOpenNight((value) => setNight({ ...value, budget: String(value.cap > 0 ? Math.min(value.cap, 5) : 5), until: '07:00' })), []);
+  // FL1 part 2: the folder's outcome editor, opened from ⋯ or the menu bar.
+  const [outcome, setOutcome] = useState<{ root: string; goal: string; checkNow: boolean; queue: { ready: string[]; needsYou: Array<{ path: string; reason: string }> } | null } | null>(null);
+  useEffect(() => window.bimax.threads.onOpenOutcome(() => {
+    void window.bimax.threads.outcomeGet().then((value) => { if (value) setOutcome({ ...value, checkNow: !value.goal }); });
+  }), []);
+  useEffect(() => window.bimax.threads.onOpenRules(() => {
+    void window.bimax.threads.rulesGet().then((value: { root: string; text: string; protect: string[] } | null) => { if (value) setRules(value); });
+  }), []);
+  const input = useRef<HTMLTextAreaElement>(null);
+  const header = useRef<HTMLDivElement>(null);
+  const scroller = useRef<HTMLDivElement>(null);
+  const body = useRef<HTMLDivElement>(null);
+  const footer = useRef<HTMLDivElement>(null);
+  // Whether the newest engine output was a tool step rather than text. After a tool runs, the text on screen
+  // was written BEFORE it, so the activity row must show even though the stream buffer is not empty.
+  const [afterTool, setAfterTool] = useState(false);
+  const afterToolRef = useRef(false);
+  const noteOutputKind = useRef((msg: Outbound): void => {
+    const name = msg.t === 'event' ? String((msg as { name?: unknown }).name ?? '') : '';
+    if (!name) return;
+    const next = name === 'tool_call' || name === 'tool_call_result' ? true
+      : name === 'stream_token' || name === 'message' ? false : afterToolRef.current;
+    if (next !== afterToolRef.current) { afterToolRef.current = next; setAfterTool(next); }
+  }).current;
+
+  useEffect(() => {
+    // Adjacent streaming deltas become one dispatch per frame, as in the main window. Dispatching every token
+    // re-rendered the whole bar hundreds of times a second while a reply was written.
+    const batcher = new StreamCoalescer({ emit: (msg) => dispatch({ type: 'outbound', msg }) });
+    const adopt = (value: QuickThread | null): void => {
+      batcher.retire(); // the snapshot already holds everything the batcher was waiting to send
+      setThread(value ? { id: value.id, title: value.title, root: value.root } : null);
+      setActivity({ queued: value?.queued ?? 0, notice: value?.notice ?? null });
+      if (value) setAttachments([]);
+      // A rule offer (N10) belongs to its folder: it stays while the bar shows a task there, and goes when it does not.
+      setTeach((current) => (current && value?.root === current.root ? current : null));
+      dispatch({ type: 'restoreThread', state: value ? value.state : initialEngineState });
+    };
+    const offTeach = window.bimax.threads.onTeachOffer((offer) => setTeach(offer));
+    const offBootstrap = subscribeQuickBootstrap(window.bimax.threads, {
+      thread: adopt,
+      context: (value, initial) => {
+        setContext(value); setAttachments(value.attachments ?? []);
+        if (!initial) { if (value.prompt) setPrompt(value.prompt); setError(value.error ?? ''); input.current?.focus(); }
+      },
+      error: setError,
+    });
+    const offMsg = window.bimax.threads.onQuickMsg((msg: Outbound) => {
+      noteOutputKind(msg);
+      batcher.push(msg);
+    });
+    const offActivity = window.bimax.threads.onQuickActivity((value: { queued: number; notice: string | null } | null) => {
+      setActivity({ queued: value?.queued ?? 0, notice: value?.notice ?? null });
+    });
+    return () => { offBootstrap(); offTeach(); offMsg(); offActivity(); batcher.dispose(); };
+  }, []);
+
+  const busy = state.spinner.state !== 'idle' && state.spinner.state !== '';
+  const hasConversation = Boolean(thread) || state.items.length > 0 || Boolean(outcome) || Boolean(night) || Boolean(skill);
+  const request = state.request as (RequestMsg & { approvalToken?: string }) | null;
+  const root = thread?.root ?? context.root;
+  // Text that stops arriving mid-turn means the model is running a tool or reading its result. Say so, instead
+  // of leaving the last sentence looking like the end of the answer.
+  const [stalled, setStalled] = useState(false);
+  useEffect(() => {
+    setStalled(false);
+    if (!busy || !state.streaming) return;
+    const timer = setTimeout(() => setStalled(true), STALL_MS);
+    return () => clearTimeout(timer);
+  }, [busy, state.streaming]);
+  const showActivity = busy && !request && (!state.streaming || afterTool || stalled);
+  // The newest change this thread made that can still be undone ("↶ Undo" in the footer). Looked up when the thread
+  // changes and whenever a turn ends; hidden while a turn is running.
+  const [undo, setUndo] = useState<{ id: string; title: string } | null>(null);
+  useEffect(() => {
+    let live = true;
+    if (!thread || busy) { setUndo(null); return; }
+    void window.bimax.threads.undoInfo(thread.id).then((value: { id: string; title: string } | null) => { if (live) setUndo(value); });
+    return () => { live = false; };
+  }, [thread?.id, busy]);
+  // Footer timing: how long the current turn has run, or the last one took, and which model is answering.
+  const turnStart = useRef<number | null>(null);
+  const [lastTurnMs, setLastTurnMs] = useState<number | null>(null);
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    if (busy) {
+      if (turnStart.current === null) turnStart.current = Date.now();
+      const timer = setInterval(() => setTick((n) => n + 1), 1000);
+      return () => clearInterval(timer);
+    }
+    if (turnStart.current !== null) { setLastTurnMs(Date.now() - turnStart.current); turnStart.current = null; }
+    return undefined;
+  }, [busy]);
+  useEffect(() => { setLastTurnMs(null); }, [thread?.id]);
+  const models = (state.snapshot as { models?: { coding?: string; lite?: string } } | null)?.models;
+  const modelId = state.tier === 'lite' ? models?.lite || models?.coding : models?.coding;
+  const elapsed = busy && turnStart.current !== null ? Date.now() - turnStart.current : lastTurnMs;
+  const timing = elapsed !== null ? formatDuration(elapsed) : '';
+  const lastItem = state.items[state.items.length - 1];
+  const lastIsAnswer = !!lastItem && lastItem.kind === 'msg' && lastItem.msg.role === 'assistant';
+  const pathLinks = useMemo(() => ({
+    open: (raw: string, mode: 'preview' | 'reveal') => {
+      void window.bimax.threads.openPath(raw, mode).then((result: { ok: boolean; error?: string } | undefined) => {
+        if (!result?.ok) setError(result?.error || `Could not find “${raw}”.`);
+      });
+    },
+  }), []);
+  // Like Spotlight, the empty bar is only the pill. A missing Finder folder is already said by the folder chip,
+  // so its explanation appears only when someone tries to send without one.
+  const status = error;
+  const showFooter = hasConversation || Boolean(status);
+
+  const busyRef = useRef(busy);
+  busyRef.current = busy;
+  const reportedHeight = useRef(0);
+  // The window is exactly as tall as what it shows, so report the NATURAL height — header, the whole
+  // conversation, footer — not the scroll box, which the window itself caps. Main clamps it to the screen.
+  useLayoutEffect(() => {
+    let frame = 0;
+    const report = (): void => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const natural = (header.current?.offsetHeight ?? 0) + (attachRow.current?.offsetHeight ?? 0) + (body.current ? body.current.offsetHeight + 1 : 0) + (footer.current?.offsetHeight ?? 0);
+        // While a reply is being written, grow two lines at a time and never shrink: resizing the window on
+        // every line, and shrinking whenever half-written markdown reflowed, is what made the text jump.
+        const height = busyRef.current
+          ? Math.max(reportedHeight.current, Math.ceil(natural / GROW_STEP_PX) * GROW_STEP_PX)
+          : natural;
+        if (height === reportedHeight.current) return;
+        reportedHeight.current = height;
+        window.bimax.threads.quickResize(height);
+      });
+    };
+    report();
+    const observer = new ResizeObserver(report);
+    for (const el of [header.current, attachRow.current, body.current, footer.current]) if (el) observer.observe(el);
+    return () => { observer.disconnect(); cancelAnimationFrame(frame); };
+  }, [hasConversation, showFooter, busy, attachments.length]);
+
+  // Follow the newest text only once the bar is as tall as it may get. Below that the window grows to fit,
+  // and scrolling ahead of the resize is what made lines jump. A reader who scrolled up stays where they are.
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el) return;
+    if (reportedHeight.current < Math.floor(window.screen.availHeight * QUICK_BAR_MAX_HEIGHT_SHARE)) return;
+    if (el.scrollHeight - el.scrollTop - el.clientHeight < 120) el.scrollTop = el.scrollHeight;
+  }, [state.items.length, state.streaming, state.thinking, request?.id, showActivity]);
+
+  async function submit(): Promise<void> {
+    const submittedDraft = prompt;
+    const text = prompt.trim(), owner = thread?.id ?? null;
+    if (!text || submitPending.current) return;
+    if (cuRequest !== null && !cuRequest) { setError('Describe the task after @CU.'); return; }
+    if (!thread && !context.root) { setError(context.error || 'Choose a folder for this task first.'); return; }
+    submitPending.current = true; setSending(true); setError('');
+    const route = cuRequest !== null ? { kind: 'computer-use' as const, mode: cuMode } : undefined;
+    try {
+      const result = await window.bimax.threads.quickSubmit(text, { attachments, root: thread ? undefined : context.root ?? undefined, threadId: thread?.id, route });
+      // A late send acknowledgement cannot erase a different conversation's draft.
+      if (quickOwner.current !== owner && quickOwner.current !== result?.id) return;
+      if (!result?.ok) { setError(result?.error || 'Could not start the task.'); return; }
+      if (promptRef.current !== submittedDraft) return;
+      history.current = remember(history.current, text); historyCursor.current = null; draft.current = '';
+      setPrompt(''); setAttachments([]); setCuMode('do');
+    } catch (e) { if (quickOwner.current === owner) setError((e as Error).message); }
+    finally { submitPending.current = false; setSending(false); }
+  }
+
+  async function reply(value: string): Promise<void> {
+    if (!thread || !request?.approvalToken) return;
+    const ok = await window.bimax.threads.reply(thread.id, request.id, value, request.approvalToken);
+    if (ok) dispatch({ type: 'closeRequest', threadId: thread.id, id: request.id, approvalToken: request.approvalToken });
+    else setError('That request has expired. Nothing was sent.');
+  }
+
+  // FL4: the change history card.
+  type HistoryView = NonNullable<Awaited<ReturnType<typeof window.bimax.threads.history>>>;
+  const [changes, setChanges] = useState<HistoryView | null>(null);
+  async function openHistory(): Promise<void> {
+    if (thread) setChanges(await window.bimax.threads.history(thread.id));
+  }
+  async function historyUndo(changeId: string, backTo: boolean): Promise<void> {
+    if (!thread) return;
+    const result = backTo ? await window.bimax.threads.undoBackTo(thread.id, changeId) : await window.bimax.threads.undoChange(thread.id, changeId);
+    setError(result.ok ? '' : result.error || 'That could not be undone.');
+    setChanges(await window.bimax.threads.history(thread.id));
+    setUndo(await window.bimax.threads.undoInfo(thread.id));
+  }
+
+  async function undoLastChange(): Promise<void> {
+    if (!thread || !undo) return;
+    setUndo(null);
+    const result = await window.bimax.threads.undo(thread.id);
+    setError(result?.ok ? '' : result?.error || 'That change could not be undone.');
+    setUndo(await window.bimax.threads.undoInfo(thread.id));
+  }
+
+  async function saveRules(): Promise<void> {
+    if (!rules) return;
+    const result = await window.bimax.threads.rulesSet({ text: rules.text, protect: rules.protect });
+    if (result?.ok) { setRules(null); setError(''); } else setError(result?.error || 'Could not save the rules.');
+  }
+
+  async function protectMore(): Promise<void> {
+    const picked: string[] = await window.bimax.threads.rulesPick();
+    if (picked?.length) setRules((current) => (current ? { ...current, protect: [...new Set([...current.protect, ...picked])] } : current));
+  }
+
+  /** Files dropped on the bar become context. A new task works in their folder; an existing one keeps its own. */
+  function addDropped(files: FileList): void {
+    const paths = [...files].map((file) => window.bimax.threads.pathForFile(file)).filter((p: string | undefined): p is string => Boolean(p));
+    if (!paths.length) return;
+    const folder = thread?.root ?? context.root;
+    const within = (p: string): boolean => !!folder && (p === folder || p.startsWith(folder.endsWith('/') ? folder : `${folder}/`));
+    const outside = paths.filter((p) => !within(p));
+    if (thread && outside.length) {
+      setError(`${outside.length === 1 ? 'That file is' : 'Those files are'} outside ${folderName(folder)}. Start a New task to use ${outside.length === 1 ? 'it' : 'them'}.`);
+      return;
+    }
+    if (!thread && outside.length === paths.length) setContext({ root: paths[0].replace(/\/[^/]+\/?$/, '') || '/', source: 'Dropped files' });
+    setAttachments((current) => [
+      ...current.filter((a) => !a.path || !paths.includes(a.path)),
+      ...paths.map((p): QuickAttachment => ({ kind: 'file', label: p.split('/').filter(Boolean).pop() ?? p, path: p })),
+    ].slice(0, 50));
+    setError('');
+    input.current?.focus();
+  }
+
+  /** N5: a picture for the task to look at. It is only read, so it may come from outside the task's folder. */
+  function addPicture(picture: QuickAttachment | null): void {
+    if (!picture?.path) return;
+    setAttachments((current) => [...current.filter((a) => a.path !== picture.path), picture].slice(0, 50));
+    setError('');
+    input.current?.focus();
+  }
+
+  async function takeScreenshot(): Promise<void> {
+    addPicture(await window.bimax.threads.screenshot());
+  }
+
+  /** A pasted image (a screenshot copied with ⌃⇧⌘4, or an image file copied in Finder) is attached as a picture. */
+  async function pastePictures(files: File[]): Promise<void> {
+    for (const file of files) {
+      const onDisk = window.bimax.threads.pathForFile(file);
+      if (onDisk && /\.(png|jpe?g|gif|webp)$/i.test(onDisk)) { addPicture({ kind: 'picture', label: onDisk.split('/').pop() ?? onDisk, path: onDisk }); continue; }
+      const extension = file.type === 'image/jpeg' ? 'jpg' : file.type.replace('image/', '');
+      const name = /^(png|jpg|gif|webp)$/.test(extension) ? `Pasted picture ${new Date().toISOString().slice(11, 19).replace(/:/g, '.')}.${extension}` : '';
+      if (!name) { setError('Bimax can look at PNG, JPEG, GIF or WebP pictures.'); continue; }
+      addPicture(await window.bimax.threads.pastePicture(name, new Uint8Array(await file.arrayBuffer())));
+    }
+  }
+
+  async function chooseFolder(): Promise<void> {
+    const picked = await window.bimax.threads.pickFolder();
+    if (picked) { setContext({ root: picked, source: 'Selected folder' }); setError(''); input.current?.focus(); }
+  }
+
+  return (
+    <div
+      className="quick-root"
+      data-glass={glass}
+      data-expanded={hasConversation || undefined}
+      data-dropping={dropping || undefined}
+      onDragOver={(e) => { if (e.dataTransfer.types.includes('Files')) { e.preventDefault(); setDropping(true); } }}
+      onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setDropping(false); }}
+      onDrop={(e) => { e.preventDefault(); setDropping(false); addDropped(e.dataTransfer.files); }}
+      onKeyDown={(e) => {
+        // Dictation owns right ⌥ (hold to talk) and, while listening, Esc (discard what was heard).
+        if (!talking && dictation.onKeyDown(e)) { e.preventDefault(); return; }
+        // An approval card on screen owns ⌘↩ (allow) and Esc (deny); otherwise Esc hides the bar.
+        const pick = request ? approvalShortcut(e.nativeEvent, request) : undefined;
+        if (pick) { e.preventDefault(); void reply(pick); return; }
+        // Talking, Esc ends the conversation; the task and what was said stay in the bar.
+        if (talking && e.key === 'Escape') { e.preventDefault(); talk.end(); return; }
+        // ⌘[ and ⌘] step through this bar's recent tasks.
+        if (e.metaKey && (e.key === '[' || e.key === ']')) { e.preventDefault(); void window.bimax.threads.quickSwitch(e.key === '[' ? 'older' : 'newer'); return; }
+        if (e.key === 'Escape' && rules) { e.preventDefault(); setRules(null); return; }
+        if (e.key === 'Escape' && outcome) { e.preventDefault(); setOutcome(null); return; }
+        if (e.key === 'Escape' && changes) { e.preventDefault(); setChanges(null); return; }
+        if (e.key === 'Escape' && night) { e.preventDefault(); setNight(null); return; }
+        if (e.key === 'Escape' && skill) { e.preventDefault(); setSkill(null); return; }
+        if (e.key === 'Escape' && marking !== null) { e.preventDefault(); setMarking(null); return; }
+        if (e.key === 'Escape') { e.preventDefault(); window.bimax.threads.hide(); }
+        if (e.key.toLowerCase() === 'n' && e.metaKey) { e.preventDefault(); window.bimax.threads.quickReset(); input.current?.focus(); }
+      }}
+    >
+      <div ref={header}>
+      {computerCompletion(prompt, input.current?.selectionStart ?? prompt.length) && cuRequest === null && <button type="button" className="computer-completion" onClick={() => { setPrompt('@CU '); input.current?.focus(); }}>@CU · Let Bimax use your computer</button>}
+      <ComputerRunControls threadId={thread?.id} onReuse={setPrompt} />
+      {cuRequest !== null && <ComputerUseOptions mode={cuMode} onMode={setCuMode} onRecipe={setPrompt} key={thread?.id ?? context.root ?? 'draft'} threadId={thread?.id} disabled={sending} onRemove={() => setPrompt(cuRequest)} />}
+      <div className="quick-header quick-drag">
+        {talking ? (
+          <span className="talk-orb quick-talk-orb" data-state={talk.view.state} style={{ '--talk-level': talk.view.level.toFixed(2) } as React.CSSProperties} aria-hidden />
+        ) : (
+          <Search size={20} className="quick-icon" aria-hidden />
+        )}
+        {talking ? (
+          <p className="quick-talk" data-state={talk.view.state} data-placeholder={talkIsStatus(talk.view) || undefined} role="status" aria-live="polite">
+            {talkLine(talk.view)}
+          </p>
+        ) : (
+        <textarea
+          ref={input}
+          autoFocus
+          rows={1}
+          aria-label="Ask Bimax"
+          placeholder={dictation.state !== 'idle' ? 'Listening…' : thread ? 'Follow up…' : 'Ask Bimax anything…'}
+          value={prompt}
+          readOnly={sending}
+          onChange={(e) => { historyCursor.current = null; setPrompt(e.target.value); }}
+          onPaste={(e) => {
+            const pictures = [...e.clipboardData.files].filter((file) => file.type.startsWith('image/'));
+            if (pictures.length) { e.preventDefault(); void pastePictures(pictures); }
+          }}
+          onKeyDown={(e) => {
+            // Enter while dictating stops listening (the last words settle); Enter again sends.
+            if ((e.key === 'Tab' || e.key === 'Enter') && computerCompletion(prompt, e.currentTarget.selectionStart) && cuRequest === null) { e.preventDefault(); setPrompt('@CU ' + prompt.slice(e.currentTarget.selectionStart)); return; }
+            if (shouldSubmitQuickPrompt(e.nativeEvent)) { e.preventDefault(); if (dictation.state !== 'idle') dictation.stop(); else void submit(); }
+            // ↑ at the start (or in an empty field) recalls earlier prompts; ↓ walks back to what was being typed.
+            const field = e.currentTarget;
+            const atStart = field.selectionStart === 0 && field.selectionEnd === 0;
+            if ((e.key === 'ArrowUp' && (atStart || !prompt)) || (e.key === 'ArrowDown' && historyCursor.current !== null && field.selectionStart === field.value.length)) {
+              if (historyCursor.current === null) draft.current = prompt;
+              const step = stepHistory(history.current, historyCursor.current, e.key === 'ArrowUp' ? 'back' : 'forward', draft.current);
+              if (step.text !== prompt || step.cursor !== historyCursor.current) { e.preventDefault(); historyCursor.current = step.cursor; setPrompt(step.text); }
+            }
+          }}
+          className="quick-input"
+        />
+        )}
+        {talking ? null : (
+          <button
+            type="button"
+            className="quick-circle"
+            aria-label="Attach a screenshot"
+            title="Attach a screenshot: drag across what Bimax should look at (Space picks a window, Esc cancels). You can also paste a picture."
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => void takeScreenshot()}
+          >
+            <Camera size={15} aria-hidden />
+          </button>
+        )}
+        {talking ? null : <MicButton dictation={dictation} className="quick-circle quick-mic" size={15} />}
+        {dictation.available ? (
+          <button
+            type="button"
+            className="quick-circle quick-talk-button"
+            aria-pressed={talking}
+            aria-label={talking ? 'End talk' : 'Talk'}
+            title={talking ? 'End the conversation (Esc)' : 'Talk with Bimax: it answers out loud'}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => (talking ? talk.end() : talk.start())}
+          >
+            {talking ? <X size={15} aria-hidden /> : <AudioLines size={15} aria-hidden />}
+          </button>
+        ) : null}
+        <button
+          type="button"
+          className="quick-folder"
+          title={root ?? 'Choose the folder this task works in'}
+          disabled={Boolean(thread)}
+          onClick={() => void chooseFolder()}
+        >
+          <Folder size={13} aria-hidden />
+          <span>{folderName(root)}</span>
+        </button>
+        {talking ? (
+          talk.view.state === 'thinking' || talk.view.state === 'speaking' || talk.view.state === 'waiting' ? (
+            <button type="button" aria-label="Stop" title="Stop and listen" className="quick-circle" onClick={() => talk.interrupt()}>
+              <Square size={12} />
+            </button>
+          ) : null
+        ) : busy ? (
+          <button type="button" aria-label="Stop" title="Stop this task" className="quick-circle" onClick={() => window.bimax.threads.quickInterrupt()}>
+            <Square size={12} />
+          </button>
+        ) : prompt.trim() ? (
+          <button type="button" aria-label="Send" className="quick-circle quick-send" disabled={sending} onClick={() => { if (dictation.state !== 'idle') dictation.stop(); else void submit(); }}>
+            <ArrowUp size={17} />
+          </button>
+        ) : null}
+      </div>
+      </div>
+
+      {attachments.length ? (
+        <div ref={attachRow} className="quick-attachments">
+          {attachments.map((a, index) => (
+            <span key={`${a.kind}:${a.path ?? a.url}:${index}`} className="quick-chip" title={a.path ?? a.url}>
+              {a.kind === 'page' ? <Globe size={11} aria-hidden /> : a.kind === 'picture' ? <ImageIcon size={11} aria-hidden /> : <FileText size={11} aria-hidden />}
+              <span>{a.label}</span>
+              <button type="button" aria-label={`Remove ${a.label}`} onClick={() => setAttachments((current) => current.filter((_, i) => i !== index))}><X size={10} /></button>
+            </span>
+          ))}
+        </div>
+      ) : null}
+
+      {hasConversation ? (
+        <div ref={scroller} className="quick-scroll">
+          <PathLinkContext.Provider value={pathLinks}>
+          <div ref={body} className="quick-body">
+            {rules ? (
+              <QuickRules value={rules} onChange={setRules} onPick={() => void protectMore()} onSave={() => void saveRules()} onCancel={() => setRules(null)} />
+            ) : null}
+            {where && thread ? (
+              <section className="quick-request quick-rules" aria-label="Where was I?">
+                <p className="quick-request-question">Where you were · {ago(where.at)}</p>
+                <p className="quick-note">“{where.note}”</p>
+                {where.since.length ? <ul className="quick-note">{where.since.map((line) => <li key={line}>{line}</li>)}</ul> : <p className="quick-note">Nothing happened here since.</p>}
+                {where.open.length ? <><p className="quick-note">Still open:</p><ul className="quick-note">{where.open.map((todo) => <li key={todo}>{todo}</li>)}</ul></> : null}
+                <div className="quick-request-options">
+                  <button type="button" className="quick-choice quick-choice-primary" onClick={() => setWhere(null)}>Carry on</button>
+                  <button type="button" className="quick-choice" onClick={() => { void window.bimax.threads.bookmark(thread.id, null); setWhere(null); }}>Remove the bookmark</button>
+                </div>
+              </section>
+            ) : null}
+            {marking !== null && thread ? (
+              <section className="quick-request quick-rules" aria-label="Bookmark">
+                <p className="quick-request-question">Leave yourself a note</p>
+                <input autoFocus className="quick-rules-text" value={marking} placeholder="e.g. Compared the two quotes; waiting on Priya's numbers. Next: the tax column." onChange={(e) => setMarking(e.target.value)} />
+                <div className="quick-request-options">
+                  <button type="button" className="quick-choice quick-choice-primary" disabled={!marking.trim()} onClick={() => { void window.bimax.threads.bookmark(thread.id, marking); setMarking(null); }}>Bookmark</button>
+                  <button type="button" className="quick-choice" onClick={() => setMarking(null)}>Cancel</button>
+                </div>
+              </section>
+            ) : null}
+            {skill ? (
+              <QuickSkill value={skill} onChange={setSkill}
+                onSave={() => { void window.bimax.threads.skillSave(skill.name, skill.description).then((r) => { if (r.ok) setSkill(null); else setError(r.error || 'Could not save the skill.'); }); }}
+                onCancel={() => setSkill(null)} />
+            ) : null}
+            {night ? (
+              <QuickNight
+                value={night}
+                onChange={setNight}
+                onStart={() => {
+                  void window.bimax.threads.nightStart(night.goal, Number(night.budget), night.until).then((r) => {
+                    if (r.ok) setNight(null);
+                    setError(r.error || r.note || '');
+                  });
+                }}
+                onCancel={() => setNight(null)}
+              />
+            ) : null}
+            {changes ? <QuickHistory value={changes} onUndo={(id, backTo) => void historyUndo(id, backTo)} onClose={() => setChanges(null)} /> : null}
+            {outcome ? (
+              <QuickOutcome
+                value={outcome}
+                onChange={setOutcome}
+                onSave={() => {
+                  const { goal, checkNow } = outcome;
+                  void window.bimax.threads.outcomeSet(goal, checkNow).then((r) => {
+                    if (r?.ok) setOutcome(null);
+                    if (r?.error) setError(r.error);
+                  });
+                }}
+                onStop={() => { void window.bimax.threads.outcomeClear().then(() => setOutcome(null)); }}
+                onCancel={() => setOutcome(null)}
+              />
+            ) : null}
+            <QuickConversation items={state.items} />
+            {teach ? (
+              <QuickTeach
+                value={teach}
+                onChange={(rule) => setTeach({ ...teach, rule })}
+                onSave={() => { const rule = teach.rule; setTeach(null); void window.bimax.threads.teach(rule).then((r) => { if (!r?.ok) setError(r?.error || 'Could not save the rule.'); }); }}
+                onDismiss={() => setTeach(null)}
+              />
+            ) : null}
+            {state.streaming ? <div className="quick-answer"><Markdown text={state.streaming} streaming /></div> : null}
+            {showActivity ? <ThinkingIndicator thinking={state.thinking} status={state.status} /> : null}
+            {request ? <QuickRequest key={request.id} req={request} onReply={(value) => void reply(value)} /> : null}
+          </div>
+          </PathLinkContext.Provider>
+        </div>
+      ) : null}
+
+      {showFooter ? (
+        <div ref={footer} className="quick-footer quick-drag">
+          <span className={cn('quick-status', status && 'quick-error')} role="status" title={talking && talk.view.voice?.quality === 'default' ? BASIC_VOICE_TIP : undefined}>
+            {status || [
+              talkVoice,
+              busy ? `Working in ${folderName(root)}${activity.queued ? ` · ${activity.queued} queued` : ''}` : thread ? (activity.notice ?? folderName(root)) : '',
+              timing,
+            ].filter(Boolean).join(' · ')}
+          </span>
+          {thread ? (
+            <>
+              <button type="button" className="quick-link quick-model" title="Choose the model for this task" onClick={() => window.bimax.threads.modelMenu('switch')}>
+                <Cpu size={12} aria-hidden /><span>{modelId ? modelId.split('/').pop() : 'Model'}</span>
+              </button>
+              {activity.queued ? (
+                <button type="button" className="quick-link" title="Drop the messages waiting to be sent. The turn being worked on carries on." onClick={() => void window.bimax.threads.cancelQueued(thread.id)}>
+                  Cancel queued
+                </button>
+              ) : null}
+              {!busy && lastIsAnswer ? (
+                <button type="button" className="quick-link" title="Answer again with another model" onClick={() => window.bimax.threads.modelMenu('retry')}>
+                  <RotateCcw size={12} aria-hidden />Retry
+                </button>
+              ) : null}
+              <button type="button" className="quick-link" aria-label="More" title="Repeat this task · Rules for this folder" onClick={() => window.bimax.threads.moreMenu()}>
+                <MoreHorizontal size={14} aria-hidden />
+              </button>
+              {undo && !busy ? (
+                <button type="button" className="quick-link quick-undo" title={`Undo: ${undo.title}`} onClick={() => void undoLastChange()}>
+                  <Undo2 size={12} aria-hidden /><span>Undo: {undo.title}</span>
+                </button>
+              ) : null}
+              {undo && !busy ? (
+                <button type="button" className="quick-link" title="Every change this task made, and what can be undone" onClick={() => void openHistory()}>
+                  <History size={12} aria-hidden />History
+                </button>
+              ) : null}
+              {!busy ? (
+                <button type="button" className="quick-link" title="Leave yourself a note on this task, for when you come back" onClick={() => setMarking('')}>
+                  <Bookmark size={12} aria-hidden />Bookmark
+                </button>
+              ) : null}
+              <button type="button" className="quick-link" title="Open in Bimax" onClick={() => window.bimax.threads.quickOpen()}>
+                <ExternalLink size={12} aria-hidden />Open
+              </button>
+              <button type="button" className="quick-link" title="New task (⌘N)" onClick={() => { window.bimax.threads.quickReset(); input.current?.focus(); }}>
+                <PenLine size={12} aria-hidden />New
+              </button>
+            </>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/** User turns as quiet bubbles, answers as markdown, and each run of tool calls folded into one line. */
+function QuickConversation({ items }: { items: TranscriptItem[] }): React.ReactElement {
+  const blocks: React.ReactNode[] = [];
+  let calls: ToolCallEntry[] = [];
+  const flush = (key: string): void => {
+    if (!calls.length) return;
+    blocks.push(<QuickSteps key={key} calls={calls} />);
+    calls = [];
+  };
+  items.forEach((item, index) => {
+    if (item.kind === 'tool') { calls.push(item.call); return; }
+    flush(`steps-${index}`);
+    const { msg } = item;
+    if (msg.role === 'user') blocks.push(<p key={msg.id} className="quick-prompt">{msg.content}</p>);
+    else if (msg.role === 'assistant') blocks.push(<div key={msg.id} className="quick-answer"><Markdown text={msg.content} /></div>);
+    else if (((msg.level === 'error' || msg.level === 'warn' || msg.level === 'success') && !msg.payload?.capabilityStatus) || msg.payload?.threadNote) blocks.push(<p key={msg.id} className="quick-note">{msg.content}</p>);
+  });
+  flush('steps-end');
+  return <>{blocks}</>;
+}
+
+/** A run of tool calls as one line — "Done · 3 steps · Read, Edit" — that opens to show each call. */
+function QuickSteps({ calls }: { calls: ToolCallEntry[] }): React.ReactElement {
+  const [open, setOpen] = useState(false);
+  const running = calls.some((call) => call.status === 'running');
+  const failed = calls.filter((call) => call.status === 'error').length;
+  const names = [...new Set(calls.map((call) => toolDisplayName(call.toolName)))].slice(0, 3).join(', ');
+  return (
+    <div className="quick-steps">
+      <button type="button" className="quick-steps-summary" aria-expanded={open} onClick={() => setOpen((value) => !value)}>
+        <ChevronRight size={12} className={cn('transition-transform', open && 'rotate-90')} aria-hidden />
+        <span>{running ? 'Working' : failed ? `${failed} failed` : 'Done'} · {calls.length} step{calls.length === 1 ? '' : 's'} · {names}</span>
+      </button>
+      {open ? (
+        <ul className="quick-steps-list">
+          {calls.map((call) => (
+            <li key={call.id} data-status={call.status}>
+              {call.status === 'error' ? <X size={11} aria-hidden /> : call.status === 'success' ? <Check size={11} aria-hidden /> : <span className="quick-dot" aria-hidden />}
+              <span className="quick-step-name">{toolDisplayName(call.toolName)}</span>
+              <span className="quick-step-input" title={call.toolName === 'BimaxCuTool' ? 'Computer Use' : call.input}>{call.toolName === 'BimaxCuTool' ? computerUseActivity(call.input) : call.input.slice(0, 160)}</span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  );
+}
+
+/**
+ * The engine is blocked on this answer. The same three shapes RequestModal handles — free text (masked when it
+ * is a secret), a checklist, or one button per option with any diff shown above — inline instead of modal.
+ */
+function QuickRequest({ req, onReply }: { req: RequestMsg; onReply: (value: string) => void }): React.ReactElement {
+  // FL8: a question carrying a contact sheet, a matching table or a name editor is answered with that view.
+  const view = taskView(req.body);
+  return view ? <TaskViewCard view={view} onReply={onReply} /> : <PlainRequest req={req} onReply={onReply} />;
+}
+
+function PlainRequest({ req, onReply }: { req: RequestMsg; onReply: (value: string) => void }): React.ReactElement {
+  const [text, setText] = useState('');
+  const [checked, setChecked] = useState<Set<string>>(new Set());
+  const freeForm = req.kind === 'input' || (req.isAsk && req.options.length === 0);
+  return (
+    <section className="quick-request" aria-label="Bimax needs your answer">
+      <p className="quick-request-question">{req.question}</p>
+      {req.kind === 'diff' && req.body ? <div className="quick-request-diff"><DiffView diff={req.body} /></div> : null}
+      {req.kind !== 'diff' && req.body ? <pre className="quick-request-body">{req.body}</pre> : null}
+      {freeForm ? (
+        <form className="quick-request-form" onSubmit={(e) => { e.preventDefault(); onReply(text); }}>
+          <input
+            autoFocus
+            type={req.masked ? 'password' : 'text'}
+            value={text}
+            placeholder={req.masked ? '••••••••' : 'Type your answer…'}
+            onChange={(e) => setText(e.target.value)}
+          />
+          <button type="submit" className="quick-choice quick-choice-primary">Send</button>
+        </form>
+      ) : req.isMulti ? (
+        <>
+          <div className="quick-request-checks">
+            {req.options.map((option) => (
+              <label key={option}>
+                <input
+                  type="checkbox"
+                  checked={checked.has(option)}
+                  onChange={(e) => {
+                    const next = new Set(checked);
+                    if (e.target.checked) next.add(option); else next.delete(option);
+                    setChecked(next);
+                  }}
+                />
+                {option}
+              </label>
+            ))}
+          </div>
+          <div className="quick-request-options">
+            <button type="button" className="quick-choice quick-choice-primary" onClick={() => onReply([...checked].join(', '))}>Confirm</button>
+          </div>
+        </>
+      ) : (
+        <div className="quick-request-options">
+          {req.options.map((option, index) => (
+            <button key={option + index} type="button" className={cn('quick-choice', index === 0 && 'quick-choice-primary')} onClick={() => onReply(option)}>
+              {option}
+            </button>
+          ))}
+          {denyOption(req.options) ? <span className="quick-request-keys">⌘↩ {req.options[0]} · Esc {denyOption(req.options)}</span> : null}
+        </div>
+      )}
+    </section>
+  );
+}
+
+/**
+ * A folder's rules, edited in the bar: words every task in this folder follows, and items no task may change. Saved
+ * in Bimax's settings (main/folder.rules.ts); the engine enforces the protected items (src/tools/thread.rules.ts).
+ */
+function QuickRules({ value, onChange, onPick, onSave, onCancel }: {
+  value: { root: string; text: string; protect: string[] };
+  onChange: (value: { root: string; text: string; protect: string[] }) => void;
+  onPick: () => void;
+  onSave: () => void;
+  onCancel: () => void;
+}): React.ReactElement {
+  return (
+    <section className="quick-request quick-rules" aria-label="Folder rules">
+      <p className="quick-request-question">Rules for {folderName(value.root)}</p>
+      {/* Backlog F13 (record 54): the folder limits what a task changes, not what its commands can read. */}
+      <p className="quick-note">Tasks change files only in this folder. Commands they run can still read other files on this Mac.</p>
+      <textarea
+        autoFocus
+        rows={3}
+        className="quick-rules-text"
+        placeholder="e.g. Ask before renaming anything. Keep file names lowercase."
+        value={value.text}
+        onChange={(e) => onChange({ ...value, text: e.target.value })}
+      />
+      <div className="quick-rules-protect">
+        <span className="quick-note">Protected — tasks can read these but never change them:</span>
+        {value.protect.map((item) => (
+          <span key={item} className="quick-chip" title={item}>
+            <Shield size={11} aria-hidden />
+            <span>{item.split('/').filter(Boolean).pop()}</span>
+            <button type="button" aria-label={`Stop protecting ${item}`} onClick={() => onChange({ ...value, protect: value.protect.filter((p) => p !== item) })}><X size={10} /></button>
+          </span>
+        ))}
+        <button type="button" className="quick-link" onClick={onPick}><Plus size={12} aria-hidden />Protect a file or folder…</button>
+      </div>
+      <div className="quick-request-options">
+        <button type="button" className="quick-choice quick-choice-primary" onClick={onSave}>Save rules</button>
+        <button type="button" className="quick-choice" onClick={onCancel}>Cancel</button>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Correct once, teach deliberately (backlog N10): a correction offers to become one of the folder's rules. The rule is
+ * shown and editable, with earlier requests in the folder it would have applied to; nothing is kept without Save.
+ */
+function QuickTeach({ value, onChange, onSave, onDismiss }: {
+  value: { root: string; rule: string; samples: string[] };
+  onChange: (rule: string) => void;
+  onSave: () => void;
+  onDismiss: () => void;
+}): React.ReactElement {
+  return (
+    <section className="quick-request quick-rules" aria-label="Remember this">
+      <p className="quick-request-question">Remember this for every task in {folderName(value.root)}?</p>
+      <textarea rows={2} className="quick-rules-text" value={value.rule} onChange={(e) => onChange(e.target.value)} aria-label="The rule to remember" />
+      {value.samples.length ? (
+        <>
+          <p className="quick-note">It would have applied to earlier requests here, like:</p>
+          <ul className="quick-note">{value.samples.map((sample) => <li key={sample}>“{sample}”</li>)}</ul>
+        </>
+      ) : (
+        <p className="quick-note">No earlier request in this folder mentions it; it applies to tasks from now on.</p>
+      )}
+      <div className="quick-request-options">
+        <button type="button" className="quick-choice quick-choice-primary" disabled={!value.rule.trim()} onClick={onSave}>Save as a folder rule</button>
+        <button type="button" className="quick-choice" onClick={onDismiss}>Not now</button>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Muscle memory (backlog FL6): what the task did, as a skill every later task can follow — shown before it is saved,
+ * with its name and "when to use it" editable.
+ */
+function QuickSkill({ value, onChange, onSave, onCancel }: {
+  value: { name: string; description: string; inputs: string[]; steps: string[]; checks: string[]; samples: string[] };
+  onChange: (value: { name: string; description: string; inputs: string[]; steps: string[]; checks: string[]; samples: string[] }) => void;
+  onSave: () => void;
+  onCancel: () => void;
+}): React.ReactElement {
+  return (
+    <section className="quick-request quick-rules" aria-label="Save as a skill">
+      <p className="quick-request-question">Save this as a skill</p>
+      <input className="quick-rules-text" value={value.name} onChange={(e) => onChange({ ...value, name: e.target.value })} aria-label="Skill name" />
+      <textarea rows={2} className="quick-rules-text" value={value.description} onChange={(e) => onChange({ ...value, description: e.target.value })} aria-label="When to use it" />
+      {value.inputs.length || value.samples.length ? <p className="quick-note">Worked on: {[...value.inputs, ...value.samples].join(' · ')}. When a new input is not like that, a task works it out afresh instead.</p> : null}
+      <ol className="quick-note">{value.steps.slice(0, 8).map((step, i) => <li key={i}>{step}</li>)}{value.steps.length > 8 ? <li>… and {value.steps.length - 8} more</li> : null}</ol>
+      {value.checks.length ? <p className="quick-note">Checked by: {value.checks.join('; ')}</p> : null}
+      <div className="quick-request-options">
+        <button type="button" className="quick-choice quick-choice-primary" disabled={!value.name.trim()} onClick={onSave}>Save skill</button>
+        <button type="button" className="quick-choice" onClick={onCancel}>Cancel</button>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Night shift (backlog FL5): work on something overnight on its own git branch, in an isolated checkout, within a
+ * budget, until a morning time — then a briefing. The daily spending cap is Mac-wide, and the card says when it would
+ * stop the shift first.
+ */
+function QuickNight({ value, onChange, onStart, onCancel }: {
+  value: { root: string; goal: string; cap: number; budget: string; until: string };
+  onChange: (value: { root: string; goal: string; cap: number; budget: string; until: string }) => void;
+  onStart: () => void;
+  onCancel: () => void;
+}): React.ReactElement {
+  const budget = Number(value.budget);
+  return (
+    <section className="quick-request quick-rules" aria-label="Night shift">
+      <p className="quick-request-question">Work on this tonight in {folderName(value.root)}</p>
+      <textarea autoFocus rows={3} className="quick-rules-text" value={value.goal} placeholder="e.g. Migrate the tests from Jest to Vitest, one package at a time." onChange={(e) => onChange({ ...value, goal: e.target.value })} />
+      <p className="quick-note flex flex-wrap items-center gap-2">
+        <label>At most $<input className="quick-rules-text inline-block w-16" inputMode="decimal" value={value.budget} onChange={(e) => onChange({ ...value, budget: e.target.value })} aria-label="Budget in dollars" /></label>
+        <label>until <input className="quick-rules-text inline-block w-20" value={value.until} onChange={(e) => onChange({ ...value, until: e.target.value })} aria-label="Morning time" /></label>
+      </p>
+      <p className="quick-note">It works on a new branch in a separate checkout, so your working copy is not touched; it commits each milestone, writes down questions instead of waiting, keeps the Mac awake, and leaves a briefing in the morning.</p>
+      {value.cap > 0 && budget > value.cap ? <p className="quick-error">Your daily spending cap is ${value.cap}, so the shift stops at ${value.cap} unless you raise it in Settings → Agent behavior.</p> : null}
+      <div className="quick-request-options">
+        <button type="button" className="quick-choice quick-choice-primary" disabled={!value.goal.trim()} onClick={onStart}>Start the night shift</button>
+        <button type="button" className="quick-choice" onClick={onCancel}>Cancel</button>
+      </div>
+    </section>
+  );
+}
+
+const ago = (at: number): string => {
+  const s = Math.max(1, Math.round((Date.now() - at) / 1000));
+  return s < 60 ? `${s}s ago` : s < 3600 ? `${Math.round(s / 60)}m ago` : s < 86400 ? `${Math.round(s / 3600)}h ago` : `${Math.round(s / 86400)}d ago`;
+};
+
+/**
+ * The change history (backlog FL4): every change this task made, newest first, and honestly what undoing it does.
+ * A change is undone on its own only when no later change used the same files; otherwise "Undo back to here". The
+ * commands it ran are listed too — Bimax cannot undo those.
+ */
+function QuickHistory({ value, onUndo, onClose }: {
+  value: { entries: Array<{ id: string; title: string; at: number; reversibility: 'full' | 'partial'; inPlace: boolean | null; dependents: number; editedSince: string[] }>; commands: Array<{ title: string; at: number }> };
+  onUndo: (id: string, backTo: boolean) => void;
+  onClose: () => void;
+}): React.ReactElement {
+  const rows = [
+    ...value.entries.map((e) => ({ kind: 'change' as const, at: e.at, e })),
+    ...value.commands.map((c) => ({ kind: 'command' as const, at: c.at, c })),
+  ].sort((a, b) => b.at - a.at);
+  return (
+    <section className="quick-request quick-rules" aria-label="Change history">
+      <p className="quick-request-question">What this task changed</p>
+      {rows.length ? (
+        <ul>
+          {rows.map((row, index) => row.kind === 'change' ? (
+            <li key={row.e.id} className="quick-note">
+              <strong>{row.e.title}</strong> · {ago(row.e.at)}
+              {row.e.inPlace === false ? ' · no longer in place' : ''}
+              {row.e.reversibility === 'partial' ? ' · one item must be put back from the Bin by hand' : ''}
+              {row.e.editedSince.length ? ` · changed since: ${row.e.editedSince.join(', ')} (your version goes to the Bin if undone)` : ''}
+              <span className="ml-1 inline-flex gap-1">
+                <button type="button" className="quick-link" disabled={row.e.dependents > 0} title={row.e.dependents ? `${row.e.dependents} later change${row.e.dependents === 1 ? '' : 's'} used these files` : 'Undo only this change'} onClick={() => onUndo(row.e.id, false)}>Undo</button>
+                {index > 0 ? <button type="button" className="quick-link" title="Undo every change from the newest back to this one" onClick={() => onUndo(row.e.id, true)}>Undo back to here</button> : null}
+              </span>
+            </li>
+          ) : (
+            <li key={`c${index}`} className="quick-note">✕ <code>{row.c.title}</code> · {ago(row.c.at)} · a command — Bimax can’t undo what it changed</li>
+          ))}
+        </ul>
+      ) : <p className="quick-note">Nothing to undo.</p>}
+      <div className="quick-request-options"><button type="button" className="quick-choice" onClick={onClose}>Close</button></div>
+    </section>
+  );
+}
+
+/**
+ * A folder with an outcome (backlog FL1 part 2): what the folder should be ready for, and its queue — what needs you,
+ * what is ready. Every file that arrives is brought in line by a task that reports each file's state.
+ */
+function QuickOutcome({ value, onChange, onSave, onStop, onCancel }: {
+  value: { root: string; goal: string; checkNow: boolean; queue: { ready: string[]; needsYou: Array<{ path: string; reason: string }> } | null };
+  onChange: (value: { root: string; goal: string; checkNow: boolean; queue: { ready: string[]; needsYou: Array<{ path: string; reason: string }> } | null }) => void;
+  onSave: () => void;
+  onStop: () => void;
+  onCancel: () => void;
+}): React.ReactElement {
+  const queue = value.queue;
+  return (
+    <section className="quick-request quick-rules" aria-label="Keep this folder ready">
+      <p className="quick-request-question">Keep {folderName(value.root)} ready for…</p>
+      <textarea
+        autoFocus rows={3} className="quick-rules-text" value={value.goal}
+        placeholder="e.g. my accountant: every receipt a PDF named YYYY-MM-DD Vendor Amount, in a folder for its month."
+        onChange={(e) => onChange({ ...value, goal: e.target.value })}
+      />
+      <p className="quick-note">Every file that arrives here gets a task that brings it in line and says whether it is ready or needs you. It asks before changing anything.</p>
+      <label className="quick-note flex items-center gap-1.5">
+        <input type="checkbox" checked={value.checkNow} onChange={(e) => onChange({ ...value, checkNow: e.target.checked })} />
+        Also check the files already here
+      </label>
+      {queue && (queue.needsYou.length || queue.ready.length) ? (
+        <div className="quick-note">
+          {queue.needsYou.length ? <p>Needs you:</p> : null}
+          <ul>{queue.needsYou.slice(0, 8).map((item) => <li key={item.path}>{item.path} — {item.reason}</li>)}</ul>
+          {queue.ready.length ? <p>{queue.ready.length} ready.</p> : null}
+        </div>
+      ) : null}
+      <div className="quick-request-options">
+        <button type="button" className="quick-choice quick-choice-primary" disabled={!value.goal.trim()} onClick={onSave}>Keep it ready</button>
+        {queue ? <button type="button" className="quick-choice" onClick={onStop}>Stop</button> : null}
+        <button type="button" className="quick-choice" onClick={onCancel}>Cancel</button>
+      </div>
+    </section>
+  );
+}
+
+/** Decisions from threads that are not on screen in the ⌘2 bar. Draggable by its header. */
+export function ThreadApprovals(): React.ReactElement {
+  const glass = useSurface('approval');
+  const [requests, setRequests] = useState<ThreadApproval[]>([]);
+  const [error, setError] = useState('');
+  useEffect(() => {
+    const off = window.bimax.threads.onApprovals(setRequests);
+    void window.bimax.threads.approvals().then(setRequests);
+    return off;
+  }, []);
+  const current = requests[0];
+  useEffect(() => { setError(''); }, [current?.threadId, current?.request.id]);
+
+  // ⌘↩ allows and Esc denies, like the card in the bar (approval.keys.ts).
+  useEffect(() => {
+    if (!current) return;
+    const onKey = (e: KeyboardEvent): void => {
+      const pick = approvalShortcut(e, current.request);
+      if (pick) { e.preventDefault(); void reply(pick); }
+    };
+    window.addEventListener('keydown', onKey, true);
+    return () => window.removeEventListener('keydown', onKey, true);
+  });
+
+  async function reply(answer: string): Promise<void> {
+    if (!current) return;
+    const ok = await window.bimax.threads.reply(current.threadId, current.request.id, answer, current.token);
+    if (!ok) setError('This request has expired. No answer was sent.');
+    setRequests(await window.bimax.threads.approvals());
+  }
+
+  return (
+    <div className="aux-panel" data-glass={glass}>
+      <header className="aux-panel-header quick-drag">
+        <span>Bimax · {requests.length} decision{requests.length === 1 ? '' : 's'} waiting</span>
+        <button type="button" aria-label="Hide" className="quick-circle" onClick={() => window.bimax.threads.hide()}>
+          <X size={14} />
+        </button>
+      </header>
+      <div className="aux-panel-body">
+        {current ? (
+          <>
+            <p className="aux-panel-title">{current.title}</p>
+            <p className="aux-panel-path" title={current.root}>{current.root}</p>
+            <QuickRequest key={`${current.threadId}:${current.request.id}`} req={current.request} onReply={(value) => void reply(value)} />
+            <p className="aux-panel-note">Only this thread is waiting. Hiding this window does not answer it.</p>
+            {error ? <p role="alert" className="quick-error">{error}</p> : null}
+          </>
+        ) : (
+          <p className="aux-panel-note">No pending decisions.</p>
+        )}
+      </div>
+    </div>
+  );
+}

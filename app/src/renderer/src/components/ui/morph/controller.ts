@@ -29,7 +29,6 @@
  */
 
 import {
-  centreOf,
   progressOf,
   sameGeometry,
   travelBetween,
@@ -41,7 +40,9 @@ import {
   MATERIAL,
   MOTION,
   deformationFor,
+  dismissForKind,
   gradeSpring,
+  limitSpeed,
   mixMaterial,
   tokenForKind,
   type MaterialState,
@@ -53,6 +54,16 @@ export type MorphState = 'closed' | 'opening' | 'open' | 'closing';
 /** What the driver publishes each frame. Read-only; the driver owns the storage. */
 export interface MorphFrame {
   state: MorphState;
+  /**
+   * Whether this flight has an honest origin to travel to and from.
+   *
+   * False for ⌘K, for a menu launched in place, and under Reduce Motion. Published rather than
+   * inferred because the *painter* needs it and cannot work it out: a seeded surface ends its
+   * collapse sitting exactly on top of its own trigger, at its size and its corner, so unmounting
+   * it there is invisible — while an unseeded one ends over empty background and has to fade
+   * instead. Reading "did it have a seed?" off the geometry is guesswork; the driver knows.
+   */
+  seeded: boolean;
   geometry: MorphGeometry;
   /** 0..1, derived from geometry so it survives retargeting. */
   progress: number;
@@ -62,6 +73,8 @@ export interface MorphFrame {
   deform: { x: number; y: number };
   material: MaterialState;
   velocity: { x: number; y: number; width: number; height: number };
+  /** Reduce Motion is on for this flight: nothing moves, the painter fades the surface in instead. */
+  reduced: boolean;
 }
 
 export interface MorphOptions {
@@ -156,6 +169,16 @@ function schedule(): void {
  */
 const WATCHDOG_MS = 1400;
 
+/**
+ * How close a collapse must be to its target to count as finished.
+ *
+ * A collapse ends sitting on its own trigger (seeded), fading over empty background (unseeded), or
+ * handing its last pixels to the layout (a structural pane) — so the final sub-pixel of travel is never
+ * visible. Holding it to the spring's 0.1px / 1px·s⁻¹ rest threshold kept every dismissal on screen,
+ * crawling, for roughly its last 150ms, and that crawl is what made closing feel stuck.
+ */
+const CLOSE_REST_PX = 1.5;
+
 export class MorphController {
   state: MorphState = 'closed';
 
@@ -168,7 +191,11 @@ export class MorphController {
 
   /** Where this flight began. Kept so `progressOf` has a baseline that survives retargeting. */
   private origin: MorphGeometry | null = null;
+  /** Whether the current flight has an honest origin. Published on every frame — see `MorphFrame`. */
+  private seeded = false;
   private target: MorphGeometry | null = null;
+  /** The whole flight's length, seed ↔ destination: the span of a menu's speed limit (`limitSpeed`). */
+  private flightSpan = 0;
   private token: MotionToken = MOTION.seedPanel;
   // Unqualified `setTimeout`, not `window.setTimeout`: the physics and the state machine are graded
   // in the node test lane, where there is no `window`, and a driver that cannot be stepped without a
@@ -210,8 +237,19 @@ export class MorphController {
       this.origin = this.origin ?? this.currentGeometry();
     }
 
-    this.token = this.reduced() ? MOTION.reducedMotion : tokenForKind(this.options.kind());
+    // A surface with no honest seed does not get a flight token. `tokenForKind` describes a journey
+    // — its reveal window holds the content back until the box is most of the way there, which is
+    // right for something arriving from a control and wrong for something arriving in place, where
+    // the delay reads as the surface being slow rather than as it travelling. Prompt 2 §45 asks for
+    // *soft materialisation* in that case, and `MOTION.materialize` is it. This is also what makes
+    // ⌘K and a click on the palette's toolbar button look identical, which is the point of §45: the
+    // motion may not claim a cause the interaction did not have.
+    this.seeded = seed !== null && !this.reduced();
+    this.token = this.reduced()
+      ? MOTION.reducedMotion
+      : seed ? tokenForKind(this.options.kind()) : MOTION.materialize;
     this.target = destination;
+    this.flightSpan = largestTravel(this.launchGeometry(seed, destination), destination);
     this.state = 'opening';
     this.start();
   }
@@ -220,12 +258,17 @@ export class MorphController {
   close(): void {
     if (this.state === 'closed') return;
     const { seed, destination } = this.options.resolve();
-    // The origin for the trip home is the seed as it is *now*. If the control has gone away
-    // entirely (its pane was collapsed while the panel was open), fold into the destination's own
-    // centre rather than into a rect that no longer means anything.
+    // The trip home is the launch, run backwards — the *same* function, so the two can never
+    // disagree. That matters in three cases that used to be handled separately or not at all:
+    // the seed as it is NOW (it may have moved since the open); a control that has gone away
+    // entirely, where the surface leaves from where it is rather than shrinking into a dot at its
+    // own centre; and Reduce Motion, which used to open in place and then fly the whole way back
+    // across the window on close — the exact travel Prompt 2 §32 asks to remove.
     this.origin = this.currentGeometry();
-    this.target = seed ?? this.collapsedInto(destination);
-    this.token = this.reduced() ? MOTION.reducedMotion : MOTION.dismiss;
+    this.seeded = seed !== null && !this.reduced();
+    this.target = this.launchGeometry(seed, destination);
+    this.flightSpan = largestTravel(this.target, destination);
+    this.token = this.reduced() ? MOTION.reducedMotion : dismissForKind(this.options.kind());
     this.state = 'closing';
     this.start();
   }
@@ -241,8 +284,9 @@ export class MorphController {
     if (this.state === 'closed') return;
     const { seed, destination } = this.options.resolve();
     this.target = this.state === 'closing'
-      ? (seed ?? this.collapsedInto(destination))
+      ? this.launchGeometry(seed, destination)
       : destination;
+    this.flightSpan = largestTravel(this.launchGeometry(seed, destination), destination);
     this.start();
   }
 
@@ -286,12 +330,22 @@ export class MorphController {
     this.w = step(this.w, target.width, spring, dt);
     this.h = step(this.h, target.height, spring, dt);
     this.r = step(this.r, target.radius, spring, dt);
+    const pinned = this.pinBar(target);
 
-    const rested = isAtRest(this.x, target.x)
-      && isAtRest(this.y, target.y)
-      && isAtRest(this.w, target.width)
-      && isAtRest(this.h, target.height)
-      && isAtRest(this.r, target.radius);
+    const near = (spring: SpringState, goal: number): boolean => Math.abs(spring.value - goal) < CLOSE_REST_PX;
+    const rested = this.state === 'closing'
+      ? near(this.x, target.x) && near(this.y, target.y) && near(this.w, target.width)
+        && near(this.h, target.height) && near(this.r, target.radius)
+      // An edge-pinned bar's x is derived from width, not an independent spring. Panel layout may
+      // round its measured x differently from the pinned edge by a fraction of a pixel; waiting
+      // for that impossible x target leaves an invisible flight alive until the watchdog fires.
+      // A newly mounted pane may still measure zero width. Keep waiting for its first real
+      // layout (and the observer's retarget) rather than handing off an empty destination.
+      : ((pinned && target.width >= 1) || isAtRest(this.x, target.x))
+        && isAtRest(this.y, target.y)
+        && isAtRest(this.w, target.width)
+        && isAtRest(this.h, target.height)
+        && isAtRest(this.r, target.radius);
 
     if (rested) {
       this.finish();
@@ -315,6 +369,29 @@ export class MorphController {
     // runner open, and in the renderer `unref` is simply absent.
     (this.watchdog as { unref?: () => void }).unref?.();
     this.publish();
+  }
+
+  /**
+   * A bar is its own window edge moving (`structuralPane`), so only its width is a spring. The edge it grows from and
+   * its height are the target's on every frame. As two springs, x and width drifted apart whenever the target was
+   * re-measured early in a flight: at the ladder's pace (UI fix list item 32) the inspector's pinned edge tipped 4.7px
+   * off the window edge, measured by `check:morph`.
+   */
+  private pinBar(target: MorphGeometry): boolean {
+    const kind = this.options.kind();
+    if (!isBar(kind) || !this.seeded) return false;
+    // The edge: an opening grows from the edge it launched at, a closing folds into the edge it is heading for. Not
+    // the opening's target — on its first frame that is the pane before its layout exists (measured 25px short).
+    const anchor = this.state === 'closing' ? target : this.origin;
+    // Only a flight that really grows from an edge — a zero-width strip. A bar flown from a control (MorphRegion's
+    // `seed`), reopened mid-close, or launched on its destination under Reduce Motion flies like any surface.
+    if (!anchor || anchor.width >= 1) return false;
+    this.y = settle(target.y);
+    this.h = settle(target.height);
+    this.x = kind === 'inspector'
+      ? { value: anchor.x + anchor.width - this.w.value, velocity: -this.w.velocity }
+      : settle(anchor.x);
+    return true;
   }
 
   private settleNow(): void {
@@ -341,45 +418,26 @@ export class MorphController {
    *
    * Normally: the seed, exactly.
    *
-   * Under Reduce Motion, the brief (Prompt 1 §27, Prompt 2 §32) asks for something more careful than
-   * "turn it off" — keep the source identification and the geometry transition, remove the journey.
-   * So the launch box is the destination itself, shrunk slightly and nudged a few pixels toward
-   * wherever the seed is, wearing the seed's corner. The surface still visibly changes shape and
-   * still leans in from the right direction; it just does not cross the window to do it.
+   * Under Reduce Motion: the destination itself — no geometry moves at all, and the surface fades in
+   * (`.morph-surface[data-reduced]`). The owner's UI fix list (item 32, 2026-09-30) asks for exactly that: "under
+   * reduced motion: cross-fade or jump instantly — no geometry animation at all". It replaced a gentler reading of
+   * Prompt 2 §32 that kept a small shrink and a lean toward the seed.
    *
    * With no seed at all (Prompt 2 §45 — ⌘K has no spatial origin, and inventing one would be a false
-   * claim about causality) the same shrink is applied with no lean.
+   * claim about causality) the destination, shrunk slightly: it may grow a little; it may not fly.
    */
   private launchGeometry(seed: MorphGeometry | null, destination: MorphGeometry): MorphGeometry {
-    if (seed && !this.reduced()) return seed;
+    if (this.reduced()) return destination;
+    if (seed) return seed;
 
     const inset = Math.min(destination.width, destination.height) * 0.04;
-    let leanX = 0;
-    let leanY = 0;
-    if (seed) {
-      const from = centreOf(seed);
-      const to = centreOf(destination);
-      const dx = from.x - to.x;
-      const dy = from.y - to.y;
-      const length = Math.hypot(dx, dy) || 1;
-      const LEAN = 14;
-      leanX = (dx / length) * LEAN;
-      leanY = (dy / length) * LEAN;
-    }
-
     return {
-      x: destination.x + inset + leanX,
-      y: destination.y + inset + leanY,
+      x: destination.x + inset,
+      y: destination.y + inset,
       width: Math.max(1, destination.width - inset * 2),
       height: Math.max(1, destination.height - inset * 2),
-      radius: seed ? seed.radius : destination.radius,
+      radius: destination.radius,
     };
-  }
-
-  /** A zero-ish box at the destination's centre, for folding into when the seed has vanished. */
-  private collapsedInto(destination: MorphGeometry): MorphGeometry {
-    const c = centreOf(destination);
-    return { x: c.x - 12, y: c.y - 12, width: 24, height: 24, radius: 12 };
   }
 
   private currentGeometry(): MorphGeometry {
@@ -403,7 +461,8 @@ export class MorphController {
   private gradedSpring(target: MorphGeometry): { stiffness: number; ratio: number } {
     const diagonal = Math.hypot(target.width, target.height);
     const distance = this.origin ? travelBetween(this.origin, target).distance : 0;
-    return gradeSpring(this.token.spring, diagonal, distance);
+    const graded = gradeSpring(this.token.spring, diagonal, distance);
+    return this.token.speedLimit ? limitSpeed(graded, this.flightSpan, this.token.speedLimit) : graded;
   }
 
   private frame(): MorphFrame {
@@ -429,10 +488,15 @@ export class MorphController {
 
     return {
       state: this.state,
+      seeded: this.seeded,
       geometry,
       progress,
       reveal,
-      deform: this.reduced()
+      // No stretch on a bar. The deformation says "an object with momentum", and a bar is the window's own layout edge
+      // moving (see `structuralPane`): stretched about its centre, the flying glass pulled 6px off the top and bottom of
+      // the window and off its own window edge for the fast frames of every side-pane open and close — measured by the
+      // morph regression check (UI fix list item 22), where the geometry alone looked perfect.
+      deform: this.reduced() || isBar(this.options.kind())
         ? { x: 1, y: 1 }
         : deformationFor(this.x.velocity, this.y.velocity),
       material,
@@ -442,6 +506,7 @@ export class MorphController {
         width: this.w.velocity,
         height: this.h.velocity,
       },
+      reduced: this.reduced(),
     };
   }
 
@@ -452,6 +517,10 @@ export class MorphController {
   }
 }
 
+function isBar(kind: DestinationKind): boolean {
+  return kind === 'sidebar' || kind === 'inspector';
+}
+
 function clamp01(value: number): number {
   return Math.min(1, Math.max(0, value));
 }
@@ -459,4 +528,17 @@ function clamp01(value: number): number {
 /** Live morph count. Exists so the test lane can assert nothing is left running. */
 export function liveMorphCount(): number {
   return live.size;
+}
+
+/**
+ * The farthest any one of the springs travels in this flight — the position, the width or the
+ * height, each of which is its own spring. This is the `span` of a menu's speed limit, measured the
+ * way the controller's no-teleport test measures a frame's step.
+ */
+export function largestTravel(from: MorphGeometry, to: MorphGeometry): number {
+  return Math.max(
+    Math.hypot(to.x - from.x, to.y - from.y),
+    Math.abs(to.width - from.width),
+    Math.abs(to.height - from.height),
+  );
 }

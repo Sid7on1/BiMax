@@ -5,19 +5,64 @@
    a rebuild appear frozen for minutes after the first package/provisioning run. */
 @import "tailwindcss";
 @source './**/*.{ts,tsx,html}';
+@source '../../../node_modules/streamdown/dist/*.js';
+@theme {
+  --color-border: var(--color-line);
+  --color-muted-foreground: var(--color-dim);
+  --color-muted: var(--color-hover);
+  --color-sidebar: var(--color-raise);
+  --color-background: var(--color-bg);
+  --color-foreground: var(--color-ink);
+  --color-primary: var(--color-ink);
+}
+
 /* The design harness renders the same components against the same tokens (app/design-preview), so
    its files have to be scanned too or a utility used only there is never generated. Dev-only, and
    it adds a handful of classes to the shipped stylesheet. */
 @source '../../../design-preview/*.{ts,tsx}';
 
 @theme {
+  /* Surfaces — RETUNED 2026-09-19 against a direct measurement of Cursor (`front inspo/10-cursor`).
+     The ramp used to start at #0d0d0d (13). Measured with the same capture method, Cursor's canvas
+     is 26 and its sidebar 35 — a 9-level step — where ours were 13 and 50, a 37-level step. Our
+     canvas was half their luminance and our sidebar-to-canvas step four times theirs, which is the
+     single biggest reason the two apps did not read alike.
+
+     Re-measured after the first attempt: `#1a1a1a` is Cursor's canvas under the SAME capture
+     method, and `--color-raise: #212121` is its composer fill — +7 above the canvas, which is the
+     relationship rather than the pair of numbers. Use the window-layer capture for this, not a
+     region capture: layer reproduces this file's tokens exactly, region reads about five levels
+     darker. */
   /* Surfaces */
-  --color-bg: #0d0d0d;
-  --color-raise: #171717;
-  --color-hover: #222222;
-  --color-selected: #2a2a2a;
-  --color-well: #080808;
-  --color-line: #303030;
+  --color-bg: #1a1a1a;
+  --color-raise: #212121;
+  /* A translucent stand-in for `--color-raise`, for the LARGE raised surfaces only — the composer
+     and the starter cards. They were painted with the opaque hex, so they sat on the glass as solid
+     slabs while everything around them transmitted. Derived from `--color-raise`, so it follows the
+     theme automatically. Small controls keep the solid value: Apple's rule is no glass on glass,
+     and a 28px chip that transmits is noise rather than depth. */
+  --raise-veil: color-mix(in srgb, var(--color-raise) 72%, transparent);
+  /* Every FLOATING surface: dialogs, menus, popovers, flyouts, the model catalogue, the ⌘2 bar.
+     They all inherited `.liquid-glass`'s background, which is `--glass-veil` — the SIDEBAR's tint
+     and the lightest of the three — so a menu or a sheet opened as a pale grey panel in a
+     black-tinted app. Settings was fixed by hand first; this is the same fix for all of them.
+     One step denser than the canvas, because a floating surface sits over live content and has to
+     win against it rather than blend into it.
+     2026-09-30 (fix list items 2, 3, 13): it was still the canvas veil, α 0.74 mixed a step toward
+     black — about 77% opaque — and a menu opened over the transcript let the text underneath show
+     through its own rows; the owner could not read the model menu, the "Approve for me" menu or the
+     model catalogue. It is now the solid floating tint at 94%: a floating surface is read first and
+     admired second, and 6% plus the blur is still enough to say it is glass. */
+  --float-veil: color-mix(in srgb, var(--float-solid) 94%, transparent);
+  --float-solid: color-mix(in srgb, var(--color-bg) 88%, #000);
+  --color-hover: #292929;
+  --color-selected: #313131;
+  --color-well: #141414;
+  /* #343434 (52) against a 26-luminance canvas is a light grey rule, and it is what every
+     `border-line` in the app draws — dialog headers, the terminal frame, kbd caps, cards. Lowering
+     the token quiets all of them at once instead of hunting each border down. Still visible where
+     a real division is meant; no longer a white line around every box. */
+  --color-line: #242424;
 
   /* Ink */
   --color-ink: #f5f5f4;
@@ -54,17 +99,77 @@
    them.
 
    The veils are a *tint over an already-frosted material*, not a stand-in for one — macOS blurs and
-   desaturates the desktop before our pixel ever lands. That is why they sit near 0.5: high enough
-   that the panel's text stays readable over an arbitrary wallpaper, low enough that the material
-   still reads as glass rather than as paint. `--glass-veil` is the dial if that balance ever needs
-   moving. */
+   desaturates the desktop before our pixel ever lands. But that argument only holds where the
+   backdrop IS the desktop. Inside the window the same glass sits over the app's own bright
+   surfaces, and there the tint is all the separation the text gets.
+
+   Measured, dark theme, contrast of `--color-ink` against the composited veil (WCAG AA is 4.5):
+
+     backdrop      α 0.34 (was)   α 0.62 (now)
+     dark editor       16.6           17.9
+     mid grey           6.3            9.0
+     bright diff        2.5            5.7
+     white              2.0            4.9
+
+   At 0.34 primary text over anything bright was at 2.0–2.5 — under half the AA floor, which is the
+   "I cannot read the text" report. 0.62 is the knee: ink clears AA even over pure white, the
+   absolute worst case, while 38% of the backdrop still comes through so it reads as glass and not
+   as paint. Above ~0.68 the translucency stops being perceptible and this is just a tinted panel.
+
+   `--color-dim` still falls under AA over a white backdrop at any alpha short of ~0.78. That is a
+   *foreground* problem, not a veil one — secondary text on a translucent surface needs to be
+   darker, not the surface more opaque — and the Increase Contrast block near the end of this file
+   is what answers it for users who ask the system for it.
+
+   2026-10-01: item 43 once raised quiet ink to #e9e9e4/#e0e0dc so every label cleared 4.5:1 over the
+   worst backdrop. That erased the hierarchy — a label and its value read the same — and the owner
+   rejected it ("weird text"). The three-step ink ladder is the owner's; Increase Contrast carries AA. */
 .theme-moonlight {
-  --glass-veil: rgba(17, 17, 19, 0.34);
-  --app-veil: rgba(13, 13, 13, 0.86);
-  --glass-solid: #101011;
-  --glass-edge: rgba(255, 255, 255, 0.09);
-  --glass-edge-strong: rgba(255, 255, 255, 0.14);
-  --glass-sheen: rgba(255, 255, 255, 0.16);
+  /* 0.40 -> 0.62. At 0.40 the panel transmitted 60% of whatever was behind the window, so its
+     colour was not reproducible: measured against the owner's photographic wallpaper it composited
+     to #323334 (50), against Cursor's 35. Cursor's sidebar transmits roughly a tenth — enough to
+     pick up the wallpaper's warmth at its edges (r-b +5..+7) and no more. 0.62 stays under the
+     ~0.68 knee this file documents two hundred lines down, so the panel is still glass rather than
+     a tinted rectangle; it is simply glass you can predict. */
+  --glass-veil: rgba(21, 21, 23, 0.74);
+  /* THE SAME ALPHA EVERYWHERE; THE TINT IS WHAT DIFFERS. This is the whole trick, and getting it
+     wrong is what made the panel joins read as borders.
+     Varying alpha per surface (0.82 / 0.72 / 0.62) made the STEP BETWEEN SURFACES depend on the
+     wallpaper: over the dark backdrop of a layer capture the sidebar sat 11 levels above the
+     canvas, but measured on screen over a bright blue photograph it sat 36 above — the same join,
+     three times the contrast, which the eye reads as a drawn line rather than as depth.
+     At a constant 0.80 every surface takes the same 20% of whatever is behind the window, so the
+     step between any two of them is fixed by their tints alone and never moves:
+        --app-veil    rgb(14,14,15)  the canvas, most tinted
+        --pane-veil   rgb(20,20,22)  the inspector and editor
+        --glass-veil  rgb(26,26,28)  the sidebar, least tinted
+     That is a constant ~10-level separation, which is what Cursor measures as (+9).
+     None of them carries its own `backdrop-filter`. The window is `vibrancy: 'sidebar'`, so macOS
+     is already blurring behind the entire web contents; a semi-transparent background samples that
+     for free. Adding a per-surface blur here would buy nothing and cost a compositor pass on the
+     largest regions in the app, which is the trap the `.app-surface` note below records. */
+  --app-veil: rgba(14, 14, 15, 0.74);
+  /* The owner asked for this pane glassier twice. The naive way — drop its alpha alone — brings
+     back the defect the equal-alpha rule fixed: the further two surfaces' alphas diverge, the more
+     the step between them swings with the wallpaper, and 0.72-vs-0.82 was the 11-to-36 seam.
+     So the whole stack got glassier together instead. Canvas and sidebar went 0.80 -> 0.74 and this
+     pane to 0.68, which keeps every pair within 0.06 of each other: the sidebar/canvas join is
+     constant, and this one drifts about 7 to 14 across the full range of wallpapers rather than
+     11 to 36. Everything transmits more; nothing separates unpredictably. */
+  --pane-veil: rgba(20, 20, 22, 0.68);
+  /* The solid stand-ins, used when the window is expanded and under Reduce Transparency. They have
+     to preserve the WINDOWED hierarchy, and #101011 did not: at 16 it sat ten levels BELOW the
+     canvas, so going full screen flipped the sidebar from the lightest surface to the darkest.
+     These are what the veils composite to over a mid backdrop. */
+  --glass-solid: #212125;
+  --pane-solid: #1e1e22;
+  --glass-edge: rgba(255, 255, 255, 0.05);
+  --glass-edge-strong: rgba(255, 255, 255, 0.08);
+  /* 0.16 -> 0.05. This is the specular top line every glass surface carries, and at 0.16 it is a
+     visible WHITE RULE along the top of the composer, the cards, the dialogs and every menu — the
+     "white lines around the border of components". A specular highlight is meant to suggest where
+     light enters, not to draw the edge. */
+  --glass-sheen: rgba(255, 255, 255, 0.05);
   --glass-raise: rgba(255, 255, 255, 0.07);
   --glass-raise-hover: rgba(255, 255, 255, 0.11);
   --glass-well: rgba(255, 255, 255, 0.055);
@@ -73,18 +178,22 @@
   /* The body's internal scatter, and how hard the rim band brightens what it refracts. Dark glass
      can take a strong lens because there is little light to blow out; see the Starlight pair. */
   --glass-inner-glow: rgba(255, 255, 255, 0.04);
-  --glass-lens-brightness: 1.35;
+  --glass-lens-brightness: 1.12;
   /* The rim light that makes the panel edge read as polished silver rather than as a plain rule. */
   --silver-rim: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.22) 18%, rgba(255, 255, 255, 0.06) 62%, transparent);
 }
 
 .theme-starlight {
-  --glass-veil: rgba(252, 252, 251, 0.38);
-  --app-veil: rgba(250, 250, 249, 0.88);
+  /* Same constant alpha as Moonlight, and the order inverts: in a light theme the sidebar is the
+     DARKER surface, which is the macOS convention and what `--glass-solid` already encoded. */
+  --app-veil: rgba(252, 252, 251, 0.74);
+  --pane-veil: rgba(248, 248, 246, 0.68);
+  --glass-veil: rgba(243, 243, 241, 0.74);
   --glass-solid: #f3f3f1;
-  --glass-edge: rgba(0, 0, 0, 0.09);
-  --glass-edge-strong: rgba(0, 0, 0, 0.14);
-  --glass-sheen: rgba(255, 255, 255, 0.95);
+  --pane-solid: #f7f7f5;
+  --glass-edge: rgba(0, 0, 0, 0.055);
+  --glass-edge-strong: rgba(0, 0, 0, 0.09);
+  --glass-sheen: rgba(255, 255, 255, 0.45);
   --glass-raise: rgba(255, 255, 255, 0.75);
   --glass-raise-hover: rgba(255, 255, 255, 0.95);
   --glass-well: rgba(0, 0, 0, 0.045);
@@ -99,12 +208,35 @@
 
 .theme-moonlight {
   color-scheme: dark;
-  --color-bg: #0d0d0d;
-  --color-raise: #171717;
-  --color-hover: #222222;
-  --color-selected: #2a2a2a;
-  --color-well: #080808;
-  --color-line: #303030;
+  --color-bg: #1a1a1a;
+  --color-raise: #212121;
+  /* A translucent stand-in for `--color-raise`, for the LARGE raised surfaces only — the composer
+     and the starter cards. They were painted with the opaque hex, so they sat on the glass as solid
+     slabs while everything around them transmitted. Derived from `--color-raise`, so it follows the
+     theme automatically. Small controls keep the solid value: Apple's rule is no glass on glass,
+     and a 28px chip that transmits is noise rather than depth. */
+  --raise-veil: color-mix(in srgb, var(--color-raise) 72%, transparent);
+  /* Every FLOATING surface: dialogs, menus, popovers, flyouts, the model catalogue, the ⌘2 bar.
+     They all inherited `.liquid-glass`'s background, which is `--glass-veil` — the SIDEBAR's tint
+     and the lightest of the three — so a menu or a sheet opened as a pale grey panel in a
+     black-tinted app. Settings was fixed by hand first; this is the same fix for all of them.
+     One step denser than the canvas, because a floating surface sits over live content and has to
+     win against it rather than blend into it.
+     2026-09-30 (fix list items 2, 3, 13): it was still the canvas veil, α 0.74 mixed a step toward
+     black — about 77% opaque — and a menu opened over the transcript let the text underneath show
+     through its own rows; the owner could not read the model menu, the "Approve for me" menu or the
+     model catalogue. It is now the solid floating tint at 94%: a floating surface is read first and
+     admired second, and 6% plus the blur is still enough to say it is glass. */
+  --float-veil: color-mix(in srgb, var(--float-solid) 94%, transparent);
+  --float-solid: color-mix(in srgb, var(--color-bg) 88%, #000);
+  --color-hover: #292929;
+  --color-selected: #313131;
+  --color-well: #141414;
+  /* #343434 (52) against a 26-luminance canvas is a light grey rule, and it is what every
+     `border-line` in the app draws — dialog headers, the terminal frame, kbd caps, cards. Lowering
+     the token quiets all of them at once instead of hunting each border down. Still visible where
+     a real division is meant; no longer a white line around every box. */
+  --color-line: #242424;
   --color-ink: #f5f5f4;
   --color-dim: #b8b8b5;
   --color-faint: #7c7c78;
@@ -133,6 +265,23 @@
   --color-moss: #4d4d49;
   --color-amber: #696965;
   --color-rust: #2b2b29;
+  /*
+   * Declared here as well as on `:root`, and that is not redundant.
+   *
+   * A custom property's `var()` is substituted where the property is DECLARED, not where it is
+   * used. `--raise-veil` lived only on `:root` and in `.theme-moonlight`, so inside a
+   * `.theme-starlight` SUBTREE it kept resolving Moonlight's `--color-raise` — every raised
+   * surface painted #212121 on a white panel. The app never saw it because `appearance.ts` puts
+   * the theme class on <html>, where the same element carries both declarations; `app/design-
+   * preview` stages both themes side by side, and there it painted the workbench's active tab chip
+   * and its Source/Preview segment as dark grey pills with dark text on them.
+   *
+   * The expressions are identical to the `:root` ones on purpose: on <html> nothing changes, and on
+   * a subtree they now resolve against this block's own values.
+   */
+  --raise-veil: color-mix(in srgb, var(--color-raise) 72%, transparent);
+  --float-veil: color-mix(in srgb, var(--float-solid) 94%, transparent);
+  --float-solid: color-mix(in srgb, var(--color-bg) 88%, #000);
 }
 
 @layer base {
@@ -169,35 +318,118 @@
   max-width: clamp(640px, 88vw, 1180px);
 }
 
-/* Every pane that is not the glass sidebar. Without this the transparent body would let the
-   vibrancy material show through the transcript, the inspector and the editor too. */
+/* The code editor's colours (EditorPane.tsx). The editor paints no ground of its own — it is glass, on the pane's
+   veil — so its ink is the only thing between the code and whatever is behind the window, and it is measured like
+   primary text: `check:glass-contrast` holds every code token to AA over the glass, comments included, in both themes.
+
+   Moonlight keeps the hues the editor had on its old `#0d0d0d` slab, lifted just enough to clear AA on the lighter
+   glass: comments and punctuation were the quietest and moved most. Starlight never had a palette — the editor was a
+   black block there — so it gets the same hue families, dark enough to read on light glass.
+
+   Line numbers are quieter than code but read without effort: on `--color-faint` they measured 1.9:1 on Starlight's
+   glass, so they have their own inks. Flat values only — never `var()` of a primitive, which would resolve where it is
+   declared (see `--raise-veil`). */
+:root,
+.theme-moonlight {
+  --code-ink: #eeeeec;
+  --code-caret: #ffffff;
+  --code-comment: #a3a39c;
+  --code-keyword: #eb9a63;
+  --code-string: #9bc27f;
+  --code-regexp: #7fc1b0;
+  --code-number: #dfbb6a;
+  --code-function: #88b7da;
+  --code-type: #c4a4dc;
+  --code-property: #a6c8da;
+  --code-variable: #e6e6e3;
+  --code-operator: #c8c8c3;
+  --code-punctuation: #a7a7a1;
+  --code-meta: #d8a0c0;
+  --code-invalid: #e39488;
+  /* A chat code block's ground: a slightly darker film on the glass, so the block reads as a recess without going
+     back to an opaque slab. */
+  --code-block: rgba(0, 0, 0, 0.22);
+  --code-gutter: #94948e;
+  --code-gutter-active: #cfcfca;
+  --code-gutter-rule: rgba(255, 255, 255, 0.06);
+  --code-selection: rgba(255, 255, 255, 0.15);
+  --code-selection-focused: rgba(255, 255, 255, 0.22);
+  --code-selection-match: rgba(255, 255, 255, 0.10);
+  --code-active-line: rgba(255, 255, 255, 0.04);
+  --code-bracket: rgba(255, 255, 255, 0.18);
+  --code-match: rgba(255, 255, 255, 0.16);
+  --code-match-selected: rgba(255, 255, 255, 0.28);
+}
+.theme-starlight {
+  --code-ink: #151514;
+  --code-caret: #000000;
+  --code-comment: #4a4a45;
+  --code-keyword: #6c2c04;
+  --code-string: #1e5010;
+  --code-regexp: #164d43;
+  --code-number: #5a4100;
+  --code-function: #174a73;
+  --code-type: #5a3286;
+  --code-property: #214b5e;
+  --code-variable: #1c1c1a;
+  --code-operator: #3b3b38;
+  --code-punctuation: #474743;
+  --code-meta: #722952;
+  --code-invalid: #80241a;
+  --code-block: rgba(0, 0, 0, 0.035);
+  --code-gutter: #585854;
+  --code-gutter-active: #262624;
+  --code-gutter-rule: rgba(0, 0, 0, 0.07);
+  --code-selection: rgba(0, 0, 0, 0.10);
+  --code-selection-focused: rgba(0, 0, 0, 0.15);
+  --code-selection-match: rgba(0, 0, 0, 0.07);
+  --code-active-line: rgba(0, 0, 0, 0.035);
+  --code-bracket: rgba(0, 0, 0, 0.12);
+  --code-match: rgba(0, 0, 0, 0.10);
+  --code-match-selected: rgba(0, 0, 0, 0.18);
+}
+
+/* Every pane that is not the glass sidebar: the transcript, the inspector, the editor. Opaque —
+   and that is a decision, not a default.
+
+   This was `--app-veil`, α 0.86 over a 24px backdrop blur, which the glass rule two hundred lines
+   above already rejects in its own words: "above ~0.68 the translucency stops being perceptible and
+   this is just a tinted panel." At 0.86 it paid for a full-surface `backdrop-filter` on the largest
+   regions in the app and bought 14% transmission nobody can read as vibrancy. What it did buy was a
+   wallpaper tint on every reading surface — which is how a front-end audit came to measure these
+   warm-neutral tokens as cool and conclude the palette was incoherent.
+
+   It also had to be switched off again for zoomed and full-screen windows, because there is nothing
+   behind those worth sampling. A material that is imperceptible when it works and must be disabled
+   when it cannot is not carrying its weight on a reading surface.
+
+   Glass is now only where it is deliberate: the sidebar, dialogs and the morph surfaces, all on
+   `--glass-veil` at 0.40 (dark) / 0.46 (light) — well below that knee, so what is behind the window
+   reads through the sidebar and title bar rather than being tinted out. The window itself stays
+   transparent so those surfaces still have real vibrancy to sample. */
 .app-surface {
   background: var(--app-veil);
-  backdrop-filter: blur(24px) saturate(1.35);
-  -webkit-backdrop-filter: blur(24px) saturate(1.35);
 }
 
+/* The side panes: the same material one stop lighter, so the shell reads as three sheets of the
+   same glass rather than one opaque block with a translucent strip down the side. */
+.pane-surface {
+  background: var(--pane-veil);
+}
+
+/* Expanded, there is nothing behind the window to sample: the blur would be sampling our own body,
+   which reads as grey haze and lowers text contrast for no gain. Every surface goes solid together
+   — the same rule the sidebar has followed since `useWindowChrome` was introduced. */
 [data-chrome='expanded'] .app-surface {
   background: var(--color-bg);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
+}
+[data-chrome='expanded'] .pane-surface {
+  background: var(--pane-solid);
 }
 
-/* The title bar shares the sidebar's material rather than sitting on its own. It spans the full
-   width, directly above the glass panel — an opaque bar there reads as a black lid on the window
-   and cancels the effect it is sitting on top of. */
-.titlebar-shell {
-  background: var(--glass-veil);
-  backdrop-filter: blur(30px) saturate(1.6);
-  -webkit-backdrop-filter: blur(30px) saturate(1.6);
-}
-
-/* Expanded: nothing behind the window to sample, so the title bar stops pretending. */
-[data-chrome='expanded'] .titlebar-shell {
-  background: var(--color-bg);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
+/* `.titlebar-shell` is gone (2026-09-19). There is no title bar to give a material to: the strip
+   was removed and its contents split into `SidebarChrome` and `CanvasChrome`, which paint nothing
+   and sit on the sidebar's glass and the content pane's surface respectively. See TitleBar.tsx. */
 
 /* The navigation shell. Translucent while the window floats; solid the moment it owns the screen —
    `:root[data-chrome]` is published by useWindowChrome.ts. */
@@ -206,48 +438,72 @@
   position: relative;
   isolation: isolate;
   background: var(--glass-veil);
-  /* macOS supplies the blur through the window's vibrancy material. This is the fallback for
-     everywhere that does not (and it costs nothing when the backdrop is already frosted). */
-  backdrop-filter: blur(28px) saturate(1.9);
-  -webkit-backdrop-filter: blur(28px) saturate(1.9);
-  border-right: 1px solid var(--glass-edge);
-  box-shadow: inset 0 1px 0 var(--glass-sheen), inset 0 0 30px var(--glass-inner-glow);
-  transition: background 200ms ease, border-color 200ms ease;
+  /* No backdrop-filter while pinned (UI fix list item 10, "the middle and left panels feel like two windows"). It was
+     the one pane with its own blur — the canvas and the right pane have none, by the rule recorded at `.app-surface` —
+     and pinned it sits over the transparent window, where macOS vibrancy already frosts the desktop, so the pass painted
+     nothing (measured: the sidebar/canvas step on screen is exactly their tints' 0.74 difference) and cost a compositor
+     pass on a full-height layer every frame a pane flies. The peek, which sits over live text, keeps it — below. */
+  /* No `border-right`, and no top sheen either. With every surface on the same alpha the panes are
+     separated by about ten levels of value, which is how Cursor and both reference apps do it; a
+     hairline on top of that reads as a seam rather than an edge.
+     `inset 0 1px 0 var(--glass-sheen)` was a 1px rgba(255,255,255,0.16) line across the very top of
+     the panel — the bright strip the owner reported along the top of the window. The internal
+     scatter stays; it has no edge. Measured 2026-09-19: `front inspo/10-cursor`. */
+  /* No inner glow either. `inset 0 0 30px var(--glass-inner-glow)` brightens the panel's whole
+     PERIMETER, which includes the edge it shares with the canvas — a soft border by another name,
+     and the residual the owner could still see after the hard rules came off. */
+  transition: background 200ms ease;
 }
 
-/* Shining silver: a single rim light down the trailing edge. It is the only ornament in the panel,
-   and it is a light source rather than a border, so it brightens where content begins and falls off
-   before the footer. */
+/* The rim light is OFF (2026-09-19). "Shining silver: a single rim light down the trailing edge",
+   a light source rather than a border, brightening where content begins and falling off before the
+   footer — it was the only ornament in the panel and it is genuinely nice.
+   It is also the last thing drawn at the sidebar/canvas join, and measured against Cursor there is
+   nothing there at all: the two surfaces are separated by about eleven levels of value and no mark.
+   At that step a rim stops reading as a light and starts reading as a seam, which is the tell the
+   whole round-3 change is removing. `--silver-rim` is kept so this is one line to restore. */
 .sidebar-shell::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: -1px;
-  bottom: 0;
-  width: 1px;
-  pointer-events: none;
-  background: var(--silver-rim);
-  transition: opacity 200ms ease;
+  content: none;
 }
 
 [data-chrome='expanded'] .sidebar-shell {
   background: var(--glass-solid);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  border-right-color: var(--color-line);
+}
+
+/* The peek: the same panel, shown OVER the conversation while the sidebar is unpinned. Pinned, its
+   glass sits over the desktop; peeking, it sits over the transcript, and at α 0.74 the transcript's
+   text read straight through the panel's own rows (fix list item 14). A surface over live content is
+   a floating surface, so it takes the floating rule: the sidebar's own solid tint at 94%. */
+/* The sidebar's name gives way before it truncates (item 10): at 120% zoom — the owner's — the row is ~38px short of
+   the traffic lights, the toggle, "Bimax" and search, and it read "Bi…". A cut-off name is worse than none; the row is
+   the query container, so the name comes back as soon as the pane is wide enough. A query measures the CONTENT box,
+   so the 84px of traffic-light padding is not in it: toggle 28 + three 4px gaps + the name ~46 + search 28 ≈ 114. */
+.sidebar-header { container-type: inline-size; }
+@container (max-width: 117px) { .sidebar-title { display: none; } }
+
+.sidebar-peek .sidebar-shell {
+  background: color-mix(in srgb, var(--glass-solid) 94%, transparent);
+  /* Over the transcript there is something to frost: the 6% that shows through is blurred, not crisp text. */
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
 }
 
 [data-chrome='expanded'] .sidebar-shell::after {
   opacity: 0;
 }
 
-/* A raised control that catches the light: the primary action, and the currently selected row. */
+/* The primary action, and the currently selected row.
+   It used to be a raised card — a 1px rim, a drop shadow and an inset sheen — which read as a
+   BOARD sitting on the panel rather than as part of it, and that box is what the owner asked to
+   lose. What is left is a fill: the same `--glass-raise` the selected row uses, so emphasis comes
+   from value alone, the way every surface in the shell now separates. */
 .glass-pill {
   background: var(--glass-raise);
-  border: 1px solid var(--glass-edge-strong);
-  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-sheen);
-  transition: background 180ms var(--ease-snappy), border-color 180ms ease,
-    transform var(--dur-bouncy) var(--ease-bouncy);
+  /* The release springs on the house bounce. Items 27/32 once made it 120ms ease-out with no bounce; the owner felt the
+     text bar's buttons go "soo speedy" (2026-10-01), so it is the release it had before the UI fix list again. */
+  transition: background 180ms var(--ease-snappy), transform var(--dur-bouncy) var(--ease-bouncy);
 }
 
 .glass-pill:hover {
@@ -260,22 +516,41 @@
   box-shadow: inset 0 1px 0 var(--glass-sheen);
 }
 
+/* A control drawn smaller than 24×24 keeps its drawn size and takes clicks over 24×24 (UI fix list item 34, "minimum
+   24×24 pt hit regions on small glyphs"). The pseudo-element belongs to the button for hit testing, so a click in the
+   ring around the glyph lands on it; it paints nothing. Only for controls with room around them and no clipping box:
+   rows stacked edge to edge get real height instead, because overlapping hit regions would make a click between two
+   rows land on whichever came later. `npm run check:hit-targets` measures the result by clicking, not by box size. */
+.hit-24 { position: relative; }
+.hit-24::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100%, 24px);
+  height: max(100%, 24px);
+  translate: -50% -50%;
+}
+
 /* A flat navigation row. No fill until it is pointed at — the resting panel is text on glass. */
 .glass-row {
   transition: background 150ms var(--ease-snappy), color 150ms ease,
-    transform var(--dur-bouncy) var(--ease-bouncy);
+    transform var(--dur-bouncy) var(--ease-bouncy); /* the release, as `.glass-pill`'s */
 }
 
 .glass-row:hover {
   background: var(--glass-well);
 }
 
+/* The selected row: the same raised glass as the New thread pill, and nothing drawn on it. It carried a
+   1px sheen along its top here and a 2px light bar down its left edge (below) — the "weird white strip"
+   the owner saw beside the current recent (fix list item 7). Value alone marks it, as it marks every
+   surface in the shell. */
 .glass-row[data-active='true'] {
   background: var(--glass-raise);
-  box-shadow: inset 0 1px 0 var(--glass-sheen);
 }
 
-/* Instant down, springy up — same reasoning as `.pressable:active`. */
+/* Instant down, a quick ease back up — same reasoning as `.pressable:active`. */
 .glass-pill:active, .glass-row:active {
   transform: scale(0.97);
   transition-duration: 40ms;
@@ -283,13 +558,16 @@
 }
 
 /* The Machine flyout above Settings. Opaque, because it overlaps the panel's own rows — a
-   translucent popover would let the text underneath show through its own text. */
+   translucent popover would let the text underneath show through its own text. `--float-solid`
+   rather than `--float-veil` for exactly that reason: the floating TINT, without the transparency. */
 .glass-flyout {
   position: absolute;
   margin-bottom: 8px;
-  background: var(--color-raise);
+  background: var(--float-solid);
   border: 1px solid var(--glass-edge-strong);
   box-shadow: var(--shadow-pop);
+  /* The bounce, as before item 27 made it snappy: the owner, 2026-10-01, wants every open and close at the speed it
+     had before batches 11-20 ("codex made it soo much speed that it does not feel good"). */
   animation: pop-in var(--dur-bouncy) var(--ease-bouncy) both;
   transform-origin: right bottom;
 }
@@ -318,24 +596,50 @@
    from the CONTROL-size presets — CSS transitions run on buttons, rows and popovers, and anything
    big enough to need the size grading is animated from JS where the grading lives.
 
-   Regenerate both together if a preset changes; the comment on each records what it is. */
+   THIS BLOCK IS GENERATED — do not hand-edit it. `npm run gen:motion` rewrites it from the solver
+   and `npm run check:motion` (in CI) fails if the two ever disagree. That gate exists because the
+   drift it catches is invisible: a stale curve animates perfectly well, it just no longer describes
+   the spring the JS is using on the same surface.
+
+   Durations are the CONTROL-size settle (see `settleFor` in motion.ts): a surface stops being drawn
+   once it is within half a pixel of target and moving under half a pixel per frame.
+
+   2026-09-12 — two changes, and they pull in opposite directions, so both are recorded:
+
+     - Every preset's stiffness was DOUBLED. Settling time goes as 1/√k, so this is a ~27% cut with
+       ζ, and therefore the overshoot, untouched: snappy 283→209ms, bouncy 467→338ms, glass
+       379→271ms. Light interactions are conventionally ≤200ms and `snappy` carries the most events.
+     - The integration step was corrected from 1/240 to 1/4800, which GAVE BACK overshoot the
+       solver had been losing to numerical damping — snappy's peak goes 1.2%→1.9%, which is the
+       1.99% the closed form says ζ=0.78 must produce. See the DT comment in motion.ts.
+
+   So the durations here are shorter than before and the bounce is slightly *more* pronounced, not
+   less. The presets now mean what they say.
+
+   2026-09-30 — `bouncy` retuned for the UI fix list (item 16): 338ms / 12.6% → 220ms / 6.3%. It runs
+   only on high-frequency things (pills and rows on release, the Settings flyout), where a toy's
+   bounce costs on every click. The menus proper are morphs, timed in morph/tokens.ts.
+
+   2026-10-01 — back to 338ms / 12.6%: the owner asked for the speeds from before the UI fix list. */
 :root {
-  /* snappy: k=620, ζ=0.78 — 1.2% overshoot. Presses, toggles, row selection. */
-  --ease-snappy: linear(0, 0.0574, 0.1273, 0.2553, 0.3914, 0.4791, 0.5998, 0.7034, 0.7622, 0.8353, 0.8918, 0.9213, 0.9551, 0.9787, 0.9899, 1.0013, 1.0079, 1.0104, 1.0121, 1.0122, 1.0115, 1.0101, 1.009, 1.0074, 1.0058, 1.0048, 1.0036, 1.0026, 1.002, 1.0013, 1.0008, 1.0005, 1);
-  --dur-snappy: 354ms;
+  /* snappy: k=1240, ζ=0.78 — 1.9% overshoot. Presses, toggles, row selection. */
+  --ease-snappy: linear(0, 0.0415, 0.139, 0.2639, 0.3962, 0.5202, 0.6347, 0.7327, 0.8132, 0.8769, 0.9254, 0.9609, 0.9858, 1.0019, 1.0119, 1.0172, 1.0194, 1.019, 1.0174, 1.0152, 1.0126, 1.0102, 1.0079, 1.0058, 1);
+  --dur-snappy: 209ms;
 
-  /* bouncy: k=380, ζ=0.55 — 11.8% overshoot. The house bounce: menus, pills, chips. */
-  --ease-bouncy: linear(0, 0.0371, 0.0866, 0.1868, 0.3064, 0.3912, 0.5193, 0.642, 0.7181, 0.821, 0.881, 0.9574, 1.0174, 1.0486, 1.0833, 1.1051, 1.1133, 1.1179, 1.115, 1.1099, 1.0988, 1.0851, 1.0753, 1.0601, 1.0455, 1.0363, 1.0238, 1.013, 1.007, 0.9994, 0.9955, 0.991, 0.9881, 0.9869, 0.9862, 0.9863, 0.9868, 0.988, 0.9896, 0.9907, 0.9925, 0.9942, 0.9954, 0.9969, 0.9982, 0.9989, 0.9999, 1.0006, 1.001, 1.0013, 1.0015, 1.0016, 1.0016, 1.0016, 1.0014, 1.0013, 1.0011, 1);
-  --dur-bouncy: 629ms;
+  /* bouncy: k=1100, ζ=0.66 — 6.3% overshoot. Pills and rows on release, the Settings flyout. */
+  --ease-bouncy: linear(0, 0.0436, 0.1521, 0.2978, 0.4613, 0.619, 0.7618, 0.8826, 0.9779, 1.0473, 1.0928, 1.1176, 1.1257, 1.121, 1.1079, 1.0899, 1.0698, 1.0498, 1.0316, 1.0159, 1.0036, 0.9946, 0.9887, 0.9854, 0.9842, 0.9847, 0.9862, 0.9885, 0.991, 0.9935, 1);
+  --dur-bouncy: 338ms;
 
-  /* glass: k=340, ζ=0.70 — 3.8% overshoot. Panels and sheets: a rebound that reads as weight. */
-  --ease-glass: linear(0, 0.0328, 0.0758, 0.1613, 0.2619, 0.3327, 0.4393, 0.5416, 0.6056, 0.6935, 0.7705, 0.8156, 0.8737, 0.921, 0.9469, 0.9782, 1.0016, 1.0132, 1.0258, 1.0336, 1.0366, 1.0384, 1.0379, 1.0367, 1.0337, 1.0301, 1.0274, 1.0233, 1.0193, 1.0167, 1.0132, 1.01, 1.0082, 1.0057, 1.0038, 1.0027, 1.0013, 1.0003, 0.9998, 0.9992, 0.9988, 0.9987, 0.9985, 0.9985, 0.9986, 0.9987, 0.9988, 0.9989, 1);
-  --dur-glass: 533ms;
+  /* glass: k=680, ζ=0.7 — 4.6% overshoot. Panels and sheets: a rebound that reads as weight. */
+  --ease-glass: linear(0, 0.0382, 0.1311, 0.2561, 0.3898, 0.5212, 0.6419, 0.747, 0.8358, 0.9049, 0.9574, 0.9952, 1.0209, 1.036, 1.0435, 1.0455, 1.0435, 1.0391, 1.0335, 1.0274, 1.0214, 1.016, 1.0112, 1.0073, 1);
+  --dur-glass: 271ms;
 
   /* Leaving. Nothing springs on the way out: the user has already decided, and an overshoot on
      close means the surface grows briefly AFTER being dismissed. */
   --ease-exit: cubic-bezier(0.4, 0, 0.9, 0.35);
-  --dur-exit: 210ms;
+  /* Scaled with the springs above (210ms × ~0.72). An exit that outlasts the entrance it undoes
+     reads as the UI being reluctant to let go. */
+  --dur-exit: 150ms;
 }
 
 /* --- The liquid glass material ---------------------------------------------------------------
@@ -372,7 +676,7 @@
 .liquid-glass {
   position: relative;
   isolation: isolate;
-  background: var(--glass-veil);
+  background: var(--float-veil);
   backdrop-filter: blur(28px) saturate(1.9);
   -webkit-backdrop-filter: blur(28px) saturate(1.9);
   border: 1px solid var(--glass-edge);
@@ -407,8 +711,8 @@
   mask-composite: exclude;
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
-  backdrop-filter: blur(3px) brightness(var(--glass-lens-brightness)) saturate(2.2);
-  -webkit-backdrop-filter: blur(3px) brightness(var(--glass-lens-brightness)) saturate(2.2);
+  backdrop-filter: blur(3px) brightness(var(--glass-lens-brightness)) saturate(1.4);
+  -webkit-backdrop-filter: blur(3px) brightness(var(--glass-lens-brightness)) saturate(1.4);
 }
 
 .liquid-glass::after {
@@ -420,7 +724,7 @@
   pointer-events: none;
   background:
     linear-gradient(148deg,
-      color-mix(in srgb, var(--glass-sheen) 42%, transparent) 0%,
+      color-mix(in srgb, var(--glass-sheen) 18%, transparent) 0%,
       transparent 32%,
       transparent 68%,
       color-mix(in srgb, var(--glass-sheen) 14%, transparent) 100%);
@@ -480,9 +784,24 @@
    `color-mix(… calc(var() * 100%), transparent)` scales an already-translucent colour's alpha,
    which is the only way to make a box-shadow's strength a variable — box-shadow takes no opacity of
    its own, and animating a wrapper's `opacity` instead would fade the surface's contents with it. */
+/* Reduce Motion (UI fix list item 32): a driven surface does not move at all — it appears where it belongs and fades
+   in. The controller launches it on its destination (controller.ts, `launchGeometry`) and flags the frame. */
+.morph-surface[data-reduced] { animation: fade-in 120ms ease-out both; }
+
 .morph-surface {
   --morph-elevation: 1;
   --morph-sheen: 0.6;
+  /* The containment `paint.ts` states as its premise, which was never actually declared.
+     Measured before assuming it was the fix, and it is NOT: 600 resize+forced-layout cycles over
+     real content, 0.191ms/resize contained vs 0.184ms uncontained — no gain, marginally worse,
+     inside the noise. The reason is that the shell is already `position: fixed` with its content
+     absolutely positioned at a fixed pixel size, so the subtree never depended on the shell's
+     dimensions and there was nothing for `layout` containment to save.
+     Kept anyway, and only for `paint`: content is laid out at destination size while the shell may
+     still be 44px wide, so most of it sits outside the box for most of the flight. `overflow:
+     hidden` already clips it and browsers usually optimise that; this makes it explicit. That
+     saving is at the paint stage and is NOT measured here — forced layout cannot see it. */
+  contain: layout paint;
   box-shadow:
     /* Contact. Present at any elevation: even a flush surface has an edge. */
     0 1px 2px rgb(0 0 0 / 0.10),
@@ -497,7 +816,7 @@
    that was pretending to be a lens stops pretending, rather than filtering an opaque app surface
    into a slightly-wrong grey. */
 [data-chrome='expanded'] .liquid-glass {
-  background: var(--glass-solid);
+  background: var(--float-solid);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   border-color: var(--color-line);
@@ -532,24 +851,62 @@
   .md .md-h2 { @apply text-[15px]; }
   .md .md-h3 { @apply text-[14px]; }
   .md .md-h4, .md .md-h5, .md .md-h6 { @apply text-[13.5px] text-dim; }
+  /* Running text stops near 70 characters a line (UI fix list item 38). The reading column grows with the window, up to
+     1180px, and a reply ran to it: measured 66 characters a line in the owner's usual layout (1180×800 at 120%, right
+     panel open) but 119 with the panel closed and 186 on a large window at 100%. Only the text is held back — code
+     blocks, tables and tool rows keep the whole column, where width is worth having. 34em ≈ 71 characters of Inter;
+     `.md-text` is a reply that is plain text rather than markdown. */
+  .md :is(p, ul, ol, blockquote, .md-h), .md-text { max-width: 34em; }
 
-  /* Code is monochrome-first; weight and value carry hierarchy instead of rainbow syntax. */
-  .hljs-comment, .hljs-quote { color: var(--color-faint); font-style: italic; }
-  .hljs-keyword, .hljs-selector-tag, .hljs-tag, .hljs-operator { color: var(--color-ember); }
-  .hljs-string, .hljs-regexp, .hljs-addition { color: var(--color-moss); }
-  .hljs-number, .hljs-literal, .hljs-symbol, .hljs-bullet, .hljs-link { color: var(--color-amber); }
-  .hljs-title, .hljs-title.function_, .hljs-name, .hljs-section { color: var(--color-ember-bright); }
-  .hljs-type, .hljs-class, .hljs-title.class_, .hljs-built_in { color: var(--color-dim); }
-  .hljs-attr, .hljs-attribute, .hljs-property, .hljs-variable, .hljs-template-variable { color: var(--color-faint); }
-  .hljs-params, .hljs-punctuation, .hljs-subst { color: var(--color-ink); }
-  .hljs-meta, .hljs-selector-id, .hljs-selector-class { color: var(--color-dim); }
-  .hljs-deletion { color: var(--color-rust); }
+  /* Code in the chat takes the editor's syntax colours (the `--code-*` tokens), so a snippet reads the same in a reply
+     as in the file it came from. It was monochrome — every class mapped to a grey — which the owner read as plain white
+     text (2026-09-30). The same AA bar holds: check:glass-contrast measures these spans on the transcript's glass. */
+  .hljs-comment, .hljs-quote { color: var(--code-comment); font-style: italic; }
+  .hljs-keyword, .hljs-selector-tag { color: var(--code-keyword); font-weight: 600; }
+  .hljs-operator { color: var(--code-operator); }
+  .hljs-string, .hljs-addition { color: var(--code-string); }
+  .hljs-regexp { color: var(--code-regexp); }
+  .hljs-number, .hljs-literal, .hljs-symbol, .hljs-bullet { color: var(--code-number); }
+  .hljs-link { color: var(--code-function); text-decoration: underline; }
+  .hljs-title, .hljs-title.function_ { color: var(--code-function); }
+  .hljs-section { color: var(--code-keyword); font-weight: 600; }
+  .hljs-type, .hljs-class, .hljs-title.class_, .hljs-built_in { color: var(--code-type); }
+  .hljs-attr, .hljs-attribute, .hljs-property { color: var(--code-property); }
+  .hljs-variable, .hljs-template-variable, .hljs-params, .hljs-subst { color: var(--code-variable); }
+  .hljs-punctuation { color: var(--code-punctuation); }
+  .hljs-tag, .hljs-name, .hljs-meta, .hljs-selector-id, .hljs-selector-class { color: var(--code-meta); }
+  .hljs-deletion { color: var(--code-invalid); }
   .hljs-emphasis { font-style: italic; }
   .hljs-strong { font-weight: 600; }
 }
 
 @utility no-drag {
   -webkit-app-region: no-drag;
+}
+
+/* The left panel's scroller.
+
+   The global rule above draws a 10px thumb with a `2px solid var(--color-bg)` border. That border
+   is what makes it read as a heavy opaque slab against the sidebar's translucent ground — the bar
+   is painting a solid background colour over a surface that is deliberately not solid. Here the
+   scrollbar is an overlay instead: no track, no border, half the width, and a thumb that only
+   materialises while the pointer is actually in the list. */
+@utility quiet-scrollbar {
+  scrollbar-gutter: stable;
+  &::-webkit-scrollbar { width: 6px; height: 6px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: transparent;
+    border: 0;
+    border-radius: 3px;
+    transition: background 140ms ease;
+  }
+  &:hover::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--color-line) 65%, transparent);
+  }
+  &:hover::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--color-hover) 85%, transparent);
+  }
 }
 
 /* Scrollable strips (tab bars) that must not show a scrollbar track. */
@@ -686,7 +1043,7 @@
 .pressable {
   position: relative;
   overflow: hidden;
-  /* The release springs; the press does not (see `:active` below). */
+  /* The release springs; the press does not (see `:active` below). As before items 27/32 (owner, 2026-10-01). */
   transition: transform var(--dur-snappy) var(--ease-snappy), border-color 170ms ease,
     background-color 170ms ease, color 170ms ease, box-shadow 170ms ease;
 }
@@ -704,7 +1061,7 @@
 .pressable:hover::after { transform: translateX(125%); }
 
 /* The press itself is instant and linear — a spring on the way DOWN puts the compression behind the
-   finger, which is the one place latency is felt. The release above is where the spring belongs. */
+   finger, which is the one place latency is felt. The release above eases back in 120ms. */
 .pressable:active {
   transform: scale(0.97);
   transition-duration: 40ms;
@@ -720,12 +1077,11 @@
   line-height: 1;
 }
 
-.home-canvas {
-  background:
-    radial-gradient(circle at 57% 20%, color-mix(in srgb, var(--color-ink) 6%, transparent), transparent 34%),
-    radial-gradient(circle at 28% 58%, color-mix(in srgb, var(--color-ink) 3%, transparent), transparent 30%),
-    linear-gradient(180deg, color-mix(in srgb, var(--color-raise) 70%, transparent), transparent 38%);
-}
+/* No painted gradients. Three tinted washes — two `--color-ink` circles and a `--color-raise`
+   linear fade — used to sit on this surface; the later `.home-canvas` rule added a fourth, an
+   ellipse at 50% 0%, and that one is the white half-circle the owner reported bleeding through the
+   glass at the top of the canvas. A wash made of near-white ink does not read as depth on a
+   translucent surface, it reads as a smudge on the glass. The canvas is now just the material. */
 
 .font-display { font-family: var(--font-display); }
 
@@ -785,33 +1141,266 @@
   --glass-thickness: 8px;
   position: relative;
   isolation: isolate;
-  background:
-    radial-gradient(circle at 76% -12%, color-mix(in srgb, var(--color-ink) 5%, transparent), transparent 32%),
-    var(--glass-veil);
-  backdrop-filter: blur(28px) saturate(1.9);
-  -webkit-backdrop-filter: blur(28px) saturate(1.9);
-  box-shadow: inset 0 1px 0 var(--glass-sheen), inset 0 0 30px var(--glass-inner-glow);
+  /* The tab strip's width budget is this panel's width, not the window's — the panel is resizable
+     and the window is not the same thing. See `.workbench-crumb-dir`. */
+  container-type: inline-size;
+  /* `--pane-veil`, not `--glass-veil`: this is a side pane, and painting it in the sidebar's tint
+     put the two lightest surfaces on either side of the darkest one. No top sheen, for the same
+     reason the sidebar lost its own — see `.sidebar-shell`. */
+  /* No radial wash. This is the same near-white `--color-ink` ellipse that was removed from
+     `.home-canvas` — it reads as a smudge on the glass rather than as depth, and the owner spotted
+     it here after the canvas one went. The two must stay in step: neither surface paints light. */
+  background: var(--pane-veil);
+  /* The blur stays here, unlike on `.app-surface`. macOS supplies one behind the whole window, but
+     this is the only surface that reads long-form evidence over the backdrop, and removing it cost
+     six nodes in the contrast checker (31 -> 37 below AA at baseline) because the backdrop stops
+     being diffused. It is one pane, not the largest region in the app, so it is worth the pass. */
+  /* NO backdrop-filter at all, like the canvas. Any per-surface blur averages the backdrop into a
+     flat field, and a flat field next to a canvas showing the wallpaper's structure is exactly what
+     reads as "opaque" — 28px was obvious, 12px was still wrong in the same direction. macOS is
+     already diffusing behind the whole window through `vibrancy: 'sidebar'`; sampling that and
+     adding nothing is what makes this pane the same material as everything around it. */
 }
 
 [data-chrome='expanded'] .evidence-studio {
-  background:
-    radial-gradient(circle at 76% -12%, color-mix(in srgb, var(--color-ink) 5%, transparent), transparent 32%),
-    var(--color-bg);
+  background: var(--pane-solid);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
 
-.evidence-studio-header {
+/* Row 1: the tab strip. Every open thing — the four lanes and every open file — is a chip here,
+   and the active chip is the panel's only title. It replaced a 54pt header carrying an icon, a
+   title, a subtitle and a `<select>`, none of which said anything the selected chip does not.
+   34pt, and the trace of lift the old header had: the pane is glass, and what read as opaque was
+   always the header's slab, never the surface. */
+.workbench-strip {
   display: flex;
-  min-height: 54px;
+  min-height: 34px;
   align-items: center;
-  gap: 8px;
-  padding: 8px 10px 8px 12px;
-  border-bottom: 1px solid var(--color-line);
-  background: color-mix(in srgb, var(--color-raise) 62%, transparent);
+  gap: 4px;
+  padding: 4px 6px 4px 8px;
+  background: color-mix(in srgb, var(--color-ink) 3%, transparent);
 }
 
-.evidence-studio-icon, .inspector-hero-icon, .settings-capability-icon {
+/* Row 2: the file tabs (UI fix list item 8; Inspector.tsx `FileTabs`). Files only — the lanes are in
+   the picker above. No fill on the row: the active tab is the one raised thing in it, in the same
+   `--raise-veil` the Source|Preview segment uses, so it reads as joined to the editor under it. */
+.workbench-tabs {
+  display: flex;
+  min-height: 32px;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+}
+.workbench-tree {
+  display: flex;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  color: var(--color-faint);
+  transition: background-color 140ms ease, color 140ms ease;
+}
+.workbench-tree:hover { color: var(--color-ink); background: var(--color-hover); }
+.workbench-tree[data-active] { color: var(--color-ink); background: var(--raise-veil); }
+/* Tabs keep their names and the list scrolls sideways, as Cursor's do; the active one is scrolled
+   into view. They used to shrink to fit, and five of them at 430pt read "AR…", "i… w" — a tab you
+   cannot read is a tab you have to click to identify. A fade marks the edge that has more. */
+.workbench-tab-list {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  gap: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.workbench-tab-list::-webkit-scrollbar { display: none; }
+.workbench-tab-list[data-more-right] { mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
+.workbench-tab-list[data-more-left] { mask-image: linear-gradient(to left, #000 calc(100% - 28px), transparent); }
+.workbench-tab-list[data-more-left][data-more-right] {
+  mask-image: linear-gradient(to right, transparent, #000 28px, #000 calc(100% - 28px), transparent);
+}
+.workbench-tab {
+  display: flex;
+  height: 26px;
+  max-width: 200px;
+  flex: 0 0 auto;
+  cursor: pointer;
+  align-items: center;
+  gap: 5px;
+  border-radius: 7px;
+  padding: 0 3px 0 8px;
+  color: var(--color-faint);
+  font-size: 11.5px;
+  white-space: nowrap;
+  transition: background-color 140ms ease, color 140ms ease;
+}
+.workbench-tab:hover { color: var(--color-dim); background: var(--color-hover); }
+.workbench-tab[data-active] { color: var(--color-ink); background: var(--raise-veil); }
+.workbench-tab:focus-visible { outline: 2px solid color-mix(in srgb, var(--color-ember) 60%, transparent); outline-offset: -2px; }
+.workbench-tab-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.workbench-tab-hint { min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--color-faint); font-size: 10px; }
+/* The close control always keeps its 18px, so a tab never changes width as the ✕ comes and goes. */
+.workbench-tab-close {
+  display: flex;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  margin-left: auto;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  color: var(--color-faint);
+}
+.workbench-tab-close:hover { color: var(--color-ink); background: var(--color-hover); }
+/* ✕ on the active tab and under the pointer. An unsaved tab shows its dot instead, which becomes the
+   ✕ only under the pointer on the control itself — the dot is the one thing about that tab you need. */
+.workbench-tab-close > svg { display: none; }
+.workbench-tab:not([data-dirty]):is([data-active], :hover) .workbench-tab-x { display: block; }
+.workbench-tab[data-dirty] .workbench-tab-dot { display: block; color: var(--color-ember); }
+.workbench-tab[data-dirty] .workbench-tab-close:hover .workbench-tab-dot { display: none; }
+.workbench-tab[data-dirty] .workbench-tab-close:hover .workbench-tab-x { display: block; }
+@container (max-width: 360px) {
+  .workbench-tab-hint { display: none; }
+}
+
+/* Find and replace (FindWidget.tsx, UI fix list item 9): Cursor's widget — one compact card floating
+   over the code at the top right, in the app's floating surface (`--float-solid`, the tint every menu
+   and popover uses since item 2), so it reads as part of the app rather than a browser form. */
+.find-widget {
+  display: flex;
+  width: 400px;
+  max-width: 100%;
+  align-items: flex-start;
+  gap: 2px;
+  border: 1px solid var(--glass-edge-strong);
+  border-radius: 10px;
+  padding: 4px 5px 4px 3px;
+  color: var(--color-ink);
+  background: var(--float-solid);
+  box-shadow: var(--shadow-pop);
+  font: 12px var(--font-sans);
+  animation: pop-in var(--dur-snappy) var(--ease-snappy) both;
+  transform-origin: top right;
+}
+.find-rows { display: flex; min-width: 0; flex: 1 1 auto; flex-direction: column; gap: 4px; }
+.find-row { display: flex; min-width: 0; align-items: center; gap: 2px; }
+.find-expand, .find-action, .find-toggle {
+  display: flex;
+  flex: 0 0 auto;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-faint);
+  transition: background-color 120ms ease, color 120ms ease;
+}
+.find-expand { width: 16px; height: 26px; border-radius: 5px; }
+.find-action { width: 24px; height: 24px; border-radius: 6px; }
+.find-toggle { width: 22px; height: 20px; border-radius: 5px; }
+:is(.find-expand, .find-action, .find-toggle):hover:not(:disabled) { color: var(--color-ink); background: var(--color-hover); }
+:is(.find-action, .find-toggle):disabled { cursor: default; opacity: 0.35; }
+.find-toggle[data-on] { color: var(--color-ember); background: color-mix(in srgb, var(--color-ember) 16%, transparent); }
+.find-field {
+  display: flex;
+  min-width: 0;
+  height: 26px;
+  flex: 1 1 auto;
+  align-items: center;
+  /* 2px, not 1: the toggles are 22px wide and click over 24 (`.hit-24`), so at a 23px pitch each took the pixel its
+     neighbour's ring overlapped — measured 22.5px of clickable width (UI fix list item 34). */
+  gap: 2px;
+  border: 1px solid var(--glass-edge-strong);
+  border-radius: 7px;
+  padding: 0 2px 0 7px;
+  background: var(--glass-well);
+}
+.find-field:focus-within { border-color: color-mix(in srgb, var(--color-ember) 55%, transparent); }
+.find-field input {
+  min-width: 0;
+  flex: 1 1 auto;
+  border: 0;
+  outline: 0;
+  color: var(--color-ink);
+  background: transparent;
+  font: inherit;
+}
+.find-field input::placeholder { color: var(--color-faint); }
+/* Tabular, and wide enough for "999 of 1000+" so the buttons after it never shift as the count changes. */
+.find-status {
+  min-width: 64px;
+  flex: 0 0 auto;
+  padding: 0 4px;
+  color: var(--color-dim);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  white-space: nowrap;
+}
+@media (prefers-reduced-motion: reduce) { .find-widget { animation: none; } }
+:root[data-reduce-motion] .find-widget { animation: none; }
+
+/* The picker is the panel's title as well as its control, so the strip is one row of it plus the
+   two controls that belong to the panel itself. It replaced a chip per lane AND a chip per open
+   file — eight controls competing for 430pt, which is what "not organised" meant. */
+/* Row 2: the selected tab's own controls. Present only for a file — the four lanes carry their
+   controls inside their panels, and a second copy in a bar above them would be exactly the chrome
+   row 1 was shortened to remove. */
+.workbench-toolbar {
+  display: flex;
+  min-height: 30px;
+  align-items: center;
+  gap: 2px;
+  padding: 0 6px 0 4px;
+}
+.workbench-tool {
+  display: flex;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  color: var(--color-faint);
+  transition: background-color 140ms ease, color 140ms ease;
+}
+.workbench-tool:hover:not(:disabled) { color: var(--color-ink); background: var(--color-hover); }
+.workbench-tool:disabled { cursor: default; opacity: 0.35; }
+
+.workbench-segment {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 1px;
+  border-radius: 8px;
+  padding: 1px;
+  background: color-mix(in srgb, var(--color-ink) 5%, transparent);
+}
+.workbench-segment button {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  border-radius: 7px;
+  padding: 2px 7px;
+  color: var(--color-faint);
+  font-size: 10.5px;
+}
+.workbench-segment button[data-active] { color: var(--color-ink); background: var(--raise-veil); }
+
+/* The path is the first thing to go when the panel is narrow — the picker states which file this
+   is, so row 2's folder is context rather than identity, and row 2 must never wrap.
+   `.evidence-studio` is the query container, so this measures the PANEL: drag the splitter wider
+   and the path comes back. */
+@container (max-width: 360px) {
+  .workbench-crumb { display: none; }
+}
+
+.inspector-hero-icon, .settings-capability-icon {
   display: flex;
   width: 30px;
   height: 30px;
@@ -831,24 +1420,11 @@
   padding: 1px 5px;
   background: color-mix(in srgb, var(--color-ink) 10%, transparent);
   color: var(--color-dim);
-  font: 9px var(--font-mono);
+  /* A count, not code: the interface face with even-width digits (UI fix list item 38). */
+  font: 9px var(--font-sans);
+  font-variant-numeric: tabular-nums;
   text-align: center;
 }
-
-.evidence-lane-select {
-  width: 94px;
-  appearance: none;
-  cursor: pointer;
-  border: 1px solid var(--color-line);
-  border-radius: 9px;
-  padding: 6px 22px 6px 8px;
-  background: var(--color-well);
-  color: var(--color-dim);
-  font-size: 10.5px;
-  outline: none;
-  transition: border-color 150ms ease, background-color 150ms ease;
-}
-.evidence-lane-select:hover, .evidence-lane-select:focus { border-color: color-mix(in srgb, var(--color-ink) 24%, transparent); background: var(--color-hover); }
 
 .evidence-close {
   display: flex;
@@ -934,9 +1510,9 @@
   padding: 12px;
   box-shadow: inset 0 1px 0 color-mix(in srgb, white 3%, transparent);
 }
-.alchemist-hero { background: radial-gradient(circle at 92% 0%, color-mix(in srgb, var(--color-ink) 8%, transparent), transparent 42%), var(--color-raise); }
+.alchemist-hero { background: var(--raise-veil); }
 .inspector-section-title { display: flex; align-items: center; gap: 7px; margin-bottom: 9px; color: var(--color-faint); font-size: 9.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
-.status-chip { display: inline-flex; align-items: center; border-radius: 999px; padding: 2px 6px; font: 8.5px var(--font-mono); color: var(--color-dim); background: color-mix(in srgb, var(--color-ink) 7%, transparent); }
+.status-chip { display: inline-flex; align-items: center; border-radius: 999px; padding: 2px 6px; font: 8.5px var(--font-sans); font-variant-numeric: tabular-nums; color: var(--color-dim); background: color-mix(in srgb, var(--color-ink) 7%, transparent); }
 .status-chip--ok { color: var(--color-moss); background: color-mix(in srgb, var(--color-moss) 10%, transparent); }
 .status-chip--warn { color: var(--color-amber); background: color-mix(in srgb, var(--color-amber) 10%, transparent); }
 .evidence-pill { display: inline-flex; max-width: 140px; align-items: center; border: 1px solid var(--color-line); border-radius: 999px; padding: 1px 6px; color: var(--color-faint); background: var(--color-well); font: 8.5px var(--font-mono); }
@@ -946,28 +1522,23 @@
 .status-dot--ready { background: var(--color-moss); box-shadow: 0 0 9px color-mix(in srgb, var(--color-moss) 45%, transparent); }
 
 /* Browser research is shown as evidence, not as a second general-purpose browser chrome. */
-.browser-frame { overflow: hidden; border: 1px solid var(--color-line); border-radius: 14px; background: var(--color-raise); box-shadow: 0 12px 32px color-mix(in srgb, black 18%, transparent); }
-.browser-toolbar { display: flex; height: 32px; align-items: center; gap: 5px; padding: 0 9px; border-bottom: 1px solid var(--color-line); background: var(--color-well); }
-.browser-dot { width: 6px; height: 6px; border-radius: 50%; }
-.browser-address { display: flex; min-width: 0; flex: 1; align-items: center; gap: 5px; margin-left: 3px; border: 1px solid var(--color-line); border-radius: 7px; padding: 3px 7px; color: var(--color-faint); background: var(--color-bg); font: 8.5px var(--font-mono); }
-.browser-address span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.browser-live { border-radius: 999px; padding: 2px 5px; color: var(--color-faint); background: var(--color-raise); font: 7.5px var(--font-mono); text-transform: uppercase; }
-.browser-live--active { color: var(--color-moss); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-moss) 18%, transparent); }
-.browser-preview { display: block; width: 100%; max-height: 260px; object-fit: contain; background: #080808; }
-.browser-preview-empty { display: flex; height: 176px; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--color-faint); font-size: 9.5px; background: radial-gradient(circle at center, color-mix(in srgb, var(--color-ink) 5%, transparent), transparent 60%), var(--color-bg); }
-.browser-metric { display: flex; min-height: 54px; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border: 1px solid var(--color-line); border-radius: 11px; background: var(--color-raise); }
-.browser-metric--ok { border-color: color-mix(in srgb, var(--color-moss) 16%, var(--color-line)); }
-.browser-metric--warn { border-color: color-mix(in srgb, var(--color-amber) 28%, var(--color-line)); }
-.browser-step { display: flex; gap: 8px; border: 1px solid color-mix(in srgb, var(--color-line) 70%, transparent); border-radius: 10px; padding: 8px; background: var(--color-well); }
-.browser-step-state { margin-top: 1px; flex: 0 0 auto; }
 
 /* Settings control map. The navigation reads like product capabilities, while every non-engine
    surface is a truthful live status/entry point instead of a decorative toggle. */
 /* Transparent, not `--color-bg`: this is the caller's box INSIDE the dialog's glass shell now, and
    an opaque fill here would hide the material it is sitting in — Settings would be the one window
    in the app that is not glass. Its own shadow goes for the same reason: the shell casts it. */
-.settings-shell { background: transparent; box-shadow: none; }
-.settings-nav { display: flex; width: 236px; flex: 0 0 auto; flex-direction: column; border-right: 1px solid var(--color-line); padding: 14px 12px; background: linear-gradient(180deg, color-mix(in srgb, var(--color-raise) 78%, transparent), var(--color-bg)); }
+/* The dialog took `.liquid-glass`'s background, which is `--glass-veil` — the SIDEBAR's tint, the
+   lightest one — so Settings opened as a pale grey sheet rather than the black-tinted glass the
+   rest of the app is. It takes the canvas tint instead, one step denser because a modal sits over
+   live content and has to win against it. The rim goes for the same reason it went everywhere
+   else; the drop shadow already says the sheet is above the page. */
+.settings-shell {
+  background: var(--float-veil);
+  border-color: transparent;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.14), 0 18px 44px -10px rgb(0 0 0 / 0.42), 0 48px 96px -24px rgb(0 0 0 / 0.5);
+}
+.settings-nav { display: flex; width: 236px; flex: 0 0 auto; flex-direction: column; padding: 14px 12px; background: color-mix(in srgb, var(--color-ink) 3%, transparent); }
 .settings-search { display: flex; align-items: center; gap: 7px; margin-bottom: 14px; border: 1px solid var(--color-line); border-radius: 10px; padding: 7px 9px; color: var(--color-faint); background: var(--color-well); }
 .settings-search input { min-width: 0; flex: 1; background: transparent; color: var(--color-ink); font-size: 11px; outline: none; }
 .settings-search button { cursor: pointer; }
@@ -981,12 +1552,18 @@
 .settings-support small { margin-top: 2px; font-size: 9px; line-height: 1.35; }
 .settings-heading { display: flex; min-height: 70px; flex: 0 0 auto; align-items: center; justify-content: space-between; padding: 13px 20px 10px 28px; border-bottom: 1px solid color-mix(in srgb, var(--color-line) 60%, transparent); }
 .settings-capability-grid { display: grid; gap: 10px; padding-top: 18px; }
-.settings-capability-hero { display: flex; align-items: flex-start; gap: 12px; border: 1px solid var(--color-line); border-radius: 15px; padding: 15px; background: radial-gradient(circle at 90% 0%, color-mix(in srgb, var(--color-ink) 7%, transparent), transparent 42%), var(--color-raise); }
+.settings-capability-hero { display: flex; align-items: flex-start; gap: 12px; border-radius: 15px; padding: 15px; background: var(--raise-veil); }
 .settings-capability-hero h3, .settings-note h3 { color: var(--color-ink); font-size: 13px; font-weight: 600; }
 .settings-capability-hero p, .settings-note p { margin-top: 4px; color: var(--color-dim); font-size: 10.5px; line-height: 1.5; }
 .settings-note { display: flex; gap: 10px; border: 1px solid var(--color-line); border-radius: 12px; padding: 12px; color: var(--color-faint); background: var(--color-well); }
 .settings-action-card { display: flex; width: 100%; cursor: pointer; align-items: center; gap: 11px; border: 1px solid var(--color-line); border-radius: 13px; padding: 11px 12px; color: var(--color-dim); background: var(--color-raise); }
 .settings-action-card:hover { border-color: color-mix(in srgb, var(--color-ink) 22%, transparent); background: var(--color-hover); }
+.settings-action-card--static, .settings-action-card--static:hover { cursor: default; border-color: var(--color-line); background: var(--color-raise); }
+.settings-inventory { border: 1px solid var(--color-line); border-radius: 12px; padding: 10px 12px; background: var(--color-well); }
+.settings-inventory h3 { margin-bottom: 4px; color: var(--color-faint); font-size: 9.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.settings-inventory p { color: var(--color-faint); font-size: 11px; }
+.settings-inventory li { display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 11.5px; border-top: 1px solid color-mix(in srgb, var(--color-line) 60%, transparent); }
+.settings-inventory li:first-child { border-top: 0; }
 .settings-action-card strong, .settings-action-card small { display: block; }
 .settings-action-card strong { color: var(--color-ink); font-size: 12px; font-weight: 550; }
 .settings-action-card small { margin-top: 2px; color: var(--color-faint); font-size: 9.5px; line-height: 1.4; }
@@ -1028,8 +1605,14 @@
     --dur-glass: 60ms;
     --dur-exit: 60ms;
   }
+  /* Short paint-only crossfades, never movement. `transition-property` defaults to `all`, so a bare
+     duration on `*` gave EVERY element a 60ms transition on EVERY property — layout included: panel
+     flex-basis, widths and positions all eased under Reduce Motion, the opposite of what it asks for
+     (measured: the inspector wobbling 475→505→476px as a side pane closed). The property list keeps
+     the state-change fades and removes every geometric transition. */
   * {
     transition-duration: 60ms !important;
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, opacity, box-shadow !important;
   }
   .pressable::after { display: none; }
 }
@@ -1078,14 +1661,30 @@
 
 /* Reduce Transparency (§30).
 
+   Scoped to the theme classes as well as `:root`, not only `:root`: `.theme-moonlight` and
+   `.theme-starlight` define these same tokens, so on any element that carries one, a `:root`
+   override is shadowed for that whole subtree. It works today purely because the app puts the theme
+   class on <html> — the moment a themed surface is nested (a light preview inside a dark app, the
+   design harness showing both at once) the accessible path silently stops applying. Measured in the
+   harness: :root resolved the boosted value while the themed stage inside it still resolved the
+   quiet one.
+
    Fall back to a stronger material *while preserving hierarchy* — the failure this guards against
    is not "less pretty", it is a panel whose text no longer separates from what is behind it. So the
    veils go opaque and the lens is switched off entirely; the edges and the elevation stay, because
    they are what still says "this is a surface above that one" once the translucency is gone. */
 @media (prefers-reduced-transparency: reduce) {
-  :root {
+  :root,
+  .theme-moonlight,
+  .theme-starlight {
     --glass-veil: var(--glass-solid);
+    /* All three veils, not just the sidebar's. The canvas and the side panes are glass now too, so
+       leaving them translucent here would defeat the setting on the largest surfaces in the app
+       while dutifully flattening the smallest. Hierarchy is preserved: they stay three distinct
+       values, they just stop transmitting. */
     --app-veil: var(--color-bg);
+    --pane-veil: var(--pane-solid);
+    --float-veil: var(--float-solid);
     --glass-lens-brightness: 1;
     --glass-inner-glow: transparent;
   }
@@ -1109,12 +1708,32 @@
    written after this block. Text gets the same treatment: `--color-dim` and `--color-faint` are
    the two that exist to be quiet, and quiet is exactly what this setting is asking us to stop. */
 @media (prefers-contrast: more) {
-  :root {
+  :root,
+  .theme-moonlight,
+  .theme-starlight {
     --color-line: color-mix(in srgb, var(--color-ink) 42%, var(--color-bg));
-    --color-dim: color-mix(in srgb, var(--color-ink) 88%, var(--color-bg));
-    --color-faint: color-mix(in srgb, var(--color-ink) 70%, var(--color-bg));
+    /* 92/82, not 88/70. Measured over the harness's saturated gradient — a harsher backdrop than
+       any desktop picture — 88/70 left the smallest quiet text at 3.97:1, 4.29:1 and 4.47:1, i.e.
+       still under AA in the one mode whose entire purpose is to clear it. */
+    --color-dim: color-mix(in srgb, var(--color-ink) 92%, var(--color-bg));
+    --color-faint: color-mix(in srgb, var(--color-ink) 82%, var(--color-bg));
     --glass-edge: color-mix(in srgb, var(--color-ink) 34%, transparent);
     --glass-edge-strong: color-mix(in srgb, var(--color-ink) 52%, transparent);
+  }
+  /* Increase Contrast trades translucency for legibility, as macOS itself does. Every surface is
+     glass now, so every veil densifies — leaving the canvas and the panes at 0.80 while only the
+     sidebar thickened would apply the setting to the smallest surface and skip the largest. The
+     alphas stay equal to each other, so the hierarchy between the three is unchanged; the whole
+     stack just transmits less. */
+  .theme-moonlight {
+    --app-veil: rgba(14, 14, 15, 0.92);
+    --pane-veil: rgba(18, 18, 20, 0.92);
+    --glass-veil: rgba(21, 21, 23, 0.92);
+  }
+  .theme-starlight {
+    --app-veil: rgba(252, 252, 251, 0.92);
+    --pane-veil: rgba(248, 248, 246, 0.92);
+    --glass-veil: rgba(243, 243, 241, 0.92);
   }
   /* Focus must be unmistakable, not harmonious (§34 gives way to §31 here). */
   :focus-visible {
@@ -1128,3 +1747,489 @@
     outline-offset: -1.5px;
   }
 }
+
+/* Workspace refresh: finite, compositor-friendly motion. No decorative logo mark. */
+.home-canvas { container-type: inline-size; position: relative; }
+.workspace-home-content { width: min(100%,920px); padding: 24px clamp(24px,5cqw,64px) 32px; margin: auto; flex-shrink: 0; }
+.workspace-hero { position: relative; padding-top: 32px; text-align: center; }
+.workspace-project-label { font-size: 10px; color: var(--color-faint); letter-spacing: .02em; }
+.workspace-project-label > span { margin: 0 7px; opacity: .5; }
+.workspace-starters { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; margin-top: 12px; }
+.workspace-starter { position: relative; display: flex; flex-direction: column; min-width: 0; padding: 16px; text-align: left; cursor: pointer; background: var(--raise-veil); border: 1px solid transparent; border-radius: 16px; box-shadow: 0 4px 12px #00000008; transition: transform 220ms cubic-bezier(.2,.8,.2,1),border-color 220ms,box-shadow 220ms; animation: workspace-arrive 600ms both; }
+.workspace-starter:hover { transform: translateY(-4px); border-color: color-mix(in srgb,var(--color-ink) 16%,transparent); box-shadow: 0 12px 24px #0002; }
+.workspace-starter:active { transform: translateY(-1px) scale(.985); transition-duration: 70ms; }
+.workspace-starter:focus-visible { outline: 2px solid var(--color-ink); outline-offset: 3px; }
+.workspace-starter-icon { transition: transform 220ms; }
+.workspace-starter:hover .workspace-starter-icon { transform: rotate(-7deg); }
+.workspace-starter-description { margin-top: 7px; font-size: 10px; line-height: 1.5; color: var(--color-faint); }
+.workspace-recents { margin-top: 28px; }
+.workspace-recents > div:last-child { border-radius: 12px; background: transparent; }
+.workspace-recents button { transition: background 160ms,color 160ms; }
+.project-welcome .workspace-home-content { max-width: 780px; padding-top: 20px; padding-bottom: 48px; }
+.project-welcome h1 { font-family: var(--font-sans); font-weight: 550; }
+/* The ⌘2 lesson (ProjectWelcome.tsx): a raised line, not a card — it is one sentence and one key. */
+.quick-lesson { background: var(--raise-veil); }
+.project-welcome section { margin-top: 32px; }
+.composer-column { max-width: 900px; container-type: inline-size; }
+/* No rim and no inset highlight — those two together were the white outline around the composer.
+   It separates by fill and shadow, the way every other surface in the shell now does. The focus
+   state below is the one time it is allowed to draw an edge, because that edge is information. */
+.launch-console { border-radius: 18px; background: var(--raise-veil); border-color: transparent; box-shadow: 0 6px 22px #00000012; }
+.launch-console:focus-within { border-color: color-mix(in srgb,var(--color-ink) 22%,transparent); box-shadow: 0 8px 26px #0000001a; }
+/* The placeholder is a hint, not content: one line, ellipsised. Wrapped onto two or three lines in a
+   narrow column it overflowed a one-line field, which then drew a scrollbar for text nobody had typed
+   (fix list item 1; the height rule is `composerOverflow` in composer.model.ts). */
+.composer-input::placeholder { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.composer-toolbar { min-height: 40px; gap: 2px; }
+/* Every control may shrink and truncate before the row is allowed to wrap: a second line moved
+   Send away from the corner people aim at. */
+.composer-toolbar > * { min-width: 0; }
+.composer-toolbar .composer-send { box-shadow: 0 2px 8px #00000022; }
+/* A narrow chat column — both side panels open in a small window leaves it ~240px — must still show
+   every control. Pills drop to their icon before anything clips, then lose their chevron. */
+@container (max-width: 420px) {
+  .composer-pill-label { display: none; }
+}
+@container (max-width: 300px) {
+  .composer-pill-chevron { display: none; }
+  .composer-toolbar { gap: 0; padding-inline: 8px; }
+}
+/* Side-pane collapse (pane.flight.ts). Only present while a pane is collapsing: the closing pane follows
+   its shell's width, its content holds its starting width and is uncovered by the moving edge, the other
+   side pane holds still, and the task column takes up the difference on the same frame. */
+[data-flight-sidebar] :is([data-panel][id="sidebar"], [data-panel="sidebar"], [data-panel-id="sidebar"]) { flex: 0 0 var(--flight-sidebar) !important; overflow: hidden !important; }
+[data-flight-sidebar] :is([data-panel][id="sidebar"], [data-panel="sidebar"], [data-panel-id="sidebar"]) .morph-region { width: var(--flight-start-sidebar); min-width: var(--flight-start-sidebar); }
+/* One id, since 2026-09-19: the editor and the lanes are one panel, so `editor` is gone from here
+   and from `pane.flight.ts`'s PANEL_IDS together. `app/src/__tests__/phase5.renderer.models.test.ts`
+   fails if App.tsx ever mounts a side panel these rules do not name — the collapse animation keys
+   off the panel element, and a selector that silently stops matching still passes every test that
+   only checks the code ran. */
+[data-flight-sidebar] :is([data-panel][id="inspector"], [data-panel="inspector"], [data-panel-id="inspector"]) { flex: 0 0 var(--hold-inspector) !important; }
+[data-flight-inspector] :is([data-panel][id="inspector"], [data-panel="inspector"], [data-panel-id="inspector"]) { flex: 0 0 var(--flight-inspector) !important; overflow: hidden !important; }
+[data-flight-inspector] :is([data-panel][id="inspector"], [data-panel="inspector"], [data-panel-id="inspector"]) .morph-region { width: var(--flight-start-inspector); min-width: var(--flight-start-inspector); margin-left: calc(var(--flight-inspector) - var(--flight-start-inspector)); }
+[data-flight-inspector] :is([data-panel][id="sidebar"], [data-panel="sidebar"], [data-panel-id="sidebar"]) { flex: 0 0 var(--hold-sidebar) !important; }
+/* A side pane never scrolls sideways; its lists scroll inside it. The panel library wraps each pane's content in its own
+   `overflow: auto` box, and a flying pane holds its content at full width inside a narrower pane — so that box scrolled
+   sideways for the whole flight. The app's scrollbars take space (they are styled), so a grey 10px bar flashed along
+   the bottom of the pane on every open and close, and the content measured 10px short: the flying glass started short
+   and crept to full height, which stretched the sidebar's opening from ~35 frames to ~65. Permanent rather than
+   flight-only, because an opening pane is measured on its first frame, before the flight's attribute exists.
+   Found by the morph regression check (UI fix list item 22). */
+:is([data-panel][id="sidebar"], [data-panel="sidebar"], [data-panel-id="sidebar"],
+  [data-panel][id="inspector"], [data-panel="inspector"], [data-panel-id="inspector"]) > * { overflow-x: hidden !important; }
+/* The enlarged workbench (App.tsx `toggleWide`): it fills everything between the sidebar and the right edge. The
+   conversation column is taken out of the flow — zero width, hidden, still mounted — and the panel takes the share the
+   sidebar leaves, so the sidebar keeps its width. The library's layout is never touched, so removing the attribute
+   restores the exact widths from before. `visibility: hidden` also takes the column's controls out of the tab order. */
+[data-inspector-wide] :is([data-panel][id="task"], [data-panel="task"], [data-panel-id="task"]) { flex: 0 0 0px !important; min-width: 0 !important; overflow: hidden !important; visibility: hidden; }
+[data-inspector-wide] :is([data-panel][id="task"], [data-panel="task"], [data-panel-id="task"]) + [data-separator] { display: none; }
+[data-inspector-wide] :is([data-panel][id="inspector"], [data-panel="inspector"], [data-panel-id="inspector"]) { flex-grow: var(--inspector-wide-grow) !important; }
+/* No sidebar holding the corner: the strip clears the traffic lights and is where the window is dragged from. */
+[data-edge-free] .workbench-strip { padding-left: 80px; -webkit-app-region: drag; }
+[data-edge-free] .workbench-strip :is(button, [role="button"], input) { -webkit-app-region: no-drag; }
+#composer-help { font-size: 9px; line-height: 1.6; }
+/* A Bimax Thread row's hover actions (ThreadsList.tsx) sit over the row's right edge, so the row never
+   grows when the pointer crosses it. Solid under the icons, or the title would read through them. */
+.thread-row-actions { background: var(--glass-solid); box-shadow: 0 0 0 1px var(--glass-edge); }
+.sidebar-shell .glass-row { transition: background 180ms,color 180ms,box-shadow 180ms; }
+.sidebar-shell .glass-row[data-active] { background: var(--glass-raise); }
+/* The hairline that used to run under the title bar is gone with the bar (2026-09-19). Nothing is
+   drawn across the top of either surface now: the sidebar's glass and the content pane both begin
+   at y=0 and the window's controls float on them. Measured on Cursor, that continuity is most of
+   what makes the shell read as one object — `front inspo/10-cursor`. */
+@container (max-width: 560px) {
+  .workspace-home-content { padding: 12px 22px 24px; }
+  .workspace-hero { padding-top: 22px; }
+  .workspace-starters { gap: 7px; }
+  .workspace-starter { padding: 12px; }
+  .workspace-starter-description { display: none; }
+  .workspace-recents { margin-top: 22px; }
+}
+@container (max-width: 390px) {
+  .workspace-starters { grid-template-columns: 1fr; }
+  .workspace-starter { display: grid; grid-template-columns: 32px 1fr; align-items: center; gap: 8px; }
+  .workspace-starter > span:nth-child(2) { padding-top: 0; margin-top: 0; }
+}
+@media (max-height: 800px) {
+  .workspace-hero { padding-top: 18px; }
+  .workspace-home-content { padding-top: 14px; }
+  .workspace-recents { margin-top: 20px; }
+}
+@keyframes workspace-arrive { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .workspace-starter { animation: none; }
+  .workspace-starter:hover,.workspace-starter:active,.workspace-starter:hover .workspace-starter-icon { transform: none; }
+}
+@media (prefers-contrast: more) {
+  .workspace-project-label,.workspace-starter-description { color: var(--color-dim); }
+  .workspace-starter { border-color: var(--color-dim); }
+}
+
+@media (max-height: 800px) {
+  .workspace-hero { padding-top: 14px; }
+  .workspace-starter { padding: 12px; }
+  .workspace-starter > span:nth-child(2) { padding-top: 10px; }
+  .workspace-starter-description { display: none; }
+}
+@container (max-width: 390px) {
+  .workspace-starter > span:nth-child(2) { padding-top: 0; }
+}
+/* An evidence split is a working layout: compress the introduction before the actions. */
+@container (max-width: 720px) {
+  .workspace-home-content { padding: 10px 24px 24px; }
+  .workspace-hero { padding-top: 12px; }
+  .workspace-starters { gap: 7px; }
+  .workspace-starter { padding: 12px; min-height: 86px; }
+  .workspace-starter > span:nth-child(2) { padding-top: 9px; font-size: 11px; }
+  .workspace-starter-description { display: none; }
+  .workspace-starter-icon { width: 24px; height: 24px; }
+  .workspace-recents { margin-top: 18px; }
+}
+@container (max-width: 390px) {
+  .workspace-starter { min-height: 48px; }
+  .workspace-starter > span:nth-child(2) { padding-top: 0; }
+}
+
+/* Capability notices: quiet, theme-coloured, one line each. CapabilityBanner decides which stand and
+   which fade — the palette used to be a hard-coded yellow that ignored both themes. */
+.capability-banner { flex: 0 0 auto; max-height: 96px; overflow-y: auto; padding: 6px 16px; border-bottom: 1px solid var(--color-line); background: color-mix(in srgb, var(--color-amber) 8%, var(--color-bg)); color: var(--color-dim); font-size: 12px; line-height: 1.45; overflow-wrap: anywhere; }
+.capability-notice { display: flex; align-items: flex-start; gap: 8px; animation: capability-in 180ms ease-out both; }
+.capability-notice + .capability-notice { margin-top: 4px; }
+.capability-dot { flex: none; width: 6px; height: 6px; margin-top: 6px; border-radius: 50%; background: var(--color-amber); }
+.capability-banner summary { display: flex; min-width: 0; gap: 6px; cursor: pointer; list-style: none; }
+.capability-banner summary::-webkit-details-marker { display: none; }
+.capability-banner strong { flex: none; font-weight: 600; color: var(--color-ink); }
+.capability-impact { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.capability-banner p { margin: 4px 0 2px; color: var(--color-faint); }
+.capability-dismiss { flex: none; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 6px; color: var(--color-faint); cursor: pointer; }
+.capability-dismiss:hover { background: var(--color-hover); color: var(--color-ink); }
+@keyframes capability-in { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+
+/* Live thinking: a rotating status word with a travelling highlight, and the tail of the reasoning
+   stream fading out at its top edge. See ThinkingIndicator. */
+.thinking-verb { background: linear-gradient(90deg, var(--color-faint) 0%, var(--color-ink) 45%, var(--color-faint) 90%); background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: thinking-shimmer 2.2s linear infinite; }
+@keyframes thinking-shimmer { from { background-position: 120% 0; } to { background-position: -100% 0; } }
+.thinking-tail { max-height: 4.6em; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 1.6em); mask-image: linear-gradient(to bottom, transparent 0, #000 1.6em); }
+@media (prefers-reduced-motion: reduce) {
+  .capability-notice { animation: none; }
+  .thinking-verb { animation: none; background: none; color: var(--color-dim); }
+}
+
+/* ══ ⌘2 bar and approval popup (ThreadSurfaces.tsx) ═══════════════════════════════════════════════════════
+   Frameless, transparent panels. The glass is native — Liquid Glass through electron-liquid-glass, or the
+   system `hud` vibrancy where that is unavailable — so these pages paint no background of their own, only a
+   light tint, the rim and the content. The header and footer drag the window; every control opts out.
+   Secondary text is a share of --color-ink, not the grey tokens: those are tuned for the app's own grounds,
+   and washed out over a bright desktop seen through the glass. */
+html.aux-surface, html.aux-surface body, html.aux-surface #root { background: transparent !important; overflow: hidden; }
+.quick-drag { -webkit-app-region: drag; }
+.quick-root button, .quick-root textarea, .quick-root input, .quick-root a, .quick-root label, .quick-scroll,
+.aux-panel button, .aux-panel input, .aux-panel label, .aux-panel-body { -webkit-app-region: no-drag; }
+.quick-root, .aux-panel {
+  --aux-radius: 28px;
+  display: flex; flex-direction: column; height: 100vh; overflow: hidden;
+  border-radius: var(--aux-radius);
+  color: var(--color-ink);
+  /* 14% -> 34%: these are their own windows over the desktop, and at 14% they were a pane of
+     clear glass rather than the black-tinted glass the main window is. */
+  background: color-mix(in srgb, var(--color-bg) 34%, transparent);
+  /* The 16% white top line here is the same specular rule `--glass-sheen` drew everywhere else,
+     hardcoded. Both it and the full rim come down to a trace. */
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-ink) 6%, transparent), inset 0 1px 0 color-mix(in srgb, #ffffff 5%, transparent);
+}
+.aux-panel { --aux-radius: 22px; }
+/* System vibrancy cannot be rounded past the window's own corner, so the fallback follows that corner rather
+   than drawing a pill over a square pane of blur. */
+.quick-root[data-glass='vibrancy'], .aux-panel[data-glass='vibrancy'] { --aux-radius: 12px; background: color-mix(in srgb, var(--color-bg) 48%, transparent); }
+.quick-header { display: flex; flex: none; align-items: center; gap: 12px; min-height: 64px; padding: 10px 14px 10px 20px; }
+.quick-icon { flex: none; color: color-mix(in srgb, var(--color-ink) 62%, transparent); }
+.quick-input { flex: 1; min-width: 0; max-height: 120px; padding: 8px 0; border: 0; outline: none; resize: none; background: transparent; color: var(--color-ink); font-size: 20px; line-height: 28px; field-sizing: content; }
+.quick-input::placeholder { color: color-mix(in srgb, var(--color-ink) 48%, transparent); }
+.quick-folder { display: inline-flex; flex: none; align-items: center; gap: 5px; max-width: 170px; padding: 5px 10px; border-radius: 999px; background: color-mix(in srgb, var(--color-ink) 8%, transparent); color: color-mix(in srgb, var(--color-ink) 78%, transparent); font-size: 11.5px; cursor: pointer; }
+.quick-folder span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.quick-folder:disabled { cursor: default; }
+.quick-folder:not(:disabled):hover { background: color-mix(in srgb, var(--color-ink) 14%, transparent); color: var(--color-ink); }
+.quick-circle { display: grid; flex: none; place-items: center; width: 34px; height: 34px; border-radius: 999px; background: color-mix(in srgb, var(--color-ink) 10%, transparent); color: var(--color-ink); cursor: pointer; }
+.quick-circle:hover { background: color-mix(in srgb, var(--color-ink) 18%, transparent); }
+.quick-send { background: var(--color-ink); color: var(--color-bg); }
+.quick-send:hover { background: color-mix(in srgb, var(--color-ink) 86%, transparent); }
+/* Dictation (MicButton): quiet until listening, then a ring that follows the voice (--mic-level, 0–1). */
+.quick-mic { background: transparent; color: color-mix(in srgb, var(--color-ink) 62%, transparent); }
+.mic-button[data-listening] { background: color-mix(in srgb, #ff3b30 20%, transparent); color: #ff453a;
+  box-shadow: 0 0 0 calc(1px + var(--mic-level, 0) * 7px) color-mix(in srgb, #ff3b30 28%, transparent); transition: box-shadow 90ms linear; }
+.mic-button[data-listening="starting"], .mic-button[data-listening="finishing"] { animation: mic-wait 1s ease-in-out infinite; }
+@keyframes mic-wait { 50% { opacity: 0.55; } }
+@media (prefers-reduced-motion: reduce) { .mic-button[data-listening] { transition: none; animation: none; } }
+/* Talk mode: the field shows what is heard or what the conversation is doing. The dot follows the voice while listening
+   (--talk-level, 0–1), breathes while thinking, pulses while speaking, and turns amber when a click is needed. */
+.quick-talk { flex: 1; min-width: 0; margin: 0; padding: 8px 0; overflow: hidden; color: var(--color-ink); font-size: 20px; line-height: 28px; text-overflow: ellipsis; white-space: nowrap; }
+.quick-talk[data-placeholder] { color: color-mix(in srgb, var(--color-ink) 48%, transparent); }
+.talk-orb { flex: none; width: 14px; height: 14px; border-radius: 999px; background: #0a84ff;
+  box-shadow: 0 0 0 calc(2px + var(--talk-level, 0) * 8px) color-mix(in srgb, #0a84ff 26%, transparent); transition: box-shadow 90ms linear; }
+.talk-orb[data-state="starting"], .talk-orb[data-state="thinking"] { animation: mic-wait 1.2s ease-in-out infinite; }
+.talk-orb[data-state="speaking"] { animation: talk-speak 0.8s ease-in-out infinite alternate; }
+.talk-orb[data-state="waiting"] { background: #ff9f0a; box-shadow: 0 0 0 3px color-mix(in srgb, #ff9f0a 26%, transparent); }
+.quick-talk-orb { margin: 3px; }
+.composer-talk-strip .talk-orb { width: 10px; height: 10px; margin-inline: 3px; }
+@keyframes talk-speak { from { transform: scale(0.8); } to { transform: scale(1.15); } }
+.quick-talk-button { background: transparent; color: color-mix(in srgb, var(--color-ink) 62%, transparent); }
+.quick-talk-button[aria-pressed="true"], .composer-talk[aria-pressed="true"] { background: color-mix(in srgb, #0a84ff 20%, transparent); color: #0a84ff; }
+@media (prefers-reduced-motion: reduce) { .talk-orb { transition: none; animation: none !important; } }
+.quick-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; border-top: 1px solid color-mix(in srgb, var(--color-ink) 10%, transparent); }
+.quick-body { display: flex; flex-direction: column; gap: 10px; padding: 14px 22px 8px; font-size: 13.5px; line-height: 1.55; }
+.quick-body .reading-column { max-width: 100%; margin-inline: 0; }
+.quick-prompt { align-self: flex-end; max-width: 85%; padding: 6px 12px; border-radius: 14px; background: color-mix(in srgb, var(--color-ink) 9%, transparent); color: var(--color-ink); white-space: pre-wrap; overflow-wrap: anywhere; }
+.quick-answer { color: var(--color-ink); overflow-wrap: anywhere; }
+.quick-note { color: color-mix(in srgb, var(--color-ink) 70%, transparent); font-size: 12px; }
+.quick-steps-summary { display: inline-flex; align-items: center; gap: 6px; color: color-mix(in srgb, var(--color-ink) 66%, transparent); font-size: 12px; cursor: pointer; }
+.quick-steps-summary:hover { color: var(--color-ink); }
+.quick-steps-list { display: flex; flex-direction: column; gap: 3px; margin: 6px 0 0 18px; color: color-mix(in srgb, var(--color-ink) 66%, transparent); font-size: 11.5px; }
+.quick-steps-list li { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.quick-steps-list li[data-status='error'] { color: var(--color-rust); }
+.quick-step-name { flex: none; color: var(--color-ink); }
+.quick-step-input { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.quick-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-ember); }
+.quick-request { display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; border-radius: 16px; background: color-mix(in srgb, var(--color-ink) 7%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-ink) 14%, transparent); }
+.quick-request-question { color: var(--color-ink); font-weight: 600; white-space: pre-wrap; }
+.quick-request-diff { max-height: 180px; overflow: auto; border-radius: 10px; }
+.quick-request-options, .quick-request-form { display: flex; flex-wrap: wrap; gap: 8px; }
+.quick-request-form input { flex: 1; min-width: 160px; padding: 7px 11px; border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent); border-radius: 10px; outline: none; background: color-mix(in srgb, var(--color-bg) 40%, transparent); color: var(--color-ink); }
+.quick-request-checks { display: flex; flex-direction: column; gap: 4px; }
+.quick-request-checks label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.quick-choice { padding: 6px 14px; border-radius: 999px; background: color-mix(in srgb, var(--color-ink) 10%, transparent); color: var(--color-ink); font-size: 12.5px; cursor: pointer; }
+.quick-choice:hover { background: color-mix(in srgb, var(--color-ink) 18%, transparent); }
+.quick-choice-primary { background: var(--color-ink); color: var(--color-bg); }
+.quick-choice-primary:hover { background: color-mix(in srgb, var(--color-ink) 86%, transparent); }
+.quick-footer { display: flex; flex: none; align-items: center; gap: 10px; min-height: 36px; padding: 6px 16px 8px 22px; color: color-mix(in srgb, var(--color-ink) 58%, transparent); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.quick-status { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.quick-link { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 8px; color: color-mix(in srgb, var(--color-ink) 74%, transparent); cursor: pointer; }
+.quick-link:hover { background: color-mix(in srgb, var(--color-ink) 10%, transparent); color: var(--color-ink); }
+.quick-error { color: var(--color-rust); }
+.quick-undo { min-width: 0; max-width: 220px; }
+.quick-model { min-width: 0; max-width: 170px; }
+.quick-model span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* A folder's rules, edited in the bar. */
+.quick-rules-text { width: 100%; min-height: 64px; padding: 8px 10px; border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent); border-radius: 10px;
+  outline: none; resize: vertical; background: color-mix(in srgb, var(--color-bg) 40%, transparent); color: var(--color-ink); font: inherit; font-size: 13px; }
+.quick-rules-protect { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.quick-undo span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* An approval card's detail: every affected item, whether it can be undone, and the command. */
+.quick-request-body { max-height: 180px; overflow: auto; margin: 0; padding: 8px 10px; border-radius: 10px;
+  background: color-mix(in srgb, var(--color-bg) 30%, transparent); border: 1px solid color-mix(in srgb, var(--color-ink) 12%, transparent);
+  color: color-mix(in srgb, var(--color-ink) 84%, transparent); font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11.5px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+.quick-request-keys { align-self: center; margin-left: auto; color: color-mix(in srgb, var(--color-ink) 50%, transparent); font-size: 11px; }
+/* Context chips: what was open when ⌘2 was pressed, and files dropped on the bar. */
+.quick-attachments { display: flex; flex: none; flex-wrap: wrap; gap: 6px; padding: 0 16px 10px 52px; -webkit-app-region: no-drag; }
+.quick-chip { display: inline-flex; align-items: center; gap: 5px; max-width: 260px; padding: 3px 4px 3px 8px; border-radius: 999px;
+  background: color-mix(in srgb, var(--color-ink) 10%, transparent); color: color-mix(in srgb, var(--color-ink) 82%, transparent); font-size: 11.5px; }
+.quick-chip > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.quick-chip button { display: grid; place-items: center; width: 16px; height: 16px; border-radius: 999px; color: inherit; cursor: pointer; }
+.quick-chip button:hover { background: color-mix(in srgb, var(--color-ink) 16%, transparent); }
+.quick-root[data-dropping] { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--color-ember) 70%, transparent); }
+/* Paths in answers open with Quick Look (⌘-click: Finder). */
+.quick-answer .md-path { background: color-mix(in srgb, var(--color-ink) 9%, transparent); border-color: color-mix(in srgb, var(--color-ink) 12%, transparent); color: inherit; cursor: pointer; }
+.quick-answer .md-path:hover { text-decoration: underline; text-underline-offset: 2px; }
+.aux-panel-header { display: flex; flex: none; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 14px 8px 20px; color: color-mix(in srgb, var(--color-ink) 66%, transparent); font-size: 11.5px; }
+.aux-panel-body { display: flex; flex-direction: column; gap: 8px; min-height: 0; overflow-y: auto; padding: 4px 20px 18px; font-size: 13.5px; }
+.aux-panel-title { font-size: 15px; font-weight: 600; }
+.aux-panel-path { overflow: hidden; color: color-mix(in srgb, var(--color-ink) 55%, transparent); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.aux-panel-note { color: color-mix(in srgb, var(--color-ink) 55%, transparent); font-size: 11.5px; }
+/* Answers sit on glass. The main window's opaque code surfaces — bg-raise for inline code, bg-well for code blocks
+   and diffs, both near-black in dark themes — read as black slabs over the blur, so inside the bar code keeps its
+   monospace and outline but lets the glass through. Unlayered, so these win over the Tailwind utilities. */
+.quick-answer .md :not(pre) > code, .aux-panel .md :not(pre) > code {
+  background: color-mix(in srgb, var(--color-ink) 9%, transparent);
+  border-color: color-mix(in srgb, var(--color-ink) 12%, transparent);
+}
+.quick-answer pre, .quick-request-diff pre, .aux-panel pre {
+  background: color-mix(in srgb, var(--color-bg) 30%, transparent);
+  border-color: color-mix(in srgb, var(--color-ink) 12%, transparent);
+}
+.quick-answer .group button { background: color-mix(in srgb, var(--color-bg) 45%, transparent); }
+@media (prefers-contrast: more) {
+  .quick-root, .aux-panel { background: color-mix(in srgb, var(--color-bg) 78%, transparent); }
+  .quick-answer pre, .quick-request-diff pre, .aux-panel pre { background: color-mix(in srgb, var(--color-bg) 72%, transparent); }
+  .quick-answer .md :not(pre) > code, .aux-panel .md :not(pre) > code { background: color-mix(in srgb, var(--color-ink) 16%, transparent); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .quick-root, .aux-panel { background: var(--color-bg); }
+  .quick-answer pre, .quick-request-diff pre, .aux-panel pre { background: var(--color-well); }
+}
+
+/* ── Quiet rendering (WP-2, docs/product-reset/57) ───────────────────────────────────────────────
+   `data-render-mode="quiet"` is stamped on <html> by render.mode.ts when the adaptive policy reports
+   sustained machine pressure — Low Power Mode, a serious or critical thermal state, critical memory
+   pressure, or simply running on battery. It is NOT set while the user merely interacts: that would
+   stop decoration on every keystroke and restart it two seconds later, which reads worse than either
+   steady state (see renderingPolicy's comment).
+
+   What stops here is decoration: the INFINITE loops that repaint every frame and communicate nothing.
+   Everything that carries state keeps running — a turn's elapsed seconds, a notice counting down, a
+   surface arriving, the mic and talk rings that follow a live voice level (those are driven by a CSS
+   variable and a 90ms transition, not by an animation, so they cost nothing when the level is still).
+
+   Deliberately narrower than `prefers-reduced-motion`, which also flattens one-shot entrances. Quiet
+   is an energy decision; Reduce Motion is an accessibility promise, and it still wins on its own. */
+:root[data-render-mode='quiet'] {
+  /* The token the one-shot blink is built from, so anything using it stops with a single override. */
+  --animate-soft-blink: none;
+  --animate-spin-slow: none;
+}
+:root[data-render-mode='quiet'] .signal-beacon,
+:root[data-render-mode='quiet'] .graph-link,
+:root[data-render-mode='quiet'] .graph-core-ring,
+:root[data-render-mode='quiet'] .graph-node-ring,
+:root[data-render-mode='quiet'] .animate-spin-slow,
+:root[data-render-mode='quiet'] .animate-soft-blink,
+:root[data-render-mode='quiet'] .mic-button[data-listening='starting'],
+:root[data-render-mode='quiet'] .mic-button[data-listening='finishing'],
+:root[data-render-mode='quiet'] .talk-orb[data-state='starting'],
+:root[data-render-mode='quiet'] .talk-orb[data-state='thinking'],
+:root[data-render-mode='quiet'] .talk-orb[data-state='speaking'] {
+  animation: none;
+}
+/* The shimmer sweeps a 220%-wide gradient across text forever. Without the animation the gradient
+   would park mid-sweep and leave the verb half-transparent, so the text goes back to a flat colour. */
+:root[data-render-mode='quiet'] .thinking-verb {
+  animation: none;
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  color: var(--color-ink);
+}
+
+/* A step that finishes while you watch moves the eye once, then settles (UI fix list item 24: "animate every agent
+   state change — change blindness is real"). Only a change seen live: `useJustFinished` in Transcript.tsx gives a
+   row this class on the render where it stops running, so history loads still. A 6% overshoot, the house bounce. */
+@keyframes status-settle {
+  0% { transform: scale(0.6); opacity: 0.35; }
+  60% { transform: scale(1.06); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.status-settle { display: inline-flex; animation: status-settle 220ms ease-out both; }
+
+/* The line a run ends on (UI fix list item 41): it arrives once, when the run does, and then holds still. */
+@keyframes run-summary-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+.run-summary { animation: run-summary-in 240ms ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .status-settle { animation: none; }
+  .run-summary { animation: fade-in 120ms ease-out both; }
+}
+
+/* ── Reduce motion, from Settings (fix list item 17) ──────────────────────────────────────────────
+   Settings → General → "Reduce motion" wrote `reducedMotion` to the config and nothing read it: the only
+   thing that quietened this app was the macOS setting, through the media queries above. The toggle now
+   stamps `data-reduce-motion` on <html> (motion.preference.ts) and every rule below is the twin of a
+   `@media (prefers-reduced-motion: reduce)` rule in this file — the same quieting, switched from inside
+   Bimax. `prefersReducedMotion()` in motion.ts reads the same attribute, so the morphs follow too.
+   `app/src/__tests__/reduce.motion.setting.test.ts` fails if a media rule gains no twin here. */
+:root[data-reduce-motion] .anim-fade-up,
+:root[data-reduce-motion] .anim-scale-in,
+:root[data-reduce-motion] .anim-slide-in-right,
+:root[data-reduce-motion] .anim-dialog-in { animation: fade-in 120ms ease-out both; }
+:root[data-reduce-motion] .anim-dialog-out,
+:root[data-reduce-motion] .anim-fade-out { animation: fade-out 80ms ease-in both; }
+:root[data-reduce-motion] .signal-beacon,
+:root[data-reduce-motion] .graph-link,
+:root[data-reduce-motion] .graph-core-ring,
+:root[data-reduce-motion] .graph-node-ring,
+:root[data-reduce-motion] .animate-spin-slow { animation: none; }
+:root[data-reduce-motion] .timeline-row--lifted { transform: none; }
+:root[data-reduce-motion] { --ease-snappy: ease-out; --ease-bouncy: ease-out; --ease-glass: ease-out; --ease-exit: ease-in; --dur-snappy: 60ms; --dur-bouncy: 60ms; --dur-glass: 60ms; --dur-exit: 60ms; }
+:root[data-reduce-motion] * { transition-duration: 60ms !important; transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, opacity, box-shadow !important; }
+:root[data-reduce-motion] .pressable::after { display: none; }
+:root[data-reduce-motion] .workspace-starter { animation: none; }
+:root[data-reduce-motion] .workspace-starter:hover,
+:root[data-reduce-motion] .workspace-starter:active,
+:root[data-reduce-motion] .workspace-starter:hover .workspace-starter-icon { transform: none; }
+:root[data-reduce-motion] .capability-notice { animation: none; }
+:root[data-reduce-motion] .thinking-verb { animation: none; background: none; color: var(--color-dim); }
+:root[data-reduce-motion] .mic-button[data-listening] { transition: none; animation: none; }
+:root[data-reduce-motion] .talk-orb { transition: none; animation: none !important; }
+:root[data-reduce-motion] .status-settle { animation: none; }
+:root[data-reduce-motion] .run-summary { animation: fade-in 120ms ease-out both; }
+
+/* Computer Use is an explicit, per-message choice in either composer. */
+/* Computer Use shares the composer’s quiet, compact controls. */
+.computer-route { margin: 7px 14px 4px; font-size: 12px; -webkit-app-region: no-drag; color: var(--color-ink); }
+.computer-route-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.computer-route-chip { display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0; padding: 4px 7px; border-radius: 6px; background: var(--color-hover); font-weight: 600; }
+.computer-route-hint { flex: 1; min-width: 0; color: var(--color-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.computer-icon-button { display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 6px; width: 28px; height: 28px; background: transparent; color: inherit; cursor: pointer; }
+.computer-icon-button:hover { background: var(--color-hover); }
+.computer-route button:disabled { opacity: .5; cursor: default; }
+.computer-options { display: flex; flex-wrap: wrap; gap: 12px; padding: 9px 0 3px; }
+.computer-options label { display: flex; align-items: center; gap: 8px; }
+.computer-options select { max-width: 240px; padding: 5px 8px; border-radius: 6px; border: 1px solid var(--color-line); color: inherit; background: var(--color-raise); }
+.computer-completion { margin: 4px 14px; padding: 6px 10px; border: 0; border-radius: 6px; background: var(--color-hover); color: var(--color-ink); cursor: pointer; }
+.computer-run { margin: 10px 14px 4px; padding: 10px 12px; border: 1px solid var(--color-line); border-radius: 10px; font-size: 12px; color: var(--color-ink); background: var(--color-raise); -webkit-app-region: no-drag; }
+.computer-run-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.computer-run-title strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.computer-run-target { font-weight: 400; margin-left: 6px; }
+.computer-run-title [role="status"] { color: var(--color-dim); flex-shrink: 0; }
+.computer-run p { margin: 7px 0; line-height: 1.5; overflow-wrap: anywhere; }
+.computer-run-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
+.computer-run button { border: 1px solid var(--color-line); border-radius: 6px; padding: 5px 9px; cursor: pointer; background: var(--color-raise); color: inherit; }
+.computer-run button:hover { background: var(--color-hover); }
+.computer-run details { margin-top: 6px; }
+.computer-run summary { color: var(--color-dim); cursor: pointer; }
+.computer-run pre { max-height: 180px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 11px; padding: 8px; background: var(--color-hover); border-radius: 6px; }
+.computer-approval { margin-top: 9px; padding-top: 9px; border-top: 1px solid var(--color-dim); }
+.computer-approval > button { margin: 8px 7px 0 0; }
+.computer-approval > button:last-child { background: var(--color-ink); color: var(--color-bg); }
+.computer-more { margin: 0 !important; }
+.computer-more button { margin-left: 6px; }
+.computer-verification button { display: block; margin-top: 6px; text-align: left; }
+
+/* Rich content shares the conversation's semantic HTML and quiet typography. */
+.rich-markdown { overflow-wrap:anywhere; min-width:0; }
+.rich-markdown [data-streamdown="code-block"] { margin:12px 0; border:1px solid var(--color-line); border-radius:10px; overflow:hidden; background:var(--code-block); }
+.rich-markdown [data-streamdown="code-block-header"] { display:flex; justify-content:space-between; gap:8px; padding:7px 12px; font-size:10px; color:var(--color-faint); border-bottom:1px solid var(--color-line); }
+.rich-markdown [data-streamdown="code-block-body"] { overflow:auto; padding:12px; font-size:12px; }
+.rich-markdown [data-streamdown="table-wrapper"] { max-width:100%; overflow:auto; }
+.rich-markdown table { border-collapse:collapse; width:100%; margin:12px 0; font-size:12px; }
+.rich-markdown th,.rich-markdown td { border:1px solid var(--color-line); padding:8px 10px; text-align:left; }
+.rich-markdown th { background:var(--color-raise); font-weight:600; }
+.rich-markdown .katex-display { max-width:100%; overflow:auto; padding:8px 0; }
+.rich-markdown [data-streamdown="mermaid"] { overflow:auto; }
+.rich-image { max-width:100%; max-height:420px; object-fit:contain; border-radius:8px; }
+.rich-media-placeholder { color:var(--color-faint); font-size:12px; }
+.keep-output,.output-entry { font-size:11px; color:var(--color-dim); padding:5px 9px; border:1px solid var(--color-line); border-radius:6px; cursor:pointer; }
+.keep-output:hover,.output-entry:hover { color:var(--color-ink); background:var(--color-hover); }
+.rich-code-output { margin:8px 0 16px; }
+.outputs-workspace { height:100%; min-height:0; display:flex; flex-direction:column; gap:10px; color:var(--color-ink); }
+.output-toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:6px; flex-shrink:0; font-size:11px; color:var(--color-dim); }
+.output-toolbar button,.output-form button { border:1px solid var(--color-line); border-radius:6px; padding:5px 8px; cursor:pointer; }
+.output-toolbar button[aria-pressed="true"],.output-toolbar button:hover:not(:disabled) { background:var(--color-hover); color:var(--color-ink); }
+.outputs-workspace button:disabled { opacity:.4; cursor:default; }
+.outputs-workspace input,.outputs-workspace select { min-width:0; border:1px solid var(--color-line); background:var(--color-well); color:var(--color-ink); border-radius:6px; padding:5px 7px; }
+.output-toolbar input { flex:1; }
+.output-catalog { display:flex; gap:7px; overflow-x:auto; max-height:96px; flex-shrink:0; padding-bottom:4px; }
+.output-catalog button { display:flex; flex-direction:column; align-items:flex-start; gap:3px; min-width:120px; max-width:210px; text-align:left; padding:9px 11px; border:1px solid var(--color-line); border-radius:8px; }
+.output-catalog button[aria-pressed="true"] { background:var(--color-hover); border-color:var(--color-dim); }
+.output-catalog small,.output-heading span { font-size:10px; color:var(--color-faint); }
+.output-heading { display:flex; flex-wrap:wrap; align-items:center; gap:8px; flex-shrink:0; }
+.output-heading strong { flex:1; font-size:13px; }
+.output-heading select { font-size:10px; max-width:100%; }
+.output-source { flex:1; min-height:120px; overflow:hidden; border:1px solid var(--color-line); border-radius:8px; }
+.output-preview { flex:1; min-height:160px; overflow:auto; padding:10px 4px; }
+.output-document { min-height:200px; outline:none; padding:12px; line-height:1.7; }
+.output-document p { margin:8px 0; }.output-document h1,.output-document h2 { font-size:1.4em; font-weight:600; margin:14px 0; }.output-document ul { list-style:disc;padding-left:24px; }.output-document ol { list-style:decimal;padding-left:24px; }
+.output-chart { max-width:100%; overflow:auto; }
+.output-table { overflow:auto; max-height:65vh; }.output-table table { border-collapse:collapse; }.output-table td,.output-table th { border-bottom:1px solid var(--color-line); padding:7px 9px; white-space:nowrap; text-align:left; max-width:400px; overflow:hidden;text-overflow:ellipsis; }
+.output-form { display:flex; flex-direction:column; gap:14px; padding:10px; }.output-form label { display:flex;flex-direction:column;gap:5px; }
+.output-compare { flex:1;min-height:0;overflow:auto;display:grid;grid-template-columns:1fr 1fr;gap:12px; }.output-compare pre { font-size:11px;white-space:pre-wrap;overflow-wrap:anywhere; }.output-compare h4 { color:var(--color-faint);margin-bottom:10px; }
+.output-console { flex:1;overflow:auto;white-space:pre-wrap;font:11px/1.7 monospace; }.output-console [data-level="error"],.output-error { color:var(--color-rust); }.output-error { font-size:11px;white-space:pre-wrap; }
+.output-empty { margin:auto; padding:24px; color:var(--color-faint); line-height:1.7; }.output-empty h3 { color:var(--color-ink);font-size:15px;margin-bottom:10px; }.output-notices { font-size:12px;line-height:1.7;padding:12px;border:1px solid var(--color-line);border-radius:8px;margin:10px 0; }
+.tool-presentation { display:flex; flex-wrap:wrap; gap:8px; margin:5px 0 10px 21px; }.tool-presentation button { padding:6px 9px;border:1px solid var(--color-line);border-radius:6px;font-size:11px; }.tool-presentation details { max-width:100%; }.tool-presentation pre { max-height:280px;overflow:auto;white-space:pre-wrap;font-size:11px; }
+@media (prefers-reduced-motion:reduce) { .rich-markdown * { animation:none!important;transition:none!important; } }
+.output-document table { border-collapse:collapse;width:100%;margin:12px 0; }.output-document td,.output-document th { border:1px solid var(--color-line);padding:8px;vertical-align:top; }.output-document th { font-weight:600;background:var(--color-well); }
+
+.theme-moonlight .rich-markdown [style*="--shiki-dark"] { color:var(--shiki-dark)!important; }
+
+:root[data-reduce-motion] .rich-markdown *, :root[data-reduce-motion] .outputs-workspace * { animation:none!important;transition:none!important; }

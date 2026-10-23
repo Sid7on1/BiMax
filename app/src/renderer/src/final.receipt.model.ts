@@ -1,4 +1,3 @@
-import type { MacSession } from './mac.session.model';
 import type { ReviewSnapshot } from './protocol';
 
 /**
@@ -14,7 +13,7 @@ import type { ReviewSnapshot } from './protocol';
  * unproven, rather than dropped so the receipt can look complete.
  */
 
-export type ReceiptLane = 'code' | 'mac';
+export type ReceiptLane = 'code';
 
 export interface ReceiptEvidence {
   lane: ReceiptLane;
@@ -44,20 +43,8 @@ export interface FinalReceipt {
 
 export interface FinalReceiptInput {
   review: ReviewSnapshot | null;
-  mac: MacSession;
-}
-
-/**
- * Did the session ever identify what it was acting on?
- *
- * A receipt that says "performed 3 actions" without naming an app, a process and an observation is
- * not evidence — it is a count. `mac.session.model.ts` only advances the target from a payload that
- * actually named one, so this is a genuine check rather than a restatement of the request.
- */
-function hasTargetBinding(mac: FinalReceiptInput['mac']): boolean {
-  return !!mac.target?.app && mac.target.pid !== null && mac.target.windowId !== null
-    && !!mac.evidence?.observation
-    && mac.evidence.observation !== 'not reported';
+  /** Retired compatibility input; ignored by the code-only product. */
+  mac?: unknown;
 }
 
 export function buildFinalReceipt(input: FinalReceiptInput): FinalReceipt {
@@ -98,55 +85,7 @@ export function buildFinalReceipt(input: FinalReceiptInput): FinalReceipt {
     });
   }
 
-  const acted = input.mac.timeline.filter(entry => !entry.refusedForTakeover && entry.status !== 'running');
-  if (acted.length > 0) {
-    /**
-     * What a proven Mac action requires. All four, per action — `05_TARGET_ARCHITECTURE.md`:
-     * "Every action binds target app, target window, observation/frame ID, executor level,
-     * start/end time, and postcondition."
-     *
-     * `unattributed` is the one that used to slip through. `executor.ladder.ts` returns it
-     * precisely when the runtime could NOT say which executor acted — an uninstrumented
-     * compatibility path. An action nobody can attribute is not a proven action, however green its
-     * postcondition looks, because there is no record of what actually touched the machine.
-     */
-    const succeeded = acted.filter(entry => entry.status === 'success');
-    const confirmed = succeeded.filter(entry => entry.postcondition.startsWith('matched'));
-    const attributed = confirmed.filter(entry => entry.executor !== 'unattributed');
-    const bound = attributed.filter(() => hasTargetBinding(input.mac));
-    const unattributed = acted.filter(entry => entry.executor === 'unattributed');
-
-    claims.push({
-      id: 'mac-actions',
-      claim: `Performed ${acted.length} action${acted.length === 1 ? '' : 's'} on ${input.mac.target?.app || 'your Mac'}`,
-      proven: bound.length > 0 && bound.length === acted.length,
-      evidence: acted.map((entry): ReceiptEvidence => ({
-        lane: 'mac',
-        label: entry.label,
-        detail: `${entry.executor} · ${entry.focus} · ${entry.postcondition}`,
-        ok: entry.status === 'success'
-          && entry.postcondition.startsWith('matched')
-          && entry.executor !== 'unattributed',
-      })),
-      gap: confirmed.length === 0
-        ? 'no action confirmed its expected end state'
-        : confirmed.length < acted.length
-          ? `${acted.length - confirmed.length} action${acted.length - confirmed.length === 1 ? '' : 's'} did not confirm an end state`
-          : unattributed.length > 0
-            ? `${unattributed.length} action${unattributed.length === 1 ? '' : 's'} could not be attributed to an executor, so what touched your Mac is not recorded`
-            : !hasTargetBinding(input.mac)
-              ? 'the actions are not bound to an identified app, exact window, and observation'
-              : '',
-    });
-  }
-
   const gaps = claims.filter(claim => claim.gap).map(claim => claim.gap);
-  if (input.mac.evidence?.freshness === 'stale') {
-    gaps.push('the newest Mac observation is older than the freshness budget');
-  }
-  if (input.mac.refusedWhilePaused > 0) {
-    gaps.push(`${input.mac.refusedWhilePaused} action${input.mac.refusedWhilePaused === 1 ? ' was' : 's were'} refused while you held control`);
-  }
 
   return {
     complete: claims.length > 0 && claims.every(claim => claim.proven) && gaps.length === 0,

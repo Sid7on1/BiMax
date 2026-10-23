@@ -1,5 +1,5 @@
 /**
- * A structural region that grows out of a control — and then stops being an animation.
+ * A structural region that grows out of its own edge — and then stops being an animation.
  *
  * This is the second destination class in the system, and it is not a bigger popover. Prompt 2 §46
  * and §47 draw the distinction precisely: *during* the transition a sidebar or inspector is a
@@ -7,6 +7,28 @@
  * overlay layer. A surface that keeps living on the overlay is a floating card that happens to be
  * docked — it cannot be resized by the splitter, it does not reflow its neighbours, and it sits
  * above the title bar.
+ *
+ * ## Why the edge, and not the control that was pressed
+ *
+ * The first version of this seeded both bars from the intent tracker, so the inspector grew out of
+ * whichever control had opened it — the lane chip, the composer, the dock, ⌘J. That is a faithful
+ * reading of Prompt 1 §17 (*a sidebar should not simply slide in from off-screen if a visible
+ * control triggered it*) and it is the wrong one, for a reason §75 states directly: **hiding and
+ * unhiding a persistent sidebar is a structural width transition**, and only *a small button
+ * creating a contextual region* is a Seed Morph. These two bars are persistent. They have splitters,
+ * they have remembered widths, they are in the layout group, and the user opens and closes them
+ * dozens of times a session. A 700px diagonal flight across the workspace every time is the
+ * "animation spectacle" §8 rules out, and it also makes the same panel arrive from a different
+ * direction depending on which of five controls the user happened to use.
+ *
+ * So the origin is the region's own outer edge (`edgeOf`), and what the user sees is the window's
+ * layout edge sweeping across — with the content already laid out behind it, uncovered rather than
+ * flown in. §17 is still honoured in the part that matters: this is emphatically not a finished
+ * panel sliding in from off-screen, because nothing translates. The panel is where it will be for
+ * the whole flight; only its near edge moves.
+ *
+ * `seed` remains on the props for a genuinely contextual region — §75's small button creating one —
+ * and no caller in the app passes it today.
  *
  * So the region is in the layout from the first frame, at its real width, and what flies is a piece
  * of glass with nothing in it:
@@ -41,15 +63,18 @@ import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../../../lib/cn';
 import type { MorphFrame } from './controller';
-import type { DestinationKind, MorphGeometry } from './geometry';
+import { edgeOf, type DestinationKind, type MorphGeometry } from './geometry';
 import { paintRegionClip, releaseRegion } from './paint';
 import { useMorphDriver } from './use-morph';
 import { measureElement, type SeedHandle } from './use-seed';
 
 export interface MorphRegionProps {
   open: boolean;
-  /** The control this region grew from. */
-  seed: SeedHandle;
+  /**
+   * Where the region grows from. Omit — which every caller in the app now does — and it grows from
+   * its own window edge. See the header.
+   */
+  seed?: SeedHandle;
   /** `sidebar` or `inspector`. Decides the spring and the glass, not the placement. */
   kind: Extract<DestinationKind, 'sidebar' | 'inspector'>;
   /** Fired when the collapse has finished, so the parent can drop the region from the layout. */
@@ -96,8 +121,14 @@ export function MorphRegion({
     // the one the user is looking at.
     if (measured) destination.current = measured;
     const current = destination.current ?? { x: 0, y: 0, width: 0, height: 0, radius: 0 };
-    return { seed: seed.measure(), destination: current };
-  }, [seed]);
+    // No seed given: the region's own outer edge is the origin. Derived from the destination that
+    // was just measured, not from the window, so a sidebar that is second in its panel group — or
+    // one the user has dragged narrower — still starts from the edge it actually has.
+    const origin = seed
+      ? seed.measure()
+      : edgeOf(current, kind === 'sidebar' ? 'left' : 'right');
+    return { seed: origin, destination: current };
+  }, [seed, kind]);
 
   // Memoized on the nodes, not rebuilt per render: the driver re-subscribes whenever this identity
   // changes, and re-subscribing mid-flight would re-arm the shell every frame.

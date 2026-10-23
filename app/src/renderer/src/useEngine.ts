@@ -1,343 +1,149 @@
-import { useEffect, useReducer, useRef, useCallback } from 'react';
+import { computerRequest } from '../../shared/computer';
+import type { ComputerRoute } from '../../shared/computer';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import {
-  Outbound, RequestMsg, CompletionItem, MessageEntry, ToolCallEntry, UiSnapshot, SubAgentClaim,
-  ReviewSnapshot, EngineConfig, EngineCatalog,
+  EngineConfig, EngineCatalog,
   ControlsMsg,
 } from './protocol';
-import { supportsProtocolMajor } from '../../shared/protocol.compat.gen';
-import {
-  normalizeUiSnapshot, normalizeReviewSnapshot, normalizeSubAgents, normalizeTodos,
-} from './protocol.normalize';
-import { visibleComputerUsePrompt } from './computer.use.prompt';
+import { EngineStore } from './engine.store';
+import { useEngineDomain } from './useEngineDomain';
+import { StreamCoalescer } from './stream.coalescer';
+import { EngineRequests } from './engine.requests';
+
+// The state machine now lives in engine.state.ts (pure, testable). Re-exported here because the
+// rest of the renderer has always imported these from useEngine.
+export type { TranscriptItem, DiagnosticEntry, EngineUiState } from './engine.state';
+export { engineReducer, initialEngineState } from './engine.state';
 
 /**
- * The renderer's engine state machine: consumes protocol Outbound messages from the preload
- * bridge and folds them into one UI state object. This is the App-side equivalent of the Go
- * TUI's model.go update loop, reduced to the foundation feature set.
+ * How long the renderer waits for the engine to answer a catalogue request. Comfortably past a cold
+ * start; a hung engine still surfaces rather than spinning forever.
  */
-
-export type TranscriptItem =
-  | { kind: 'msg'; msg: MessageEntry; menuChosen?: string; thought?: string }
-  | { kind: 'tool'; call: ToolCallEntry };
-
-export interface DiagnosticEntry {
-  id: string;
-  level: 'info' | 'warn' | 'error';
-  text: string;
-  timestamp: string;
-}
-
-export interface EngineUiState {
-  items: TranscriptItem[];
-  streaming: string;            // in-flight assistant reply (stream_token accumulation)
-  thinking: string;             // reasoning-channel text for the current turn
-  spinner: { state: string; message: string };
-  status: string;
-  snapshot: UiSnapshot | null;
-  todos: { content?: string; status?: string }[];
-  subagents: SubAgentClaim[];
-  request: RequestMsg | null;   // pending approval/ask modal
-  completions: { id: number; items: CompletionItem[] };
-  engine: { state: string; detail: string };
-  protocolMismatch: number | null; // engine's protocol version when it differs from ours
-  mode: string;
-  tier: string;
-  streamedChars: number;
-  project: string;
-  diagnostics: DiagnosticEntry[];
-  review: ReviewSnapshot | null;   // the engine's per-thread review state (review_update)
-}
-
-const initial: EngineUiState = {
-  items: [],
-  streaming: '',
-  thinking: '',
-  spinner: { state: 'idle', message: '' },
-  status: '',
-  snapshot: null,
-  todos: [],
-  subagents: [],
-  request: null,
-  completions: { id: 0, items: [] },
-  engine: { state: 'idle', detail: '' },
-  protocolMismatch: null,
-  mode: '',
-  tier: '',
-  streamedChars: 0,
-  project: '',
-  diagnostics: [],
-  review: null,
-};
-
-type Action =
-  | { type: 'outbound'; msg: Outbound }
-  | { type: 'engineState'; state: string; detail: string }
-  | { type: 'project'; dir: string }
-  | { type: 'localUser'; text: string }
-  | { type: 'closeRequest' }
-  | { type: 'statusClear' }
-  | { type: 'menuChosen'; id: string; value: string }
-  | { type: 'clearCompletions' };
-
-function upsertTool(items: TranscriptItem[], call: ToolCallEntry): TranscriptItem[] {
-  const idx = items.findIndex((it) => it.kind === 'tool' && it.call.id === call.id);
-  if (idx === -1) return [...items, { kind: 'tool', call }];
-  const next = items.slice();
-  next[idx] = { kind: 'tool', call };
-  return next;
-}
-
-function onEvent(state: EngineUiState, name: string, args: any[]): EngineUiState {
-  switch (name) {
-    case 'log': {
-      const raw = args[0];
-      const text = String(typeof raw === 'object' && raw ? raw.text ?? '' : raw ?? '')
-        // Terminal adapters may include ANSI color escapes; the desktop renderer should not.
-        .replace(/\x1b\[[0-9;]*m/g, '')
-        .trim();
-      if (!text) return state;
-      const rawLevel = typeof raw === 'object' && raw ? String(raw.level ?? 'info') : 'info';
-      const level: DiagnosticEntry['level'] = rawLevel === 'error' ? 'error' : rawLevel === 'warn' ? 'warn' : 'info';
-      const entry: DiagnosticEntry = {
-        id: String((typeof raw === 'object' && raw?.id) || `${Date.now()}-${state.diagnostics.length}`),
-        level,
-        text,
-        timestamp: String((typeof raw === 'object' && raw?.timestamp) || new Date().toISOString()),
-      };
-      return { ...state, diagnostics: [...state.diagnostics, entry].slice(-100) };
-    }
-    case 'message': {
-      const incoming = args[0] as MessageEntry;
-      if (!incoming) return state;
-      const msg = incoming.role === 'user'
-        ? { ...incoming, content: visibleComputerUsePrompt(incoming.content) }
-        : incoming;
-      // The engine echoes the user's turn as its own `message` event (that echo is what the session
-      // file persists). The composer already painted an instant local bubble — adopt the engine's
-      // entry into it instead of appending a duplicate.
-      if (msg.role === 'user') {
-        for (let i = state.items.length - 1; i >= 0; i--) {
-          const it = state.items[i];
-          if (it.kind !== 'msg' || it.msg.role !== 'user') continue;
-          if (it.msg.id.startsWith('local-') && it.msg.content === msg.content) {
-            const items = state.items.slice();
-            items[i] = { kind: 'msg', msg };
-            return { ...state, items };
-          }
-          break; // a different (or already-adopted) user turn — this echo is genuinely new
-        }
-      }
-      // A final assistant message supersedes the in-flight stream buffer and adopts the turn's
-      // reasoning text so the "Thought for Ns" line can expand to the actual thoughts.
-      const streaming = msg.role === 'assistant' ? '' : state.streaming;
-      const thought = msg.role === 'assistant' && state.thinking ? state.thinking : undefined;
-      return { ...state, items: [...state.items, { kind: 'msg', msg, thought }], streaming, thinking: '' };
-    }
-    case 'stream_token':
-      return { ...state, streaming: state.streaming + String(args[0] ?? '') };
-    case 'tool_call':
-    case 'tool_call_result':
-      return args[0] ? { ...state, items: upsertTool(state.items, args[0] as ToolCallEntry) } : state;
-    case 'thinking':
-      return { ...state, thinking: state.thinking + String(args[0] ?? '') };
-    case 'thinking_clear':
-      return { ...state, thinking: '' };
-    case 'spinner_state':
-      return { ...state, spinner: { state: String(args[0] ?? 'idle'), message: String(args[1] ?? '') } };
-    case 'status':
-      return { ...state, status: String(args[0] ?? '') };
-    case 'clear':
-      return { ...state, items: [], streaming: '', thinking: '', streamedChars: 0 };
-    case 'session_restore': {
-      // True resume: rebuild the transcript from the saved thread's entries (messages + tool
-      // lines) — the engine restored its context from the same file, so both sides agree.
-      const payload = args[0] as { id?: string; entries?: any[] } | undefined;
-      const entries = Array.isArray(payload?.entries) ? payload!.entries! : [];
-      const items: TranscriptItem[] = [];
-      for (const e of entries) {
-        if (!e || typeof e !== 'object') continue;
-        if (e.role === 'tool') {
-          items.push({
-            kind: 'tool',
-            call: {
-              id: String(e.id ?? `replay-${items.length}`),
-              toolName: String(e.toolName ?? 'tool'),
-              input: String(e.input ?? ''),
-              output: String(e.output ?? ''),
-              status: e.status === 'error' ? 'error' : 'success',
-              startTime: String(e.startTime ?? e.timestamp ?? ''),
-              endTime: e.endTime ? String(e.endTime) : undefined,
-              parentId: e.parentId ? String(e.parentId) : undefined,
-              agentLabel: e.agentLabel ? String(e.agentLabel) : undefined,
-            },
-          });
-        } else if (e.role === 'user' || e.role === 'assistant' || e.role === 'system') {
-          // Replayed menus are inert (their engine-side handlers died with the original process).
-          // The sentinel must not equal any option's value — '' would light up "Skip"-style options.
-          const replayed = e.role === 'user'
-            ? { ...e, content: visibleComputerUsePrompt(String(e.content ?? '')) }
-            : e;
-          items.push({ kind: 'msg', msg: replayed as MessageEntry, menuChosen: e.uiComponent === 'menu' ? '__replayed__' : undefined });
-        }
-      }
-      return { ...state, items, streaming: '', thinking: '' };
-    }
-    // Every structured payload is normalized at the boundary rather than trusted downstream — see
-    // protocol.normalize.ts. A `ui_snapshot` missing `models` used to reach the composer as a
-    // truthy object and blank the window.
-    case 'ui_snapshot': {
-      const snapshot = normalizeUiSnapshot(args[0]);
-      return snapshot ? { ...state, snapshot } : state;
-    }
-    case 'review_update':
-      return { ...state, review: normalizeReviewSnapshot(args[0]) };
-    case 'todo_update':
-      return { ...state, todos: normalizeTodos(args[0]) };
-    case 'subagent_update':
-      return { ...state, subagents: normalizeSubAgents(args[0]) };
-    case 'mode_change':
-      return { ...state, mode: String(args[0] ?? '') };
-    case 'model_tier':
-      return { ...state, tier: String(args[0]?.tier ?? '') };
-    case 'cost_update':
-      return { ...state, streamedChars: state.streamedChars + Number(args[0] ?? 0) };
-    default:
-      return state; // log, graph_changed, config_changed, … — no transcript rendering needed yet
-  }
-}
-
-function reducer(state: EngineUiState, action: Action): EngineUiState {
-  switch (action.type) {
-    case 'outbound': {
-      const m = action.msg;
-      switch (m.t) {
-        case 'ready':
-          return {
-            ...state,
-            engine: { state: 'ready', detail: '' },
-            protocolMismatch: !supportsProtocolMajor(m.protocol) ? m.protocol : null,
-          };
-        case 'event':
-          return onEvent(state, m.name, m.args);
-        case 'request':
-          return { ...state, request: m };
-        case 'queryResult':
-          // Drop stale results: only the latest query id may populate the dropdown.
-          return m.id >= state.completions.id
-            ? { ...state, completions: { id: m.id, items: m.items } }
-            : state;
-        default:
-          return state;
-      }
-    }
-    case 'engineState':
-      // An exited engine can never answer its own approval requests — leaving the modal up would
-      // falsely show the approval as pending (and a reply would go to a process that's gone).
-      return {
-        ...state,
-        engine: { state: action.state, detail: action.detail },
-        request: action.state === 'exited' ? null : state.request,
-      };
-    case 'project':
-      return {
-        ...state,
-        project: action.dir,
-        items: [],
-        streaming: '',
-        thinking: '',
-        todos: [],
-        snapshot: null,
-        diagnostics: [],
-        review: null,
-        request: null, // any pending approval belonged to the previous engine process
-        engine: action.dir ? state.engine : { state: 'idle', detail: '' },
-      };
-    case 'localUser': {
-      const msg: MessageEntry = {
-        id: `local-${Date.now()}`,
-        role: 'user',
-        content: action.text,
-        timestamp: new Date().toISOString(),
-      };
-      return { ...state, items: [...state.items, { kind: 'msg', msg }] };
-    }
-    case 'closeRequest':
-      return { ...state, request: null };
-    case 'statusClear':
-      return { ...state, status: '' };
-    case 'menuChosen':
-      return {
-        ...state,
-        items: state.items.map((it) =>
-          it.kind === 'msg' && it.msg.id === action.id ? { ...it, menuChosen: action.value } : it,
-        ),
-      };
-    case 'clearCompletions':
-      return { ...state, completions: { id: state.completions.id, items: [] } };
-    default:
-      return state;
-  }
-}
+const CATALOG_TIMEOUT_MS = 30_000;
+type AttachmentResult = { ok: boolean; chunks: number; reason: string };
 
 export function useEngine() {
-  const [state, dispatch] = useReducer(reducer, initial);
+  const [store] = useState(() => new EngineStore());
+  const state = useEngineDomain(store.domains.workspace);
+  const dispatch = store.dispatch;
+  // Adjacent streaming deltas are merged into one dispatch per frame. Held in a ref because the
+  // interrupt and project paths outside the subscription effect need to flush or retire it.
+  const coalescer = useRef<StreamCoalescer | null>(null);
   const queryId = useRef(0);
+  const completionQueryId = useRef(-1);
   // Config round-trips (protocol v3) resolve promises instead of flowing through the reducer —
   // settings pages await them directly; nothing renders in the transcript.
   const configId = useRef(0);
-  const configPending = useRef(new Map<number, (cfg: EngineConfig) => void>());
+  const configPending = useRef(new EngineRequests<EngineConfig>(() => ({})));
   // Catalogue round-trips share the shape but not the map: a `catalogResult` and a `configResult`
   // can be in flight at the same time (the model window opens both at once) and their ids are
   // allocated from separate counters, so one keyed map would let a config reply resolve a catalogue
   // promise with the wrong payload.
   const catalogId = useRef(0);
-  const catalogPending = useRef(new Map<number, (result: EngineCatalog) => void>());
+  const catalogPending = useRef(new EngineRequests<EngineCatalog>(error => ({ providers: [], models: [], error })));
+  const attachmentPending = useRef(new EngineRequests<AttachmentResult>(reason => ({ ok: false, chunks: 0, reason })));
 
   useEffect(() => {
-    const offMsg = window.bimax.onMessage((msg) => {
+    const cancelRequests = (reason: string): void => {
+      configPending.current.cancelAll(reason);
+      catalogPending.current.cancelAll(reason);
+      attachmentPending.current.cancelAll(reason);
+      completionQueryId.current = -1;
+    };
+    let batchThreadId: string | undefined;
+    const batcher = new StreamCoalescer({ emit: (msg) => dispatch({ type: 'outbound', msg, threadId: batchThreadId }) });
+    coalescer.current = batcher;
+    const offMsg = window.bimax.onMessage((msg, threadId) => {
+      // Read the store at delivery time: React may not have rendered the just-selected Thread yet.
+      // Check before resolving queries or buffering text, so stale replies cannot affect this view.
+      if (threadId !== store.getState().threadId) return;
       if (msg.t === 'configResult') {
-        const resolve = configPending.current.get(msg.id);
-        if (resolve) { configPending.current.delete(msg.id); resolve(msg.config as EngineConfig); }
+        configPending.current.resolve(msg.id, msg.config as EngineConfig);
         return;
       }
       if (msg.t === 'catalogResult') {
-        const resolve = catalogPending.current.get(msg.id);
-        if (resolve) {
-          catalogPending.current.delete(msg.id);
-          resolve({
+        catalogPending.current.resolve(msg.id, {
             providers: (msg as any).providers ?? [],
             models: (msg as any).models ?? [],
             error: (msg as any).error,
-          });
-        }
+        });
         return;
       }
-      dispatch({ type: 'outbound', msg });
+      if (msg.t === 'queryResult') {
+        const item = msg.items?.[0];
+        if (attachmentPending.current.resolve(msg.id, {
+          ok: item?.label === 'read', chunks: Number(item?.value || 0),
+          reason: item?.desc || (item?.label === 'read' ? '' : 'could not be read'),
+        })) return;
+      }
+      if (msg.t === 'queryResult' && msg.id !== completionQueryId.current) return;
+      // Everything the reducer consumes goes through the batcher, which merges only adjacent
+      // same-kind text deltas and flushes before anything else — so arrival order is preserved.
+      batchThreadId = threadId;
+      batcher.push(msg);
     });
-    const offState = window.bimax.onEngineState((s, d) => dispatch({ type: 'engineState', state: s, detail: d }));
-    const offProject = window.bimax.onProject((dir) => dispatch({ type: 'project', dir }));
-    void window.bimax.getProject().then((dir) => dispatch({ type: 'project', dir }));
+    const offState = window.bimax.onEngineState((s, d, threadId) => {
+      if (threadId !== store.getState().threadId) return;
+      if (['failed', 'exited', 'stopping', 'restarting'].includes(s)) cancelRequests(`Engine ${s}`);
+      // An engine-state change is not a display delta; the text produced before it must land first.
+      batcher.flush();
+      dispatch({ type: 'engineState', state: s, detail: d, threadId });
+    });
+    const offProject = window.bimax.onProject((dir) => {
+      // A different project discards the transcript, so buffered text for the old one is dropped
+      // rather than flushed into the new one's state.
+      batcher.retire();
+      cancelRequests('Project changed');
+      dispatch({ type: 'project', dir });
+    });
+    const offThread = window.bimax.threads.onSelected((value) => {
+      batcher.retire();
+      cancelRequests('Thread changed');
+      dispatch({ type: 'restoreThread', state: { ...value.state, threadId: value.id } });
+    });
     window.bimax.rendererReady();
-    return () => { offMsg(); offState(); offProject(); };
+    return () => {
+      offMsg(); offState(); offProject(); offThread();
+      cancelRequests('Renderer closed');
+      batcher.retire(); batcher.dispose(); coalescer.current = null;
+    };
   }, []);
 
   // Footer statuses are ephemeral (TUI parity): self-clear ~10s after the last update.
   useEffect(() => {
-    if (!state.status) return;
+    if (!state.status) return undefined;
     const id = setTimeout(() => dispatch({ type: 'statusClear' }), 10000);
     return () => clearTimeout(id);
   }, [state.status]);
 
-  const submit = useCallback((text: string, engineText = text) => {
+  const submit = useCallback(async (text: string, engineText = text, route?: ComputerRoute) => {
     const trimmed = text.trim();
     const engineTrimmed = engineText.trim();
     if (!trimmed) return;
+    if (route || computerRequest(trimmed) !== null) {
+      const id = store.domains.workspace.getSnapshot().threadId;
+      if (!id || !window.bimax.computer) throw new Error('Computer Use is unavailable in this conversation.');
+      const result = await window.bimax.computer.submit(id, trimmed, engineTrimmed, route || { kind: 'computer-use', mode: 'do' });
+      if (!result.ok) throw new Error(result.error || 'Could not send Computer Use task. Choose the target again.');
+      dispatch({ type: 'clearCompletions' });
+      return;
+    }
+    // Painted at once, as before threads: a turn sent to a thread whose engine is still starting, or queued
+    // behind another thread in the same folder, must not vanish until it is dispatched. The thread manager
+    // records the same turn for history and does not echo it back to this window.
     dispatch({ type: 'localUser', text: trimmed });
-    window.bimax.send({ t: 'input', text: engineTrimmed || trimmed });
+    // 'steer' (F7): while the task works the thread manager hands these words to the running turn, which takes them
+    // at its next step; when it is not working they are an ordinary message, exactly as 'input' was.
+    window.bimax.send({ t: 'steer', text: engineTrimmed || trimmed });
     dispatch({ type: 'clearCompletions' });
   }, []);
 
-  const interrupt = useCallback(() => window.bimax.send({ t: 'interrupt' }), []);
+  const interrupt = useCallback(() => {
+    // The text already arrived from the engine; the user should see it. Flush at the boundary
+    // rather than discarding a frame's worth of the reply they just stopped.
+    coalescer.current?.flush();
+    window.bimax.send({ t: 'interrupt' });
+  }, []);
 
   const setControls = useCallback((controls: Omit<ControlsMsg, 't'>) => {
     window.bimax.send({ t: 'controls', ...controls });
@@ -347,17 +153,52 @@ export function useEngine() {
   // local user bubble — the engine's own messages/status are the feedback.
   const sendCommand = useCallback((text: string) => {
     const trimmed = text.trim();
-    if (trimmed) window.bimax.send({ t: 'input', text: trimmed });
+    if (!trimmed) return;
+    // A palette command issued AFTER a clear is a real interaction and its output must render, so
+    // the fence lifts here too. `newTask` sends `/clear force` through this same path, but the
+    // engine's `clear` event lands afterwards and re-arms the fence — the ordering works out.
+    dispatch({ type: 'turnStarted' });
+    window.bimax.send({ t: 'input', text: trimmed });
   }, []);
 
   const query = useCallback((text: string) => {
     const id = ++queryId.current;
+    completionQueryId.current = id;
     window.bimax.send({ t: 'query', id, text });
   }, []);
 
+  /**
+   * Read an attached file into the Composer NOW, and resolve with what came back.
+   *
+   * Rides the `query` request/response channel with a reserved prefix, so attaching a file needs no
+   * new protocol message and no version bump. The point is timing: a file must be read the moment it
+   * is attached, the way every assistant people already use behaves. Deferring to send time is what
+   * made the model appear to go and find the file — the path travelled in the prompt and the reading
+   * happened as visible work inside the turn.
+   */
+  const ingestAttachment = useCallback((filePath: string): Promise<AttachmentResult> => {
+    const id = ++queryId.current;
+    return attachmentPending.current.request(id, 120_000, 'engine did not answer', () => {
+      window.bimax.send({ t: 'query', id, text: `\u0000composer:ingest:${filePath}` });
+    });
+  }, []);
+
   const reply = useCallback((id: number, value: string) => {
-    window.bimax.send({ t: 'reply', id, value });
-    dispatch({ type: 'closeRequest' });
+    const current = store.getState();
+    const token = (current.request as any)?.approvalToken;
+    if (!current.threadId || current.request?.id !== id || !token) return;
+    const threadId = current.threadId;
+    const close = (): void => dispatch({ type: 'closeRequest', threadId, id, approvalToken: token });
+    void window.bimax.threads.reply(threadId, id, value, token).then(async (ok) => {
+      if (ok) { close(); return; }
+      // Refused: it was answered somewhere else or went with its turn. A card that can no longer be answered used to stay
+      // on screen for good; it stays only while the thread really still waits on it.
+      const open = await window.bimax.threads.approvals().catch(() => null);
+      if (!open) return;
+      if (!open.some((a: { threadId: string; request: { id: number } }) => a.threadId === threadId && a.request.id === id)) {
+        close();
+      }
+    }).catch(() => { /* Leave the current card available for a retry when the bridge fails. */ });
   }, []);
 
   const menuSelect = useCallback((id: string, value: string) => {
@@ -365,19 +206,14 @@ export function useEngine() {
     dispatch({ type: 'menuChosen', id, value });
   }, []);
 
-  const clearCompletions = useCallback(() => dispatch({ type: 'clearCompletions' }), []);
+  const clearCompletions = useCallback(() => {
+    completionQueryId.current = -1;
+    dispatch({ type: 'clearCompletions' });
+  }, []);
 
   const configRoundTrip = useCallback((send: (id: number) => void): Promise<EngineConfig> => {
     const id = ++configId.current;
-    return new Promise<EngineConfig>((resolve) => {
-      configPending.current.set(id, resolve);
-      send(id);
-      // Old engine (pre-v3) never answers — resolve empty after 3s so settings shows its
-      // "engine too old" state instead of spinning forever.
-      setTimeout(() => {
-        if (configPending.current.has(id)) { configPending.current.delete(id); resolve({}); }
-      }, 3000);
-    });
+    return configPending.current.request(id, 3000, 'engine did not answer', () => send(id));
   }, []);
 
   const configGet = useCallback(
@@ -398,20 +234,18 @@ export function useEngine() {
    */
   const catalogRoundTrip = useCallback((send: (id: number) => void): Promise<EngineCatalog> => {
     const id = ++catalogId.current;
-    return new Promise<EngineCatalog>((resolve) => {
-      catalogPending.current.set(id, resolve);
-      send(id);
-      setTimeout(() => {
-        if (catalogPending.current.has(id)) {
-          catalogPending.current.delete(id);
-          resolve({
-            providers: [],
-            models: [],
-            error: 'The provider catalogue did not answer within 9 seconds. Check the provider key or endpoint, then retry.',
-          });
-        }
-      }, 9000);
-    });
+    return catalogPending.current.request(id, CATALOG_TIMEOUT_MS,
+      // 9s was shorter than this app's own measured cold start (15-20s, see the prewarm/boot-phase
+      // work) — so opening the model picker soon after launch timed out while the engine was still
+      // coming up, and the message blamed the provider key. Measured 2026-09-04 on a healthy setup:
+      // the provider's /models answered in 0.14s, the picker still showed "0 available models", and
+      // the stated cause sent the user to check a key that was never the problem.
+      //
+      // The window now clears a cold start, and the message says what the timeout actually proves —
+      // that the ENGINE did not answer — instead of naming a cause it has no evidence for.
+      `The engine did not answer the catalogue request within ${Math.round(CATALOG_TIMEOUT_MS / 1000)} seconds. `
+        + 'It may still be starting up — retry in a moment. If it keeps failing, check the provider key or endpoint.',
+      () => send(id));
   }, []);
 
   const catalogGet = useCallback(
@@ -426,7 +260,7 @@ export function useEngine() {
   );
 
   return {
-    state, submit, interrupt, setControls, sendCommand, query, reply, menuSelect, clearCompletions,
+    state, store, submit, interrupt, setControls, sendCommand, query, ingestAttachment, reply, menuSelect, clearCompletions,
     configGet, configSet, catalogGet, providerSet,
   };
 }

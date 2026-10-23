@@ -68,35 +68,65 @@ export function useSeedRef(): SeedHandle {
  * from a different control fly from the right place. This is Prompt 1 §15's `MorphOrigin` with the
  * rect left out: the rect is derived when it is wanted, never stored, so the trip home lands on the
  * control as it is now rather than as it was.
+ *
+ * A press *inside the surface itself* never replaces the latch. The model window's Done button is the
+ * freshest press when the window closes, and latching it folded the window into its own footer — the
+ * owner saw it "close on the Done button, the wrong place" (2026-10-01). `surface` names the element
+ * whose own controls are not origins.
  */
-export function intentSeed(): SeedHandle {
+export function intentSeed(surface: () => Element | null = () => null): SeedHandle {
   let latched: HTMLElement | null = null;
   let latchedAt = 0;
   let latchedRect: DOMRect | null = null;
+  let home: HTMLElement | null = null;
 
   return {
     ref: () => {},
     current: () => (latched?.isConnected ? latched : null),
     measure: () => {
       const intent = recentIntent();
-      // Anything fresher than what we hold is the cause of whatever is happening now.
-      if (intent && intent.at > latchedAt) {
+      // Anything fresher than what we hold is the cause of whatever is happening now — unless it was
+      // pressed inside the surface, which cannot have come out of its own button.
+      const own = intent?.element ? surface()?.contains(intent.element) === true : false;
+      if (intent && intent.at > latchedAt && !own) {
         latched = intent.element;
         latchedAt = intent.at;
         latchedRect = intent.rect;
+        // Read now, while the pressed row is still in its menu: by the time this surface closes, the menu is gone.
+        home = homeOf(intent.element);
       }
 
       const live = measureElement(latched);
       if (live) return live;
-      // The control has gone (its pane collapsed, its menu closed) — fall back to where it was.
+      // A row of a menu that has closed: its menu's button is where the surface came from. Folding into the row's old
+      // rect instead left a glass box hanging in empty space and then vanishing — the model window, opened from the
+      // Model menu's "Change model…", did exactly that (owner, 2026-10-01: "flickers when closing and has not actual
+      // closing seed").
+      const back = measureElement(home);
+      if (back) return back;
+      // The control has gone and has no home on screen. Only an *opening* may still use where it was — the press that
+      // explains it is fresh, and the eye is still on that spot. A close folding into the old rect lands a glass box in
+      // empty space that then vanishes (the model window, opened from Settings, did: owner, 2026-10-01). With no seed
+      // the surface instead shrinks a little where it is and fades (`paintSurface`), which is the honest close.
       // The corner cannot be read off an element that is no longer there, and a pill is the safe
       // assumption: every control in this app that opens a surface is a pill or a rounded rect, and
       // starting slightly too round reads as a control while starting too square reads as a box.
-      return latchedRect
+      const fresh = intent !== null && intent.at === latchedAt;
+      return latchedRect && fresh
         ? fromRect(latchedRect, Math.min(latchedRect.width, latchedRect.height) / 2)
         : null;
     },
   };
+}
+
+/**
+ * The button of the surface an element sits in, or null: a `SeedMenu`'s panel and the Settings dialog name theirs in
+ * `data-seed-trigger`. Settings names the sidebar's Settings button, wherever Settings was opened from (⌘, included):
+ * that button is where Settings lives.
+ */
+export function homeOf(element: Element | null): HTMLElement | null {
+  const id = element?.closest('[data-seed-trigger]')?.getAttribute('data-seed-trigger');
+  return id ? document.getElementById(id) : null;
 }
 
 /**
@@ -106,6 +136,9 @@ export function intentSeed(): SeedHandle {
  * on every unrelated keystroke in the app — and `MorphSurface` takes the handle as an effect
  * dependency, so it would also re-run the resize wiring each time.
  */
-export function useIntentSeed(): SeedHandle {
-  return useMemo(() => intentSeed(), []);
+export function useIntentSeed(surface?: () => Element | null): SeedHandle {
+  // Through a ref, so the handle (and its latch) keeps one identity while the caller's arrow changes every render.
+  const latest = useRef(surface);
+  latest.current = surface;
+  return useMemo(() => intentSeed(() => latest.current?.() ?? null), []);
 }

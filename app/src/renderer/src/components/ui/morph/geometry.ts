@@ -380,6 +380,32 @@ function clamp(value: number, low: number, high: number): number {
 }
 
 /**
+ * The vertical edge of a box, as a zero-width origin.
+ *
+ * This is what a structural region grows out of: the sidebar's left edge, the inspector's right one.
+ * It is a *seed* like any other — the five springs do not know the difference — but because only `x`
+ * and `width` differ from the destination, the flight is a pure width transition. The far edge sits
+ * still and the near one sweeps across, which is Prompt 2 §76's "edge movement, not object scaling"
+ * expressed as geometry rather than as a special case in the driver.
+ *
+ * Zero width, not one pixel: a 1px sliver of glass at the window edge is visible for the first few
+ * frames and reads as a hairline artefact. Nothing downstream divides by it — `travelBetween` floors
+ * both the diagonal and the aspect, and the reveal is normalized against the *largest* span, which
+ * here is the width.
+ */
+export function edgeOf(box: MorphGeometry, side: 'left' | 'right'): MorphGeometry {
+  return {
+    x: side === 'left' ? box.x : box.x + box.width,
+    y: box.y,
+    width: 0,
+    height: box.height,
+    // The corner belongs to the panel, not to the edge. A zero-width box with a 12px radius paints
+    // nothing at all, and interpolating up from 0 means the corner arrives with the width.
+    radius: 0,
+  };
+}
+
+/**
  * Move a seed inside a container without resizing it.
  *
  * Carried over from v1, where it earned its place: a bar seeded from a toggle in the title bar would

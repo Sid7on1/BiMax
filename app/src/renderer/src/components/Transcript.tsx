@@ -1,31 +1,20 @@
-import React, { useMemo, useRef, useState } from 'react';
+import { ThinkingIndicator } from './ThinkingIndicator';
+import React, { createContext, useContext, useMemo, useRef, useState } from 'react';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 import {
-  Loader, CircleCheck, CircleX, ChevronRight, ChevronDown, Pencil, SearchCode, ArrowDown,
-  Copy, Check, Volume2, ThumbsUp, ThumbsDown,
+  Loader, CircleCheck, CircleX, CircleAlert, CircleStop, ChevronRight, ChevronDown, Pencil, SearchCode, ArrowDown,
+  Copy, Check, X, Volume2, ThumbsUp, ThumbsDown,
 } from 'lucide-react';
-import { TranscriptItem } from '../useEngine';
+import { TranscriptItem } from '../engine.state';
+import { EngineStore } from '../engine.store';
+import { useEngineDomain } from '../useEngineDomain';
 import { MessageEntry, ToolCallEntry } from '../protocol';
 import { Markdown } from '../markdown';
+import { copyText } from '../copy.text';
 import { Dashboard } from './Dashboards';
 import { cn } from '../lib/cn';
-import { inspectActionReceipt, type ActionReceiptView } from '../receipt.inspector';
-import { isMacToolCall, describeMacAction } from '../mac.session.model';
-
-/** Plain-language label for a Mac provider call, or '' when the call is ordinary coding work. */
-function macCallLabel(call: ToolCallEntry): string {
-  if (!isMacToolCall(call)) return '';
-  let payload: Record<string, unknown> | null = null;
-  try {
-    const parsed = JSON.parse(call.output);
-    payload = parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : null;
-  } catch { payload = null; }
-  const action = String(payload?.action || (call.input.match(/"action"\s*:\s*"([a-z_]+)"/i)?.[1] ?? ''));
-  if (!action) return '';
-  return payload?.code === 'computer_use_paused'
-    ? `Refused ${describeMacAction(action, payload).toLowerCase()} — you have control`
-    : describeMacAction(action, payload);
-}
+import type { RunSummary } from '../run.summary.model';
+import { toolDisplayName, computerUseActivity } from '../tool.display';
 
 /**
  * Transcript v2 — virtualized scrollback (day-long sessions stay smooth), consecutive tool
@@ -36,7 +25,8 @@ function macCallLabel(call: ToolCallEntry): string {
 type Row =
   | { kind: 'msg'; key: string; item: Extract<TranscriptItem, { kind: 'msg' }> }
   | { kind: 'tool'; key: string; call: ToolCallEntry }
-  | { kind: 'group'; key: string; kindOf: 'edit' | 'explore'; calls: ToolCallEntry[] };
+  | { kind: 'group'; key: string; kindOf: 'edit' | 'explore'; calls: ToolCallEntry[] }
+  | { kind: 'summary'; key: string; summary: RunSummary };
 
 const MUTATING = /edit|write|patch/i;
 const READONLY = /read|grep|glob|search|graph|list|^ls$|find|related|map|impact/i;
@@ -48,7 +38,7 @@ function classify(name: string): 'edit' | 'explore' | null {
 }
 
 /** Fold consecutive same-category tool calls (per agent) into groups of ≥2. */
-function buildRows(items: TranscriptItem[]): Row[] {
+export function buildRows(items: TranscriptItem[]): Row[] {
   const rows: Row[] = [];
   let run: { kindOf: 'edit' | 'explore'; parent: string; calls: ToolCallEntry[] } | null = null;
 
@@ -86,6 +76,12 @@ function buildRows(items: TranscriptItem[]): Row[] {
         && it.msg.level !== 'error'
         && !it.msg.uiComponent;
       if (chatter) continue;
+      // A capability notice is a standing condition, not turn content: CapabilityBanner shows it and
+      // removes it when the engine reports the capability ready. In scrollback the "degraded" warning
+      // stayed forever while its "recovered" twin (level success) was dropped as chatter — every
+      // folder opened with "Code index: degraded. Indexing 1 changed or new files…" pinned on top,
+      // though indexing had finished in the same millisecond. The ⌘2 bar already skips these.
+      if (it.msg.role === 'system' && it.msg.payload?.capabilityStatus) continue;
       flush();
       rows.push({ kind: 'msg', key: it.msg.id, item: it });
     }
@@ -125,14 +121,16 @@ const TOOL_VERBS: Array<[RegExp, string]> = [
 ];
 
 function toolVerb(name: string): string {
+  if (name === 'BimaxCuTool') return toolDisplayName(name);
   for (const [pattern, verb] of TOOL_VERBS) if (pattern.test(name)) return verb;
   return name.replace(/Tool$/, '');
 }
 
 /** The one argument worth reading: a path, a command, or a query. */
 function toolSubject(call: ToolCallEntry): string {
+  if (call.toolName === 'BimaxCuTool') return computerUseActivity(call.input || '');
   const raw = call.input || '';
-  let parsed: Record<string, unknown> | null = null;
+  let parsed: Record<string, unknown> | null;
   try {
     const value = JSON.parse(raw);
     parsed = value && typeof value === 'object' && !Array.isArray(value) ? value : null;
@@ -144,87 +142,88 @@ function toolSubject(call: ToolCallEntry): string {
   return fileOf(raw) || truncate(raw.replace(/[{}"]/g, ' ').trim(), 80);
 }
 
-export function Transcript({
-  items, streaming, thinking, busy, onMenuSelect,
-}: {
-  items: TranscriptItem[];
-  streaming: string;
-  thinking: string;
-  /** The run is in flight. Drives the one liveness cue left after the task strip was removed. */
-  busy: boolean;
-  onMenuSelect: (id: string, value: string) => void;
-}): React.ReactElement {
-  const rows = useMemo(() => buildRows(items), [items]);
-  const virtuosoRef = useRef<VirtuosoHandle>(null);
-  const [atBottom, setAtBottom] = useState(true);
+const TranscriptEngine = createContext<EngineStore | null>(null);
 
-  if (items.length === 0 && !streaming) {
-    return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-1.5 select-none">
-        <div className="bimax-wordmark text-[20px]">BiMAX</div>
-        <div className="text-dim">
-          Ask anything about this project — or type{' '}
-          <code className="font-mono text-ember">/</code> for commands.
-        </div>
-      </div>
-    );
-  }
-
+// Stable component identity: text updates must not remount the footer or virtualized rows.
+function StreamFooter(): React.ReactElement {
+  const store = useContext(TranscriptEngine);
+  if (!store) throw new Error('Transcript engine is missing');
+  const { streaming, thinking, busy, status } = useEngineDomain(store.domains.stream);
   return (
-    <div className="relative min-h-0 flex-1">
-      <Virtuoso
-        ref={virtuosoRef}
-        data={rows}
-        computeItemKey={(_, row) => row.key}
-        followOutput={(isAtBottom) => (isAtBottom ? 'auto' : false)}
-        atBottomStateChange={setAtBottom}
-        atBottomThreshold={48}
-        initialTopMostItemIndex={Math.max(rows.length - 1, 0)}
-        className="h-full overscroll-contain"
-        itemContent={(_, row) => <RowView row={row} onMenuSelect={onMenuSelect} />}
-        components={{
-          Header: () => <div className="h-4" />,
-          Footer: () => (
-            <div className="px-4 pb-3">
-              {thinking && (
-                <div className="reading-column mx-auto mb-3.5 truncate text-xs text-faint italic">
-                  <span className="mr-1.5 inline-block size-1.5 animate-soft-blink rounded-full bg-ember" />
-                  thinking… <span className="opacity-70">{thinking.slice(-200)}</span>
-                </div>
-              )}
-              {/* The only liveness cue left now that the task strip is gone. It sits in the flow of
-                  the conversation rather than in a bar above it, and it says nothing but that the
-                  run is alive — which is exactly the thing a silent two-minute wait cannot say. */}
-              {busy && !streaming && !thinking && (
-                <div className="reading-column mx-auto mb-3.5 flex items-center gap-2 text-xs text-faint">
-                  <span className="inline-block size-1.5 animate-soft-blink rounded-full bg-ember" />
-                  Working…
-                </div>
-              )}
-              {streaming && (
-                <div className="reading-column mx-auto">
-                  <Markdown text={streaming} />
-                  <span className="animate-soft-blink text-ember">▋</span>
-                </div>
-              )}
-            </div>
-          ),
-        }}
-      />
-      {!atBottom && (
-        <button
-          onClick={() => virtuosoRef.current?.scrollToIndex({ index: 'LAST', behavior: 'smooth' })}
-          className="absolute bottom-3 left-1/2 flex -translate-x-1/2 cursor-pointer items-center gap-1.5 rounded-full border border-line bg-raise px-3 py-1 text-xs text-dim shadow-lg hover:text-ink"
-        >
-          <ArrowDown size={12} />
-          Jump to latest
-        </button>
+    <div className="px-4 pb-3">
+      {/* While a turn is in flight and no answer text has arrived: a rotating status word, the elapsed
+          time, and the tail of the reasoning as it streams. The reasoning used to be hidden outright
+          because a looping model rendered its token loop ("ellsellsells…") straight into the transcript;
+          ThinkingIndicator keeps the stream visible and hides it only once it has degenerated, which is
+          the case that motivated hiding it. */}
+      {busy && !streaming && <ThinkingIndicator thinking={thinking} status={status} />}
+      {streaming && (
+        <div className="reading-column mx-auto">
+          <Markdown text={streaming} streaming />
+          <span className="animate-soft-blink text-ember">▋</span>
+        </div>
       )}
     </div>
   );
 }
 
-function RowView({ row, onMenuSelect }: { row: Row; onMenuSelect: (id: string, value: string) => void }): React.ReactElement {
+const transcriptComponents = {
+  Header: () => <div className="h-4" />,
+  Footer: StreamFooter,
+};
+
+export function Transcript({
+  items, store, onMenuSelect, summary, onReview,
+}: {
+  items: TranscriptItem[];
+  store: EngineStore;
+  onMenuSelect: (id: string, value: string) => void;
+  /** What the latest run did, once it has finished (run.summary.model.ts); the conversation ends on it. */
+  summary?: RunSummary | null;
+  /** Open the right panel on Review. */
+  onReview?: () => void;
+}): React.ReactElement {
+  const rows = useMemo<Row[]>(
+    () => (summary ? [...buildRows(items), { kind: 'summary', key: summary.key, summary }] : buildRows(items)),
+    [items, summary],
+  );
+  const virtuosoRef = useRef<VirtuosoHandle>(null);
+  const [atBottom, setAtBottom] = useState(true);
+
+  return (
+    <TranscriptEngine.Provider value={store}>
+      <div className="relative min-h-0 flex-1">
+        <Virtuoso
+          ref={virtuosoRef}
+          data={rows}
+          computeItemKey={(_, row) => row.key}
+          followOutput={(isAtBottom) => (isAtBottom ? 'auto' : false)}
+          atBottomStateChange={setAtBottom}
+          atBottomThreshold={48}
+          initialTopMostItemIndex={Math.max(rows.length - 1, 0)}
+          className="h-full overscroll-contain"
+          itemContent={(_, row) => <RowView row={row} onMenuSelect={onMenuSelect} onReview={onReview} />}
+          components={transcriptComponents}
+        />
+        {!atBottom && (
+          <button
+            onClick={() => virtuosoRef.current?.scrollToIndex({ index: 'LAST', behavior: 'smooth' })}
+            className="absolute bottom-3 left-1/2 flex -translate-x-1/2 cursor-pointer items-center gap-1.5 rounded-full border border-line bg-raise px-3 py-1 text-xs text-dim shadow-lg hover:text-ink"
+          >
+            <ArrowDown size={12} />
+            Jump to latest
+          </button>
+        )}
+      </div>
+    </TranscriptEngine.Provider>
+  );
+}
+
+function RowView({ row, onMenuSelect, onReview }: {
+  row: Row;
+  onMenuSelect: (id: string, value: string) => void;
+  onReview?: () => void;
+}): React.ReactElement {
   // The gap lives here, once, so every row type is spaced identically — a message, a tool card and
   // a folded activity group used to each carry their own margin and none of them agreed.
   return (
@@ -232,6 +231,7 @@ function RowView({ row, onMenuSelect }: { row: Row; onMenuSelect: (id: string, v
       {row.kind === 'msg' && <Message item={row.item} onMenuSelect={onMenuSelect} />}
       {row.kind === 'tool' && <ToolCard call={row.call} />}
       {row.kind === 'group' && <ActivityGroup kindOf={row.kindOf} calls={row.calls} />}
+      {row.kind === 'summary' && <RunSummaryRow summary={row.summary} onReview={onReview} />}
     </div>
   );
 }
@@ -270,7 +270,8 @@ function Message({
   if (msg.role === 'user') {
     return (
       <div className="group reading-column mx-auto flex flex-col items-end">
-        <div className="max-w-[78%] rounded-[18px] bg-raise px-4 py-2.5 text-ink">
+        {/* The same measure as a reply's text (styles.css, `.md`): 34em of text plus the bubble's 32px of padding. */}
+        <div className="max-w-[min(78%,calc(34em+32px))] rounded-[18px] bg-raise px-4 py-2.5 text-ink">
           <Markdown text={msg.content} />
         </div>
         <MessageActions text={msg.content} id={msg.id} align="right" />
@@ -310,7 +311,8 @@ function MessageActions({
   );
 
   const copy = (): void => {
-    void navigator.clipboard.writeText(text).then(() => {
+    void copyText(text).then((ok) => {
+      if (!ok) return;
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1400);
     });
@@ -392,7 +394,7 @@ function ThoughtLine({ ms, text }: { ms: number; text?: string }): React.ReactEl
     <div className="mb-1">
       <button
         onClick={() => text && setOpen((v) => !v)}
-        className={cn('flex items-center gap-1 text-xs text-faint italic', text && 'cursor-pointer hover:text-dim')}
+        className={cn('hit-24 flex items-center gap-1 text-xs text-faint italic', text && 'cursor-pointer hover:text-dim')}
       >
         {text ? (open ? <ChevronDown size={11} /> : <ChevronRight size={11} />) : null}
         Thought for {(ms / 1000).toFixed(1)}s
@@ -407,6 +409,88 @@ function ThoughtLine({ ms, text }: { ms: number; text?: string }): React.ReactEl
 }
 
 /** "Edited 3 files · 5 edits" / "Explored 7 files" chip folding a run of tool calls. */
+/**
+ * True once `active` has gone from true to false while this row was on screen: a finish the person watched (UI fix
+ * list item 24). A row that mounts already finished — history, or scrolled back into view — never animates.
+ * Worked out during render, not in an effect, so the settle starts on the same frame the icon changes.
+ */
+export function useJustFinished(active: boolean): boolean {
+  const tracker = useRef<((active: boolean) => boolean) | null>(null);
+  tracker.current ??= finishTracker(active);
+  return tracker.current(active);
+}
+
+/** The rule behind `useJustFinished`, pure: once it has seen `active` go from true to false, it answers true. */
+export function finishTracker(initiallyActive: boolean): (active: boolean) => boolean {
+  let previous = initiallyActive;
+  let finished = false;
+  return (active) => {
+    if (previous && !active) finished = true;
+    previous = active;
+    return finished;
+  };
+}
+
+const VERDICT_ICON: Record<RunSummary['verdict'], React.ReactElement> = {
+  verified: <CircleCheck size={13} className="text-moss" />,
+  failed: <CircleX size={13} className="text-rust" />,
+  unchecked: <CircleAlert size={13} className="text-amber" />,
+  'no-check-needed': <Check size={13} className="text-dim" />,
+  stopped: <CircleStop size={13} className="text-dim" />,
+};
+
+/**
+ * The line a run ends on (UI fix list item 41): what changed and whether it was checked, in words as well as an icon,
+ * with what is left to do and the way to Review. The files and checks are behind the disclosure, like a tool row's
+ * output — one quiet inline language, not a second card system (docs/product-reset/04_FRONTEND_PLAN.md).
+ */
+export function RunSummaryRow({ summary, onReview }: { summary: RunSummary; onReview?: () => void }): React.ReactElement {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="run-summary reading-column mx-auto" data-verdict={summary.verdict}>
+      <div className="flex items-center gap-1">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          className="-ml-1 flex min-h-7 min-w-0 flex-1 cursor-pointer items-center gap-2 rounded-md px-1.5 py-1 text-left text-[12px] text-dim transition-colors hover:bg-hover/55 hover:text-ink"
+        >
+          <span className="inline-flex shrink-0">{VERDICT_ICON[summary.verdict]}</span>
+          <span className="min-w-0 truncate text-ink/90">{summary.headline}</span>
+          <ChevronRight size={12} className={cn('shrink-0 text-faint transition-transform', open && 'rotate-90')} />
+        </button>
+        {onReview ? (
+          <button
+            type="button"
+            onClick={onReview}
+            className="min-h-7 shrink-0 cursor-pointer rounded-md px-2 text-[11.5px] text-dim transition-colors hover:bg-hover/55 hover:text-ink"
+          >
+            Review
+          </button>
+        ) : null}
+      </div>
+      {summary.next ? <p className="mt-0.5 pl-[22px] text-[11.5px] text-faint">{summary.next}</p> : null}
+      {open ? (
+        <div className="mt-1.5 ml-[7px] space-y-0.5 border-l border-line/70 pl-3 text-[11.5px] text-dim">
+          {summary.files.map((f) => (
+            <div key={f.file} className="flex min-w-0 items-baseline gap-2">
+              <span className="min-w-0 truncate font-mono text-[11px] text-ink/85">{f.file}</span>
+              <span className="shrink-0 text-faint tabular-nums">{f.edits} edit{f.edits === 1 ? '' : 's'}</span>
+            </div>
+          ))}
+          {summary.checks.length ? summary.checks.map((c, i) => (
+            <div key={`${i}-${c.command}`} className="flex min-w-0 items-center gap-1.5">
+              {c.ok ? <Check size={11} className="shrink-0 text-moss" /> : <X size={11} className="shrink-0 text-rust" />}
+              <span className="min-w-0 truncate font-mono text-[11px]">{c.command}</span>
+              <span className={cn('shrink-0', c.ok ? 'text-faint' : 'text-rust')}>{c.ok ? 'passed' : 'failed'}</span>
+            </div>
+          )) : <div className="text-faint">No build or test ran during this run.</div>}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function ActivityGroup({ kindOf, calls }: { kindOf: 'edit' | 'explore'; calls: ToolCallEntry[] }): React.ReactElement {
   const [open, setOpen] = useState(false);
   const files = new Set<string>();
@@ -414,8 +498,12 @@ function ActivityGroup({ kindOf, calls }: { kindOf: 'edit' | 'explore'; calls: T
   const running = calls.some((c) => c.status === 'running');
   const failed = calls.some((c) => c.status === 'error');
   const nested = !!calls[0].parentId;
+  const settled = useJustFinished(running);
 
-  const label = kindOf === 'edit'
+  const label = failed
+    ? `${calls.filter(c => c.status === 'error').length} failed attempt${calls.filter(c => c.status === 'error').length === 1 ? '' : 's'} · ${calls.filter(c => c.status === 'success').length} succeeded`
+    : running ? `${calls.length} operation${calls.length === 1 ? '' : 's'} in progress`
+    : kindOf === 'edit'
     ? `Edited ${files.size || calls.length} file${(files.size || calls.length) === 1 ? '' : 's'} · ${calls.length} edit${calls.length === 1 ? '' : 's'}`
     : `Explored ${files.size || calls.length} ${files.size ? 'file' : 'location'}${(files.size || calls.length) === 1 ? '' : 's'}`;
 
@@ -425,11 +513,13 @@ function ActivityGroup({ kindOf, calls }: { kindOf: 'edit' | 'explore'; calls: T
         onClick={() => setOpen((v) => !v)}
         className="-ml-1 flex cursor-pointer items-center gap-2 rounded-md px-1.5 py-1 text-[12px] text-dim transition-colors hover:bg-hover/55 hover:text-ink"
       >
-        {running
-          ? <Loader size={12} className="animate-spin text-amber" />
-          : failed
-            ? <CircleX size={12} className="text-rust" />
-            : kindOf === 'edit' ? <Pencil size={12} className="text-moss" /> : <SearchCode size={12} className="text-dim" />}
+        <span className={cn('inline-flex shrink-0', settled && 'status-settle')}>
+          {running
+            ? <Loader size={12} className="animate-spin text-amber" />
+            : failed
+              ? <CircleX size={12} className="text-rust" />
+              : kindOf === 'edit' ? <Pencil size={12} className="text-moss" /> : <SearchCode size={12} className="text-dim" />}
+        </span>
         <span>{label}</span>
         {open ? <ChevronDown size={12} className="text-faint" /> : <ChevronRight size={12} className="text-faint" />}
       </button>
@@ -449,20 +539,44 @@ function MenuCard({
   chosen?: string;
   onSelect: (id: string, value: string) => void;
 }): React.ReactElement {
-  const { title, options } = msg.payload as { title: string; options: { label: string; value: string; desc?: string }[] };
+  const { id, title, options } = msg.payload as {
+    id?: string; title: string; options: { label: string; value: string; desc?: string }[];
+  };
+  // Reply with the id the ENGINE keyed its menu registry on. That lives in the payload; `msg.id` is
+  // only a transcript key and matched nothing engine-side, so every menu with a real `onSelect`
+  // (model picker, /undo, rule delete, goals) fell through to "dispatch the value as a command" and
+  // an option whose value isn't a command silently did nothing. Fall back for older payloads.
+  const replyId = id ?? msg.id;
+
+  // Once answered, a menu is history, not a control surface. Collapse it to the one line that still
+  // carries meaning — leaving the full list of dead buttons on screen is the terminal's behaviour,
+  // where nothing can be redrawn after it is printed.
+  if (chosen !== undefined) {
+    const picked = (options || []).find((o) => o.value === chosen);
+    return (
+      <div className="reading-column mx-auto flex items-center gap-2 text-[12.5px] text-dim">
+        <Check size={13} className="shrink-0 text-moss" />
+        <span className="truncate">
+          {title}
+          <span className="text-faint"> · </span>
+          <span className="text-ink/80">
+            {picked ? picked.label : chosen === '__replayed__' ? 'no longer active' : 'dismissed'}
+          </span>
+        </span>
+      </div>
+    );
+  }
+
   return (
     <div className="reading-column mx-auto rounded-[10px] border border-line bg-raise p-3">
       <div className="mb-2.5 font-semibold">{title}</div>
       {(options || []).map((o, i) => (
         <button
           key={i}
-          disabled={chosen !== undefined}
-          onClick={() => onSelect(msg.id, o.value)}
+          onClick={() => onSelect(replyId, o.value)}
           className={cn(
             'mb-1.5 flex w-full cursor-pointer flex-col items-start gap-0.5 rounded-lg border border-line px-3 py-2 text-left',
-            'enabled:hover:border-ember enabled:hover:bg-ember/15',
-            chosen !== undefined && 'cursor-default opacity-45',
-            chosen === o.value && 'border-ember opacity-100',
+            'hover:border-ember hover:bg-ember/15',
           )}
         >
           <span className="font-medium">{o.label}</span>
@@ -475,17 +589,16 @@ function MenuCard({
 
 function ToolCard({ call, inGroup }: { call: ToolCallEntry; inGroup?: boolean }): React.ReactElement {
   const [open, setOpen] = useState(false);
-  const screenshot = computerScreenshot(call);
-  const receipt = call.status === 'success' ? inspectActionReceipt(call.output) : null;
-  const mac = macCallLabel(call);
+  const visualStatus = call.status;
+  const settled = useJustFinished(visualStatus === 'running');
   const icon =
-    call.status === 'running' ? <Loader size={13} className="animate-spin text-amber" />
-    : call.status === 'success' ? <CircleCheck size={13} className="text-moss" />
+    visualStatus === 'running' ? <Loader size={13} className="animate-spin text-amber" />
+    : visualStatus === 'success' ? <CircleCheck size={13} className="text-moss" />
     : <CircleX size={13} className="text-rust" />;
   const secs = call.endTime
     ? Math.max(0, (new Date(call.endTime).getTime() - new Date(call.startTime).getTime()) / 1000)
     : null;
-  const subject = mac ? '' : toolSubject(call);
+  const subject = toolSubject(call);
   return (
     <div className={cn(inGroup && 'mb-1.5', !inGroup && 'reading-column mx-auto', !inGroup && call.parentId && 'pl-[22px]')}>
       <button
@@ -493,19 +606,14 @@ function ToolCard({ call, inGroup }: { call: ToolCallEntry; inGroup?: boolean })
         aria-expanded={open}
         className={cn(
           'group -ml-1 flex min-h-7 w-[calc(100%+4px)] cursor-pointer items-center gap-2 rounded-md px-1.5 py-1 text-left text-[12px] transition-colors',
-          call.status === 'error' ? 'text-rust hover:bg-rust/5' : 'text-dim hover:bg-hover/55',
+          visualStatus === 'error' ? 'text-rust hover:bg-rust/5' : 'text-dim hover:bg-hover/55',
         )}
       >
-        <span className="shrink-0">{icon}</span>
-        {/* A Mac action reads as an intent, not as a tool name plus its JSON arguments. */}
-        {mac ? (
-          <span className="min-w-0 flex-1 truncate text-dim group-hover:text-ink">{mac}</span>
-        ) : (
-          <span className="flex min-w-0 flex-1 items-baseline gap-1.5">
-            <span className="shrink-0 text-dim">{toolVerb(call.toolName)}</span>
-            {subject ? <span className="min-w-0 truncate font-mono text-[11px] text-ink/85">{subject}</span> : null}
-          </span>
-        )}
+        <span className={cn('inline-flex shrink-0', settled && 'status-settle')}>{icon}</span>
+        <span className="flex min-w-0 flex-1 items-baseline gap-1.5">
+          <span className="shrink-0 text-dim">{call.status === 'error' ? `${toolDisplayName(call.toolName)} failed` : call.status === 'running' ? toolDisplayName(call.toolName) : toolVerb(call.toolName)}</span>
+          {subject ? <span className="min-w-0 truncate font-mono text-[11px] text-ink/85">{subject}</span> : null}
+        </span>
         {call.agentLabel ? (
           <span className="shrink-0 text-[10px] text-faint">
             {call.agentLabel}
@@ -516,19 +624,12 @@ function ToolCard({ call, inGroup }: { call: ToolCallEntry; inGroup?: boolean })
         ) : null}
         <ChevronRight size={12} className={cn('shrink-0 text-faint transition-transform', open && 'rotate-90')} />
       </button>
+      {!!call.parts?.length && <div className="tool-presentation">{call.parts.map(part => part.kind === 'output' ? <button key={part.id} onClick={() => window.dispatchEvent(new CustomEvent('bimax:open-output',{detail:{id:part.outputId,version:part.versionId}}))}>Open {part.title}</button> : part.kind === 'image' ? <img key={part.id} className="rich-image" src={`data:${part.mimeType};base64,${part.data}`} alt="Tool result" /> : part.kind === 'data' ? <details key={part.id}><summary>Structured result</summary><pre>{JSON.stringify(part.value,null,2)}</pre></details> : part.kind === 'resource' ? <details key={part.id}><summary>{part.title || part.uri}</summary>{part.text ? <Markdown text={part.text} /> : <p>{part.mimeType || 'Resource metadata'} · {part.uri}</p>}</details> : <button key={part.id} onClick={() => window.dispatchEvent(new CustomEvent('bimax:open-mcp-app',{detail:part}))}>Open tool interface</button>)}</div>}
       {/* Everything below the one-line summary is behind the disclosure. A screenshot, a receipt
           table and an output dump used to render unconditionally, so a single tool call could take
           over the conversation before you had decided you cared about it. */}
       {open && (
         <div className="anim-fade-up mt-1 ml-4 space-y-1 border-l border-line/70 pl-3">
-          {screenshot ? (
-            <img
-              src={localImageUrl(screenshot)}
-              alt="Latest computer screen"
-              className="max-h-[360px] w-auto max-w-full rounded-lg border border-line object-contain"
-            />
-          ) : null}
-          {receipt ? <ActionReceiptCard receipt={receipt} /> : null}
           <pre className="max-h-[280px] overflow-auto rounded-md bg-well/70 px-3 py-2.5 font-mono text-[11px] leading-normal whitespace-pre-wrap text-dim">
             {call.input ? `» ${call.input}\n\n` : ''}
             {call.output || (call.status === 'running' ? 'running…' : '(no output)')}
@@ -537,79 +638,6 @@ function ToolCard({ call, inGroup }: { call: ToolCallEntry; inGroup?: boolean })
       )}
     </div>
   );
-}
-
-/**
- * A Mac action in the task stream.
- *
- * `04_FRONTEND_PLAN.md` is explicit that "raw JSON, element handles, coordinates, AX/OCR source,
- * retries, and fallback codes are inside a Diagnostics disclosure. Normal users see intent and
- * evidence, not plumbing." The receipt used to render its whole table inline, so every Mac action
- * put `Observation f7-4211-88 · Executor semantic · Focus none` into the conversation. The claim
- * now reads as a sentence and the table lives one disclosure down — the same split the Live Target
- * inspector uses, with the same words.
- */
-function ActionReceiptCard({ receipt }: { receipt: ActionReceiptView }): React.ReactElement {
-  const verified = receipt.postcondition.startsWith('matched');
-  const rows: Array<[string, string]> = [
-    ['Target', receipt.target],
-    ['Observation', receipt.observation],
-    ['Executor', receipt.executor],
-    ['Focus', receipt.focus],
-    ['Timing', receipt.timing],
-    ['Postcondition', receipt.postcondition],
-  ];
-  return (
-    <div
-      className={cn(
-        'mt-1 rounded-lg border px-3 py-1.5 text-[11.5px]',
-        verified ? 'border-moss/20 bg-moss/5' : 'border-line bg-raise',
-      )}
-    >
-      <div className="flex items-center gap-2">
-        <span className={verified ? 'text-moss' : 'text-dim'}>
-          {verified
-            ? `Confirmed on ${receipt.target.split(' · ')[0]}`
-            : `Not confirmed — ${receipt.postcondition}`}
-        </span>
-        <span className="ml-auto shrink-0 text-faint">{receipt.outcome}</span>
-      </div>
-      <details className="mt-0.5">
-        <summary className="cursor-pointer text-[10px] text-faint hover:text-dim">Details</summary>
-        <dl className="mt-1 grid grid-cols-[82px_minmax(0,1fr)] gap-x-2 gap-y-1 text-[10.5px]">
-          {rows.map(([label, value]) => (
-            <React.Fragment key={label}>
-              <dt className="text-faint">{label}</dt>
-              <dd className="min-w-0 break-words font-mono text-dim">{value}</dd>
-            </React.Fragment>
-          ))}
-        </dl>
-      </details>
-    </div>
-  );
-}
-
-/**
- * A Mac action's own screenshot, when the Desktop provider attached one.
- *
- * The old check was `toolName === 'ComputerTool'`, which Phase 4 deleted along with the engine's
- * Computer Use ownership — so this had been rendering nothing at all. `isMacToolCall` is the same
- * predicate the Live Target inspector uses, so the transcript and the inspector can never disagree
- * about which calls are Mac work.
- */
-function computerScreenshot(call: ToolCallEntry): string {
-  if (!isMacToolCall(call) || call.status !== 'success' || !call.output) return '';
-  try {
-    const parsed = JSON.parse(call.output);
-    return typeof parsed?.screenshot === 'string' ? parsed.screenshot : '';
-  } catch {
-    return '';
-  }
-}
-
-function localImageUrl(file: string): string {
-  const normalized = file.replace(/\\/g, '/');
-  return `file://${normalized.startsWith('/') ? '' : '/'}${encodeURI(normalized)}`;
 }
 
 function truncate(s: string, n: number): string {

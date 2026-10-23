@@ -1,0 +1,148 @@
+import type { EngineUiState } from '../renderer/src/engine.state';
+import type { RequestMsg } from '../renderer/src/protocol';
+
+/** A wake a task registered with the engine's WakeTool (backlog F4): resume the task when this happens. */
+export interface ThreadWake {
+  id: string;
+  kind: 'at' | 'folder' | 'ci' | 'answer';
+  /** What the task said it would do when woken. */
+  reason: string;
+  createdAt: number;
+  at?: number;
+  path?: string;
+  match?: 'any' | 'pdf' | 'image' | 'document';
+  sha?: string;
+  question?: string;
+}
+
+export interface ThreadSummary {
+  id: string;
+  title: string;
+  root: string;
+  updatedAt: number;
+  status: 'idle' | 'starting' | 'working' | 'needs-you' | 'stopped';
+  peers: string[];
+  sessionId?: string;
+  /** Where the thread came from: the ⌘2 bar, or a project opened in the main window. Absent on threads saved before origins existed. */
+  origin?: 'quick' | 'project';
+  /** The model this task answers with, when it is not Bimax's own (the ⌘2 model menu, "Retry with…"). */
+  model?: string;
+  /** A talk-mode task (the ⌘2 bar's spoken conversation): its engine writes replies to be read aloud. */
+  voice?: boolean;
+  /** How the last turn ended (backlog N12). Cleared when the next turn starts. */
+  outcome?: 'completed' | 'failed' | 'interrupted' | 'time-limit';
+  /**
+   * Where the task's completion check stands (backlog F3): the engine ran it and it passed or failed, or the task
+   * changed files with no check. `tests-edited`: it passed after the task changed test files, so the pass may rest on
+   * those edits. Absent when there was nothing to check. Kept across turns, as the engine keeps it.
+   */
+  check?: 'passed' | 'tests-edited' | 'failed' | 'unchecked';
+  /** Which task goes first when tasks wait for an engine or a folder (F7). Absent means normal. */
+  priority?: 'high' | 'low';
+  /** Wakes the task is waiting for (F4). Saved, so they survive a restart of the app. */
+  wakes?: ThreadWake[];
+  /** A note the person left themselves on this task, and when (backlog FL7, "Where was I?"). */
+  bookmark?: { note: string; at: number };
+  /** Messages accepted and not yet sent to the engine. Filled in for lists; never saved. */
+  queued?: number;
+  /** Why queued messages wait: another task holds the folder, the engine is not ready, or the task is stopped. Never saved. */
+  waiting?: 'folder' | 'engine' | 'resume';
+}
+export interface ThreadSelection { id: string; state: EngineUiState }
+/** The tallest the ⌘2 bar may grow, as a share of its screen's work area (main clamps, the bar follows text at it). */
+export const QUICK_BAR_MAX_HEIGHT_SHARE = 0.72;
+/** Most recent of at most five binned conversations, recoverable privately for five minutes. */
+export interface ThreadBinUndo { id: string; title: string; expiresAt: number }
+export interface ThreadList {
+  undoBin?: ThreadBinUndo;
+  activeId: string | null;
+  threads: ThreadSummary[];
+  shortcutAvailable: boolean;
+  /** How many threads are archived (backlog N11); absent from older main processes. */
+  archivedCount?: number;
+  /** The shortcut that opens the ⌘2 bar, as shown to people, e.g. "⌘2" (backlog N14). */
+  shortcut?: string;
+}
+/** Something the person had open when they pressed ⌘2, or dropped on the bar, offered to the task as context. */
+/**
+ * Context for a ⌘2 task. A `picture` (backlog N5) is a pasted image or a screenshot: the model LOOKS at it, and it
+ * may live outside the task's folder because the task only reads it.
+ */
+export interface QuickAttachment { kind: 'file' | 'page' | 'document' | 'picture'; label: string; path?: string; url?: string }
+/** `prompt`: words to put in the bar, as when a spoken request (talk anywhere, N8) had no folder to go to. */
+export interface QuickContext { root: string | null; source: string; error?: string; attachments?: QuickAttachment[]; prompt?: string }
+/** The thread the ⌘2 bar is showing, with its transcript state, so a reopened bar picks up where it was. */
+export interface QuickThread {
+  id: string;
+  title: string;
+  root: string;
+  state: EngineUiState;
+  /** Messages the task has queued, and what the footer says instead of the folder name (backlog N12). */
+  queued?: number;
+  notice?: string | null;
+}
+export interface ThreadApproval { threadId: string; title: string; root: string; request: RequestMsg; token: string }
+
+/**
+ * A ⌘2 task (or a thread saved before origins existed), as opposed to a project opened in the main window. A project
+ * runs as a thread too, but it belongs in Recents: only these are listed in the Threads section and the menu bar.
+ */
+export function isQuickThread(thread: Pick<ThreadSummary, 'origin'>): boolean {
+  return thread.origin !== 'project';
+}
+
+type ActivityFields = Pick<ThreadSummary, 'status' | 'outcome' | 'queued' | 'waiting' | 'check' | 'wakes'>;
+
+/** What a waiting task waits for, in a few words: the soonest time, else the first other wake (F4). */
+export function wakeLabel(wakes: readonly ThreadWake[] | undefined, now = Date.now()): string | null {
+  if (!wakes?.length) return null;
+  const times = wakes.filter((w) => w.kind === 'at' && typeof w.at === 'number').sort((a, b) => a.at! - b.at!);
+  const first = times[0] ?? wakes[0];
+  const more = wakes.length > 1 ? ` · ${wakes.length} wakes` : '';
+  if (first.kind === 'at') {
+    const when = new Date(first.at!);
+    const sameDay = new Date(now).toDateString() === when.toDateString();
+    const clock = when.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return `Waiting · wakes ${sameDay ? `at ${clock}` : `${when.toLocaleDateString([], { weekday: 'short' })} ${clock}`}${more}`;
+  }
+  if (first.kind === 'folder') return `Waiting for changes in ${(first.path ?? '').split('/').filter(Boolean).pop() ?? 'a folder'}${more}`;
+  if (first.kind === 'ci') return `Waiting for CI${more}`;
+  return `Waiting for your answer${more}`;
+}
+
+/**
+ * A thread's state in plain words (backlog N12): `label` for the sidebar, and `short` after a title in the menu bar
+ * (empty when there is nothing to add). A task with queued work used to show "idle"; now it says what it waits for.
+ */
+export function threadActivity(t: ActivityFields): { label: string; short: string } {
+  const n = t.queued ?? 0;
+  const queued = `${n} message${n === 1 ? '' : 's'} queued`;
+  const also = (label: string): string => (n ? `${label} · ${queued}` : label);
+  if (t.status === 'working') return { label: also('Working'), short: 'working' };
+  if (t.status === 'needs-you') return { label: also('Needs your decision'), short: 'needs you' };
+  if (t.status === 'starting') return { label: also('Starting'), short: 'working' };
+  if (t.waiting === 'resume') return { label: `Stopped · ${queued}, sent when it resumes`, short: 'messages kept' };
+  if (t.waiting === 'folder') return { label: `Waiting for another task in this folder · ${queued}`, short: 'waiting for its folder' };
+  if (n) return { label: `Waiting to start · ${queued}`, short: 'waiting' };
+  // A task with a wake is not done: it is waiting for the event it asked for (F4).
+  const waking = wakeLabel(t.wakes);
+  if (waking) return { label: waking, short: waking.startsWith('Waiting for your answer') ? 'needs your answer' : 'waiting' };
+  if (t.outcome === 'failed') return { label: 'Failed', short: 'failed' };
+  if (t.outcome === 'interrupted') return { label: 'Interrupted', short: 'interrupted' };
+  if (t.outcome === 'time-limit') return { label: 'Stopped · time limit reached', short: 'time limit' };
+  if (t.status === 'stopped') return { label: 'Stopped', short: '' };
+  if (t.outcome !== 'completed') return { label: 'Idle', short: '' };
+  // A turn that ended is "done" only when its check passed (F3); one whose check failed says so, and one that changed
+  // files without a check is finished, not verified.
+  if (t.check === 'failed') return { label: 'Check failed', short: 'check failed' };
+  if (t.check === 'unchecked') return { label: 'Finished · not checked', short: 'not checked' };
+  if (t.check === 'tests-edited') return { label: 'Check passed · test files changed', short: 'tests changed' };
+  return { label: t.check === 'passed' ? 'Done · check passed' : 'Done', short: '' };
+}
+
+/** What the ⌘2 bar's footer says in place of the folder name, or null when the bar's own working and question states say it. */
+export function threadNotice(t: ActivityFields): string | null {
+  if (t.status === 'working' || t.status === 'needs-you') return null;
+  if (!t.queued && t.outcome !== 'failed' && t.outcome !== 'interrupted' && t.outcome !== 'time-limit' && !(t.outcome === 'completed' && t.check === 'failed')) return null;
+  return threadActivity(t).label;
+}

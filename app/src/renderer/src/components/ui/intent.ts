@@ -2,12 +2,21 @@
  * What did the user just press?
  *
  * A seeded expansion needs the rect of the control that opened the surface. Passing that down by
- * hand works, and `useSeed()` exists for callers who can, but it means every one of the seven
- * dialogs (and every future one) has to thread a seed through its props or silently lose the
- * animation — the failure mode being "this one dialog fades and nobody knows why".
+ * hand works, and `useSeedRef()` exists for callers who can — every menu uses it, because a menu
+ * *is* its own trigger. What is left is the surfaces that cannot: the model picker is opened from
+ * the composer, from the toolbar and from the command palette, and threading a rect through three
+ * unrelated components means the fourth caller silently loses the animation.
  *
  * So the trigger is observed instead. One capture-phase listener records the rect of the last
  * control the user activated; any surface opening shortly afterwards can claim it.
+ *
+ * ## This is a fallback, not a policy
+ *
+ * It used to feed every dialog and both structural bars, which made "whatever the user last pressed"
+ * the origin of most of the app's motion — a signature applied by default rather than chosen
+ * (Prompt 2 §42). It now has two consumers: the model picker, which genuinely comes out of a control
+ * that states the current model, and the palette, which asks for the *placement* and refuses the
+ * origin. Everything else either holds its own seed or does not morph at all.
  *
  * ## Why not `document.activeElement`
  *

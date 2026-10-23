@@ -1,49 +1,83 @@
 import React from 'react';
-import {
-  PanelLeft, PanelRight, FolderOpen, GitBranch, Palette, Sun, Moon, Monitor, ShieldCheck,
-} from 'lucide-react';
+import { PanelLeft, PanelRight } from 'lucide-react';
 import { cn } from '../lib/cn';
-import type { GitStatusResult } from '../global';
 import { BrandMark } from './BrandMark';
-import { SeedMenu, SeedMenuItem, SeedMenuLabel } from './ui/morph/SeedMenu';
-import { Toolbar } from './ui/toolbar';
-import { APPEARANCES, Appearance } from '../appearance';
 
 /**
- * Standard hidden-inset title bar: project identity, repository state, and the two pane toggles.
+ * THERE IS NO TITLE BAR ANY MORE. This file holds the two clusters it dissolved into.
+ *
+ * It used to be one full-width `<header>` with its own material and a hairline under it, sitting
+ * above both the sidebar and the content. Measured on Cursor 2026-09-19 (`front inspo/10-cursor`):
+ * that app has no such strip — the canvas and the sidebar both run to `y = 0`, and the controls
+ * float *on* those surfaces rather than on a lid above them. That is what makes it read as one
+ * continuous thing, and it is also the edge-to-edge sidebar macOS 27 asks for.
+ *
+ * So the strip is gone and its contents split by which surface they belong to:
+ *   `SidebarChrome` — the traffic-light gutter, the sidebar toggle, the wordmark. Lives INSIDE
+ *                     `TaskSidebar`, so the glass runs unbroken from y=0 to the footer.
+ *   `CanvasChrome`  — project, branch, browser, evidence, appearance. Floats over the content pane.
+ *
+ * Neither paints a background or draws a border. Both are `drag-region`, which is what keeps the
+ * window draggable now that no bar spans the top; the controls inside them are `no-drag`.
  *
  * The task's own state moved to `TaskHeader` — `examples/CURRENT_BIMAX_UI.md` recorded the defect
- * of a verification badge living up here, far from the evidence it referred to. What remains is
- * window-level: which project, which branch, and which panes are showing.
+ * of a verification badge living up here, far from the evidence it referred to.
  */
-export function TitleBar({
-  project, protocolMismatch, gitStatus, sidebarOpen, inspectorOpen,
-  onToggleSidebar, onPeekSidebar, onToggleInspector, onOpenChanges, onOpenTrust, appearance, onAppearance,
+export function CanvasChrome({
+  project, protocolMismatch, sidebarHoldsEdge, onToggleSidebar, onPeekSidebar, onPeekLeave,
+  inspectorOpen, onToggleInspector, onOutputs,
 }: {
   project: string;
   protocolMismatch: number | null;
-  gitStatus: GitStatusResult | null;
-  sidebarOpen: boolean;
-  inspectorOpen: boolean;
+  /**
+   * Whether a sidebar surface actually occupies the window's top-left corner right now.
+   *
+   * NOT the same as "the sidebar is open", and conflating them was a real defect: with no project
+   * loaded the sidebar is not rendered at all, yet `sidebarOpen` is still true from its default, so
+   * this row skipped the traffic-light gutter and the window's own lights were drawn straight
+   * through the project button. The predicate is layout, not intent — see App.tsx.
+   *
+   * A transient peek deliberately does not count: the panel is an overlay, and shifting this row on
+   * hover is the same reflow-on-hover bug the peek contract exists to avoid.
+   */
+  sidebarHoldsEdge: boolean;
   onToggleSidebar: () => void;
-  /** Hover intent: reveal the panel transiently, without pinning it. */
   onPeekSidebar?: () => void;
-  onToggleInspector: () => void;
-  onOpenChanges: () => void;
-  onOpenTrust: () => void;
-  appearance: Appearance;
-  onAppearance: (appearance: Appearance) => void;
+  /** The pointer left the toggle. The peek closes a beat later unless it reaches the panel first. */
+  onPeekLeave?: () => void;
+  /** The right panel's state, and the one control that opens it. */
+  onOutputs?: () => void;
+  inspectorOpen?: boolean;
+  onToggleInspector?: () => void;
 }): React.ReactElement {
-  const projectName = project ? project.split('/').filter(Boolean).pop() : '';
-  const insertions = gitStatus?.files.reduce((total, file) => total + file.insertions, 0) ?? 0;
-  const deletions = gitStatus?.files.reduce((total, file) => total + file.deletions, 0) ?? 0;
-
   return (
-    <header className="titlebar-shell drag-region flex h-11 shrink-0 items-center gap-2 border-b border-line/80 pr-3 pl-[80px] select-none">
-      {project && (
+    /*
+      Deliberately almost empty (owner, 2026-09-19). This row used to carry the project picker, the
+      browser lane, the branch and change counts, the evidence toggle and the appearance menu. All
+      of it is gone from the top: the project and branch are already stated directly above the
+      composer, where they describe the thing you are about to act on; evidence and appearance moved
+      to the sidebar footer; the browser lane was removed from the product.
+
+      Two things stay, and both are structural rather than decorative:
+        - the pin toggle, ONLY while the sidebar is away — it is otherwise the sole way back, and a
+          panel you cannot reopen is a panel you have lost;
+        - the right panel's toggle, at the far right (owner, 2026-09-19). It lived in the sidebar's
+          footer, which put "show the panel on the RIGHT" in the bottom-LEFT corner — as far from
+          the thing it opens as the window allows, and invisible whenever the sidebar was away;
+        - the protocol-mismatch badge, which is a refusal to run, not a control.
+
+      The row itself still earns its height: it is the `drag-region` that replaces the title bar, and
+      it holds the traffic lights' gutter whenever the sidebar is not there to hold it.
+    */
+    <div
+      className={cn(
+        'drag-region flex h-11 shrink-0 items-center gap-2 pr-3 select-none',
+        sidebarHoldsEdge ? 'pl-3' : 'pl-[76px]',
+      )}
+    >
+      {project && !sidebarHoldsEdge && (
         <IconBtn
-          title={sidebarOpen ? 'Unpin tasks (⌘B)' : 'Pin tasks open (⌘B)'}
-          active={sidebarOpen}
+          title="Pin tasks open (⌘B)"
           /*
             Hover and click are DIFFERENT actions, and conflating them was the bug: `onHover` used
             to call this same toggle, so pointing at the button latched the panel open with no way
@@ -53,136 +87,59 @@ export function TitleBar({
           */
           onClick={onToggleSidebar}
           onHover={onPeekSidebar}
+          onLeave={onPeekLeave}
         >
           <PanelLeft size={16} />
         </IconBtn>
       )}
-      <BrandMark className="mr-1 text-[12px]" />
-      {/*
-        Identity yields before the controls do.
-
-        Both compete for the same row, and flexbox would otherwise shrink them in proportion to
-        their size — so a long project path would squeeze the toolbar into its overflow menu while
-        the path itself stayed almost intact. The shrink factors say which of them is *supposed* to
-        give: a truncated project name is still an answer to "where am I?" (Prompt 2 §19), whereas a
-        control pushed into a menu costs a click every time it is used.
-
-        The floors are the last thing to give and they are deliberately low: below them the toolbar
-        starts clipping its own overflow button, and a control sliced in half is worse than a
-        project name shown as three letters and an ellipsis — the name has a tooltip, the sliced
-        button has nothing.
-      */}
-      <button
-        title={project || 'Open a project'}
-        onClick={() => void window.bimax.pickFolder()}
-        style={{ flexShrink: 6, minWidth: '3.25rem' }}
-        className="no-drag flex max-w-[320px] cursor-pointer items-center gap-1.5 truncate rounded-lg px-2 py-1 text-dim hover:bg-hover hover:text-ink focus-visible:outline-2 focus-visible:outline-ember"
-      >
-        <FolderOpen size={13} />
-        <span className="truncate">{projectName || 'Open Project…'}</span>
-      </button>
-      {gitStatus && (
-        <button
-          title={gitStatus.files.length
-            ? `${gitStatus.files.length} changed file${gitStatus.files.length === 1 ? '' : 's'} — open Changes`
-            : `On ${gitStatus.branch} — nothing changed`}
-          onClick={onOpenChanges}
-          style={{ flexShrink: 8, minWidth: '2.5rem' }}
-          className="no-drag flex max-w-[220px] cursor-pointer items-center gap-1.5 truncate rounded-lg px-2 py-1 text-xs text-dim hover:bg-hover hover:text-ink focus-visible:outline-2 focus-visible:outline-ember"
-        >
-          <GitBranch size={12} className="shrink-0 text-ember/80" />
-          <span className="truncate">{gitStatus.branch || '(detached)'}</span>
-          {gitStatus.files.length > 0 && (
-            <span className="shrink-0 font-mono text-[10.5px] tabular-nums">
-              <span className="text-moss">+{insertions}</span> <span className="text-rust">−{deletions}</span>
-            </span>
-          )}
-        </button>
-      )}
       <span className="flex-1" />
-      {/*
-        The trailing cluster, tiered rather than crammed (Prompt 2 §22).
-
-        Which of these survives a narrow window is a statement about what the app is for. The
-        evidence toggle is how you see what the agent just did, and it never overflows. The Trust
-        Center answers a question you ask once a session — why can it not drive my Mac? — so it is
-        the one that moves into a menu, and it keeps its keyboard shortcut when it does.
-
-        Appearance is pinned here rather than tiered only because it is a menu, and a menu inside an
-        overflow menu is a submenu; that is a worse answer than one more icon (§39).
-      */}
-      <Toolbar
-        actions={project ? [
-          {
-            id: 'inspector',
-            label: 'Show or hide evidence (⌘J)',
-            icon: <PanelRight size={16} />,
-            priority: 'always',
-            active: inspectorOpen,
-            onSelect: onToggleInspector,
-          },
-          {
-            id: 'trust',
-            label: 'Trust Center (⌘⇧T)',
-            icon: <ShieldCheck size={15} />,
-            priority: 'low',
-            onSelect: onOpenTrust,
-          },
-        ] : []}
-      >
-        {protocolMismatch !== null && (
-          <span className="shrink-0 rounded-lg border border-rust/25 bg-rust/8 px-2 py-1 text-xs text-rust">
-            Bimax needs an update
-          </span>
-        )}
-        {/* The one morph in the title bar. Its seed is a 28px square rather than a pill, which is
-            the case that shows whether the corner really interpolates: it starts at 8px, not
-            round. Pinned rather than tiered — see `Toolbar`'s note on menus in overflow menus. */}
-        <SeedMenu
-          label="Change appearance"
-          // `shrink-0` for the same reason the toolbar buttons have it: an item that squashes
-          // reports that it fits at any width, which makes the overflow measurement a lie.
-          triggerClassName="no-drag shrink-0"
-          trigger={(open) => (
-            <span
-              title="Change appearance"
-              className={cn(
-                'flex size-7 items-center justify-center rounded-lg transition-colors',
-                open ? 'bg-hover text-ember' : 'text-faint hover:bg-hover hover:text-ink',
-              )}
-            >
-              <Palette size={15} />
-            </span>
-          )}
+      {onOutputs && <button type="button" className="no-drag output-entry" onClick={onOutputs} title="Open saved outputs">Outputs</button>}
+      {project && onToggleInspector && (
+        <IconBtn
+          title="Show or hide the right panel (⌘J)"
+          onClick={onToggleInspector}
+          active={inspectorOpen}
         >
-          {(close) => (
-            <>
-              <SeedMenuLabel>Appearance</SeedMenuLabel>
-              {APPEARANCES.map((item) => (
-                <SeedMenuItem
-                  key={item.id}
-                  selected={appearance === item.id}
-                  icon={item.id === 'starlight' ? <Sun size={13} /> : item.id === 'moonlight' ? <Moon size={13} /> : <Monitor size={13} />}
-                  label={item.label}
-                  desc={item.description}
-                  onClick={() => { onAppearance(item.id); close(); }}
-                />
-              ))}
-            </>
-          )}
-        </SeedMenu>
-      </Toolbar>
-    </header>
+          <PanelRight size={16} />
+        </IconBtn>
+      )}
+      {protocolMismatch !== null && (
+        <span className="no-drag shrink-0 rounded-lg px-2 py-1 text-xs text-rust">
+          Bimax needs an update
+        </span>
+      )}
+    </div>
+  );
+}
+
+export function SidebarChrome({
+  sidebarOpen, onToggleSidebar,
+}: {
+  sidebarOpen: boolean;
+  onToggleSidebar: () => void;
+}): React.ReactElement {
+  return (
+    <div className="drag-region flex h-11 shrink-0 items-center gap-1.5 pr-2 pl-[76px] select-none">
+      <IconBtn
+        title={sidebarOpen ? 'Unpin tasks (⌘B)' : 'Pin tasks open (⌘B)'}
+        active={sidebarOpen}
+        onClick={onToggleSidebar}
+      >
+        <PanelLeft size={16} />
+      </IconBtn>
+      <BrandMark className="text-[12px]" />
+    </div>
   );
 }
 
 function IconBtn({
-  title, active, onClick, onHover, children,
+  title, active, onClick, onHover, onLeave, children,
 }: {
   title: string;
   active?: boolean;
   onClick: () => void;
   onHover?: () => void;
+  onLeave?: () => void;
   children: React.ReactNode;
 }): React.ReactElement {
   return (
@@ -192,6 +149,7 @@ function IconBtn({
       aria-pressed={active}
       onClick={onClick}
       onMouseEnter={onHover}
+      onMouseLeave={onLeave}
       className={cn(
         'no-drag flex size-7 cursor-pointer items-center justify-center rounded-md hover:bg-hover focus-visible:outline-2 focus-visible:outline-ember',
         active ? 'text-ink' : 'text-faint',

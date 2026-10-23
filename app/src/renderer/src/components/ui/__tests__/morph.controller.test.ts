@@ -1,5 +1,6 @@
 import { MorphController, liveMorphCount, type MorphFrame } from '../morph/controller';
 import type { MorphGeometry } from '../morph/geometry';
+import { MOTION, dismissForKind } from '../morph/tokens';
 
 /**
  * The interruption matrix, run as arithmetic.
@@ -265,20 +266,63 @@ describe('the world moving underneath', () => {
     controller.dispose();
   });
 
-  test('a control that vanished folds into the surface centre, not into the origin', () => {
-    // Its pane was collapsed while the panel was open. Folding to (0,0) would fling the surface
-    // into the corner of the window on the way out.
+  test('a control that vanished leaves the surface in place, not flying anywhere', () => {
+    // Its pane was collapsed while the panel was open. Two wrong answers here: folding to (0,0)
+    // flings the surface into the corner of the window, and folding into a small box at its own
+    // centre — which this used to do — reads as the window swallowing it. With no origin there is
+    // no honest destination for the collapse, so it leaves from where it is and fades, which is
+    // what `seeded: false` tells the painter to do.
     const { controller, frames, setSeed } = makeController();
     controller.open();
     runToRest(controller);
+    const open = frames[frames.length - 1].geometry;
+
     setSeed(null);
     controller.close();
     runToRest(controller);
 
     const landed = frames[frames.length - 1].geometry;
-    expect(landed.x).toBeGreaterThan(600);
-    expect(landed.y).toBeGreaterThan(300);
-    expect(landed.width).toBeLessThan(40);
+    // Barely moved and barely shrank: this is a fade, not a journey.
+    expect(Math.hypot(landed.x - open.x, landed.y - open.y)).toBeLessThan(20);
+    expect(landed.width).toBeGreaterThan(open.width * 0.85);
+    expect(frames[frames.length - 1].seeded).toBe(false);
+    controller.dispose();
+  });
+
+  test('an unseeded flight is reported as unseeded, so the painter can fade it out', () => {
+    // The distinction is not derivable from the geometry — a seeded collapse ends sitting exactly
+    // on its trigger, at that control's size, and unmounting there is invisible; an unseeded one
+    // ends over empty background. Only the driver knows which happened.
+    const seeded = makeController();
+    seeded.controller.open();
+    runToRest(seeded.controller);
+    seeded.controller.close();
+    runToRest(seeded.controller);
+    expect(seeded.frames[seeded.frames.length - 1].seeded).toBe(true);
+    seeded.controller.dispose();
+
+    const bare = makeController({ seed: null, kind: 'palette' });
+    bare.controller.open();
+    expect(bare.frames[0].seeded).toBe(false);
+    bare.controller.dispose();
+  });
+
+  test('Reduce Motion does not fly home either', () => {
+    // Prompt 2 §32 asks for the travel to be removed, and it used to be removed in one direction
+    // only: the launch box was pinned near the destination while `close()` targeted the seed
+    // outright, so a panel that appeared in place then crossed the whole window on the way out.
+    const { controller, frames } = makeController({ reduced: true });
+    controller.open();
+    runToRest(controller);
+    const open = frames[frames.length - 1].geometry;
+
+    controller.close();
+    runToRest(controller);
+    const landed = frames[frames.length - 1].geometry;
+
+    // SEED sits at (40, 700); the destination is centred. Anything that travelled home would be
+    // hundreds of pixels away from where it was sitting.
+    expect(Math.hypot(landed.x - open.x, landed.y - open.y)).toBeLessThan(20);
     controller.dispose();
   });
 });
@@ -299,21 +343,18 @@ describe('honesty about origins', () => {
 });
 
 describe('reduced motion', () => {
-  test('keeps the shape change and drops the journey', () => {
-    // Prompt 1 §27 / Prompt 2 §32: NOT "turn the animation off". The surface must still be visibly
-    // one object changing shape, and must still lean in from the seed's direction — it just must
-    // not cross the window to do it.
+  test('no geometry moves at all: the surface is where it belongs from its first frame, and fades in', () => {
+    // The owner's UI fix list, item 32: "under reduced motion: cross-fade or jump instantly — no geometry animation at
+    // all". It replaced the earlier reading of Prompt 2 §32 (a small shrink and a lean toward the seed), which this
+    // test used to demand. The fade is the painter's, on the `reduced` flag (`.morph-surface[data-reduced]`).
     const { controller, frames } = makeController({ reduced: true });
     controller.open();
-    const first = frames[0].geometry;
     runToRest(controller);
     const settled = frames[frames.length - 1].geometry;
-
-    // No travel across the window…
-    expect(Math.hypot(first.x - settled.x, first.y - settled.y)).toBeLessThan(40);
-    // …but a real geometry transition, not an appear.
-    expect(first.width).toBeLessThan(settled.width);
-    expect(first.width).toBeGreaterThan(settled.width * 0.85);
+    for (const frame of frames) {
+      expect(frame.geometry).toEqual(settled);
+      expect(frame.reduced).toBe(true);
+    }
     controller.dispose();
   });
 
@@ -380,5 +421,103 @@ describe('lifecycle', () => {
       .not.toBeCloseTo(b.frames[b.frames.length - 1].geometry.x, 0);
     a.controller.dispose();
     b.controller.dispose();
+  });
+});
+
+describe('menus at the owner\'s pace (k 520 open, k 700 close — as before UI fix list item 16)', () => {
+  // A composer chip opening a model-picker-sized menu above it — the menu the owner opens most.
+  const CHIP: MorphGeometry = { x: 300, y: 700, width: 110, height: 30, radius: 15 };
+  const PICKER: MorphGeometry = { x: 300, y: 260, width: 340, height: 420, radius: 14 };
+  const STEP = 1 / 240;
+  const CHANNELS = ['x', 'y', 'width', 'height'] as const;
+
+  function menu(kind: 'popover' | 'inspector' = 'popover') {
+    const frames: MorphFrame[] = [];
+    const controller = new MorphController({
+      kind: () => kind,
+      reducedMotion: () => false,
+      resolve: () => ({ seed: CHIP, destination: PICKER }),
+    });
+    controller.subscribe((frame) => frames.push({ ...frame, geometry: { ...frame.geometry } }));
+    return { controller, frames };
+  }
+
+  /** ms until every edge is within 1px of the destination for good — when a person sees it arrive. */
+  function arrival(frames: MorphFrame[]): number {
+    let last = 0;
+    frames.forEach((frame, i) => {
+      if (CHANNELS.some((key) => Math.abs(frame.geometry[key] - PICKER[key]) > 1)) last = i + 1;
+    });
+    return last * STEP * 1000;
+  }
+
+  function stepUntil(controller: MorphController, done: () => boolean): number {
+    let n = 0;
+    while (n < 2400 && !done()) { controller.advance(STEP); n += 1; }
+    return n * STEP * 1000;
+  }
+
+  test('a menu opens in ~380ms and barely overshoots', () => {
+    const { controller, frames } = menu();
+    controller.open();
+    stepUntil(controller, () => controller.state === 'open');
+    // 380ms at k 520. Item 16 made it 240ms (k 1300); the owner: clicking "Approve for me" "is soo speedy" (2026-10-01).
+    expect(arrival(frames)).toBeGreaterThanOrEqual(350);
+    expect(arrival(frames)).toBeLessThanOrEqual(410);
+    const overshoot = Math.max(...frames.map((f) => (f.geometry.height - PICKER.height) / (PICKER.height - CHIP.height)));
+    expect(overshoot).toBeLessThan(0.02);
+    controller.dispose();
+  });
+
+  test('it closes faster than it opened — an exit that outlasts its entrance reads as reluctance', () => {
+    const open = menu();
+    open.controller.open();
+    stepUntil(open.controller, () => open.controller.state === 'open');
+    const opened = arrival(open.frames);
+    const closed = stepUntil(open.controller, () => (open.controller.close(), open.controller.state === 'closed'));
+    expect(closed).toBeLessThan(opened);
+    open.controller.dispose();
+  });
+
+  test('a menu closed early keeps its momentum for a frame before it turns', () => {
+    // The interruption contract above, on a menu's own short flight. Early only: at 70% a menu is
+    // already slowing, and it turns at once — it did at the old k 520 / 700 as well (measured).
+    for (const at of [0.1, 0.3]) {
+      const { controller, frames } = menu();
+      controller.open();
+      while (frames[frames.length - 1].progress < at) controller.advance(1 / 60);
+      const before = frames[frames.length - 1].geometry.height;
+      controller.close();
+      controller.advance(1 / 60);
+      expect([at, frames[frames.length - 1].geometry.height > before]).toEqual([at, true]);
+      stepUntil(controller, () => controller.state === 'closed');
+      controller.dispose();
+    }
+  });
+
+  test('menus fold on their own token at the shared pace; side panes keep their content to the end', () => {
+    expect(dismissForKind('popover')).toBe(MOTION.dismissPopover);
+    expect(dismissForKind('toolbarExpansion')).toBe(MOTION.dismissPopover);
+    for (const kind of ['sidebar', 'inspector'] as const) expect(dismissForKind(kind)).toBe(MOTION.dismissPane);
+    for (const kind of ['palette', 'floatingPanel', 'workspaceSurface'] as const) {
+      expect(dismissForKind(kind)).toBe(MOTION.dismiss);
+    }
+    // The pace from before item 16: a menu folds as fast as everything else does.
+    expect(MOTION.dismissPopover.spring).toEqual(MOTION.dismiss.spring);
+    expect(MOTION.dismissPane.spring).toEqual(MOTION.dismiss.spring);
+    // And the controller really uses them: a menu empties on the way out, a pane never does.
+    const reveals = (kind: 'popover' | 'inspector'): number[] => {
+      const { controller, frames } = menu(kind);
+      controller.open();
+      stepUntil(controller, () => controller.state === 'open');
+      const from = frames.length;
+      controller.close();
+      stepUntil(controller, () => controller.state === 'closed');
+      controller.dispose();
+      // While it is on screen: the frame that reports `closed` is the one after it has gone.
+      return frames.slice(from).filter((f) => f.state === 'closing').map((f) => f.reveal);
+    };
+    expect(Math.min(...reveals('popover'))).toBe(0);
+    expect(reveals('inspector').every((r) => r === 1)).toBe(true);
   });
 });

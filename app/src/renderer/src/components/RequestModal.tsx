@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { RequestMsg } from '../protocol';
 import { DiffView } from '../markdown';
+import { approvalShortcut } from '../approval.keys';
 import { Dialog, DialogContent, DialogTitle } from './ui/dialog';
 import { Button } from './ui/button';
 
@@ -25,6 +26,16 @@ export function RequestModal({
     inputRef.current?.focus();
   }, [req.id]);
 
+  // ⌘↩ takes the highlighted first choice and Esc the deny choice — only on prompts that have one.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent): void => {
+      const pick = approvalShortcut(e, req);
+      if (pick) { e.preventDefault(); e.stopPropagation(); onReply(req.id, pick); }
+    };
+    window.addEventListener('keydown', onKey, true);
+    return () => window.removeEventListener('keydown', onKey, true);
+  }, [req, onReply]);
+
   const freeForm = req.kind === 'input' || (req.isAsk && req.options.length === 0);
 
   return (
@@ -34,6 +45,9 @@ export function RequestModal({
           {req.question}
         </DialogTitle>
         {req.kind === 'diff' && req.body ? <DiffView diff={req.body} /> : null}
+        {req.kind !== 'diff' && req.body ? (
+          <pre className="mb-3.5 max-h-[40vh] overflow-auto rounded-lg border border-line bg-well px-3 py-2.5 font-mono text-xs leading-normal whitespace-pre-wrap">{req.body}</pre>
+        ) : null}
 
         {freeForm ? (
           <form

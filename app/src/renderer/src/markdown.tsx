@@ -1,167 +1,254 @@
-import React, { useState } from 'react';
-import { marked, Token, Tokens } from 'marked';
+import { useContext } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  Streamdown,
+  defaultComponents,
+  defaultRehypePlugins,
+  defaultRemarkPlugins,
+  type Components,
+  type PluginConfig,
+} from 'streamdown';
 import hljs from 'highlight.js/lib/common';
 import { Copy, Check } from 'lucide-react';
+import { PathLinkContext, looksLikePath } from './path.links';
+import { copyText } from './copy.text';
+import 'katex/dist/katex.min.css';
 
-/**
- * Full markdown for chat messages: marked's lexer produces tokens, and we render tokens straight
- * to React nodes — never raw HTML, so there is no injection surface (`html` tokens render as
- * plain text). Code fences get highlight.js with a copy button; the Moonlight hljs theme lives in
- * styles.css.
- */
-export function Markdown({ text }: { text: string }): React.ReactElement {
-  let tokens: Token[];
-  try {
-    tokens = marked.lexer(text);
-  } catch {
-    return <div className="md whitespace-pre-wrap">{text}</div>;
-  }
-  return <div className="md">{tokens.map((t, i) => <Block key={i} token={t} />)}</div>;
+let loadedMath: PluginConfig['math'];
+let loadingMath: Promise<void> | undefined;
+let loadedCode: PluginConfig['code'];
+let loadedMermaid: PluginConfig['mermaid'];
+let loadingCode: Promise<void> | undefined;
+let loadingMermaid: Promise<void> | undefined;
+// Raw HTML remains visible text, as in Bimax's original renderer. Never enable rehype-raw.
+function literalHtml() {
+  return (tree: any) => {
+    const walk = (node: any) => {
+      if (node.type === 'html') node.type = 'text';
+      node.children?.forEach(walk);
+    };
+    walk(tree);
+  };
 }
-
-function Block({ token }: { token: Token }): React.ReactElement | null {
-  switch (token.type) {
-    case 'heading': {
-      const t = token as Tokens.Heading;
-      const Tag = (`h${Math.min(t.depth + 2, 6)}`) as 'h3'; // h1 in chat renders as h3-scale
-      return <Tag className={`md-h md-h${t.depth}`}><Inline tokens={t.tokens} /></Tag>;
-    }
-    case 'paragraph':
-      return <p><Inline tokens={(token as Tokens.Paragraph).tokens} /></p>;
-    case 'code':
-      return <CodeBlock code={(token as Tokens.Code).text} lang={(token as Tokens.Code).lang || ''} />;
-    case 'blockquote':
-      return (
-        <blockquote className="my-2 border-l-2 border-ember/50 pl-3 text-dim">
-          {(token as Tokens.Blockquote).tokens.map((t, i) => <Block key={i} token={t} />)}
-        </blockquote>
-      );
-    case 'list': {
-      const t = token as Tokens.List;
-      const Tag = t.ordered ? 'ol' : 'ul';
-      return (
-        <Tag className={t.ordered ? 'my-1.5 list-decimal pl-5' : 'my-1.5 list-disc pl-5'}>
-          {t.items.map((item, i) => (
-            <li key={i} className="my-0.5">
-              {item.task ? (
-                <span className="mr-1.5 text-faint">{item.checked ? '☑' : '☐'}</span>
-              ) : null}
-              {item.tokens.map((tt, j) =>
-                tt.type === 'text' && (tt as Tokens.Text).tokens
-                  ? <Inline key={j} tokens={(tt as Tokens.Text).tokens!} />
-                  : <Block key={j} token={tt} />,
-              )}
-            </li>
-          ))}
-        </Tag>
-      );
-    }
-    case 'table': {
-      const t = token as Tokens.Table;
-      return (
-        <div className="my-2 overflow-x-auto rounded-lg border border-line">
-          <table className="w-full border-collapse text-[12.5px]">
-            <thead>
-              <tr className="border-b border-line bg-raise">
-                {t.header.map((h, i) => (
-                  <th key={i} className="px-3 py-1.5 text-left font-medium text-dim">
-                    <Inline tokens={h.tokens} />
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {t.rows.map((row, i) => (
-                <tr key={i} className="border-b border-line/50 last:border-0">
-                  {row.map((cell, j) => (
-                    <td key={j} className="px-3 py-1.5 align-top">
-                      <Inline tokens={cell.tokens} />
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      );
-    }
-    case 'hr':
-      return <hr className="my-3 border-line" />;
-    case 'space':
-      return null;
-    case 'html':
-      return <span className="whitespace-pre-wrap">{(token as Tokens.HTML).text}</span>;
-    default:
-      return 'tokens' in token && Array.isArray((token as { tokens?: Token[] }).tokens)
-        ? <Inline tokens={(token as { tokens: Token[] }).tokens} />
-        : <span className="whitespace-pre-wrap">{'raw' in token ? String((token as { raw: string }).raw) : ''}</span>;
+const rehypePlugins = [defaultRehypePlugins.sanitize];
+const remarkPluginsExtra = literalHtml;
+const safeUrl = (url: string) => (/^(https?:\/\/|#[\w:-]+)/i.test(url) ? url : '');
+function RichInlineCode(props: any): React.ReactElement {
+  const links = useContext(PathLinkContext);
+  const value = typeof props.children === 'string' ? props.children : '';
+  if (!props.className && !value.includes('\n') && links && looksLikePath(value)) {
+    return (
+      <button
+        type="button"
+        className="md-path"
+        title="Open with Quick Look · ⌘-click to show in Finder"
+        onClick={(e) => links.open(value, e.metaKey ? 'reveal' : 'preview')}
+      >
+        {value}
+      </button>
+    );
   }
+  return React.createElement(defaultComponents.code, props);
 }
-
-function Inline({ tokens }: { tokens?: Token[] }): React.ReactElement | null {
-  if (!tokens) return null;
+function ControlledImage({ src, alt }: any): React.ReactElement {
+  // Rendering model-authored URLs must never send automatic tracking/network requests.
+  if (
+    typeof src === 'string' &&
+    /^data:image\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/]+=*$/.test(src) &&
+    src.length < 2_800_000
+  )
+    return <img src={src} alt={alt || 'Output image'} className="rich-image" loading="lazy" />;
   return (
-    <>
-      {tokens.map((t, i) => {
-        switch (t.type) {
-          case 'text': {
-            const tt = t as Tokens.Text;
-            return tt.tokens ? <Inline key={i} tokens={tt.tokens} /> : <React.Fragment key={i}>{tt.text.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'")}</React.Fragment>;
-          }
-          case 'strong':
-            return <strong key={i}><Inline tokens={(t as Tokens.Strong).tokens} /></strong>;
-          case 'em':
-            return <em key={i}><Inline tokens={(t as Tokens.Em).tokens} /></em>;
-          case 'del':
-            return <del key={i}><Inline tokens={(t as Tokens.Del).tokens} /></del>;
-          case 'codespan':
-            return (
-              <code key={i} className="rounded border border-line bg-raise px-1 font-mono text-[0.92em]">
-                {(t as Tokens.Codespan).text.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'")}
-              </code>
-            );
-          case 'link': {
-            const lt = t as Tokens.Link;
-            const safe = /^https?:\/\//i.test(lt.href);
-            return safe ? (
-              <a key={i} href={lt.href} target="_blank" rel="noreferrer">
-                <Inline tokens={lt.tokens} />
-              </a>
-            ) : (
-              <span key={i}><Inline tokens={lt.tokens} /></span>
-            );
-          }
-          case 'br':
-            return <br key={i} />;
-          case 'escape':
-            return <React.Fragment key={i}>{(t as Tokens.Escape).text}</React.Fragment>;
-          default:
-            return <span key={i} className="whitespace-pre-wrap">{'raw' in t ? String((t as { raw: string }).raw) : ''}</span>;
-        }
-      })}
-    </>
+    <span className="rich-media-placeholder">
+      {alt || 'Image'}
+      {typeof src === 'string' && /^https?:\/\//i.test(src) ? (
+        <>
+          {' '}
+          ·{' '}
+          <a href={src} target="_blank" rel="noreferrer">
+            Open image link
+          </a>
+        </>
+      ) : (
+        ' · image unavailable'
+      )}
+    </span>
   );
 }
+function RichPre(props: any): React.ReactElement {
+  const [copied, setCopied] = useState(false);
+  const [keepState, setKeepState] = useState('');
+  useEffect(() => {
+    if (!copied) return;
+    const timer = setTimeout(() => setCopied(false), 1500);
+    return () => clearTimeout(timer);
+  }, [copied]);
+  const child = props.node?.children?.find((node: any) => node.tagName === 'code');
+  const code = child?.children?.map((node: any) => node.value || '').join('');
+  const language =
+    child?.properties?.className?.find((value: string) => value.startsWith('language-'))?.slice(9) || '';
+  return (
+    <div className="rich-code-output">
+      {React.createElement(defaultComponents.pre, props)}
+      {typeof code === 'string' && code.length <= 192 * 1024 && (
+        <>
+          <button
+            type="button"
+            className="keep-output"
+            title="Copy Code"
+            aria-label="Copy Code"
+            onClick={() => void copyText(code).then((ok) => setCopied(ok))}
+          >
+            {copied ? 'Copied' : 'Copy'}
+          </button>{' '}
+          <button
+            type="button"
+            className="keep-output"
+            disabled={keepState === 'Saving…'}
+            title={keepState}
+            onClick={() => {
+              setKeepState('Saving…');
+              window.dispatchEvent(
+                new CustomEvent('bimax:keep-output', {
+                  detail: {
+                    key: crypto.randomUUID(),
+                    content: code,
+                    language,
+                    complete: (error?: string) => setKeepState(error || 'Saved'),
+                  },
+                }),
+              );
+            }}
+          >
+            {keepState === 'Saving…' ? keepState : keepState === 'Saved' ? 'Saved' : 'Keep output'}
+          </button>
+          {keepState && !['Saving…', 'Saved'].includes(keepState) && (
+            <span role="alert" className="output-error">
+              {keepState}
+            </span>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+const components: Components = {
+  code: RichInlineCode,
+  pre: RichPre,
+  a: ({ href, children }: any) =>
+    href && safeUrl(href) ? (
+      <a href={href} target={href.startsWith('#') ? undefined : '_blank'} rel="noreferrer">
+        {children}
+      </a>
+    ) : (
+      <span>{children}</span>
+    ),
+  img: ControlledImage,
+  h1: ({ children }: any) => <h3 className="md-h md-h1">{children}</h3>,
+  h2: ({ children }: any) => <h4 className="md-h md-h2">{children}</h4>,
+};
+const mermaidOptions = {
+  config: {
+    securityLevel: 'strict' as const,
+    startOnLoad: false,
+    maxTextSize: 50_000,
+    maxEdges: 500,
+    flowchart: { htmlLabels: false },
+  },
+};
+
+/** Streaming and saved answers share one safe renderer; completed blocks keep stable identities. */
+export const Markdown = React.memo(function Markdown({
+  text,
+  streaming = false,
+}: {
+  text: string;
+  streaming?: boolean;
+}): React.ReactElement {
+  const [, invalidate] = useState(0);
+  const wantsMath = /\$|\\\[|\\\(/.test(text);
+  const wantsCode = /(?:^|\n)```/.test(text);
+  const wantsMermaid = /(?:^|\n)```mermaid\b/.test(text);
+  useEffect(() => {
+    let live = true;
+    const changed = () => {
+      if (live) invalidate((v) => v + 1);
+    };
+    if (wantsMath && !loadedMath) {
+      loadingMath ??= import('@streamdown/math').then((m) => {
+        loadedMath = m.createMathPlugin({ singleDollarTextMath: true });
+      });
+      void loadingMath.then(changed).catch(() => {});
+    }
+    if (wantsCode && !loadedCode) {
+      loadingCode ??= import('@streamdown/code').then((m) => {
+        loadedCode = m.code;
+      });
+      void loadingCode.then(changed).catch(() => {});
+    }
+    if (wantsMermaid && !loadedMermaid) {
+      loadingMermaid ??= import('@streamdown/mermaid').then((m) => {
+        loadedMermaid = m.createMermaidPlugin(mermaidOptions);
+      });
+      void loadingMermaid.then(changed).catch(() => {});
+    }
+    return () => {
+      live = false;
+    };
+  }, [wantsCode, wantsMermaid, wantsMath]);
+  const plugins = useMemo(
+    () => ({ math: loadedMath, code: loadedCode, mermaid: loadedMermaid }),
+    [loadedCode, loadedMermaid, loadedMath],
+  );
+  const remarkPlugins = useMemo(() => [...Object.values(defaultRemarkPlugins), remarkPluginsExtra], []);
+  return (
+    <div className="md rich-markdown">
+      <Streamdown
+        mode={streaming ? 'streaming' : 'static'}
+        isAnimating={streaming}
+        animated={false}
+        components={components}
+        plugins={plugins}
+        rehypePlugins={rehypePlugins}
+        remarkPlugins={remarkPlugins}
+        urlTransform={(url, key) => (key === 'src' ? url : safeUrl(url))}
+        mermaid={mermaidOptions}
+        lineNumbers={false}
+        linkSafety={{ enabled: false }}
+        controls={{
+          code: { copy: false, download: false },
+          table: { copy: true, download: true },
+          mermaid: true,
+        }}
+      >
+        {text}
+      </Streamdown>
+    </div>
+  );
+});
 
 export function CodeBlock({ code, lang }: { code: string; lang: string }): React.ReactElement {
   const [copied, setCopied] = useState(false);
-  let html = '';
-  try {
-    html = lang && hljs.getLanguage(lang)
-      ? hljs.highlight(code, { language: lang }).value
-      : hljs.highlightAuto(code).value;
-  } catch {
-    html = '';
-  }
+  // Copy feedback and unrelated parent updates must not run language detection again.
+  const html = useMemo(() => {
+    try {
+      return lang && hljs.getLanguage(lang)
+        ? hljs.highlight(code, { language: lang }).value
+        : hljs.highlightAuto(code).value;
+    } catch {
+      return '';
+    }
+  }, [code, lang]);
   const copy = (): void => {
-    void navigator.clipboard.writeText(code).then(() => {
+    void copyText(code).then((ok) => {
+      if (!ok) return;
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     });
   };
   return (
     <div className="group relative my-2">
-      <pre className="overflow-x-auto rounded-lg border border-line bg-well px-3.5 py-3 font-mono text-xs leading-normal whitespace-pre">
+      <pre className="overflow-x-auto rounded-lg border border-line bg-[var(--code-block)] px-3.5 py-3 font-mono text-xs leading-normal whitespace-pre">
         {html ? (
           // hljs output is generated from escaped text by our own local library — not remote HTML.
           <code dangerouslySetInnerHTML={{ __html: html }} />

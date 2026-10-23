@@ -49,8 +49,13 @@ describe('spring solver', () => {
     expect(overshootPercent('calm', control)).toBeCloseTo(0, 1);
   });
 
-  test('`bouncy` is visibly springy on a control — the whole point of the preset', () => {
-    expect(overshootPercent('bouncy', 40)).toBeGreaterThan(8);
+  // The UI fix list (item 16) once cut this to ≤8% and ≤240ms. The owner felt the text bar's buttons go "soo
+  // speedy" and asked for the speeds from before (2026-10-01): the house bounce is visibly springy again, and it
+  // takes its time — ~12.6% and ~338ms on a control.
+  test('`bouncy` is visibly springy on a control and is not hurried — the owner\'s original bounce', () => {
+    expect(overshootPercent('bouncy', 40)).toBeGreaterThan(overshootPercent('glass', 40));
+    expect(overshootPercent('bouncy', 40)).toBeGreaterThan(10);
+    expect(springFor('bouncy', 40).duration).toBeGreaterThan(300);
   });
 });
 

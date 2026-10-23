@@ -10,7 +10,7 @@
 
 import {
   COMPLETE, Decision, EvidenceRecord, Finding, Observation, gap,
-} from '../evidence.gen';
+} from '../evidence.schema';
 import {
   buildEvidenceTimeline, notableRows, retentionControls, timelineHeadline,
 } from '../evidence.timeline';

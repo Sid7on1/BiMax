@@ -34,6 +34,13 @@ export interface GitStatusResult {
   files: GitFile[];
 }
 
+/**
+ * A git status reply, stamped by main with the project it was actually computed against and the
+ * generation of that project session — both captured before the read began. The renderer drops a
+ * reply whose stamp names a project it has left, so a slow read cannot describe the wrong repo.
+ */
+export type StampedGitStatus = GitStatusResult & { project: string; generation: number };
+
 export interface GitCommitEntry { hash: string; subject: string; when: string }
 
 export interface FileEntry { name: string; dir: boolean }
@@ -56,7 +63,7 @@ export type { WindowChromeState } from '../../shared/window.chrome';
 export type PermissionDisposition = 'granted' | 'denied' | 'not-determined' | 'unavailable';
 
 export interface CodeSignatureReport {
-  kind: 'developer-id' | 'apple-development' | 'ad-hoc' | 'unsigned' | 'unknown';
+  kind: 'developer-id' | 'apple-development' | 'local-development' | 'ad-hoc' | 'unsigned' | 'unknown';
   identifier?: string;
   teamIdentifier?: string;
   authority?: string;
@@ -115,20 +122,73 @@ export interface ManualAlphaServiceStatus {
 
 import type { EvidenceTimeline, RetentionControl } from '../../shared/evidence.timeline';
 
+export interface GitRemoteInfo {
+  isRepo: boolean;
+  branch: string;
+  remoteUrl: string;
+  remoteName: string;
+  slug: string;
+  hasUpstream: boolean;
+  upstream: string;
+  ahead: number;
+  behind: number;
+  dirty: number;
+  lastFetch: string;
+}
+
+export interface GitOpResult { ok: boolean; output: string }
+
+export interface LocalModelEntry {
+  id: string;
+  label: string;
+  runtime: 'ollama' | 'lmstudio' | 'huggingface' | 'llamacpp';
+  servable: boolean;
+  sizeBytes?: number;
+  detail: string;
+}
+export interface LocalRuntimeEntry {
+  id: 'ollama' | 'lmstudio' | 'huggingface' | 'llamacpp';
+  label: string;
+  installed: boolean;
+  running: boolean;
+  baseURL?: string;
+  models: LocalModelEntry[];
+  hint: string;
+}
+export interface LocalModelReport {
+  runtimes: LocalRuntimeEntry[];
+  servable: LocalModelEntry[];
+  scannedAt: string;
+}
+
 declare global {
   interface Window {
     bimax: {
+      outputs?: import("../../preload/index").BimaxApi["outputs"];
+      computer?: import("../../preload/index").BimaxApi["computer"];
+      threads: import("../../preload/index").BimaxApi["threads"];
+      voice: import("../../preload/index").BimaxApi["voice"];
+      talk: import("../../preload/index").BimaxApi["talk"];
+      organize: import("../../preload/index").BimaxApi["organize"];
       send: (msg: Inbound) => void;
-      onMessage: (cb: (msg: Outbound) => void) => () => void;
-      onEngineState: (cb: (state: string, detail: string) => void) => () => void;
-      onProject: (cb: (dir: string) => void) => () => void;
+      onMessage: (cb: (msg: Outbound, threadId?: string) => void) => () => void;
+      onEngineState: (cb: (state: string, detail: string, threadId?: string) => void) => () => void;
+      onProject: (cb: (dir: string, generation: number) => void) => () => void;
       supervisor: {
         onStatus: (cb: (status: SupervisorStatus) => void) => () => void;
         getStatus: () => Promise<SupervisorStatus | null>;
         action: (action: { action: RecoveryActionName; sessionId?: string }) => Promise<boolean>;
         crashHistory: () => Promise<CrashRecord[]>;
         diagnostics: () => Promise<string>;
+        /** The engine's recent stderr, redacted and bounded. Live — does not require a crash. */
+        engineLog: () => Promise<string>;
       };
+      /** Copy buttons write through the app; see copy.text.ts. */
+      clipboard: { writeText: (text: string) => Promise<boolean> };
+      /** Menu-bar commands (main/app.menu.ts). Optional: an older preload lacks it. */
+      onMenuCommand?: (cb: (command: string) => void) => () => void;
+      /** A system sound (quick settings → Sound when a task finishes). Optional: an older preload lacks it. */
+      beep?: () => void;
       setAppearance: (appearance: 'auto' | 'moonlight' | 'starlight') => void;
       windowChrome: {
         get: () => Promise<WindowChromeState>;
@@ -136,16 +196,34 @@ declare global {
       };
       pickFolder: () => Promise<string | null>;
       pickFiles: () => Promise<string[]>;
+      /** Absolute path of a dropped File (Electron 32+ removed File.path). */
+      pathForFile: (file: File) => string;
+      /**
+       * Persist pasted clipboard bytes and return the file's path, or '' if it was refused.
+       *
+       * Optional on purpose: a renderer bundle can run against an older packaged main process, and
+       * a composer that assumed this existed would throw on paste instead of falling back. Every
+       * caller must feature-detect and say plainly what it could not do.
+       */
+      stashPaste?: (name: string, bytes: Uint8Array) => Promise<string>;
       restartEngine: () => Promise<string>;
       providers: {
+        localModels: () => Promise<LocalModelReport>;
         credentialStatus: () => Promise<Array<{
           name: string;
           hasKey: boolean;
+          keyCount: number;
+          keyHints: string[];
           keyHint?: string;
+          rpm?: number;
           storage: 'keychain' | 'none';
           active: boolean;
         }>>;
-        configure: (input: { name: string; apiKey?: string; baseURL?: string }) => Promise<{
+        configure: (input: { name: string; apiKey?: string; baseURL?: string; rpm?: number }) => Promise<{
+          ok: boolean;
+          error?: string;
+        }>;
+        removeKey: (input: { name: string; index: number }) => Promise<{
           ok: boolean;
           error?: string;
         }>;
@@ -163,19 +241,28 @@ declare global {
         onAdaptiveChanged: (cb: (snapshot: AdaptiveRuntimeSnapshot) => void) => () => void;
       };
       git: {
-        status: () => Promise<GitStatusResult | null>;
+        status: () => Promise<StampedGitStatus | null>;
         diff: (file: string, untracked: boolean) => Promise<string>;
         branches: () => Promise<{ current: string; all: string[] }>;
         log: (n: number) => Promise<GitCommitEntry[]>;
+        remote: () => Promise<GitRemoteInfo | null>;
+        fetch: () => Promise<GitOpResult>;
+        pull: () => Promise<GitOpResult>;
+        push: (setUpstream: boolean) => Promise<GitOpResult>;
       };
       files: {
         list: (rel: string) => Promise<FileEntry[]>;
         read: (rel: string) => Promise<FilePreview>;
         reveal: (rel: string) => Promise<void>;
+        search: (query: string) => Promise<{ hits: { rel: string; name: string; dir: boolean }[]; truncated: boolean }>;
         write: (rel: string, content: string) => Promise<void>;
-        onChanged: (cb: () => void) => () => void;
+        /** Optional: an older preload lacks it, and the page then closes without asking. */
+        confirmClose?: (rel: string) => Promise<'save' | 'discard' | 'cancel'>;
+        tabMenu?: (hasOthers: boolean, hasRight: boolean) => Promise<'close' | 'others' | 'right' | 'all' | 'mention' | 'reveal' | null>;
+        onChanged: (cb: (generation: number) => void) => () => void;
       };
       sessionsMeta: () => Promise<SessionMetaRecord[]>;
+      sessionExportMenu: (id: string) => void;
       trustReport: () => Promise<TrustReport | null>;
       manualAlpha: {
         status: () => Promise<ManualAlphaServiceStatus | null>;
@@ -203,6 +290,7 @@ declare global {
         bundlePath: () => Promise<string>;
         probe: () => Promise<{
           readings: Record<string, 'granted' | 'denied' | 'not-determined' | 'unavailable'>;
+          readingSource: 'helper' | 'in-process';
           responsibleBundle: string;
           responsibleName: string;
           isDevHost: boolean;
