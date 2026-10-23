@@ -1,8 +1,9 @@
+import { activeRunBudget } from './run.budget';
 import { Worker } from 'worker_threads';
 import * as path from 'path';
 import { existsSync } from 'fs';
 import { Logger } from '../utils/logger';
-import { cliEvents } from '../cli/events';
+import { engineEvents } from '../engine/events';
 import { FLOOR_ENV } from '../sandbox/exec.sandbox';
 import { globalSubAgentBlackboard } from './subagent.blackboard';
 import { getTracer } from '../telemetry/trace';
@@ -32,6 +33,9 @@ interface WorkerHandle {
 }
 
 export interface SubAgentConfig {
+  /** Frozen, host-admitted bot assignment; absent for ordinary sub-agent workers. */
+  botRun?: import('../bots/worker.policy').BotAssignment;
+  runBudget?: SharedArrayBuffer;
   agentType: string;
   prompt: string;
   cwd: string;
@@ -74,6 +78,41 @@ export interface SubAgentConfig {
 /** Maximum nesting depth of the agent tree (main session = 0, so 3 ⇒ two nested worker layers). */
 export const MAX_SUBAGENT_DEPTH = 3;
 
+/**
+ * The heap limit of one sub-agent worker, a MEMORY cap. In the monolith (record 64) every isolate in the app's
+ * process shares one 4 GB V8 heap, so a sub-agent gets a bounded share: over it, that worker is terminated and its task
+ * fails, instead of the whole app hitting the process-wide limit. An engine indexing this whole repository peaked at
+ * 128 MB used heap; a sub-agent does less.
+ */
+export const SUBAGENT_WORKER_HEAP_MB = 384;
+
+/**
+ * Read a sub-agent's stdout sentinels and emit the messages a worker_thread would post. Shared by the subprocess and
+ * the bundle-worker paths, so the two can never parse differently.
+ */
+function translateSentinels(stdout: NodeJS.ReadableStream, emitter: import('events').EventEmitter): void {
+  let buf = '';
+  // StringDecoder, not per-chunk toString(): a multibyte UTF-8 char split across two pipe
+  // reads would otherwise decode to U+FFFD and corrupt the sub-agent's result text.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { StringDecoder } = require('string_decoder') as typeof import('string_decoder');
+  const utf8 = new StringDecoder('utf8');
+  stdout.on('data', (d: Buffer) => {
+    buf += utf8.write(d);
+    let nl: number;
+    while ((nl = buf.indexOf('\n')) >= 0) {
+      const line = buf.slice(0, nl); buf = buf.slice(nl + 1);
+      try {
+        if (line.startsWith(SUB_RESULT)) emitter.emit('message', { type: 'success', result: JSON.parse(line.slice(SUB_RESULT.length)).result });
+        else if (line.startsWith(SUB_ERROR)) emitter.emit('message', { type: 'error', error: JSON.parse(line.slice(SUB_ERROR.length)).error });
+        else if (line.startsWith(SUB_READY)) emitter.emit('message', { type: 'ready' });
+        else if (line.startsWith(SUB_EVENT)) { const e = JSON.parse(line.slice(SUB_EVENT.length)); emitter.emit('message', { type: 'tool_event', subtype: e.subtype, call: e.call }); }
+        // any other line is stray stdout — ignore it
+      } catch { /* malformed sentinel line — ignore */ }
+    }
+  });
+}
+
 export class SubAgentManager {
   private activeWorkers = new Map<string, WorkerHandle>();
   private workerScriptPath: string;
@@ -98,15 +137,15 @@ export class SubAgentManager {
     // fails to register the ESM hooks, which surfaced as "Cannot find package 'minimatch'" /
     // "Unknown file extension '.ts'" and killed EVERY sub-agent whenever the engine ran from source.
     // A plain .js worker under plain node needs no loader and just works.
-    // Candidates: the sibling .js when we're already compiled (dist/core → dist/cli), and the dist
-    // copy when running from source (src/core → ../../dist/cli). Fall back to the .ts entry + tsx
+    // Candidates: the sibling .js when we're already compiled (dist/core → dist/engine), and the dist
+    // copy when running from source (src/core → ../../dist/engine). Fall back to the .ts entry + tsx
     // only if no compiled worker exists at all (pure-source checkout with no build).
     const compiledCandidates = [
-      path.resolve(__dirname, '../cli/worker.entry.js'),
-      path.resolve(__dirname, '../../dist/cli/worker.entry.js'),
+      path.resolve(__dirname, '../engine/worker.entry.js'),
+      path.resolve(__dirname, '../../dist/engine/worker.entry.js'),
     ];
     const compiledJs = compiledCandidates.find(existsSync);
-    const tsPath = path.resolve(__dirname, '../cli/worker.entry.ts');
+    const tsPath = path.resolve(__dirname, '../engine/worker.entry.ts');
     this.hasScriptOverride = !!opts?.workerScriptPath;
     if (opts?.workerScriptPath) {
       this.workerScriptPath = opts.workerScriptPath;
@@ -127,9 +166,42 @@ export class SubAgentManager {
   // bundled into the embedded worker), but a re-exec of the whole binary carries every dependency.
   private createHandle(taskId: string, config: SubAgentConfig, workerOpts: any): WorkerHandle {
     if (this.isBun && !this.hasScriptOverride) {
+      if (config.runBudget) throw new Error('Shared run budgets require the desktop worker transport.');
       return this.spawnSubprocessHandle(config, workerOpts);
     }
+    // The Bimax app names the engine bundle it started (BIMAX_ENGINE_MODULE). Run the sub-agent as that same
+    // bundle in a worker thread, in sub-agent mode. Before this, the app's bundle had no worker.entry.js beside it,
+    // so the packaged app fell through to the .ts entry (which cannot load there) and a development run picked up
+    // whatever stale dist/engine/worker.entry.js was lying around (record 64, M1).
+    const bundle = process.env.BIMAX_ENGINE_MODULE;
+    if (bundle && !this.hasScriptOverride && existsSync(bundle)) {
+      return this.spawnBundleWorkerHandle(bundle, config, workerOpts);
+    }
     return new Worker(this.workerScriptPath, { ...workerOpts, execArgv: this.workerExecArgv });
+  }
+
+  /**
+   * A sub-agent as a worker thread running the engine bundle itself with BIMAX_SUBAGENT_CONFIG: index.ts takes the
+   * sub-agent path, gets the sub-agent's folder as its working folder (worker.folder.ts), and reports over the same
+   * stdout sentinels the subprocess path uses — translated by the same code.
+   */
+  private spawnBundleWorkerHandle(bundle: string, config: SubAgentConfig, workerOpts: any): WorkerHandle {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { EventEmitter } = require('events') as typeof import('events');
+    const env = { ...(workerOpts.env || process.env), BIMAX_SUBAGENT_CONFIG: JSON.stringify(config) };
+    const worker = new Worker(bundle, {
+      env, stdout: true, stderr: false,
+      workerData: { bimaxEngineRoot: config.cwd || process.cwd(), runBudget: config.runBudget },
+      resourceLimits: { maxOldGenerationSizeMb: SUBAGENT_WORKER_HEAP_MB },
+    });
+    const emitter = new EventEmitter();
+    translateSentinels(worker.stdout, emitter);
+    worker.on('error', (e: Error) => emitter.emit('error', e));
+    worker.on('exit', (code: number) => emitter.emit('exit', code ?? 0));
+    return {
+      on: (ev, fn) => { emitter.on(ev, fn); },
+      terminate: () => { void worker.terminate().catch(() => undefined); },
+    };
   }
 
   // Re-exec THIS binary with BIMAX_SUBAGENT_CONFIG set; index.ts detects it and runs the sub-agent
@@ -143,26 +215,7 @@ export class SubAgentManager {
     const env = { ...(workerOpts.env || process.env), BIMAX_SUBAGENT_CONFIG: JSON.stringify(config) };
     const child = spawn(process.execPath, [], { env, stdio: ['ignore', 'pipe', 'inherit'] });
     const emitter = new EventEmitter();
-    let buf = '';
-    // StringDecoder, not per-chunk toString(): a multibyte UTF-8 char split across two pipe
-    // reads would otherwise decode to U+FFFD and corrupt the sub-agent's result text.
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { StringDecoder } = require('string_decoder') as typeof import('string_decoder');
-    const utf8 = new StringDecoder('utf8');
-    child.stdout?.on('data', (d: Buffer) => {
-      buf += utf8.write(d);
-      let nl: number;
-      while ((nl = buf.indexOf('\n')) >= 0) {
-        const line = buf.slice(0, nl); buf = buf.slice(nl + 1);
-        try {
-          if (line.startsWith(SUB_RESULT)) emitter.emit('message', { type: 'success', result: JSON.parse(line.slice(SUB_RESULT.length)).result });
-          else if (line.startsWith(SUB_ERROR)) emitter.emit('message', { type: 'error', error: JSON.parse(line.slice(SUB_ERROR.length)).error });
-          else if (line.startsWith(SUB_READY)) emitter.emit('message', { type: 'ready' });
-          else if (line.startsWith(SUB_EVENT)) { const e = JSON.parse(line.slice(SUB_EVENT.length)); emitter.emit('message', { type: 'tool_event', subtype: e.subtype, call: e.call }); }
-          // any other line is stray child stdout — ignore it
-        } catch { /* malformed sentinel line — ignore */ }
-      }
-    });
+    if (child.stdout) translateSentinels(child.stdout, emitter);
     child.on('error', (e: Error) => emitter.emit('error', e));
     child.on('exit', (code: number | null) => emitter.emit('exit', code ?? 0));
     return {
@@ -179,7 +232,7 @@ export class SubAgentManager {
    * AND checkpoint the agent tree to disk (so a crashed parent's swarm is recoverable).
    */
   private emitBoard(): void {
-    try { cliEvents.emit('subagent_update', globalSubAgentBlackboard.all()); } catch { /* best-effort */ }
+    try { engineEvents.emit('subagent_update', globalSubAgentBlackboard.all()); } catch { /* best-effort */ }
     try {
       const agents: CheckpointedAgent[] = globalSubAgentBlackboard.all()
         .filter(c => this.spawnConfigs.has(c.taskId))
@@ -308,6 +361,7 @@ export class SubAgentManager {
         ...(config.scope ? { 'bimax.subagent.scope': config.scope } : {}),
       });
 
+      config.runBudget = activeRunBudget();
       const workerOpts = {
         workerData: config,
         // Floored episodes get their own env copy with the floor flag — thread-scoped, so the
@@ -471,7 +525,7 @@ export class SubAgentManager {
             journalSubagent({ taskId, phase: 'tool_call', tool: message.call.toolName, ms: Date.now() - t0 });
           }
           const call = { ...message.call, parentId: taskId, agentLabel: config.agentType };
-          cliEvents.emit(message.subtype === 'tool_call_result' ? 'tool_call_result' : 'tool_call', call);
+          engineEvents.emit(message.subtype === 'tool_call_result' ? 'tool_call_result' : 'tool_call', call);
         }
       });
 

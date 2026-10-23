@@ -1,9 +1,12 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 
 export interface SessionMeta {
   id: string;           // same as the JSONL filename stem
   title: string;        // first user message, truncated
+  /** What the session is for, in a few words, named after its first reply (engine/session.summary.ts). */
+  summary?: string;
   cwd: string;          // working directory when session started
   startedAt: string;    // ISO
   endedAt?: string;     // ISO — set on shutdown
@@ -13,21 +16,33 @@ export interface SessionMeta {
   goalTitle?: string;
 }
 
-const META_FILE = '.breakglass/sessions/sessions-meta.jsonl';
 
 // Resolved lazily: the engine chdir()s to BIMAX_CWD during boot (after some modules load) and
 // tests chdir to tmpdirs — a captured-at-import path would write meta into the wrong project.
 function metaPath(): string {
-  return path.join(process.cwd(), META_FILE);
+  return path.join(stateDir('.breakglass'), 'sessions', 'sessions-meta.jsonl');
 }
 
 function readAllMeta(): SessionMeta[] {
+  let raw: string;
   try {
-    const raw = fs.readFileSync(metaPath(), 'utf8');
-    return raw.trim().split('\n').filter(Boolean).map(l => JSON.parse(l) as SessionMeta);
+    raw = fs.readFileSync(metaPath(), 'utf8');
   } catch {
-    return [];
+    return [];   // no file yet — a genuinely empty history
   }
+  // Parse per line. A torn or truncated line is the ONLY thing that should be lost: parsing the
+  // whole file under one try/catch meant a single bad byte returned [], which silently erased the
+  // entire session list (Recents rendered "Nothing yet") AND made updateMeta's findIndex miss every
+  // id, so titles and message counts stopped being written and every later session stayed
+  // "(no messages yet)" forever. Append-only logs must degrade line by line.
+  const out: SessionMeta[] = [];
+  for (const line of raw.split('\n')) {
+    if (!line.trim()) continue;
+    try {
+      out.push(JSON.parse(line) as SessionMeta);
+    } catch { /* skip the damaged line, keep the history */ }
+  }
+  return out;
 }
 
 function appendMeta(meta: SessionMeta): void {
@@ -44,7 +59,15 @@ function updateMeta(id: string, updates: Partial<SessionMeta>): void {
     const idx = all.findIndex(m => m.id === id);
     if (idx === -1) return;
     all[idx] = { ...all[idx], ...updates };
-    fs.writeFileSync(metaPath(), all.map(m => JSON.stringify(m)).join('\n') + '\n', 'utf8');
+    // Write through a temp file and rename. A full-file writeFileSync here races appendMeta (and a
+    // second engine process), and an interrupted one leaves a half-written line that used to poison
+    // every later read. rename(2) is atomic on the same filesystem, so a reader sees either the old
+    // file or the new one — never a torn one.
+    const p = metaPath();
+    const tmp = `${p}.${process.pid}.tmp`;
+    fs.mkdirSync(path.dirname(p), { recursive: true });
+    fs.writeFileSync(tmp, all.map(m => JSON.stringify(m)).join('\n') + '\n', 'utf8');
+    fs.renameSync(tmp, p);
   } catch { /* best-effort */ }
 }
 
@@ -142,6 +165,25 @@ export function endSessionMeta(): void {
 
 export function getCurrentSessionId(): string | null {
   return _current?.id ?? null;
+}
+
+/** The session being recorded, as a copy, or null before the first message. */
+export function currentSessionMeta(): SessionMeta | null {
+  return _current ? { ..._current } : null;
+}
+
+/**
+ * Name a session by what it is for (engine/session.summary.ts). Written to the record even when the
+ * tracker has moved on to another session — the title arrives a model call later. Returns whether a
+ * record took it.
+ */
+export function recordSessionSummary(id: string, summary: string): boolean {
+  const text = summary.replace(/\s+/g, ' ').trim().slice(0, 64);
+  if (!id || !text) return false;
+  if (_current?.id === id) _current.summary = text;
+  if (!readAllMeta().some(m => m.id === id)) return false;
+  updateMeta(id, { summary: text });
+  return true;
 }
 
 /** Returns the most recent N session metadata records, newest first. */

@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { Logger } from '../utils';
@@ -7,7 +8,7 @@ export class FreeCreditsTracker {
   private dailyQuota = 10;
   private currentUsage = 0;
   private lastResetDate = '';
-  private readonly QUOTA_PATH = path.join(process.cwd(), '.breakglass/credits', 'quota.json');
+  private readonly QUOTA_PATH = path.join(stateDir('.breakglass'), 'credits', 'quota.json');
   private mutex = new Mutex();
 
   constructor() {

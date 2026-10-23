@@ -1,3 +1,4 @@
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import { getEventLedger } from '../mind/event.ledger';
@@ -83,7 +84,7 @@ export class FileClaims {
   private static readonly LOCK_WAIT_MS = 2_000;
 
   constructor(projectRoot: string = process.cwd()) {
-    this.filePath = path.join(projectRoot, '.bimax', 'claims.json');
+    this.filePath = path.join(stateDir('.bimax', projectRoot), 'claims.json');
     this.lockPath = `${this.filePath}.lock`;
   }
 

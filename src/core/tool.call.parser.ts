@@ -59,6 +59,15 @@ function matchBalancedObject(s: string, start: number): number {
 }
 
 /** Parse a candidate object into a tool call if it has a registered name; else null. */
+/**
+ * A tool name without the harmony tokens gpt-oss sometimes glues to it (backlog Q1): `AskUserTool<|channel|>commentary`
+ * and `functions.AskUserTool` both name AskUserTool. Left in, the fuzzy registry lookup could still run the tool, but the
+ * garbled name went back to the model in its own history and showed in the thread.
+ */
+export function cleanToolName(name: string): string {
+  return name.replace(/<\|[^|>]*\|>[\s\S]*$/, '').replace(/^functions\./, '').trim();
+}
+
 function asToolCall(candidate: string, isRegisteredTool: (name: string) => boolean): { name: string; args: string } | null {
   let obj: any;
   try {
@@ -69,7 +78,8 @@ function asToolCall(candidate: string, isRegisteredTool: (name: string) => boole
   if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return null;
 
   // Accept the common shapes: {name, parameters|arguments|input} and {function:{name, arguments}}.
-  const name = obj.name ?? obj.tool ?? obj.function?.name;
+  const raw = obj.name ?? obj.tool ?? obj.function?.name;
+  const name = typeof raw === 'string' ? cleanToolName(raw) : raw;
   if (typeof name !== 'string' || !isRegisteredTool(name)) return null;
 
   const rawArgs = obj.parameters ?? obj.arguments ?? obj.input ?? obj.function?.arguments ?? {};

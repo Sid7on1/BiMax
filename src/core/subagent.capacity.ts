@@ -1,7 +1,20 @@
+import { stateDir } from '../utils/state.dir';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 
+/**
+ * The ceiling on concurrent sub-agent **workers** — real Node `worker_threads` Workers, i.e. actual
+ * OS threads (see subagent.manager.ts). This is a CPU budget.
+ *
+ * It is NOT the cap on Bimax Threads, the product feature, even though both are currently 4:
+ * `MAX_LIVE_ENGINES` (app/src/main/thread.budget.ts) is a MEMORY budget over engines.
+ * The two govern different resources and are enforced in different places — this one per engine,
+ * against the lease ledger `resolveCapacityContext` picks. When the desktop runs several Bimax
+ * Threads at once it must point them all at ONE ledger (BIMAX_AGENT_CAPACITY_PATH), or this
+ * per-process ceiling multiplies by the number of live Threads. See the glossary in AGENTS.md and
+ * docs/product-reset/57_OPTIMISATION_AND_APPLE_BUILD_PLAN.md WP-1.
+ */
 export const MAX_CONCURRENT_SUBAGENTS = 4;
 
 /**
@@ -49,7 +62,7 @@ function wait(ms: number): void {
 /** One inherited path/run id keeps nested workers and worktrees on the same capacity ledger. */
 export function resolveCapacityContext(cwd: string, capacityPath?: string, runId?: string): { path: string; runId: string } {
   const resolvedPath = capacityPath || process.env[CAPACITY_PATH_ENV]
-    || path.join(path.resolve(cwd || process.cwd()), '.bimax', 'subagent-capacity.json');
+    || path.join(stateDir('.bimax', cwd || process.cwd()), 'subagent-capacity.json');
   const resolvedRun = runId || process.env[CAPACITY_RUN_ENV]
     || `run-${process.pid}-${crypto.randomBytes(6).toString('hex')}`;
   return { path: resolvedPath, runId: resolvedRun };

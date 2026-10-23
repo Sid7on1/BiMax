@@ -42,18 +42,33 @@ export function looksLikeImagePath(p: string): boolean {
  * can fall back to text rather than send a broken request.
  */
 export function imagePartFromSource(source: string): ImagePart | null {
+  const loaded = loadImagePart(source);
+  return 'part' in loaded ? loaded.part : null;
+}
+
+/** `imagePartFromSource` that also says WHY a source could not be used, in words a person can act on (flaw list
+ *  E40: the file-system reason used to be discarded, so "Could not load image" never said whether it was missing,
+ *  unreadable, or not a picture). */
+export function loadImagePart(source: string): { part: ImagePart } | { reason: string } {
   if (source.startsWith('data:') || source.startsWith('http://') || source.startsWith('https://')) {
-    return { type: 'image_url', image_url: { url: source } };
+    return { part: { type: 'image_url', image_url: { url: source } } };
   }
   const dot = source.lastIndexOf('.');
-  if (dot < 0) return null;
-  const mime = MIME_BY_EXT[source.slice(dot + 1).toLowerCase()];
-  if (!mime) return null;
+  if (dot < 0) return { reason: 'no file extension' };
+  const extension = source.slice(dot + 1).toLowerCase();
+  const mime = MIME_BY_EXT[extension];
+  if (!mime) return { reason: `.${extension} is not a picture type that can be sent` };
   try {
     const b64 = fs.readFileSync(source).toString('base64');
-    return { type: 'image_url', image_url: { url: `data:${mime};base64,${b64}` } };
-  } catch {
-    return null;
+    return { part: { type: 'image_url', image_url: { url: `data:${mime};base64,${b64}` } } };
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    return {
+      reason: code === 'ENOENT' ? 'file not found'
+        : code === 'EACCES' || code === 'EPERM' ? 'permission denied'
+        : code === 'EISDIR' ? 'it is a folder'
+        : code || (error instanceof Error ? error.message : String(error)),
+    };
   }
 }
 
@@ -83,7 +98,7 @@ export function buildUserContent(text: string, imageSources: string[], visionCap
     const n = sources.length;
     return {
       content: text,
-      notice: `Note: ${n} image${n === 1 ? '' : 's'} attached, but the active model has no vision support — continuing on text only.`,
+      notice: `Note: ${n} picture${n === 1 ? ' was' : 's were'} not sent — neither this model nor the Vision model can see pictures (no vision support). Choose one that can under Models → Vision. Continuing on text only.`,
       attached: 0,
     };
   }
@@ -92,9 +107,9 @@ export function buildUserContent(text: string, imageSources: string[], visionCap
   if (text && text.length > 0) parts.push({ type: 'text', text });
   const failed: string[] = [];
   for (const src of sources) {
-    const part = imagePartFromSource(src);
-    if (part) parts.push(part);
-    else failed.push(src);
+    const loaded = loadImagePart(src);
+    if ('part' in loaded) parts.push(loaded.part);
+    else failed.push(`${src} (${loaded.reason})`);
   }
 
   const attached = parts.filter((p) => p.type === 'image_url').length;
@@ -137,6 +152,31 @@ export function extractImagePaths(text: string, cwd: string): string[] {
     } catch { /* not a real file — leave it as plain text */ }
   }
   return out;
+}
+
+/** How many pictures one turn may carry, and how large each may be (backlog N5). */
+export const MAX_TURN_PICTURES = 5;
+export const MAX_PICTURE_BYTES = 10 * 1024 * 1024;
+
+/**
+ * The pictures a person deliberately attached to a turn (backlog N5): one line `- Picture: <absolute path>` each,
+ * which the ⌘2 bar writes for a pasted image or a screenshot (app/src/main/quick.context.ts). A path merely written
+ * in a sentence is never attached — a task that renames 300 photos must not upload them to the model. Missing,
+ * non-image and oversized files are left out; `skipped` names them so the person is told.
+ */
+export function attachedPictures(text: string): { paths: string[]; skipped: string[] } {
+  const paths: string[] = [];
+  const skipped: string[] = [];
+  // An image path ends in its extension, so a `]` closing the context block on the same line is never part of it.
+  for (const match of text.matchAll(/^[ \t]*-[ \t]*Picture:[ \t]*(\/[^\r\n]*?)[ \t]*\]?[ \t]*$/gm)) {
+    const file = match[1]!;
+    if (paths.includes(file) || skipped.includes(file)) continue;
+    let ok = false;
+    try { const stat = fs.statSync(file); ok = looksLikeImagePath(file) && stat.isFile() && stat.size <= MAX_PICTURE_BYTES; } catch { /* gone */ }
+    if (ok && paths.length < MAX_TURN_PICTURES) paths.push(file);
+    else skipped.push(file);
+  }
+  return { paths, skipped };
 }
 
 /** Flatten any message content (string or part array) to its plain text — for token estimation/logging. */

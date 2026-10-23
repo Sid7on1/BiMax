@@ -1,0 +1,77 @@
+{
+  "_comment": [
+    "Example Open Socket configuration. Copy to .breakglass/sockets.json and edit.",
+    "",
+    "This file is OPERATOR-OWNED. The agent can read it but never writes it, and can only invoke",
+    "the templates declared here — it cannot author a query. That is what makes the socket",
+    "retrieval-only by construction rather than by a keyword check it might get wrong.",
+    "",
+    "Passwords are NEVER written here. `passwordEnv` names an environment variable.",
+    "",
+    "Parameter discipline is the security boundary that matters. A `pattern` is the sharpest tool",
+    "available: '^[A-Z]-\\\\d{3}$' admits E-204 and literally nothing else, so the parameter cannot",
+    "carry a sentence, let alone a confidential document. Prefer a pattern or an enum over a bare",
+    "string wherever the value is an identifier."
+  ],
+
+  "connectors": [
+    {
+      "name": "historian",
+      "kind": "postgres",
+      "host": "10.20.1.44",
+      "port": 5432,
+      "database": "plant_historian",
+      "user": "bimax_readonly",
+      "passwordEnv": "HISTORIAN_PASSWORD",
+      "timeoutMs": 10000
+    },
+    {
+      "name": "cache",
+      "kind": "redis",
+      "host": "10.20.1.51",
+      "port": 6379,
+      "passwordEnv": "REDIS_PASSWORD",
+      "timeoutMs": 5000
+    }
+  ],
+
+  "templates": [
+    {
+      "name": "equipment_inspection_history",
+      "description": "Every recorded inspection for one equipment tag, newest first.",
+      "connector": "historian",
+      "statement": "SELECT inspected_on, thickness_mm, inspector, findings FROM inspections WHERE equipment_tag = $1 ORDER BY inspected_on DESC LIMIT 50",
+      "params": [
+        {
+          "name": "tag",
+          "type": "string",
+          "pattern": "^[A-Z]{1,2}-\\d{3}[A-Z]?$",
+          "maxLength": 8,
+          "description": "Equipment tag, e.g. E-204 or P-310A"
+        }
+      ],
+      "maxRows": 50
+    },
+    {
+      "name": "unit_alarms_in_window",
+      "description": "Alarms raised on a process unit between two dates.",
+      "connector": "historian",
+      "statement": "SELECT raised_at, tag, severity, message FROM alarms WHERE unit = $1 AND raised_at BETWEEN $2 AND $3 ORDER BY raised_at DESC LIMIT 200",
+      "params": [
+        { "name": "unit", "type": "enum", "values": ["CDU", "VDU", "HCU", "DCU", "CCR", "PP"] },
+        { "name": "from", "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$", "maxLength": 10 },
+        { "name": "to", "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$", "maxLength": 10 }
+      ],
+      "maxRows": 200
+    },
+    {
+      "name": "latest_reading",
+      "description": "Most recent cached process reading for an instrument tag.",
+      "connector": "cache",
+      "statement": "HGETALL reading:$1",
+      "params": [
+        { "name": "tag", "type": "string", "pattern": "^[A-Z]{2}-\\d{3}$", "maxLength": 8 }
+      ]
+    }
+  ]
+}
