@@ -1,5 +1,31 @@
 # The BiMAX Design Language — Starlight & Moonlight
 
+## Current Mac app contract — 2026-10-01
+
+The active product is the worker-only Mac app (product-reset records 55 and 64). The Terminal-specific sections
+below are retained history; references to `tui/styles.go` are not the active Mac token authority.
+`app/src/renderer/src/styles.css` owns Moonlight/Starlight ink, material, type and shared control feedback;
+`components/ui/morph/tokens.ts` owns the spring ladder. The exact UI fix list and evidence are in
+[`front inspo/15-ui-fix-list-applied.md`](../front%20inspo/15-ui-fix-list-applied.md).
+
+- Large window/pane/raised-card surfaces may transmit light. Small floating controls use the 94% floating density.
+  One surface gets one veil: no glass stacked on glass.
+- Inter is the interface/prose face; code, commands, identifiers and file paths retain the code face. Lucide supplies
+  action/status glyphs, with the established brand and file-type marks as exceptions. Shared spacing groups related
+  controls; it does not add a border around each piece of information.
+- Radius tiers express the object: small glyphs/chips (3–7px), rows/inputs (8–12px), large raised surfaces (16–22px),
+  and circles/pills. Seeded morphs interpolate the measured origin and destination radius from that same hierarchy.
+  A tier is a family with optical adjustments, not a rule that every object has identical curvature.
+- Moonlight uses #1a1a1a canvas, #212121 raised and #141414 wells, with stepped silver semantic signals. Supporting
+  text is #e9e9e4 / #e0e0dc; Starlight has its own darker ink ladder (#3d3d3a / #474743). Every readable label targets
+  4.5:1 at baseline; Increase Contrast is an enhancement. The compiled, composited preview calibrates real content
+  in both themes and zooms; native vibrancy and the full wallpaper range require separate installed measurement.
+- Seeded morph is the signature. Working text stays still, shows actual reasoning/retry text and elapsed time,
+  and never scrambles letters or rotates invented activities. Cards do not stage decorative entrances. Pointer/Space
+  down gives every enabled control an immediate inset outline; established press releases ease out in 120ms.
+- Goal, current step, this run's changed files and next action remain visible outside scrollback. “Checking changes”
+  describes an actual running check after edits; only scoped evidence can say checks passed. No artificial delay.
+
 This document describes the design system **as implemented** in `tui/styles.go`,
 `app/src/renderer/src/styles.css`, and the copy conventions across the engine.
 It is a contract, not a mood board: if a change violates a rule here, the change

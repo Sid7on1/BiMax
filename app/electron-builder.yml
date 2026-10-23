@@ -1,7 +1,8 @@
-# Bimax for Mac packaging — DMG for macOS only.
-# The headless engine (bun --compile, standalone — no Node on the host) is bundled as an
-# extraResource; scripts/prepare-engine.sh must have compiled it for the TARGET platform/arch
-# before electron-builder runs (the dist:* npm scripts sequence this).
+# Bimax agentic IDE packaging — DMG for macOS only.
+# The headless engine is a JavaScript bundle of this repo's src/index.ts, built by
+# scripts/prepare-engine.sh and shipped as an extraResource. Electron's own Node runs it as a
+# worker thread in the app's process (record 64), so no bun runtime is shipped and the artifact is architecture-independent —
+# one engine/ serves arm64 and x64 alike (the dist:* npm scripts still sequence the build).
 appId: ai.bimax.app
 productName: Bimax
 # Runs after the app is packed and BEFORE it is signed. Clears the extended attributes an
@@ -16,34 +17,68 @@ files:
   - out/**
   # @lydell/node-pty is externalized by electron-vite (native N-API prebuilds) and must ship;
   # its platform binary lives in a @lydell/node-pty-<platform>-<arch> sibling package.
+  - node_modules/esbuild/**
+  - node_modules/@esbuild/**
+  - node_modules/react/**
+  - node_modules/react-dom/**
+  - node_modules/scheduler/**
   - node_modules/@lydell/**
+  # electron-liquid-glass (native Liquid Glass behind the ⌘2 bar) is externalized the same way. It loads its
+  # N-API prebuild through node-gyp-build, so that ships too. Without either, the bar falls back to vibrancy.
+  - node_modules/electron-liquid-glass/**
+  - node_modules/node-gyp-build/**
 
 # Native binaries can't load from inside the asar archive.
 asarUnpack:
+  # The native preview compiler reads these files outside Electron’s virtual asar filesystem.
+  - node_modules/react/**
+  - node_modules/react-dom/**
+  - node_modules/scheduler/**
+  - node_modules/esbuild/**
+  - node_modules/@esbuild/**
   - node_modules/@lydell/**
+  - node_modules/electron-liquid-glass/**
 
-# engine/ holds exactly one binary: bimax-engine, compiled for the
-# same platform+arch this build targets.
+# engine/ holds index.js (the bundle) plus the tree-sitter .wasm assets it loads at runtime.
 extraResources:
+  - from: cu-runtime
+    to: cu-runtime
   - from: engine
     to: engine
+  # voice/ holds bimax-voice, the on-device dictation helper (native/voice, built by scripts/build-voice.sh).
+  - from: voice
+    to: voice
+  # notch/ holds bimax-notch, God's Land's notch helper (native/notch, built by scripts/build-notch.sh).
+  - from: notch
+    to: notch
+
+# intents/BimaxIntents.appex is the App Intents extension (native/intents, built by
+# scripts/build-intents.sh).
+#
+# Contents/Extensions, NOT Contents/PlugIns. MEASURED 2026-09-20: an ExtensionKit extension (one
+# declaring EXAppExtensionAttributes) is only discovered from Contents/Extensions. Placed in
+# PlugIns it is embedded, signed and shipped, and Launch Services never records it — no log line,
+# no pluginkit entry, nothing. PlugIns is the older NSExtension location. Every ExtensionKit
+# extension on this Mac confirms it, from Safari.app/Contents/Extensions to
+# /System/Library/ExtensionKit/Extensions.
+extraFiles:
+  - from: intents/BimaxIntents.appex
+    to: Extensions/BimaxIntents.appex
 
 asar: true
 
+# bimax://task?folder=…&prompt=… opens a ⌘2 task after a confirmation (backlog N2; app/src/main/bimax.link.ts).
+protocols:
+  - name: Bimax task link
+    schemes:
+      - bimax
+
 mac:
   category: public.app-category.developer-tools
-  extendInfo:
-    NSMicrophoneUsageDescription: Bimax uses the microphone only when you explicitly start voice input.
   target:
     - dmg
   darkModeSupport: true
-  # Bimax for Mac's support floor. This is a product decision, not an Electron requirement —
-  # Electron 43 itself still runs on older macOS. macOS 13 is chosen because the native XPC service
-  # installs NSXPCConnection code-signing requirements (evaluated against the immutable audit token)
-  # from macOS 13, so below the floor the CU service would fall back to the weaker PID-based check;
-  # and because Electron 44 raises its own floor to macOS 13, so this avoids moving the boundary
-  # again during the next runtime upgrade. It writes LSMinimumSystemVersion into Info.plist, so the
-  # OS refuses to launch the app below the floor rather than failing later in the native path.
+  # macOS 13 keeps the application on a current Electron-compatible product floor.
   minimumSystemVersion: "13.0"
   # Release signing (see docs/SECURITY_INSTALL.md). Hardened runtime + entitlements are always
   # declared so that WHEN a Developer ID cert is present (CSC_LINK/CSC_KEY_PASSWORD, or one in the
@@ -52,24 +87,32 @@ mac:
   # CSC_LINK/CSC_KEY_PASSWORD (or expose the Developer ID identity in the keychain) and verify the
   # nested service. Notarization below remains credential-gated and must never be inferred from a
   # local `codesign` pass alone.
+  extendInfo:
+    NSAppleEventsUsageDescription: Bimax reads the active Finder folder when you open the global thread prompt bar.
+    NSMicrophoneUsageDescription: Bimax listens only while you dictate — the mic button is on or right Option is held — and turns your words into text on this Mac.
+    # Finder's "Ask Bimax" Quick Action and a drop on the Dock icon hand files to Bimax (backlog N3). Rank None: Bimax
+    # accepts any item it is given, but never becomes the app that opens a kind of file.
+    CFBundleDocumentTypes:
+      - CFBundleTypeName: Any item
+        CFBundleTypeRole: Viewer
+        LSHandlerRank: None
+        LSItemContentTypes:
+          - public.item
   hardenedRuntime: true
   gatekeeperAssess: false
   entitlements: buildResources/entitlements.mac.plist
   entitlementsInherit: buildResources/entitlements.mac.plist
-  # A real nested XPC bundle, signed with the containing app. Runtime activation remains subject to
-  # the live structural/signing gate and rollout circuit; packaging alone never enables delivery.
-  extraFiles:
-    - from: native-service/BimaxCuService.xpc
-      to: XPCServices/BimaxCuService.xpc
-    # Signed bridge: validates a live ai.bimax.app ancestor before using the Data-only XPC client.
-    - from: native-service/bimax-cu-bridge
-      to: MacOS/bimax-cu-bridge
-    # The compatibility/product helper is compiled at build time; user machines never invoke swiftc.
-    - from: native-service/bimax-desktop-helper
-      to: MacOS/bimax-desktop-helper
-    - from: native-service/bimax-mac-capability
-      to: MacOS/bimax-mac-capability
-  # notarize: { teamId: "YOUR_TEAM_ID" }   # uncomment for release; needs APPLE_ID + APPLE_APP_SPECIFIC_PASSWORD
+  # Notarization. On electron-builder 26 this is a BOOLEAN and credentials come from the
+  # environment — the `notarize: { teamId: ... }` object below a certain version is the v24 shape
+  # and is silently wrong here, which is why preflight-release.mjs checks it. It is left ON
+  # (the default) so a release notarizes as soon as credentials are present; set it to false only
+  # for a deliberate signed-but-unnotarized build.
+  #
+  #   APPLE_API_KEY + APPLE_API_KEY_ID + APPLE_API_ISSUER   ← preferred: a file path, not a password
+  #   APPLE_ID + APPLE_APP_SPECIFIC_PASSWORD + APPLE_TEAM_ID
+  #
+  # See docs/DEVELOPER_ID_RELEASE.md.
+  # notarize: false
 
 dmg:
   # DMG signing follows the app identity. Left off for unsigned dev builds; a signed release signs the

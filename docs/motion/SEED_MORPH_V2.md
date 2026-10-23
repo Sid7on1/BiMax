@@ -172,9 +172,9 @@ is one motion system again (§36):
 |---|---|---|
 | Model, task type, permission level, quality | `Dropdown` | `SeedMenu` |
 | Appearance (title bar), branch switcher | `Dropdown` | `SeedMenu` |
-| Seven dialogs, incl. the command palette | Radix + FLIP | Radix + morph driver |
+| Seven dialogs, incl. the command palette | Radix + FLIP | Radix + morph driver — *revisited in Phase J below; five of the seven are now standard sheets* |
 | Mac timeline detail | `SeedPanel` | `SeedPopover` |
-| Sidebar, inspector | `SeedRegion` | `MorphRegion` |
+| Sidebar, inspector | `SeedRegion` | `MorphRegion` — *seeded from the intent tracker here, from their own edge after Phase J* |
 
 Two defects fell out of doing it, both invisible at 60fps:
 
@@ -220,6 +220,88 @@ capped at 220px. The mechanism is verified where it does fire (458px, below any 
 and nothing clips at any width. It exists so the next toolbar item is a priority decision rather
 than a layout emergency.
 
+## Re-allocation (Phase J) — the signature moved to where the brief puts it
+
+Reported after the first build: *"every button should not be the seed, left and right panels should
+come from left and right like a seed."* Both halves were right, and they are one job: the morph was
+applied where §42 forbids it and absent where §75 asks for it.
+
+### Dialogs
+
+`ui/dialog.tsx` used to morph **every** dialog in the app, and defended it in its own header as
+"the only version of 'every component has the same animation' that stays true". That is a signature
+applied as a default, which is the thing §42 rules out. `motion` is now a prop and `standard` is
+what it defaults to:
+
+| Dialog | Motion | Why |
+|---|---|---|
+| Models | `seeded` | §42 names `model button→picker` as the case the morph exists for |
+| Command palette | `materialize` | §45 — no seed from ⌘K, and none invented from a click either |
+| Settings | `standard` | §67 |
+| Trust Center | `standard` | §42 — permissions |
+| Machine health, engine request | `standard` | §42 — alerts |
+| Workspace sheet | `standard` | §42 — native sheets |
+
+`standard` hands mounting back to Radix's `Presence` and enters on `anim-dialog-in` — the same
+spring system (`ui/motion.ts`), compiled to a `linear()` and composited on the GPU. §36 asks for no
+duplicate animation systems and this is not one; it is the half of the existing system that applies
+when the destination is known at launch.
+
+The palette is the interesting case. It stays on the driver, because only the driver gives it
+`destinationFor`'s placement and a **live height target** (the sheet shrinks as the query filters,
+rather than leaving a growing block of empty glass under the results) — but it is denied an origin.
+Without that, the same surface flew from the toolbar or appeared in place depending on how it was
+summoned, which is a motion that reports the input device.
+
+### The bars
+
+Both grow from **their own window edge** (`edgeOf`), not from the control that asked for them.
+Prompt 1 §17 says a sidebar should not slide in from off-screen *if a visible control triggered it*,
+and reading only that produced a 700px diagonal flight out of whichever of five controls happened to
+be used. §75 is the governing line: hiding and unhiding a **persistent** sidebar is a structural
+width transition; only *a small button creating a contextual region* is a Seed Morph. These bars are
+persistent — splitters, remembered widths, opened dozens of times a session.
+
+Because the seed shares three of the destination's four spans, the flight is a pure width
+transition: the outer edge is stationary and only the inner one sweeps. §17 survives in the part
+that matters — nothing translates, so this is not a finished panel sliding in; the panel is where it
+will be for the whole flight and is *uncovered* by its own edge. `MorphRegion` still takes a `seed`
+for a genuinely contextual region; no caller passes one.
+
+`sidebar`/`inspector` therefore map to `structuralPane` (ζ = 1, reveal 0→0.5), which existed and had
+no consumer. Honest note on what that bought: the overshoot difference is about **0.2px** at this
+size, so it is not the reason. The reveal window is — under the old token the bar spent the first
+40% of its transition as a widening pane of *empty* glass and then faded the panel up inside its own
+final box, which is two animations where §12 asks for one.
+
+### Menus
+
+Six of the seven menus are **choosers** — model, quality, task lane, permission level, branch,
+appearance — and §44 names those as the morph's own cases: the control states the current value and
+the surface is that value at full size. The toolbar's overflow menu is a list of **commands**, so it
+is `motion="standard"`: it keeps the anchoring, the fold home and the keyboard contract, and declines
+only the journey. It is also the worst case for a flight, since it exists only when the window is
+too narrow — it fires exactly when the user is short of room and hunting for a control.
+
+### Two defects found on the way
+
+1. **Reduce Motion flew home.** `launchGeometry` pinned the launch box near the destination, but
+   `close()` targeted the seed outright — so a panel that appeared in place then crossed the whole
+   window on the way out, which is the travel §32 asks to remove. `close()` now uses the same
+   function as the launch, so the two cannot disagree.
+2. **A surface with no origin shrank into a dot.** With no seed, the collapse targeted a 24×24 box
+   at the surface's own centre. For ⌘K that is a 640px sheet imploding to a point. `MorphFrame` now
+   publishes `seeded`, and an unseeded collapse fades on `dismiss`'s existing ramp instead. A seeded
+   one still does not fade — it ends sitting exactly on its trigger, at that control's size and
+   corner, so the unmount is invisible.
+
+Graded in `morph.region.test.ts` (the outer edge stationary on every frame, both mirrors, nothing
+moving vertically, content uncovered rather than faded in afterwards), `morph.geometry.test.ts`
+(`edgeOf`, and that travel from an edge is reported as growth rather than as distance across the
+window — otherwise `gradeSpring` would slow the bar for a journey it never makes) and
+`morph.controller.test.ts` (`seeded` published, Reduce Motion symmetric, no origin ⇒ no journey).
+The reveal test was checked against the old token and fails on it.
+
 ## Not done
 
 - **`liveMorphCount()` has no production consumer** — it exists so the test lane can assert nothing
@@ -232,3 +314,17 @@ than a layout emergency.
   components, not in a running Electron window: this session's browser pane could not paint, so
   there are no screenshots and no by-eye check at 0.25×. The geometry, the handoff and the tiers are
   measured; *how it looks* is not yet re-confirmed for the newly migrated surfaces.
+
+  Worth being precise about what the harness can and cannot settle, because it is not "it is slow".
+  The pane runs with `document.visibilityState === 'hidden'`, which has two consequences: `rAF` is
+  throttled to roughly **one frame per 13 seconds**, so a driven morph cannot animate there at all;
+  and the page's layout viewport is **0×0**, so every `vw`/`vh` clamp resolves to zero and a dialog
+  that is 420px wide in the app measures 2px. Anything derived from layout is therefore fiction, and
+  the honest reads are the ones that are not: which element is mounted, which classes and computed
+  animations it carries, which inline properties the driver wrote, and whether a lifecycle completes
+  (an `animationend` can be dispatched by hand to prove Radix's `Presence` is wired without waiting
+  for a clock that is stopped). That is how the standard dialog's exit was confirmed here.
+
+- **Jitter still has no verified cause.** The first hypothesis — a missing `contain: layout paint` —
+  was measured and refuted (0.191ms/resize contained vs 0.184ms uncontained). For the reason above,
+  frame pacing cannot be measured in this harness; it needs instrumenting in the real app.

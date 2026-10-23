@@ -25,6 +25,11 @@ vendor/*/bin/
 vendor/*/cache/
 vendor/*/venv/
 vendor/
+# God's Land's notch helper compiles this vendored MIT library from source (app/native/notch/Vendor/DynamicNotchKit/
+# BIMAX_CHANGES.md); the rule above matches it on a case-insensitive disk.
+!app/native/notch/Vendor/
+# Record 80: the complete reviewed Arc snapshot is source owned by Bimax CU.
+!app/native/computer/vendor/
 
 # macOS Finder litter
 .DS_Store
@@ -65,6 +70,9 @@ media-masters/
 .bimax/exemplars.json
 .bimax/tdm.json
 .bimax/claims.json
+# Per-machine command/tool counters (docs/product-reset/58). The GATES declaration beside it
+# (.bimax/gates.json) is the opposite: hand-written, shared, and deliberately tracked.
+.bimax/usage.json
 .bimax/policy-arms.json
 .bimax/workspace.json
 .bimax/*.lock
@@ -105,8 +113,42 @@ opencode.json
 
 # Locally built native helpers (staged by scripts/stage-desktop-helper.ts; never committed)
 app/native-service/
-tui/embed/bimax-desktop-helper
 
 # Transient benchmark runs. The FROZEN baseline is committed as
 # benchmarks/cu-baseline/frozen-v1.1.0.json; ad-hoc runs are not evidence.
 benchmarks/cu-baseline/baseline-*.json
+
+# The marketing website is its own product with its own Vercel deploy (docs/product-reset: "three
+# products, not two"). MOVED 2026-09-20 to ~/Developer/bimax-site, intact and still linked to its
+# Vercel project — it is live, not archived. The ignore stays so a stray clone or build output here
+# never becomes a 584 MB commit into the engine/app repository. bimax-app-build-independence: the
+# desktop build must not write into the site, and the site is not an input to it.
+site/
+# The complete pinned arc-cua source snapshot includes its upstream site.
+# Keep that reviewed source trackable without changing the Bimax website/build-output exclusions.
+!app/native/computer/vendor/arc-cua/site/
+!app/native/computer/vendor/arc-cua/site/**
+# The archived dependency's package notice lives below dist; admit that metadata only.
+!archive/computer-use/2026-10-04-retired-cua-driver/driver-dependencies/@ubjs/core/dist/
+!archive/computer-use/2026-10-04-retired-cua-driver/driver-dependencies/@ubjs/core/dist/cjs/
+!archive/computer-use/2026-10-04-retired-cua-driver/driver-dependencies/@ubjs/core/dist/cjs/package.json
+
+# Other agents' per-machine state. Not ours to track and not ours to archive.
+.opencode/
+
+# Redis dumps and stray build output at the repo root. The engine entry is dist/index.js and the
+# app's is out/main/index.js; a root index.js is a bundle someone left behind.
+dump.rdb
+/index.js
+
+# Built by app/scripts/build-intents.sh from native/intents/. Build output, like voice/ above.
+app/intents/
+
+# Lock file of the agent-skills installer (developer tooling, not the product)
+skills-lock.json
+
+# Generated standalone arc runtime; rebuild from the pinned import and dependency lock.
+/app/arc-runtime/
+
+# App-owned Bimax CU native staging
+app/cu-runtime/

@@ -86,6 +86,46 @@ old installer bundles were moved to `~/.Trash/Bimax-duplicates-2026-08-12/`. The
 `node_modules` remains a build dependency and was not launched as the product. A final-identity TCC
 grant on a fresh Mac, Developer ID, notarization and stable publication remain Target.
 
+2026-08-23 local identity amendment: a repeated live report reproduced host 0/2 while the visible
+System Settings `Bimax` row belonged to the previous CDHash-only ad-hoc build. `tccd` attribution
+confirmed Bimax's helper was asking for responsible identifier `ai.bimax.app`; a separate shell
+probe was attributed to ChatGPT and therefore could not be used as Bimax grant evidence. The
+existing `Bimax Local Code Signing` identity was then tested on two different binaries with the
+same identifier; both emitted the same certificate-root designated requirement. The local signing
+path now prefers that certificate for the host, disables hardened runtime, and excludes the XPC CU
+service so its manual-alpha ad-hoc hash approval remains intact. This is a stable local-development
+identity only, not Developer ID, notarization, Gatekeeper acceptance, or a stable/public release.
+
+The corrected arm64 candidate passed the package ownership/deep-signature gate and the complete Mac
+regression (101 suites, 1,154 tests). Its host requirement is `identifier "ai.bimax.app"` plus the
+local certificate root, while the XPC service remains ad-hoc at exact hash
+`9e08537a69209c591b3089729a31476cf71ed689` and reports both permissions granted. It was installed
+at `/Applications/Bimax.app`; the prior app is recoverable at
+`/Applications/Bimax.previous-20260823-before-stable-local.app`. The installed Trust Center then
+visibly rendered `Control Mac is ready`, host 2/2, and both native-service permissions Allowed.
+That closed the reported current-build mismatch. At that point, a second changed
+certificate-signed app update was still required to measure persistence across rebuilds; public
+release identity remained Target.
+
+2026-08-23 second local-update amendment: the next changed certificate-signed build preserved the
+host grants (Trust Center remained 2/2) and the separately owned XPC service remained Allowed for
+both permissions at its approved Code Directory hash
+`9e08537a69209c591b3089729a31476cf71ed689`. This locally Measures permission persistence across one
+changed rebuild under the stable local certificate requirement. It does not replace the clean-Mac,
+Developer ID, notarized-update, revoke/regrant or public-release rows.
+
+That rebuild also corrected an independent packaged-runtime fault: Electron's provider descriptor
+did not set `BIMAX_CU_NATIVE_ROUTING_ENABLED`, so an otherwise ready service was deterministically
+collapsed to the visible `native_tools_unavailable` stop. Packaged Electron now owns and forces the
+full-native opt-in only inside the scrubbed provider descriptor; the generic engine receives no
+native-routing variable, development preserves only an explicit contributor opt-in, and a hostile
+inherited semantic flag cannot downgrade the packaged decision. The installed provider process was
+restarted after installation and directly reported packaged mode, Electron-main authority and
+`BIMAX_CU_NATIVE_ROUTING_ENABLED=1`. Full unit regression (101 suites / 1,156 tests), typecheck,
+production packaging, strict nested signature verification and the Desktop ownership gate passed.
+This establishes the corrected launch contract and live permission state; an end-state Messages or
+other real-app task was deliberately not claimed from this read-only verification.
+
 ## Verification run
 
 - Desktop typecheck and production build: pass.

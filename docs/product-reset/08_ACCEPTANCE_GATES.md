@@ -1,5 +1,440 @@
 # Acceptance gates
 
+## Memory integrity and bot foundation gate — 2026-10-18, records 101–102
+
+- Every cooperating memory writer, including deletion, recency and embedding publication, must share reload/mutation/publication authority across instances, workers and processes. Preserve acknowledged notes and fail closed on unavailable coordination. Kill fixtures before/after acknowledgement; keep hardware power-loss and uncooperative/older writers outside the claim.
+- Bind delayed embeddings to selected document generation, chunk/document identity and bytes, and observed active space. Replacement, ABA, deletion and legacy source changes must reject stale publication without erasing current state.
+- Parent and real worker requests must honor the same configured embedding endpoint, keyless local behavior, model/dimensions and separately resolved reranking policy. No implicit local-model enablement or provider-default mutation.
+- A bot definition creates no worker, schedule, connector or permission. Validate versioned profiles and revision conflicts; freeze each run's identity, task, constraints and granted tools before dispatch.
+- Narrow actual executable tools, not only advertised schemas. Private bot memory, supplied evidence provenance, bounded context, shared CPU/spend budgets and cancellation must survive assertion-based fixtures. Definition text and web/retrieved data cannot widen authority.
+- Do not expose nested/writable teams, shared knowledge, scheduling, payments/sends or Mac actions until their inherited authority, independent end states, recovery and existing product-owner gates are qualified. Bot kernel tests do not close installed B01/R01/R02 or release.
+
+[Design 101](101_MEMORY_INTEGRITY_AND_PERSONAL_BOTS_PLAN.md), [record 102](102_MEMORY_REPAIRS_AND_BOT_KERNEL.md) and [B01](competitive/examples/B01_PERSONAL_BOT_RUN.md) define exact scope.
+
+## Bounded messaging gate — 2026-10-11, record 84
+
+- Require a distinct exact recipient, literal draft and previously observed outgoing row
+  name/role. Select the conversation before the message workflow; clarify ambiguous contacts.
+- A message workflow contains only its optional exact draft edit and one SEND_MESSAGE.
+  Plain semantic Send clicks and raw input in recognized messaging apps refuse.
+- Show recipient/text on each input approval. Independently reobserve after approval,
+  verify recipient/draft/baseline, and rebind the exact input control to that new snapshot.
+- Verify unchanged intended recipient, empty draft and exactly one added matching outgoing
+  row; retire only the consumed draft. Existing identical text cannot count as a new send.
+- Permit only read-only verification after submission. Unknown/no-op/duplicate/wrong-target
+  evidence stops; no input replay or generic human status correction can establish success.
+- Pause before dispatch revokes approval; Resume rereads/asks. After submitted Send,
+  Pause/Resume can only continue verification. Preserve existing Stop/window/build guards.
+- Independently grade all stored messages and bystanders, fresh AX, build/route identity;
+  reject deliberate wrong/stale/duplicate/empty/provider-error records and source faults.
+- Scope claims to actual evidence. Observed-outgoing is not delivered/read. No stable
+  outgoing-row evidence, incomplete/virtualized conversations, first-message conversations,
+  arbitrary-app bypasses, cross-turn/network idempotency and real contact identity are
+  unqualified. Twenty deterministic host cases do not satisfy twenty clean native runs.
+
+[Record 84](84_MESSAGING_RELIABILITY.md) and
+[M01](competitive/examples/M01_SAFE_MESSAGING.md) define current scope.
+
+
+## Direct @CU gate — 2026-10-11, record 83
+
+This supersedes records 81–82’s required manual target selection. They remain
+historical receipts; all other native authority/interruption gates remain.
+
+- `@CU <task>` must send without an app/window picker in project and floating
+  composers. Typing/completing the token starts no native discovery or read.
+- Main issues a single-use admission scoped to the Bimax Thread at accepted Send;
+  expire after ten minutes, reject foreign/reused/restored/renderer-forged tickets.
+- Automatic runs choose only actual discovered app IDs and windows. Ask before
+  app reads; recheck bundle/executable identity. Input requires a fresh exact-window
+  snapshot, observed action and separate approval. Refuse foreign native results.
+- Do is the default. Guide/Teach/saved instructions are optional and survive held
+  message review without silently carrying into ordinary turns. Saved reuse
+  rediscovers current targets and needs fresh consent.
+- Keep Pause/Stop reachable, raw action details in a disclosure, honest host status,
+  failed-send drafts and conversation ownership. Grade installed effects separately
+  from component bridges. No single fixture qualifies broad app/model reliability.
+
+[Record 83](83_DIRECT_AT_CU_EXPERIENCE.md) records current scope and evidence.
+
+## CU modes and interruption gate — 2026-10-11, record 82
+
+- Preserve the explicit per-message mode through host-owned target routing and queues.
+- Guide must dispatch zero native inputs, including guessed direct operations.
+- Pause/takeover must cancel pending approval and invalidate all observation/grant
+  authority; resume refreshes and asks again. Never replay an in-flight/unknown input.
+- Approvals remain reachable beside pause controls and bind the current conversation
+  and revision. Reject stale Allow, Resume, Check and correction requests.
+- Exact postconditions remain strict. Human correction checks only a changed unique
+  status against fresh app state; no input is repeated. Label assisted verification.
+- Save Teach instructions only after verified completion; no saved snapshot, process
+  authority or automatic replay. Reuse needs a fresh selected window and approvals.
+- Grade partial/no-op/stale/duplicate effects, cancellation, concurrent tool bypass,
+  actual component end states and source mutations. Keep native/provider/release
+  evidence separate; deterministic repetitions are not live model-tier measurements.
+
+[Record 82](82_CU_MODES_AND_VERIFICATION_RECOVERY.md) records the implementation and scope.
+
+## @CU per-message route gate — 2026-10-10, record 81
+
+- Activate only an exact leading @CU token. Expose the same chip, target selection
+  and failed-send preservation in the project composer and floating bar.
+- Opening/completing the token performs no native read. Separate picker window
+  consent, task read consent and every input approval.
+- Bind main-owned receipts to sender/selection and exact process/executable/window;
+  consume once at queue dispatch. Expired, foreign and restarted receipts refuse
+  without provider calls or silent coding fallback. CU follow-ups queue as turns.
+- Enforce the tool allowlist at execution, including guessed registered tools.
+  Ordinary turns hide and refuse scope-only CU; absent required host fails early.
+- Native selected-window enforcement must independently reject wrong PID/window,
+  changed executables and app-wide commands before read/input. Honor actual
+  read-only/unattended snapshot settings. Stop/end revoke authority.
+- Check actual component end states and assertion-caught faults, then separately
+  qualify the installed native/provider path against independent fixture state.
+  Fixture bridges and one live pass do not qualify full M02/X01 or release.
+
+[Record 81](81_AT_CU_MESSAGE_ROUTING.md) records the implementation and receipts.
+
+## Full Arc source and built-in feature gate — 2026-10-07, record 80
+
+- Own all 100 pinned upstream files under Bimax CU; verify exact file set, bytes and
+  executable modes in source and the packaged app. Preserve MIT attribution.
+- Freeze all 34 package modules, including the upstream CLI/MCP adapter as retained
+  code. Execute `--components` and compare against the complete source inventory.
+- The actual app helper refuses `mcp`, `run` and unknown arguments. JSON-RPC initialize
+  fails through its private protocol; no upstream MCP server/discovery is started.
+- Computer Use opens from File into the app's normal task flow. App grants and each
+  input remain contextual; no install/connect/disconnect path supplies this authority.
+- Main and floating transcript rows use product activity names. Raw arguments belong
+  in an explicit diagnostic disclosure; no output label claims unverified completion.
+- Retain record 79's channel, cancellation, input, workflow, native and release gates.
+- Advertised flat native arguments must reach the exact validated target. Mixed flat/
+  nested targets refuse. Pure read-argument errors may be corrected with zero native
+  effect; consent, input and partial-workflow failures retain the terminal barrier.
+- Test the standalone native entry's exact-window import, not just its status path.
+  Grade a live model workflow against independently persisted text and exactly one
+  save, plus fresh AX status and two verified native effects. Mutants must reject
+  duplicate saves, wrong text, unfinished tasks and missing workflow/status evidence.
+  Record 80's one fixture pass does not qualify the full M02/X01 journey or release.
+
+[Record 80](80_FULL_ARC_SOURCE_AND_BUILT_IN_CU_FEATURE.md) scopes the receipts.
+
+
+## Internal Bimax CU Mac integration gate — 2026-10-07, record 79
+
+- Execute the packaged standalone arc driver, validate its pinned identity, run its
+  real status and match its tool schemas. Do not accept identity output alone as native proof.
+- Preserve all 100 upstream source identities and MIT provenance; include dependency notices.
+  Frozen Python/PyObjC are app resources; no system Python, JEV account or legacy driver is required.
+- Connect interactive project and quick Bimax Threads through the birth-transferred internal MessagePort.
+  No environment descriptor, MCP proxy, socket CU route or user-managed connector may supply this authority.
+  The main process serializes native work. Discovery must not boot native helpers or prompt TCC.
+- Report the Mac host and helper permission separately; require both. Status must never prompt TCC.
+- Scope app grants to one turn; ask before reading an app and before each input. Refuse protected
+  apps/forms, unobserved elements/commands, foreign/expired snapshots and mismatched PID/window.
+  Raw input requires an observation. Stop, cancellation, engine end and completed turns revoke
+  native sessions. An input committed before Stop cannot be undone by cancellation.
+- Never reconnect and replay a native input. Post-action settling supplies fresh observations;
+  independently grade persistent fixture state and rejected input, not driver acknowledgements.
+- Bound private screenshot files, connect them to the existing vision pipeline and delete them
+  with the turn. A text-only model still cannot see pixels; no visual capability is inferred.
+- Qualify local signing, installed bytes and launch. Keep legacy retirement checks. Developer ID,
+  notarization, clean-Mac permissions, Intel, broad apps, M02 bystander typing/reopen and X01 remain
+  separate release gates. Private SkyLight/virtual-display use is not distribution qualification.
+
+The old code-only gate below is historical; its **legacy** refusal, IPC and coding checks remain.
+[Record 79](79_INTERNAL_BIMAX_CU_AND_WORKFLOW_RELIABILITY.md) records current qualification.
+Record 78 retains the preceding MCP installation's historical receipts.
+
+Additional workflow gate: validate every step before permissions; require a unique
+observed control, fixed PID/window and unchanged observed executable; approve each
+input; prove exact SET_VALUE read-back before later CLICK. CLICK requires a changed
+explicit postcondition and fresh independent observation. False done, ambiguous
+selectors, denied approval, Stop, executable replacement, repeated submitted plans
+and stale engine cleanup must fail actual end-state assertions. Clarification
+answers live in one user run only; they grant no action permission. Native terminal
+failure removes further tool schemas rather than letting the model replay inputs.
+Known direct native driver invocations through the coding shell must be refused
+before approval/execution; this narrow guard does not qualify arbitrary-script isolation.
+
+
+## CU source-import qualification — 2026-10-07, record 77
+
+- The full tracked arc-cua tree matches its pinned Git revision byte-for-byte, with
+  original license, modes and fixtures; no nested Git database or local artifacts.
+- All 55 archived Bimax manifest source files match their recorded hashes; source
+  snapshots do not overwrite active integration files or prior sprint edits.
+- Saved chats/settings/runtime state and compiled native artifacts stay external.
+- Imported source is trackable but outside active compilation, test discovery and
+  packaging; active CU refusal and registry checks retain the current boundary.
+
+[Record 77](77_CU_SOURCE_IMPORT_RECORD.md) and its receipt qualify the copy only.
+Native M02/X01, installed behavior, permission/distribution and performance are
+unmeasured. Record 78 above now governs runtime activation; this receipt still qualifies only the copy.
+
+## Chat lifecycle and rendering local gate — 2026-10-06, record 75
+
+- Config/catalogue/attachment results settle once and release resolver/deadline resources.
+  A synchronous bridge answer/failure uses the same armed deadline. Original timeout behavior
+  remains; project/Thread change, terminal engine state and renderer close settle all pending reads.
+- Attachments add no per-file engine-message listener. Owner identity is checked before resolving
+  responses; an old conversation cannot answer a request made after selection changes.
+- A late approval acknowledgement closes only the same Bimax Thread, request ID and token.
+  Failed inventory reads preserve the current card for retry.
+- Floating-bar initial context/history reads cannot overwrite a newer corresponding broadcast,
+  including New/null; valid initial history still loads. Disposal unsubscribes and retires reads/errors.
+- A real production-browser fixture independently checks DOM text/HTML, exact Copy bridge bytes,
+  changed content/language, live link context, selected chat/card and bounded listener/request behavior.
+  Identical saved content does not reparse/rehighlight on unrelated parent or Copy state updates.
+- Executable mutants must fail end-state assertions, then exact restored-source baselines pass.
+  Compiler/runtime failures and timeouts do not count. Record 75 retains invalid exploratory receipts.
+
+Evidence: [record 75](75_CHAT_EXPERIENCE_AND_RENDERING_SPRINT.md). Fixture operation counts qualify
+only redundant work removed. Cold-start/installed latency, energy, native clipboard, same-Thread
+startup stream/history revision ordering and full C01/R01 remain unmeasured/Target. Missing P01 and
+capability-matrix references cannot qualify a journey. No Product-ready/Win or new Computer Use path.
+
+## PDF local gate — 2026-10-06, record 74
+
+- Actual completed files retain intended page count and sequential page numbers, with no footer-only
+  page accidentally entering OCR. Text extraction preserves a final page without a form feed.
+- Empty/invalid page counts refuse; missing executables, permissions, real malformed-file errors,
+  aborts, deadlines and captured-output overflow remain distinct. Metadata interruption/overflow
+  never triggers another reader as a fallback.
+- PDF children have an internal per-child deadline and shared stdout/stderr byte cap; split UTF-8
+  survives. Stop terminates inherited process groups on this Mac and closes caller pipes. These
+  controls do not qualify escaped groups, Windows descendants or recognizer cancellation.
+- Fresh owned render directories exclude caller-owned stale images. Nonregular/empty images,
+  duplicate/out-of-range page identities and incomplete unreadable-page coverage refuse. Mixed
+  documents render only the unreadable-page envelope and preserve exact embedded text.
+- Failed/cancelled jobs clean their own directories. Successful jobs remain available through OCR,
+  then extraction/tool consumers dispose them in finally; a Stop during OCR cannot return success.
+- Real children/files, rendered pages and executable behavioral mutations qualify local results;
+  exact restoration and unrelated dirty identities are checked. Fifty focused tests and
+  twenty-six executable faults qualify these checks. Existing assertions/timeouts stay.
+
+Evidence: [record 74](74_PDF_RELIABILITY_SPRINT.md). This repairs the reproduced unnecessary-OCR
+cause of earlier PDF-layout timeouts. General native OCR, whole-document resource budgets,
+large-document memory/disk, installed/provider/full R01 and clean-Mac tooling remain Target;
+no Product-ready/Win/performance claim. Record 66 still governs Computer Use retirement.
+
+## Bimax Thread undo local gate — 2026-10-06, record 73
+
+- Every remaining backup is checked before file mutation. Missing, nonregular, oversized,
+  symlinked or detectably changing saved copies refuse; unprotected engine overwrites remain
+  explicit in the journal and history reports partial coverage.
+- Canonical project/state/backup/Bin containment detects escaped parents and missing-path
+  ancestors. Undo cannot move its own journal/backups. Leaf rename links remain supported;
+  replacement/Bin targets and saved-copy/journal leaf links refuse.
+- Canonical state aliases share one in-process undo lock; undo-back-to retains it for the
+  whole batch. Errors release it. Existing app idle-engine checks remain.
+- Replacement files are staged and checked before current versions go to the Bin. Final bytes,
+  size and mode are independently reread. Creation and move postconditions reflect actual disk
+  state; observable Bin files also verify type/bytes/mode/source absence. Observable directories
+  verify type/source absence, without claiming recursive content verification.
+- Verified indexed step receipts precede the final undo marker. Retry skips completed steps and
+  preserves later human edits; history exposes progress. False-success callbacks leave entries
+  pending. Malformed operations/step indices and duplicate IDs refuse.
+- Sixty-seven focused tests and nineteen executable assertion-caught mutants pass, with exact
+  mutation restoration hashes. Initial compiler failure is invalid, not a kill.
+
+Evidence: [record 73](73_THREAD_UNDO_RELIABILITY_SPRINT.md). Native Finder/iCloud/permission,
+crash/fsync, cross-process path swaps, historical backup integrity and full R01 remain Target;
+no atomic multi-file guarantee. EACCES/EPERM Bin sources have destination-presence-only checking.
+Known PDF-layout timeouts remain unresolved and retained. Record 66 still governs retirement.
+
+## Transaction local gate — 2026-10-06, record 72
+
+- Simultaneous tracking of one path takes one baseline, retains every declared intent and restores
+  one record. Pending tracking cannot cross commit/rollback into another transaction. Busy operations
+  report refusal; automatic rollback never claims an operation completed when it could not start.
+- Begin/tracking/recovery cannot overlap restoration. Recovery cannot run inside an open transaction.
+  A later rollback keeps earlier unresolved records; status shows every retained transaction.
+- Bytes matching the baseline do not certify permissions. External modes are kept as conflicts;
+  forced restoration and ordinary restoration independently reread bytes and mode. Failed writes,
+  read-back mismatches and symlink chmod failures retain their original baselines.
+- Baseline reservations, including unresolved recovery buffers, respect the aggregate byte budget
+  under simultaneous reads. Release after refusal/commit/restoration is observable. Short reads
+  fill completely; detected growth/path replacement and dangling symlinks remain unprotected.
+- `/tx status` reports actual protected/unprotected/pending coverage and held/reserved bytes.
+  Refused command operations are errors. Forty-four focused tests and twenty-one executable
+  assertion-caught mutants qualify these local paths; mutation restoration hashes match.
+
+Evidence: [record 72](72_TRANSACTION_RELIABILITY_SPRINT.md). Full installed R01, durable crash
+recovery, external-writer atomicity and process-wide performance remain Target/unmeasured. Initial
+broad and isolated PDF timeouts are retained and unresolved; no assertions are weakened. Record 66
+continues to govern Computer Use retirement.
+
+## Background shell local gate — 2026-10-06, record 71
+
+- A BashTool background ID is discoverable and inspectable by TasksTool; list/get/wait expose
+  real state, bounded captured output and observed exit/failure, never positive verification by
+  invocation alone. Returned output retains untrusted shell provenance and taint.
+- Targeted wait ignores unrelated completion, wakes from lifecycle changes and aborts on Stop.
+  Completion/timeout/abort dispose both subscriptions and the single deadline. Shell pause/resume/
+  stop remain exact-ID controls through existing handles and cannot overlap sibling calls.
+- Paused close races reach their real terminal state. Cancellation wakes a paused cooperative
+  process; an ignored termination escalates to the inherited process group. Terminal status
+  follows pipe close, and no closed task retains a signalling timer. Escaped groups are out of scope.
+- Split UTF-8 characters and logical lines remain intact; stdout/stderr fragments do not combine
+  into false diagnostic paths. Retention and per-line clipping remain bounded. Explicit short
+  background timeouts apply; a synchronous failed start never returns OK/exit 0.
+- Real fixtures observe cooperative handler output and absence of a resistant parent/descendant;
+  thirteen executable mutants fail assertions. Root/app builds, offline suites, protocol fixtures,
+  staged worker exchanges and unrelated dirty-file identity checks pass. Installed/full C04/R01,
+  provider quality, performance/energy and distribution remain Target/unmeasured.
+
+Evidence: [record 71](71_BACKGROUND_TASK_RELIABILITY_SPRINT.md). Record 66's Computer Use retirement
+remains the product boundary.
+
+## Fresh-chat local gate — 2026-10-05, record 69
+
+- Explicit repository opening creates an empty Bimax Thread; old history appears only after selection.
+- **New** creates another empty conversation in the current folder. Credential renewal keeps the
+  selected conversation and queued inputs even when another conversation was updated more recently.
+- Real recorded replay publishes no old tool calls into live ProtocolHost, appStore, SessionRecorder,
+  saved Thread files or the desktop renderer. Concurrent live events still arrive. Replay does not
+  consume live steering, settle checks, close metrics or mutate capability/taint state.
+- An unchanged file-tool recording replays identically without double provenance fencing.
+- Mutations must fail behavioral end-state assertions. Inspect both staged and installed code bytes,
+  package inventory, signature and worker exchanges. A disposable packaged-window journey is a bounded
+  local qualification; installed live-provider greeting, crash/reaper/R01 and clean-Mac release remain
+  unmeasured. Evidence: [record 69](69_FRESH_CHAT_AND_REPLAY_ISOLATION.md).
+
+
+## Historical code-only gate — 2026-10-04, record 66
+
+- No look, press, type, scroll, native app automation service, Computer Use preview menu or Accessibility/Screen
+  Recording request path ships. The retired driver (`@trycua`/`@ubjs`) is absent inside and outside ASAR.
+- Neither saved preview settings nor inherited or explicitly supplied CU environment flags register tools or alter
+  prompts. Both quick and project engines retain their coding tools. The real container is checked with stale flags on.
+- Old `host_call` protocol frames refuse immediately without native execution or approval cards; `host_result`
+  remains an ignored compatibility frame. The governor refuses COMPUTER_CONTROL before Bimax Thread scope, rules,
+  bypass or any other shortcut. Reserved native-control MCP names remain blocked by the existing MCP boundary.
+- Known direct GUI shell commands refuse without advertising retired tools. Ordinary coding commands, browser
+  research and local-build opening by path remain. This narrow pattern guard is not a sandbox for arbitrary scripts.
+- Finder folder selection and explicit on-device dictation retain their AppleEvents/Microphone usage descriptions.
+  They confer no general app-control authority. No broad ban on those unrelated permissions is reinstated.
+- Thread IPC ownership guards from the 2026-10-04 fix remain enforced. Same-Thread restore remains supported;
+  installed race/reaper/crash journey qualification remains unresolved; fresh-open is locally qualified by record 69.
+- Grade the staged AND installed app: no CU payload/menu/tool, real engine worker exchanges, App Intents embedding,
+  signature, installed artifact hashes and successful launch. Mutations must break the retirement/ownership checks.
+  A local self-signed install is not Developer ID, notarization, clean-Mac distribution or a competitive Win.
+
+Enforcement: `src/__tests__/computer.retirement.test.ts`, `app/src/__tests__/computer.retirement.test.ts`,
+`src/__tests__/gui.automation.guard.test.ts`, real registry/prompt/port tests and
+`scripts/verify-desktop-package.mjs`. Evidence: [retirement](evidence/2026-10-04-cu-retirement/README.md) and
+[Thread ownership](evidence/2026-10-04-thread-ipc-isolation/README.md). Feature-specific positive CU tests were
+hash-verified into the external archive; stronger refusal tests replace their active admission boundary.
+
+
+## Historical Computer Use admission gate (2026-10-02 — retired by record 66)
+
+It replaces the code-only gate of 2026-09-02 below, in the same change that let Computer Use back in, look only; stage
+3 widened it by exactly one press, in the same change that added the press; stage 6 (§6h, the owner's choice on
+2026-10-02) widened it to using any app the person allows — press and type — in the same change that built it.
+Enforced by `src/__tests__/computer.admission.boundary.test.ts` and `scripts/verify-desktop-package.mjs`.
+
+- The coding surfaces are unchanged: create/read/edit/multi-edit/delete/mkdir, shell, tests, git, search, LSP, review,
+  plans, checkpoints, subagents, browser research and ordinary MCP integrations; `files`, `git` and `security` in the
+  app reach for no Accessibility, Screen Recording or Computer Use code.
+- No window exposes Control Mac, Live Target, takeover, Computer Use model readiness or a Trust Center journey. The
+  entry points are the menu bar items "Let Tasks Look at Other Apps (Preview)" and, usable only while that is ticked,
+  "Let Tasks Use Other Apps (Preview)" (a new setting: stage 3's test-app switch is not carried over) — **each off
+  until the person ticks it**.
+- With it on, a new ⌘2 task's engine gets `LookAtAppTool` (list apps, look at one app's front window) and nothing
+  else; project windows do not. Only the app's own decision for that engine sets `BIMAX_COMPUTER_LOOK`; an inherited
+  value is dropped.
+- The first look at each app in a task raises a card the **app** raises and answers ("Let this task look at …?",
+  Allow / Not now; with using on, "Let this task use …?", Allow using / Only look / Not now; an app allowed for looking
+  before using was on is asked again before its first step); the answer is remembered for the task; stopping it —
+  closing it or any Stop of its turn — ends every grant. Bimax itself, the password and keychain apps and System
+  Settings (by bundle id) and password managers, wallets and banking apps (by name) are never looked at or used.
+- **Using other apps (stage 6, §6h; replaces stage 3's test-app press).** With both items ticked, a new ⌘2 task also
+  gets `PressInAppTool`, `TypeInAppTool` and `ScrollInAppTool`: one AX press of one named, enabled control whose own
+  action is a press (not a menu, pop-up or text box), or one item of a pop-up chosen without opening its menu; one line
+  set as one text box's whole value (never a password field, never a line break, at most 2,000 characters), then, only
+  if asked, that box's own Return (its AX confirm); or a background wheel scroll over one named control, 1–5 pages — in
+  an app the person let the task use. Each step is bound to a read of that
+  window under two minutes old — a look, or the re-read of the step before — and each read allows one step. Every step
+  meets the governor's computer-control floors first (sensitive targets and "not while unattended", **before** the
+  Bimax Thread branch — record 46's trap — and plan mode); in a Thread the engine then raises no card of its own and
+  **the app decides**: an ordinary step runs; a press whose name holds a commit word (send, pay, buy, delete, confirm,
+  OK, allow, … in seven languages), a press inside a sheet or dialog, a name with no Latin letters, and the first press
+  after Bimax typed into a box that is not for searching all stop on the app's card, which shows the window, what Bimax
+  last opened there and the typed text as the box reads it — never the model's words; a pop-up item is judged the same
+  way (and by the pop-up's own name); Return in a box that is not a search box (its role, its name, or a child control
+  named Search) asks, showing the box's text; typing over text Bimax did not put there asks, except in a search box;
+  every 40 unasked steps the app asks "Keep going?". Names match with invisible marks ignored, and a name over 120
+  characters may be given by its start, if exactly one control starts that way. No card can be granted for the task. A Stop,
+  either item unticked, or the window changing (the driver re-reads it and must find the control exactly once) cancels
+  a step that has not been sent. A step is sent once, by element token, in the background, and never retried; the
+  window is read again; "nothing changed" is a failure, and typing counts only if the box reads back exactly the text.
+  A use session's manifest allows `click`, `set_value`, `scroll`, `type_text` and `press_key` and still denies every
+  other input tool by name — shortcuts, dragging, coordinates, launching or keeping an app in front. Window reads get
+  4 s, and a read still cut short is reported as partial.
+- **One step with the app brought forward (ability 4, the owner's choice: asked every time).** A press or a typing may
+  carry `front`: the app asks first — on the step's own commit, overwrite or Return card, which then says so, or on its
+  own card ("Bring … forward for a moment?", naming the step and the app it will put back) — never for the task, never
+  for a scroll or a pick. The driver then fronts the window for that one step and puts the previous front app back: a
+  press by element token; typing as keystrokes into one box emptied first (read back empty) and read back exactly;
+  Return as the one key ever sent (`press_key` with `key: 'return'`, only in front, only into a box). Afterwards the app
+  reads which app is in front and says whether the person's app came back; it never moves apps around to fix it.
+- **Missing-name recovery (§6h).** A `not_found` control reply may suggest at most five names and roles from the
+  granted app's still-fresh observed window, filtered for the requested action and excluding password fields. Names
+  are quoted as data; long names supply a bounded copyable prefix under the existing unique-prefix rule. Ranking is
+  a hint only: the missing request performs zero input, creates no action approval, renews no observation, and logs
+  no screen text. Copying a suggestion still meets every exact-target, freshness, build, grant and approval check.
+- **Tool recovery contract (§6h).** Omitted look action may default only to read-only looking at an explicit app;
+  missing app or explicit invalid actions refuse. Missing-app names are not proof that an app is closed; suggestions
+  use only eligible observed running apps, never auto-authorize an alias. A single literal foreground shell launch
+  may return copyable background-launch advice for the same app, without executing it or skipping shell approval/sandbox.
+  No constructed retry copies compound shell syntax, arguments or substitutions; driver launch remains denied.
+  Copyable target/search retry hints use actual re-read controls and
+  leave foreground and commit cards intact. Never suggest replay of an unchanged Return in a non-search box or of
+  uncertain input; never execute a suggested retry automatically. Live model compliance requires independent grading.
+- **Native session lifecycle (§6h).** Waiting on a card must not reuse an expired native use context: each approved
+  step starts a fresh bounded, app-scoped context before re-reading its exact target. Native labels are unique;
+  retired contexts, manifests and observer mappings are removed. Read-only renewal happens once, only for a native
+  lease/end error, and stays inside the existing Bimax Thread grant and generation. Never replay an input dispatch.
+  A pinned explicit unready-window/AX timeout may retry its read once after a brief settle, still generation-bound.
+  Generic permission/lease/Accessibility-word errors do not prove missing macOS Accessibility. An admitted failed look
+  may query the app's own native trust without prompting; granted trust forbids missing-permission coaching. Hosts
+  without that query need explicit denial text. Use the permission's current OS name, and retain only a fixed failure
+  enum/optional boolean in the audit. Controlled expiry/denial/revocation and input-count checks catch broken recovery.
+- **Which build is running (stage 5).** A look names the running executable and its SHA-256, read by the app from the
+  process; a step is refused if that executable changed since the read (a rebuild or relaunch), and its receipt
+  records the hash of the build it acted on.
+- Turning the preview off closes granted sessions. A stop or off/on cycle invalidates in-flight discovery, grant
+  answers and observations: no late approval may recreate a grant and no revoked observation reaches the model.
+- The driver runs in-process, `bounded`: a runtime manifest that may list apps only, and per grant a version-2
+  manifest naming one app, allowing `list_apps`, `list_windows`, `get_window_state`, `get_screen_size` and denying every
+  input tool by name. The menu bar is cut out of every observation and password fields lose their value; the text
+  reaches the model fenced as untrusted and taints the session.
+- The engine still rejects `bimax-mac` and skips MCP tools named `mac_control`, `computer_control` or `computer`; Desktop
+  still strips the old CU environment variables and emits no host capability for them.
+- The bundle contains no XPC service, CU bridge/helper/preview or Mac capability provider. The one Computer Use part is
+  `@trycua/cua-driver` **0.31.0**, outside the archive, with no driver command-line binary and no perception extension.
+  Declared usage descriptions stay exactly AppleEvents and Microphone (voice).
+- Launching and completing a code task requests no TCC permission. The driver loads only for an admitted look-capability
+  request; app discovery may start the list-only runtime before the per-app card, but window reads require its Allow.
+  Widening any of this — another tool, another operation, an input permission, another entry point — must make a test
+  fail.
+
+### Code-only product gate (2026-09-02 — replaced by the admission gate above)
+
+- Terminal and Desktop expose create/read/edit/multi-edit/delete/mkdir, shell, tests, git, search,
+  LSP, review, plans, checkpoints, subagents, browser research, and ordinary MCP integrations.
+- Neither frontend exposes Control Mac, Live Target, takeover, Computer Use model readiness, or a
+  permissions/Trust Center journey.
+- The engine rejects `bimax-mac` and skips MCP tools named `mac_control`, `computer_control`, or
+  `computer`, regardless of the advertising server name.
+- Desktop strips inherited CU environment variables and never emits a Mac host capability.
+- The app bundle contains no XPC service, CU bridge/helper/preview, Mac capability provider, or
+  Accessibility/Screen Recording/Microphone usage description.
+- Launching and completing a code task requests no TCC permission. Reintroducing a provider,
+  payload, or UI entry must make the boundary test fail.
+
 The target is not a cosmetic `n/n`. A test counts only if it fails when the feature is deliberately
 broken and grades the real end state. Provider outages, missing observations, stale fixtures, and
 model changes are invalid runs, not product failures or passes.
@@ -36,15 +471,28 @@ model changes are invalid runs, not product failures or passes.
 - project file, PTY and git IPC reject traversal/malformed payloads;
 - code task works with zero CU permissions.
 
-## Bimax Desktop computer-use gate
+## Retired Bimax Desktop computer-use gate (historical; must not ship)
 
 - packaged app, not a dev shell, owns the permission and focus experience;
-- a Control Mac task cannot reach the engine until the active provider credential and a currently
-  served Work + screenshot-capable Vision route are confirmed; provider timeout/error is a visible
-  blocked state, never an implicit fallback;
+- a Control Mac task cannot reach the engine until the active provider credential, a currently
+  served curated Work row for the configured model id, and a currently served screenshot-capable
+  route are confirmed; one unique catalogue row may carry several slot recommendations, and
+  `avoidAutoSelect` never vetoes a model the user intentionally selected; a served
+  Vision/unknown model with no Work row and provider timeout/error are visible blocked states,
+  never implicit fallbacks;
+- once admitted, an explicit Control Mac turn is narrowed to the app-owned `mac_control` capability
+  as its only acting authority; the engine may expose only its bounded read-only memory/code RAG
+  tools beside it, never shell, file mutation or a third-party Computer Use provider, and the turn
+  cannot terminate on model narration alone; if the route fails to invoke the tool after the
+  bounded activation retries, the task ends with a concrete model-route blocker and an idle UI;
+- the authenticated task plan is bound from the explicit user instruction before model execution
+  and does not depend on whether the Desktop provider registered before or during that turn; a
+  missing/invalid plan fails closed, and the UI labels that result blocked rather than completed;
 - provider secrets are stored through macOS Keychain-backed main-process storage and never appear
   in renderer persistence, NDJSON, diagnostics or logs;
-- app bundle/XPC/bridge/helper signatures and locations pass structural verification;
+- app bundle/XPC/bridge/helper signatures and locations pass structural verification, and the exact
+  signed packaged app executable proves Electron → bridge → intact app-bundled XPC service through
+  a no-window handshake (a direct service self-test does not satisfy this gate);
 - the exact native service permissions, not merely the Electron host permissions, gate readiness;
 - add-by-drag permission guidance exposes a real native bundle drag source, keeps System Settings in
   front and names the bundle that must land in the list;

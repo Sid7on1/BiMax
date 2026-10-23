@@ -81,6 +81,15 @@ Executor, mechanism, frame ids and postcondition text live inside a per-action *
 disclosure, in both the Live Target and the transcript. Before this, every Mac action printed
 `Observation f7-4211-88 · Executor semantic · Focus none` into the conversation.
 
+**2026-08-20 working-tree extension.** The retained ScreenCaptureKit Live Target helper now defaults
+on and is staged beside the Desktop-owned Mac provider in the app bundle. It captures the exact
+desktop-independent target window into a nonactivating floating panel, so Bimax can remain the
+frontmost app while a background-capable semantic action runs. The bundle path, executable bit and
+architecture are covered by package checks. This is **Implemented and locally unit-Measured**, not
+yet Product-ready: a fresh packaged journey still has to prove continuous exact-window frames,
+Bimax remaining frontmost, pause/takeover behavior, and truthful escalation when an action needs
+physical foreground input.
+
 ### Pause / take over / resume — an ownership change, not a second latch
 
 Phase 2/4 built the latch (`native.input.interlock.ts`) inside the capability provider, which is a
@@ -473,6 +482,42 @@ made or implied by this phase. Those remain **Target** under V01/V02/V03/V29B.
 - Intel/x64 hardware measurements.
 
 No local Phase 5 implementation or qualification row remains open.
+
+## 2026-08-20 general Computer Use installation record
+
+The installed `/Applications/Bimax.app` now contains the single Desktop-owned Computer Use
+implementation from `app/src/capabilities/mac`; no Terminal-owned or per-application runtime copy
+was created. Routing is observation-specific rather than app-specific: bounded AX readiness can
+move from `warming` to `ready`, Menu is offered only as a command-intent adapter, and semantic
+content absent from AX keeps the visual path eligible even when the app has usable menus.
+
+Both Menu activation and the Search/Find opening step now run through the same serialized acting,
+takeover, receipt, post-action evidence and foreground-invariance boundary as other mutations. A
+background mutation that moves the user's foreground is not reported as success; Bimax attempts to
+restore the previous app and preserves the failure in the receipt. Search is one transaction:
+open search, type into a proven editable target, reobserve, ground the requested result, select it,
+then verify the requested end state. It stops with structured evidence before ungrounded typing or
+selection.
+
+Verification on this host: the complete non-network Mac set passed 93 suites / 1,078 tests and the
+isolated takeover loopback passed 1 suite / 25 tests (**94 suites / 1,103 tests total**). The arm64
+packaged fixture passed all semantic, physical, visual, takeover, temporal-AX, content-grounding,
+search-transaction, foreground-isolation and exact-state assertions; preserved report:
+`app/benchmarks/computer-use/results/phase2/run-2026-08-20T13-53-53.109Z/report.json`. A second clean
+local package invocation produced
+`/private/tmp/bimax-build-cu-general-20260820-final/mac-arm64/Bimax.app`, passed strict nested
+signature verification and the bundle-only component gate, and the installed app was observed
+running its main process, renderer, engine and native capability provider. Its existing build is
+preserved as `/Applications/Bimax.app.backup-20260820-192506`; no source or application backup was
+deleted.
+
+This is **Implemented and locally Measured**, not Product-ready. The local build is ad-hoc signed
+without hardened runtime so Electron's nested binaries share a coherent local identity; stable
+Developer ID signing, hardened runtime, notarization, clean-Mac TCC persistence, and broad live-app
+journey evidence remain **Target**. Physical pixel input also remains an explicit
+`foreground_required` escalation on macOS; it is not falsely described as universal background
+control. Exact-window ScreenCaptureKit Live Target is packaged, but continuous user-visible
+mini-window proof in the released UI remains Target.
 
 ## 2026-08-12 permission-coach crash correction
 

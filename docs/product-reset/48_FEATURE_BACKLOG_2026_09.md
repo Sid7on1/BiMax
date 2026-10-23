@@ -1,0 +1,853 @@
+# 48 — Feature backlog, September 2026
+
+**Status: Target. None of this is built.** Collected on 2026-09-14 and marked by the owner as the next major
+build, starting 2026-09-15.
+
+Sources: the Claude Code session that shipped talk mode (automation, results, context and voice suggestions), plus
+three research write-ups pasted into that session: "Bimax Missions", "app superpowers and muscle memory", and
+"edit the outcome". The ratings are that session's judgement against the code at commit `0dc3a6e`. They are
+proposals, not measurements.
+
+**Merged later on 2026-09-14:** the open items from three records that were written into the stale
+`~/Desktop/Bimax` copy and are now copied here: [46](46_COMPUTER_USE_RETURN_AND_THREADS_STRATEGY.md) (Threads audit
+and a Computer Use return), [47](47_RAG_AND_CONTEXT_COMPILER_UPGRADE.md) (RAG and a context compiler) and
+[49](49_CHAT_TOOL_ISOLATION_RECORD.md) (a chat and tool cancellation fix that was never ported). Items from them
+carry those records' finding IDs (T01–T06, A01–A08).
+
+## Verdicts
+
+| Verdict | Meaning |
+|---|---|
+| **Must** | A foundation. Anything that runs unattended is unsafe to promise without it. |
+| **Next** | Small, fits today's code, clear value. Days. |
+| **Flagship** | A big visible step that builds on foundations. Weeks. |
+| **Later** | Valuable, but needs a foundation or a narrower first version first. |
+| **Parked** | Needs Computer Use, which is archived under the code-only reset, or is research. |
+
+Each item lists **Value** (high, medium, low), **Effort** (S: days, M: 1–2 weeks, L: several weeks) and what it **Needs**.
+
+## Facts the ratings rest on (checked 2026-09-14)
+
+- **An engine restart drops queued messages.** `ThreadManager.lifecycle()` clears `r.queue` on
+  `failed`, `exited`, `restarting` and `stopping` (`app/src/main/thread.manager.ts`).
+- **Scheduled ⌘2 tasks are time-only:** `Cadence = 'daily' | 'weekdays' | 'weekly'` (`app/src/main/schedules.ts`).
+- **Missing from `app/src`:** a `bimax://` URL scheme, Shortcuts actions, a Finder Quick Action, conversation
+  export, screen capture, calendar and mail.
+- **Undo:** the ⌘2 bar's Undo offers only the newest change, while `thread.undo.ts` journals every change.
+- **Cost:** Bimax records measured turn time per model (`settings.modelTimes`) but shows no cost. The engine
+  has its own hard spend cap (`docs/FEATURES.md`).
+- **Existing building blocks:**
+  - sub-agent worktree isolation (ROADMAP, INFRA P1–3)
+  - the evidence store (`app/src/main/evidence.store.ts`)
+  - read-only workflow dependency evidence (`42_WORKFLOW_EVIDENCE_RECORD.md`; continuous watching is still Target)
+  - the embedded browser, plus the puppeteer UI harness (`app/scripts/ui`)
+- **Archived:** Computer Use and the Go TUI moved to `~/Developer/bimax-archive` on 2026-09-06
+  (`30_CODE_ONLY_AGENTIC_IDE_RESET_RECORD.md`).
+- **This Mac has 8 GB of RAM.** Features that run several builds or browsers at once must budget for that.
+- **Talk mode's `openai/gpt-oss-20b`:** time from question to speech ranged 1.3–17 s across test runs, and once
+  the model called a tool named `AskUserTool<|channel|>commentary`.
+- **Records 46 and 47 audited the older Desktop copy.** Checked against this repository:
+  - T01 and T03 still hold. `lifecycle()` empties the queue on failure and does not clear `r.engine`, `start()`
+    returns early while `r.engine` is set, and `thread.storage.ts` never mentions the queue.
+  - T05 still applies: `app/src/main/thread.storage.ts` is byte-identical to the audited file.
+  - T02, T04 and T06 were not re-checked.
+  - A01–A08: `pagerank.ts`, `context.planner.ts`, `bm25.ts`, `headroom.compress.ts`, `file-state-cache.ts` and
+    `context.manager.ts` are byte-identical to the audited files. `recall.ts`, `code.index.ts`, `vector.store.ts`
+    and `sqlite.code.store.ts` changed here only for capability notices and the state directory.
+  - The eight A probes were rerun here on 2026-09-14 and **all eight still reproduce**
+    (`competitive/evidence/2026-09-14-context-audit/rerun-results-in-bimax.json`). The T probes were not rerun.
+- **Record 49's fix is not in this repository.** In the Desktop copy, `headless.session.ts`, `host.ts` and
+  `meta.ts` match the record's hashes exactly; here none of them has its edits.
+
+## Start here on 2026-09-15
+
+**The owner decided on 2026-09-14: the RAG upgrade comes first, then the other features.**
+
+1. **C0–C1:** record 50 steps 1–5: acceptance tests and fixes for all eight defects A01–A08 (steps 1–3, C0, done 2026-09-14), the
+   baseline benchmark (step 4, done 2026-09-14: 25 of 33 cases pass), and the evidence foundation (step 5, done 2026-09-14: 26 of 33).
+   Audit 51 then showed those tests passing while several promises could still fail. Its findings were repaired the
+   same day (U01–U07 and U09–U11; record 50, "Audit 51 repairs"). U08 moves into step 6.
+2. **F8:** port the chat and tool cancellation fix from record 49. **Done 2026-09-14** (`6d602d1`), before step 6,
+   which edits the same files.
+3. **C2–C4:** record 50 steps 6–8. **Built 2026-09-14**: the context benchmark (version 3) passes 42 of 42, up from 31.
+   Not Product-ready: the R02 deterministic journey fails on this Mac as it did before (FTS5 missing under Node 22), and
+   the live-provider journey and model-graded held-out outcomes were not run. Record 50 lists what is still Target.
+4. **F1:** queued messages survive an engine restart and an app reload (T01). **Done 2026-09-14.**
+5. **Q1–Q4:** the quick fixes, about an hour together. **Done 2026-09-14.**
+6. **F9–F12:** the Threads reliability defects T02–T05. **Done 2026-09-14.**
+7. **N1:** approve from the notification. **Built 2026-09-14.**
+8. **N2:** `bimax://` links and Shortcuts actions. **Built 2026-09-14.**
+9. **FL1:** write the folder-trigger design (events, loop protection, undo, limits) before any code. **Designed and
+   folder triggers built 2026-09-14** ([record 53](53_FOLDER_TRIGGERS_DESIGN.md)); folders with an outcome are still Target.
+
+---
+
+## Foundations: Must
+
+**F1. Queued messages survive an engine restart and a reload (T01).** A crash or restart silently throws away
+whatever the user queued. Record 46 found it is wider than restarts: the queue is never saved, so reloading the app
+loses it too. Save each accepted input with a queued, dispatched or settled state before acknowledging it; on
+recovery, show what was never sent, and check whether anything may already have run before retrying it. Drop the
+queue only on an explicit Stop.
+Value high · Effort S–M · Needs nothing. *Why:* the talk-mode restart work showed how easily this loses words;
+overnight work would lose instructions. **Done 2026-09-14:** each message is saved as queued before it is accepted and as sent before
+it reaches the engine; a finished turn settles it. A crash, engine restart, model switch, credential restart, quit or
+reload keeps the queue, and a message cut off mid-turn is reported in the thread and never sent again on its own.
+Only Stop and interrupt drop the queue. Tests in `app/src/__tests__/thread.queue.test.ts`, with six mutants.
+
+**F2. Durable task state.** Goal, milestones, progress, blockers and next step survive an app restart and a full
+context window. *First version:* a per-thread state file the engine reads on resume.
+Value high · Effort M · Needs F1. *Why:* Night Shift, Guardian and living deliverables all depend on it. Design it
+together with C2's continuation state; they are the same record. **First version done 2026-09-21.**
+
+The defect was in `/resume`, the one path every saved task comes back through (the sidebar, the boot revival after an
+engine crash, a restart for a model or credential change). It kept the newest 40 messages and nothing else, so a long
+task lost its request, the constraints stated early, the commands already run and the checklist — while the same task
+running without a restart kept all of them through compaction. Measured live on one saved 63-message task, same model:
+before, asked for its first request, the engine answered *"Continue with step 10."* with no checklist; after, it
+quoted the request word for word and listed the checklist with each status.
+
+- **Nothing new is saved.** The transcript already records every message and tool call, so the state is rebuilt from
+  it on each resume (`src/engine/session.resume.ts`) and cannot disagree with it. The messages before the live window
+  go through the continuation state compaction uses; the block leads the restored history and the context manager
+  adopts it, as after a model switch. The checklist is the last successful TodoWriteTool call, retired when every item
+  was complete. The live window is unchanged, and a sub-agent's calls stay out of both.
+- **Goal** = the user's first message, always kept, quoted exactly. **Milestones, progress, next step** = the
+  checklist (the `in_progress` item is the next step). **Blockers** = the outcome contract's, which was already saved
+  per session and reloaded on `session_changed`. A task that never wrote a checklist or a contract has no milestones
+  to restore.
+- **Found on the way:** a context manager taking over an archived list counted all but one of its messages as
+  "no longer kept" while its handle was still in the list — every long resume would have told the model that. Fixed in
+  `continuation.ts`, and a list that had truly dropped messages still says so, with the right count.
+- **Also fixed:** resuming a task with no checklist kept the previous task's list in the prompt.
+- Proof: `src/__tests__/session.resume.task.test.ts`, 9 tests; ten mutants each fail at least one. Context
+  benchmark 42/42, `test:context` 62/62.
+- **Limit, unchanged from step 6:** the continuation keeps the user's newest ten messages quoted, so a constraint
+  followed by ten short "continue" messages moves into the archived list (read with ContextArchiveTool) rather than
+  staying in view. That is where an uninterrupted task has it too; ranking constraints above chatter is separate work.
+
+**F3. Completion checks.** "Done" means a stated check passed (tests, file present, output validated),
+recorded as evidence. Value high · Effort M · Needs F2. **Done 2026-09-21.**
+
+Before: a Thread showed "Done" whenever a turn ended without an error. The outcome contract could demand proof, but
+only if the model chose to define one — 22 saved tasks on the development machine, 0 contracts.
+- **Asked for by the harness** (the owner chose option A): a turn that changed files — a file tool, or a shell command
+  the governor's analyzer calls a write or an install — and has no check is asked once to set one with
+  `CompletionCheckTool`, or to skip with a reason. The user sees the check as a message and can change it or ask for
+  none. A question answered without changing anything is never asked.
+- **Run by the engine** (`src/outcome/completion.check.ts`): when the turn ends, a command check runs through the task's
+  own BashTool — same permissions, sandbox and folder — and is graded by the exit code the tool observed; file and JSON
+  checks are read directly. A failure sends the task back with the output, up to the retry limit (F5), then ends
+  "check failed". The model cannot change or skip a check that failed in the same turn.
+- **Seen:** "Done · check passed", "Check failed", "Finished · not checked" in the sidebar, menu bar, ⌘2 footer and the
+  notification. Saved per session, so a resumed task keeps its check (F2).
+- **Measured live, and fixed:** given a test it could not pass, the model rewrote the test's expected value and the
+  check went green. A pass that follows edits to test files now says so ("Check passed · test files changed", with the
+  files named), and the prompt tells the model not to edit the tests a check runs. Also measured live: while the tool
+  was deferred, the model searched the project for its name; it is now in the core tool set.
+- Proof: `completion.check.test.ts` (22, three through the real AgentLoop with a scripted model) and
+  `thread.activity.test.ts`; 21 mutants each fail a test. Live, `gpt-oss-20b` fixed a real bug, set `node test.js`,
+  and the engine ran it and saw it pass. Given a test it could not pass, it rewrote the test again, and the answer
+  ended "✓ Completion check passed … This task also changed test files (test-strings.js), so the pass may rest on
+  those edits — review them."
+- **Limit:** a check is only as good as what the model picks; a check that runs one test file passes while the
+  project's other tests fail. The check is shown to the user for exactly that reason.
+
+**F4. Event wakeups.** One mechanism resumes a task on a folder change, a time, a CI result or a user's
+answer. Value high · Effort M · Needs F2. *Why:* folder triggers, Guardian and living deliverables share it,
+so build it once. **Done 2026-09-21.**
+
+- **Engine** (`src/tools/implementations/wake.tool.ts`, a core tool): the model registers a wake — `at` a time ("14:30",
+  an ISO date-time, or minutes from now; at most 7 days ahead), `folder` changes (default the task folder; any, PDF,
+  image or document files), `ci` for the current commit (refused, with the reason, when the folder has no commit or
+  `gh` is missing or signed out), or the user's `answer` — with the reason it will act on, then ends its turn. It
+  refuses when `BIMAX_WAKES` is unset: without the app nothing would deliver the wake.
+- **App** (`app/src/main/wakes.ts`): the app waits, not the engine, because an idle task's engine is shut down to save
+  memory. Wakes are saved with the thread (they survive an app restart; an overdue one fires when re-armed). A folder
+  change is reported after 2 s of quiet, ignoring `.git`, `node_modules` and unfinished downloads; CI is polled every
+  minute through `gh run list --commit` until every run finished, and a wait with no result ends after 6 hours with
+  why. Delivery is a message starting "[Wake]" that says what happened and repeats the reason; it starts the engine
+  and the conversation comes back (F2). The user's own message answers an `answer` wake.
+- **Limits:** 5 wakes per thread, 12 wakes per thread per hour (the next waits for the hour), one delivery per wake.
+- **Seen:** the sidebar and menu bar say "Waiting · wakes at 14:30", "Waiting for changes in Downloads", "Waiting for
+  CI", or "Waiting for your answer".
+- Proof: `wake.tool.test.ts` and `wakes.test.ts` (a fake clock drives the scheduler and the real ThreadManager);
+  17 mutants each fail a test. Live: asked to "check back in 20 minutes" and then edit a file, `gpt-oss-20b` registered
+  a 20-minute wake and left the file alone.
+- **Not yet:** folder triggers (FL1) still use their own watcher; moving them onto this mechanism is FL1 part 2's
+  work. A wake cannot be listed or cancelled from the app's UI yet — only by the task, or by "cancel all" through it.
+
+**F5. Per-task limits.** Spend, retries, concurrency and wall-clock time, with the cost visible (see N6).
+Value high · Effort S–M. **Spend and concurrency done 2026-09-19; retries and wall-clock are not.**
+
+Starting it found a defect first. The engine's daily cap lives in
+`<stateDir('.breakglass')>/credits/spend.json`, `stateDir` honours `BIMAX_STATE_DIR`, and
+`threadStateEnvironment` sets that per Bimax Thread — so **every Thread had its own $5/day**.
+Measured before the fix: four independent spend files on the development machine, two of them under
+`thread-state/`. The effective ceiling was $5 × (folders ever opened as a Thread), growing by $5 with
+every new folder. This is the same shape as the sub-agent worker cap (record 57, WP-1) — a
+per-machine constant applied per-Thread — except this one spends money.
+
+- **One ledger for the Mac** (`src/governor/spend.ledger.ts`). Not a shared path into `BudgetVeto`:
+  its mutex is in-process `async-mutex` and each Thread is a separate OS process, so a shared path
+  alone would lose updates — two engines each read $2, each add $1, each write $3, with $4 spent. It
+  follows the O_EXCL lock + atomic rename pattern already proven in `subagent.capacity.ts`, and the
+  cross-process property is tested with **two real `bun` processes** against the real lock.
+- **A per-Thread share** (`perTaskSpendUsd`), so one unattended task cannot spend the whole day
+  before the others start. A charge is refused when either ceiling would break, and the refusal
+  names which — a Thread that exhausted its share is told the Mac still has room, rather than being
+  sent to raise a cap that is not the one stopping it.
+- **Cost is visible** (`/spend`, N6): today's total for the Mac, this task's share, and a per-task
+  breakdown. Before the shared ledger there was no single number to show.
+- **Concurrency** was closed separately by record 57 WP-1 (one worker budget for the machine).
+- A settled charge is always booked, even over the cap: a completed provider call cost money
+  whatever the file says, and dropping it would make the ledger under-report.
+- Known bound, stated not hidden: reservations stay in-process, so the overshoot is at most one
+  in-flight call per live engine, and the next check refuses.
+
+**Retries and wall-clock, done 2026-09-21.** Both are in Settings → Agent behavior (engine config `taskCheckRetries`,
+default 2, and `taskMaxMinutes`, default 0 = no limit); `BIMAX_TASK_MAX_RETRIES` / `BIMAX_TASK_MAX_MINUTES` override them
+per engine.
+- **Retries** bound how many times a task goes back to work after a failed completion check (F3) within one user turn.
+- **Wall-clock**: the limit rides the same abort signal as Stop, so a model call or a command in flight ends at once,
+  not at the next round. The run says it stopped at its limit, and a `turn_limit` event makes the Thread read
+  "Stopped · time limit reached" — not "Done", and not "Interrupted", which means the user pressed Stop.
+- Proof: `task.limits.test.ts` (the limit through the real AgentLoop with a command in flight, with and without the
+  app's Stop signal alongside) and `thread.activity.test.ts`; 7 mutants each fail a test. One mutant first survived —
+  the limit not linked when the app also passes its Stop signal, which it always does — and the test that kills it
+  was added.
+- The per-task spend share (`perTaskSpendUsd`) is still set in the app's settings file, not in the Settings window.
+
+**F6. Recovery before retry.** Before repeating an action, check whether it already happened, using the
+undo journal as the record. Value medium · Effort M. **Done 2026-09-21.**
+
+The repeat that matters is after a crash, a quit or an engine restart mid-turn. F1 reports that turn and never sends it
+again on its own, but when the user sends it again the task starts over, and could move a file twice or append a line
+twice. Now:
+- each message records when it went to the engine (`sentAt`), and a cut-off turn is reported with the changes the
+  thread's undo journal shows from that moment on — each checked on disk, because the journal is written just
+  before a change runs, so an entry alone does not prove it happened (`changesSince` in `thread.undo.ts`: a move is in
+  place when the destination exists and the source does not; a replaced file when it differs from the copy taken
+  before; undone changes are left out);
+- the next message to the task starts "[Before this message: the request … was cut off …, and before that it had
+  already made these changes (checked on disk just now): … Check what is already done before doing any of it again,
+  and do not repeat a change that is still in place.]" — once.
+- Proof: `app/src/__tests__/thread.recovery.test.ts` (a real journal on disk, and the crash → report → resend path
+  through the real ThreadManager); 7 mutants each fail a test (one first survived because the test sent the message
+  the instant it was queued; the test now holds it in the queue first).
+- **Limit:** only changes the journal records (file moves, creations, replacements, Bin moves in a desktop thread).
+  A repeated network action — a request sent, a message posted — leaves no journal entry and is not caught.
+
+**F7. Mid-run steering.** Change a running task's scope or priority without restarting it.
+Value medium · Effort M. **Done 2026-09-21.**
+
+- **Steering:** a message sent while a task works used to wait in the queue for the turn to end. It now goes to the
+  running turn (`steer`, a new inbound protocol message): the agent loop takes it at the start of its next step, and
+  once more before it lets a turn end, as the user's own words (`src/core/steering.ts`; not an engine tag, so the
+  continuation state keeps it as something the user said). The status line says "Your message reaches the running task
+  at its next step." Steering the turn never took — it arrived after the last step, or the turn never ran the loop — is
+  handed back (`steer_unused`) and sent as the next message. Stop drops it, as it drops queued messages. The main
+  window and the ⌘2 bar both send `steer`; the thread manager makes it an ordinary message when the task is not working,
+  and a slash command is never steering. A steer is saved as being worked on (F1), so a crash reports it.
+- **Priority** (sidebar: "Priority: Normal / High / Low"): which task starts first when several wait for an engine or a
+  folder, and which idle engine is stopped last to make room. It never pauses work already running.
+- Also: "Cancel wakes" in the sidebar for a task waiting on F4 wakes.
+- **Measured live and fixed:** every steering unit test passed while every steer vanished in the running engine — the
+  stdio host passes its handlers by name and `onSteer` was not in the list. `stdio.handlers.test.ts` now sends every
+  inbound kind through the real host and requires each to reach its handler, and fails if a new kind is not in its
+  table. After the fix, live: asked to read four files and describe them, then steered after its first tool call with "also give the number of lines in each file, and finish with the total", the running turn took it (`steer_queued`, then `steered`) and answered with each file's line count and "Total lines across all files: 10" — correct.
+- Proof: `steering.test.ts` (the real AgentLoop and HeadlessSession), `thread.steer.test.ts` (the real ThreadManager),
+  `stdio.handlers.test.ts`; 12 mutants each fail a test.
+
+**F8. Port the chat and tool cancellation fix (record 49).** Written and tested in the stale Desktop copy on
+2026-09-13 and never ported. It makes `/clear force` wait for the running turn to finish instead of announcing a
+clear that did not happen, resets every persona's history, resolves pending approvals on Stop, lets provider retry
+backoff be cancelled, checks cancellation again after an approval before a tool acts, and stops telling PDF tasks
+to investigate code and run builds. Record 49's third mutant shows why the post-approval check matters: without
+it, a cancelled tool wrote the protected fixture file.
+Value high · Effort S–M · Needs an edit-by-edit port, not a file copy: `agent.loop.ts`, `base.persona.ts` and
+`tool.factory.ts` have changed here since. `competitive/evidence/2026-09-13-chat-tool-isolation/UNPORTED.md`
+says where the exact edits are. **Done 2026-09-14** (`6d602d1`): record 49's ten suites pass (106 tests), and four
+mutants fail.
+
+**F9. A resume that can fail visibly (T02).** When a saved session is missing or unreadable, the thread waits for a
+`session_restore` that never arrives, and a queued Continue never resolves. Add a typed success or failure with a
+deadline, keep the prompt, and offer: resume failed, start fresh, or inspect. Value high · Effort S–M. **Done 2026-09-14:** the engine emits
+`session_restore_failed { id, reason }` for a missing, ambiguous, unreadable or refused session (added to the wire
+contract and the app's generated mirror), and a starting engine has 20 seconds to confirm a resume. On failure the
+thread becomes usable, says why, keeps the queued message unsent, and asks: start fresh with it, show saved
+conversations (picking one continues there with the message), or keep it for now.
+
+**F10. One restart path (T03).** After an engine failure, the sidebar's Resume does nothing, because the dead
+engine reference makes `start()` return early. Value high · Effort S. **Done 2026-09-14:** a failed or exited engine is
+disposed and dropped, so Resume starts a new one; a restarting engine is kept.
+
+**F11. Stop waits for the engine to exit (T04).** `stop()` starts the next task in the same folder before the old
+process is confirmed gone. Release the folder only after termination is confirmed. Value medium–high · Effort M.
+The probe proved the early dispatch, not an actual collision between two processes. **Done 2026-09-14:** the supervisor's `dispose`
+resolves when the process has exited (or false once SIGKILL should have ended it), and a thread whose engine is still
+exiting keeps its folder: no other task writes there, and its own restarted engine waits too. Still not exercised: a
+real lingering process, since the tests drive the supervisor with fake children.
+
+**F12. Storage survives one write error (T05).** One failed write rejects the save chain, so no later save runs,
+even after the disk problem is fixed. Retry within bounds, keep pending writes, show unsaved state, and wait for the
+final flush on quit. Value high · Effort S. **Done 2026-09-14:** a failed write stays in its batch, goes
+back to pending, and is retried after 1, 2, 4… up to 30 seconds; later saves still run, and a missing folder is
+recreated. The app shows one notification while saving fails, and quitting waits up to three seconds for the last
+writes.
+
+**F13. State the folder scope honestly (T06).** A thread's shell can read files outside its folder; the folder
+limits writes, not reads. Say so now, and design declared read roots and a task-private temp folder before making
+any privacy claim. Value medium, high before any privacy claim · Effort S to document, L to enforce. **Documented 2026-09-14**
+([record 54](54_TASK_FOLDER_SCOPE.md)). The code shows two facts:
+- File tools refuse paths outside the folder, and the shell sandbox refuses writes outside it (the shared temp
+  folders excepted). So changes stay in the folder.
+- Shell commands can read anything the user can, and they can use the network.
+
+Bimax now says so:
+- the sidebar's line about linked threads;
+- a note in the folder rules editor;
+- a section in `PRIVACY.md`.
+
+Record 54 also designs declared read roots and a task-private temp folder, with the measurements they need first.
+That design is not built, and no read-privacy claim is made.
+
+## Quick fixes: Next (about an hour together)
+
+**Q1. gpt-oss tool-call name leak.** Strip harmony channel tokens from tool names in the engine (for example
+`AskUserTool<|channel|>commentary`). Talk mode should also discourage check-in questions like "Is that all you need?".
+
+**Q2. Folder-rules env leak.** `coding.runtime.paths.buildEngineChildEnv` spreads the parent environment, so a
+`BIMAX_THREAD_RULES` or `BIMAX_THREAD_PROTECTED` left in the shell that started Bimax reaches every engine. This is
+the same leak fixed for `BIMAX_THREAD_VOICE` in `6ad2586`.
+
+**Q3. Archive `app/src/main/runtime.paths.ts`.** The app never loads it, and the per-task model fix shipped
+into it with green tests. Move it to the archive with `desktop.bundle.resolution.test.ts`, the only thing still
+importing it. The rule is move, don't delete.
+
+**Q4. Dictation error messages.** `VoiceSessions` finishes on the helper's `exit` rather than `close`, so it can
+lose the reason the microphone failed. Talk mode already uses `close`.
+
+**Q1–Q4 done 2026-09-14.** Q1: harmony tokens are stripped from tool names in both the streamed and the text-recovered
+path, so the call runs and history keeps the clean name; talk mode is told not to end with a check-in question. Q2:
+`BIMAX_THREAD_RULES` and `BIMAX_THREAD_PROTECTED` reach only an engine the app set them for. Q3: `runtime.paths.ts` and
+its test moved to `~/Developer/bimax-archive` (byte-checked); the tests that still applied now run against
+`coding.runtime.paths.ts` in `app/src/__tests__/coding.runtime.paths.test.ts`. Q4: dictation finishes on the helper's
+`close`, so an explanation printed just before it exits is kept. Six mutants each fail a test.
+
+## Next: small, high value (days)
+
+**N1. Approve from the notification.** Allow and Deny buttons on the "needs your decision" notification.
+Value high · Effort S · Needs a check of how macOS shows action buttons (alert style versus banners). **Built 2026-09-14:** a plain yes-or-no
+approval notification carries the one-time Allow and Deny (never "Always Allow This Tool", never a file change, a
+free-form or a multiple-choice question), and a button sends the same token-bound reply the card does; an answer that
+is already gone opens the card instead. Three mutants fail a test. **Not verified live:** macOS shows the buttons only
+when Bimax's notifications use the Alerts style, or under Options on a banner.
+
+**N2. `bimax://` links and Shortcuts actions.** Start a ⌘2 task in a folder with a prompt from Shortcuts, Raycast,
+Stream Deck or a Focus mode. Value high · Effort S. *Why:* every other tool can then trigger Bimax.
+A link must never run anything unconfirmed. **Built 2026-09-14:** `bimax://task?folder=~/Downloads&prompt=…`
+(scheme registered in `app/electron-builder.yml`). Only `folder` (a full path, never `/` or the home folder) and
+`prompt` (at most 2,000 characters, no control characters) are read; anything else in a link is ignored. Bimax shows
+the folder and the whole prompt in a confirmation whose default is Cancel, and starts a ⌘2 task only when Start is
+clicked; its actions still ask as usual. A link that launches Bimax waits until the app is ready. From Shortcuts: an
+"Open URLs" action with that link. Four mutants fail a test. **Not verified live:** the installed app has not been
+rebuilt with the scheme yet, and real App Intents (Shortcuts actions with their own fields) are not built.
+
+**N3. Finder Quick Action: "Ask Bimax".** Opens the ⌘2 bar with the selected files attached, using the existing
+attachment path. Value medium · Effort S.
+**Done 2026-09-21.** The menu bar has **Add “Ask Bimax” to Finder…**, which writes an Automator Quick Action to
+`~/Library/Services/Ask Bimax.workflow` (never over one already there; **Remove** moves it to the Bin). In Finder,
+Control-click files or a folder → Quick Actions (or Services) → **Ask Bimax**. The workflow runs
+`open -b ai.bimax.app <items>`, so the items arrive the way macOS opens any file in an app — a web page cannot send
+that, unlike a `bimax://` link. A drop on the Dock icon works the same way. One folder becomes the task's folder;
+other items are attached, in their shared folder (the person chooses when that would be the home folder); at most
+50. Nothing runs until the person sends. Bimax declares it accepts any item with rank None, so it never becomes the
+app that opens a kind of file. Proof: `app/src/__tests__/finder.action.test.ts`, 8 tests (one reads the bundle with
+`plutil`); 12 mutants each fail a test. The generated workflow, run by `automator` with TextEdit's id in place of
+Bimax's, opened a file whose name has a space. **Not verified live** with the built Bimax.
+
+**N4. Export or share a conversation.** Markdown and PDF (the engine already writes PDFs), from the sessions
+gallery and the bar. Value medium · Effort S.
+**Done 2026-09-21.** Three places, one menu — **Export as Markdown…**, **Export as PDF…**, **Share…** (the macOS
+share sheet: AirDrop, Mail, Messages): the sidebar's **Export** button on every thread, the ⌘2 bar's More menu, and
+a right-click on any card in the Sessions gallery (a saved engine session, read from its JSONL). The export holds
+the person's words and Bimax's answers in full, one line per tool run (with the error when it failed), and warnings
+and errors; tool output is left out, since it can be megabytes and is the part most likely to hold something not
+meant to be sent. The PDF is printed from a hidden window with JavaScript off, from a page whose policy allows no
+script and no network load, and raw HTML in a message is shown as text. A gallery id must look like a session id, so
+it cannot name a file outside the sessions folder. Proof: `app/src/__tests__/thread.export.test.ts`, 5 tests;
+12 mutants each fail a test (two first survived: an id check without its start anchor, and an order check that
+passed when a line was missing). A PDF printed with the app's Electron from a real saved session came out right,
+with a planted `<script>` shown as text and no network request. **Not verified live** in the installed app.
+
+**N5. Attach a screenshot to the ⌘2 bar.** The task reads a picture only, with no control of the Mac, so it
+stays code-only. Value medium · Effort S · Needs a vision-capable model in the vision slot.
+**Done 2026-09-21.** The ⌘2 bar has a camera button: drag across what Bimax should look at (Space picks a window, Esc
+cancels; macOS `screencapture -i`). Pasting an image (⌃⇧⌘4, or an image file copied in Finder) attaches it too. A
+picture is kept in Bimax's temporary folder, never the task's, and may come from outside the task's folder because
+the task only reads it. The bar writes one `- Picture: <path>` line per picture; the engine sends exactly those
+lines to the model as images (at most 5 a turn, 10 MB each) and names any it cannot send. A path merely written in a
+sentence, or a dropped file, is never uploaded — a task renaming 300 photos must not send them. **Found:** the
+engine could already attach images, but since the terminal UI was archived nothing passed any. **On this Mac today**
+neither the work model (gpt-oss-20b) nor the Vision slot (nemotron-3.5-lightning, text-only in Bimax's model table)
+can see, so a picture is not sent and the note says to choose one under Models → Vision. Proof:
+`src/__tests__/turn.pictures.test.ts` (the real session with a stub model), `attachedPictures` in
+`multimodal.test.ts`, pictures in `quick.context.test.ts`; 16 mutants each fail a test. A test caught a real defect
+first: the bar closed its context block with `]` on the picture's line, which the engine would have read as part of
+the file name. **Not verified live:** the camera button, paste, and a real vision model.
+
+**N6. Cost per task, model and day, plus a limit in Settings.** Value medium · Effort S–M · Feeds F5.
+**Done 2026-09-21.** The shared spend ledger now keeps cost **by model** (every provider call passes the model it
+was for) and **30 finished days** of history (a day's totals, per task and per model, move to the history at the
+UTC rollover instead of being dropped; days that spent nothing are skipped). `/spend` shows today by task and by
+model, and the last seven days. **Settings → Agent behavior** has "Daily spending cap" and "Each task's share"; a
+value set there wins over `MAX_DAILY_SPEND` and the desktop's per-Thread share, and a cleared field is unset — never
+0, which would silently mean "no cap". Proof: `src/__tests__/spend.history.test.ts`; 7 mutants each fail a test (one
+first survived because the test's empty day fell outside the 30-day window).
+
+**N7. Voice settings.** Choose the voice and speaking speed, and show when a Premium voice is installed.
+Value medium · Effort S.
+**Done 2026-09-21.** **Settings → Voice** lists the installed voices for the Mac's languages, best first
+(Premium, Enhanced, Basic), with "Automatic" (the best one installed) at the top; six speeds (0.8×–1.5×); and
+**Preview**. When only basic voices are installed it says where to get a natural one (System Settings →
+Accessibility → Spoken Content → System voice → Manage Voices). The Mac's old novelty voices (Bad News, Zarvox…)
+are left out unless already chosen. Talk mode speaks with the choice. The voice helper gained `--voices`, `--say`
+(also for N9) and `--rate`; `--voices` and `--say` work before macOS 26. A voice that is no longer installed falls
+back to Automatic. **On this Mac:** 41 English voices, all Basic. Proof: `app/src/__tests__/voice.settings.test.ts`,
+6 tests (one parses the real helper's list); 10 mutants each fail a test. The rebuilt helper spoke (muted) with a
+chosen voice, and with Automatic for an unknown one. **Not verified live:** the Settings page and talk mode with a
+chosen voice.
+
+**N8. Hold a key anywhere to talk.** A global push-to-talk that answers by notification or out loud.
+Value medium · Effort S–M.
+**Done 2026-09-22.** Menu bar → **Talk anywhere**: Off (default), ⌃⌥T, ⌃⌥⌘Space or ⌃⌥Space (whichever the ⌘2 bar
+does not use), and **Answer out loud** (default) or **as a notification**. Hold the shortcut in any app, speak, let
+go: the words become a ⌘2 task in the folder Finder shows — read at the press, the same context ⌘2 reads — and the
+menu bar says "● Listening" meanwhile. Electron's global shortcuts see the press, never the release, so the voice
+helper watches the key (`--listen --hold <key code>`, `CGEventSource.keyState`). A key not down a quarter-second in
+was a tap (or macOS will not say): then the next press sends. With no usable folder the words open in the ⌘2 bar
+to pick one. Nothing is sent when nothing was heard; a cancel sends nothing; an error is said once. An answer out
+loud is its first sentences, about 300 characters, without code or markup, in the Settings → Voice choice; the
+request carries talk mode's hint so the reply is written to be heard. Proof: `app/src/__tests__/push.talk.test.ts`,
+7 tests; `voice.test.ts` for `--hold`; 13 mutants each fail a test. **Not verified live:** whether macOS reports the
+held key to the helper without Input Monitoring, and the shortcut, listening and answer in the built app.
+
+**N9. Spoken updates when tasks finish.** "Your Downloads cleanup is done, 6 GB freed."
+Value low–medium · Effort S.
+**Done 2026-09-22.** **Speak When a Task Finishes** in the menu bar and in Settings → Voice (off by default). When a
+task you are not looking at finishes, Bimax says its name, how it ended (done; finished but its check failed;
+stopped at its time limit; failed; interrupted) and the first sentence of its answer's first paragraph, without
+markup or list markers — "Tidy Downloads is done. Moved 30 files into folders by month and freed 6 GB." It uses the
+Settings → Voice choice, and never speaks over talk mode or while talk anywhere is listening. Proof:
+`app/src/__tests__/spoken.updates.test.ts`; 10 mutants each fail a test. The rebuilt helper spoke that exact line
+(muted). **Not verified live** in the built app.
+
+**N10. Correct once, teach deliberately.** For example, a correction becomes "Use ACME for this client from now
+on?", with sample applications shown before saving. Preferences stay visible, editable and scoped.
+Value medium · Effort M.
+**Done 2026-09-22 (in the ⌘2 bar).** When a message to a task corrects how it works — "No, use ACME for this client",
+"From now on, name the files by date" — the bar shows **Remember this for every task in <folder>?** with the rule
+written out (editable), and up to three earlier requests in that folder it would have applied to (those naming one
+of its less common words), before anything is saved. **Save as a folder rule** adds it as a line of the folder's
+rules — the visible, editable, per-folder rules under ⋯ → Rules for this folder (N11's editor), which restart idle
+tasks there on them; **Not now** keeps nothing. A one-off correction ("no, the other file"), a question, courtesy or
+an ordinary request is not offered, nor is a rule the folder already has. Only the folder of the offer on screen
+can be saved to. **Still true:** the engine's own user model (`src/mind/user.model.ts`) keeps learning corrections
+silently into prompt "standing instructions"; this item did not remove it. Proof: `app/src/__tests__/teach.test.ts`;
+13 mutants each fail a test (a courtesy guard was removed as redundant after its mutant survived). **Not verified
+live** in the built app; the main window's project threads do not offer yet.
+
+**N11. Remove, archive and search threads.** Creating a thread fails at 200 saved threads and tells the user to
+remove one, but record 46 found no way to remove one. Add archive, search, rename and a retention policy.
+Value high once Threads is used daily · Effort S. **Built 2026-09-14:**
+- **Sidebar controls:** every thread has Rename; every stopped thread also has Archive and Bin.
+- **Search box:** matches a thread's name, its folder, and everything said in it.
+- **Archived list:** each archived thread has Restore and Bin.
+- **Where things go:** an archived thread moves to `threads/archive/` in Bimax's app data. Bin moves the conversation
+  file to the Bin after a confirmation whose default is Cancel. Nothing is deleted outright.
+- **Retention:** at 200 threads, a new task no longer fails. Bimax archives the least recently used thread that has no
+  engine, is not open in the main window, and has no unsent message. This matters now that each folder-trigger run
+  starts a thread.
+- **Tests:** 9 tests. 22 of 24 mutants fail a test; the two that survived were redundant lines, now removed.
+- **Not verified live:** nobody has used the sidebar controls or the Bin confirmation in a built app yet.
+
+**N12. Show why a task is waiting.** A task with queued work can show "idle". Separate idle, completed, failed,
+interrupted, waiting for a folder and waiting for approval, with the pending count and a cancel.
+Value medium · Effort S. **Built 2026-09-14:**
+- Every task says what it is doing, in the sidebar, the menu bar and the ⌘2 bar's footer:
+  - Working, Starting, or Needs your decision;
+  - Waiting for another task in this folder;
+  - Stopped, with its queued messages sent when it resumes;
+  - how its last turn ended: Done, Failed or Interrupted.
+- Queued messages are counted, with **Cancel queued**. The turn being worked on carries on.
+- "Failed": the engine reported an error in the turn, or died during it.
+- "Interrupted": the person interrupted or stopped the turn, the engine restarted, or Bimax closed mid-turn.
+- The last outcome is saved with the thread. The counts and the waiting reason are computed each time and never saved.
+- 7 tests; 25 mutants each fail one. **Not verified live.**
+
+**N13. Approve a described change set once.** Threads ask afresh for every existing-file write and mutating
+command, even under bypass or persistent rules. Offer task-scoped permission for an explicitly described change,
+reused while the target, scope and risk stay the same. Value medium–high · Effort M · The governor's
+non-bypassable floors must still run first. **Done 2026-09-21.**
+
+A thread's approval card offers **"Allow for this task"** when the change can be described and bounded
+(`src/governor/task.grants.ts`), and the card says what it covers: edits to one existing file; moving, renaming,
+copying, creating or Bin-moving items when every item stays in the thread's folder and the undo journal can reverse
+it; or one exact command in one exact folder. Anything else — another file, folder or command, a multi-line command,
+an irreversible change — offers only Allow and Deny. The grant is checked after every floor in the thread path
+(folder scope, forbidden paths, plan mode, permanent deletes, protected paths), and the undo journal still records
+each change. Grants end with the task (`clear`, or a switch to another saved session); `/grants` lists them and
+`/grants clear` takes them back. The notification's buttons stay one-time Allow and Deny. Proof:
+`src/__tests__/task.grants.test.ts` (10, through the real Governor); 8 mutants each fail a test (one first survived —
+a command grant covering the same command in another folder — and the test that kills it was added).
+
+**N14. Make Threads discoverable.** Record 46 saw no way into Threads from the installed app's welcome screen. Add
+"Start a task in a folder" and a configurable shortcut, and check ⌘2 against other apps' shortcuts. Check the
+current build first. Value medium · Effort S. **Built 2026-09-15.** Checked first: the sidebar that lists Threads only exists once
+a project is open, so the welcome screen had no way into ⌘2 tasks.
+- **Welcome screen:** a **Start a task in a folder** button. It asks for a folder and opens the ⌘2 bar on it. Next to
+  it is the current shortcut, or a note that another app holds it.
+- **Choosing the shortcut:** Bimax in the menu bar → **Keyboard shortcut** offers ⌘2 (the default), ⇧⌘2, ⌃⌥Space and
+  ⌥Space.
+  - A choice another app holds is refused, and the bar keeps the shortcut it had.
+  - The choice is saved (`quickShortcut`), and the sidebar and menu bar hints show it.
+- **Honest limits:**
+  - A global ⌘2 takes the key from every app (a browser's second tab, Finder's list view). That is why it can now be
+    changed.
+  - Electron says registering a shortcut another app already holds can fail silently, so a refusal is not always
+    detected. If the bar does not open, choose another shortcut.
+- **Tests:** 3 tests; 5 mutants each fail one. **Not verified live.**
+  The ⌘2 bar also keeps the main composer's send keys: Enter, ⌘↩ and Ctrl+↩ send; ⇧↩ adds a newline. This is covered by a focused keyboard-contract test; installed-app verification remains unmeasured.
+
+## Flagships: weeks, in suggested order
+
+**FL1. Folders that act.** Start with folder triggers ("when a PDF lands in Downloads, rename it and file it").
+Grow into *folders with an outcome*: "keep this folder ready for my accountant", with a queue of what is ready and
+what needs you. Value high · Effort M then L · Needs F1, F4, F5 · Builds on folder rules, schedules and undo.
+*Must design first:* loop protection (a task's own edits must not re-trigger it), debouncing, and a
+reviewable change list. **Designed and first version built 2026-09-14** ([record 53](53_FOLDER_TRIGGERS_DESIGN.md)).
+From a task's ⋯ menu: run it when any file, a PDF, an image or a document arrives directly in its folder, while Bimax
+is open. Each run is a new ⌘2 task on the new files. It asks before changing anything and ends with a list of what it
+changed.
+
+Loop protection:
+- a rename in place is not an arrival;
+- a run's journaled output is ignored;
+- any other new file gets one follow-up run, and a follow-up that leaves more files pauses the trigger.
+
+Limits: one run at a time, 6 runs an hour, 50 files per run.
+
+It is unit-tested with 23 mutants but **not verified live**. Still Target: files that arrive while Bimax is closed,
+subfolders, resuming the same task (F4).
+
+**Part 2, folders with an outcome — built 2026-09-22** ([record 53](53_FOLDER_TRIGGERS_DESIGN.md), "Part 2"). "Keep
+this folder ready for my accountant: every receipt a PDF named by date, in its month's folder." Set from the ⌘2 bar's
+⋯ menu or the menu bar's **Keep a Folder Ready…**, optionally checking the files already there. Every arrival gets a
+task that brings the file in line (asking first, as always) and reports each file through a new engine tool,
+`FolderStatusTool`: ready, or needs-you with what the person must do — never read from an answer's wording. The
+menu bar shows each folder as "Receipts: 2 need you · 14 ready", lists what needs you (click shows the file) and
+offers Check Now, Change, Open and Stop; the ⋯ menu shows the same line. The tool is registered only in a folder with
+an outcome, so other tasks pay nothing for it. Proof: `folder.outcomes.test.ts` (9 tests) and
+`folder.status.tool.test.ts` (4); 22 mutants each fail a test (3 more were refused by the compiler). **Not verified
+live**, and a real model has not yet been asked to report through the tool.
+
+**FL2. A preview you can rearrange.** Before organizing 300 files, show the proposed tree. Dragging one invoice
+leads to "Put all invoices here?", and the whole preview updates. *First version:* an editable organization
+preview. Value high · Effort M.
+**First version built 2026-09-22.** A task that would move more than a few files now proposes the whole plan with a
+new engine tool, `OrganizePlanTool` (registered in desktop threads only; checked for files that exist, stay inside the
+folder, are not moved twice, and land on no name another file keeps), and ends its turn. Bimax opens the **Organize
+preview**: the proposed folder tree, folder by folder. Drag a file onto another folder, or onto **New folder**, to put
+it there; when other files share its group ("Invoices", or the file kind when the task gave none), it asks **Put all
+23 other Invoices in 2026/Paid too?** and the preview updates. **Leave it** keeps a file where it is; conflicts (two
+files onto one name, or onto a file that stays) block Apply. Nothing moves until **Apply**: the app then moves the
+files inside the folder only, never over an existing file, skipping nothing protected by the folder's rules (a
+protected item refuses the whole plan), in an order where a file can take a place another is leaving (a swap goes
+through a temporary name), recorded before it starts as ONE undo-journal entry, so one ↶ Undo reverses the whole
+plan. A move that fails stops the plan and the journal is corrected to exactly the moves made. **Found and fixed:**
+undo checked every move up front, so a chain ("a → old/a, b → a") could not be undone; it now checks step by step.
+Proof: `organize.plan.test.ts` (15 tests, 4 on a real disk: apply + one undo of a chain and a swap; a failure;
+a file appearing mid-apply; a refused conflict) and `organize.plan.tool.test.ts` (4); 27 mutants each fail a test
+(2 more were refused by the compiler). **Not verified live:** the preview window, drag and drop, and a real model
+choosing the tool.
+
+**FL3. "Actually…": revise a finished result.** "Actually, by project, and keep invoices together." It works out
+the changes from the current state and keeps the user's manual edits. *First version:* file moves and renames.
+Value high · Effort M–L · Needs FL2, the undo journal.
+**First version built 2026-09-22 (file moves and renames, on FL2).** When a plan is applied, Bimax remembers where it
+put each file and the file's inode (`organize-history.json` in its app data, the last plan per folder). A message to
+the task that starts "Actually", "Instead", "Rather" or "On second thought" within a day of that plan carries a hint:
+revise from where the files are now, with OrganizePlanTool, keeping what the person moved by hand. When the revised
+plan arrives, each file no longer where Bimax put it was moved by the person; it is found again by its inode (one
+bounded walk, 20,000 entries, skipping .git and node_modules), and any move of it is kept out of the revision —
+listed in the preview as **Kept where you put them**, with **Include anyway**. A new file that merely took an old
+name is not mistaken for the moved one. A bare "No, …" is not a revision (it corrects many things, N10). Proof:
+`app/src/__tests__/organize.revise.test.ts` (5 tests, one on a real disk: a rename by hand keeps its inode); 9
+mutants each fail a test. **Not verified live** with a real model revising a plan.
+
+**FL4. Change history, then selective undo.** A timeline to restore any point, then "undo the renames but keep the
+conversions", which needs dependency detection between actions. Record 46's *honest undo* adds reversibility
+classes: say which changes can be restored and which cannot (a sent message), and keep later human edits during a
+rollback. Value medium–high · Effort M then L.
+**First version built 2026-09-22.** **History** (next to ↶ Undo in the ⌘2 bar) lists what the task changed, newest
+first, from its undo journal, with the commands it ran interleaved as "✕ a command — Bimax can't undo what it
+changed". Each change says, honestly: whether its effect is still in place; "one item must be put back from the Bin by
+hand" when Finder did not say where an item went; and "changed since: report.md (your version goes to the Bin if
+undone)" when a file it created or replaced was changed outside Bimax afterwards (a moved file carries later edits
+back with it, so it is not flagged; Bimax's own later edits count as dependents, not as someone else's). **Undo**
+reverses one change alone when no later change touched the same files (found transitively); otherwise it is disabled
+and **Undo back to here** reverses every change from the newest down to it, stopping at the first that refuses and
+saying how far it got. Proof: `app/src/__tests__/thread.history.test.ts` (10 tests on a real disk); 13 mutants each
+fail a test. **Still Target:** grouping by kind ("undo the renames but keep the conversions") and undo of commands.
+**Not verified live.**
+
+**FL5. Night Shift.** "Work on this migration tonight, at most $12, a reviewable branch by morning." Milestones,
+an isolated checkout, a check per milestone, and a morning briefing. Independent work continues while one
+question waits. Value high · Effort L · Needs F1–F7 · Only while the Mac is awake unless a remote worker is added.
+**First version built 2026-09-22.** ⌘2 bar ⋯ → **Work on This Tonight…**: the goal, a budget ($1–$100) and a morning
+time (HH:MM, within 16 hours). Bimax makes an **isolated checkout** — `git worktree add -b bimax/night-<date-time>`
+in its own app data, so the working copy is never touched — and starts a task there that runs **unattended**: a new
+governor mode where work inside the checkout goes ahead without prompts but every floor holds (workspace containment,
+the sensitive-target refusals, the spend cap — which `bypass` lifts and this does not — and the taint block, which
+refuses instead of asking); computer control is refused; AskUserTool answers "nobody is here: choose the safer option,
+write it in NIGHT-QUESTIONS.md and carry on"; diff approval and the blast-radius gate let edits through because the
+branch is what gets reviewed. The words ask for **milestones**, each checked and committed ("milestone: …"), never
+pushed. When a turn ends early, the shift is continued (at most 20 times) until it says NIGHT SHIFT DONE, reaches its
+budget (summed across UTC days, since the engine's per-task cap resets at midnight UTC), fails, is stopped, or hits
+the morning time (Bimax interrupts it then). Bimax keeps the Mac **awake** (`powerSaveBlocker`) while any shift runs.
+The **briefing** — how it ended, commits, diffstat, spend of budget, the check, recorded questions, its own summary,
+and the commands to review, merge or drop the branch — goes into the task, a Markdown file in app data and a
+notification. The card says when the Mac-wide daily cap would stop the shift first. Proof: `night.shift.test.ts`
+(8 tests, one on a real git repository) and `governor.unattended.test.ts` (4); 20 mutants each fail a test (a
+redundant taint check was removed after its mutant survived). **Not verified live** — no real overnight run yet.
+
+**FL6. Muscle memory.** After a task succeeds and passes its checks, offer to save it as a versioned skill with
+inputs, sample data and output checks. When an input stops matching, it goes back to reasoning.
+Merges "teach Bimax a job once" (file workflows) and "apply this before/after change to the other 40".
+Value high · Effort L · Needs F3.
+**First version built 2026-09-22.** When a ⌘2 task's check passes (F3), it says once: "To have Bimax do this kind
+of job the same way again, ⋯ → Save as a Skill." The card shows the skill before it is saved — its name and "when to
+use it" (editable), what it worked on, its steps and its checks — written from what the task actually did, with no
+model call: its request, the kinds of files it changed and up to five samples (from its undo journal), its successful
+steps (not the reads and searches it made to find its way, not failed calls, not sub-agent calls, no repeats; at most
+25), and its F3 checks. It is saved to `~/.bimax/skills/<name>/SKILL.md`, where every Bimax task sees it. The skill
+opens with **Check first**: when a new input is not like what it worked on, do NOT follow the steps — work it out
+afresh and say the skill did not fit. Saving again keeps the earlier version in `versions/`. Proof:
+`app/src/__tests__/skill.capture.test.ts` (4 tests, frontmatter parsed with the engine's YAML library); the engine's
+own `parseSkillFile` read a generated skill whose request held ": "; 12 mutants each fail a test. **Not verified
+live:** a later task choosing the skill, and its "did not fit" path.
+
+**FL7. "Where was I?"** Bookmarks, plus changes since your last visit: what was compared, what was rejected
+and why, what arrived, the next step. *First version:* an explicit "leave myself a bookmark" button.
+Value medium · Effort M.
+**First version built 2026-09-22.** **Bookmark** in the ⌘2 bar's footer leaves a one-line note in your own words
+on a task (kept with the task, so it survives a restart; listed under **Bookmarks** in the menu bar). When a
+bookmarked task comes back into the bar more than five minutes later, **Where you were** shows the note, how long
+ago, what happened since — the changes it made (from its undo journal), how many answers and the last one, the files
+that arrived directly in its folder (by creation time) — and what is still open on its checklist (its last
+TodoWrite). **Carry on** or **Remove the bookmark**. Nothing is inferred: without a bookmark, nothing is shown.
+Proof: `app/src/__tests__/where.was.i.test.ts` (5 tests, one a restart round trip); 12 mutants each fail a test.
+**Still Target:** "what was compared, what was rejected and why". **Not verified live.**
+
+**FL8. Disposable tools inside a task.** A contact sheet for choosing photos, a matching table for
+reconciling, a batch editor for naming. *First version:* three reliable templates. Value medium · Effort M.
+**First version built 2026-09-22: the three templates.** A new engine tool, `TaskViewTool` (desktop threads only),
+opens one inside the task: a **contact sheet** (pictures in the task folder; pick some, or one), a **matching table**
+(the task proposes pairs between two lists — bank lines and invoices — and the person keeps, changes or clears each),
+or a **name editor** (proposed names, edited in place; no "/" or empty names). The view travels as the JSON body of an
+ordinary question, so it appears in the ⌘2 bar and the approval popup like any other; what the person chose comes
+back as JSON and the tool turns it into words the task acts on (names point it at OrganizePlanTool for the renames).
+A picked path that was not offered is dropped; Cancel says nothing was chosen; a front-end that cannot show the view
+makes the task ask in plain words instead of guessing. Files must be real and inside the task folder, at most 200.
+Proof: `src/__tests__/task.view.tool.test.ts` (5) and `app/src/__tests__/task.views.test.tsx` (3, rendered markup);
+14 mutants each fail a test. **Not verified live**; the main window shows these as plain questions for now.
+
+**FL9. Pick the model by measured speed.** Talk mode and ⌘2 use the fastest model that handles tools well,
+from `modelTimes`, instead of a hard-coded one. Value medium · Effort S–M.
+**Built 2026-09-22.** Each model's record on this Mac now counts failed turns as well as its average time (a failed
+turn counts against the model but not in its time; old counts fade at 20 turns). "Handles tools well" is measured,
+not declared: served by the provider, meant for coding in the catalogue (tier or recommendation), judged on at least
+3 turns, and failing at most 20% of them. **Talk mode** uses the fastest such model once one exists (until then its
+old default, gpt-oss-20b). The ⌘2 model menu offers **New ⌘2 tasks: fastest measured — now <model>, about Ns a turn**;
+with it, every new ⌘2 task (schedules, triggers, links, talk anywhere, night shifts included) starts on the model
+measured fastest, or Bimax's own until something is measured. A named choice is kept as it is. Proof:
+`app/src/__tests__/model.choice.test.ts` (5 tests); 13 mutants each fail a test. Two older menu tests that assumed
+"Use this model" was the last item now find it by name.
+
+**FL10. Interrupt talk mode by speaking (barge-in).** Apple's voice-processing echo cancellation should let
+the microphone stay on while Bimax speaks. Value medium–high for talk · Effort M · Needs measuring on the
+built-in speakers.
+**Built 2026-09-22, off by default (Settings → Voice → Interrupt by speaking, experimental).** With it, the voice
+helper turns on voice processing on the microphone's audio engine and speaks through a player node on that same
+engine (the synthesizer writes buffers), so the echo canceller has Bimax's own voice as its reference. The microphone
+stays on while speaking; what it hears then is passed on as `overheard`, not kept as the next utterance. The app
+decides (`isBarge`): at least two words, most of them not in the sentence being spoken — echo repeats the sentence, a
+person says something else ("no, stop"). Then the speech and the task's turn stop and it listens. Only while speaking:
+a late "overheard" while the task is thinking stops nothing. Accents are dropped before comparing (a test caught them
+splitting "déjà" into two words). Without the setting the helper runs exactly as before; a talk session on a spoken
+audio file (`--input`, muted) still heard, answered and finished. Proof: 4 new tests in `talk.session.test.ts`; 7
+mutants each fail a test. **Not measured:** the echo cancellation itself on built-in speakers — the backlog's
+condition — needs a person at the Mac.
+
+**FL11. Talk in the background.** A floating orb or menu bar control while the window is hidden.
+Value low–medium · Effort M.
+**Built 2026-09-25, menu bar version (no orb).** Hiding the ⌘2 bar no longer ends talk mode. While it is hidden the menu
+bar title says what the conversation is doing (🎙 Listening / Thinking… / Speaking… / Needs you), and the menu gains
+Talking · <state>, Interrupt and Listen (while speaking, thinking or waiting), Show the Conversation and Stop Talking.
+Showing the bar again gives the menu bar back to the task list. A forgotten conversation still ends itself after two
+minutes of silence (`QUIET_END_MS`). Hiding stops dictation only; talk mode runs its own helper. Proof:
+`app/src/__tests__/talk.background.test.ts`; 2 mutants each fail it. **Not verified live** on the installed app.
+
+## Later: valuable, needs a foundation or a narrower first version
+
+**L1. Living deliverables.** "Keep this report accurate until Friday": when a source spreadsheet changes, only
+the affected chart and conclusions are flagged and updated. *First version:* one CSV to one report.
+Value high · Effort L · Needs F4, dependency tracking (42 record), and C1's dependency invalidation, which is the
+same mechanism.
+
+**L2. Contradiction radar.** "What doesn't agree?" across a folder's documents: amounts, dates, names, versions,
+each finding opening both sources. Value medium · Effort M–L.
+
+**L3. "What would this break?"** References to a file or folder inside the project, found before a rename, with the
+repairs included in the preview. Value medium · Effort M.
+
+**L4. "How did this get here?"** Provenance for artifacts Bimax created: source, transformation, output, and the
+task that made it, with "origin unknown" for changes it did not observe. Value medium · Effort M ·
+Builds on the evidence store.
+
+**L5. Project Guardian.** "For two weeks, watch CI, reproduce new failures, prepare fixes within this scope."
+Value medium–high · Effort L · Needs F2, F4, GitHub access.
+
+**L6. Parallel futures.** Three isolated approaches evaluated the same way, with measured trade-offs, and only the
+winner applied. Value medium–high · Effort L · Worktree isolation exists; 8 GB limits concurrent builds.
+
+**L7. Rehearsal mode.** Run a file workflow on copies with injected faults (duplicate names, missing input,
+interruption) before touching real data. Value medium · Effort M–L.
+
+**L8. A tiny population tries your web app.** Scripted personas with goals run bounded journeys against a
+local website, with state checks and replays. Local websites only, via the puppeteer harness.
+Value medium · Effort M–L.
+
+**L9. Drag the result, change the cause.** Adjust spacing, size or alignment in a running local web project and
+trace it to the source, offering alternatives when ambiguous. Value medium (a striking demo) · Effort L.
+
+**L10. Semantic paste, inside Bimax first.** Copy an invoice and paste it into a task as structured fields,
+with uncertain values highlighted. Value medium · Effort M. Pasting into other apps is parked (P5).
+
+**L11. Calendar-aware tasks.** "Prepare notes 10 minutes before each meeting." Value medium · Effort L ·
+Needs explicit privacy choices.
+
+**L12. Find repeated work from Bimax's own task history.** Suggest shortcuts from patterns in past
+tasks, in a quiet review queue. Value low–medium · Effort M.
+
+**L13. App Relay, code-only first.** One task's output is handed to another as a typed artifact (hash, source,
+purpose, freshness), with a separate grant for each receiving task; tampering or unlinking before dispatch stops
+the delivery. The native-app leg is parked with Computer Use. Value medium · Effort M · Needs F2, L14.
+
+**L14. Typed messages between linked threads.** Peer messages are ordinary input carrying a warning string, which
+labels them but is not a boundary. Add provenance, message IDs, expiry, acknowledgements and a link check at
+dispatch; unlinking should also retract messages still queued. Value medium · Effort M.
+
+**L15. Who can see other threads.** The broker's `list` shows every thread's title before any link exists. That is
+fine for one person's Mac; shared or private tasks would need discovery scopes. Value low now · Effort S.
+
+**L16. Budget by workload, not engine count.** Four engines plus their workers is heavy on 8 GB. Schedule by CPU,
+memory and model budget; allow independent reads and isolated checkouts, and lock only shared writes. Benchmark
+before choosing limits. Value medium · Effort M–L.
+
+**L17. An isolated-checkout mode for threads.** Threads always work in the live folder, and the engine's sub-agent
+worktrees are a different feature. Offer a worktree mode and keep the changes on handoff.
+Value medium · Effort M · Shares its mechanism with L6.
+
+## Context and retrieval (record 47)
+
+Record 47 proposes a **Context Compiler**: a bounded, versioned package of evidence for each step, built from the
+existing stores and tools with the models already configured. The stages are in order, and each needs the one
+before it. The verdicts and efforts are this merge's proposals; record 47 gives none. The step-by-step build flow,
+with the code location of each defect, is [record 50](50_CONTEXT_COMPILER_BUILD_PLAN.md).
+
+**C0. Repair the eight reproduced defects.** Each probe becomes an acceptance test, paired with a mutant that
+restores the defect. Value high · Effort M · Verdict Next · **Done 2026-09-14** (record 50 steps 1–3); audit 51 found
+gaps, repaired the same day.
+- **A01:** a rewrite that keeps size and modification time is not re-indexed, and compaction restores the old
+  bytes labelled "verified unchanged".
+- **A02:** the scope filter runs after the result limit, and the path prefix `wanted` also matches `wantedExtra/`.
+- **A03:** recall retrieves the right document but injects its beginning, not the chunk that answers.
+- **A04:** recalled text survives compaction with no freshness check, and asking again is suppressed.
+- **A05:** a 100-token graph context request returns about 1,805 tokens, marked not truncated.
+- **A06:** the graph rank cache misses rewired edges, and dangling-node mass is not conserved.
+- **A07:** a Hindi query tokenizes to nothing and gets no lexical hit.
+- **A08:** log compression keeps the first value and drops the maximum.
+
+**C1. Evidence foundation.** Shared evidence span, locator and version types; raw tool output archived; dependency
+invalidation, so a changed source dirties only what used it. Verdict Flagship · Effort L · Needs C0 · **Done 2026-09-14** (record 50 step 5);
+audit 51 found gaps in freshness, dependency tracking and the archive, repaired the same day.
+
+**C2. Prompt compiler.** One token budget for the whole request, a representation chosen per item (locator,
+signature, exact span or neighbourhood), a structured continuation state, and a ledger of what is actually in the
+prompt. Verdict Flagship · Effort L · Needs C1 · Shares its continuation state with F2. **Built 2026-09-14** (record 50 step 6):
+continuation state, one request-boundary budget, recall excerpts, log summaries. F2 can build on
+`src/context/continuation.ts`.
+
+**C3. Adaptive retrieval.** Evidence requirements per step, query-seeded graph search, selective counter-evidence,
+and bounded read-only operations over large outputs (select, fetch, join, aggregate, diff).
+Verdict Later · Effort L · Needs C2. **Partly built 2026-09-14** (record 50 step 7): recall abstention, import-following
+code search, pattern search over archived output. Join, aggregate, diff and counter-evidence are not built.
+
+**C4. Qualification.** An evidence inspector, explanations for stale or missing evidence, restart behaviour,
+packaged integration and the R02 journey. Verdict Later · Needs C3. **Engine side built 2026-09-14** (record 50 step 8):
+`/evidence`, plain stale explanations, continuity across a rebuilt context manager, a packaged local build. The R02
+journeys do not pass yet; see record 50.
+
+## Parked: needs Computer Use back, or research
+
+- **P1. "Show me the bug" → verified fix** by demonstrating in a native app. A local-web version could become
+  Later through the browser harness.
+- **P2. "Give this app a new superpower"**: companion panels acting through another app's interface.
+- **P3. Teach a job by demonstrating it across other apps.**
+- **P4. Observing other apps to find repeated work.**
+- **P5. Semantic paste into other apps' forms.**
+- **P6. "Borrow my screen politely"**: prepare work in the background, then ask for a bounded turn in the
+  foreground and hand control back (record 46).
+- **P7. The Computer Use return program** in record 46, slices 0–6: reconcile the docs, dependable Threads, bounded
+  observation, one safe mutation journey, build → run → prove, app packs, selective expansion. Its slice 1
+  (dependable Threads) is F1, F9–F12, N11–N13 and L14 here, and needs no Computer Use.
+
+## Overlaps merged
+
+| Kept as | Also appeared as |
+|---|---|
+| FL1 Folders that act | run tasks when a folder changes; folders with an outcome attached |
+| FL4 Change history | undo one decision, keep everything else; record 46's honest undo |
+| FL6 Muscle memory | teach Bimax a job once; make this happen from a before/after example |
+| L1 Living deliverables | a report that knows when it becomes wrong; record 46's Living Threads |
+| L6 Parallel futures | three possible futures; record 46's parallel possible futures |
+| L7 Rehearsal mode | practice on a fake version first |
+| P1 Show me the bug | record 46's Show me the bug |
+| P3 Teach a job by demonstrating | record 46's teach a result once |
+| F1 Queue survives | record 46's T01 |
+
+## Where the research lives
+
+Records 46, 47 and 49, their evidence, and the additions to the source ledger and gap register were copied from the
+stale `~/Desktop/Bimax` copy on 2026-09-14 and checked byte for byte:
+
+- `46_COMPUTER_USE_RETURN_AND_THREADS_STRATEGY.md`, evidence in `evidence/2026-09-13-threads-audit/`
+- `47_RAG_AND_CONTEXT_COMPILER_UPGRADE.md`, evidence in `competitive/evidence/2026-09-14-context-audit/`
+- `49_CHAT_TOOL_ISOLATION_RECORD.md` (numbered 45 there), evidence in
+  `competitive/evidence/2026-09-13-chat-tool-isolation/`
+- `competitive/08_SOURCE_LEDGER.md` and `competitive/05_GAP_REGISTER.md`: both copies' sections merged, with nothing
+  dropped from either
+
+The probes in 46 and 47 ran against the Desktop copy, not this repository; see the facts above for what was
+re-checked. The three write-ups say they were document research plus web checks, with no implementation and no
+tests.
+
+External references as the write-ups cited them, not re-checked here:
+
+- Anthropic, "Effective harnesses for long-running agents"
+- Microsoft UFO; Adobe DynaSaur (arXiv 2411.01747); Sketch-n-Sketch
+- Proactive Agent (arXiv 2410.12361); Pare (arXiv 2604.00842)
+- WebArena; Generative Agents (arXiv 2304.03442); AppWorld (arXiv 2407.18901)
+- Screenpipe; Raycast AI Commands; Claude Cowork

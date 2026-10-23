@@ -112,6 +112,34 @@ Mutation-sensitive coverage includes the source-boundary scan, provider architec
 missing Electron authority/consent, sensitive target, packaged override, schema drift and missing
 structured output. This is local development evidence, not fresh-Mac distribution evidence.
 
+### 2026-08-18 reconstruction re-verification
+
+The reconstructed native service was re-qualified after closing the remaining 33 failures in the
+60-check executable harness. The fixes cover bounded snapshot/image/capture retention, exact
+window postconditions and identity, focus-lease honesty, semantic postcondition comparison,
+file/URL policy, bounded image analysis, and stable OCR backing storage. The current local results
+are:
+
+- native executable harness: **60/60 checks**, with a clean rebuild after the final changes;
+- Desktop macOS capability suites: **85/85 suites, 1,018/1,018 tests**;
+- Desktop TypeScript gate: `npm run typecheck` passed;
+- arm64 desktop package structure/signature verification passed for the rebuilt local app;
+- packaged conformance: **11/11 assertions**, including 15 live-verified semantic actions,
+  `physical_cgevent` Unicode typing with independent effect read-back, visual capture,
+  stop-before-effect, and M02 **9/9** through background `ax_attribute` delivery. Raw report:
+  `app/benchmarks/computer-use/results/phase2/run-2026-08-17T19-11-15.905Z/report.json` (UTC
+  timestamp; run completed 2026-08-18 in the local timezone).
+
+The rebuilt local app is ad-hoc signed. On 2026-08-18, macOS Settings visibly showed Bimax enabled
+for Accessibility and Screen & System Audio Recording; the rebuilt app's fresh helper reported both
+`true`, its native-service handshake reported both `granted`, and the packaged Trust Center rendered
+host **2/2** plus both service permissions **Allowed**. The renderer now carries the helper-versus-
+fallback provenance, shows a checking state before the first answer, and offers restart only when
+the helper is actually unavailable. Exact service-hash approval remains pending for each new local
+build and was not silently granted during this read-only verification. Fresh-Mac signing,
+notarization, deny/grant/revoke/regrant and update persistence therefore remain **Target**, unchanged
+from Phase 7.
+
 ## Phase status and remaining Targets
 
 - **Phase 1:** local implementation complete. Native x64 archive inventory and clean-Mac TCC remain

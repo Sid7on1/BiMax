@@ -1,5 +1,121 @@
 # Migration roadmap
 
+## Bounded messaging verification — 2026-10-11, record 84
+
+[Record 84](84_MESSAGING_RELIABILITY.md) adds a Mac-owned SEND_MESSAGE workflow:
+exact recipient/draft evidence, a fresh check after each approval, exactly one
+added outgoing row and a cleared composer. Only that consumed draft is retired;
+ordinary persistent-field checks remain strict. Ambiguity, unknown completion and
+missing proof stop without replay. Visible outgoing evidence is not delivery.
+This remains built-in Bimax CU, with direct @CU and per-input approvals.
+WhatsApp contact selection, full M01, repeated native/model-tier reliability and
+release qualification remain Target. The local signed alpha is installed. A selected-conversation fixture subcase is
+locally Measured with one Send and injected Pause/Resume. The record retains the
+initial no-input failure, 189 tests, nine source faults and fifteen grader faults;
+none establishes broad reliability.
+
+
+## Direct @CU experience — 2026-10-11, record 83
+
+[Record 83](83_DIRECT_AT_CU_EXPERIENCE.md) supersedes records 81–82’s required app/window picker at the
+owner’s request. Send `@CU <task>` in either composer: Do is the default, and the
+CU model discovers actual running apps/windows after dispatch. Guide/Teach and
+saved workflows are optional. Read grants, per-input approval, exact observations,
+Pause/Stop and no-replay barriers remain. Main-owned ephemeral single-use admission
+refuses restored/expired requests; discovery metadata grants no input authority.
+Mac owns CU through its private host channel. Broader model reliability, full M02/X01
+and release qualification remain Target. The signed local arm64 app is installed;
+one direct saved-model Do task is Measured on the owned fixture (two verified
+inputs, exact text, exactly one Save). Local typecheck, 392 regression tests, ten
+renderer checks and seven source faults pass; record 83 scopes the receipts.
+
+
+## CU modes and verification recovery — 2026-10-11, record 82
+
+[Record 82](82_CU_MODES_AND_VERIFICATION_RECOVERY.md) adds Do/Guide/Teach,
+revision-bound in-panel approvals, Pause/Take over/Resume/Stop, and explicit
+read-only correction of a changed unexpected status. Guide has no native input;
+Teach saves only verified literal instructions and reuse requires a fresh target
+and consent. Exact postconditions and no-replay barriers remain. Local host and
+renderer contracts are scoped in record 82; assisted correction is not autonomous
+model inference. The signed local arm64 v2 app is installed. Individual Teach
+(assisted), Guide (zero native inputs) and Do outcomes are Measured on one owned
+fixture; 33 grader faults are rejected. Interrupted/rejected attempts remain
+recorded. Broader model planning/prose reliability, repeated model tiers, full
+M02/X01 and distribution remain Target.
+
+## Explicit @CU messages — 2026-10-10, record 81
+
+[Record 81](81_AT_CU_MESSAGE_ROUTING.md) implements per-message Computer Use in the project composer
+and ⌘2 floating bar: autocomplete, a visible chip and explicit running-app/window
+selection. Main-owned single-use receipts and native enforcement bind the exact
+window; the engine advertises and executes only CU plus clarification for that
+turn. Ordinary coding messages cannot activate CU by guessing its tool name.
+Picker consent is separate from task read/input approvals. Queued/restarted routes
+never silently become coding turns. Native ownership remains Bimax for Mac through
+its private host channel, without an MCP connector. Local contracts, renderer end
+states and assertion-caught faults are scoped in record 81. Full M02/X01, repeated
+model reliability and release/performance qualification remain Target.
+
+## Full Arc source owned by Bimax CU — 2026-10-07, record 80
+
+[Record 80](80_FULL_ARC_SOURCE_AND_BUILT_IN_CU_FEATURE.md) places all 100 original
+Arc files inside `app/native/computer/vendor/arc-cua/` and ships that full source
+snapshot plus all 34 Python package modules inside Bimax CU. Original MIT identity,
+authorship and byte hashes remain. The upstream MCP/CLI code is retained; Bimax's
+entry refuses its `mcp`/`run` commands and exposes only the private app component.
+Computer Use is a File menu action and readable chat activity. Its engine connection
+remains the birth-transferred internal MessagePort, never a managed MCP connector.
+Record 79's module exclusions and the earlier third_party location are superseded.
+The installed v4 app is **Measured** on one owned fixture with the saved gpt-oss-20b:
+one verified field edit, one verified Save click, exact persisted text and save count
+one, plus independent native AX read-back. Flat arguments, safe read correction and
+standalone window-target import defects are fixed. Failed attempts remain recorded.
+Full native/saved-model M02/X01, clean-Mac distribution and performance remain Target.
+
+
+## Internal Bimax CU — 2026-10-07, record 79
+
+[Record 79](79_INTERNAL_BIMAX_CU_AND_WORKFLOW_RELIABILITY.md) supersedes record 78's
+MCP connection at the owner's explicit request. Bimax for Mac owns a built-in
+`BimaxCuTool`, transferred to its engine worker through a private MessagePort at
+worker creation. No MCP descriptor, proxy, socket route or detachable connection
+supplies CU. The pinned MIT Arc Driver remains the native backend; Bimax's archived
+commit-label and executable-identity policies are selected first-party components,
+combined with ordered workflow execution and independent UI read-back. Product
+identity is Bimax CU; original Arc authorship/license/provenance remain intact.
+Terminal owns no native binary, permission or native tool implementation. Legacy
+CUA/COMPUTER_CONTROL routes remain refused. Local contracts/builds qualify only
+what record 79's receipts prove; full M02/X01, model tiers and release remain Target.
+
+
+## CU source import delivered — 2026-10-07
+
+[Record 77](77_CU_SOURCE_IMPORT_RECORD.md) copies all pinned arc-cua tracked files
+and returns the complete archived Bimax source snapshot into dedicated repository
+folders. It changes source availability, not runtime admission. No legacy restore,
+replacement-driver integration, dependency installation or CU rollout is scheduled
+by this copy. Record 66 remains the product runtime boundary.
+
+## Computer Use retired — owner decision, 2026-10-04
+
+The owner explicitly withdrew Computer Use: “roll off the bimax cu completely keep it in archive again i dont
+want that feature at all”. [66_COMPUTER_USE_RETIREMENT_RECORD.md](66_COMPUTER_USE_RETIREMENT_RECORD.md) governs the
+current boundary. The look/press/type/scroll tools, app services, preview switches, Accessibility request path,
+native driver dependency and feature proof scripts are archived outside the repository. Saved flags cannot restore
+them; stale host requests and governor COMPUTER_CONTROL requests refuse. Coding, Bimax Threads, Finder folder
+selection and on-device dictation remain. Records 55/64 still govern engine workers in the monolith. Record 65 and
+its measurements below are historical evidence, not an active rollout or authorization to reintroduce the feature.
+
+
+> **Historical program, 2026-10-02 — superseded by record 66:** record 65 governs the optional app-owned Computer Use return. Stages 2 and 3
+> have installed exit evidence; stage 4 was declined; stage 5 was set aside by the owner with X01 unmeasured. Stage 6
+> general abilities (press, type, Return, pick, scroll, an explicitly approved foreground step) are Implemented and
+> locally Measured as detailed in §6h. Missing-name recovery suggests observed controls but still refuses the action.
+> Stage 6's baseline/repetition/distribution exit remains unmet. Each stage ends on evidence; nothing is waived.
+> Records 55/64 govern the monolith and engine workers. Older split/CU phases below are historical evidence, not
+> authorization to restore their provider, XPC binaries, UI or fallbacks.
+
 The split is a sequence of reversible slices. “All tests green” at each slice means the tests that
 can actually detect the requested outcome, not deleting or weakening a failing test.
 
@@ -172,6 +288,54 @@ semantic/physical/visual/stop + M02 rows; see
 implementation/package qualification is complete. Clean-machine TCC/quarantine, native Intel where
 shipped, Developer ID signing and notarization are Phase 7 release qualification and cannot be
 manufactured on this development Mac.
+
+Repair audit, 2026-08-27: the packaged ownership statement above had regressed at two connection
+seams and is now **Implemented and locally package-Measured again**. The production bridge was
+constructing `BimaxCuServiceCore` in-process, so the staged `.xpc` existed without owning the live
+route; it now uses the app-bundled named XPC service and permits the embedded core only behind the
+explicit untrusted-development switch. The XPC listener derives the exact bridge designated
+requirement from the sealed bundle, validates the immediate peer with Security.framework, and also
+requires an exact signed Bimax app ancestor so an unrelated process cannot launch the bridge as a
+confused deputy. Trust Center now performs the same bridge → XPC handshake as the provider and gates
+readiness on the reached service's intact signature, identifier, exact approved Code Directory hash,
+and its own Accessibility/Screen Recording states. The generic engine still owns no native CU code;
+Desktop connects its generic `bimax-mac` provider before engine readiness instead of discovering it
+on the old delayed optional-MCP sweep.
+
+The local build now restages the engine manifest and rebuilds service, bridge, helpers and provider
+as one generation. `scripts/verify-desktop-package.mjs` launches that exact signed `Bimax.app`
+executable with `--self-test-native-route`, bypasses only the normal single-window lock, and requires
+Electron → bridge → intact `ai.bimax.cu.service` before the package passes. The 2026-08-27 arm64
+bundle at `/private/tmp/bimax-cu-repair.NUAo1x/release3/mac-arm64/Bimax.app` passed strict nested
+signature verification and this live topology gate. That exact app was packaged as a local arm64
+DMG, whose filesystem checksum passed; its read-only mounted copy passed the same live topology
+gate. The distributable local artifact is `app/release/Bimax-1.1.0-arm64-local-2026-08-27.dmg`
+(SHA-256 `7eddb4ac1e19dcfc29a407c087ee8d87f701e511b3bbde16ebd3dde9af4aa5be`). The
+same bundle then passed every packaged conformance assertion, including topology, semantic,
+physical, visual, stop, takeover, content,
+search, foreground-invariance and M02; raw evidence is preserved in
+`app/benchmarks/computer-use/results/phase2/run-2026-08-26T20-25-23.833Z/report.json`. Native tests
+passed 60/60, Desktop tests passed 1160/1160, and the engine suite accounted for 2469 tests (2458 passed plus 8 skipped in the full
+run; the 3 sandbox-denied loopback/home-install cases then passed 19/19 with their required local
+authority). This repairs a local package claim only: Developer ID/notarization, a clean-Mac TCC
+matrix, native Intel timing and a model-backed broad real-app journey remain **Target**.
+
+Authenticated-plan race repair, 2026-08-27: a live installed-app Messages request exposed that a
+Computer Use turn was signed only when `mac_control` was already registered at persona entry. On
+the old delayed MCP path, the provider could appear during the same turn and receive a call with no
+plan; the native authority correctly stopped it as `untrusted_observation_authority`, while the
+renderer incorrectly described the attempted `open` as completed. Plan binding now follows the
+explicit user instruction and the Desktop-only launch secret rather than ToolRegistry timing, so a
+late registration/reconnection inherits the authenticated turn. Blocked provider results now render
+as errors such as `Blocked: open Messages`, retain the refusal reason, and never advance the live
+target. The exact reported sentence is pinned in engine and renderer regression tests. Full local
+qualification passed 2462 engine tests (8 intentional skips) and 1161 Desktop tests. A freshly
+rebuilt engine was packaged with the app as
+`app/release/Bimax-1.1.0-arm64-local-planfix-2026-08-27.dmg` (SHA-256
+`a479c70dc54a760acce8d3950203c6c3617fed0056c0485971152d70d2665c4e`); `hdiutil verify`, strict
+nested signature validation and the read-only mounted Electron → bridge → exact XPC topology gate
+all passed. No real message was typed or sent. Safe-contact send completion and clean-Mac release
+qualification remain **Target**.
 
 ## Phase 3 — publish the engine boundary
 

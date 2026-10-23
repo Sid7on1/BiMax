@@ -54,10 +54,20 @@ Decision: fresh-install and upgrade permission persistence are mandatory tests. 
 for permission again after updates; the UI must say so honestly. Stable signing is the eventual fix,
 not a custom permission database or hidden workaround.
 
+2026-08-23 local-development revalidation: Apple documents that the designated requirement is how
+macOS decides whether changed code is the same code previously granted a privacy permission. A
+live two-binary probe with the existing `Bimax Local Code Signing` identity produced the same
+certificate-root-and-identifier requirement for different binaries, while the installed ad-hoc
+Bimax requirement was CDHash-only. The local build may therefore use that certificate to preserve
+the host identity, without representing it as Developer ID, notarized, Gatekeeper-accepted, or a
+public release. The separately approved native CU service remains ad-hoc and exact-hash gated.
+
 Sources:
 
 - [Apple: Capturing screen content in macOS](https://developer.apple.com/documentation/screencapturekit/capturing-screen-content-in-macos)
 - [Apple Developer Forums: ad-hoc identity reset confirmed by DTS](https://developer.apple.com/forums/thread/819406)
+- [Apple: Applying Code Requirements](https://developer.apple.com/documentation/security/applying-code-requirements)
+- [Apple TN3127: Inside Code Signing Requirements](https://developer.apple.com/documentation/Technotes/tn3127-inside-code-signing-requirements)
 
 #### Local SDK revalidation — 2026-08-09
 
@@ -300,6 +310,32 @@ Target only through its research card, applicable acceptance gate and preserved 
 
 Sources: the primary lead index in `12_ALL_VISION_SECTIONS_RESEARCH_PLAYBOOK.md`, with detailed
 section 28/29 evidence in `11_SECTIONS_28_29_RESEARCH_AND_DELIVERY_PLAN.md`.
+
+### Monolith: engine worker threads inside the Electron process (2026-09-29)
+
+- Electron's performance guidance: never block the main process; CPU-heavy work goes to worker threads, a dedicated
+  process is the last resort.
+- Node's worker_threads: no `process.chdir()` in a worker, `process.env` is a per-worker copy, `process.exit()` ends
+  only the thread, signals are not delivered, an uncaught exception terminates only the worker, `resourceLimits`
+  terminate the worker but a global out-of-memory can still abort the process.
+- Electron enables V8 pointer compression (4 GB heap limit); Chromium's shared cage makes that 4 GB shared by every
+  isolate in one process.
+- VS Code keeps third-party extensions in a `utilityProcess` for crash isolation; Zed runs first-party work in one
+  process and isolates only foreign programs; Shopify's Packwerk enforces modular-monolith boundaries with a tool.
+- Measured locally (record 64 §4): the shipped engine bundle runs unchanged in a worker in Electron's main process;
+  3 idle engines 494–521 MB as workers vs 649–791 MB as processes; a worker needs its own working folder (shim).
+
+Decision: record 64 — engines as one worker thread per Bimax Thread in the app's process, off the UI thread.
+
+Sources:
+
+- [Electron: Performance](https://www.electronjs.org/docs/latest/tutorial/performance)
+- [Node.js: worker_threads](https://nodejs.org/api/worker_threads.html)
+- [Electron: V8 memory cage](https://www.electronjs.org/blog/v8-memory-cage)
+- [V8: Pointer compression](https://v8.dev/blog/pointer-compression) · [nodejs/node#55735](https://github.com/nodejs/node/issues/55735)
+- [VS Code: sandbox migration](https://code.visualstudio.com/blogs/2022/11/28/vscode-sandbox)
+- [Zed core architecture](https://deepwiki.com/zed-industries/zed/2-core-architecture)
+- [Shopify: Packwerk](https://shopify.engineering/enforcing-modularity-rails-apps-packwerk)
 
 ## Explicit non-conclusions
 

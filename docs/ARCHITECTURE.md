@@ -248,8 +248,8 @@ BiMax can run as a long-lived autonomous service, not just an interactive chat:
   `processTask()`, `stop()`.
 - **`core/orchestrator.ts` — `Orchestrator`** + **`coordinator.ts`/`worker.agent.ts`**:
   dispatch decomposed sub-tasks to workers concurrently and aggregate results.
-- **`api/webhook.receiver.ts` — `WebhookReceiver.startListening(port)`**: receive external
-  webhooks that kick off tasks.
+- ~~`api/webhook.receiver.ts`~~ — unbooted since 2026-06-19 and moved to `~/Developer/bimax-archive`
+  on 2026-09-29; the engine opens no inbound HTTP port.
 - **`actions/action.router.ts` — `ActionRouter.route()`** with executors:
   **`executor.cron.ts`** (scheduled), **`executor.trigger.ts`** (event), **`executor.webhook.ts`**
   (HTTP), **`executor.graph.ts`** (graph-driven). Powers `/watch` (wake the agent on a file

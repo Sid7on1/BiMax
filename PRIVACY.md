@@ -35,6 +35,20 @@ destination that tool implies:
 If you never invoke a network tool and you point the model at a local endpoint, BiMax makes no
 outbound connections.
 
+## What a ⌘2 task can reach
+
+A task started with ⌘2 works in one folder. That folder limits what the task **changes**, not everything it can
+**read**:
+
+- **Changes stay in the folder.** File tools refuse paths outside it. Shell commands run in a macOS sandbox that
+  refuses writes anywhere except the folder and the shared temporary folders. Deletions go to the Bin, and every
+  change asks first.
+- **Reads and the network are not limited by the folder.** A command the task runs can read any file your user
+  account can read, and it can use the network (sovereign mode denies the network).
+
+So do not rely on a task's folder to keep other files private. A design for limiting reads is in
+`docs/product-reset/54_TASK_FOLDER_SCOPE.md`; it is not built.
+
 ## Local / self-hosted models
 
 BiMax is provider-agnostic: it talks to any OpenAI-compatible API. Set the base URL to a local
