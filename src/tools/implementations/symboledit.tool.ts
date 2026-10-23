@@ -4,10 +4,10 @@ import * as ts from 'typescript';
 import { resolvePath, workspaceWriteBlock } from '../path.util';
 import { IGovernor } from '../../core/interfaces';
 import { buildTool } from '../tool.factory';
-import { backupFile, unifiedDiff, compactDiff, capDiff } from '../../cli/fileEditor';
+import { backupFile, unifiedDiff, compactDiff, capDiff } from '../../engine/fileEditor';
 import { shieldEdit } from '../syntax.check';
-import { requestDiffApproval } from '../../cli/diffApproval';
-import { checkBlastRadius } from '../../cli/blastGate';
+import { requestDiffApproval } from '../../engine/diffApproval';
+import { checkBlastRadius } from '../../engine/blastGate';
 import { fileStateCache } from '../../memory/file-state-cache';
 import { globalTransactionManager } from '../../core/transaction.manager';
 import { outcomeOk, outcomeError, outcomeRejected } from '../outcome';
@@ -193,7 +193,7 @@ export const createSymbolEditTool = (governor: IGovernor) => buildTool({
     );
     if (!approved) return outcomeRejected(`SymbolEdit to ${args.path} rejected by user. No changes were made.`);
 
-    await globalTransactionManager.trackEdit(fullPath);
+    await globalTransactionManager.trackEdit(fullPath, updated);
     await backupFile(fullPath);
     await fs.writeFile(fullPath, updated, 'utf8');
     fileStateCache.invalidate(fullPath);

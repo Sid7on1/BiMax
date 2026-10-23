@@ -1,7 +1,9 @@
+import { stateDir } from '../utils/state.dir';
 import { randomBytes } from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Logger } from '../utils/logger';
+import { redactSecretsDeep } from '../security/secret.scan';
 
 /**
  * Trace layer — OpenTelemetry GenAI semantic-convention spans, zero external dependencies.
@@ -25,7 +27,7 @@ import { Logger } from '../utils/logger';
  * JSONL directory (tests point it at a tmpdir).
  */
 
-export type AttrValue = string | number | boolean;
+export type AttrValue = string | number | boolean | string[];
 
 export interface SpanContext {
   traceId: string;
@@ -116,7 +118,8 @@ export function toOtlpJson(spans: EndedSpan[], serviceName = 'bimax'): object {
     Object.entries(attrs).map(([key, v]) => ({
       key,
       value:
-        typeof v === 'number'
+        Array.isArray(v) ? { arrayValue: { values: v.map(value => ({ stringValue: value })) } }
+        : typeof v === 'number'
           ? Number.isInteger(v) ? { intValue: String(v) } : { doubleValue: v }
           : typeof v === 'boolean' ? { boolValue: v } : { stringValue: String(v) },
     }));
@@ -174,7 +177,7 @@ export class Tracer {
   recentSpans(): EndedSpan[] { return [...this.recent]; }
 
   private jsonlDir(): string {
-    return process.env.BIMAX_TRACE_DIR || path.join(process.cwd(), '.bimax', 'traces');
+    return process.env.BIMAX_TRACE_DIR || path.join(stateDir('.bimax'), 'traces');
   }
 
   /** Today's JSONL export file (for surfacing the path to the user). */
@@ -186,6 +189,7 @@ export class Tracer {
 
   onSpanEnd(span: EndedSpan): void {
     if (this.closed) return;
+    span = redactSecretsDeep(span);
     this.recent.push(span);
     if (this.recent.length > Tracer.RECENT_MAX) this.recent.splice(0, this.recent.length - Tracer.RECENT_MAX);
 

@@ -26,6 +26,7 @@ export type ErrorClass =
   | 'unknown';
 
 export interface TypedOutcome {
+  presentation?: import('../protocol/presentation').PresentationPart[];
   __typedOutcome: true;
   status: OutcomeStatus;
   errorClass?: ErrorClass;

@@ -62,7 +62,7 @@ export function createMcpManageTool(governor: IGovernor, registry: ToolRegistry,
     schema: {
       type: 'object',
       properties: {
-        action: { type: 'string', enum: ['list', 'discover', 'add', 'remove', 'remove-all', 'enable', 'disable', 'doctor', 'reconnect'], description: 'What to do.' },
+        action: { type: 'string', enum: ['list', 'discover', 'add', 'remove', 'remove-all', 'enable', 'disable', 'doctor', 'reconnect', 'login'], description: 'What to do. "login" signs in to a hosted server that says it needs sign-in (opens the browser for the user).' },
         query: { type: 'string', description: 'For discover: a plain-language capability you need (e.g. "search the web", "query postgres").' },
         id: { type: 'string', description: 'For add: a catalog id from a discover result (e.g. "github", "postgres"). Resolves command/args automatically.' },
         name: { type: 'string', description: 'Server name (for add/remove/enable/disable). Defaults to the catalog id when adding by id.' },
@@ -75,7 +75,7 @@ export function createMcpManageTool(governor: IGovernor, registry: ToolRegistry,
       required: ['action'],
     },
     execute: async (args: { action: string; query?: string; id?: string; name?: string; command?: string; args?: string[]; env?: Record<string, string>; url?: string; headers?: Record<string, string> }) => {
-      if (['add', 'remove', 'remove-all', 'enable', 'disable', 'reconnect'].includes(args.action)) {
+      if (['add', 'remove', 'remove-all', 'enable', 'disable', 'reconnect', 'login'].includes(args.action)) {
         await governor.approveTaskExecution('TOOL_EXECUTION', {
           tool: 'McpManageTool', action: args.action, name: args.name || args.id, isDestructive: true,
         });
@@ -114,6 +114,14 @@ export function createMcpManageTool(governor: IGovernor, registry: ToolRegistry,
         return conn
           ? `Reconnected '${args.name}' — ${conn.toolNames.length} tool(s) are live.`
           : `Could not reconnect '${args.name}'. ${manager.lastErrorFor(args.name) || manager.lastError || 'Unknown error.'}`;
+      }
+
+      if (args.action === 'login') {
+        if (!args.name) return 'login requires "name" — the hosted server that asked for sign-in.';
+        const conn = await manager.login(args.name, registry, governor);
+        return conn
+          ? `Signed in to '${args.name}' — ${conn.toolNames.length} tool(s) are live.`
+          : `Sign-in to '${args.name}' did not finish. ${manager.lastErrorFor(args.name) || manager.lastError || 'Unknown error.'}`;
       }
 
       if (args.action === 'add') {

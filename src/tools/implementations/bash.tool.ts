@@ -3,12 +3,49 @@ import { promisify } from 'util';
 import * as os from 'os';
 import { IGovernor } from '../../core/interfaces';
 import { buildTool } from '../tool.factory';
-import { sandboxArgv, sandboxBin, floorRoot, floorArgv, floorChildEnv, floorBlockedReason } from '../../sandbox/exec.sandbox';
+import { sandboxArgv, sandboxBin, floorRoot, floorArgv, floorChildEnv, floorBlockedReason, sovereignShellBlockedReason } from '../../sandbox/exec.sandbox';
 import { outcomeOk, classifiedError } from '../outcome';
+import { guiAutomationRefusal } from '../gui.automation.guard';
+import { isReadOnlyShellCommand } from '../shell.readonly';
+import { planShellChange } from '../thread.changes';
+import { binLookNote, moveToBin, movedToBinText } from '../thread.bin';
+import { recordTrash } from '../thread.journal';
 
 const execAsync = promisify(exec);
 const execFileAsync = promisify(execFile);
 const MAX_OUTPUT_CHARS = 50_000;
+
+/**
+ * A terminal escape sequence — colour, cursor moves, the lot. Matched with the ESC byte REQUIRED,
+ * so it can never touch ordinary text containing brackets.
+ */
+// eslint-disable-next-line no-control-regex
+const ANSI_ESCAPE = /\u001b(?:\[[0-9;?]*[ -/]*[@-~]|\][^\u0007\u001b]*(?:\u0007|\u001b\\)|[@-Z\\-_])/g;
+
+/**
+ * Ask the child not to colour its output.
+ *
+ * Nothing did this, so every `npm test`, `eslint`, `cargo`, `git -c color.ui=always` and friend
+ * wrote raw SGR escapes straight into the tool result, and from there into the model's context.
+ * Two costs, both real: the escapes are tokens that carry no meaning, and the model learns to
+ * echo them back — which is what the literal `[0m`/`[1m` fragments in Bimax's own replies were.
+ * The ESC byte is invisible in a DOM text node, so `\u001b[1m` renders as the bare letters `[1m`.
+ *
+ * `NO_COLOR`, `FORCE_COLOR=0` and `CLICOLOR=0` are the conventions tools actually honour, and they
+ * also override a `FORCE_COLOR` the parent process had set — which is the common way colour got
+ * in, since a piped stdout is not a TTY and most tools are already quiet without one.
+ *
+ * `TERM` is deliberately left alone: `TERM=dumb` would add almost nothing here and breaks build
+ * scripts that call `tput`. stripAnsi() below is the backstop for a tool that ignores all three.
+ */
+function colourlessEnv(base: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
+  return { ...base, NO_COLOR: '1', FORCE_COLOR: '0', CLICOLOR: '0', CLICOLOR_FORCE: '0' };
+}
+
+/** Remove terminal escapes from output destined for the model, which has no terminal to render them. */
+function stripAnsi(text: string): string {
+  return text.includes('\u001b') ? text.replace(ANSI_ESCAPE, '') : text;
+}
 
 export const createBashTool = (governor: IGovernor) => buildTool({
   name: 'BashTool',
@@ -31,6 +68,13 @@ Reserve BashTool for actual shell operations (installs, builds, git, processes, 
 - Quote paths with spaces using double quotes.
 - Git: never force-push or reset --hard unless explicitly asked; never commit unless asked.`,
   isDestructive: true,
+  /**
+   * Per-call, not per-tool. BashTool as a whole is a barrier, but a turn of `git status`, `rg TODO`,
+   * `wc -l` is three read-only lookups with no reason to serialize. Only a strictly read-only
+   * FOREGROUND command overlaps; `isReadOnlyShellCommand` fails closed on every ambiguity, and the
+   * Governor, sandbox and task guard still run for the call either way.
+   */
+  isConcurrencySafe: (args: any) => args?.background !== true && isReadOnlyShellCommand(args?.command),
   schema: {
     type: 'object',
     properties: {
@@ -40,11 +84,37 @@ Reserve BashTool for actual shell operations (installs, builds, git, processes, 
     },
     required: ['command']
   },
+  // Shell is not a Computer Use channel: refused before any approval card, so nobody is asked to allow a command that will
+  // be refused anyway (measured 2026-10-02: the person allowed `osascript … tell application "Music"` on its card).
+  refuseBeforeApproval: (args: { command: string }) => {
+    const verdict = guiAutomationRefusal(args?.command);
+    return verdict.refused ? `Command blocked: ${verdict.reason}` : undefined;
+  },
   execute: async (args: { command: string, timeout?: number, background?: boolean }, context?: any) => {
     // Coerce the model-supplied timeout. LLMs frequently emit it as a string,
     // a float, or an out-of-range value, which makes Node's exec throw
     // ERR_OUT_OF_RANGE ("timeout ... must be an unsigned integer") and derails
     // the whole task. Clamp to a finite integer in [0, 600000]ms.
+    // Shell is not a Computer Use channel. Refused BEFORE the sandbox, the governor, or any
+    // execution, so a GUI-automation command never reaches the window server by this path.
+    const guiRefusal = guiAutomationRefusal(args.command);
+    if (guiRefusal.refused) {
+      throw classifiedError(`Command blocked: ${guiRefusal.reason}`, 'permission', 'blocked');
+    }
+    // In a desktop thread a plain `rm`/`rmdir` sends the items to the Bin through the Bimax app instead of deleting
+    // them, and records where each one went so the thread can undo it (thread.changes.ts, thread.journal.ts).
+    if (process.env.BIMAX_THREAD_ROOT) {
+      const change = planShellChange(args.command, context?.cwd || process.cwd());
+      if (change?.kind === 'trash') {
+        const { moved, error } = await moveToBin(change.trash, context?.signal);
+        await recordTrash(change.title, 'BashTool', moved);
+        if (error) throw classifiedError(`Moved ${moved.length} of ${change.trash.length} item(s) to the Bin, then stopped: ${error}`, 'external');
+        return outcomeOk(movedToBinText(moved.map((m) => m.path)), { exitCode: 0 });
+      }
+    }
+    // A command that looks inside the Bin gets a note in every outcome: Bimax cannot read the Bin, and what the
+    // command printed must not be taken as its contents (thread.bin.ts).
+    const binNote = binLookNote(args.command);
     const rawTimeout = Number(args.timeout);
     const timeoutMs = Number.isFinite(rawTimeout)
       ? Math.min(Math.max(0, Math.floor(rawTimeout)), 600_000)
@@ -57,13 +127,19 @@ Reserve BashTool for actual shell operations (installs, builds, git, processes, 
       // authority (BIMAX_SANDBOX_FLOOR_SOFT=1 is the explicit opt-out).
       const blocked = floorBlockedReason();
       if (blocked) throw classifiedError(`Command blocked: ${blocked}`, 'permission', 'blocked');
+      // Sovereign mode: a subprocess is outside the in-process egress perimeter, so the kernel has
+      // to deny it the network. Where the OS cannot, the shell is refused rather than run with
+      // isolation we cannot demonstrate.
+      const sovereignBlocked = sovereignShellBlockedReason();
+      if (sovereignBlocked) throw classifiedError(`Command blocked: ${sovereignBlocked}`, 'permission', 'blocked');
       // Background promotion: long-running work becomes a tracked task workspace instead of a
       // blocking foreground exec (task registry + execution ledger; honest pause via SIGSTOP).
-      // Not available under the sandbox floor — the floored argv path must stay foreground where
-      // the sandbox profile wraps it.
-      if (args.background && !floorRoot() && !sandboxArgv(cmd, currentCwd)) {
+      // startShellTask applies the same OS isolation, including direct calls and retries.
+      if (args.background) {
         const { startShellTask } = require('../../core/shell.tasks');
-        const { task, summary } = startShellTask(cmd, { cwd: currentCwd, timeoutMs: timeoutMs > 30_000 ? timeoutMs : 0 });
+        const { task, summary } = startShellTask(cmd, { cwd: currentCwd,
+          timeoutMs: args.timeout === undefined ? 0 : timeoutMs, learningOrigin: context?.learningTrace });
+        if (task.state === 'failed-resumable') throw classifiedError(summary, 'external');
         return outcomeOk(JSON.stringify({ taskId: task.id, state: task.state, note: summary }, null, 2), { exitCode: 0 });
       }
       const flArgv = floorArgv(cmd);
@@ -78,13 +154,13 @@ Reserve BashTool for actual shell operations (installs, builds, git, processes, 
         cwd: currentCwd, timeout: timeoutMs, maxBuffer: 10 * 1024 * 1024,
         signal: context?.signal as AbortSignal | undefined,
         // Floored episodes (even soft-bypassed ones) never expose the parent env to children.
-        ...(floorRoot() ? { env: floorChildEnv() } : {}),
+        env: colourlessEnv((floorRoot() || process.env.BIMAX_THREAD_ROOT) ? floorChildEnv() : process.env),
       };
       const { stdout, stderr } = sbArgv && sbBin
         ? await execFileAsync(sbBin, sbArgv, execOpts)
         : await execAsync(cmd, execOpts);
-      const out = stdout.trim();
-      const err = stderr.trim();
+      const out = stripAnsi(stdout).trim();
+      const err = stripAnsi(stderr).trim();
       // Workspace: a successful `git clone` makes the new repo an ask-once registration
       // candidate (multi-repo awareness, workspace.manager.ts). Best-effort, never blocks.
       if (/git\s+clone\s/.test(cmd)) {
@@ -93,6 +169,7 @@ Reserve BashTool for actual shell operations (installs, builds, git, processes, 
       const payload = {
         stdout: out.length > MAX_OUTPUT_CHARS ? out.slice(0, MAX_OUTPUT_CHARS) + '\n...[truncated]' : out,
         stderr: err.length > MAX_OUTPUT_CHARS ? err.slice(0, MAX_OUTPUT_CHARS) + '\n...[truncated]' : err,
+        ...(binNote ? { note: binNote } : {}),
       };
       // Typed outcome: text matches the old JSON.stringify wire format exactly; exitCode 0 is
       // ground truth for the epistemic ledger's green evidence flag.
@@ -103,26 +180,27 @@ Reserve BashTool for actual shell operations (installs, builds, git, processes, 
         throw classifiedError(`Command interrupted: ${args.command}`, 'interrupted');
       }
       if (e.killed) {
-        throw classifiedError(`Command timed out after ${timeoutMs}ms: ${args.command}`, 'timeout');
+        throw classifiedError(`Command timed out after ${timeoutMs}ms: ${args.command}${binNote ? `\n${binNote}` : ''}`, 'timeout');
       }
       // A NON-ZERO exit is normal and useful for many commands — `tsc` with type errors, a failing
       // `npm test`, `grep` with no match. Node's exec rejects in that case but attaches the captured
       // output (e.stdout / e.stderr) and exit code. Return THAT instead of discarding it as a bare
       // "Command failed", so the model sees the actual errors and can act — no more redirecting to a
       // temp file just to read tsc/test output.
-      const out = String(e.stdout || '').trim();
-      const err = String(e.stderr || '').trim();
+      const out = stripAnsi(String(e.stdout || '')).trim();
+      const err = stripAnsi(String(e.stderr || '')).trim();
       if (out || err) {
         const tag = e.code != null ? `\n[command exited with code ${e.code}]` : '';
         const payload = {
           stdout: out.length > MAX_OUTPUT_CHARS ? out.slice(0, MAX_OUTPUT_CHARS) + '\n...[truncated]' : out,
           stderr: ((err + tag).length > MAX_OUTPUT_CHARS ? (err + tag).slice(0, MAX_OUTPUT_CHARS) + '\n...[truncated]' : (err + tag)),
+          ...(binNote ? { note: binNote } : {}),
         };
         // Still status 'ok' — a failing tsc/test run is a useful result, not a tool failure —
         // but the non-zero exitCode makes the ledger's red evidence flag exact.
         return outcomeOk(JSON.stringify(payload, null, 2), { exitCode: typeof e.code === 'number' ? e.code : 1 });
       }
-      const wrapped: any = classifiedError(`Bash execution failed: ${e.message}`, 'external');
+      const wrapped: any = classifiedError(`Bash execution failed: ${e.message}${binNote ? `\n${binNote}` : ''}`, 'external');
       wrapped.cause = e;
       throw wrapped;
     }

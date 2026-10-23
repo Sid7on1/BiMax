@@ -1,7 +1,7 @@
 import { ToolDef, buildTool, BuiltTool } from '../tool.factory';
 import { IGovernor } from '../../core/interfaces';
-import { registerAgent, addCustomRule, getCustomRules } from '../../cli/agentRouter';
-import { saveConfig } from '../../cli/config';
+import { registerAgent, addCustomRule, getCustomRules } from '../../engine/agentRouter';
+import { saveConfig } from '../../engine/config';
 import { ToolRegistry } from '../tool.registry';
 
 export function createRegisterAgentTool(governor: IGovernor, toolRegistry: ToolRegistry): BuiltTool {

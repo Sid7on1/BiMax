@@ -25,6 +25,7 @@
  * user having planned ahead to enable anything.
  */
 
+import { stateDir } from '../utils/state.dir';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Logger } from '../utils/logger';
@@ -227,7 +228,7 @@ class TaskMetricsStore {
       // Interrupted tasks are excluded: a task the user stopped early has an artificially low turn
       // count and would flatter any comparison it landed in.
       if (run.interrupted) continue;
-      const key = `${run.surface} ${run.label || ''}`;
+      const key = `${run.surface}\u0000${run.label || ''}`;
       const bucket = groups.get(key);
       if (bucket) bucket.push(run); else groups.set(key, [run]);
     }
@@ -242,7 +243,7 @@ class TaskMetricsStore {
     };
 
     return [...groups.entries()].map(([key, group]) => {
-      const [surface, label] = key.split(' ');
+      const [surface, label] = key.split('\u0000');
       return {
         surface: surface as TaskSurface,
         ...(label ? { label } : {}),
@@ -267,7 +268,7 @@ class TaskMetricsStore {
     if (process.env.BIMAX_TASK_METRICS !== '1') return;
     try {
       const dir = process.env.BIMAX_TASK_METRICS_DIR
-        || path.join(process.cwd(), '.breakglass', 'metrics');
+        || path.join(stateDir('.breakglass'), 'metrics');
       fs.mkdirSync(dir, { recursive: true });
       fs.appendFileSync(path.join(dir, 'task-runs.jsonl'), JSON.stringify(run) + '\n');
     } catch (e: any) {

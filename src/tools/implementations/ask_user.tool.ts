@@ -1,8 +1,8 @@
 import { IGovernor } from '../../core/interfaces';
 import { buildTool } from '../tool.factory';
-import { cliEvents } from '../../cli/events';
+import { engineEvents } from '../../engine/events';
 import { LlmAdapter } from '../../core/llm.adapter';
-import { getConfig } from '../../cli/config';
+import { getConfig } from '../../engine/config';
 import { detectDegenerateAsk } from '../ask-guard';
 
 export const createAskUserTool = (governor: IGovernor, llmAdapter: LlmAdapter) => buildTool({
@@ -32,12 +32,16 @@ The execution will pause until the user selects one of the provided options. The
     },
     required: ['question', 'options']
   },
-  execute: async (args: { question: string, options: string[], isMultiSelect?: boolean }) => {
+  execute: async (args: { question: string, options: string[], isMultiSelect?: boolean }, context?: any) => {
+    // A night shift (FL5): nobody will answer until morning, so a question would stall the whole night.
+    if (process.env.BIMAX_UNATTENDED === '1') {
+      return `Nobody is here to answer until the morning. Choose the safer option yourself, write the question and your choice in NIGHT-QUESTIONS.md, commit it, and carry on with work that does not depend on it. Question: ${String(args.question ?? '').slice(0, 300)}`;
+    }
     // Refuse degenerate / gratuitous prompts (greetings, identity, single-option "decisions").
     // The model must answer the user directly instead of blocking the session on a fake choice.
     const degenerate = detectDegenerateAsk(args.question, args.options);
     if (degenerate) {
-      cliEvents.emit('log', { level: 'info', text: `[AskUserTool] Refused degenerate prompt: ${degenerate}` } as any);
+      engineEvents.emit('log', { level: 'info', text: `[AskUserTool] Refused degenerate prompt: ${degenerate}` } as any);
       return `AskUserTool was not used: ${degenerate}. This input does not need a user decision — ` +
         `answer the user directly in plain text now (greetings, "who are you", explanations, or anything ` +
         `you can resolve yourself). Only use AskUserTool when you are genuinely blocked on a choice the ` +
@@ -46,7 +50,7 @@ The execution will pause until the user selects one of the provided options. The
 
     const config = getConfig();
     if (config.autoAgentDecisions) {
-      cliEvents.emit('log', { level: 'info', text: `[AskUserTool] Auto-Agent-Decisions is ON. Delegating question to LLM Supervisor...` } as any);
+      engineEvents.emit('log', { level: 'info', text: `[AskUserTool] Auto-Agent-Decisions is ON. Delegating question to LLM Supervisor...` } as any);
       const prompt = `You are an AI acting as a human user in an automated workflow.
 An AI agent has paused its execution to ask the human a question.
 Question: ${args.question}
@@ -57,21 +61,26 @@ Reply ONLY with the exact text of the option you choose. Do not provide any conv
       
       try {
         const response = await llmAdapter.chatCompletion([{ role: 'user', content: prompt }], undefined, { lite: true });
-        cliEvents.emit('log', { level: 'info', text: `[AskUserTool] LLM Supervisor selected: ${response.trim()}` } as any);
+        engineEvents.emit('log', { level: 'info', text: `[AskUserTool] LLM Supervisor selected: ${response.trim()}` } as any);
         return `User selected: ${response.trim()}`;
       } catch (e: any) {
-        cliEvents.emit('log', { level: 'error', text: `[AskUserTool] Auto-decision failed: ${e.message}. Falling back to human interaction.` } as any);
+        engineEvents.emit('log', { level: 'error', text: `[AskUserTool] Auto-decision failed: ${e.message}. Falling back to human interaction.` } as any);
       }
     }
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
+      const signal: AbortSignal | undefined = context?.signal;
+      const abort = () => reject(new Error('Question cancelled with this turn.'));
+      if (signal?.aborted) { abort(); return; }
+      signal?.addEventListener('abort', abort, { once: true });
       // Re-use the existing veto_prompt event architecture, which pops up an Ink PermissionDialog
       // The 4th argument (true) tells the frontend not to bypass this even if YOLO mode is on
       const safeOptions = Array.isArray(args.options) ? args.options : ['Continue', 'Cancel'];
       const safeQuestion = args.question || 'Action requires confirmation';
       
-      cliEvents.emit('veto_prompt', safeQuestion, safeOptions, (answer: string) => {
-        resolve(`User selected: ${answer}`);
+      engineEvents.emit('veto_prompt', safeQuestion, safeOptions, (answer: string) => {
+        signal?.removeEventListener('abort', abort);
+        if (!signal?.aborted) resolve(`User selected: ${answer}`);
       }, true, args.isMultiSelect);
     });
   }

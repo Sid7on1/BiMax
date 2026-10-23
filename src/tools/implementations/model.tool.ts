@@ -1,11 +1,11 @@
 import { buildTool, BuiltTool } from '../tool.factory';
 import { IGovernor } from '../../core/interfaces';
 import { LlmAdapter } from '../../core/llm.adapter';
-import { saveConfig, getConfig } from '../../cli/config';
-import { getProviders, getCurrentProvider, setProvider } from '../../cli/provider';
-import { MODEL_CATALOG } from '../../cli/models';
-import { saveApiKeyToEnv } from '../../cli/env.loader';
-import { cliEvents } from '../../cli/events';
+import { saveConfig, getConfig } from '../../engine/config';
+import { getProviders, getCurrentProvider, setProvider } from '../../engine/provider';
+import { MODEL_CATALOG } from '../../engine/models';
+import { saveApiKeyToEnv } from '../../engine/env.loader';
+import { engineEvents } from '../../engine/events';
 
 /**
  * Gives the AGENT self-service over its own model API — the brain it runs on — instead of that being
@@ -67,6 +67,38 @@ export function createModelManageTool(governor: IGovernor, llmAdapter: LlmAdapte
 
       if (args.action === 'use') {
         if (!args.model) return 'use requires "model" (an id from action="list").';
+
+        // Never PERSIST a model the provider does not serve.
+        //
+        // This wrote whatever id it was handed. A model id that the provider does not serve then
+        // became the stored work model, so every later launch started from a guaranteed 404 and the
+        // user's own choice was gone — with nothing on screen saying what had replaced it. An
+        // unserved id is never a valid destination for a switch, whoever asked for it.
+        //
+        // The check is skipped only when the provider list itself is unavailable (empty), because
+        // an outage must not block a deliberate switch — that is indistinguishable from "the
+        // provider serves nothing", and refusing there would strand the user.
+        try {
+          const servedIds: string[] = await llmAdapter.listProviderModels();
+          if (servedIds.length > 0 && !servedIds.includes(args.model)) {
+            // Substring matching is useless here: the real near-miss was
+            // `nemotron-3-nano-30b-a3b` against `nemotron-3-nano-omni-30b-a3b-reasoning`, where an
+            // inserted token breaks containment. Compare leading hyphen tokens instead.
+            const tokens = (id: string): string[] => (id.split('/').pop() || '').split('-');
+            const want = tokens(String(args.model));
+            const near = servedIds
+              .map(id => ({ id, score: tokens(id).findIndex((t, i) => t !== want[i]) }))
+              .map(x => ({ ...x, score: x.score === -1 ? want.length : x.score }))
+              .filter(x => x.score >= 2)
+              .sort((a, b) => b.score - a.score)
+              .slice(0, 3)
+              .map(x => x.id);
+            return `Refusing to switch: "${args.model}" is not served by the active provider.`
+              + (near.length ? ` Did you mean: ${near.join(', ')}?` : '')
+              + ` Run action="list" to see what it serves.`;
+          }
+        } catch { /* provider unreachable — fall through rather than block a deliberate switch */ }
+
         const slot = args.slot === 'lite' ? 'lite' : 'coding';
         if (slot === 'coding') {
           llmAdapter.applyConfig({ model: args.model });
@@ -75,7 +107,7 @@ export function createModelManageTool(governor: IGovernor, llmAdapter: LlmAdapte
           llmAdapter.applyConfig({ liteModel: args.model });
           await saveConfig({ liteModel: args.model });
         }
-        try { cliEvents.emit('config_changed'); } catch { /* UI refresh best-effort */ }
+        try { engineEvents.emit('config_changed'); } catch { /* UI refresh best-effort */ }
         return `Switched ${slot} model → ${args.model} (live + saved).`;
       }
 
@@ -85,7 +117,7 @@ export function createModelManageTool(governor: IGovernor, llmAdapter: LlmAdapte
         if (!found) return `Unknown provider "${args.provider}". Available: ${getProviders().map(p => p.name).join(', ')}.`;
         try { saveApiKeyToEnv('BGW_PROVIDER', found.name); } catch { /* persistence optional */ }
         const hasKey = !!process.env[found.apiKeyEnv];
-        try { cliEvents.emit('config_changed'); } catch { /* best-effort */ }
+        try { engineEvents.emit('config_changed'); } catch { /* best-effort */ }
         return `Switched provider → ${found.name}.${hasKey ? '' : ` ⚠ No ${found.apiKeyEnv} set — add the key or calls will fail.`} ` +
           `Now set a served model with action="use" (default: ${found.defaultModel}).`;
       }

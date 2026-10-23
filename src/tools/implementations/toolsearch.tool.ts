@@ -2,7 +2,7 @@ import { buildTool, BuiltTool } from '../tool.factory';
 import { IGovernor } from '../../core/interfaces';
 import { ToolRegistry } from '../tool.registry';
 import { globalMcpManager } from '../../mcp/manager';
-import { cliEvents } from '../../cli/events';
+import { engineEvents } from '../../engine/events';
 
 /**
  * ToolSearchTool — bimax's deferred-tool loader (smart context mode).
@@ -49,7 +49,7 @@ IMPORTANT: Do NOT call this tool more than once for the same capability. If a pr
         // Desktop/TUI snapshots expose the live ready/deferred counts. Discovery changes that
         // posture immediately, so publish once per successful load instead of leaving the shell
         // stale until an unrelated config/graph event happens.
-        cliEvents.emit('tools_changed');
+        engineEvents.emit('tools_changed');
         const block = matched
           .map(s => `<function>${JSON.stringify({ name: s.name, description: s.description, input_schema: s.input_schema })}</function>`)
           .join('\n');

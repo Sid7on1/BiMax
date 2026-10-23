@@ -3,10 +3,10 @@ import * as path from 'path';
 import { resolvePath, countOccurrences, workspaceWriteBlock } from '../path.util';
 import { IGovernor } from '../../core/interfaces';
 import { buildTool } from '../tool.factory';
-import { backupFile, unifiedDiff, compactDiff, capDiff } from '../../cli/fileEditor';
+import { backupFile, unifiedDiff, compactDiff, capDiff } from '../../engine/fileEditor';
 import { checkEditSyntax, shieldEdit } from '../syntax.check';
-import { requestDiffApproval } from '../../cli/diffApproval';
-import { checkBlastRadius } from '../../cli/blastGate';
+import { requestDiffApproval } from '../../engine/diffApproval';
+import { checkBlastRadius } from '../../engine/blastGate';
 import { globalTransactionManager } from '../../core/transaction.manager';
 import { findFuzzyMatch, closestRegion } from './edit.tool';
 import { outcomeOk, outcomeError, outcomeRejected } from '../outcome';
@@ -149,7 +149,7 @@ export const createMultiEditTool = (governor: IGovernor) => buildTool({
 
     // Phase 3 — track (for /tx atomic rollback) and back up every file, then write them.
     for (const full of order) {
-      await globalTransactionManager.trackEdit(full);
+      await globalTransactionManager.trackEdit(full, working.get(full)!);
       await backupFile(full);
     }
     // If a write fails mid-batch, the files written before it are already changed. Restore each of

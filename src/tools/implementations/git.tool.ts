@@ -1,7 +1,7 @@
 import { execFileSync } from 'child_process';
 import { IGovernor } from '../../core/interfaces';
 import { buildTool } from '../tool.factory';
-import { getGitStatus, gitDiff, gitLog, isGitRepo } from '../../cli/git';
+import { getGitStatus, gitDiff, gitLog, isGitRepo } from '../../engine/git';
 
 // B1 — agent-callable git. Read actions (status/diff/log) run freely; mutating actions
 // (add/commit) are routed through the Governor's OS_COMMAND path (reusing its veto / plan-mode
@@ -25,7 +25,12 @@ export const createGitTool = (governor: IGovernor) => buildTool({
 
 Does NOT push. Use commit to checkpoint a logical unit of work.`,
   isDestructive: false, // per-action governance handled inside
-  isConcurrencySafe: false,
+  /**
+   * Per-call: the reporting actions read the repo and may overlap with sibling calls, while `add`
+   * and `commit` mutate the index and must hold the turn's barrier. Unknown or missing actions
+   * fail closed to exclusive.
+   */
+  isConcurrencySafe: (args: any) => ['status', 'diff', 'log'].includes(args?.action),
   schema: {
     type: 'object',
     properties: {

@@ -1,0 +1,88 @@
+import { outcomeError } from '../outcome';
+import { ToolDef, buildTool, BuiltTool } from '../tool.factory';
+import { IGovernor } from '../../core/interfaces';
+import type { CodeIndex } from '../../memory/code.index';
+
+export type CodeIndexResolver = (cwd: string) => Promise<CodeIndex>;
+
+export function createCodeSearchTool(
+  governor: IGovernor,
+  codeIndex: CodeIndex,
+  resolveIndex: CodeIndexResolver = async () => codeIndex,
+): BuiltTool {
+  const def: ToolDef = {
+    name: 'CodeSearchTool',
+    description: `Intent search over the CURRENT repository's source code. Local BM25 is always available; optional user-enabled embeddings add semantic fusion and reranking. Finds exact identifiers locally and, when semantic search is enabled, can find where a BEHAVIOUR lives even when you don't know its name.
+
+Prefer GrepTool when you know the exact token (error code, identifier, string literal) — lexical search is faster and exact. Use this when you know the INTENT but not the name.
+
+# Instructions
+- **Query in plain intent language.** The retriever ranks path, symbol name, and body together.
+- **Read before editing:** results give you file + line ranges + symbol. Read that range, not the whole file.
+- **Scope when useful:** \`pathPrefix\` (e.g. "src/memory") restricts to a subtree.`,
+    schema: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'What the code does, in plain language (or an identifier you half-remember).' },
+        limit: { type: 'number', description: 'Results to return (default 5).' },
+        pathPrefix: { type: 'string', description: 'Optional subtree scope, e.g. "src/memory".' },
+      },
+      required: ['query'],
+    },
+    isDestructive: false,
+    isConcurrencySafe: true,
+    execute: async (args: { query: string; limit?: number; pathPrefix?: string }, context?: { cwd?: string }) => {
+      const activeIndex = await resolveIndex(context?.cwd || process.cwd());
+      let hits;
+      try { hits = await activeIndex.search(args.query, args.limit || 5, args.pathPrefix); }
+      catch { return outcomeError('io', 'Code search failed. No conclusion about matching files can be drawn; use GrepTool or inspect index storage.'); }
+      // Results whose files changed and could not be re-verified are left out; say so rather than present the rest as all.
+      const dropped = typeof activeIndex.lastDroppedStale === 'number' ? activeIndex.lastDroppedStale : 0;
+      const droppedNote = dropped
+        ? `${dropped} result${dropped === 1 ? ' was' : 's were'} left out because ${dropped === 1 ? 'its file' : 'their files'} changed after indexing and the index has not caught up. Search again shortly, or read the files directly.`
+        : '';
+      if (!hits.length) {
+        return droppedNote
+          ? `No current match. ${droppedNote}`
+          : activeIndex.coverage().partial
+            ? `No matching code in the ${activeIndex.coverage().partial!.indexed} most recently changed files the index covers (of ${activeIndex.coverage().partial!.total}). Older files are not indexed — use GrepTool for exact tokens.`
+            : 'No matching code found. The index may still be syncing (first run trickles in over a minute) — try GrepTool for exact tokens.';
+      }
+      const mode = activeIndex.stats().lastMode;
+      const coverage = activeIndex.coverage();
+      const partial = (coverage as { partial?: { indexed: number; total: number } | null }).partial ?? null;
+      const incomplete = coverage.syncing || coverage.pending === null || coverage.pending > 0 || !!partial;
+      const pipeline = `lexical${mode.dense ? '+dense' : ''}${mode.reranked ? '+rerank' : ''}`;
+      // Files the results import, or that import them: a behaviour question rarely names the helper, contract or test a
+      // change needs (record 50 step 7, benchmark M1 and M2).
+      const connected = typeof activeIndex.connectedFiles === 'function'
+        ? await activeIndex.connectedFiles(hits.map((h) => h.path)).catch(() => [])
+        : [];
+      // A ranked hit may be the importer rather than the declaration. Show both ends of each
+      // returned edge, so changing rank never hides the matched file's import relationship.
+      const relations = new Set<string>();
+      for (const connection of connected) {
+        relations.add(`- ${connection.path} — ${connection.relation}`);
+        if (connection.relation.startsWith('imported by ')) {
+          relations.add(`- ${connection.relation.slice('imported by '.length)} — imports ${connection.path}`);
+        } else if (connection.relation.startsWith('imports ')) {
+          relations.add(`- ${connection.relation.slice('imports '.length)} — imported by ${connection.path}`);
+        }
+      }
+      const connectedText = connected.length
+        ? `\nConnected by imports (index relationships, including matched files; read connected files before changing the results above):\n${[...relations].join('\n')}`
+        : '';
+      return hits
+        .map((h) => {
+          const related = h.related?.length
+            ? `\nRelated by graph: ${h.related.join(' · ')}`
+            : '';
+          return `${h.path}:${h.startLine}-${h.endLine} · ${h.symbol}${related}\n\`\`\`\n${h.text.split('\n').slice(0, 12).join('\n')}\n\`\`\``;
+        })
+        .join('\n---\n') + connectedText + (droppedNote ? `\n${droppedNote}` : '')
+        + (partial ? `\nThis project is large: the index covers the ${partial.indexed} most recently changed of ${partial.total} source files, so a missing result is not proof — use GrepTool for exact tokens.` : '')
+        + `\n(${pipeline}${incomplete ? '; index incomplete' : ''})`;
+    },
+  };
+  return buildTool(def, governor);
+}

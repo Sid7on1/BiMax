@@ -23,12 +23,36 @@ const CORE_TOOLS = new Set<string>([
   // docs, errors). Deferring it behind ToolSearch made the model flail — call ToolSearch, then guess
   // at a fetch with no URL — instead of just searching. Keep them in the working set (like Claude Code).
   'WebSearchTool', 'WebFetchTool',
-  // BrowserTool is the native convergence/verification instrument. Keeping its schema available
-  // avoids a ToolSearch detour when a task explicitly asks the agent to inspect a real UI.
-  'BrowserTool',
+  // BrowserTool was removed here when src/browser/ was deleted in the 2026-09-02 code-only reset.
+  // It was inert rather than harmful — every read of this set is intersected with `this.tools`, so
+  // a name with no registered tool behind it can never reach the model — but leaving it here said
+  // the working set contained something it did not, and the desktop Settings pane was still
+  // describing the tool to users on the strength of it.
   // SkillTool is itself the progressive-disclosure entry point (the prompt's AVAILABLE SKILLS
   // section tells the model to call it), so it must always be loaded — never deferred.
   'SkillTool',
+  // DocumentTool must be visible for the same reason WebSearch is: deferring it does not make the
+  // model search for it, it makes the model do the wrong thing silently. Measured — asked for a
+  // Word document with DocumentTool deferred, the model reached for the always-present
+  // WriteFileTool and wrote 543 bytes of markdown into a file named `.docx`, which Word cannot
+  // open. That is the exact failure DocumentTool was built to remove, and a tool the model never
+  // sees removes nothing.
+  'DocumentTool', 'ThreadMessageTool',
+  // ReadDocumentTool is the input half of DocumentTool and is deferred for the same reason it
+  // must not be: a model that cannot see a PDF reader reaches for ReadFileTool instead, which
+  // returns binary noise and then gets summarised as if it were the document.
+  'ReadDocumentTool',
+  // The engine itself asks the model to call CompletionCheckTool when a task changed files (F3). Deferred, the model
+  // was told to call a tool it could not see, and searched the project's files for its name instead (measured live).
+  'CompletionCheckTool',
+  // "Check back when CI finishes" has to reach the one tool that can do it (F4); deferred, a weak model would not find it.
+  'WakeTool',
+  // FL1 part 2: registered only in a folder with an outcome, where every run is asked to report with it.
+  'FolderStatusTool',
+  // FL2: registered only in a desktop thread. "Organize these 300 files" must reach the plan preview, not 300 moves.
+  'OrganizePlanTool',
+  // FL8: registered only in a desktop thread, whose app can show a contact sheet, a matching table or a name editor.
+  'TaskViewTool',
 ]);
 
 /**
@@ -77,6 +101,9 @@ export class ToolRegistry {
     Logger.info(`[ToolRegistry] Registered tool: ${tool.name} (Destructive: ${tool.isDestructive})`);
   }
 
+  /** A trusted embedded host makes its compact capability visible without external tool search. */
+  public discover(name: string): void { if (this.tools.has(name)) this.discovered.add(name); }
+
   public getTool(name: string): BuiltTool | undefined {
     const exact = this.tools.get(name);
     if (exact) return exact;
@@ -114,6 +141,7 @@ export class ToolRegistry {
    * they are never in CORE_TOOLS.
    */
   public isDeferred(name: string): boolean {
+    if (this.tools.get(name)?.scopeOnly) return false;
     // Index-gated tools are never "deferred" (load-on-demand): they're either fully sent (indexed) or
     // fully hidden (not indexed), never advertised in the LOAD-ON-DEMAND list.
     return this.tools.has(name) && !CORE_TOOLS.has(name) && name !== TOOL_SEARCH_TOOL && !INDEX_GATED_TOOLS.has(name);
@@ -124,6 +152,7 @@ export class ToolRegistry {
    * getSchemas (what goes on the wire) and the persona prompt (what it lists), so they never drift.
    */
   public isSent(name: string, mode: ContextMode): boolean {
+    if (this.tools.get(name)?.scopeOnly) return false;
     // Gated tools ride entirely on index readiness, in BOTH modes.
     if (INDEX_GATED_TOOLS.has(name)) return this.isGraphReady();
     if (mode === 'full') return name !== TOOL_SEARCH_TOOL;
@@ -241,6 +270,28 @@ export class ToolRegistry {
 
   /** Back-compat: the full, unfiltered schema list. */
   public getAllSchemas(): any[] {
-    return this.getSchemas({ mode: 'full' });
+    // Explicit turn scopes resolve host tools even when hidden from the ordinary working set.
+    return Array.from(this.tools.values()).filter(t => t.scopeOnly || this.isSent(t.name, 'full')).map(toSchema);
   }
+}
+
+/**
+ * The registry the interactive container built, for the few callers that need the DENOMINATOR —
+ * "which tools exist" — rather than a tool to run. `/usage` needs it to tell a tool that has never
+ * been called from a tool that was never registered in the first place.
+ *
+ * Deliberately a single slot set by the container, not a global the registry constructor claims:
+ * sub-agent workers and the learning/background proofs each build their own throwaway registry
+ * (worker.entry.ts, learning.proof.ts, background.proof.ts), and none of those should be able to
+ * overwrite what the interactive session is holding. Null until the container runs, and every
+ * consumer must degrade rather than assume.
+ */
+let activeRegistry: ToolRegistry | null = null;
+
+export function setActiveToolRegistry(registry: ToolRegistry | null): void {
+  activeRegistry = registry;
+}
+
+export function getActiveToolRegistry(): ToolRegistry | null {
+  return activeRegistry;
 }

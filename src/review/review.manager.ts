@@ -1,17 +1,17 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { cliEvents, ToolCallEntry } from '../cli/events';
-import { sessionDir } from '../cli/session';
-import { getSessionRecorder } from '../cli/session.recorder';
+import { engineEvents, ToolCallEntry } from '../engine/events';
+import { sessionDir } from '../engine/session';
+import { getSessionRecorder } from '../engine/session.recorder';
 import {
   ReviewFacts, ReviewApprovalKind, emptyFacts, toSnapshot, readsAsApproved, pendingApprovals,
 } from './review.model';
 import { CLAIMING_TOOLS } from '../core/agent.loop';
-import { commandPathTokens } from '../mind/epistemic.ledger';
+import { isRepoWideEvidenceCommand } from '../mind/epistemic.ledger';
 
 /**
  * The review recorder — the single producer of per-thread review state, shaped exactly like the
- * SessionRecorder it rides alongside: it listens on cliEvents at the engine's points of truth,
+ * SessionRecorder it rides alongside: it listens on engineEvents at the engine's points of truth,
  * folds them into a ReviewFacts file at `<project>/.breakglass/sessions/<id>.review.json`, and
  * publishes the derived snapshot over the wire as a debounced `review_update` event (a full
  * snapshot, so a front-end that reconnects after missing events is correct on the next emit).
@@ -131,7 +131,7 @@ export class ReviewManager {
     this.facts.verifications.push({
       command: String(e.command).slice(0, 200), ok: !!e.ok, settled: Number(e.settled) || 0, at: Date.now(),
       coveredFiles: Array.isArray(e.coveredFiles) ? [...new Set(e.coveredFiles.map(String))] : [],
-      repoWide: e.repoWide === true || (e.repoWide === undefined && !!e.ok && commandPathTokens(e.command).length === 0),
+      repoWide: e.repoWide === true || (e.repoWide === undefined && !!e.ok && isRepoWideEvidenceCommand(e.command)),
     });
     if (this.facts.verifications.length > VERIFICATION_CAP) {
       this.facts.verifications.splice(0, this.facts.verifications.length - VERIFICATION_CAP);
@@ -196,7 +196,7 @@ export class ReviewManager {
     if (this.emitTimer) return;
     this.emitTimer = setTimeout(() => {
       this.emitTimer = null;
-      cliEvents.emit('review_update', this.snapshot());
+      engineEvents.emit('review_update', this.snapshot());
     }, 80);
     this.emitTimer.unref?.();
   }
@@ -228,7 +228,7 @@ export class ReviewManager {
         verifications: Array.isArray(parsed.verifications) ? parsed.verifications.map((v: any) => ({
           ...v,
           coveredFiles: Array.isArray(v.coveredFiles) ? v.coveredFiles.map(String) : [],
-          repoWide: v.repoWide === true || (v.repoWide === undefined && !!v.ok && commandPathTokens(String(v.command || '')).length === 0),
+          repoWide: v.repoWide === true || (v.repoWide === undefined && !!v.ok && isRepoWideEvidenceCommand(String(v.command || ''))),
         })) : [],
         checkpoints: Array.isArray(parsed.checkpoints) ? parsed.checkpoints : [],
         todos: Array.isArray(parsed.todos) ? parsed.todos : [],
@@ -249,21 +249,21 @@ export class ReviewManager {
 
 let manager: ReviewManager | null = null;
 
-/** Attach the review recorder to cliEvents (idempotent). Called once from the headless entry. */
+/** Attach the review recorder to engineEvents (idempotent). Called once from the headless entry. */
 export function startReviewManager(): ReviewManager {
   if (manager) return manager;
   manager = new ReviewManager();
-  cliEvents.on('request_pending', (r: any) => manager?.onRequestPending(r));
-  cliEvents.on('request_resolved', (r: any) => manager?.onRequestResolved(r));
-  cliEvents.on('review_change', (c: any) => manager?.onChange(c));
-  cliEvents.on('review_evidence', (e: any) => manager?.onEvidence(e));
-  cliEvents.on('timemachine_changed', () => manager?.onCheckpointChanged());
-  cliEvents.on('checkpoint_failed', (label: any) => manager?.onCheckpointFailed(String(label ?? '')));
-  cliEvents.on('todo_update', (todos: any) => manager?.onTodos(todos));
-  cliEvents.on('tool_call', (c: any) => manager?.onToolCall(c));
-  cliEvents.on('tool_call_result', (c: any) => manager?.onToolResult(c));
-  cliEvents.on('session_changed', () => manager?.syncSession());
-  cliEvents.on('shutdown', () => manager?.shutdown());
+  engineEvents.on('request_pending', (r: any) => manager?.onRequestPending(r));
+  engineEvents.on('request_resolved', (r: any) => manager?.onRequestResolved(r));
+  engineEvents.on('review_change', (c: any) => manager?.onChange(c));
+  engineEvents.on('review_evidence', (e: any) => manager?.onEvidence(e));
+  engineEvents.on('timemachine_changed', () => manager?.onCheckpointChanged());
+  engineEvents.on('checkpoint_failed', (label: any) => manager?.onCheckpointFailed(String(label ?? '')));
+  engineEvents.on('todo_update', (todos: any) => manager?.onTodos(todos));
+  engineEvents.on('tool_call', (c: any) => manager?.onToolCall(c));
+  engineEvents.on('tool_call_result', (c: any) => manager?.onToolResult(c));
+  engineEvents.on('session_changed', () => manager?.syncSession());
+  engineEvents.on('shutdown', () => manager?.shutdown());
   manager.syncSession(); // adopt an already-live thread, then publish the initial state
   return manager;
 }

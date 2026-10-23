@@ -5,15 +5,17 @@ import { resolvePath, workspaceWriteBlock } from '../path.util';
 import * as crypto from 'crypto';
 import { IGovernor } from '../../core/interfaces';
 import { buildTool } from '../tool.factory';
-import { backupFile, unifiedDiff, compactDiff, capDiff } from '../../cli/fileEditor';
+import { backupFile, unifiedDiff, compactDiff, capDiff } from '../../engine/fileEditor';
 import { checkEditSyntax, shieldEdit } from '../syntax.check';
-import { requestDiffApproval } from '../../cli/diffApproval';
-import { checkBlastRadius } from '../../cli/blastGate';
+import { requestDiffApproval } from '../../engine/diffApproval';
+import { checkBlastRadius } from '../../engine/blastGate';
 import { sliceLineRange } from '../file-range';
 import { detectCorruptWrite } from '../write-guard';
-import { fileStateCache } from '../../memory/file-state-cache';
+import { fileStateCache, statStamp, hashFileBytes } from '../../memory/file-state-cache';
 import { globalTransactionManager } from '../../core/transaction.manager';
 import { outcomeOk, outcomeError, outcomeRejected } from '../outcome';
+import { moveToBin, movedToBinText } from '../thread.bin';
+import { recordTrash } from '../thread.journal';
 
 // Files larger than this get truncated with a note. The full file content is written to
 // a temp path for reference when the file is very large (>1MB).
@@ -27,7 +29,10 @@ export function countWords(content: string, excludeTitle = false): number {
   if (excludeTitle) {
     const lines = content.split(/\r?\n/);
     const titleLine = lines.findIndex(line => line.trim().length > 0);
-    counted = titleLine >= 0 ? lines.slice(titleLine + 1).join('\n') : '';
+    // A one-line story is not a title. Never erase the entire draft from the count.
+    if (titleLine >= 0 && lines.slice(titleLine + 1).some(line => line.trim())) {
+      counted = lines.slice(titleLine + 1).join('\n');
+    }
   }
   const trimmed = counted.trim();
   return trimmed ? trimmed.split(/\s+/).length : 0;
@@ -45,6 +50,7 @@ Use this tool to inspect source code, configuration files, or logs. It natively 
 - **Context Gathering:** When investigating a bug, do not read files blindly. First, use the \`GraphQueryTool\` to find the exact file paths and class names relevant to the feature.
 - **No Directories:** This tool only works on files. If you need to see the contents of a directory, use the \`BashTool\` with \`ls -la\`.`,
   isDestructive: false, // Read-only
+  workflowReadOnly: true,
   isConcurrencySafe: true,
   schema: {
     type: 'object',
@@ -69,25 +75,38 @@ Use this tool to inspect source code, configuration files, or logs. It natively 
       const currentCwd = context?.cwd || process.cwd();
       const fullPath = resolvePath(args.path, currentCwd);
 
-      // Get mtime for cache lookup and stale detection
-      const mtime = await fileStateCache.getMtime(fullPath);
-      if (mtime === null) return outcomeError('not_found', `Error: File not found at ${args.path}`);
+      if (context?.workflowEvidence) {
+        // Evidence must describe the returned bytes, not an mtime-cache entry from an older read.
+        const rawContent = await context.workflowEvidence.readFile(fullPath);
+        if (args.startLine === undefined && args.endLine === undefined) return rawContent;
+        const { text, error } = sliceLineRange(rawContent, args.startLine, args.endLine);
+        if (error) return outcomeError('invalid_args', `Error: ${error}`);
+        return text ?? rawContent;
+      }
+
+      // Stat once for the cache lookup and stale detection. The stamp adds size and ctime to mtime, so
+      // a rewrite that put the old mtime back is not served from the cache (record 47, A01).
+      const fileStat = await fileStateCache.getStat(fullPath);
+      if (fileStat === null) return outcomeError('not_found', `Error: File not found at ${args.path}`);
+      const mtime = fileStat.mtimeMs;
+      const stamp = statStamp(fileStat);
 
       // When a line range is requested, check the cache first
       if (args.startLine !== undefined || args.endLine !== undefined) {
-        const cached = fileStateCache.get(fullPath, mtime, args.startLine, args.endLine);
+        const cached = fileStateCache.get(fullPath, mtime, args.startLine, args.endLine, stamp);
         if (cached !== null) return cached;
 
-        const rawContent = await fs.readFile(fullPath, 'utf8');
+        const rawBytes = await fs.readFile(fullPath);
+        const rawContent = rawBytes.toString('utf8');
         const { text, error } = sliceLineRange(rawContent, args.startLine, args.endLine);
         if (error) return outcomeError('invalid_args', `Error: ${error}`);
         const slicedText = text ?? '';
-        fileStateCache.set(fullPath, mtime, slicedText, args.startLine, args.endLine);
+        fileStateCache.set(fullPath, mtime, slicedText, args.startLine, args.endLine, { stamp, fileHash: hashFileBytes(rawBytes) });
         return slicedText;
       }
 
       // Full-file read — check cache first
-      const cached = fileStateCache.get(fullPath, mtime);
+      const cached = fileStateCache.get(fullPath, mtime, undefined, undefined, stamp);
       if (cached !== null) return cached;
 
       // Size check before reading large files
@@ -119,13 +138,15 @@ Use this tool to inspect source code, configuration files, or logs. It natively 
             (remaining > 0 ? `\n\n[... ${remaining} more lines truncated]` : '');
         }
 
-        // Cache the truncated result (the model only got the preview)
-        fileStateCache.set(fullPath, mtime, result);
+        // Cache the truncated result (the model only got the preview). No file hash: a preview is not
+        // the file, so post-compact restoration can never verify it and never restores it as the file.
+        fileStateCache.set(fullPath, mtime, result, undefined, undefined, { stamp });
         return result;
       }
 
-      const content = await fs.readFile(fullPath, 'utf8');
-      fileStateCache.set(fullPath, mtime, content);
+      const bytes = await fs.readFile(fullPath);
+      const content = bytes.toString('utf8');
+      fileStateCache.set(fullPath, mtime, content, undefined, undefined, { stamp, fileHash: hashFileBytes(bytes) });
       return content;
     } catch (e: any) {
       if (e.code === 'ENOENT') {
@@ -180,6 +201,9 @@ Use this tool to write new code, config files, or artifacts. It is significantly
   }, context?: any) => {
     const currentCwd = context?.cwd || process.cwd();
     const fullPath = resolvePath(args.path, currentCwd);
+    if (/\.(docx|xlsx|pptx|pdf)$/i.test(fullPath)) {
+      return outcomeError('invalid_args', 'WriteFileTool writes text, not office documents. Use DocumentTool to create a valid document; no file was written.');
+    }
     const wsBlock = workspaceWriteBlock(fullPath);
     if (wsBlock) return outcomeError('permission', `Error: ${wsBlock}`);
 
@@ -235,9 +259,10 @@ Use this tool to write new code, config files, or artifacts. It is significantly
     if (shield) {
       return outcomeError('syntax', `Write to ${args.path} refused by Edit Shield: ${shield}`);
     }
-    // Track original content for atomic rollback when a /tx transaction is open (records '' for a
-    // new file so rollback deletes it). Must run before the write so the snapshot is the pre-write state.
-    await globalTransactionManager.trackEdit(fullPath);
+    // Track the pre-write state for atomic rollback when a /tx transaction is open, and declare the
+    // content about to land so rollback can tell this write apart from a later external change.
+    // Must run before the write so the snapshot is the pre-write state.
+    await globalTransactionManager.trackEdit(fullPath, args.content);
     // Snapshot overwrites so /undo and /diff-file can restore the prior version.
     if (exists) await backupFile(fullPath);
     await fs.mkdir(path.dirname(fullPath), { recursive: true });
@@ -291,12 +316,26 @@ Use this tool whenever the user explicitly asks you to delete, remove, or trash 
     if (!exists) {
       return outcomeError('not_found', `Error: Nothing to delete — no file or directory found at ${fullPath} (resolved from "${args.path}" relative to ${currentCwd}). Nothing was changed. If the target lives elsewhere, pass its absolute path.`);
     }
+    // In a desktop thread the item goes to the Bin through the Bimax app, and the thread can undo it.
+    if (process.env.BIMAX_THREAD_ROOT) {
+      const kind = (await fs.stat(fullPath)).isDirectory() ? 'folder' : 'file';
+      try {
+        const { moved, error } = await moveToBin([fullPath], context?.signal);
+        await recordTrash(`Move ${kind} “${path.basename(fullPath)}” to the Bin`, 'DeleteTool', moved);
+        if (error || !moved.length) return outcomeError('io', `Could not move ${args.path} to the Bin: ${error || 'nothing was moved'}. Nothing was deleted.`);
+        return outcomeOk(movedToBinText(moved.map((m) => m.path)));
+      } catch (e: any) {
+        return outcomeError('io', `Could not move ${args.path} to the Bin: ${e.message}. Nothing was deleted.`);
+      }
+    }
     // Back up a file before deleting so /undo and /rewind can bring it back (parity with edit/write,
     // which always back up first). Best-effort: a directory can't be content-backed-up, and a failed
     // backup shouldn't block an explicitly-approved delete.
     try {
       const st = await fs.stat(fullPath);
-      if (st.isFile()) { await globalTransactionManager.trackEdit(fullPath); await backupFile(fullPath); }
+      // `null` declares the intent: after this tool runs the path is gone, so an open /tx can
+      // re-create it on rollback and still detect a file somebody else put back in the meantime.
+      if (st.isFile()) { await globalTransactionManager.trackEdit(fullPath, null); await backupFile(fullPath); }
     } catch { /* best-effort */ }
     try {
       await fs.rm(fullPath, { recursive: true, force: true });
@@ -317,7 +356,7 @@ Use this tool whenever the user asks you to create, make, or add a new *folder* 
 - **Supports \`~/\` and \`~/Desktop/...\` paths** — the home directory is resolved automatically.
 - **Recursive:** Parent directories are created automatically if they are missing (like \`mkdir -p\`).
 - **Idempotent:** If the directory already exists, this succeeds without error.`,
-  isDestructive: false,
+  isDestructive: true,
   schema: {
     type: 'object',
     properties: {
@@ -332,7 +371,10 @@ Use this tool whenever the user asks you to create, make, or add a new *folder* 
     if (stat && stat.isFile()) {
       return outcomeError('invalid_args', `Error: A file already exists at ${fullPath}, so a directory with that name cannot be created. Delete the file first if you meant to replace it with a folder.`);
     }
+    const block = workspaceWriteBlock(fullPath);
+    if (block) return outcomeError('permission', block);
     await fs.mkdir(fullPath, { recursive: true });
+    if (!(await fs.stat(fullPath)).isDirectory()) return outcomeError('io', 'Directory creation could not be verified.');
     return outcomeOk(`Successfully created directory ${fullPath}`);
   }
 }, governor);

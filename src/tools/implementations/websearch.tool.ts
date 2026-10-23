@@ -1,5 +1,6 @@
 import { IGovernor } from '../../core/interfaces';
 import { buildTool, BuiltTool } from '../tool.factory';
+import { requireNetworkConsent } from '../../security/network.consent';
 
 const SEARCH_TIMEOUT_MS = 15000;
 
@@ -68,6 +69,13 @@ export function createWebSearchTool(governor: IGovernor): BuiltTool {
       const q = (args.query || '').trim();
       if (!q) return 'WebSearchTool needs a non-empty "query".';
       const max = Math.min(Math.max(1, args.maxResults || 5), 10);
+
+      // Searching IS reaching the network — the query itself leaves the machine. Gated on the
+      // search host, once per session. See security/network.consent.ts.
+      const refusal = await requireNetworkConsent(governor, {
+        target: 'https://duckduckgo.com', tool: 'WebSearchTool', purpose: `search for "${q.slice(0, 60)}"`,
+      });
+      if (refusal) return refusal;
 
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), SEARCH_TIMEOUT_MS);

@@ -3,10 +3,10 @@ import * as path from 'path';
 import { resolvePath, countOccurrences, workspaceWriteBlock } from '../path.util';
 import { IGovernor } from '../../core/interfaces';
 import { buildTool } from '../tool.factory';
-import { backupFile, unifiedDiff, compactDiff, capDiff } from '../../cli/fileEditor';
+import { backupFile, unifiedDiff, compactDiff, capDiff } from '../../engine/fileEditor';
 import { checkEditSyntax, shieldEdit } from '../syntax.check';
-import { requestDiffApproval } from '../../cli/diffApproval';
-import { checkBlastRadius } from '../../cli/blastGate';
+import { requestDiffApproval } from '../../engine/diffApproval';
+import { checkBlastRadius } from '../../engine/blastGate';
 import { detectCorruptWrite } from '../write-guard';
 import { fileStateCache } from '../../memory/file-state-cache';
 import { globalTransactionManager } from '../../core/transaction.manager';
@@ -364,8 +364,10 @@ export const createEditFileTool = (governor: IGovernor) => buildTool({
     const approved = await requestDiffApproval(approvalSummary, unifiedDiff(content, updated, args.path));
     if (!approved) return outcomeRejected(await fail(`Edit to ${args.path} rejected by user. No changes were made.`, 'rejected by user'));
 
-    // Track original content for atomic rollback before touching disk.
-    await globalTransactionManager.trackEdit(fullPath);
+    // Track the pre-edit state for atomic rollback before touching disk, and declare exactly what
+    // this edit is about to leave there — that is what lets rollback tell our own write apart from
+    // a change somebody else made afterwards, instead of silently overwriting it.
+    await globalTransactionManager.trackEdit(fullPath, updated);
     // Snapshot first so /undo and /diff-file work on every agent edit.
     await backupFile(fullPath);
     try {
